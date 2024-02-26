@@ -223,7 +223,7 @@
 :- reexport('problog').
 :- reexport('problog/logger').
 :- reexport('problog/flags').
-:- reexport('problog/math').
+%:- reexport('problog/math').
 :- use_module('problog/os').
 :- use_module('problog/print_learning').
 :- use_module('problog/utils_learning').
@@ -662,9 +662,10 @@ update_values :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    retractall(query_probability_intern(_,_)),
-	retractall(query_gradient_intern(_,_,_,_)),
 
+    retractall(query_probability_intern(_,_)),
+       retractall(query_gradient_intern(_,_,_,_)),
+ 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start write current probabilities to file
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -735,7 +736,7 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	  problog_flag(sigmoid_slope,Slope),
 	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
 	  convert_filename_to_problog_path('simplecudd', Simplecudd),
-	  atomic_concat([Simplecudd,
+	  atomic_concat([simplecudd,
 			 ' -i "', Probabilities_File, '"',
 			 ' -l "', Query_Directory,'/query_',QueryID, '"',
 			 ' -m ', Method,

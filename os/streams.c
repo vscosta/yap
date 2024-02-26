@@ -448,7 +448,7 @@ found_eof(int sno,
   return Yap_unify(t2, MkAtomTerm(AtomAltNot));
 }
 
-static bool stream_mode(int sno, Term t2 USES_REGS) {  
+static bool stream_mode(int sno, Term t2 USES_REGS) {
   /* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags = GLOBAL_Stream[sno].status;
   if (!IsVarTerm(t2) && !(isatom(t2))) {
@@ -541,7 +541,7 @@ static bool SetBuffer(int sno,
 
 static bool
 eof_action(int sno,
-           Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */  
+           Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags =
       GLOBAL_Stream[sno].status &
       (Eof_Error_Stream_f | Reset_Eof_Stream_f | Push_Eof_Stream_f);
@@ -947,7 +947,7 @@ static bool do_set_stream(int sno,
           GLOBAL_Stream[sno].status &= ~Seekable_Stream_f;
         break;
       case SET_STREAM_REPRESENTATION_ERRORS: {
-        Term t2 = args[SET_STREAM_EOF_ACTION].tvalue;
+        Term t2 = args[SET_STREAM_REPRESENTATION_ERRORS].tvalue;
         if (t2 == TermXml) {
           GLOBAL_Stream[sno].status |= RepError_Xml_f;
           GLOBAL_Stream[sno].status &= ~RepError_Prolog_f;
@@ -979,6 +979,29 @@ static bool do_set_stream(int sno,
   return rc;
 }
 
+/**
+   @pred set_stream(Stream, Property)
+
+   Called to change stream oroperties, namely:
+   - `alias(_Name_)`: access the stream through _Name_
+   - `buffer(_Mode_): set how Input/Output is buffered:
+    + `false`: no buffering;
+    + `line`: buffer until the stream sends/receives a full line;
+    + `full`: accumulate data until a buffer is full.
+  - `buffer_size(_Size_)`: sets the size of the stream buffer;
+  - `close_on_abort(_Bool_)`: if `true` the stream is closed by abort/0;
+  - `encoding(_Encoding_)`: change the character encoding method used in the stream;
+  - `eof_action(_Action_)`: specify what to do if a program tries to read/write after an `end_of_stream`; the alternatives are:
+    + `error`: throw an error;
+    + `reset`: start Again
+    + `eof_code`: return the code for end of file;
+  - `file_name(_Name_)`: set the Stream `file_name` property;
+  - `line_position(_L_)`: jump within a line;
+  - `newline(_L_)`: not implemented in YAP;
+  - `record_position(_Boolean_)`: enable moving around in a stream; 
+  - `type(_Type_)`: whether the stream is `binary` or `text`;
+  - `tty(_Bool_)`: whether the stream is connected to a console.
+*/
 static Int set_stream(USES_REGS1) { /* Init current_stream */
   int sno =
       Yap_CheckStream(ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,
@@ -1386,7 +1409,7 @@ static Int
     GLOBAL_Stream[sno].linestart = char_pos-linecount;
     if (fseek(GLOBAL_Stream[sno].file, (long)(char_pos), 0) == -1) {
 
-      
+
       Yap_Error(SYSTEM_ERROR_INTERNAL, tp,
                 "fseek failed for set_stream_position/2");
       return (FALSE);

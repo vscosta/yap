@@ -10,7 +10,9 @@
 
 */
 
-#ifndef _FLI_H_INCLUDED
+#ifndef DOXYGEN
+
+#if !defined(_FLI_H_INCLUDED) 
 #define _FLI_H_INCLUDED
 
 #ifdef __cplusplus
@@ -757,6 +759,10 @@ PL_EXPORT(void) PL_YAP_InitSWIIO(struct SWI_IO *swio);
 
 #endif /* _FLI_H_INCLUDED */
 
+  
 #ifdef __WINDOWS__
 X_API int PL_w32thread_raise(DWORD id, int sig);
 #endif
+
+#endif
+  

@@ -1,5 +1,4 @@
-# The Foreign Language Interfaces {#fli_c_xx}
-
+# The Foreign Language Interfaces
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
 most language implementations were linkable to `C`, and the first interface exported  the YAP machinery to the C language. YAP also implements most of the SWI-Prolog foreign language interface.
@@ -8,14 +7,12 @@ being designed to work with the swig (www.swig.orgv) interface compiler.
 
 @ref ChYinterface
 
-
 @ref swi-c-interface
 
+@ref YAP-cplus-interface
 
-@ref yap-cplus-interface
 
-
-## The YAP C-interface {#ChYinterface}
+## The YAP C-interface
 
 
 
@@ -1285,7 +1282,7 @@ collection or stack shifting. Prolog terms should instead be stored as
 arguments to the backtrackable procedure.
 
 
-##  YAP as a Library {#YAPAsLibrary}
+###  YAP as a Library {#YAPAsLibrary}
 
 YAP can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:
@@ -1511,4 +1508,4 @@ space for your program.
   `boot.yap` and `init.yap` files.
 
 
->
+

@@ -128,7 +128,7 @@
 '$exec_directive'(multifile(D), _, M, _, _) :-
 	'$system_catch'('$multifile'(D, M), M,
 	      Error,
-	      user:'$LoopError'(Error, top)).
+	      error_handler(Error, top)).
 '$exec_directive'(M:G, Mode, _M, VL, Pos) :-
     !,
 

@@ -64,7 +64,7 @@ c_clause(Stream,Status,File) :-
     ).
 
 preprocess_tokens([],[],[],_) :- !.
-preprocess_tokens([t(_,L,_,_),t(_,L1,C,_)|_],_,File) :-
+preprocess_tokens([t(_,L,_,_),t(_,L1,C,_)|_],_,_,File) :-
    integer(L1),
     L < L1,
     assert(ws(File,L1,C)),

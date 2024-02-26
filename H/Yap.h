@@ -17,8 +17,17 @@
  @file H/Yap.h
  @brief Main definitions
 
- @defgroup YAPLanguage Supporting features of the Prolog language.
- @ingroup Builtins
+   @defgroup YAPImplementation Implementation Considerations
+   @ingroup programming
+
+   @{
+
+   This section is about the YAP implementation, and is mostly of
+   interest to hackers.
+   @}
+
+   @defgroup YAPLanguage Supporting features of the Prolog language.
+ @ingroup YAPImplementation
 
  Prolog includes a number of features that allow program and predicate
  manipulation. Moreover, extensions such as grammar rules can greatly

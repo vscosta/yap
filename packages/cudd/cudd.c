@@ -754,7 +754,7 @@ static YAP_Bool p_cudd_to_p(void) {
   DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2), *node;
   YAP_Term t3 = YAP_ARG3;
   double p = 0.0;
-  YAP_Int vars = YAP_ListLength(t3);
+  YAP_Int vars = YAP_ArityOfFunctor(YAP_FunctorOfTerm(t3));
   int nodes = max(Cudd_ReadNodeCount(manager), 0) + vars + 1;
   size_t sz = nodes * 4;
   DdGen *dgen = Cudd_FirstNode(manager, n0, &node);
@@ -767,8 +767,16 @@ static YAP_Bool p_cudd_to_p(void) {
   ar = (double *)malloc(vars * sizeof(double));
   if (!ar)
     return FALSE;
-  if (YAP_ListToFloats(t3, ar, vars) < 0)
-    return FALSE;
+  int i;
+  for (i = 0; i < vars; i++) {
+    YAP_Term tj = YAP_ArgOfTerm(i + 1, t3);
+    if (YAP_IsFloatTerm(tj))
+      ar[i] = YAP_FloatOfTerm(tj);
+    else
+      ar[i] = YAP_IntOfTerm(tj);
+  }
+
+
   while (node) {
     p = build_sp_cudd(manager, node, ar, hash, sz);
     if (!Cudd_NextNode(dgen, &node))

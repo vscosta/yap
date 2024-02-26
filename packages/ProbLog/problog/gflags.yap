@@ -250,6 +250,7 @@
 
 :- use_module(library(lists), [append/3, memberchk/2, reverse/2]).
 :- use_module(library(system), [delete_file/1, file_exists/1, file_property/2, make_directory/1]). % for file operations
+:- use_module(library(utils), [throw/2]). % for exceptions
 
 flag_define(Flag, Type, DefaultValue, Message):-
   flag_define(Flag, general, Type, DefaultValue, flags:true, Message).
@@ -259,27 +260,27 @@ flag_define(Flag, Group, Type, DefaultValue, Message):-
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   recorded(flags, defined_flag(Flag, _Group, _Type, _DefaultValue, _Handler, _Message), _Ref),
-  throw(duplicate_flag_definition(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))).
+  throw(error(duplicate_flag_definition(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)),_)).
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   (catch(flags:Type, _, fail)->
     fail
   ;
     \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
-    throw(error(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)))
+    throw(error(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message),_))
 	 )
    ).
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   \+ Handler = _M:_Atom,
-  throw(non_module_aware_flag_handler(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))).
+  throw(error(non_module_aware_flag_handler(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)),_)).
 flag_define(Flag, Group, Type, DefaultValue, M:Handler, Message):-
   \+ (callable(Handler), atom(Handler), atom(M)),
-  throw(non_callable_atom_flag_handler(flag_define(Flag, Group, Type, DefaultValue, M:Handler, Message))).
+  throw(error(non_callable_atom_flag_handler(flag_define(Flag, Group, Type, DefaultValue, M:Handler, Message)),_)).
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   \+ flag_validate(Flag, DefaultValue, Type, Handler),
-  throw(erroneous_flag_default_value(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))).
+  throw(error(erroneous_flag_default_value(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))),_).
 
 flag_define(_Flag, Group, Type, DefaultValue, Handler, Message):-
   \+ Group == general,

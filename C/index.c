@@ -4099,6 +4099,8 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
   yamop **labp;
   int cb;
   struct intermediates cint;
+ yap_error_descriptor_t *old, new;
+ bool ex_mode;
 
   cint.blks = NULL;
   cint.cls = NULL;
@@ -4164,8 +4166,6 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
     }
   }
  restart_index:
-  yap_error_descriptor_t *old, new;
-  bool ex_mode;
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {
       old = LOCAL_ActiveError;

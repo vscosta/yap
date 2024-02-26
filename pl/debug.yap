@@ -24,11 +24,14 @@
 
 /**
   @defgroup Deb_Interaction Interacting with the debugger
-  @ingroup YAPProgramming
-
 @{
+@ingroup YAPProgramming
 
-@brief YAP includes a procedural debugger, based on Byrd's four port model. In this
+
+
+@brief YAP includes a procedural debugger, based on Byrd's four port model.
+
+In this
 model, execution is seen at the procedure level: each activation of a
 procedure is seen as a box with control flowing into and out of that
 box.
@@ -298,7 +301,10 @@ prolog:'$spy'(Mod:G) :-
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'(MG, Ctx) :-
+'$trace'( yap_hacks:trace( MG), Ctx) :-
+    !,
+    '$trace'( MG,Ctx).
+    '$trace'(MG, Ctx) :-
     strip_module(MG,M,G),
     '$id_goal'(GoalNumberN),
     '$debuggable'(G,M,[call],GoalNumberN),
@@ -442,14 +448,8 @@ trace_goal((A*->B;C), M, Ctx, GN0, CP) :- !,
     (trace_goal(call(A), M, inner, GN0, CP) *->
 	 trace_goal(B, M, Ctx, _GN0, CP);
      trace_goal(C, M, Ctx, _GN0, CP)).
-trace_goal((A->B), M, Ctx, GN0, CP) :- !,
-    (
-	trace_goal(call(A), M, inner, GN0, CP)
-    ->
-    trace_goal(B, M, Ctx, _GN0, CP)
-    ).
 trace_goal((A*->B), M, Ctx, GN0, CP) :- !,
-    trace_goal(call(A), M, inner, GN0, CP),
+    \+ trace_goal(call(A), M, inner, GN0, CP),
     trace_goal(B, M, Ctx, _GN0, CP).
 trace_goal((A;B), M, Ctx, GN0, CP) :- !,
     (trace_goal(A, M, Ctx, GN0, CP);
@@ -616,13 +616,19 @@ handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
 
 '$meta_hook'(MG,M:NG) :-
     '$yap_strip_module'(MG,M,G),
-    '$debuggable'(G,M,[call],+inf),
     functor(G,N,A),
     N\=throw,
     functor(PredDef,N,A),
     G  =..[_|As],
-    recorded('$m', meta_predicate(M,PredDef),_),
+    (
+      recorded('$m', meta_predicate(prolog,PredDef),_)
+    ->
+      true
+;
+      recorded('$m', meta_predicate(M,PredDef),_)
+      ),
     PredDef=..[N|Ms],
+ 
     '$debugger_prepare_meta_arguments'(As, Ms, NAs),
     NAs \== As,
     !,
@@ -1172,30 +1178,24 @@ trace_error(Event,_,_,_,_,_) :-
 '$debugger_prepare_meta_arguments'([], [], []).
 '$debugger_prepare_meta_arguments'([(A,B)|As], [0|Ms], [(NA,NB)|NAs]) :-
 	!,
-	'$meta_hook'(A,NA),
-	'$meta_hook'(B,NB),
-   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+	'$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
 '$debugger_prepare_meta_arguments'([(A;B)|As], [0|Ms], [(NA;NB)|NAs]) :-
   	!,
-	'$meta_hook'(A,NA),
-	'$meta_hook'(B,NB),
-   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+	'$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
 '$debugger_prepare_meta_arguments'([(A->B)|As], [0|Ms], [(NA->NB)|NAs]) :-
-  	!,
-	'$meta_hook'(A,NA),
-	'$meta_hook'(B,NB),
-   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+    !,
+    '$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
 '$debugger_prepare_meta_arguments'([(A*->B)|As], [0|Ms], [(NA*->NB)|NAs]) :-	!,
-	'$meta_hook'(A,NA),
-	'$meta_hook'(B,NB),
-   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
-'$debugger_prepare_meta_arguments'([A|As], [M|Ms], [yap_hacks:trace(MA:GA,outer)|NAs]) :-
+    '$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
+'$debugger_prepare_meta_arguments'([A|As], [M|Ms], [yap_hacks:trace(MA:GA)|NAs]) :-
      	number(M),
 	!,
 	'$yap_strip_module'(A,MA,GA),
    	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
 '$debugger_prepare_meta_arguments'([A|As], [_|Ms], [A|NAs]):-
     '$debugger_prepare_meta_arguments'(As, Ms, NAs).
+
+
 
 :- meta_predicate(watch_goal(0)).
 watch_goal(G) :-
@@ -1208,6 +1208,10 @@ watch_goal(G) :-
 	    Port,
 	    format(user_error, '% ~d ~w:~n         ~w.~n',[I,Port,G])
 	).
+
+
+yap_hacks:trace(G) :-
+    '$trace'(G,outer).
 
 
 %% @}

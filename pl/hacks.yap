@@ -23,13 +23,11 @@
 %% @brief Access and Manipulation of YAD's internals
 
 :- system_module('$yap_hacks',
-		 [
-		  '$scratch_goal'/4
-		   ],
-		 [
-ctrace/1,
-		  fully_strip_module/3
-		   ]).
+		 [],
+		 [ctrace/1,
+		  fully_strip_module/3,
+		  scratch_goal/4
+	 ]).
 
 /**
   *
@@ -198,10 +196,6 @@ ctrace(G) :-
 	       G,
 	       _,
 	       stop_low_level_trace).
-
-
-yap_hacks:trace(G) :-
-    '$trace'(G,outer).
 
 /**
  * @pred context_variables(+VarAndNames<)

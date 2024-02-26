@@ -79,7 +79,7 @@
 
 
   @defgroup YAPConsulting Loading files into YAP
-  @ingroup load_files
+  @ingroup  YAPProgramming
 
   @{
 

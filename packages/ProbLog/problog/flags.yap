@@ -216,9 +216,8 @@
 :- use_module(gflags).
 :- use_module(os).
 :- use_module(logger).
-:- use_module(library(system), [file_exists/1,
-				delete_file/1,
-			       file_property/2]).
+:- use_module(library(system), [file_exists/1,file_property/2,
+				delete_file/1]).
 
 problog_define_flag(Flag, Type, Description, DefaultValue):-
   flag_define(Flag, Type, DefaultValue, Description).
@@ -367,6 +366,20 @@ learning_prob_init_handler(validating, A) :-
 %learning_prob_init_handler(validate, V_).
 learning_prob_init_handler(validated, _Value).
 learning_prob_init_handler(stored, _Value).
+
+learning_prob_init_handler(message, '(0,1] or uniform(l,h) ').
+learning_prob_init_handler(validating, uniform(Low,High)) :-
+	number(Low),
+	number(High),
+	Low<High,
+	Low>0,
+	High =< 1.
+learning_prob_init_handler(validating, N) :-
+	number(N),
+	N>0,
+	N =< 1.
+learning_prob_init_handler(validating, A) :-
+       atom(A), !.
 
 
 linesearch_interval_handler(message,'nonempty interval(L,H)').

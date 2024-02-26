@@ -1057,13 +1057,14 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           solo_flag = FALSE;
         t->Tok = Ord(kind = Name_tok);
       } else {
-        VarEntry *ve = Yap_LookupVar((const char *)TokImage);
+        VarEntry *ve = Yap_LookupVar((const char *)TokImage, t->TokLine, t->TokOffset+1);
         t->TokSize = strlen(TokImage);
         t->TokInfo = Unsigned(ve);
         if (cur_qq) {
           ve->refs++;
         }
         t->Tok = Ord(kind = Var_tok);
+	
       }
 
     } break;

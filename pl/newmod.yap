@@ -19,7 +19,7 @@
   @file newmod.yap
   @short support for creating a new module.
 
-  @defroup NewModuleBuiltins Creating New Modules
+  @defgroup NewModuleBuiltins Creating New Modules
   @ingroup YAPModules
   @pred module(+M) is det
    set the type-in module
@@ -209,11 +209,12 @@ account the following observations:
 '$reexport'(user, _, _M ) :-
     !.
 '$reexport'(HostM, AllReExports, _DonorM ) :-
-%        writeln(r0:DonorM/HostM),
+%       writeln(r0:DonorM/HostM),
     ( retract('$module'( HostF, HostM, AllExports, Location)) -> true ; HostF = user_input,AllExports=[] ,Location='$stream_position'(0,1,0,0)),
     '$append'( AllReExports, AllExports, Everything0 ),
     '$sort'( Everything0, Everything ),
     '$operators'(AllReExports, HostM),
+%    '$operators'(AllReExports, DonorM),
     %    writeln(r:DonorM/HostM),
     asserta('$module'(HostF,HostM, Everything, Location)).
 

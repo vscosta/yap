@@ -17,6 +17,7 @@
 #ifndef YAPTEXT_H_INCLUDED
 #define YAPTEXT_H_INCLUDED
 
+#include "YapError.h"
 #ifndef YAP_TEXT_H
 
 #define YAP_TEXT_H
@@ -26,7 +27,8 @@
    @file text.c
    @brief Support routines for text processing
 
-@addtogroup Text_Predicates
+@defgroup Text_Processing Internals of Text Processing
+@ingroup YAPImplementation
 @brief generic text processing engine.
 
 @{
@@ -132,7 +134,7 @@ typedef enum
 typedef UInt seq_type_t;
 
 #define YAP_TYPE_MASK 0x0FFF
-
+/// targets for processing
 typedef union {
   Float f;
   Int i;
@@ -1253,7 +1255,7 @@ static inline Term Yap_ConcatStrings(Term t1, Term t2 USES_REGS) {
   inpv[1].type = YAP_STRING_STRING;
   out.type = YAP_STRING_STRING;
 
-  if (!Yap_Concat_Text(2, inpv, &out PASS_REGS)){
+  if (!Yap_Concat_Text(2, inpv, &out PASS_REGS) &&!LOCAL_Error_TYPE){
     LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
     Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
   }
@@ -1387,6 +1389,6 @@ static inline Term Yap_MkTextTerm(const char *s, seq_type_t guide USES_REGS) {
 
 #endif // YAPTEXT_H_INCLUDED
 
-///@}
+/// @}
 
 

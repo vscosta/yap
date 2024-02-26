@@ -17,17 +17,10 @@ extra_javascript:
     - javascripts/highlight.min.js
 plugins:
   - search
-  - awesome-pages
-  - mkdocs-jupyter  
 markdown_extensions:
   - admonition
   - attr_list
   - md_in_html
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.superfences
   - codehilite
   - fenced_code
   - toc:

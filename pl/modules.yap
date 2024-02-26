@@ -400,7 +400,6 @@ export_resource(P) :-
     (
 	prolog_load_context(stream, File)
     ->
-      writeln(File),
     asserta('$module'(File,Mod,[P],Pos))
     ;
     asserta('$module'(user_input,Mod,[P],'$stream_position'(1,0,0,0)))
@@ -411,7 +410,7 @@ export_resource(P0) :-
     N1 is N+2, P = F/N1,
     export_resource(P).
 export_resource(op(Prio,Assoc,Name)) :-
-    '$current_module'(Mod),
+'$current_module'(Mod),
     op(Prio,Assoc,Mod:Name),
     
     prolog_load_context(file, File),

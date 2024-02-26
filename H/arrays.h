@@ -62,7 +62,8 @@ typedef struct array_access_struct {
   Term	ArrayT;				/* term that references the array */
   Term  indx;				/* index in array, for now
 				   keep it as an integer! */
-} array_access;
+  int base;
+  } array_access;
 
 typedef enum {
   STATIC_ARRAY = 1,
@@ -82,6 +83,7 @@ typedef struct array_entry {
   array_type TypeOfAE;
   size_t NDimsOfAE;
   ssize_t *DimsOfAE;
+  int BaseOfAE;
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t ArRWLock; /* a read-write lock to protect the entry */
 #if THREADS

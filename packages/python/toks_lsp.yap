@@ -53,8 +53,8 @@ peek_comments([A,B,C,D,E|Ls],D,NLs) :-
 peek_comments(Ls,_D,Ls) .
 
 
-ins([T,T1] ,_L0,_P0,_Lvl) --> { writeln(T:T1),
-			       fail }.
+%ins([T,T1|_] ,_L0,_P0,_Lvl) --> { writeln(T:T1),
+%			       fail }.
 ins([] ,_L,_P,_Lvl) --> !.
 ins( [t('EOT',L,P,1)|Ts] ,L0,P0, _Lvl) -->
     !,
@@ -206,8 +206,8 @@ ins([ t(atom(_A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
 % handle docummentation comments.
 ins([ t(comment(A),L,P,_)|Ts] ,L0,P0,Lvl) -->
     {sub_string(A,S,1,RSz,`\n`),
-     RSz > 0,
      !,
+     S   > 0,
      Sz is S+1,
      sub_string(A,Sz,RSz,0,Rest),
      DL is L-L0,
@@ -223,6 +223,7 @@ ins([ t(comment(A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
     !,
     { DL is L-L0,
       (DL>0->DP=P;DP is P-P0),
+
       tt(comment,V),
       check_doc(A,Doc)
       },
@@ -230,23 +231,24 @@ ins([ t(comment(A),L,P,Sz)|Ts] ,L0,P0,Lvl) -->
      {indent(L,Lvl,Ts)},
    ins(Ts,L,P,Lvl).
 ins([ t(comment(A,Doc),L,0,Sz)|Ts] ,_L0,_P0,Lvl) -->
-    {sub_string(A,0,1,RSz,`\n`),
+    {sub_string(A,_,1,RSz,`\n`),
      RSz > 0,
      !,
-     sub_string(A,1,RSz,0,Rest),
+     sub_string(A,_,RSz,0,Rest),
      L1 is L+1
     },
     ins([ t(comment(Rest,Doc),L1,0,RSz)|Ts],L,Sz,Lvl).
-ins([ t(comment(A,Doc),L,0,_Sz)|Ts] ,L0,_P0,Lvl) -->
+ins([ t(comment(A,Doc),L,0,_)|Ts] ,L0,_P0,Lvl) -->
     {sub_string(A,S,1,RSz,`\n`),
      RSz > 0,
      !,
-     sub_string(A,Sz,RSz,0,Rest),
-DL is L-L0,
+     sub_string(A,_,RSz,0,Rest),
+      DL is L-L0,
      tt(comment,V)
     },
     [DL,0,S,V,Doc],
-    ins([ t(comment(Rest,Doc),L,0,RSz)|Ts],L,0,Lvl).
+   L1 is L+1,
+    ins([ t(comment(Rest,Doc),L1,0,RSz)|Ts],L,0,Lvl).
 ins([ t(comment(_A,Doc),L,0,Sz)|Ts] ,L0,_,Lvl) -->
     !,
     {
@@ -323,7 +325,6 @@ ins( [t(error,_,_,_Sz)|Ts] ,L,P,Lvl) -->
     ins(Ts,L,P,Lvl).
 ins( [H|Ts] ,L,P,Lvl
    ) -->
-    {writeln(fail+H)},
     {indent(L,Lvl,Ts)},
     ins(Ts,L,P,Lvl).
 
@@ -386,18 +387,15 @@ operator((';')).
 check_doc(S,D) :-
     string_chars(S,Ats),
     (
-	Ats = ['/','*','*',C|_],
-	char_type_space(C)
+      Ats = ['/','*','*',C|_]
     ;
-	Ats = ['/','*','*','>',C|_],
-	char_type_space(C)
+	Ats = ['/','*','*','>',C|_]
     ;
-	Ats = ['%','%',C|_],
-	char_type_space(C)
+	Ats = ['%','%',C|_]
     ;
-	Ats = ['%','%','<',C|_],
-	char_type_space(C)
+	Ats = ['%','%','<',C|_]
     ),
+	char_type_space(C),
     !,
     modifier(documentation,D).
 check_doc(_,0).

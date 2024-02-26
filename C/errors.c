@@ -24,7 +24,7 @@
    
 @defgroup YAPErrors Error Handling
 
-@ingroup Implementation
+@ingroup YAPControl
 
 @{
 
@@ -819,7 +819,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
                        Term where, Term extra, const char *s) {
   CACHE_REGS
-  if (type!= EVALUATION_ERROR_UNDEFINED && LOCAL_Undef_CP == NULL) {
+    if (type!= EVALUATION_ERROR_UNDEFINED ) { //&& LOCAL_Undef_CP == NULL) {
     if (!Yap_pc_add_location(r, LOCAL_OldP, B, ENV))
       Yap_env_add_location(r, LOCAL_OldCP, B, ENV, 0);
   } else {
@@ -1152,6 +1152,13 @@ static Int close_error(USES_REGS1) {
   return true;
 }
 
+typedef struct c_error_info {
+  yap_error_number errnb;
+  yap_error_class_number class;
+  const char *name, *name2;
+} c_error_t;
+
+
 #undef BEGIN_ERROR_CLASSES
 #undef ECLASS
 #undef END_ERROR_CLASSES
@@ -1200,12 +1207,6 @@ static Int close_error(USES_REGS1) {
   NULL                                                                         \
   }
 
-typedef struct c_error_info {
-  yap_error_number errnb;
-  yap_error_class_number class;
-  const char *name, *name2;
-} c_error_t;
-
 #define BEGIN_ERRORS() static struct c_error_info c_error_list[] = {
 #define E0(X, Y, Z) {X, Y, Z, NULL},
 #define E(X, Y, Z) {X, Y, Z, NULL},
@@ -1218,7 +1219,6 @@ typedef struct c_error_info {
   ;
 
 #include <YapErrors.h>
-
 
 char *Yap_errorName(yap_error_number e) {
   if (e != USER_DEFINED_ERROR)
@@ -1252,16 +1252,6 @@ char *Yap_errorClassName(yap_error_class_number e) {
 static Int reset_exception(USES_REGS1) { return Yap_ResetException(NULL); }
 
 /**
-
-@}
-
-@defgroup  ExceptionDescriptors Exception Descriptor Manipulation
-@ingroup C-ErrorHandler
-@brief Manipulate error/throw descriptors
-
-@{
-
-
 
 Notice that if
 the argument is an error descriptor, and you pass NULL, they always
@@ -1506,13 +1496,7 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
 
 /**
 
-@}
-
-@addtogroup ErrorBuiltins
-
-@{
-
-*/
+ */
 
 Int is_nonvar__(const char *file, const char *function, int lineno,
                 Term t USES_REGS) {

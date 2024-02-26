@@ -396,12 +396,17 @@ static Int p_walltime(USES_REGS1) {
           Yap_unify_constant(ARG2, MkIntegerTerm(interval / 1000)));
 }
 
+//  static int cnt;
+
 static Int p_univ(USES_REGS1) { /* A =.. L			 */
   unsigned int arity;
   register Term tin;
   Term twork, t2;
   Atom at;
 
+  //cnt++;
+  //if (cnt==5312800) jmp_deb(1);
+  
   tin = Deref(ARG1);
   t2 = Deref(ARG2);
   if (IsVarTerm(tin)) {
@@ -635,7 +640,7 @@ static bool valid_prop(Prop p, Term mod,
       mod != pe->ModuleOfPred)
     return false;
   if (task == TermUndefined)
-      return pe->PredFlags & pe->PredFlags & UndefPredFlag;
+      return pe->PredFlags & UndefPredFlag;
   if ((pe->PredFlags & HiddenPredFlag) || (pe->OpcodeOfPred == UNDEF_OPCODE)) {
     return false;
   }

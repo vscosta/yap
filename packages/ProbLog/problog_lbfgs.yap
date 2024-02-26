@@ -207,7 +207,7 @@
 
 :- module(learning,[do_learning/1,
   	            do_learning/2,
-		    store_bdd/4,
+		    store_bdd/5,
 		    reset_learning/0,
                     op( 550, yfx, :: ),
                     op( 550, fx, ?:: ),
@@ -216,14 +216,15 @@
 		   ]).
 
 :- reexport(library(matrix)).
-:- reexport(library(python)).
 :- reexport(library(problog)).
 
-:- if( \+current_predicate(xsetting,user:xsetting(_,_)) ).
-xsetting(fold,0).
+:- if( current_predicate(xsetting,user:xsetting(_,_)) ).
+:- reexport(library(python)).
 xsetting(alg,lbfgs).
 xsetting(induce,problog).
-:-undef.
+:- else.
+:- dynamic user:fold/1.
+:-endif.
 
 % load our own modules
 
@@ -236,6 +237,7 @@ xsetting(induce,problog).
 :- use_module(library(lists), [member/2,max_list/2, min_list/2, sum_list/2, reverse/2,sumlist/2]).
 :- use_module(library(system), [file_exists/1, shell/2]).
 :- use_module(library(rbtrees)).
+:- use_module(library(bdd)).
 :- use_module(library(lbfgs)).
 :- use_module(problog/utils_learning).
 :- use_module(problog/print_learning).
@@ -251,7 +253,7 @@ xsetting(induce,problog).
 :- dynamic(current_epoch/1).
 :- dynamic(example_count/1).
 :- dynamic(test_example_count/1).
-%:- dynamic(query_gradient_intern/4).
+:- dynamic(query_gradient_intern/4).
 :- dynamic(last_mse/1).
 :- dynamic(query_is_similar/2).
 :- dynamic(query_md5/2).
@@ -510,12 +512,13 @@ set_default_gradient_method :-
 	true
     )
     ;
-    problog_tabled(_)
+/*    problog_tabled(_)
     ->
     (
 	format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
 	set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
     );
+*/
     true
     ).
 
@@ -580,36 +583,36 @@ init_one_query(QueryID,Query,_Type) :-
     problog_flag(init_method,Call),
     %	  trace,
     (
-	call(Call, Query,bdd(Dir,Tree0,MapList) )
+	call(user:Call, Query,bdd(Dir,Tree,Prob0,MapList) )
     ->
-    reverse(Tree0,Tree),
-    store_bdd(QueryID, Dir, Tree, MapList)
+    store_bdd(QueryID, Dir, Tree, Prob0, MapList)
     ;
     true).
 
 set_p0(X,I,P) :- X[I] <==P.
 
 add_bdd(QueryID,Query, Bdd) :-
-    Bdd = bdd(Dir, Tree0,MapList),
+    Bdd = bdd(Dir, Tree0,Prob0,MapList),
     user:graph2bdd(Query,1,Bdd),
-    Tree \= [],
+    Tree = [H|_T],
     !,
+    arg(1, H, Prob0),
     reverse(Tree0,Tree),
-    store_bdd(QueryID, Dir, Tree, MapList).
-add_bdd(_QueryID,_Query, bdd(1,[],[])).
+    store_bdd(QueryID, Dir, Tree,Prob0, MapList).
+add_bdd(_QueryID,_Query, bdd(1,[],_,[])).
 
-store_bdd(QueryID, _Dir, _Tree, _MapList) :-
+store_bdd(QueryID, _Dir, _Tree,_, _MapList) :-
     QueryID mod 100 =:= 0,
     format('~n~d: ',[QueryID]),
     fail.
-store_bdd(QueryID, Dir, Tree, MapList) :-
-    recordzifnot(QueryID,bdd(Dir, Tree, MapList),R),
-    !,
+store_bdd(QueryID, Dir, Tree,Prob0, MapList) :-
     ignore((recorded(QueryID,_,Ref),
-	    R\=Ref,
-	    erase(Ref))),
+	    erase(Ref),
+	    fail)),
+    !,
+    recordz(QueryID,bdd(Dir, Tree,Prob0, MapList),_R),
     put_char('.').
-store_bdd(_QueryID, _Dir, _Tree, _MapList) :-
+store_bdd(_QueryID, _Dir, _Tree,_, _MapList) :-
     put_char('#').
 
 %========================================================================
@@ -627,10 +630,6 @@ update_values :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    retractall(query_probability_intern(_,_)),
-    retractall(query_gradient_intern(_,_,_,_)),
-
-
 	assertz(values_correct).
 
 
@@ -662,7 +661,7 @@ report(FX,X,Slope, X_Norm,G_Norm,Step,_N,Evaluations, Stop) :-
     LLH_Test <== LLL.sum(),
     MinError <== EV.min(),
     MaxError <== EV.max(),
-    test_vs(L, Evaluations),
+    test_vs(L),
 %	user:p_message('Test set performance'),
 %	user:write_cmatrix([TP,FP,FN,TN]),
     format(run,'~10g|',[LLH_Test]),
@@ -703,9 +702,8 @@ partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,Slope,X,test) :-
     SquaredError is (CurrentProb-TrueQueryProb)**2,
     LogCurrentProb is log(max(0.0001,CurrentProb)).
 
-test_vs(L,Evaluations) :-
+test_vs(L) :-
 %    writeln(user_error,T),
-    maplist(zip,L,PP0L,PVL),
     selectlist(tp,L,Tps), length(Tps,TP),
     selectlist(tn,L,Tns), length(Tns,TN),
     selectlist(fn,L,Fns), length(Fns,FN),
@@ -725,7 +723,7 @@ fp(t(A,B)) :- A=<0.5,B>0.5.
 
 % vsc: avoid silly search
 gradient_descent(X,BestF) :-
-    ( current_predicate(user:iteration_prologue/0)
+    ( current_predicate(iteration_prologue/0)
     -> ignore(user:iteration_prologue)
     ;
     true
@@ -763,8 +761,6 @@ update_values(_X,_Slope) :-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % delete old values
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    retractall(problog:query_probability_intern(_,_)),
-
     assertz(values_correct).
 
 
@@ -775,59 +771,57 @@ update_values(_X,_Slope) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LF, X,Grad,_N,_Step,_) :-
     problog_flag(sigmoid_slope,Slope),
-    nb_getval(training_data,t(_,LLL,PV,EV,_TotalExCount)), 
+    nb_getval(training_data,t(_,LLL,PV,EV,ExCount)), 
     Grad <== 0.0,
     LLL  <== 0.0,
 	       PV <== 0.0,
 	     EV <== 0.0,
-		      run_queries(X,Slope,LLL,PV,EV),
-  LF <== LLL.sum(), 
+		      run_queries(X,Slope,ExCount,LLL,PV,EV),
+		      LF <== LLL.sum(),
     forall(user:example(QueryID,_,_P0,_),query_ex_gradient(QueryID,X,Slope,EV,Grad)).
 
 
 
-run_queries(X,Slope,LLL,PV,EV)  :-
-    forall(user:example(QueryID,_,P0,_),query_ex(QueryID,P0,X,Slope,LLL,PV,EV,_)).
+run_queries(X,Slope,ExCount,LLL,PV,EV)  :-
+    forall(user:example(QueryID,_,P0,_),query_ex(QueryID,P0,X,Slope,ExCount,LLL,PV,EV)).
 
 
 
-query_probability(QueryID,Slope,X,CurrentProb) :-
-    nb_getval(training_data,t(_,LLL,PV,EV,_TotalExCount)), 
-    query_ex(QueryID,_TrueProb,X,Slope,LLL,PV,EV,CurrentProb).
-    
-query_ex(QueryID,TrueProb,X,Slope,LLL,PV,EV,Prob) :-
-    recorded(QueryID,bdd(Dir,Tree,MapList),_),
+
+query_ex(QueryID,TrueProb,X,Slope,_ExCount,LLL,PV,EV) :-
+    recorded(QueryID,BDD,_),
+    functor(BDD,_,N),
+    arg(N,BDD,MapList),
     MapList \= [],
     !,
     maplist(bindpx(X,Slope), MapList),
-    evalps(Tree, Prob0),
-    % nonvar(Prob0),
-    (Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0),
+    tree_to_sp(BDD,MapList,Prob),
     Q1 is QueryID,
+ %   Cnt <== ExCount[0],
+%    ExCount[0] <== Cnt+1,
     PV[Q1] <== Prob,
     Error is Prob-TrueProb,
     EV[Q1] <== (Error),
     LLL[Q1] <== Error*Error.
-query_ex(_QueryID,_TrueProb,_X,_Slope,_LLL,_PV,_EV,0).
+query_ex(_QueryID,_TrueProb,_X,_Slope,_ExCount,_LLL,_PV,_EV).
 
 query_ex_gradient(QueryID,X,Slope,EV,Grads) :-
-    recorded(QueryID,bdd(Dir,Tree,MapList),_),
-     MapList \= [],
+    recorded(QueryID,BDD,_),
+    functor(BDD,_,N),
+    arg(N,BDD,MapList),
+    MapList \= [],
     !,
     Q1 is QueryID,
     Error <== EV[Q1],
      maplist(bindpxx(X,Slope), MapList),
-     forall( member(I-(I-Prob), MapList),
-            gradxy(I,bdd(Dir,Tree,MapList),Prob,Error,Grads) ).
+     forall( member(I-(I-_Prob), MapList),
+	    ( tree_to_p_grad(BDD,MapList,I,Prob,Grad0),
+	      Grad is (Grad0*Prob*(1.0-Prob)*2*Error),
+	      Grads[I] +== Grad
+	    )
+	   ).
 query_ex_gradient(_QueryID,_,_,_,_Grads).
 
-gradxy(I,bdd(Dir,Tree,_MapList),Prob,Error,Grads) :-
-     evalgs(I, Tree, Grad0),
-     !,
-    ( Dir == 1 -> GradValue = Grad0 ; GradValue is -Grad0),
-    Grad is (GradValue*Prob*(1.0-Prob)*2*Error),
-    G <== Grads[I],
-    Grads[I] <== G+Grad.
 
 bindpx(X, Slope,I-Pr) :-
    SigPr <== X[I],
@@ -837,47 +831,13 @@ bindpxx(X,Slope,I-(I-Pr)) :-
     SigPr <== X[I],
     sig2pr(SigPr, Slope, Pr).
 
-sig2pr(SigPr,Slope, NPr) :-
+sig2pr(SigPr,_Slope, NPr) :-
     sigmoid(SigPr, Pr),
     NPr is min(0.99,max(0.01,Pr)).
 
-evalps(Tree,P ) :-
-    foldl( evalp, Tree, _,  P).
+query_probability(QueryID,Slope,X,CurrentProb) :-
+    log2prob(X,Slope,QueryID,CurrentProb).
 
-evalp( pn(P, X, PL, PR), _,P ):-
-    P is X*PL+ (1.0-X)*(1.0-PR).
-evalp( pp(P, X, PL, PR), _,P ):-
-    P is X*PL+ (1.0-X)*PR.
-evalp( pn(P, _-X, PL, PR), _,P ):-
-    P is X*PL+ (1.0-X)*(1.0-PR).
-evalp( pp(P, _-X, PL, PR), _,P ):-
-    P is X*PL+ (1.0-X)*PR.
-
-evalgs(I,Tree,Grad0) :-
-    foldl( evalg(I), Tree, _, Grad0).
-
-evalg( I, pp(P-G, J-X, L, R), _, G ):-
-    ( number(L) -> PL=L, GL = 0.0 ; L = PL-GL ),
-    ( number(R) -> PR=R, GR = 0.0 ; R = PR-GR ),
-    P is X*PL+ (1.0-X)*PR,
-    (
-	I == J
-    ->
-    G is X*GL+ (1.0-X)*GR+PL-PR
-    ;
-    G is X*GL+ (1.0-X)*GR
-    ).
-evalg( I, pn(P-G, J-X, L, R), _,G ):-
-    ( number(L) -> PL=L, GL = 0.0 ; L = PL-GL ),
-    ( number(R) -> PR=R, GR = 0.0 ; R = PR-GR ),
-    P is X*PL+ (1.0-X)*(1.0-PR),
-    (
-	I == J
-    ->
-    G is X*GL-(1.0-X)*GR+PL-(1-PR)
-    ;
-    G is X*GL- (1.0-X)*GR
-    ).
 
 mse_testset(X,Slope) :-
 	current_iteration(Iteration),
@@ -941,6 +901,7 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_Ev,_L) :-
     format('Bad FX=~4f~n',[FX]),
     lbfgs_progress_done(-1).
 user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
+    writeln(FX),
     problog_flag(sigmoid_slope,Slope),
     save_state(X, Slope, G),
     report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
@@ -979,7 +940,7 @@ save_state(_X, _, _).
 %========================================================================
 
 init_flags :-
-    ( xsetting(fold,Fold) ->true ; Fold=''),
+    ( user:fold(Fold) ->true ; Fold=''),
     prolog_file_name(queries,Queries_Folder), % get absolute file name for' ./queries'
     atomic_concat(output,Fold, Xoutput),
     prolog_file_name(Xoutput,Output_Folder), % get absolute file name for './output'
@@ -992,10 +953,10 @@ init_flags :-
     problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',problog:problog_lbdd_tree,learning_general,flags:learning_libdd_init_handler),
     problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
     problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
-    problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',false,learning_general).
+    problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',false,learning_general),
+    problog_define_flag(epsilon,   problog_flag_validate_number, 'Epsilon for convergence test.',lbfgs:lbfgs_set_parameter(epsilon),learning_general).
 nooo :-
     problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,lbfgs:lbfgs_set_parameter(m)),
-    problog_define_flag(epsilon,   problog_flag_validate_float, 'Epsilon for convergence test.',       0.0000100,lbfgs,lbfgs:lbfgs_set_parameter(epsilon)),
     problog_define_flag(past   ,   problog_flag_validate_float, 'Distance for delta-based convergence test.',    0   ,lbfgs,lbfgs:lbfgs_set_parameter(past)),
     problog_define_flag(delta   ,   problog_flag_validate_float, 'Delta for convergence test.',    0.001   ,lbfgs,lbfgs:bfgs_set_parameter(delta)),
     problog_define_flag( lbfgs_max_iterations   ,   problog_flag_validate_posint, 'The maximum number of iterations',   0    ,lbfgs,lbfgs:lbfgs_set_parameter(max_iterations )),

@@ -1,5 +1,4 @@
-# The YAP Module system {#YAPModules}
-
+# The YAP Module system
 
 
   The YAP module system is based on the Quintus/SISCtus module
@@ -39,7 +38,7 @@ the module/2 declaration.This declaration sets the source module when
   it starts consulting a file, and resets it at the end.  One can set
 the type-in module permanently by using the built-in `module/1`.
 
-@defgroup ExplicitNaming Explicit Naming
+## Explicit Naming
 
 The module system allows one to _explicitly_ specify the source mode for
 a clause by prefixing a clause with its module, say:
@@ -228,10 +227,7 @@ X = 2 ? ;
 The state of  the module system after this error is undefined.
 
 
-@defgroup ModuleBuiltins BuiltIn predicates 
-@ingroup modules
-
-@{ 
+Module BuiltIn predicates
 
 @pred module(+ M:atom,+ L:list ) is directive
   the current file defines module _M_ with exports _L_. The list may include
@@ -340,5 +336,3 @@ Note that predicates are normally exported using the directive
 `module/2`. The `export/1` argument is meant to allow export from
 dynamically created modules. The directive argument may also be a list
 of predicates.
-
-

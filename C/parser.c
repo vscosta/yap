@@ -123,7 +123,7 @@ static void syntax_msg(const char *msg, ...) {
 
 #define FAIL siglongjmp(FailBuff->JmpBuff, 1)
 
-VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
+VarEntry *Yap_LookupVar(const char *var, int lineno, int linepos) /* lookup variable in variables table
                                           * */
 {
   CACHE_REGS
@@ -178,6 +178,16 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
     p->hv = 1L;
     p->VarRep = vat;
   }
+  p->lineno = lineno;
+  p->linepos = linepos;
+  p->VarAdr = TermNil;
+    p->VarNext = NULL;
+    if (LOCAL_VarList) {
+        LOCAL_VarTail->VarNext = p;
+    } else {
+    p->lineno = lineno;
+    p->linepos = linepos;
+  }
   p->VarAdr = TermNil;
     p->VarNext = NULL;
     if (LOCAL_VarList) {
@@ -226,22 +236,16 @@ Term Yap_VarNames(VarEntry *p, Term l) {
 }
 
 static Term Singletons(VarEntry *p, Term l USES_REGS) {
-    Term hd = l, tl = l;
   while (p != NULL) {
       if (RepAtom(p->VarRep)->StrOfAE[0] != '_' && p->refs == 1) {
           Term t[2];
           Term o;
 
-          t[0] = MkAtomTerm(p->VarRep);
+          t[0] = MkPairTerm(MkAtomTerm(p->VarRep),MkPairTerm(MkIntTerm(p->lineno),MkPairTerm(MkIntTerm(p->linepos ),
+											     MkPairTerm(MkAtomTerm(LOCAL_SourceFileName),TermNil))));
           t[1] = p->VarAdr;
           o = Yap_MkApplTerm(FunctorEq, 2, t);
-          o = MkPairTerm(o, l);
-          if (hd == l) {
-              hd = tl = o;
-          } else {
-              RepPair(tl)[1] = o;
-              tl = o;
-          }
+	  l = MkPairTerm(o,l);
           if (HR > ASP - 4096) {
               save_machine_regs();
               longjmp(LOCAL_IOBotch, 1);
@@ -249,7 +253,7 @@ static Term Singletons(VarEntry *p, Term l USES_REGS) {
       }
           p = p->VarNext;
   }
-    return (hd);
+    return l;
 }
 
 Term Yap_Singletons(VarEntry *p, Term l) {

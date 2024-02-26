@@ -22,8 +22,8 @@
 
 /**
 
-    @addtogroup YAPFlagsImplemebtation
-
+    @addtogroup YAPFlagsImplementation
+@ingroup YAPImplementation
     @{
 
 @brief Low-level code to support flags.
@@ -919,9 +919,9 @@ GetFlagProp(Atom a) { /* look property list of atom a for kind  */
  */
 
 /**
- *`defgroup YAPflags
+ *`defgroup YAPflags Setting and Querying YAP flags
  * @ingroup Builtins
- 
+ * @{
  *  @brief YAP now supports generic access ad uodating. the following builins provide read-writeeeeeee access to YAP internals/
  */
 

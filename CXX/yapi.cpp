@@ -206,6 +206,9 @@ YAPStringTerm::YAPStringTerm(std::string &s) { // build string
 
 
   Term ts = MkStringTerm(s.c_str());
+  if (HR  > ASP - 1024) {
+    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::string");    
+  }
   mk(ts);
   RECOVER_H();
 }
@@ -214,6 +217,9 @@ YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) {
   BACKUP_H();
   arity_t arity = ArityOfFunctor(f.f);
   Term o = Yap_MkNewApplTerm(f.f, arity);
+  if (HR  > ASP - 1024) {
+    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::string");    
+  }
   Term *tt = RepAppl(o) + 1;
   for (arity_t i = 0; i < arity; i++)
     tt[i] = ts[i].term();
@@ -229,6 +235,9 @@ YAPApplTerm::YAPApplTerm(const std::string f, std::vector<Term> ts) {
     Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
     Term o = AbsAppl(HR);
     Term *tt = HR;
+    if (HR + (1+arity)  > ASP - 1024) {
+      throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::string");
+    }
     HR+=1+arity;
     *tt++=(CELL)ff;
     for (arity_t i = 0; i < arity; i++)
@@ -248,6 +257,9 @@ YAPApplTerm::YAPApplTerm(const std::string f, std::vector<YAPTerm> ts) {
     Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
     Term o = AbsAppl(HR);
     Term *tt = HR;
+    if (HR + (1+arity)  > ASP - 1024) {
+      throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::string");
+    }
     HR+=1+arity;
     *tt++=(CELL)ff;
     for (arity_t i = 0; i < arity; i++)
@@ -261,6 +273,9 @@ YAPApplTerm::YAPApplTerm(const std::string f, std::vector<YAPTerm> ts) {
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
   BACKUP_H();
   arity_t arity = ArityOfFunctor(f.f);
+    if (HR + (1+arity)  > ASP - 1024) {
+      throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::string");
+    }
   mk(Yap_MkNewApplTerm(f.f, arity));
   RECOVER_H();
 }
@@ -432,7 +447,8 @@ Term YAPListTerm::dup() {
   BACKUP_MACHINE_REGS();
 
   tn = Yap_CopyTerm(gt());
-
+  if (!tn)
+    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,tn,"YAPQuery::dup");
   RECOVER_MACHINE_REGS();
   return tn;
 }
@@ -477,12 +493,8 @@ YAPListTerm::YAPListTerm(Term ts[], size_t n) {
         CACHE_REGS
 
   BACKUP_H();
-  while (HR + n * 3 > ASP-1024) {
-    RECOVER_H();
-    if (!Yap_dogc( PASS_REGS1 )) {
-      mk(TermNil);
-    }
-    BACKUP_H();
+  if (HR + n * 3 > ASP-1024) {
+    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(ts[],n)");
   }
   Term rc = AbsAppl(HR);
   CELL *ptr = HR;
@@ -502,12 +514,8 @@ YAPListTerm::YAPListTerm( std::vector<YAPTerm> ts) {
   size_t n=ts.size();
   if (n == 0)
     mk(TermNil);
-  while (HR + n * 2 > ASP - 1024) {
-    RECOVER_H();
-    if (!Yap_dogc( PASS_REGS1 )) {
-      mk(TermNil);
-    }
-    BACKUP_H();
+  if (HR + n * 2 > ASP - 1024) {
+    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::vector<YAPTerm>)");
   }
   Term a = AbsPair(HR);
   CELL *ptr = HR;
@@ -531,13 +539,9 @@ YAPListTerm::YAPListTerm(const std::vector<Term> ts) {
     mk(TermNil);
     return;
   }
-  while (HR + n * 2 > ASP - 1024) {
-    RECOVER_H();
-    if (!Yap_dogc( PASS_REGS1 )) {
-      mk(TermNil);
+  if (HR + n * 2 > ASP - 1024) {
+    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::vector<Term>)");
     }
-    BACKUP_H();
-  }
   Term a = AbsPair(HR);
   CELL *ptr = HR;
   HR += 2*n;
@@ -584,13 +588,9 @@ YAPConjunctiveTerm::YAPConjunctiveTerm(const std::vector<Term> ts) {
     mk(ts[0]);
     return;
   }
-  while (HR + n * 3 > ASP - 1024) {
-    RECOVER_H();
-    if (!Yap_dogc( PASS_REGS1 )) {
-      mk(TermNil);
+  if (HR + n * 3> ASP - 1024) {
+    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::vector<Term>");
     }
-    BACKUP_H();
-  }
   Term a = AbsAppl(HR);
   CELL *ptr = HR;
   HR += 3*(n-1);
@@ -617,12 +617,8 @@ YAPConjunctiveTerm::YAPConjunctiveTerm(const Term ts[], size_t n) {
     mk(ts[0]);
     return;
   }
-  while (HR + n * 3 > ASP - 1024) {
-    RECOVER_H();
-    if (!Yap_dogc( PASS_REGS1 )) {
-      mk(TermNil);
-    }
-    BACKUP_H();
+  if (HR + n * 3 > ASP - 1024) {
+    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::vector<Term>");
   }
   Term a = AbsAppl(HR);
   CELL *ptr = HR;

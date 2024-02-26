@@ -8,11 +8,11 @@
 #endif
 
 /**
- *   @defgroup yap-cplus-term-handling Term Handling in the YAP interface.
+ *   @defgroup YAP-cplus-term-handling Term Handling in the YAP interface.
  *
  *   @{
  *
- *   @ingroup yap-cplus-interface
+ *   @ingroup YAP-cplus-interface
  *   @tableofcontents
  *
  *
@@ -395,7 +395,7 @@ public:
 Yap_unify( a1, (CELL)(HR+1) );
 HR+=2;
 
-o[0] = (CELL)Yap_MkFunctor(Yap_LookupAtom(s.c_str()), 1);
+ o[0] = (CELL)(YAPFunctor(s.c_str(), 1).fun());
 mk(AbsAppl(o));
 RECOVER_MACHINE_REGS();
 };

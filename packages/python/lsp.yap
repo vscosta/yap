@@ -60,11 +60,10 @@ symbol(N0/Ar0,Mod,
 %%
 %% find the definition for the text at URI:Line:Ch
 %%
-user:pred_def(Ob,URI,Line,Ch) :-
-	string_concat(`file://`, FS, URI),
-	string_to_atom(FS, Afs),
-	name2symbol(Afs,Line,Ch,Mod:N0/Ar0),
-	findall(P,symbol(N0/Ar0, Mod,P),Ps),
+user:pred_def(Ob,URI,Line,Ch,N0) :-
+    string_to_atom(N0, N),
+    findall(P,name2symbol(Mod:N/Ar0,P),Ps),
+    
 	(var(Ob)
 	->
 	  Ob = P
@@ -72,7 +71,12 @@ user:pred_def(Ob,URI,Line,Ch) :-
 	  Ob.items := Ps
 	).
 
-
+name2symbol(Mod:N/Ar,t(F,L,0,L1,0,L,0,L1,0)) :-
+    current_predicate(Mod:N/Ar),
+    functor(G,N,Ar),
+    predicate_property(Mod:G,file(F) ),
+    predicate_property(Mod:G,line_count(L)),
+L1 is L+1.
 
 get_ref(N/A,M,Ref) :-
 	scanner:use(predicate,N/A,M,_N0/_A0,_M0,File,L0-C0,LF-CF,LL0-LC0,LLF-LCF),
@@ -139,7 +143,8 @@ user:validate_text(Self,URI,S) :-
     load_files(File,[ stream(Stream), if(true),def_use_map(true)]),
     findall(T,(recorded(msg,T,R),erase(R)),Ts),
     erase(R),
-    Self.errors := Ts.
+    Self.errors := Ts,
+    fail.
 
 
 
@@ -192,7 +197,7 @@ user:highlight_uri(Self, URI, Text):-
 	atom_string(File,S),
 	open(string(Text),read,Stream,[alias(File)]),
 	set_stream(Stream,file_name(File)),
-	highlight_and_convert_stream(Self,Stream).
+    highlight_and_convert_stream(Self,Stream).
 
 highlight_file(Self, File) :-
     open(File,read,Stream,[alias(File)]),
