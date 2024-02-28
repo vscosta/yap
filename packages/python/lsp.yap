@@ -46,7 +46,7 @@ name2symbol(N,t(F,L,0,L1,0,L,0,L1,0)) :-
     writeln(N),
     current_predicate(N,Mod:G),
     writeln(G),
-    functor(G,N,Ar),
+    functor(G,N,_Ar),
     predicate_property(Mod:G,file(F) ),
     predicate_property(Mod:G,line_count(L)),
     L1 is L+1.
@@ -88,6 +88,8 @@ user:pred_refs(Ob,URI,Line,Ch) :-
 	list_directory(D, Fs),
 	maplist(add_file(Self, D), Fs).
 
+add_file(_,_,_).
+
 %%
 %% @pred validate_uri(Self,URI)
 %%
@@ -104,8 +106,9 @@ user:validate_uri(Self,URI) :-
 validate_file( Self,File) :-
     (
       predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
-      ->    
-%      asserta((user:portray_message(Sev`xMsg) :- q_msg( Sev, File,Msg)),R),
+      ->
+      writeln(0),
+      asserta((user:portray_message(Sev,Msg) :- q_msg( Sev,Msg))),
       writeln(h),
       load_files(File,[ source_module(user)]),
       retractall(user:portray_message(_,_)),
@@ -117,75 +120,65 @@ validate_file( Self,File) :-
 user:validate_text(Self,URI,S) :-
    string_concat(`file://`,SFile,URI),
     atom_string(File, SFile),
-    open(string(S),read,Stream,[file_name(File)]),
+    open(string(S),read,Stream),
     (
       predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
       ->    
-      asserta((user:portray_message(Sev,Msg) :- q_msg( Sev,Msg)),R),
-writeln(go),
-      load_files(File,[ stream(Stream),source_module(user)]),
-retractall(user:portray_message(_,_)),
-    process_msgs(Self)
+      asserta((user:portray_message(Sev,Msg) :- q_msg( Sev,Msg))),
+      load_files(File,[ stream(Stream)]),
+      retractall(user:portray_message(_,_)),
+      process_msgs(Self,File)
     ;    
       load_files(File,[ stream(Stream),source_module(user)])
 ).
 
 
 q_msg(Sev, error(Err,Inf)) :-
-    writeln(Sev),
     (Sev=warning;Sev=error),
-    writeln(in),
-    open(string(S),write,Stream,[alias(user_error)]),
-    print_message(Sev,error(Err,Inf)),
-
-
-    close(Stream),
-    writeln(S),
+    error_descriptor(Inf,Desc),
+    !,
     (
-      yap_query_exception(parserLine, Inf, LN)
+      yap_query_exception(parserLine, Desc, LN)
     ->
       true
     ;
       LN = 0),
-    writeln(LN),
     (
-	yap_query_exception(parserLinePos, Inf, Pos)
-	->
-	true
+      yap_query_exception(parserFile, Desc, F)
+    ->
+      true
     ;
-      Pos = 0
+      F = user_input),
+    (
+	yap_query_exception(parserLinePos, Desc, Pos0)
+	->
+	Pos is Pos0+1
+    ;
+      Pos = 1
     ),
-    writeln(Pos),
-    recordz(msg,t(S,LN,Pos),_).
+    
+    recordz(msg,t(F,LN,Pos,Sev,Err,Inf),_),
+    fail.
+q_msg(_Sev, error(_Err,_Inf)).
 
-process_msgs(Self) :-
-    findall(M, process_msg(M),Ms),
+process_msgs(Self,F) :-
+    findall(M, process_msg(M,F),Ms),
+    writeln(Ms),
     (
       var(Self)
       ->
       Self=Ms
     ;
-      Self:=Ms
+      Self.errors :=Ms
     ).
 
-process_msg(t(S,LN,Pos)) :-
-    recorded(msg,t(S,LN,Pos),R),
-    erase(R).
-
-add_file(Self, D, File) :-
-    absolute_file_name(File, Path,
-			   [ file_type(prolog),
-relative_to(D),
-			     access(read),
-			     file_errors(fail)
-			     ]),
-    once((
-	   user:prolog_file_type(Suffix,prolog),
-	   atom_concat(_, Suffix , Path)
-	 )),
-    !,
-    validate_file(Self,Path).
-add_file(_,_,_).
+process_msg(t(S,LN,Pos),F) :-
+    recorded(msg,t(F,LN,Pos,Sev,Err,Desc),R),
+    erase(R),
+    main_message(error(Err,Desc), Sev, 0, LMsg, [end(Id)]),
+    open(string(S),write,Stream),
+    print_message_lines(Stream, '',[begin(Sev, Id) |LMsg]),
+    close(Stream).
 
 user:highlight_uri(Self, URI, Text):-
 	string_concat(`file://`,S,URI),

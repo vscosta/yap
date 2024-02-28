@@ -382,7 +382,7 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
   struct write_globs wglb;
   int sno;
 
-  sno = Yap_open_buf_write_stream(GLOBAL_Stream[LOCAL_c_output_stream].encoding);
+  sno = Yap_open_buf_write_stream(-1,GLOBAL_Stream[LOCAL_c_output_stream].encoding);
   if (sno < 0)
     return false;
   wglb.lw = separator;
