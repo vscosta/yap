@@ -152,7 +152,6 @@ extern void Yap_ConsolePipeOps(StreamDesc *st);
 extern void Yap_SocketOps(StreamDesc *st);
 extern void Yap_ConsoleSocketOps(StreamDesc *st);
 extern bool Yap_ReadlineOps(StreamDesc *st);
-extern int Yap_OpenBufWriteStream(USES_REGS1);
 extern void Yap_ConsoleOps(StreamDesc *s);
 
 extern void Yap_InitRandomPreds(void);
@@ -234,8 +233,9 @@ extern Term Yap_StreamUserName(int sno);
 
 extern void count_output_char(int ch, StreamDesc *s);
 
-char *Yap_VFAlloc(const char *path);
+extern char *Yap_VFAlloc(const char *path);
 
+extern Term Yap_memStreamToTerm(int output_stream, Functor f, Term inp);
 inline static YAP_Atom StreamFullName(int i) {
   if (GLOBAL_Stream[i].name)
     return GLOBAL_Stream[i].name;

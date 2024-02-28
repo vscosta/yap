@@ -931,7 +931,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   unsigned char *buf;
   int i;
   size_t avai, extra;
-    unsigned char *nbuf=NULL;
+    unsigned char const *nbuf=NULL;
     size_t bsz = tot * 256;
   int lvl = push_text_stack();
   buf = calloc(1,bsz);

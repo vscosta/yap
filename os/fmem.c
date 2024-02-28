@@ -14,9 +14,6 @@
  * comments:	Input/Output C implemented predicates			 *
  *									 *
  *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
 
 /*
  *
@@ -34,6 +31,7 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
+
 #define _GNU_SOURCE
 
 
@@ -42,7 +40,29 @@ static char SccsId[] = "%W% %G%";
 
 #include "YapText.h"
 
- char *Yap_StrPrefix( const char *buf, size_t n) {
+ Term Yap_memStreamToTerm(int output_stream, Functor f, Term inp) {
+  CACHE_REGS
+    const char *s = Yap_MemExportStreamPtr(output_stream);
+
+    encoding_t enc = GLOBAL_Stream[output_stream].encoding;
+    if (f == FunctorAtom) {
+        return MkAtomTerm(Yap_LookupAtom(s));
+    } else if (f == FunctorCodes) {
+        return Yap_CharsToDiffListOfCodes(s, ArgOfTerm(2, inp), enc PASS_REGS);
+    } else if (f == FunctorCodes1) {
+        return Yap_CharsToListOfCodes(s, enc PASS_REGS);
+    } else if (f == FunctorChars) {
+        return Yap_CharsToDiffListOfAtoms(s, ArgOfTerm(2, inp), enc PASS_REGS);
+    } else if (f == FunctorChars1) {
+        return Yap_CharsToListOfAtoms(s, enc PASS_REGS);
+    } else if (f == FunctorString1) {
+        return Yap_CharsToString(s, enc PASS_REGS);
+    }
+    Yap_ThrowError(DOMAIN_ERROR_FORMAT_OUTPUT, inp, NULL);
+    return 0L;
+}
+
+char *Yap_StrPrefix( const char *buf, size_t n) {
     char *b = malloc(n);
     strncpy(b, buf, n - 1);
     if (strlen(buf) > n - 1)
@@ -107,7 +127,7 @@ int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   };
   Yap_flush(sno0);
   Yap_CloseMemoryStream( sno);
-    sno = Yap_OpenBufWriteStream(PASS_REGS1);
+    sno = Yap_open_buf_write_stream(-1, LOCAL_encoding);
   fg->lstart = 0;
   fg->phys_start = j;
   fg->gapi = 0;
@@ -188,16 +208,17 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 
 // open a buffer for writing, currently just ignores buf and nchars.
 
-int Yap_open_buf_write_stream(encoding_t enc) {
-  int sno;
+int Yap_open_buf_write_stream(int sno, encoding_t enc) {
   StreamDesc *st;
 
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return -1;
+  if (sno < 0) {
+    sno = GetFreeStreamD();
+    if (sno < 0)
+      return -1;
+    }
 
-  st = GLOBAL_Stream + sno;
-  st->status = Output_Stream_f | InMemory_Stream_f ;
+    st = GLOBAL_Stream + sno;
+    st->status = Output_Stream_f | InMemory_Stream_f ;
   st->linestart = 0;
   st->charcount = 0;
   st->linecount = 1;
@@ -217,12 +238,6 @@ int Yap_open_buf_write_stream(encoding_t enc) {
   return sno;
 }
 
-int Yap_OpenBufWriteStream(USES_REGS1) {
-
-  return Yap_open_buf_write_stream(
-      GLOBAL_Stream[LOCAL_c_output_stream].encoding);
-}
-
 /**
  * @pred open_mem_write_stream(-Stream)
  *
@@ -234,7 +249,7 @@ open_mem_write_stream(USES_REGS1) /* $open_mem_write_stream(-Stream) */
   Term t;
   int sno;
 
-  sno = Yap_OpenBufWriteStream(PASS_REGS1);
+  sno =  Yap_open_buf_write_stream(-1, LOCAL_encoding);
   if (sno == -1)
     return (PlIOError(SYSTEM_ERROR_INTERNAL, TermNil,
                       "new stream not available for open_mem_read_stream/1"));
@@ -344,22 +359,9 @@ int format_synch(int sno, int sno0, format_info *fg) {
         f(sno0, ch);
       }
     }
-    fclose(GLOBAL_Stream[sno].file);
-    free(GLOBAL_Stream[sno].nbuf);
-  #if HAVE_OPEN_MEMSTREAM
-  GLOBAL_Stream[sno].file = open_memstream(&GLOBAL_Stream[sno].nbuf, &GLOBAL_Stream[sno].nsize);
-  #else
-   if (GLOBAL_Stream[sno].nbuf == NULL)
-     GLOBAL_Stream[sno].nbuf = malloc(32*K);
-   GLOBAL_Stream[sno].file = fmemopen((void *)GLOBAL_Stream[sno].nbuf, GLOBAL_Stream[sno]. nsize, "w+");
-  #endif
-   fg->lstart = 0;
-    fg->phys_start = 0;
-    fg->gapi = 0;
-
-    Yap_flush(sno0);
- return sno;
-}
+    Yap_CloseMemoryStream(sno);
+    return  Yap_open_buf_write_stream(-1, LOCAL_encoding);
+ }
 
 
 bool Yap_CloseMemoryStream(int sno) {
@@ -369,8 +371,16 @@ bool Yap_CloseMemoryStream(int sno) {
   if ((GLOBAL_Stream[sno].status & Output_Stream_f) &&
      GLOBAL_Stream[sno].file) {
     fflush(GLOBAL_Stream[sno].file);
+    if (IsApplTerm(GLOBAL_Stream[sno].user_name)) {
+      Term inp = GLOBAL_Stream[sno].user_name,
+	rc = Yap_memStreamToTerm(sno, FunctorOfTerm(inp), inp);
+      GLOBAL_Stream[sno].user_name = TermNil;
+      if (!rc || !Yap_unify(rc, ArgOfTerm(1, inp))) {
+	  return false;
+	}
     fclose(GLOBAL_Stream[sno].file);
-        if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
+    }
+	if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
             free(GLOBAL_Stream[sno].nbuf);
   } else {
     if (GLOBAL_Stream[sno].file)
