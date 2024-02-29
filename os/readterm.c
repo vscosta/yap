@@ -434,7 +434,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     //    Yap_JumpToEnv();
     return NULL;
    } else {
-     e->parserFile = RepAtom(StreamFullName(sno))->StrOfAE;
+     e->parserFile =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
    }
    if (err->TokNext) {
      while (end->TokNext && end->Tok != eot_tok) {
@@ -478,7 +478,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     if ((nt = Yap_StreamUserName(sno))==0) {
       e->parserFile = "<<<"; //
     } else {
-      e->parserFile = RepAtom(AtomOfTerm(nt))->StrOfAE;
+      e->parserFile =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
     }
   }
   e->culprit = s;
@@ -591,6 +591,7 @@ typedef struct FEnv {
   size_t nargs;        /// arity of current procedure
   encoding_t enc;      /// encoding of the stream being read
   char * msg;          /// Error  Messagge
+  Term user_file_name; ///stream name inn case it closes
   int top_stream;      /// last open stream
 } FEnv;
 
@@ -855,7 +856,8 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
     e->parserFile = "Prolog term";
     //    Yap_JumpToEnv();
    } else {
-     e->parserFile = RepAtom(StreamFullName(sno))->StrOfAE;
+         e->parserPos = 0;
+	 e->parserFile = RepAtom(AtomOfTerm(fe->user_file_name))->StrOfAE;
    }
    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
 }
@@ -1055,13 +1057,14 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
                                  bool clause) {
   CACHE_REGS
       
-  LOCAL_Error_TYPE = YAP_NO_ERROR;
-  LOCAL_SourceFileName = GLOBAL_Stream[inp_stream].name;
-  LOCAL_eot_before_eof = false;
+  fe->user_file_name = Yap_StreamUserName(inp_stream);
   fe->tp = StreamPosition(inp_stream);
   fe->reading_clause = clause;
 
   fe->top_stream = Yap_FirstFreeStreamD();
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_SourceFileName = AtomOfTerm(fe->user_file_name);
+  LOCAL_eot_before_eof = false;
   if (clause) {
     fe->args = setClauseReadEnv(opts, fe, re, inp_stream);
   } else {

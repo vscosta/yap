@@ -691,7 +691,7 @@ static bool do_stream_property(int sno,
         break;
       case STREAM_PROPERTY_END:
       default:
-	Yap_ThrowError(DOMAIN_ERROR_SET_STREAM_OPTION, ARG1, "bad option to stream_property/2" );
+	Yap_ThrowError(DOMAIN_ERROR_STREAM_PROPERTY_OPTION, ARG1, "bad option to stream_property/2" );
         rc = false;
         break;
       }
@@ -932,12 +932,15 @@ static bool do_set_stream(int sno,
         }
         break;
       case SET_STREAM_USER_FILE_NAME:
-        GLOBAL_Stream[sno].user_name = args[SET_STREAM_FILE_NAME].tvalue;
+	GLOBAL_Stream[sno].user_name=args[SET_STREAM_USER_FILE_NAME].tvalue;
 	break;
+
       case SET_STREAM_FILE_NAME:
-	GLOBAL_Stream[sno].name = AtomOfTerm(args[SET_STREAM_FILE_NAME].tvalue);
-       break;
-      case SET_STREAM_LINE_POSITION:
+	GLOBAL_Stream[sno].name=AtomOfTerm(args[SET_STREAM_FILE_NAME].tvalue);
+	break;
+
+
+	  case SET_STREAM_LINE_POSITION:
         GLOBAL_Stream[sno].charcount =
 	  GLOBAL_Stream[sno].linestart +
             IntegerOfTerm(args[SET_STREAM_LINE_POSITION].tvalue);
@@ -973,7 +976,7 @@ static bool do_set_stream(int sno,
         break;
       case SET_STREAM_TTY:
         rc &= stream_tty(sno, args[SET_STREAM_TTY].tvalue PASS_REGS);
-        break;
+      break;
       case SET_STREAM_END:
         rc = false;
         break;

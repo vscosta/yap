@@ -1,4 +1,4 @@
-/**
+
  * Language Server support
  *
  */
@@ -107,9 +107,7 @@ validate_file( Self,File) :-
     (
       predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
       ->
-      writeln(0),
       asserta((user:portray_message(Sev,Msg) :- q_msg( Sev,Msg))),
-      writeln(h),
       load_files(File,[ source_module(user)]),
       retractall(user:portray_message(_,_)),
    process_msgs(Self)
@@ -121,13 +119,14 @@ user:validate_text(Self,URI,S) :-
    string_concat(`file://`,SFile,URI),
     atom_string(File, SFile),
     open(string(S),read,Stream),
+set_stream(Stream,user_file_name(File)),
     (
       predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
       ->    
       asserta((user:portray_message(Sev,Msg) :- q_msg( Sev,Msg))),
       load_files(File,[ stream(Stream)]),
       retractall(user:portray_message(_,_)),
-      process_msgs(Self,File)
+      process_msgs(Self,SFile)
     ;    
       load_files(File,[ stream(Stream),source_module(user)])
 ).
@@ -156,12 +155,13 @@ q_msg(Sev, error(Err,Inf)) :-
     ;
       Pos = 1
     ),
-    
+writeln(st:F),    
     recordz(msg,t(F,LN,Pos,Sev,Err,Inf),_),
     fail.
 q_msg(_Sev, error(_Err,_Inf)).
 
 process_msgs(Self,F) :-
+writeln(F),
     findall(M, process_msg(M,F),Ms),
     writeln(Ms),
     (

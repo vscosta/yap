@@ -112,8 +112,8 @@ void Yap_RestartYap(int flag) {
 #define set_key_s(k, ks, q, i, t)                                              \
   if (strcmp(ks, q) == 0) {                                                    \
     const char *s = IsAtomTerm(t) ? RepAtom(AtomOfTerm(t))->StrOfAE            \
-                                  : IsStringTerm(t) ? StringOfTerm(t) : NULL;  \
-    if (s && s[0]) {                                                           \
+: IsStringTerm(t) ? StringOfTerm(t) : NULL;  \
+     if (s && s[0]) {                                                           \
       char *tmp = calloc(1, strlen(s) + 1);                                    \
       strcpy(tmp, s);                                                          \
       i->k = tmp;                                                              \
