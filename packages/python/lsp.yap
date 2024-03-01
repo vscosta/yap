@@ -42,7 +42,7 @@ pred_code(Ob,N0) :-
 user:pred_def(Ob, Name) :-
     pred_code(Ob,Name).
 
-name2symbol(N,t(F,L,0,L1,0,L,0,L1,0)) :-
+name2symbol(N,t(F,L,0)) :-
     writeln(N),
     current_predicate(N,Mod:G),
     writeln(G),
@@ -110,7 +110,7 @@ validate_file( Self,File) :-
       asserta((user:portray_message(Sev,Msg) :- q_msg( Sev,Msg))),
       load_files(File,[ source_module(user)]),
       retractall(user:portray_message(_,_)),
-   process_msgs(Self)
+   process_msgs(Self.File)
     ;    
       load_files(File,[source_module(user)])
 ).
@@ -123,7 +123,7 @@ set_stream(Stream,file_name(File)),
     (
       predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
       ->    
-      asserta((user:portray_message(Sev,Msg) :- q_msg( Sev,Msg))),
+      asserta((user:portray_message(Sev,Msg) :- q_msg(File, Sev,Msg))),
       load_files(File,[ stream(Stream)]),
       retractall(user:portray_message(_,_)),
       process_msgs(Self,SFile)
@@ -132,9 +132,10 @@ set_stream(Stream,file_name(File)),
 ).
 
 
-q_msg(Sev, error(Err,Inf)) :-
+q_msg(Sev, error(Err,Inf),File) :-
     (Sev=warning;Sev=error),
     error_descriptor(Inf,Desc),
+      yap_query_exception(parserFile, Desc, File),
     !,
     (
       yap_query_exception(parserLine, Desc, LN)
@@ -142,26 +143,18 @@ q_msg(Sev, error(Err,Inf)) :-
       true
     ;
       LN = 0),
-    (
-      yap_query_exception(parserFile, Desc, F)
-    ->
-      true
-    ;
-      F = user_input),
-    (
+   (
 	yap_query_exception(parserLinePos, Desc, Pos0)
 	->
 	Pos is Pos0+1
     ;
       Pos = 1
     ),
-writeln(st:F),    
     recordz(msg,t(F,LN,Pos,Sev,Err,Inf),_),
     fail.
-q_msg(_Sev, error(_Err,_Inf)).
+%q_msg(_Sev, error(_Err,_Inf),_).
 
 process_msgs(Self,F) :-
-writeln(F),
     findall(M, process_msg(M,F),Ms),
     writeln(Ms),
     (
@@ -175,7 +168,6 @@ writeln(F),
 process_msg(t(S,LN,Pos),F) :-
     recorded(msg,t(F0,LN,Pos,Sev,Err,Desc),R),
     erase(R),
-    writeln(F:F0),
     main_message(error(Err,Desc), Sev, 0, LMsg, [end(Id)]),
     open(string(S),write,Stream),
     print_message_lines(Stream, '',[begin(Sev, Id) |LMsg]),
