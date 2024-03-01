@@ -38,7 +38,7 @@ if (DOXYGEN_FOUND)
   set( DOXYGEN_ALWAYS_DETAILED_SEC NO)
   set( DOXYGEN_JAVADOC_AUTOBRIEF      YES)
 
-
+  list (APPEND PREDEFINED "YAP_FLAG(A,B,C,D,E,F)=B"  )
 #  set (Doxygen::doxygen doxygen-yap)
 set( DOXYGEN_EXCLUDE
     CMakeLists.txt
@@ -58,8 +58,6 @@ set( DOXYGEN_EXCLUDE
       */.git/*
     */.svn/*
     */.hg/*
-    */H/*
-    */include/*
     */CMakeFiles/*
      ${CMAKE_SOURCE_DIR}/H/Tags_24*
      ${CMAKE_SOURCE_DIR}/C/Tags_32*
@@ -70,8 +68,7 @@ set( DOXYGEN_EXCLUDE
   set( DOXYGEN_ENABLE_PREPROCESSING  YES)
   set( DOXYGEN_MACRO_EXPANSION YES)
   set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
-  set(DOXYGEN_PREDEFINED DOXYGEN=1)
-  set(DOXYGEN_EXPAND_AS_DEFINED YAP_FLAG )
+  set(DOXYGEN_PREDEFINED ${PREDEFINED} )
  set(DOXYGEN_HIDE_SCOPE_NAMES YES)
   set(DOXYGEN_HIDE_COMPOUND_REFERENCE YES)
 set (DOXYGEN_REFERENCES_LINK_SOURCE NO)
@@ -114,7 +111,6 @@ doxygen_add_docs(
     ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/docs/extra
     ${CMAKE_SOURCE_DIR}/C
-
     ${CMAKE_SOURCE_DIR}/H
     ${CMAKE_SOURCE_DIR}/H/generated
     ${CMAKE_SOURCE_DIR}/CXX

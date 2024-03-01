@@ -17,8 +17,8 @@
 /**
  * @file flags.yap
  *
- * @defgroup ỲAPUFlags User-Defined flags
- * @ingroup YAPflags
+ * @addtogroup YAPFlags
+ * @ingroup Builtins
  * @{
  * 
  */
@@ -74,7 +74,7 @@
 	'$force_char_conversion',
 	% ALLOW_ASSERTING_STATIC
 	'$set_yap_flags'(14,0),
-	% CHARACTER_ESCAPE
+ 	% CHARACTER_ESCAPE
 	'$swi_set_prolog_flag'(character_escapes, true), % disable character escapes.
 	'$set_fpu_exceptions'(true),
 	unknown(_,error).

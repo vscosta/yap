@@ -668,7 +668,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
         args[READ_ALLOW_VARIABLE_NAME_AS_FUNCTOR].tvalue == TermTrue;
   } else {
     fe->scanner.vn_asfl =
-        trueLocalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) == TermTrue;
+      trueGlobalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) == TermTrue;
   }
   if (args && args[READ_COMMENTS].used) {
     fe->scanner.store_comments = args[READ_COMMENTS].tvalue == TermTrue;

@@ -5,11 +5,9 @@ most language implementations were linkable to `C`, and the first interface expo
 This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is
 being designed to work with the swig (www.swig.orgv) interface compiler.
 
-@ref ChYinterface
+- [C interface](fli_c_xx.md)
 
-@ref swi-c-interface
-
-@ref YAP-cplus-interface
+- [C++ interface](group__YAP-cplus-interface)
 
 
 ## The YAP C-interface

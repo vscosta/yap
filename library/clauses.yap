@@ -25,7 +25,7 @@
 
 */
 
-/** conj2list( +Conj, -List) is det
+/** @pred conj2list( +Conj, -List) is det
   Generate a list from a conjunction of literals.
 
   It is often easier to apply operations on lists than on clauses
@@ -62,7 +62,7 @@ conj2list_( C, M ) -->
     { strip_module(M:C, NM, NC) },
         [NM:NC].
 
-/** list2conj( +List, -Conj) is det
+/** @pred list2conj( +List, -Conj) is det
   Generate a conjunction from a list of literals.
 
   Notice that this relies on indexing within the list to avoid creating
@@ -73,7 +73,7 @@ list2conj([Last], Last).
 list2conj([Head,Next|Tail], (Head,Goals)) :-
 	list2conj([Next|Tail], Goals).
 
-/** clauselength( +Clause, -Length) is det
+/** @pred clauselength( +Clause, -Length) is det
   Count the number of literals in a clause (head counts as one).
 
   Notice that this is 1+length(conj2list), as we ignore  disjunctions.

@@ -30,13 +30,15 @@ extensions = [  'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx_sitemap',
     'sphinx.ext.inheritance_diagram',
-                'breathe',
+    'recommonmark',
+#                'breathe',
               'myst_parser']
 
 templates_path = ['_templates']
 exclude_patterns = []
 
-
+from docutils.nodes import make_id
+url_fragment = make_id("Using Markdown with Sphinx")
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -73,12 +75,12 @@ html_static_path = ['_static']
 
 # -- Breathe configuration -------------------------------------------------
 
-breathe_projects = {
-	"YAP": "../../xml/"
+# breathe_projects = {
+# 	"YAP": "../../../CXX"
 
-}
-breathe_default_project = "YAP"
-breathe_default_members = ('members', 'undoc-members')
+# }
+# breathe_default_project = "YAP"
+# breathe_default_members = ('members', 'undoc-members')
 
 myst_enable_extensions = [    "amsmath",
                               "attrs_block",

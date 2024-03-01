@@ -388,7 +388,7 @@ p_bb_delete( USES_REGS1 )
 /** @pred  bb_update( +_Key_, ?_Term_, ?_New_)
 
 
-	zAtomically  unify a term stored in the blackboard under key  _Key_
+Atomically  unify a term stored in the blackboard under key  _Key_
 with  _Term_, and if the unification succeeds replace it by
  _New_. Fail silently if no such term exists or if unification fails.
 

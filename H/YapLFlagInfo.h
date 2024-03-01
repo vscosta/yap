@@ -31,30 +31,24 @@
 
 
 
-/**< Allow constructs such as 'Functor( V )'. Functor is parsed as an
+/**< 
+
+    Allow constructs such as 'Functor( V )'. Functor is parsed as an
    atom. The token `V` is still understood as a variable.
 
 Originally a SWI-Prolog flag.
-														   */
+                                                                                                                  */
     YAP_FLAG(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG, "allow_variable_name_as_functor", true, booleanFlag, "false", NULL),
     
 
-/**< set the system to look for undefined procedures */
+/**<
+    set the system to look for undefined procedures */
     YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false",
              NULL),
-    
+     
 
-/**< read-only flag, that tells if Prolog is in an inner top-level */
-    YAP_FLAG(BREAK_LEVEL_FLAG, "break_level", true, nat, "0",
-             NULL),
-    
-
-/**< read-write flag, that allows changing the compiler top_level if Prolog is in an inner top-level */
-    YAP_FLAG(COMPILER_TOP_LEVEL_FLAG, "compiler_top_level", true, filler, "[]",
-             NULL),
-    
-
-/**< Predicates compiled with this flag set maintain a counter
+/**< 
+ Predicates compiled with this flag set maintain a counter
                on the numbers of proceduree calls and of retries. These counters
                are  decreasing counters, and they can be used as timers. Three
                counters are available:
@@ -72,13 +66,28 @@ Originally a SWI-Prolog flag.
     YAP_FLAG(CALL_COUNTING_FLAG, "call_counting", true, booleanFlag, "true",
              NULL),
     
+  
 
-/**< Indicates YAP is
+/**< 
+   read-only flag, that tells if Prolog is in an inner top-level */
+    YAP_FLAG(BREAK_LEVEL_FLAG, "break_level", true, nat, "0",
+             NULL),
+    
+
+/**< 
+   read-write flag, that allows changing the compiler top_level if Prolog is in an inner top-level */
+    YAP_FLAG(COMPILER_TOP_LEVEL_FLAG, "compiler_top_level", true, filler, "[]",
+             NULL),
+    
+
+/**< 
+   Indicates YAP is
  running within the compiler. */
  YAP_FLAG(COMPILING_FLAG, "compiling", false, compiling,"false", NULL),
 
 
-      /**< @brief  whether debugging is `true` or
+      /**< 
+ @brief  whether debugging is `true` or
    `false`.
 
  If  _Value_ is bound to `true` enable debugging, and if
@@ -87,7 +96,8 @@ Originally a SWI-Prolog flag.
   YAP_FLAG(DEBUG_FLAG, "debug",  true, booleanFlag, "false", NULL),
   
 
-/**< support for coding systens, YAP relies on UTF-8 internally.
+/**< 
+ support for coding systens, YAP relies on UTF-8 internally.
  */
 /**  
  */
@@ -96,7 +106,8 @@ Originally a SWI-Prolog flag.
     
 
     
-/**<         `exit` if failing to open a fail generates an excption;
+/**< 
+         `exit` if failing to open a fail generates an excption;
      * or `fail` otherwise.
 */
   YAP_FLAG(FILE_ERRORS_FLAG, "file_errors", true, febooleanFlag, "fail",
@@ -104,21 +115,27 @@ Originally a SWI-Prolog flag.
 
   
 
-/**<
+/**<  
  @brief   whether native mode or trying to emulate a different
                  Prolog.
 		    */
     YAP_FLAG(LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap",
              NULL),
 
-/**< obtain the absol
- * ute file name before loading a file.
+/**< 
 
-11. */
+   obtain the absolute file name before loading a file.
+
+ */
    YAP_FLAG(EXPAND_FILE_NAME_FLAG, "expand_file_name", true, booleanFlag,
               "true", NULL),
    
 
+    /**<
+       
+
+       verify whether  the stream was open correctly.
+     */
       YAP_FLAG(STREAM_TYPE_CHECK_FLAG, "stream_type_check", true, isatom, "loose",
              NULL),
     
@@ -133,7 +150,7 @@ Originally a SWI-Prolog flag.
     YAP_FLAG(SYNTAX_ERRORS_FLAG, "syntax_errors", true, synerr, "error",
              NULL),
     
-/**<
+/**< 
    @brief   If bound, set the current working or type-in module to the argument,
    which must be an atom. If unbound, unify the argument with the current
    type-in module, that is, with the module YAP will execute goals by default.
@@ -143,7 +160,7 @@ Originally a SWI-Prolog flag.
              typein),
     
 
-/**<
+/**< 
 
     If `normal` allow printing of informational and banner messages,
     such as the ones that are printed when consulting. If `silent`
@@ -154,7 +171,7 @@ Originally a SWI-Prolog flag.
     YAP_FLAG(VERBOSE_FLAG, "verbose", true, isatom, "normal", NULL),
     
 
-/**<
+/**< 
 
        If `true` allow printing of informational messages when
        searching for file names. If `false` disable printing these
@@ -164,7 +181,7 @@ Originally a SWI-Prolog flag.
              "false", NULL),
     
 
-/**<
+/**< 
 
         If `true` allow printing of informational messages when
         consulting files. If `false` disable printing these messages. It
@@ -173,7 +190,7 @@ Originally a SWI-Prolog flag.
 										*/
     YAP_FLAG(VERBOSE_LOAD_FLAG, "verbose_load", true, booleanFlag, "true", NULL),
     
-/**<
+/**< 
 
   If the second argument is bound to a stream, set user_error to
   this stream. If the second argument is unbound, unify the argument with
@@ -207,7 +224,7 @@ Originally a SWI-Prolog flag.
     YAP_FLAG(USER_ERROR_FLAG, "user_error", true, stream, "user_error",
              set_error_stream),
 
-/**<
+/**< 
     If the second argument is bound to a stream, set user_input to
     this stream. If the second argument is unbound, unify the argument with
     the current user_input stream. See the user_error_flag for more details.
@@ -215,7 +232,7 @@ Originally a SWI-Prolog flag.
       YAP_FLAG(USER_INPUT_FLAG, "user_input", true, stream, "user_input",
              set_input_stream),
 
-/**<
+/**< 
 If the second argument is bound to a stream, set user_output to
 this stream. If the second argument is unbound, unify the argument with
 the current user_output stream.
@@ -223,10 +240,10 @@ the current user_output stream.
 YAP_FLAG(USER_OUTPUT_FLAG, "user_output", true, stream, "user_output",
              set_output_stream),
 
-/**<
+/**< 
 This flag allow changing the `$VAR` functor name, making it possible to
 have specialized versions of numbervar. 
-*/
+e*/
   YAP_FLAG(NUMBERVARS_FUNCTOR_FLAG, "numbervars_functor", true, isatom, "$VAR",
              NULL)
 
