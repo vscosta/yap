@@ -1,5 +1,4 @@
 /*************************************************************************
-
  *									 *
  *	 YAP Prolog							 *
  *									 *
@@ -434,7 +433,8 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     //    Yap_JumpToEnv();
     return NULL;
    } else {
-     e->parserFile =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
+     const char *s =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
+     e->parserFile = strcpy(malloc(strlen(s)+1),s);
    }
    if (err->TokNext) {
      while (end->TokNext && end->Tok != eot_tok) {
@@ -478,7 +478,9 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     if ((nt = Yap_StreamUserName(sno))==0) {
       e->parserFile = "<<<"; //
     } else {
-      e->parserFile =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
+    const char *s =  RepAtom(Yap_source_file_name())->StrOfAE;
+     e->parserFile = strcpy(malloc(strlen(s)+1),s);
+  
     }
   }
   e->culprit = s;
@@ -565,7 +567,7 @@ opos=	ftell(GLOBAL_Stream[sno].file);
         }
       }
       tok = tok->TokNext;
-  }
+      }
   e->parserTextB = realloc(buf, strlen(buf)+1);
 }
 
@@ -827,7 +829,7 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
           return v;
         }
       } else {
-        reset_regs(tokstart, fe);
+         reset_regs(tokstart, fe);
       }
     }
   }
@@ -836,30 +838,35 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
 
 
 static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
-
   fe->sp = TermNil;
   Term vn = get_singletons(fe, tokstart);
   while (vn && vn != TermNil) {
-    Term v = ArgOfTermCell(1,HeadOfTerm(vn));
-    vn = TailOfTerm(vn);
+    int line,col;
+    char *fil;
+    Term myv = ArgOfTerm(1,HeadOfTerm(vn));
+	line = IntOfTerm(HeadOfTerm(TailOfTerm(myv)));
+     col = IntOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(myv))));
+     fil  = RepAtom(AtomOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(TailOfTerm(myv))))))->StrOfAE;
     yap_error_descriptor_t *e = LOCAL_ActiveError;
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
-                      v, TermNil, "singletons warning");
+                      myv, TermNil, "singletons warning");
 			    Term ts[3], sc[2];
     ts[0] = MkAtomTerm(Yap_LookupAtom("singletons"));
-    ts[1] = v;
+    ts[1] = myv;
     ts[2] = fe->t;
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck,3),3,ts);
     sc[1] = MkSysError(e);
    if (sno < 0) {
+     
     e->parserPos = 0;
-    e->parserFile = "Prolog term";
     //    Yap_JumpToEnv();
    } else {
-         e->parserPos = 0;
-	 e->parserFile = RepAtom(AtomOfTerm(fe->user_file_name))->StrOfAE;
-   }
+     e->parserLine = line;
+     e->parserPos = col;
+     e->parserFile = fil;
+     }
    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
+        vn = TailOfTerm(vn);
 }
 }
 

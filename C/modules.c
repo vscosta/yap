@@ -16,6 +16,7 @@
 *************************************************************************/
 
 
+
 #ifdef SCCSLookupSystemModule
 static char SccsId[] = "%W% %G%";
 #endif
@@ -59,11 +60,8 @@ static ModEntry *initMod(UInt inherit, AtomEntry *ae) {
   if (ae->StrOfAE[0] !=   '$')
     inherit &= ~M_SYSTEM;
   n->flags = inherit;
-  if (ae == AtomProlog || GLOBAL_Stream == NULL)
-    n->OwnerFile = AtomUserIn;
-  else
-    n->OwnerFile = Yap_ConsultingFile(PASS_REGS1);
-  AddPropToAtom(ae, (PropEntry *)n);
+  n->OwnerFile =  Yap_source_file_name();
+   AddPropToAtom(ae, (PropEntry *)n);
   return n;
 }
 

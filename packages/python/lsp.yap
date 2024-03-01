@@ -119,7 +119,7 @@ user:validate_text(Self,URI,S) :-
    string_concat(`file://`,SFile,URI),
     atom_string(File, SFile),
     open(string(S),read,Stream),
-set_stream(Stream,user_file_name(File)),
+set_stream(Stream,file_name(File)),
     (
       predicate_property(user:portray_message(Sev,Msg),number_of_clauses(0))
       ->    
@@ -173,8 +173,9 @@ writeln(F),
     ).
 
 process_msg(t(S,LN,Pos),F) :-
-    recorded(msg,t(F,LN,Pos,Sev,Err,Desc),R),
+    recorded(msg,t(F0,LN,Pos,Sev,Err,Desc),R),
     erase(R),
+    writeln(F:F0),
     main_message(error(Err,Desc), Sev, 0, LMsg, [end(Id)]),
     open(string(S),write,Stream),
     print_message_lines(Stream, '',[begin(Sev, Id) |LMsg]),

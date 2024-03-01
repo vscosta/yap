@@ -14,6 +14,7 @@
 * comments:	initializing a prolog session				 *
 *									 *
 *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -582,7 +583,7 @@ void Yap_InitCPredInModule(const char *Name, arity_t Arity, CPredicate code,
   pe->CodeOfPred = p_code;
   pe->ModuleOfPred = mod;
   pe->PredFlags = flags | StandardPredFlag | CPredFlag;
-  pe->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+  pe->src.OwnerFile = Yap_source_file_name();
   pe->cs.f_code = code;
   if (!(flags & SafePredFlag)) {
     p_code->opc = Yap_opcode(_allocate);
