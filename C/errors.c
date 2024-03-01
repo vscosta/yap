@@ -564,8 +564,9 @@ static void error_exit_yap(int value) {
   fprintf(stderr, "%% C-Execution stack:\n");
   for (i = 0; i < frames; ++i) {
     fprintf(stderr, "%%       %s\n", strs[i]);
+    free(strs[i]);
   }
-  free(strs);
+  free(callstack);
 #endif
   Yap_exit(value);
 }
@@ -803,12 +804,14 @@ CACHE_REGS
                     YAP_WRITE_IGNORE_OPS |YAP_WRITE_HANDLE_CYCLES);
       msg = "user goal";
    }
-    size_t bsize = 0;
-    if (buf) bsize = 32+strlen(buf);
-    if (msg) bsize += strlen(msg);
+    size_t bsize = 32;
+    if (buf) bsize += strlen(buf)+1;
+    if (msg) bsize += strlen(msg)+1;
     if (bsize > 32) {
       i->errorMsg = malloc(bsize);
       snprintf(i->errorMsg, bsize-1,  "%% %s:  text: %s...", msg, buf);
+    } else {
+      i->errorMsg = NULL;
     }
   //  return Yap_SaveTerm(Yap_MkErrorTerm(i));
   // return MkStringTerm(i->errorMsg);
@@ -937,6 +940,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
 
+    s[0]='\0';
   if (!LOCAL_ActiveError) {
     LOCAL_ActiveError = Yap_GetException();
   }
@@ -1106,13 +1110,10 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #ifdef DEBUG
   // DumpActiveGoals( USES_REGS1 );
 #endif // DEBUG
-#if 0
   if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR &&
       trueGlobalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 )
     LOCAL_ActiveError->prologStack = Yap_dump_stack();
-#else
-  LOCAL_ActiveError->prologStack = NULL;
-#endif
+else    LOCAL_ActiveError->prologStack = NULL;
   CalculateStackGap(PASS_REGS1);
 #if DEBUG
   // DumpActiveGoals( PASS_REGS1 );

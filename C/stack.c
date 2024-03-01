@@ -38,6 +38,7 @@
 #include "tab.macros.h"
 #include "clause.h"
 #include "attvar.h"
+#include <stddef.h>
 
 
 #if HAVE_STRING_H
@@ -1922,8 +1923,19 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
 
 #endif
 
-bool Yap_dump_stack(FILE *f) {
+char * Yap_dump_stack(void) {
     CACHE_REGS
+      FILE*f;
+    size_t nsize;
+    char *nbuf;
+      #if HAVE_OPEN_MEMSTREAM
+f = open_memstream(&nbuf, &nsize);
+  #else
+ nbuf = malloc(32*K);
+ nsize = 32*k;
+ file = fmemopen((void *)nbuf, nsize, "w+");
+  #endif
+
     /* check if handled */
     // if (handled_exception(PASS_REGS1))
     //  return;
@@ -2045,7 +2057,7 @@ bool Yap_dump_stack(FILE *f) {
         fputs("%%         Goals With Alternatives Open  (Global In "
                "Use--Local In Use)\n%%\n", f);
     }
-    return true;
+    return nbuf;
 }
 
 

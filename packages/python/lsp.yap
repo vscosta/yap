@@ -1,4 +1,4 @@
-
+/*
  * Language Server support
  *
  */
