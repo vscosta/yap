@@ -1111,9 +1111,11 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   // DumpActiveGoals( USES_REGS1 );
 #endif // DEBUG
   if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR &&
-      trueGlobalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 )
+      trueGlobalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 ) {
     LOCAL_ActiveError->prologStack = Yap_dump_stack();
-else    LOCAL_ActiveError->prologStack = NULL;
+  } else  {
+    LOCAL_ActiveError->prologStack = NULL;
+  }
   CalculateStackGap(PASS_REGS1);
 #if DEBUG
   // DumpActiveGoals( PASS_REGS1 );
@@ -1365,7 +1367,7 @@ static Int print_exception(USES_REGS1) {
               t->prologPredLine, t->errorAsText);
     } else if (t->errorFile && t->errorLine) {
       fprintf(of, "\n%s:%ld:0 error: while executing %s\n\n", t->errorFile,
-              t->errorLine, t->errorAsText);
+              t->errorLine, t->errorAsText);a
     }
     printErr(t, of);
   } else {

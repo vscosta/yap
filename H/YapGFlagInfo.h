@@ -29,8 +29,7 @@
  * @ingroup YAPFlags
  * @{
  *
-
-* @brief Global flags are shared by the threads. They are often used to query read-only properties of YPA.
+ * @brief Global flags are shared by the threads. They are often used to query read-only properties of YPA.
 */
 
 #ifdef __ANDROID__
@@ -54,7 +53,7 @@ enum GLOBAL_FLAGS
 
 
 
-/**< single_quoted text is usuallly interpreted as atoms. This flag
+/**< single_quoted text is usually interpreted as atoms. This flag
 									       allows other interpretations such as strings */
      YAP_FLAG(SINGLE_QUOTES_FLAG, "single_quotes", true, snglq, "atom", NULL),
   

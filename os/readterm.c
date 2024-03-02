@@ -619,7 +619,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   args = Yap_ArgListToVector(opts, read_defs, READ_END, args,
                              DOMAIN_ERROR_READ_OPTION);
   fe->top_stream = Yap_FirstFreeStreamD();
-
+  fe->msg = NULL;
   if (args && args[READ_OUTPUT].used) {
     fe->t0 = args[READ_OUTPUT].tvalue;
   } else {
@@ -1214,7 +1214,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   }
   Term cause;
   if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
-    size_t len = strlen(LOCAL_ErrorMessage)+1;
+    size_t len = strlen(LOCAL_ErrorMessage);
     fe->msg = malloc(len+1);
     strncpy(fe->msg, LOCAL_ErrorMessage, len);
     cause = MkAtomTerm(Yap_LookupAtom(fe->msg));
@@ -1228,7 +1228,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   Term action = re->sy;
   if (action == TermFail || action == TermDec10) {
    Term sc[2];
-  sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
+   sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
    sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
    sc[1] = MkSysError(LOCAL_ActiveError);
    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));

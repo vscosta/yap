@@ -227,16 +227,13 @@ Set or read system properties for  _Param_:
 #undef YAP_FLAG
 #undef END_FLAG
 
-#if DOXYGEN
-#define YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT, HELPER) 
-#define  END_FLAG()
-#else
 #define YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT, HELPER)  ID
+#define  END_FLAG()
+
 
 
 typedef enum local_flag_t
   {
-#endif
 #include "YapLFlagInfo.h"
 } ;
  
@@ -245,13 +242,11 @@ typedef enum global_flag_t
   {
 #include "YapGFlagInfo.h"
 } ;
-#endif
 
+#endif
 
 #undef YAP_FLAG
 #undef END_FLAG
-
-#endif
 
 bool Yap_set_flag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);
