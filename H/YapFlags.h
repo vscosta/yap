@@ -235,13 +235,13 @@ Set or read system properties for  _Param_:
 typedef enum local_flag_t
   {
 #include "YapLFlagInfo.h"
-} ;
+} yap_local_flag_t;
  
 
 typedef enum global_flag_t
   {
 #include "YapGFlagInfo.h"
-} ;
+} yap_global_flag_t ;
 
 #endif
 

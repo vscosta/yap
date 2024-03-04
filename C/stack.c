@@ -2057,7 +2057,14 @@ f = open_memstream(&nbuf, &nsize);
         fputs("%%         Goals With Alternatives Open  (Global In "
                "Use--Local In Use)\n%%\n", f);
     }
-    return nbuf;
+   fflush(f);
+    size_t sz = ftell(f);
+    nbuf[sz]='\0';
+    char * obuf = malloc(sz+1);
+    strncpy(obuf, nbuf, sz);
+    fclose(f);
+    free(nbuf);
+    return obuf;
 }
 
 

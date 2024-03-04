@@ -1185,6 +1185,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   HR = fe->old_H;
   yap_error_number err = LOCAL_Error_TYPE;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_ErrorMessage = NULL;
   if (err == RESOURCE_ERROR_STACK) {
     while (!Yap_dogc(PASS_REGS1)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, MkStringTerm("read_term"), NULL);

@@ -1791,7 +1791,6 @@ bool Yap_addclause(PredEntry *p, Term t, yamop *cp, Term tmode, Term mod, Term *
   Term tf;
   assert_control_t mode = get_mode(tmode);
  
-  Yap_PutValue(AtomAbol, TermNil);
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
   if (pflags & MegaClausePredFlag) {

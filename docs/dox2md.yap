@@ -96,7 +96,7 @@ fetch(_).
 def2txt(U0,Info,compounddef([_|Ps])) :-
     maplist(xml2txt(U0,Info),Ps),
     !.
-def2txt(_,_,Task) --> {writeln(txt:Task),!, fail}.
+def2txt(_,_,Task) :- writeln(txt:Task),!, fail.
 
 xml2txt(_U0,_Info,compounddef(_)).
 xml2txt(_U0,_Info,compoundname(_)) :- !.
@@ -105,8 +105,6 @@ xml2txt(_U0,_Info,sectiondef([[kind(`func`)|_]|_])) :-
 xml2txt(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) :-
     !.
 xml2txt(_U0,_Info,sectiondef([[kind(`def`)|_]|_])) :-
-    !.
-xml2txt(_U0,_Info,sectiondef([[kind(`var`)|_]|_])) :-
     !.
 xml2txt(_U0,_Info,sectiondef([[kind(`enum`)|_]|_])) :-
     !.
@@ -149,7 +147,8 @@ xml2txt(U0,Info,
 xml2txt(U0,Info,detaileddescription([[]|Paras])) :-
     !,
     arg(7,Info, Desc),
-    foldl(xml2tex(U0),Paras,``,Desc).
+    foldl(xml2tex(U0),Paras,``,D0),
+    (var(D0)->D0=Desc;arg(1,Info,Id),assert(extra(Id,Desc))).
 xml2txt(_U0,GT,location([[file(File),line(Line),column(Column)|_]])) :-
     !,
     arg(3,GT,File),
@@ -449,8 +448,9 @@ merge_nodes :-
       ),
 			
      format(S,'~n~s~n~n~s~n',[Brief,Text]),
-    forall(pred(Id,Ref,_),output_pred(S,Ref)),
- footer(S,File,Line,Column),
+     forall(extra(Id,Extra),format(S,'~s~n',[Extra])),
+     forall(pred(Id,Ref,_),output_pred(S,Ref)),
+      footer(S,File,Line,Column),
     close(S),
     fail.
 merge_nodes.
@@ -467,9 +467,7 @@ pred(Id,_,_)
 
 addsubg(S,Id) :-
     group(Id,_Name,_File,_Line,_Column,Brief,_Text, Title),
-      writeln(Id),
     strip_late_blanks(Brief,Brieffer),
-      writeln(ok),
   format(S,'1. [*~s*](~s.md).          ~s~n',[Title,Id,Brieffer]).
 
 addsubp(S,Id) :-

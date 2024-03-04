@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -766,8 +765,8 @@ static PredEntry *firstModulesPred(PredEntry *npp, ModEntry *m, Term task) {
 }
 
 static Int cont_current_predicate(USES_REGS1) {
-  UInt Arity;
-  Term name, task;
+  UInt Arity=0;
+  Term name =  0, task=0;
   Term t1 = ARG1, mod = Deref(ARG2), t3 = Deref(ARG3);
   bool rc, will_cut = false;
   Functor f;
@@ -954,6 +953,27 @@ static Int current_predicate(USES_REGS1) {
   return cont_current_predicate(PASS_REGS1);
 }
 
+
+static Int functors_for_atom(USES_REGS1) {
+  Atom at = AtomOfTerm(Deref(ARG1));
+  Term o = 0;
+  Term next = TermNil;
+  Prop p = RepAtom(at)->PropsOfAE;
+  while(p) {
+    if (IsFunctorProperty(p->KindOfPE)) {
+      Term t = Yap_MkNewApplTerm( (RepFunctorProp(p)),RepFunctorProp(p)->ArityOfFE);
+      if (!o) {
+	o = AbsPair(HR);
+      }
+      HR[0] = t;
+      HR[1] = next;
+      next = AbsPair(HR);
+      HR += 2;
+    }
+    p = p->NextOfPE;
+  }
+  return Yap_unify(o,ARG2);
+}
 static OpEntry *NextOp(Prop pp USES_REGS) {
 
   while (!EndOfPAEntr(pp) && 
@@ -1544,6 +1564,7 @@ void Yap_InitCPreds(void) {
   Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);
   Yap_InitCPred("$enter_undefp", 0, enter_undefp, SafePredFlag);
   Yap_InitCPred("$exit_undefp", 0, exit_undefp, SafePredFlag);
+  Yap_InitCPred("$functors_for_atom", 2, functors_for_atom, SafePredFlag);
 
 #ifdef YAP_JIT
   Yap_InitCPred("$jit_init", 1, p_jit, SafePredFlag | SyncPredFlag);

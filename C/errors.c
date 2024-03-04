@@ -564,7 +564,7 @@ static void error_exit_yap(int value) {
   fprintf(stderr, "%% C-Execution stack:\n");
   for (i = 0; i < frames; ++i) {
     fprintf(stderr, "%%       %s\n", strs[i]);
-    free(strs[i]);
+    //  free(strs[i]);
   }
   free(callstack);
 #endif
@@ -1367,7 +1367,7 @@ static Int print_exception(USES_REGS1) {
               t->prologPredLine, t->errorAsText);
     } else if (t->errorFile && t->errorLine) {
       fprintf(of, "\n%s:%ld:0 error: while executing %s\n\n", t->errorFile,
-              t->errorLine, t->errorAsText);a
+              t->errorLine, t->errorAsText);
     }
     printErr(t, of);
   } else {
