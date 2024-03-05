@@ -238,10 +238,10 @@ typedef enum local_flag_t
 } yap_local_flag_t;
  
 
-typedef enum global_flag_t
+ enum global_flag_t
   {
 #include "YapGFlagInfo.h"
-} yap_global_flag_t ;
+  };
 
 #endif
 
