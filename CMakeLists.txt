@@ -264,7 +264,7 @@ IF (WITH_SWIG)
 ENDIF (WITH_SWIG)
 
 
-OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" Off)
+OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" On)
 OPTION(WITH_XML2YAP " Enable the  XML2YAP library" On)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
