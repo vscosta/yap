@@ -2131,7 +2131,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
   else
     tf = t;
   p = Yap_new_pred(tf,  mod, mklog, RepAtom(AtomOfTerm(t1))->StrOfAE);
-     Yap_track_cpred( 0, P, 0,   &info);
+  Yap_track_cpred( 0, P, 0,   &info);
 
   PELOCK(20, p);
 
@@ -2407,7 +2407,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
      in case the objs pointing to it are dead themselves */
   if (DeadMegaClauses != before) {
     gc_entry_info_t info;
-    Yap_track_cpred( 0, P, 0,   &info);
+    Yap_track_cpred(0, P, 0,   &info);
     if (!Yap_gc(&info)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;

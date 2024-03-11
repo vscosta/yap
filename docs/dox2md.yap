@@ -2,6 +2,7 @@
 :- use_module(library(lists)).
 :- use_module(library(xml2yap)).
 
+:- dynamic group/8, extra/2, pred/8, pred/3.
 
 main :-
     %unix(argv(_Opts)),
@@ -119,14 +120,14 @@ xml2txt(U0,Info,sectiondef([_|Paras])) :-
 xml2txt(U0,Info,sect1([[id(Id)],title([],S)|Paras])) :-
     !,
     mcstr([`## `,S,`               {#`,Id,`};`],``,S0),
-    add_nl(S0,S1),
+    add_nl(U0,S0,S1),
     foldl(par(U0),Paras,S1,D),
     arg(7,Info,D0),
 (var(D0)->D0=D;arg(1,Info,Id),assert(extra(Id,D))).
 xml2txt(U0,Info,sect2([[id(Id)],title([],S)|Paras])) :-
     !,
     mcstr([`### `,S,`               {#`,Id,`};`],``,S0),
-    add_nl(S0,S1),
+    add_nl(U0,S0,S1),
     foldl(par(U0),Paras,S1,D),
     arg(7,Info,D0),
     (var(D0)->D0=D;arg(1,Info,Id),assert(extra(Id,D))).
@@ -146,8 +147,8 @@ xml2txt(U0,Info,
     foldl(xml2tex(U0),Paras,``,Out).
 xml2txt(U0,Info,detaileddescription([[]|Paras])) :-
     !,
-    arg(7,Info, Desc),
-    foldl(xml2tex(U0),Paras,``,D0),
+    arg(7,Info, D0),
+    foldl(xml2tex(U0),Paras,``,Desc),
     (var(D0)->D0=Desc;arg(1,Info,Id),assert(extra(Id,Desc))).
 xml2txt(_U0,GT,location([[file(File),line(Line),column(Column)|_]])) :-
     !,
@@ -179,7 +180,7 @@ xml2tex(U0,para([[]|Seq]))-->
     !,
     add_space(U0),
     foldl(par(U0),Seq),
-    add_nl.
+    add_nl(U0).
 xml2tex(_U0,Task)-->{writeln(xml2tex:Task), !, fail}.
 
 
@@ -200,7 +201,7 @@ par(U0,memberdef([_|Seq]))-->
     { U is U0+4 },
     cstr(`* ` ),
     foldl(par(U),Seq),
-    add_nl.
+    add_nl(U).
 par(U,lsquo(_)) -->
      !,
      par(U,`\``).
@@ -222,17 +223,17 @@ par(_,ulink([[url(_)],_Text])) -->
      !.
 par(U,sectiondef([[kind(`user-defined`)]|Text])) -->
     !,
-    add_nl,
+    add_nl(U),
     foldl(par(U),Text).
 par(U,sect1([[id(_)],title([],S)|Text])) -->
     !,
     mcstr([`## `,S,`               {#`,Id,`};`]),
-    add_nl,
+    add_nl(U),
     foldl(par(U),Text).
 par(U,sect2([[id(_)],title([],S)|Text])) -->
     !,
     mcstr([`### `,S,`               {#`,Id,`};`]),
-    add_nl,
+    add_nl(U),
     foldl(par(U),Text).
 par(_,rsquo(_)) -->
      !,
@@ -243,7 +244,7 @@ par(_U, definition([_,Name])) -->
     cstr(Name),
     !,
     cstr(`:`),
-    add_nl.
+    add_nl(U).
 par(_U, argsstring(_)) -->
     !.
 par(_U, initializer(_)) -->
@@ -298,7 +299,7 @@ par(_,linebreak(_)) -->
     cstr(`\n`).
 par(U0,listitem([_|Text])) -->
     !,
-    add_nl,
+    add_nl(U),
     {U is U0+4},
     cstr(`*`),
 foldl(par(U),Text).
@@ -422,8 +423,9 @@ add_space(N,S0,SF) :-
     N1 is N-1,
     add_space(N1,S1,SF).
 
-add_nl(S0,SF) :-
-    string_concat(S0,`\n\n`,SF).
+add_nl(U,S0,SF) :-
+    add_space(U,S0,SI),
+    string_concat(SI,`\n\n`,SF).
 
 merge_nodes :-
     group(Id,_Name,File,Line,Column,Brief,Text,Title),
@@ -447,10 +449,10 @@ merge_nodes :-
       true
       ),
 			
-     format(S,'~n~s~n~n~s~n',[Brief,Text]),
-     forall(extra(Id,Extra),format(S,'~s~n',[Extra])),
-     forall(pred(Id,Ref,_),output_pred(S,Ref)),
-      footer(S,File,Line,Column),
+    format(S,'~n*~s*~n~n~s~n',[Brief,Text]),
+    forall(extra(Id,Extra),format(S,'~s~n',[Extra])),
+    forall(pred(Id,Ref,_),output_pred(S,Ref)),
+    footer(S,File,Line,Column),
     close(S),
     fail.
 merge_nodes.

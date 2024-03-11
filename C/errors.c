@@ -175,7 +175,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
     if (i->k && i->k[0] != '\0')                                               \
       return MkAtomTerm(Yap_LookupAtom(i->k));                                 \
     else                                                                       \
-      return TermEmptyAtom;                                                    \
+      return TermNil;                                                    \
   }
 
 #define query_key_t(k, ks, q, i)                                               \
@@ -342,7 +342,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_s("prologPredModule", i->prologPredModule, o);
   o = add_key_s("prologPredFile", i->prologPredFile, o);
   o = add_key_i("parserPos", i->parserPos, o);
-  o = add_key_i("parserPos", i->parserLinePos, o);
+  o = add_key_i("parserLinePos", i->parserLinePos, o);
   o = add_key_i("parserLine", i->parserLine, o);
   o = add_key_i("parserFirstLine", i->parserFirstLine, o);
   o = add_key_i("parserLastLine", i->parserLastLine, o);
@@ -465,7 +465,10 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   CACHE_REGS
   yap_error_number err = LOCAL_Error_TYPE;
   const char *serr;
-
+   if (LOCAL_PrologMode & InErrorMode) {
+     LOCAL_ActiveError->errorNo = ABORT_EVENT;
+     Yap_JumpToEnv();
+   }
   if (LOCAL_ErrorMessage) {
     serr = LOCAL_ErrorMessage;
   } else {

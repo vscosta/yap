@@ -383,7 +383,7 @@ reset_learning :-
     retractall(last_mse(_)),
     retractall(query_is_similar(_,_)),
     retractall(query_md5(_,_,_)),
-    set_problog_flag(alpha,auto),
+%    set_problog_flag(alpha,auto),
     logger_reset_all_variables.
 %    logger_set_variable(lbfgs_training,+inf).
 
@@ -951,10 +951,12 @@ init_flags :-
     problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
     problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
     problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',problog:problog_lbdd_tree,learning_general,flags:learning_libdd_init_handler),
-    problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
+%    problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
     problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
-    problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',false,learning_general),
-    problog_define_flag(epsilon,   problog_flag_validate_number, 'Epsilon for convergence test.',lbfgs:lbfgs_set_parameter(epsilon),learning_general).
+    problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',false,learning_general).
+
+:- lbfgs:lbfgs_set_parameter(epsilon,0.0001).
+
 nooo :-
     problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,lbfgs:lbfgs_set_parameter(m)),
     problog_define_flag(past   ,   problog_flag_validate_float, 'Distance for delta-based convergence test.',    0   ,lbfgs,lbfgs:lbfgs_set_parameter(past)),
@@ -988,8 +990,8 @@ init_logger :-
     logger_define_variable(ground_truth_diff,float),
     logger_define_variable(ground_truth_mindiff,float),
     logger_define_variable(ground_truth_maxdiff,float),
-%    logger_define_variable(learning_rate,float),
-    logger_define_variable(alpha,float),
+    logger_define_variable(learning_rate,float),
+%    logger_define_variable(alpha,float),
     logger_define_variable(llh_trainingset,float),
     logger_define_variable(m2_trainingset,float),
     logger_define_variable(llh_test_queries,float).

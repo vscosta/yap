@@ -15,7 +15,7 @@
       break;
       /* instructions type Illss */
     case _enter_lu_pred:
-      return walk_got_lu_block(pc->y_u.Illss.I, startp, endp);
+      return walk_got_lu_block(pc->y_u.Illss.I);
       /* instructions type J */
 #ifdef YAP_JIT
     case _jit_handler:
@@ -24,7 +24,7 @@
       break;
       /* instructions type L */
     case _alloc_for_logical_pred:
-      return walk_got_lu_clause(pc->y_u.L.ClBase, startp, endp);
+      return walk_got_lu_clause(pc->y_u.L.ClBase);
       /* instructions type N */
     case _write_bigint:
       pc = NEXTOP(pc,N);
@@ -43,13 +43,13 @@
       /* instructions type Osbpp */
     case _call_cpred:
       pp = pc->y_u.Osbpp.p;
-      return walk_found_c_pred(pp, startp, endp);
+      return walk_found_c_pred(pp);
     case _call_usercpred:
       pp = pc->y_u.Osbpp.p;
-      return walk_found_c_pred(pp, startp, endp);
+      return walk_found_c_pred(pp);
     case _execute_cpred:
       pp = pc->y_u.Osbpp.p;
-      return walk_found_c_pred(pp, startp, endp);
+      return walk_found_c_pred(pp);
     case _call:
     case _dexecute:
     case _execute:
@@ -62,7 +62,7 @@
     case _count_trust_logical:
     case _profiled_trust_logical:
     case _trust_logical:
-      return walk_got_lu_block(pc->y_u.OtILl.block, startp, endp);
+      return walk_got_lu_block(pc->y_u.OtILl.block);
       /* instructions type OtaLl */
     case _count_retry_logical:
     case _profiled_retry_logical:
@@ -137,29 +137,29 @@
     case _Nstop:
       return NULL;
     case _copy_idb_term:
-      return found_idb_clause(pc, startp, endp);
+      return found_idb_clause(pc);
     case _expand_index:
-      return found_expand(pc, startp, endp PASS_REGS);
+      return found_expand(pc PASS_REGS);
     case _index_pred:
-      return found_owner_op(pc, startp, endp PASS_REGS);
+      return found_owner_op(pc PASS_REGS);
     case _lock_pred:
-      return found_owner_op(pc, startp, endp PASS_REGS);
+      return found_owner_op(pc PASS_REGS);
     case _op_fail:
       if (codeptr == FAILCODE)
-        return found_fail(pc, startp, endp PASS_REGS);
+        return found_fail(pc PASS_REGS);
       pc = NEXTOP(pc,e);
       break;
     case _spy_pred:
-      return found_owner_op(pc, startp, endp PASS_REGS);
+      return found_owner_op(pc PASS_REGS);
     case _trust_fail:
       if (codeptr == TRUSTFAILCODE)
-        return found_fail(pc, startp, endp PASS_REGS);
+        return found_fail(pc PASS_REGS);
       pc = NEXTOP(pc,e);
       break;
     case _undef_p:
-      return found_owner_op(pc, startp, endp PASS_REGS);
+      return found_owner_op(pc PASS_REGS);
     case _unify_idb_term:
-      return found_idb_clause(pc, startp, endp);
+      return found_idb_clause(pc);
     case _allocate:
     case _enter_exo:
     case _index_blob:
@@ -191,7 +191,7 @@
       break;
       /* instructions type l */
     case _Ystop:
-      return found_ystop(pc, clause_code, startp, endp, pp PASS_REGS);
+      return found_ystop(pc, clause_code, pp PASS_REGS);
     case _jump:
     case _jump_if_var:
     case _move_back:
@@ -342,7 +342,7 @@
     case _procceed:
       pp = pc->y_u.p.p;
       if (pp->PredFlags & MegaClausePredFlag)
-        return found_mega_clause(pp, startp, endp);
+        return found_mega_clause(pp);
       clause_code = TRUE;
       pc = NEXTOP(pc,p);
       break;
@@ -388,7 +388,7 @@
       /* instructions type slpp */
     case _call_c_wfail:
       pp = pc->y_u.slpp.p;
-      return walk_found_c_pred(pp, startp, endp);
+      return walk_found_c_pred(pp);
       /* instructions type sssl */
     case _go_on_cons:
     case _go_on_func:
@@ -400,7 +400,7 @@
       break;
       /* instructions type sssllp */
     case _expand_clauses:
-      return found_expand_index(pc, startp, endp, codeptr PASS_REGS);
+      return found_expand_index(pc, codeptr PASS_REGS);
       pc = NEXTOP(pc,sssllp);
       break;
       /* instructions type x */
@@ -723,13 +723,13 @@
 #ifdef YAPOR
       pp = pc->y_u.Osblp.p0;
       if (pp->PredFlags & MegaClausePredFlag)
-        return found_mega_clause(pp, startp, endp);
+        return found_mega_clause(pp);
       clause_code = TRUE;
       pc = NEXTOP(pc,Osblp);
 #else
       pp = pc->y_u.p.p;
       if (pp->PredFlags & MegaClausePredFlag)
-        return found_mega_clause(pp, startp, endp);
+        return found_mega_clause(pp);
       clause_code = TRUE;
       pc = NEXTOP(pc,p);
 #endif

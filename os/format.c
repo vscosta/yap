@@ -447,10 +447,11 @@ static bool tabulated(const unsigned char *fptr)
 #endif
 
 #define TOO_FEW_ARGUMENTS(Needs, Has_Repeats)		\
-  if (targ > tnum - Needs || Has_Repeats) {\
-  format_clean_up(sno, sno0, finfo);\
+  if (targ+Needs > tnum || Has_Repeats) {\
+  Yap_CloseStream(sno);\
   Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, MkIntTerm(fptr-fstr), "command %c in format string %s has no arguments %s", ch,\
 		 fstr, fptr);\
+  return false;\
   }
 
 static Int doformat(volatile Term otail, volatile Term oargs,
@@ -626,8 +627,7 @@ switch (ch) {
                     Float fl;
                     char *ptr;
                     char fmt[32];
-		      TOO_FEW_ARGUMENTS(1, false);
-                    if (targ > tnum - 1) {
+                    if (targ+1 > tnum) {
                         format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ-1], "command ~c in format %s",
                                        ch, fstr);
@@ -862,7 +862,7 @@ switch (ch) {
                         }
                         break;
                         case 'i':
-                            if (targ > tnum - 1 || has_repeats) {
+                            if (targ +1> tnum || has_repeats) {
                                 format_clean_up(sno, finfo->sno0, finfo);
                                 Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ-1],
                                                "command ~c in format %s", ch,

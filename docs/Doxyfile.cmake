@@ -38,7 +38,6 @@ if (DOXYGEN_FOUND)
   set( DOXYGEN_ALWAYS_DETAILED_SEC NO)
   set( DOXYGEN_JAVADOC_AUTOBRIEF      YES)
 
-  list (APPEND PREDEFINED "YAP_FLAG(A,B,C,D,E,F)=B"  )
 #  set (Doxygen::doxygen doxygen-yap)
 set( DOXYGEN_EXCLUDE
     CMakeLists.txt
@@ -67,6 +66,7 @@ set( DOXYGEN_EXCLUDE
   set( DOXYGEN_REPEAT_BRIEF NO)
   set( DOXYGEN_ENABLE_PREPROCESSING  YES)
   set( DOXYGEN_MACRO_EXPANSION YES)
+  list (APPEND PREDEFINED "YAP_FLAG(A,B,C,D,E,F)=B"  )
   set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
   set(DOXYGEN_PREDEFINED ${PREDEFINED} )
  set(DOXYGEN_HIDE_SCOPE_NAMES YES)
@@ -119,13 +119,28 @@ doxygen_add_docs(
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/OPTYap
+    COMMENT "Generated Xmls"
+)
+
+doxygen_add_docs(
+  dox2
+    ${CMAKE_SOURCE_DIR}/C
+    ${CMAKE_SOURCE_DIR}/H
+    ${CMAKE_SOURCE_DIR}/H/generated
+    ${CMAKE_SOURCE_DIR}/CXX
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/library
+    ${CMAKE_SOURCE_DIR}/os
+    ${CMAKE_SOURCE_DIR}/OPTYap
     ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
     COMMENT "Generated Xmls"
 )
 
 
 add_custom_target (mkdocs
-  COMMAND ${CMAKE_COMMAND} -E make_directory docs/images
+  COMMAND ${CMAKE_COMMAND} -E make_directory docs
+   COMMAND ${CMAKE_COMMAND} -E make_directory docs/mox
+ COMMAND ${CMAKE_COMMAND} -E make_directory docs/images
   COMMAND ${CMAKE_COMMAND} -E make_directory  docs/images/images
   COMMAND ${CMAKE_COMMAND} -E make_directory docs/javascripts
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs.yml
@@ -142,9 +157,12 @@ COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.i
       )
 
     add_custom_target(moxygen
-      COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../xml -g %.md -p -H
-      WORKING_DIRECTORY mkdocs/docs
-      DEPENDS dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  ${CMAKE_BINARY_DIR}/INSTALL.md 
+      COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../../xml -g %.md -p -H
+      WORKING_DIRECTORY mkdocs/docs/mox
+      DEPENDS dox2
+     )
+    add_custom_target(full
+       DEPENDS mkdocs moxygen 
      )
 
     add_custom_target(sphinx

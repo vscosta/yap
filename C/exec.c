@@ -68,8 +68,12 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
+  if (NEXTOP((yamop*)S,Osbpp) == P) {
+    ip = (yamop*)S;
+    op = Yap_op_from_opcode(ip->opc);
+  }
   if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || ip == TRUSTFAILCODE) {
-    op = P->opc;
+    op = Yap_op_from_opcode(P->opc);
     i->env = ENV; // YENV should be tracking ENV
     i->p = ip;
     i->p_env = ip;
@@ -89,22 +93,10 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
   i->at_yaam = true;
   CalculateStackGap(PASS_REGS1);
   i->gc_min = 2 * MinStackGap;
-  yamop *ip0 = PREVOP(ip, Osbpp);
   if (!op)
     {
-      op_numbers op1 = Yap_op_from_opcode(ip0->opc);
+      op = Yap_op_from_opcode(ip->opc);
       i->at_yaam = false;
-      if (op1 == _call_cpred || op1 == _call_usercpred)
-	op = op1;
-      else
-	{
-	  op = Yap_op_from_opcode(ip->opc);
-	  ip0 = ip;
-	}
-    }
-  else if (ip->opc == Yap_opcode(op))
-    {
-      ip0 = ip;
     }
   switch (op)
     {
@@ -119,19 +111,19 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     case _call_cpred:
     case _call_usercpred:
       i->env = YENV; // YENV should be tracking ENV
-      i->p_env = NEXTOP(ip0, Osbpp);
-      i->a = ip0->y_u.Osbpp.p->ArityOfPE;
-      i->p = ip0;
-      i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
+      i->p_env = NEXTOP(ip, Osbpp);
+      i->a = ip->y_u.Osbpp.p->ArityOfPE;
+      i->p = ip;
+      i->env_size = -ip->y_u.Osbpp.s / sizeof(CELL);
       i->caller = i->p->y_u.Osbpp.p0;
-      return i->pe =  ip0->y_u.Osbpp.p;
+      return i->pe =  ip->y_u.Osbpp.p;
     case _execute_cpred:
     case _execute:
-      i->a = ip0->y_u.Osbpp.p->ArityOfPE;
+      i->a = ip ->y_u.Osbpp.p->ArityOfPE;
       i->p_env = CP;
       i->env = ENV;
       i->p = P;
-      i->env_size = -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
+      i->env_size =P->y_u.Osbpp.s / sizeof(CELL);
       i->caller = i->p->y_u.Osbpp.p0;
       return i->pe =  ip->y_u.Osbpp.p;
 
@@ -271,6 +263,15 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env_size = EnvSizeInCells;
       i->caller = i->p->y_u.Osbpp.p0;
       return i->pe =  i->p->y_u.Osbpp.p;
+    case _undef_p:
+      i->env = ENV;
+      i->p = P;
+      i->p_env = CP;
+      i->a = PredFromDefCode(P)->ArityOfPE;
+      i->op = op;
+      i->env_size = -CP ->y_u.Osbpp.s / sizeof(CELL);
+      i->caller = CP->y_u.Osbpp.p0;
+      return i->pe = PredFromDefCode(P);
     default:
       i->env = ENV;
       i->p = P;

@@ -3,16 +3,16 @@
 
 @page YAPProgramming  Programming With YAP 
 
-@brief We next provide some useful information when trying to bmake Prolog
+@brief We next provide some useful information when trying to make Prolog
 programs run.
 
-@subpage syntax
+* @subpage syntax
 
-@subpage YAPConsulting
+* @subpage load_files
 
-@subpage modules
+* @subpage modules
 
-@subpage Deb_Interaction
+* @subpage Deb_Interaction
 
 
 */

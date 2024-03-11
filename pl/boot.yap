@@ -152,8 +152,9 @@ initialize_prolog :-
 
 :- c_compile('lf.yap').
 :- c_compile('consult.yap').
-
 :- compile('error.yap').
+
+
 
 :- ['utils.yap',
     'flags.yap'].

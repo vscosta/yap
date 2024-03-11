@@ -1552,7 +1552,7 @@ INLINE_ONLY const char *AtomTermName(Term t) {
   return RepAtom(AtomOfTerm(t))->rep.uStrOfAE;
 }
 
-  extern bool Yap_RestartException(yap_error_descriptor_t *  i);
+extern bool Yap_RestartException(yap_error_descriptor_t *  i);
 extern bool Yap_ResetException(yap_error_descriptor_t *i);
 extern yap_error_descriptor_t *Yap_GetException(void);
 extern yap_error_descriptor_t *Yap_PeekException(void);

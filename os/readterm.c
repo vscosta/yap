@@ -1220,8 +1220,8 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     strncpy(fe->msg, LOCAL_ErrorMessage, len);
     cause = MkAtomTerm(Yap_LookupAtom(fe->msg));
   } else {
-    cause = MkAtomTerm(Yap_LookupAtom("  "));
-    fe->msg = NULL;
+    cause = TermEmptyAtom;
+    fe->msg = "";
   }
   Yap_syntax_error__(__FILE__, __FUNCTION__, __LINE__,
                      cause, inp_stream, (LOCAL_tokptr), (LOCAL_toktide),

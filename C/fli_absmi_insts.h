@@ -39,9 +39,10 @@
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       CPredicate f = pt0->cs.f_code;
+      SREG=(CELL *)PREG;
       PREG = NEXTOP(PREG, Osbpp);
       saveregs();
-      d0 = (f)(PASS_REGS1);
+      d0 = f(PASS_REGS1);
       setregs();
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;

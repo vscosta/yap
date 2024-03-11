@@ -4262,7 +4262,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
     LogUpdIndex *ic = cint.current_cl.lui,
       *nic = ClauseCodeToLogUpdIndex(indx_out);
     if (ic == NULL)
-      ic = (LogUpdIndex *)Yap_find_owner_index((yamop *)labp, ap);
+      ic = Yap_find_owner_index((yamop *)labp, ap).lui;
     /* insert myself in the indexing code chain */
     nic->SiblingIndex = ic->ChildIndex;
     nic->PrevSiblingIndex = NULL;
@@ -4278,7 +4278,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
     StaticIndex *ic = cint.current_cl.si,
       *nic = ClauseCodeToStaticIndex(indx_out);
     if (ic == NULL)
-      ic = (StaticIndex *)Yap_find_owner_index((yamop *)labp, ap);
+      ic = Yap_find_owner_index((yamop *)labp, ap).si;
     /* insert myself in the indexing code chain */
     nic->SiblingIndex = ic->ChildIndex;
     ic->ChildIndex = nic;

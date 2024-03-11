@@ -1,7 +1,7 @@
 # The YAP @YAP_FULL_VERSION@ Reference Manual                         {#mainpage}
 
 
-![The YAP Logo](@PROJECT_SOURCE_DIR@/docs/images/yap_256x256x32.png)
+![The YAP Logo](images/yap_256x256x32.png)
 
 NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
 
@@ -17,18 +17,17 @@ The manual is organised as follows:
 
 * [run](run)
 
-* [Core Facilities in YAP](group__Builtins)
+* [Core Facilities in YAP](group__Builtins.md)
 
-* [YAPLibrary](group__YAPLibrary)
+* [The YAP Library](group__YAPLibrary.md)
 
-* [Writing Programs in YAP](group__YAPProgramming)
+* [Writing Programs in YAP](group__YAPProgramming.md)
 
-* [Extending YAP](group__YapExtensions)
+* [Extending YAP](group__YapExtensions.md)
 
-* [The Foreign Language Interfaces](fli_c_xx)
+* [The Foreign Language Interfaces](fli_c_xx.md)
 
-
-* [packages](packages)
+* [YAP Packages](packages.md)
 
 
 

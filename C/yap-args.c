@@ -344,6 +344,7 @@ static const char *join(const char *s0, const char *s1) {
 
 static void Yap_set_locations(YAP_init_args *iap) {
   is_install= iap->install;
+  const char *binarypath=Yap_FindExecutable();
   /// ROOT_DIR is the home of the YAP system. It can be:
   /// -- provided by the user;
   /// -- obtained  from DESTDIR + DE=efalkRoot
@@ -351,8 +352,8 @@ static void Yap_set_locations(YAP_init_args *iap) {
   /// It is:
   //  --_not useful in Android, WIN32;
   /// -- DESTDIR/ in Anaconda
-  /// -- /usr/loca77l in most Unix style systems
-  Yap_ROOTDIR = sel( is_dir, NULL,
+  /// -- /usr/local in most Unix style systems
+  Yap_ROOTDIR = sel( is_file, join(Yap_ROOTDIR,join("bin",binarypath)),
 		     iap->ROOTDIR,
 		     getenv("YAPROOTDIR"),
 		     join(getenv("DESTDIR"), YAP_ROOTDIR),
@@ -392,6 +393,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
   Yap_DLLDIR = sel(is_dir, Yap_LIBDIR, iap->DLLDIR,
 		   getenv("YAPLIBDIR"),
 		   join(getenv("DESTDIR"), YAP_DLLDIR),
+		   join(getenv("LD_LIBRARY_PATH"), YAP_DLLDIR),
 		   EOLIST);
 
   /// INCLUDEDIR: where the OS stores header files, namely libYap...

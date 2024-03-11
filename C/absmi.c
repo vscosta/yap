@@ -519,7 +519,7 @@ static void interrupt_delay(op_numbers op, yamop *pc USES_REGS) {
 
 bool Yap_dispatch_interrupts( USES_REGS1 ) {
   if (Yap_has_a_signal()) {
-    P = interrupt_main(P->opc, P PASS_REGS);
+     interrupt_main(P->opc, P PASS_REGS);
   }
   return true;
 }
@@ -685,6 +685,10 @@ static void undef_goal(PredEntry *pe USES_REGS) {
     P = FAILCODE;
     return;
   }
+   /* back up the pointer */
+  CalculateStackGap(PASS_REGS1);
+  RECOVER_MACHINE_REGS();
+
 #if defined(YAPOR) || defined(THREADS)
 //  UNLOCKPE(19, PP); //TODO 
 //  PP = NULL;
@@ -693,6 +697,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   LOCAL_DoingUndefp = true;
   PredEntry *hook;
   Term tg = save_goal(pe PASS_REGS);
+
   // Check if we have something at  user:unknown_predicate_handler/3 */
   if ( UndefHook &&
        UndefHook->OpcodeOfPred != UNDEF_OPCODE) {
@@ -708,29 +713,14 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   if (hook) {
     P = hook->CodeOfPred;
   }
-      
-  // control is done
+ // control is done
   ARG1 = tg;
   // go forth to meet the handler.
 #if defined(YAPOR) || defined(THREADS)
 //  UNLOCKPE(19, PP); //TODO
 //  PP = NULL;
 #endif
-  /* back up the pointer */
-  LOCAL_Undef_B = B;
-  LOCAL_Undef_ENV = ENV;
-  if (PREVOP(CP,Osbpp)->y_u.Osbpp.p == pe) {
-  LOCAL_Undef_CP  = PREVOP(CP,Osbpp);
-  Yap_pc_add_location(LOCAL_ActiveError, LOCAL_Undef_CP, LOCAL_Undef_B, LOCAL_Undef_ENV);
-  } else {
-    LOCAL_Undef_CP = CP;
-    Yap_env_add_location(LOCAL_ActiveError, LOCAL_Undef_CP, LOCAL_Undef_B, LOCAL_Undef_ENV, 0);
-
-  }
-
-  CalculateStackGap(PASS_REGS1);
-  RECOVER_MACHINE_REGS();
-
+ 
 
   return;
 }
