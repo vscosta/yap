@@ -37,7 +37,6 @@
 #else
 #define IN_ANDROID "false"
 #endif
-
 #ifdef DOXYGEN
 #define YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT, HELPER)  **NAME** =  INIT
 enum GLOBAL_FLAGS
@@ -47,7 +46,7 @@ enum GLOBAL_FLAGS
 #define END_FLAG( )
 enum GLOBAL_FLAGS
 #endif
-/**
+/*
 * @enum Global_Flags These are the default global flags:
 */
 
