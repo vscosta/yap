@@ -387,11 +387,13 @@ static void Yap_set_locations(YAP_init_args *iap) {
 		    join(getenv("DESTDIR"), YAP_LIBDIR),
 #endif
 		    join(Yap_ROOTDIR, "lib"),
+		    join(Yap_ROOTDIR, "lib64"),
 		    EOLIST);
 
   /// DLLDIR: where libraries can find expicitely loaded DLLs
   Yap_DLLDIR = sel(is_dir, Yap_LIBDIR, iap->DLLDIR,
 		   getenv("YAPLIBDIR"),
+		   Yap_LIBDIR,
 		   join(getenv("DESTDIR"), YAP_DLLDIR),
 		   join(getenv("LD_LIBRARY_PATH"), YAP_DLLDIR),
 		   EOLIST);
@@ -458,18 +460,18 @@ static void Yap_set_locations(YAP_init_args *iap) {
   Yap_OUTPUT_STARTUP =
     sel( is_wfile, ".", iap->OUTPUT_STARTUP,
 	 YAP_OUTPUT_STARTUP,
-	 join(getenv("DESTDIR"), join(Yap_DLLDIR, "startup.yss")),
 	 join(getenv("DESTDIR"), join(Yap_DLLDIR,iap->OUTPUT_STARTUP)),
+	 join(getenv("DESTDIR"), join(Yap_DLLDIR, "startup.yss")),
 	 "startup.yss",
 	 EOLIST);
 
   Yap_INPUT_STARTUP =
-    sel( is_file, Yap_DLLDIR, iap->INPUT_STARTUP,
-	 "startup.yss",
-	 join(getenv("DESTDIR"), join(Yap_DLLDIR, "startup.yss")),
+    sel( is_file, Yap_LIBDIR, iap->INPUT_STARTUP,
+	 join(getenv("DESTDIR"), join(Yap_LIBDIR, "startup.yss")),
 #if !defined(__ANDROID__)
 	 join(getenv("DESTDIR"), YAP_INPUT_STARTUP),
 #endif
+	 "startup.yss",
 	 "/usr/local/lib/Yap/startup.yss",
 	 "/usr/lib/Yap/startup.yss",
 	 EOLIST);
