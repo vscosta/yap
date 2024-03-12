@@ -583,21 +583,21 @@ init_one_query(QueryID,Query,_Type) :-
     problog_flag(init_method,Call),
     %	  trace,
     (
-	call(user:Call, Query,bdd(Dir,Tree,Prob0,MapList) )
+	call(user:Call, Query,bdd(Dir,Tree,Prob,MapList) )
     ->
-    store_bdd(QueryID, Dir, Tree, Prob0, MapList)
+    store_bdd(QueryID, Dir, Tree, Prob``, MapList)
     ;
     true).
+
+:- spy init_one_query.
 
 set_p0(X,I,P) :- X[I] <==P.
 
 add_bdd(QueryID,Query, Bdd) :-
     Bdd = bdd(Dir, Tree0,Prob0,MapList),
     user:graph2bdd(Query,1,Bdd),
-    Tree = [H|_T],
+    Tree = [_|_],
     !,
-    arg(1, H, Prob0),
-    reverse(Tree0,Tree),
     store_bdd(QueryID, Dir, Tree,Prob0, MapList).
 add_bdd(_QueryID,_Query, bdd(1,[],_,[])).
 

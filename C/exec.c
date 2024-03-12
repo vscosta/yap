@@ -100,6 +100,90 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     }
   switch (op)
     {
+    case _p_plus_vv:                  
+    case _p_plus_vc:
+    case _p_minus_vv:                 
+    case _p_minus_cv:                 
+    case _p_times_vv:                 
+    case _p_times_vc:                 
+    case _p_div_vv:                   
+    case _p_div_vc:                   
+    case _p_div_cv:                   
+    case _p_and_vv:                   
+    case _p_and_vc:                   
+    case _p_xor_vv:                    
+    case _p_xor_vc:                    
+    case _p_sll_vv:                   
+    case _p_sll_vc:                   
+    case _p_sll_cv:                   
+    case _p_slr_vv:                   
+    case _p_slr_vc:                   
+    case _p_slr_cv:                   
+    case _call_bfunc_xx:              
+    case _p_equal:
+    case _p_arg_vv:
+    case _p_arg_cv:                   
+    case _p_arg_y_vv:                 
+    case _p_arg_y_cv:                 
+    case _p_atom_x:
+    case _p_atomic_x:                 
+    case _p_integer_x:                
+    case _p_nonvar_x:                 
+    case _p_number_x:                 
+    case _p_var_x:                    
+    case _p_db_ref_x:                 
+    case _p_primitive_x:              
+    case _p_compound_x:               
+      i->env = ENV; // YENV should be tracking ENV
+      i->p = ip;
+      i->p_env = CP;
+      i->pe = Yap_PredEntryForCode(NULL, ip, FIND_PRED_FROM_CLAUSE );
+      i->a = i->pe->ArityOfPE;
+      i->env_size = 0;
+      return i->pe;
+      break;
+    case _p_plus_y_vv:                
+    case _p_plus_y_vc:                
+    case _p_minus_y_vv:               
+    case _p_minus_y_cv:               
+    case _p_times_y_vv:               
+    case _p_times_y_vc:               
+    case _p_div_y_vv:                 
+    case _p_div_y_vc:                 
+    case _p_div_y_cv:                 
+    case _p_and_y_vv:                 
+    case _p_and_y_vc:                 
+    case _p_or_vv:                    
+    case _p_or_vc:                    
+    case _p_or_y_vv:                  
+    case _p_or_y_vc:                  
+    case _p_xor_y_vv:                  
+    case _p_xor_y_vc:                  
+    case _p_sll_y_vv:                 
+    case _p_sll_y_vc:                 
+    case _p_sll_y_cv:                 
+    case _p_slr_y_vv:                 
+    case _p_slr_y_vc:                 
+    case _p_slr_y_cv:                 
+    case _call_bfunc_yx:              
+    case _call_bfunc_xy:              
+    case _call_bfunc_yy:              
+    case _p_atom_y:                   
+    case _p_atomic_y:                 
+    case _p_integer_y:                
+    case _p_nonvar_y:                 
+    case _p_number_y:                 
+    case _p_var_y:                    
+    case _p_db_ref_y:                 
+    case _p_primitive_y:              
+    case _p_compound_y:               
+      i->env = ENV; // YENV should be tracking ENV
+      i->p = ip;
+      i->p_env = CP;
+      i->pe = Yap_PredEntryForCode(NULL,ip, FIND_PRED_FROM_CLAUSE );
+      i->a = i->pe->ArityOfPE;
+      i->env_size = 0;
+      return i->pe;
     case _call:
       i->env = YENV; // YENV should be tracking ENV
       i->p = ip;

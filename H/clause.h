@@ -455,7 +455,8 @@ static inline bool Yap_static_in_use(PredEntry *p, bool check_everything) {
 typedef enum {
   FIND_PRED_FROM_ANYWHERE,
   FIND_PRED_FROM_CP,
-  FIND_PRED_FROM_ENV
+  FIND_PRED_FROM_ENV,
+  FIND_PRED_FROM_CLAUSE
 } find_pred_type;
 
 extern  PredEntry * Yap_PredForCode(yamop *, find_pred_type,ClausePointer* );

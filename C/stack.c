@@ -865,6 +865,7 @@ PredEntry * Yap_PredForCode(yamop *codeptr, find_pred_type where_from) {
 
 PredEntry *Yap_PredEntryForCode(choiceptr ap, yamop *codeptr, find_pred_type where_from) {
     CACHE_REGS
+      ClausePointer out;
       if (where_from == FIND_PRED_FROM_CP){ 
         PredEntry *pp = Yap_PredForChoicePt(ap);
         if (cl_code_in_pred(pp, ap->cp_ap).pe) {
@@ -876,8 +877,56 @@ PredEntry *Yap_PredEntryForCode(choiceptr ap, yamop *codeptr, find_pred_type whe
             return pp;
         }
     }
+    ModEntry *me;
+    while (me) {
+        PredEntry *pp = me->PredForME;
+
+        while (pp != NULL) {
+            /*      if (pp->ArityOfPE) {
+                    fprintf(stderr,"%%s/%d %p\n",
+                    RepAtom(NameOfFunctor(pp->FunctorOfPred))->StrOfAE,
+                    pp->ArityOfPE,
+                    pp);
+                    } else {
+                    fprintf(stderr,"%%s %p\n",
+                    RepAtom((Atom)(pp->FunctorOfPred))->StrOfAE,
+                    pp);
+                    }*/
+    if (&codeptr->opc == &pp->OpcodeOfPred) {
+      return pp;
+    /* check if the codeptr comes from the indexing code */
+   } else if (where_from != FIND_PRED_FROM_ENV && where_from != FIND_PRED_FROM_CLAUSE &&
+	      pp->PredFlags & IndexedPredFlag) {
+      if (pp->PredFlags & LogUpdatePredFlag) {
+	out.lui = ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred);
+	if ((out = code_in_pred_lu_index(out, codeptr)).lui) {
+	  
+	  return pp;
+	}
+      } else {
+	out.si = ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred); 
+	if ((out = code_in_pred_s_index(out
+					, codeptr)).si) {
+	  return out.pe;
+	}
+      }
+    } else 
+      if (pp->PredFlags & (CPredFlag | AsmPredFlag | UserCPredFlag)) {
+        StaticClause *cl = ClauseCodeToStaticClause(pp->CodeOfPred);
+        if (IN_BLOCK(codeptr, (CODEADDR) cl, cl->ClSize)) {
+	  return pp;
+     } else {
+      out = find_code_in_clause(pp, codeptr);
+    }
+    if (out.pe)
+      return pp;
+      }
+    pp = pp->NextPredOfModule;
+      }
+    me = me->NextME;
+      }
     return NULL;
-}
+    }
 
 /**
  * Detect whether the predicate describing the goal in A1,
@@ -1837,6 +1886,8 @@ static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,
     p->prologPredLine = get_clause_line(pe,cl);
     return p;
 }
+
+//PredEntry Yap_CodeOwner(yamop *pc, 
 
 yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t,
                                             void *pc0, void *b_ptr0,

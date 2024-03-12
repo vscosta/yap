@@ -177,7 +177,6 @@ lbfgs_allocate(N,X) :-
 Clean up the memory.
 */
 lbfgs_progress_done(_).
-
 /** @pred  lbfgs_finalize(+State)
 
 Clean up the memory.
@@ -195,12 +194,12 @@ lbfgs_run(N,X) :-
 
 
 
-/** @pred  lbfgs_parameters/11
+/** @pred  lbfgs_parameters
 Prints a table with the current parameters. See the <a href="http://www.chokkan.org/software/liblbfgs/structlbfgs__parameter__t.html#_details">documentation
 of libLBFGS</a> for the meaning of each parameter.
 
 ```
-   ?- lbfgs_parameters(State).
+   ?- lbfgs_parameters.
 ==========================================================================================
 Type      Name               Value          Description
 ==========================================================================================
@@ -222,7 +221,7 @@ int       orthantwise_end    -1             End index for computing the L1 norm 
 ==========================================================================================
 ```
 */
-lbfgs_parameters  :-
+lbfgs_parameters :-
 	lbfgs_get_parameter(m,M ),
 	lbfgs_get_parameter(epsilon,Epsilon ),
 	lbfgs_get_parameter(past,Past ),
