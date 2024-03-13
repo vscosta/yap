@@ -249,14 +249,13 @@ static bool load_file(const char *b_file USES_REGS) {
 static const char * EOLIST ="EOLINE";
 static bool is_install;
 
-static bool is_dir( const char *path, const void  *info) {
+static bool is_dir( const char *path) {
   if (is_install)
     return true;
   if (!path)
     return false;
-  if (Yap_isDirectory( path ))
-    return true;
-  char s[MAX_PATH + 1];
+  return (Yap_isDirectory( path ));
+  /*  char s[MAX_PATH + 1];
   Int i = strlen(path);
   strncpy(s, path, MAX_PATH);
   while (--i) {
@@ -272,27 +271,29 @@ static bool is_dir( const char *path, const void  *info) {
     return  true;
   return
     strcmp(info,s) == 0 ||
-    Yap_isDirectory( s );
-}
+    Yap_isDirectory( s );*/
+  }
 																			       
-static bool is_file( const char *path, const void  *info) {
+static bool is_file( const char *path) {
   if (is_install)
     return true;
+  if (!path)
+    return false;
   return Yap_Exists( path );
 }
 																			       
-static bool is_wfile( const char *path, const void  *info) {
+static bool is_wfile( const char *path) {
 																				   
   return true;
 }
 
-typedef bool testf(const char *s, const void *info);
+typedef bool testf(const char *s);
 
 
 ///
 ///
 static const char *sel(
-		       testf test, const void *info, const char *s1, ...) {
+		       testf test, const char *s1, ...) {
   const char *fmt = s1;
   va_list ap;
   char *buf = malloc(FILENAME_MAX + 1);
@@ -304,7 +305,7 @@ static const char *sel(
       continue;
     }
     strncpy(buf, fmt, FILENAME_MAX); // Yap_AbsoluteFile(fmt,true), FILENAME_MAX);
-    if (test(buf,info)) {
+    if (test(buf)) {
       buf = realloc(buf, strlen(buf) + 1);
       va_end(ap);
       return buf;
@@ -346,6 +347,9 @@ static const char *join(const char *s0, const char *s1) {
 static void Yap_set_locations(YAP_init_args *iap) {
   is_install= iap->install;
   const char *binarypath=Yap_AbsoluteFile(join(Yap_FindExecutable(),"../.."),true);
+  if (!is_file(join(binarypath,"lib/startup.yss")) ||
+      !is_dir(join(binarypath,"share/Yap")))
+    binarypath=NULL;
   /// ROOT_DIR is the home of the YAP system. It can be:
   /// -- provided by the user;
   /// -- obtained  from DESTDIR + DE=efalkRoot
@@ -354,11 +358,11 @@ static void Yap_set_locations(YAP_init_args *iap) {
   //  --_not useful in Android, WIN32;
   /// -- DESTDIR/ in Anaconda
   /// -- /usr/local in most Unix style systems
-  Yap_ROOTDIR = sel( is_dir, Yap_ROOTDIR,NULL,
+  Yap_ROOTDIR = sel( is_dir,
 		     iap->ROOTDIR,
 		     getenv("YAPROOTDIR"),
-		     binarypath,
 		     join(getenv("DESTDIR"), YAP_ROOTDIR),
+		     binarypath,
 #if __ANDROID__
 		     "/",
 #else
@@ -374,7 +378,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
 		      ANDROID_LOG_INFO,"YAPDroid", "Yap_ROOTDIR %s", Yap_ROOTDIR);
 
   /// BINDIR: where the OS stores header files, namely libYap...
-  Yap_BINDIR = sel( is_dir, Yap_ROOTDIR, NULL,
+  Yap_BINDIR = sel( is_dir,
 		    iap->BINDIR,
 		    getenv("YAPBINDIR"),
 		    join(Yap_ROOTDIR, "bin"),
@@ -394,15 +398,14 @@ static void Yap_set_locations(YAP_init_args *iap) {
 		    EOLIST);
 
   /// DLLDIR: where libraries can find expicitely loaded DLLs
-  Yap_DLLDIR = sel(is_dir, Yap_LIBDIR,NULL, iap->DLLDIR,
-		   getenv("YAPLIBDIR"),
+  Yap_DLLDIR = sel(is_dir, iap->DLLDIR,
 		   Yap_LIBDIR,
 		   join(getenv("DESTDIR"), YAP_DLLDIR),
 		   join(getenv("LD_LIBRARY_PATH"), YAP_DLLDIR),
 		   EOLIST);
 
   /// INCLUDEDIR: where the OS stores header files, namely libYap...
-  Yap_INCLUDEDIR = sel(is_dir, Yap_ROOTDIR,NULL,
+  Yap_INCLUDEDIR = sel(is_dir,
 		       
 		       iap->INCLUDEDIR,
 		       join(Yap_ROOTDIR, "include"),
@@ -413,7 +416,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
 
 
   /// SHAREDIR: where OS & ARCH independent files live
-  Yap_SHAREDIR = sel( is_dir, Yap_ROOTDIR, iap->SHAREDIR,
+  Yap_SHAREDIR = sel( is_dir, iap->SHAREDIR,
 		      getenv("YAPSHAREDIR"),
 #if __ANDROID__
 		      "/data/data/pt.up.yap/files",
@@ -428,7 +431,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
 
 
   /// PLDIR: where we can find Prolog files
-  Yap_PLDIR = sel( is_dir, Yap_SHAREDIR, NULL,
+  Yap_PLDIR = sel( is_dir,
 		   iap->PLDIR,
 		   join(Yap_SHAREDIR, "Yap"),
 		   EOLIST);
@@ -437,11 +440,12 @@ static void Yap_set_locations(YAP_init_args *iap) {
 		      ANDROID_LOG_INFO, "YAPDroid","Yap_PLDIR %s", Yap_PLDIR);
 
   /// ``COMMONSDIR: Prolog Commons
-  Yap_COMMONSDIR = sel(is_dir, Yap_SHAREDIR, iap->COMMONSDIR,
+  Yap_COMMONSDIR = sel(is_dir, iap->COMMONSDIR,
 		       join(getenv("DESTDIR"), join(Yap_SHAREDIR, "PrologCommons")),
 		       EOLIST);
   /// SOURCEBOOT: booting from the Prolog boot file at compilation-time so we should not assume pl is installed.
-  Yap_SOURCEBOOT = sel(  is_file, Yap_AbsoluteFile("pl",false), iap->SOURCEBOOT,
+  Yap_SOURCEBOOT = sel(  is_file,
+			 iap->SOURCEBOOT,
 			 YAP_SOURCEBOOT,
 			 "boot.yap",
 			 "../pl/boot.yap",
@@ -465,14 +469,16 @@ static void Yap_set_locations(YAP_init_args *iap) {
   Yap_OUTPUT_STARTUP =
     sel( is_wfile, ".", iap->OUTPUT_STARTUP,
 	 YAP_OUTPUT_STARTUP,
-	 join(getenv("DESTDIR"), join(Yap_DLLDIR,iap->OUTPUT_STARTUP)),
-	 join(getenv("DESTDIR"), join(Yap_DLLDIR, "startup.yss")),
+	 //join(getenv("DESTDIR"), join(Yap_LIBDIR,iap->OUTPUT_STARTUP)),
+	 //	 join(getenv("DESTDIR"), join(Yap_LIBDIR, "startup.yss")),
 	 "startup.yss",
 	 EOLIST);
 
   Yap_INPUT_STARTUP =
-    sel( is_dir, Yap_LIBDIR, NULL,
+    sel( is_file,
+		   iap->INPUT_STARTUP,
          join(Yap_LIBDIR, "startup.yss" ),
+	 join(Yap_FindExecutable(),"../startup.yss"),
 #if !defined(__ANDROID__)
 	 join(getenv("DESTDIR"), YAP_INPUT_STARTUP),
 #endif

@@ -585,20 +585,21 @@ init_one_query(QueryID,Query,_Type) :-
     (
 	call(user:Call, Query,bdd(Dir,Tree,Prob,MapList) )
     ->
-    store_bdd(QueryID, Dir, Tree, Prob``, MapList)
+    store_bdd(QueryID, Dir, Tree, Prob, MapList)
     ;
     true).
 
 :- spy init_one_query.
+
 
 set_p0(X,I,P) :- X[I] <==P.
 
 add_bdd(QueryID,Query, Bdd) :-
     Bdd = bdd(Dir, Tree0,Prob0,MapList),
     user:graph2bdd(Query,1,Bdd),
-    Tree = [_|_],
+    Tree0 = [_|_],
     !,
-    store_bdd(QueryID, Dir, Tree,Prob0, MapList).
+    store_bdd(QueryID, Dir, Tree0,Prob0, MapList).
 add_bdd(_QueryID,_Query, bdd(1,[],_,[])).
 
 store_bdd(QueryID, _Dir, _Tree,_, _MapList) :-

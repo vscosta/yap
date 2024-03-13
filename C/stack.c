@@ -1740,9 +1740,10 @@ f = open_memstream(&nbuf, &nsize);
     yap_error_number errnbr = LOCAL_Error_TYPE;
     yap_error_class_number classno = Yap_errorClass(errnbr);
 
-    fprintf( f, "%% Error STATUS: %s/%s\n\n", Yap_errorName(errnbr),
+    if (errnbr)
+      fprintf( f, "%% Error STATUS: %s/%s\n\n", Yap_errorName(errnbr),
 	     Yap_errorClassName(classno));
-
+    /*
     fputs("%% Execution mode", f);
     if (LOCAL_PrologMode & BootMode)
         fputs(" Bootstrap", f);
@@ -1785,6 +1786,7 @@ f = open_memstream(&nbuf, &nsize);
     fputs("%% \n%%  -------------------------------------\n%%\n", f);
     fputs("%% \n%%  -------------------------------------\n%%\n", f);
     fprintf( f, "%% Program Position: %s\n\n", Yap_errorName(errno));
+    */
     char *o = Yap_output_bug_location(B, P, FIND_PRED_FROM_ANYWHERE, 256);
     fprintf( f, "%%          PC: %s\n", o);
     /* o = Yap_output_bug_location(B, CP, FIND_PRED_FROM_ENV, 256); */
@@ -1793,7 +1795,7 @@ f = open_memstream(&nbuf, &nsize);
     /* fprintf( f, "%%         TOP Alternative: %s\n", o); */
 
     /* fputs("%% \n%%  -------------------------------------\n%%\n", f); */
-    fputs("%% \n%%  -------------------------------------\n%%\n", f);
+    //fputs("%% \n%%  -------------------------------------\n%%\n", f);
         fprintf( f, "%%    Performed %ld garbage collections\n",
                         (unsigned long int) LOCAL_GcCalls);	
 #if LOW_LEVEL_TRACER
@@ -1808,9 +1810,7 @@ f = open_memstream(&nbuf, &nsize);
             }
         }
 #endif
-        fputs("%% Open Continuations (ie, unfinished clauses) and\n", f);
-        fputs("%%         Goals With Alternatives Open  (Global In "
-               "Use--Local In Use)\n%%\n", f);
+        fputs("%% Goals in stack\n", f);
 	DumpActiveGoals(f PASS_REGS);
 	fflush(f);
     size_t sz = ftell(f);
