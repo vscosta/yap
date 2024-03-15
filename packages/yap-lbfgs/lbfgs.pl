@@ -154,7 +154,7 @@ yes
 
 */
 
-:- load_foreign_files(['libLBFGS'],[],init_lbfgs_predicates).
+:- load_foreign_files([],['YAPLBFGS'],init_lbfgs_predicates).
 
 /** @pred lbfgs_initialize(+N, -SolverInfo, -Thread),
 

@@ -283,7 +283,11 @@ static bool is_file( const char *path) {
 }
 																			       
 static bool is_wfile( const char *path) {
-																				   
+
+  	       
+  if (!path)
+    return false;
+
   return true;
 }
 
@@ -346,10 +350,19 @@ static const char *join(const char *s0, const char *s1) {
 
 static void Yap_set_locations(YAP_init_args *iap) {
   is_install= iap->install;
-  const char *binarypath=Yap_AbsoluteFile(join(Yap_FindExecutable(),"../.."),true);
-  if (!is_file(join(binarypath,"lib/startup.yss")) ||
-      !is_dir(join(binarypath,"share/Yap")))
-    binarypath=NULL;
+  const char *binarypath=Yap_FindExecutable(),
+    *root_binary_dir= Yap_AbsoluteFile(join(Yap_FindExecutable(),"../.."),true),
+  *path_binary_dir= Yap_AbsoluteFile(join(root_binary_dir,"bin"),true),
+    *path_binary_lib= Yap_AbsoluteFile(join(root_binary_dir,"lib"),true),
+    *path_binary_pllib= Yap_AbsoluteFile(join(root_binary_dir,"share/Yap"),true);
+  if (!is_file(join(path_binary_lib,"startup.yss")) ||
+	       !is_dir(join(path_binary_pllib,"share/Yap"))) {
+	binarypath=NULL;
+	root_binary_dir=NULL;
+	path_binary_dir=NULL;
+	path_binary_lib=NULL;
+	path_binary_pllib=NULL;
+      }
   /// ROOT_DIR is the home of the YAP system. It can be:
   /// -- provided by the user;
   /// -- obtained  from DESTDIR + DE=efalkRoot
@@ -362,7 +375,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
 		     iap->ROOTDIR,
 		     getenv("YAPROOTDIR"),
 		     join(getenv("DESTDIR"), YAP_ROOTDIR),
-		     binarypath,
+		     root_binary_dir,
 #if __ANDROID__
 		     "/",
 #else
@@ -381,7 +394,9 @@ static void Yap_set_locations(YAP_init_args *iap) {
   Yap_BINDIR = sel( is_dir,
 		    iap->BINDIR,
 		    getenv("YAPBINDIR"),
+		    path_binary_dir,
 		    join(Yap_ROOTDIR, "bin"),
+		    
 #if !defined(__ANDROID__)
 		    join(getenv("DESTDIR"), YAP_BINDIR),
 #endif
@@ -392,6 +407,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
 		    iap->LIBDIR,
 		    join(Yap_ROOTDIR, "lib"),
 		    join(Yap_ROOTDIR, "lib64"),
+		    path_binary_lib,
 #if !defined(__ANDROID__)
 		    join(getenv("DESTDIR"), YAP_LIBDIR),
 #endif
@@ -424,6 +440,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
 #endif
 		      join(Yap_ROOTDIR, "share"),
 		      join(getenv("DESTDIR"), YAP_SHAREDIR),
+		      path_binary_pllib,
 		      EOLIST);
   __android_log_print(
 		      ANDROID_LOG_INFO,"YAPDroid", "Yap_SHAREDIR %s", Yap_SHAREDIR);
@@ -440,7 +457,8 @@ static void Yap_set_locations(YAP_init_args *iap) {
 		      ANDROID_LOG_INFO, "YAPDroid","Yap_PLDIR %s", Yap_PLDIR);
 
   /// ``COMMONSDIR: Prolog Commons
-  Yap_COMMONSDIR = sel(is_dir, iap->COMMONSDIR,
+  Yap_COMMONSDIR = sel(is_dir,
+		       iap->COMMONSDIR,
 		       join(getenv("DESTDIR"), join(Yap_SHAREDIR, "PrologCommons")),
 		       EOLIST);
   /// SOURCEBOOT: booting from the Prolog boot file at compilation-time so we should not assume pl is installed.
@@ -449,7 +467,8 @@ static void Yap_set_locations(YAP_init_args *iap) {
 			 YAP_SOURCEBOOT,
 			 "boot.yap",
 			 "../pl/boot.yap",
-			 EOLIST);
+		       	 "../../pl/boot.yap",
+		 EOLIST);
   __android_log_print(
 		      ANDROID_LOG_INFO, "YAPDroid","Yap_SOURCEBOOT %s", Yap_SOURCEBOOT);
 
@@ -459,7 +478,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
   __android_log_print(
 		      ANDROID_LOG_INFO, "YAPDroid","Yap_BOOTSTRAP %s", Yap_BOOTSTRAP);
   /// BOOTSTRAP: booting from the Prolog boot file after YAP is installed
-  Yap_BOOTSTRAP = sel(  is_file, Yap_PLBOOTDIR, iap->BOOTSTRAP,
+  Yap_BOOTSTRAP = sel(  is_file, iap->BOOTSTRAP,
 			join(getenv("DESTDIR"),YAP_BOOTSTRAP),
 			join(getenv("DESTDIR"),join(Yap_PLBOOTDIR, "boot.yap")),
 			EOLIST);
@@ -467,10 +486,12 @@ static void Yap_set_locations(YAP_init_args *iap) {
 		      ANDROID_LOG_INFO,"YAPDroid", "Yap_BOOTSTRAP %s", Yap_PLBOOTDIR);
   /// STARTUP: where we can find the core Prolog bootstrap file
   Yap_OUTPUT_STARTUP =
-    sel( is_wfile, ".", iap->OUTPUT_STARTUP,
+    sel( is_wfile,
+	 iap->OUTPUT_STARTUP,
 	 YAP_OUTPUT_STARTUP,
 	 //join(getenv("DESTDIR"), join(Yap_LIBDIR,iap->OUTPUT_STARTUP)),
 	 //	 join(getenv("DESTDIR"), join(Yap_LIBDIR, "startup.yss")),
+	 join(path_binary_dir,"startup.yss"),
 	 "startup.yss",
 	 EOLIST);
 

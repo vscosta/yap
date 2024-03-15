@@ -597,20 +597,19 @@ set_p0(X,I,P) :- X[I] <==P.
 add_bdd(QueryID,Query, Bdd) :-
     Bdd = bdd(Dir, Tree0,Prob0,MapList),
     user:graph2bdd(Query,1,Bdd),
-    Tree0 = [_|_],
-    !,
-    store_bdd(QueryID, Dir, Tree0,Prob0, MapList).
+    store_bdd(QueryID, Dir, Tree0,Prob0, MapList),
+    !.
 add_bdd(_QueryID,_Query, bdd(1,[],_,[])).
 
 store_bdd(QueryID, _Dir, _Tree,_, _MapList) :-
     QueryID mod 100 =:= 0,
     format('~n~d: ',[QueryID]),
     fail.
-store_bdd(QueryID, Dir, Tree,Prob0, MapList) :-
+store_bdd(QueryID, Dir, Tree,Prob0, MapList) :
+Tree = [_,_|_],
     ignore((recorded(QueryID,_,Ref),
 	    erase(Ref),
 	    fail)),
-    !,
     recordz(QueryID,bdd(Dir, Tree,Prob0, MapList),_R),
     put_char('.').
 store_bdd(_QueryID, _Dir, _Tree,_, _MapList) :-

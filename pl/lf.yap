@@ -692,12 +692,10 @@ reconsult(Fs) :-
 
 compile_clauses(Commands) :-
      '$active_predicate'(P),
-     '$start_consult'(reconsult,loop_stream,loop_stream,_),
     (
     '$member'(C,Commands),
      compile_clause(C),
      fail;
-    '$end_consult',
     '$active_predicate'(P)
     ).
  

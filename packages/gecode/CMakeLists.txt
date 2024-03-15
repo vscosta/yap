@@ -31,7 +31,7 @@ if (GECODE_FOUND)
     disjunctor.icc
     disjunctor.hh )
 
-  add_custom_target (gecodeyap ALL DEPENDS gecode${GECODE_MAJOR}_yap_hand_written.yap ${GECODE_VERSION}/gecode_yap_auto_generated.yap gecode_yap
+  add_custom_target (gecodeyap ALL DEPENDS gecode${GECODE_MAJOR}_yap_hand_written.yap ${GECODE_VERSION}/gecode_yap_auto_generated.yap YAPgecode
     ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
   # create a startup.yss on the top directory.
@@ -41,16 +41,16 @@ if (GECODE_FOUND)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-  add_library(gecode_yap  ${GECODE_SOURCES})
+  add_library(YAPgecode  ${GECODE_SOURCES})
 
-  target_link_libraries(gecode_yap libYap ${GECODE_LIBRARIES})
+  target_link_libraries(YAPgecode libYap ${GECODE_LIBRARIES})
 
-  set_target_properties (gecode_yap  PROPERTIES PREFIX "" CXX_STANDARD 11)
+  set_target_properties (YAPgecode  PROPERTIES CXX_STANDARD 11)
 
 
   include_directories (${GECODE_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${GECODE_VERSION})
 
-  install(TARGETS  gecode_yap
+  install(TARGETS  YAPgecode
           LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
        RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}

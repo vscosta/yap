@@ -272,7 +272,7 @@ and lookup values of variables in each solution:
 
 :- op(500, xfx, user:':=').
 :- op(500, xfx, user:'+=').
-:- load_foreign_files([gecode_yap],[],gecode_init).
+:- load_foreign_files([],['YAPgecode'],gecode_init).
 
 is_int(X,Y) :- integer(X), Y=X.
 is_int(X) :- integer(X).

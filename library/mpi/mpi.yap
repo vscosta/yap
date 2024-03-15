@@ -51,7 +51,7 @@ The examples directory shows examples of these techniques.
 
 */
 
-:- load_foreign_files([], [mpi4YAP], init_mpi).
+:- load_foreign_files([], [YAPmpi], init_mpi).
 
 mpi_bcast(Root,Data) :-
     mpi_bcast(Root,_,Data).

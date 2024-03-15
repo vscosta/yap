@@ -34,11 +34,11 @@ if (WITH_R)
       DESCRIPTION "The R Project for Statistical Computing."
       URL "https://www.r-project.org/")
 
-    add_feature_info(real "LIBR_FOUND" "The R Project for Statistical Compputing, at ${LIBR_HOME}. with libraries ${LIBR_LIBRARIES}" )
+    add_feature_info(YAPR "LIBR_FOUND" "The R Project for Statistical Compputing, at ${LIBR_HOME}. with libraries ${LIBR_LIBRARIES}" )
 
 
 
-    add_library(real  ${REAL_SOURCES})
+    add_library(YAPR  ${REAL_SOURCES})
     target_link_libraries (real ${LIBR_LIBRARIES}   libYap)
     include_directories (
       ${CMAKE_CURRENT_BINARY_DIR}
@@ -76,11 +76,11 @@ if (WITH_R)
       COMMAND ${LIBR_EXECUTABLE} CMD build yap4r
       VERBATIM
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      DEPENDS real  ${YAP4R_SOURCES}
+      DEPENDS YAPR  ${YAP4R_SOURCES}
       )
 
     
-install(TARGETS  real
+install(TARGETS  YAPR
     RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
     LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
