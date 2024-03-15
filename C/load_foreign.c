@@ -253,7 +253,7 @@ static Int check_embedded(USES_REGS1)
   const char *s = Yap_TextTermToText(Deref(ARG1) PASS_REGS);
   if (!s)
     return false;
-#if EMBEDDED_MYDDAS
+#if EMBEDDED_MYDDAS_old
   if (!strcmp("init_myddas",s)) {
           init_myddas();
 return true;

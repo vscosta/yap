@@ -249,6 +249,7 @@ Term t =  python_to_term__(pVal);
   Py_DECREF(pVal);
      /* fputs("<< ***    ", stderr); */
   /* Yap_DebugPlWrite(t); */
+
   /* fputs(" ***\n", stderr); */
   // Py_DECREF(pVal);
   Yap_CloseHandles(h0);
@@ -348,8 +349,16 @@ assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
       PyObject * yl=yap_to_python(ArgOfTerm(2,key), true,NULL,false);
       if (PyLong_Check(yk))
 	k = PyLong_AsLong(yk);
+      else {
+	Yap_ThrowError(TYPE_ERROR_INTEGER, ArgOfTerm(1, key), "first argument of a slice");
+          return false;
+      }
       if (PyLong_Check(yl))
 	l = PyLong_AsLong(yl);
+      else {
+	Yap_ThrowError(TYPE_ERROR_INTEGER, ArgOfTerm(2, key), "second argument1 of a slice");
+          return false;
+      }
       PySequence_SetSlice(ctx,k,l,val);
       return true;
     }

@@ -306,7 +306,7 @@ mpi_init(void){
                              &status)) == MPI_SUCCESS) {
 	// call handle
 	write_msg(__FUNCTION__, __FILE__, __LINE__, "MPI Msg received\n");
-	YAP_CallProlog(pred);
+	YAP_RunGoal(pred);
       } else
 	write_msg(__FUNCTION__, __FILE__, __LINE__, "Error in MPI_Probe\n");
     }

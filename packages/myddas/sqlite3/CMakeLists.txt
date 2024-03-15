@@ -55,7 +55,7 @@ message("ql ${EMBEDDED_SQLITE3}")
     add_library(  YAPsqlite3 SHARED
       ${YAPSQLITE3_SOURCES})
 
-    target_link_libraries(YAPsqlite3 libYap )
+    target_link_libraries(YAPsqlite3 libYap myddas)
 
     set_target_properties(YAPsqlite3
       PROPERTIES

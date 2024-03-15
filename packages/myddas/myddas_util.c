@@ -76,7 +76,7 @@ void myddas_util_delete_predicate(MYDDAS_UTIL_PREDICATE to_delete) {
   MYDDAS_FREE(to_delete, struct myddas_list_preds);
 }
 
-void myddas_util_delete_connection(void *conn) {
+X_API void myddas_util_delete_connection(void *conn) {
   CACHE_REGS
   MYDDAS_UTIL_CONNECTION to_delete = myddas_util_search_connection(conn);
 
@@ -106,7 +106,7 @@ void myddas_util_delete_connection(void *conn) {
   }
 }
 
-MYDDAS_UTIL_CONNECTION
+X_API MYDDAS_UTIL_CONNECTION
 myddas_util_search_connection(void *conn) {
   CACHE_REGS
   MYDDAS_UTIL_CONNECTION list =
@@ -124,7 +124,7 @@ myddas_util_search_connection(void *conn) {
   return NULL;
 }
 
-MYDDAS_UTIL_CONNECTION
+X_API MYDDAS_UTIL_CONNECTION
 myddas_util_add_connection(void *conn, void *enviromment, MYDDAS_API api) {
   CACHE_REGS
   MYDDAS_UTIL_CONNECTION node = NULL;

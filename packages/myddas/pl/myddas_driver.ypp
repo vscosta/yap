@@ -73,6 +73,7 @@
 				      '$make_a_list'/2,
 				      '$write_or_not'/1
 				     ]).
+:- load_foreign_files( [myddas], [], init_myddas).
 :- load_foreign_files( [NAME()], [], INIT()).
 
 %--------------------------------------------------------

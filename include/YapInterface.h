@@ -299,8 +299,8 @@ extern X_API size_t YAP_UTF8_TextLength(YAP_Term t);
 
 extern X_API YAP_Term YAP_Eval(YAP_Term t);
 
-  /*  void CallProlog(YAP_Term t) */
-extern X_API YAP_Int YAP_CallProlog(YAP_Term t);
+  /*  void YAP_RunGoal(YAP_Term t) */
+extern X_API YAP_Int YAP_RunGoal(YAP_Term t);
 
 /*  void cut_fail(void) */
 extern X_API void YAP_cut_up(void);

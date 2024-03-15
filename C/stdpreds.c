@@ -1612,7 +1612,7 @@ void Yap_InitCPreds(void) {
     while (*p)
       (*(*p++))();
   }
-#if USE_MYDDAS
+#if USE_MYDDASX
   init_myddas();
 #endif
 #if CAMACHO
