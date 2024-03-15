@@ -122,11 +122,11 @@ must_be_of_type(Type, X) :-
 	;   is_not(Type, X)
 	).
 
-inline(must_be_of_type( atom, X ), is_atom(X, _) ).
-inline(must_be_of_type( module, X ), is_module(X, _) ).
-inline(must_be_of_type( callable, X ), must_be_callable(X) ).
-inline(must_be_atom( X ), is_atom(X, _) ).
-inline(must_be_module( X ), is_atom(X, _) ).
+'$inline'(must_be_of_type( atom, X ), is_atom(X, _) ).
+'$inline'(must_be_of_type( module, X ), is_module(X, _) ).
+'$inline'(must_be_of_type( callable, X ), must_be_callable(X) ).
+'$inline'(must_be_atom( X ), is_atom(X, _) ).
+'$inline'(must_be_module( X ), is_atom(X, _) ).
 
 must_be_of_type(predicate_indicator, X, Comment) :-
 	!,

@@ -2,11 +2,11 @@ set( LIBSYSTEM_SOURCES sys.c crypto/md5.c )
 set( LIBSYSTEM_HEADERS  crypto/md5.h)
 
 
-add_library(sys ${LIBSYSTEM_SOURCES})
+add_library(YAPsys ${LIBSYSTEM_SOURCES})
 if (ANDROID)
 set (TARGET libYap)
 else()
-set (TARGET sys)
+set (TARGET YAPsys)
 endif()
 
 
@@ -32,13 +32,10 @@ if (HAVE_LIBCRYPT)
   target_link_libraries(${TARGET} crypt)
 endif (HAVE_LIBCRYPT)
 
-MY_target_link_libraries(sys libYap)
+MY_target_link_libraries(YAPsys libYap)
 
-if (NOT ANDROID)
-set_target_properties (sys PROPERTIES  PREFIX "")
-endif()
 
-MY_install(TARGETS  sys
+MY_install(TARGETS  YAPsys
         LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
         RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
         ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )

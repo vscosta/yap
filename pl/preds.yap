@@ -186,9 +186,9 @@ clause(V0,Q,R) :-
     '$clause'(Type,V,ExportingMod,Q,R).
 
 
-'$clause'(exo_procedure,P,M,_Q,exo(P)) :-
+'$clause'(exo_procedure,P,M,true,exo(P)) :-
 	'$execute0'(M:P).
-'$clause'(mega_procedure,P,M,_Q,mega(P)) :-
+'$clause'(mega_procedure,P,M,true,mega(P)) :-
 	'$execute0'(M:P).
 '$clause'(updatable_procedure, P,M,Q,R) :-
 	'$log_update_clause'(P,M,Q,R).
@@ -562,12 +562,32 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 current_predicate(A,T0) :-
 	'$yap_strip_module'(T0, M, T),
 	( var(M) -> '$all_current_modules'(M) ; true ),
-	(nonvar(T) -> functor(T, A, _) ; true ),
+	(nonvar(T) ->
+	   functor(T, A, _),
+	 '$pred_exists'( T, M)
+	 ;
+	 atom(A)
+	 ->
+	 (
+	     '$pred_exists'( A, M)
+	 ;
+	 '$functors_for_atom'(A,Ts),
+	 '$enumerate_functors'(Ts,M,T)
+	 )
+;	 
 	 '$current_predicate'(A,M, T, user),
-	M \= prolog.
+	M \= prolog
+	 ).
+
+'$enumerate_functors'([T|_Ts],M,T):-	 
+	 '$pred_exists'( T, M).
+'$enumerate_functors'([_T|Ts],M,T) :-
+    '$enumerate_functors'(Ts,M,T).
+
 
 
 :- meta_predicate system_predicate(:), system_predicate(?,:).
+
 
 /** @pred  system_predicate( ?_P_ )
 

@@ -412,7 +412,7 @@ extern Term Yap_SortList(Term t USES_REGS);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
-extern bool Yap_dump_stack(FILE *);
+extern char *Yap_dump_stack(void);
 extern void Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize);
 extern Term Yap_Cps(choiceptr cp);
 extern Term Yap_choicepoint_info(choiceptr cp, bool full );

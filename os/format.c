@@ -300,8 +300,7 @@ output is directed to the stream used by format/2.
 static void
 format_clean_up(int sno, int sno0, format_info *finfo) {
     if (sno >= 0 && sno != sno0) {
-        sno = format_synch(sno, sno0, finfo);
-        Yap_CloseStream(sno);
+      sno = format_synch(sno, sno0, finfo);
     }
 
 }
@@ -448,10 +447,11 @@ static bool tabulated(const unsigned char *fptr)
 #endif
 
 #define TOO_FEW_ARGUMENTS(Needs, Has_Repeats)		\
-  if (targ > tnum - Needs || Has_Repeats) {\
-  format_clean_up(sno, sno0, finfo);\
+  if (targ+Needs > tnum || Has_Repeats) {\
+  Yap_CloseStream(sno);\
   Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, MkIntTerm(fptr-fstr), "command %c in format string %s has no arguments %s", ch,\
 		 fstr, fptr);\
+  return false;\
   }
 
 static Int doformat(volatile Term otail, volatile Term oargs,
@@ -539,7 +539,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     } else {
         tnum = 0;
     }
-    sno = Yap_OpenBufWriteStream(PASS_REGS1);
+    sno =  Yap_open_buf_write_stream(-1, LOCAL_encoding);
     if (sno < 0) {
         if (!alloc_fstr)
             fstr = NULL;
@@ -627,8 +627,7 @@ switch (ch) {
                     Float fl;
                     char *ptr;
                     char fmt[32];
-		      TOO_FEW_ARGUMENTS(1, false);
-                    if (targ > tnum - 1) {
+                    if (targ+1 > tnum) {
                         format_clean_up(sno, sno0, finfo);
                         Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ-1], "command ~c in format %s",
                                        ch, fstr);
@@ -863,7 +862,7 @@ switch (ch) {
                         }
                         break;
                         case 'i':
-                            if (targ > tnum - 1 || has_repeats) {
+                            if (targ +1> tnum || has_repeats) {
                                 format_clean_up(sno, finfo->sno0, finfo);
                                 Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ-1],
                                                "command ~c in format %s", ch,
@@ -1059,31 +1058,12 @@ switch (ch) {
        Yap_ThrowError(DOMAIN_ERROR_FORMAT_TOO_MANY_ARGUMENTS,MkIntTerm(tnum-targ),NULL);
     }
     format_clean_up(sno, sno0, finfo);
+
+    Yap_CloseStream(sno);
     return true;
 }
 
 
-static Term memStreamToTerm(int output_stream, Functor f, Term inp) {
-  CACHE_REGS
-    const char *s = Yap_MemExportStreamPtr(output_stream);
-
-    encoding_t enc = GLOBAL_Stream[output_stream].encoding;
-    if (f == FunctorAtom) {
-        return MkAtomTerm(Yap_LookupAtom(s));
-    } else if (f == FunctorCodes) {
-        return Yap_CharsToDiffListOfCodes(s, ArgOfTerm(2, inp), enc PASS_REGS);
-    } else if (f == FunctorCodes1) {
-        return Yap_CharsToListOfCodes(s, enc PASS_REGS);
-    } else if (f == FunctorChars) {
-        return Yap_CharsToDiffListOfAtoms(s, ArgOfTerm(2, inp), enc PASS_REGS);
-    } else if (f == FunctorChars1) {
-        return Yap_CharsToListOfAtoms(s, enc PASS_REGS);
-    } else if (f == FunctorString1) {
-        return Yap_CharsToString(s, enc PASS_REGS);
-    }
-    Yap_ThrowError(DOMAIN_ERROR_FORMAT_OUTPUT, inp, NULL);
-    return 0L;
-}
 
 /**
  * @pred  with_output_to(+ _Ouput_,: _Goal_)
@@ -1147,8 +1127,8 @@ static Int with_output_to(USES_REGS1) {
     if (IsApplTerm(tin) && (f = FunctorOfTerm(tin))) {
         if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
             f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
-            output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
-            mem_stream = false;
+	  output_stream =Yap_open_buf_write_stream(-1, LOCAL_encoding);
+            mem_stream = true;
         }
     }
     if (!mem_stream) {
@@ -1165,7 +1145,7 @@ static Int with_output_to(USES_REGS1) {
         Term tat;
         Term inp = Yap_GetFromHandle(hdl);
         if (out) {
-            tat = memStreamToTerm(output_stream, f, inp);
+            tat = Yap_memStreamToTerm(output_stream, f, inp);
             out = Yap_unify(tat, ArgOfTerm(1, inp));
         }
     }
@@ -1186,7 +1166,7 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
     if (IsApplTerm(tout) && (f = FunctorOfTerm(tout)) &&
         (f == FunctorAtom || f == FunctorString1 || f == FunctorCodes1 ||
          f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
-        output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
+      output_stream = Yap_open_buf_write_stream(-1,LOCAL_encoding);
     } else {
         output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
     }
@@ -1203,18 +1183,17 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
 	    const char *s =Yap_MemExportStreamPtr( output_stream);
 	    Term tout = MkAtomTerm(Yap_LookupAtom(s));
 	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
-	    Yap_CloseStream(output_stream);
 	  }else if ( f == FunctorString1) {
 	    const char *s =Yap_MemExportStreamPtr( output_stream);
 	    Term tout = MkStringTerm((s));
 	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
-	    Yap_CloseStream(output_stream);
+
 	  } 
 	}
 #if 0
    f == FunctorCodes1 ||
          f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
-        output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
+  output_stream = Yap_open_buf_write_stream(-1, LOCAL_encoding);
 #endif
         Yap_CloseHandles(hl);
         return out;

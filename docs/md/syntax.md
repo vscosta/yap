@@ -1,4 +1,4 @@
-###  YAP Syntax {#syntax}
+#  YAP Syntax
 
 
 We will describe the syntax of YAP at two levels. We first will
@@ -6,7 +6,7 @@ describe the syntax for Prolog terms. In a second level we describe
 the  tokens from which Prolog  terms are
 built.
 
-### [Syntax of Terms ](Formal_Syntax)
+## Syntax of Terms
 
 Below, we describe the syntax of YAP terms from the different
 classes of tokens defined above. The formalism used will be <em>BNF</em>,
@@ -72,20 +72,20 @@ is the same as `+(a,b)` of arity two.
 + Each term to be read by the YAP parser must end with a single dot, followed by a blank (in the sense mentioned in the previous paragraph). When a name consisting of a single dot could be taken for
 the end of term marker, the ambiguity should be avoided by surrounding the dot with single quotes.
 
-### [Prolog Tokens ](Tokens)
+## Prolog Tokens
 
 <!--- @{ --->
 <!--- @ingroup --->
 
 Prolog tokens are grouped into the following categories:
 
-### [Numbers ](Numbers)
+## Numbers
 <!--- @{ --->
 <!--- @ingroup --->
 
 Numbers can be further subdivided into integer and floating-point numbers.
 
-#### [Integers ](Integers)
+### Integers
 
 <!--- @{ --->
 <!--- @ingroup --->
@@ -125,7 +125,7 @@ form `0x` to represent numbers in hexadecimal base and of the form
 YAP also accepts directives of the form `0X` to represent
 numbers in hexadecimal base.
 
-##### Example:
+### Example:
 the following tokens all denote the same integer
 
 ```
@@ -145,7 +145,7 @@ but 64 in some others, such as the Alpha running Linux or Digital
 Unix. The scanner will read larger or smaller integers erroneously.
 
 
-#### [Floats](Floats)
+#### Floats
 
 <!--- @} --->
 <!--- @ingroup --->
@@ -168,7 +168,7 @@ where
 3. \\\<sign\\\> denotes
 one of '+' or '-'.
 
-##### [[Examples:
+#### [[Examples:
 
 ```
 10.0   10e3   10e-3   3.1415e+3
@@ -177,7 +177,7 @@ one of '+' or '-'.
 Floating-point numbers are represented as a double in the target
 machine. This is usually a 64-bit number.
 
-### [Character Strings ](Strings)
+### Character Strings
 
 
 Strings are described by the following rules:
@@ -250,7 +250,7 @@ versions of YAP up to 4.2.0. Escape sequences can be disabled by using:
 
 
 
-### [Atoms ](Atoms)
+### Atoms
 
 Atoms are defined by one of the following rules:
 
@@ -290,7 +290,7 @@ Version `4.2.0` of YAP removed the previous limit of 256
 characters on an atom. Size of an atom is now only limited by the space
 available in the system.
 
-### [Variables ](Variables)
+### Variables
 
 Variables are described by:
 
@@ -325,7 +325,7 @@ In the example _El_ and _Tail_ refer to the head and tail of the clause
 clause. Using the underscore, we can preserve the name while declaring
 the variables are singletons.
 
-### [Punctuation Tokens ](Punctuation_Tokens)
+### Punctuation Tokens  
 
 Punctuation tokens consist of one of the following characters:
 
@@ -335,7 +335,7 @@ Punctuation tokens consist of one of the following characters:
 
 These characters are used to group terms.
 
-### [Character Layout ](LayoutComents)
+### Character Layout  
 
 Any characters with ASCII code less than or equal to 32 appearing before
 a token are ignored.
@@ -349,7 +349,7 @@ single blank character. The end of a file also counts as a blank
 character for this purpose.
 
 
-### [Encoding Wide Character Support ](WideChars)
+### Encoding Wide Character Support  
 
 
 
@@ -387,7 +387,7 @@ other software components using the foreign language interface. In this
 section we only deal with I/O through streams, which includes file I/O
 as well as I/O through network sockets.
 
-#### [Wide character encodings on streams ](Stream_Encoding)
+#### Wide character encodings on streams  
 
 The UCS standard describes all possible characters (or code points, as they include
 ideograms, ligatures, and other symbols). The current version, Unicode 8.0, allows
@@ -494,7 +494,7 @@ implemented). Initially the terminal stream write the characters using
 Prolog escape sequences while other streams generate an I/O exception.
 
 
-##### [BOM: Byte Order Mark ](BOM)
+##### BOM: Byte Order Mark  
 
 
 From Stream Encoding, you may have got the impression that
@@ -515,7 +515,7 @@ writing, writing a BOM can be requested using the option
 UTF-32; otherwise the default is not to write a BOM. BOMs are not avaliable for ASCII and
 ISO-LATIN-1.
 
-### [Summary of YAP Predefined Operators ](Operators)
+### Summary of YAP Predefined Operators  
 
 The Prolog syntax caters for operators of three main kinds:
 
@@ -592,5 +592,3 @@ The following is the list of the declarations of the predefined operators:
 :-op(200,xfy,['^','**']).
 :-op(50,xfx,same).
 ```
-
-

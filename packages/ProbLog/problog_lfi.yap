@@ -232,6 +232,7 @@
 :- use_module('problog/utils_learning').
 :- use_module('problog/utils').
 :- use_module('problog/ad_converter').
+:- use_module('problog/pbmath').
 
 
 % used to indicate the state of the system

@@ -48,25 +48,30 @@ static char     SccsId[] = "%W% %G%";
   Arithmetic expressions
   in YAP may use the following operators:
 
-   - <b>pi [ISO]</b><p> @anchor pi_0
+  {#pi_0}
+   - <b>pi [ISO]</b><p> 
 
      An approximation to the value of <em>pi</em>, that is, the ratio of a circle's circumference to its diameter.
 
-   - <b>e</b><p>    @anchor e_0
+     {#e_0}
+   - <b>e</b><p>    
 
      Euler's number, the base of the natural logarithms.
 
-   - <b>epsilon</b><p>  @anchor epsilon_0
+
+     <{#>epsilon</b><p> {#epsilon_0}
+   -
 
      The difference between the float `1.0` and the next largest floating point number.
-
-     - `inf`  @anchor inf_0
+{#inf_0}
+     - `inf`  
 
      Infinity according to the IEEE Floating-Point standard. Note that evaluating this term will generate a domain error in the `iso` language mode.
 
      Note also that YAP supports `+inf` and  `-inf`
 
-   - <b>nan (not a number)</b><p>  @anchor nan_0
+      {#nan_0}
+   - <b>nan (not a number)</b><p>  
 
      Not-a-number according to the IEEE Floating-Point standard. Note that evaluating this term will generate a domain error in the `iso` language mode.
 
@@ -74,11 +79,11 @@ static char     SccsId[] = "%W% %G%";
 
      A pseudo-random floating point number between 0 and 1.
 
-   - <b>signed_integer_random</b><p>  @anchor random_0
+   - <b>signed_integer_random</b><p>  @anchor random_i
 
      A pseudo-random integer number with 32 bits.
 
-   - <b>unsigned_integer_random</b><p>  @anchor random_0
+   - <b>unsigned_integer_random</b><p>  @anchor random_u
 
      A pseudo-random unsigned integer number with 32 bits.
 

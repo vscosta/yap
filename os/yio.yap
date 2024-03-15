@@ -51,8 +51,7 @@
 
 :- use_system_module( '$_errors', [throw_error/2]).
 
-/** @defgroup InputOutput Input/Output Predicates
- * @ingroup Builtins
+/** @addtogroup InputOutput
  * @{
  * 
  * Some of the Input/Output predicates described below will in certain conditions

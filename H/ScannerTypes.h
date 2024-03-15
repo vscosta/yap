@@ -33,6 +33,7 @@ typedef struct VARSTRUCT {
   YAP_UInt refs;
   struct VARSTRUCT *VarLeft, *VarRight;
   YAP_Atom VarRep;
+  int lineno, linepos;
   //  struct  *
   struct VARSTRUCT *VarNext;
 } VarEntry;

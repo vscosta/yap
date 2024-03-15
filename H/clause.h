@@ -159,6 +159,7 @@ typedef union clause_obj {
   struct static_clause sc;
   struct static_mega_clause mc;
   struct static_index si;
+  PredEntry pe;
 } ClauseUnion;
 
 typedef union clause_ptr {
@@ -168,7 +169,8 @@ typedef union clause_ptr {
   struct static_clause *sc;
   struct static_mega_clause *mc;
   struct static_index *si;
-} ClausePointer;
+  PredEntry *pe;
+  } ClausePointer;
 
 typedef struct index_t {
   struct index_t *next, *prev;
@@ -278,12 +280,12 @@ wamreg Yap_emit_x(CELL);
 COUNT Yap_compile_cmp_flags(PredEntry *);
 
 /* cdmgr.c */
-void Yap_IPred(PredEntry *, UInt, yamop *);
-bool Yap_addclause(PredEntry *p, Term, yamop *, Term, Term, Term *);
-void Yap_add_logupd_clause(PredEntry *, LogUpdClause *, int);
-void Yap_kill_iblock(ClauseUnion *, ClauseUnion *, PredEntry *);
-void Yap_EraseStaticClause(StaticClause *, PredEntry *, Term);
-ClauseUnion *Yap_find_owner_index(yamop *, PredEntry *);
+extern void Yap_IPred(PredEntry *, UInt, yamop *);
+extern bool Yap_addclause(PredEntry *p, Term, yamop *, Term, Term, Term *);
+extern void Yap_add_logupd_clause(PredEntry *, LogUpdClause *, int);
+extern void Yap_kill_iblock(ClauseUnion *, ClauseUnion *, PredEntry *);
+extern void Yap_EraseStaticClause(StaticClause *, PredEntry *, Term);
+extern ClausePointer Yap_find_owner_index(yamop *, PredEntry *);
 
 /* dbase.c */
 void Yap_ErCl(DynamicClause *);
@@ -334,7 +336,7 @@ INLINE_ONLY int rtable_hash_op(OPCODE opc, int hash_mask) {
 
 /* given an opcode find the corresponding opnumber. This should make
    switches on ops a much easier operation */
-INLINE_ONLY op_numbers Yap_op_from_opcode(OPCODE opc) {
+static inline  op_numbers Yap_op_from_opcode(OPCODE opc) {
   int j = rtable_hash_op(opc, OP_HASH_SIZE - 1);
 
   while (OP_RTABLE[j].opc != opc) {
@@ -453,14 +455,15 @@ static inline bool Yap_static_in_use(PredEntry *p, bool check_everything) {
 typedef enum {
   FIND_PRED_FROM_ANYWHERE,
   FIND_PRED_FROM_CP,
-  FIND_PRED_FROM_ENV
+  FIND_PRED_FROM_ENV,
+  FIND_PRED_FROM_CLAUSE
 } find_pred_type;
 
-PredEntry * Yap_PredForCode(yamop *, find_pred_type, Int *cl, Term *mod);
+extern  PredEntry * Yap_PredForCode(yamop *, find_pred_type,ClausePointer* );
 
-PredEntry *Yap_PredEntryForCode(choiceptr, yamop *, find_pred_type, void **, void **);
-LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
-Term Yap_LUInstance(LogUpdClause *, UInt);
+extern PredEntry *Yap_PredEntryForCode(choiceptr, yamop *, find_pred_type);
+extern LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
+extern Term Yap_LUInstance(LogUpdClause *, UInt);
 
 /* udi.c */
 int Yap_new_udi_clause(PredEntry *, yamop *, Term);

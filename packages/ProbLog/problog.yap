@@ -716,11 +716,13 @@ The possible values for this flag are any number greater than zero.
                     problog_table/1,
        		    problog_lbdd/2,
 		    problog_lbdd/3,
+		    problog_lbdd/4,
 		    problog_lbdd_exact/2,
 		    problog_lbdd_exact_tree/2,
 		    problog_lbdd_kbest/3,
 		    problog_lbdd_kbest_tree/3,
 		    problog_lbdd_tree/2,
+		    problog_lbdd_tree/3,
              clear_retained_tables/0,
                     problog_neg/1,
                     get_fact_probability/2,
@@ -803,7 +805,7 @@ The possible values for this flag are any number greater than zero.
 
 % problog related modules
 :- include(problog_lbdd).
-:- include('problog/math').
+:- include('problog/pbmath').
 :- use_module('problog/lbdd').
 :- use_module('problog/variables').
 :- use_module('problog/extlists').
@@ -4188,19 +4190,16 @@ signal_decision(ClauseID,GroundID) :-
 		bb_put(decisions,S2)
 	;
 		true
-	).
-
-				%
-				% ProbLog in-memory inference
-%:- start_low_level_trace.				%
-				%
-%:- stop_low_level_trace.				%
+	).				%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Term Expansion for user predicates
 % Must come after clauses for '::'/2 and term_expansion_intern/3
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+user:term_expansion(throw(Error),throw(user_error(Error,[]))) :-
+    functor(Error,error,_),
+    !.
 user:term_expansion(Term,ExpandedTerm) :-
 	Term \== end_of_file,
 	prolog_load_context(module,Mod),

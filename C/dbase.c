@@ -18,84 +18,6 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/** @defgroup Internal_Database Internal Data Base
-@ingroup Builtins
-@{
-
-Some programs need global information for, e.g. counting or collecting
-data obtained by backtracking. As a rule, to keep this information, the
-internal data base should be used instead of asserting and retracting
-clauses (as most novice programmers  do), .
-In YAP (as in some other Prolog systems) the internal data base (i.d.b.
-for short) is faster, needs less space and provides a better insulation of
-program and data than using asserted/retracted clauses.
-The i.d.b. is implemented as a set of terms, accessed by keys that
-unlikely what happens in (non-Prolog) data bases are not part of the
-term. Under each key a list of terms is kept. References are provided so that
-terms can be identified: each term in the i.d.b. has a unique reference
-(references are also available for clauses of dynamic predicates).
-
-There is a strong analogy between the i.d.b. and the way dynamic
-predicates are stored. In fact, the main i.d.b. predicates might be
-implemented using dynamic predicates:
-
-```
-recorda(X,T,R) :- asserta(idb(X,T),R).
-recordz(X,T,R) :- assertz(idb(X,T),R).
-recorded(X,T,R) :- clause(idb(X,T),R).
-```
-We can take advantage of this, the other way around, as it is quite
-easy to write a simple Prolog interpreter, using the i.d.b.:
-
-```
-asserta(G) :- recorda(interpreter,G,_).
-assertz(G) :- recordz(interpreter,G,_).
-retract(G) :- recorded(interpreter,G,R), !, erase(R).
-call(V) :- var(V), !, fail.
-call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
-call(G) :- recorded(interpreter,G,_).
-```
-In YAP, much attention has been given to the implementation of the
-i.d.b., especially to the problem of accelerating the access to terms kept in
-a large list under the same key. Besides using the key, YAP uses an internal
-lookup function, transparent to the user, to find only the terms that might
-unify. For instance, in a data base containing the terms
-
-```
-b
-b(a)
-c(d)
-e(g)
-b(X)
-e(h)
-```
-
-stored under the key k/1, when executing the query
-
-```
-:- recorded(k(_),c(_),R).
-```
-
-`recorded` would proceed directly to the third term, spending almost the
-time as if `a(X)` or `b(X)` was being searched.
-The lookup function uses the functor of the term, and its first three
-arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
-directly to the last term, while `recorded(k(_),e(_),_)` would find
-first the fourth term, and then, after backtracking, the last one.
-
-This mechanism may be useful to implement a sort of hierarchy, where
-the functors of the terms (and eventually the first arguments) work as
-secondary keys.
-
-In the YAP's i.d.b. an optimized representation is used for
-terms without free variables. This results in a faster retrieval of terms
-and better space usage. Whenever possible, avoid variables in terms in terms
-stored in the  i.d.b.
-
-
-
-*/
-
 #include "Yap.h"
 #include "attvar.h"
 #include "clause.h"
@@ -109,7 +31,18 @@ stored in the  i.d.b.
 #endif
 #include <stdlib.h>
 
-/* There are two options to implement traditional immediate update semantics.
+/// @}
+
+
+/**
+
+   @defgroup DBImplementation Implementation of The Internal data-nase
+   @ingroup YAPImplementation
+
+@{
+   
+  
+   There are two options to implement traditional immediate update semantics.
 
    - In the first option, we only remove an element of the chain when
    it is physically disposed of. This simplifies things, because
@@ -234,72 +167,6 @@ typedef table {
 hash_db_table;
 #endif
 
-static CELL *cpcells(CELL *, CELL *, Int);
-static void linkblk(link_entry *, CELL *, CELL);
-static Int cmpclls(CELL *, CELL *, Int);
-static Prop FindDBProp(AtomEntry *, int, unsigned int, Term);
-static CELL CalcKey(Term);
-#ifdef COROUTINING
-static CELL *MkDBTerm(CELL *, CELL *, CELL *, CELL *, CELL *, CELL *, int *,
-                      struct db_globs *);
-#else
-static CELL *MkDBTerm(CELL *, CELL *, CELL *, CELL *, CELL *, int *,
-                      struct db_globs *);
-#endif
-static DBRef CreateDBStruct(Term, DBProp, int, int *, UInt, struct db_globs *);
-static DBRef record(int, Term, Term, Term CACHE_TYPE);
-static DBRef check_if_cons(DBRef, Term);
-static DBRef check_if_var(DBRef);
-static DBRef check_if_wvars(DBRef, unsigned int, CELL *);
-static int scheckcells(int, CELL *, CELL *, link_entry *, CELL);
-static DBRef check_if_nvars(DBRef, unsigned int, CELL *, struct db_globs *);
-static Int p_rcda(USES_REGS1);
-static Int p_rcdap(USES_REGS1);
-static Int p_rcdz(USES_REGS1);
-static Int p_rcdzp(USES_REGS1);
-static Int p_drcdap(USES_REGS1);
-static Int p_drcdzp(USES_REGS1);
-static Term GetDBTerm(DBTerm *, int src CACHE_TYPE);
-static DBProp FetchDBPropFromKey(Term, int, int, char *);
-static Int i_recorded(DBProp, Term CACHE_TYPE);
-static Int c_recorded(int CACHE_TYPE);
-static Int co_rded(USES_REGS1);
-static Int in_rdedp(USES_REGS1);
-static Int co_rdedp(USES_REGS1);
-static Int p_first_instance(USES_REGS1);
-static void ErasePendingRefs(DBTerm *CACHE_TYPE);
-static void RemoveDBEntry(DBRef CACHE_TYPE);
-static void EraseLogUpdCl(LogUpdClause *);
-static void MyEraseClause(DynamicClause *CACHE_TYPE);
-static void PrepareToEraseClause(DynamicClause *, DBRef);
-static void EraseEntry(DBRef);
-static Int p_erase(USES_REGS1);
-static Int p_eraseall(USES_REGS1);
-static Int p_erased(USES_REGS1);
-static Int p_instance(USES_REGS1);
-static int NotActiveDB(DBRef);
-static DBEntry *NextDBProp(PropEntry *);
-static Int init_current_key(USES_REGS1);
-static Int cont_current_key(USES_REGS1);
-static Int cont_current_key_integer(USES_REGS1);
-static Int p_rcdstatp(USES_REGS1);
-static Int p_somercdedp(USES_REGS1);
-static yamop *find_next_clause(DBRef USES_REGS);
-static Int p_jump_to_next_dynamic_clause(USES_REGS1);
-#ifdef SFUNC
-static void SFVarIn(Term);
-static void sf_include(SFKeep *);
-#endif
-static Int p_init_queue(USES_REGS1);
-static Int p_enqueue(USES_REGS1);
-static void keepdbrefs(DBTerm *CACHE_TYPE);
-static Int p_dequeue(USES_REGS1);
-static void ErDBE(DBRef CACHE_TYPE);
-static void ReleaseTermFromDB(DBTerm *CACHE_TYPE);
-static PredEntry *new_lu_entry(Term);
-static PredEntry *new_lu_int_key(Int);
-static PredEntry *find_lu_entry(Term);
-static DBProp find_int_key(Int);
 
 #define db_check_trail(x)                                                      \
   {                                                                            \
@@ -389,33 +256,61 @@ static void insert_in_table() {}
 static void remove_from_table() {}
 #endif
 
-inline static CELL *cpcells(CELL *to, CELL *from, Int n) {
-#if HAVE_MEMMOVE
-  memmove((void *)to, (void *)from, (size_t)(n * sizeof(CELL)));
-  return (to + n);
-#else
-  while (n-- >= 0) {
-    *to++ = *from++;
-  }
-  return (to);
-#endif
-}
 
-static void linkblk(link_entry *r, CELL *c, CELL offs) {
-  CELL p;
-  while ((p = (CELL)*r) != 0) {
-    Term t = c[p];
-    r++;
-    c[p] = AdjustIDBPtr(t, offs);
+
+static void init_int_keys(void) {
+  INT_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop) * INT_KEYS_SIZE);
+  if (INT_KEYS != NULL) {
+    UInt i = 0;
+    Prop *p = INT_KEYS;
+    for (i = 0; i < INT_KEYS_SIZE; i++) {
+      p[0] = NIL;
+      p++;
+    }
+    Yap_LUClauseSpace += sizeof(Prop) * INT_KEYS_SIZE;
   }
 }
 
-static Int cmpclls(CELL *a, CELL *b, Int n) {
-  while (n-- > 0) {
-    if (*a++ != *b++)
-      return FALSE;
+static DBProp FetchIntDBPropFromKey(Int key, int flag, int new,
+                                    char *error_mssg) {
+  Functor fun = (Functor)key;
+  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
+  Prop p0;
+
+  if (INT_KEYS == NULL) {
+    init_int_keys();
+    if (INT_KEYS == NULL) {
+      CACHE_REGS
+      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
+      LOCAL_ErrorMessage = "could not allocate space";
+      return NULL;
+    }
   }
-  return TRUE;
+  p0 = INT_KEYS[hash_key];
+  while (p0 != NIL) {
+    DBProp p = RepDBProp(p0);
+    if (p->FunctorOfDB == fun)
+      return p;
+    p0 = p->NextOfPE;
+  }
+  /* p is NULL, meaning we did not find the functor */
+  if (new) {
+    DBProp p;
+    /* create a new DBProp				 */
+    p = (DBProp)Yap_AllocAtomSpace(sizeof(*p));
+    p->KindOfPE = DBProperty | flag;
+    p->F0 = p->L0 = NULL;
+    p->ArityOfDB = 0;
+    p->First = p->Last = NULL;
+    p->ModuleOfDB = 0;
+    p->FunctorOfDB = fun;
+    p->NextOfPE = INT_KEYS[hash_key];
+    INIT_RWLOCK(p->DBRWLock);
+    INT_KEYS[hash_key] = AbsDBProp(p);
+    return p;
+  } else {
+    return RepDBProp(NULL);
+  }
 }
 
 /* get DB entry for ap/arity; */
@@ -445,6 +340,370 @@ static Prop FindDBProp(AtomEntry *ae, int CodeDB, unsigned int arity,
   return (out);
 }
 
+
+
+static DBProp FetchDBPropFromKey(Term twork, int flag, int new,
+                                 char *error_mssg) {
+  Atom At;
+  Int arity;
+  Term dbmod;
+
+  if (flag & MkCode) {
+    if (IsVarTerm(twork)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, twork, error_mssg);
+      return RepDBProp(NULL);
+    }
+    if (!IsApplTerm(twork)) {
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, twork, "missing module");
+      return RepDBProp(NULL);
+    } else {
+      Functor f = FunctorOfTerm(twork);
+      if (f != FunctorModule) {
+        Yap_ThrowError(SYSTEM_ERROR_INTERNAL, twork, "missing module");
+        return RepDBProp(NULL);
+      }
+      dbmod = ArgOfTerm(1, twork);
+      if (IsVarTerm(dbmod)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, twork, "var in module");
+        return RepDBProp(NIL);
+      }
+      if (!IsAtomTerm(dbmod)) {
+        Yap_ThrowError(TYPE_ERROR_ATOM, twork, "not atom in module");
+        return RepDBProp(NIL);
+      }
+      twork = ArgOfTerm(2, twork);
+    }
+  } else {
+    dbmod = TermIDB;
+  }
+  if (IsVarTerm(twork)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, twork, error_mssg);
+    return RepDBProp(NIL);
+  } else if (IsAtomTerm(twork)) {
+    arity = 0, At = AtomOfTerm(twork);
+  } else if (IsIntegerTerm(twork)) {
+    return FetchIntDBPropFromKey(IntegerOfTerm(twork), flag, new, error_mssg);
+  } else if (IsApplTerm(twork)) {
+    Register Functor f = FunctorOfTerm(twork);
+    if (IsExtensionFunctor(f)) {
+      Yap_ThrowError(TYPE_ERROR_KEY, twork, error_mssg);
+      return RepDBProp(NIL);
+    }
+    At = NameOfFunctor(f);
+    arity = ArityOfFunctor(f);
+  } else if (IsPairTerm(twork)) {
+    At = AtomDot;
+    arity = 2;
+  } else {
+    Yap_ThrowError(TYPE_ERROR_KEY, twork, error_mssg);
+    return RepDBProp(NIL);
+  }
+  if (new) {
+    DBProp p;
+    AtomEntry *ae = RepAtom(At);
+
+    WRITE_LOCK(ae->ARWLock);
+    if (EndOfPAEntr(
+            p = RepDBProp(FindDBPropHavingLock(ae, flag, arity, dbmod)))) {
+      /* create a new DBProp				 */
+      int OLD_UPDATE_MODE = UPDATE_MODE;
+      if (flag & MkCode) {
+        PredEntry *pp;
+        pp = RepPredProp(Yap_GetPredPropHavingLock(At, arity, dbmod));
+
+        if (!EndOfPAEntr(pp)) {
+          PELOCK(64, pp);
+          if (pp->PredFlags & LogUpdatePredFlag)
+            UPDATE_MODE = UPDATE_MODE_LOGICAL;
+          UNLOCK(pp->PELock);
+        }
+      }
+      p = (DBProp)Yap_AllocAtomSpace(sizeof(*p));
+      p->KindOfPE = DBProperty | flag;
+      p->F0 = p->L0 = NULL;
+      UPDATE_MODE = OLD_UPDATE_MODE;
+      p->ArityOfDB = arity;
+      p->First = p->Last = NIL;
+      p->ModuleOfDB = dbmod;
+      /* This is NOT standard but is QUITE convenient */
+      INIT_RWLOCK(p->DBRWLock);
+      if (arity == 0)
+        p->FunctorOfDB = (Functor)At;
+      else
+        p->FunctorOfDB = Yap_UnlockedMkFunctor(ae, arity);
+      AddPropToAtom(ae, (PropEntry *)p);
+    }
+    WRITE_UNLOCK(ae->ARWLock);
+    return p;
+  } else
+    return RepDBProp(FindDBProp(RepAtom(At), flag, arity, dbmod));
+}
+
+
+static void init_int_lu_keys(void) {
+  INT_LU_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop) * INT_KEYS_SIZE);
+  if (INT_LU_KEYS != NULL) {
+    UInt i = 0;
+    Prop *p = INT_LU_KEYS;
+    for (i = 0; i < INT_KEYS_SIZE; i++) {
+      p[0] = NULL;
+      p++;
+    }
+    Yap_LUClauseSpace += sizeof(Prop) * INT_KEYS_SIZE;
+  }
+}
+
+static int resize_int_keys(UInt new_size) {
+  CACHE_REGS
+  Prop *new;
+  UInt i;
+  UInt old_size = INT_KEYS_SIZE;
+
+  YAPEnterCriticalSection();
+  if (INT_KEYS == NULL) {
+    INT_KEYS_SIZE = new_size;
+    YAPLeaveCriticalSection();
+    return TRUE;
+  }
+  new = (Prop *)Yap_AllocCodeSpace(sizeof(Prop) * new_size);
+  if (new == NULL) {
+    YAPLeaveCriticalSection();
+    LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
+    LOCAL_ErrorMessage = "could not allocate space";
+    return FALSE;
+  }
+  Yap_LUClauseSpace += sizeof(Prop) * new_size;
+  for (i = 0; i < new_size; i++) {
+    new[i] = NIL;
+  }
+  for (i = 0; i < INT_KEYS_SIZE; i++) {
+    if (INT_KEYS[i] != NIL) {
+      Prop p0 = INT_KEYS[i];
+      while (p0 != NIL) {
+        DBProp p = RepDBProp(p0);
+        CELL key = (CELL)(p->FunctorOfDB);
+        UInt hash_key = (CELL)key % new_size;
+        p0 = p->NextOfPE;
+        p->NextOfPE = new[hash_key];
+        new[hash_key] = AbsDBProp(p);
+      }
+    }
+  }
+  Yap_LUClauseSpace -= sizeof(Prop) * old_size;
+  Yap_FreeCodeSpace((char *)INT_KEYS);
+  INT_KEYS = new;
+  INT_KEYS_SIZE = new_size;
+  INT_KEYS_TIMESTAMP++;
+  if (INT_KEYS_TIMESTAMP == MAX_ABS_INT)
+    INT_KEYS_TIMESTAMP = 0;
+  YAPLeaveCriticalSection();
+  return TRUE;
+}
+
+static DBProp find_int_key(Int key) {
+  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
+  Prop p0;
+
+  if (INT_KEYS == NULL) {
+    return NULL;
+  }
+  p0 = INT_KEYS[hash_key];
+  while (p0) {
+    DBProp p = RepDBProp(p0);
+    if (p->FunctorOfDB == (Functor)key)
+      return p;
+    p0 = p->NextOfPE;
+  }
+  return NULL;
+}
+
+static PredEntry *new_lu_int_key(Int key) {
+  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
+  PredEntry *p;
+  Prop p0;
+  Atom ae;
+
+  if (INT_LU_KEYS == NULL) {
+    init_int_lu_keys();
+    if (INT_LU_KEYS == NULL) {
+      CACHE_REGS
+      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
+      LOCAL_ErrorMessage = "could not allocate space";
+      return NULL;
+    }
+  }
+  ae = AtomDInteger;
+  WRITE_LOCK(ae->ARWLock);
+  p0 = Yap_NewPredPropByAtom(ae, IDB_MODULE);
+  p = RepPredProp(p0);
+  p->NextOfPE = INT_LU_KEYS[hash_key];
+  p->src.IndxId = key;
+  p->PredFlags |= LogUpdatePredFlag | NumberDBPredFlag;
+  p->ArityOfPE = 3;
+  p->OpcodeOfPred = Yap_opcode(_op_fail);
+  p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = FAILCODE;
+  if (p->PredFlags & ProfiledPredFlag) {
+    if (!Yap_initProfiler(p)) {
+      return NULL;
+    }
+  }
+  INT_LU_KEYS[hash_key] = p0;
+  return p;
+}
+
+static PredEntry *find_lu_int_key(Int key) {
+  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
+  Prop p0;
+
+  if (INT_LU_KEYS == NULL) {
+    INT_LU_KEYS = calloc(sizeof(CELL),INT_KEYS_SIZE);
+  }
+  p0 = INT_LU_KEYS[hash_key];
+  while (p0) {
+    PredEntry *pe = RepPredProp(p0);
+    if (pe->src.IndxId == key) {
+      return pe;
+    }
+    p0 = pe->NextOfPE;
+  } 
+      
+  if ( p0 == NULL) {
+    return new_lu_int_key(key);
+  }
+  return NULL;
+}
+
+PredEntry *Yap_FindLUIntKey(Int key) { return find_lu_int_key(key); }
+
+
+
+static PredEntry *new_lu_entry(Term t) {
+  CACHE_REGS
+  Prop p0;
+  PredEntry *pe;
+
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+
+    FUNC_WRITE_LOCK(f);
+    p0 = Yap_NewPredPropByFunctor(f, IDB_MODULE);
+  } else if (IsAtomTerm(t)) {
+    Atom at = AtomOfTerm(t);
+
+    WRITE_LOCK(RepAtom(at)->ARWLock);
+    p0 = Yap_NewPredPropByAtom(at, IDB_MODULE);
+  } else {
+    FUNC_WRITE_LOCK(FunctorList);
+    p0 = Yap_NewPredPropByFunctor(FunctorList, IDB_MODULE);
+  }
+  pe = RepPredProp(p0);
+  pe->PredFlags |= LogUpdatePredFlag;
+  if (IsAtomTerm(t)) {
+    pe->PredFlags |= AtomDBPredFlag;
+    pe->FunctorOfPred = (Functor)AtomOfTerm(t);
+  } else {
+    pe->FunctorOfPred = FunctorOfTerm(t);
+  }
+  pe->ArityOfPE = 3;
+  pe->OpcodeOfPred = Yap_opcode(_op_fail);
+  if (CurrentModule == PROLOG_MODULE)
+    pe->PredFlags |= StandardPredFlag;
+  pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
+  if (pe->PredFlags & ProfiledPredFlag) {
+    if (!Yap_initProfiler(pe)) {
+      return NULL;
+    }
+  }
+  return pe;
+}
+
+static DBProp find_entry(Term t) {
+  Atom at;
+  UInt arity;
+
+  if (IsVarTerm(t)) {
+    return RepDBProp(NIL);
+  } else if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
+    arity = 0;
+
+  } else if (IsIntegerTerm(t)) {
+    return find_int_key(IntegerOfTerm(t));
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+
+    at = NameOfFunctor(f);
+    arity = ArityOfFunctor(f);
+  } else {
+    at = AtomDot;
+    arity = 2;
+  }
+  DBProp rc = RepDBProp(FindDBProp(RepAtom(at), 0, arity, 0));
+  return rc;
+}
+
+static PredEntry *find_lu_entry(Term t) {
+  Prop p;
+
+  if (IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "while accessing database key");
+    return NULL;
+  }
+  if (IsIntegerTerm(t)) {
+    return find_lu_int_key(IntegerOfTerm(t));
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+
+    if (IsExtensionFunctor(f)) {
+      Yap_ThrowError(TYPE_ERROR_KEY, t, "while accessing database key");
+      return NULL;
+    }
+    p = Yap_GetPredPropByFuncInThisModule(FunctorOfTerm(t), IDB_MODULE);
+  } else if (IsAtomTerm(t)) {
+    p = Yap_GetPredPropByAtomInThisModule(AtomOfTerm(t), IDB_MODULE);
+  } else {
+    p = Yap_GetPredPropByFuncInThisModule(FunctorList, IDB_MODULE);
+  }
+  if (p == NIL) {
+    if (UPDATE_MODE == UPDATE_MODE_LOGICAL && !find_entry(t)) {
+      return new_lu_entry(t);
+    } else {
+      return NULL;
+    }
+  }
+  return RepPredProp(p);
+}
+
+
+
+inline static CELL *cpcells(CELL *to, CELL *from, Int n) {
+#if HAVE_MEMMOVE
+  memmove((void *)to, (void *)from, (size_t)(n * sizeof(CELL)));
+  return (to + n);
+#else
+  while (n-- >= 0) {
+    *to++ = *from++;
+  }
+  return (to);
+#endif
+}
+
+static void linkblk(link_entry *r, CELL *c, CELL offs) {
+  CELL p;
+  while ((p = (CELL)*r) != 0) {
+    Term t = c[p];
+    r++;
+    c[p] = AdjustIDBPtr(t, offs);
+  }
+}
+
+static Int cmpclls(CELL *a, CELL *b, Int n) {
+  while (n-- > 0) {
+    if (*a++ != *b++)
+      return FALSE;
+  }
+  return TRUE;
+}
 /* These two functions allow us a fast lookup method in the data base */
 /* PutMasks builds the mask and hash for a single argument	 */
 inline static CELL CalcKey(Term tw) {
@@ -2015,8 +2274,95 @@ static LogUpdClause *record_lu_at(int position, LogUpdClause *ocl, Term t) {
   return cl;
 }
 
-/* recorda(+Functor,+Term,-Ref) */
-static Int p_rcda(USES_REGS1) {
+/// @}
+
+/** @defgroup Internal_Database The Internal Data Base
+@ingroup Builtins
+@{
+
+Some programs need global information for, e.g. counting or collecting
+data obtained by backtracking. As a rule, to keep this information, the
+internal data base should be used instead of asserting and retracting
+clauses (as most novice programmers  do), .
+In YAP (as in some other Prolog systems) the internal data base (i.d.b.
+for short) is faster, needs less space and provides a better insulation of
+program and data than using asserted/retracted clauses.
+The i.d.b. is implemented as a set of terms, accessed by keys that
+unlikely what happens in (non-Prolog) data bases are not part of the
+term. Under each key a list of terms is kept. References are provided so that
+terms can be identified: each term in the i.d.b. has a unique reference
+(references are also available for clauses of dynamic predicates).
+
+There is a strong analogy between the i.d.b. and the way dynamic
+predicates are stored. In fact, the main i.d.b. predicates might be
+implemented using dynamic predicates:
+
+```
+recorda(X,T,R) :- asserta(idb(X,T),R).
+recordz(X,T,R) :- assertz(idb(X,T),R).
+recorded(X,T,R) :- clause(idb(X,T),R).
+```
+We can take advantage of this, the other way around, as it is quite
+easy to write a simple Prolog interpreter, using the i.d.b.:
+
+```
+asserta(G) :- recorda(interpreter,G,_).
+assertz(G) :- recordz(interpreter,G,_).
+retract(G) :- recorded(interpreter,G,R), !, erase(R).
+call(V) :- var(V), !, fail.
+call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
+call(G) :- recorded(interpreter,G,_).
+```
+In YAP, much attention has been given to the implementation of the
+i.d.b., especially to the problem of accelerating the access to terms kept in
+a large list under the same key. Besides using the key, YAP uses an internal
+lookup function, transparent to the user, to find only the terms that might
+unify. For instance, in a data base containing the terms
+
+```
+b
+b(a)
+c(d)
+e(g)
+b(X)
+e(h)
+```
+
+stored under the key k/1, when executing the query
+
+```
+:- recorded(k(_),c(_),R).
+```
+
+`recorded` would proceed directly to the third term, spending almost the
+time as if `a(X)` or `b(X)` was being searched.
+The lookup function uses the functor of the term, and its first three
+arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
+directly to the last term, while `recorded(k(_),e(_),_)` would find
+first the fourth term, and then, after backtracking, the last one.
+
+This mechanism may be useful to implement a sort of hierarchy, where
+the functors of the terms (and eventually the first arguments) work as
+secondary keys.
+
+In the YAP's i.d.b. an optimized representation is used for
+terms without free variables. This results in a faster retrieval of terms
+and better space usage. Whenever possible, avoid variables in terms in terms
+stored in the  i.d.b.
+
+
+
+*/
+
+  /** @pred  recorda(+ _K_, _T_,- _R_)
+
+
+  Makes term  _T_ the first record under key  _K_ and  unifies  _R_
+  with its reference.
+
+
+  */
+static Int recorda(USES_REGS1) {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term TRef, t1 = Deref(ARG1);
   PredEntry *pe = NULL;
@@ -2135,7 +2481,7 @@ Makes term  _T_ the last record under key  _K_ and unifies  _R_
 with its reference.
 
 */
-static Int p_rcdz(USES_REGS1) { Term TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
+static Int recordz(USES_REGS1) { Term TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
   PredEntry *pe;
 
   if (!IsVarTerm(Deref(ARG3)))
@@ -2587,388 +2933,6 @@ static Term GetDBTermFromDBEntry(DBRef DBSP USES_REGS) {
   return GetDBTerm(&(DBSP->DBT), FALSE PASS_REGS);
 }
 
-static void init_int_keys(void) {
-  INT_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop) * INT_KEYS_SIZE);
-  if (INT_KEYS != NULL) {
-    UInt i = 0;
-    Prop *p = INT_KEYS;
-    for (i = 0; i < INT_KEYS_SIZE; i++) {
-      p[0] = NIL;
-      p++;
-    }
-    Yap_LUClauseSpace += sizeof(Prop) * INT_KEYS_SIZE;
-  }
-}
-
-static void init_int_lu_keys(void) {
-  INT_LU_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop) * INT_KEYS_SIZE);
-  if (INT_LU_KEYS != NULL) {
-    UInt i = 0;
-    Prop *p = INT_LU_KEYS;
-    for (i = 0; i < INT_KEYS_SIZE; i++) {
-      p[0] = NULL;
-      p++;
-    }
-    Yap_LUClauseSpace += sizeof(Prop) * INT_KEYS_SIZE;
-  }
-}
-
-static int resize_int_keys(UInt new_size) {
-  CACHE_REGS
-  Prop *new;
-  UInt i;
-  UInt old_size = INT_KEYS_SIZE;
-
-  YAPEnterCriticalSection();
-  if (INT_KEYS == NULL) {
-    INT_KEYS_SIZE = new_size;
-    YAPLeaveCriticalSection();
-    return TRUE;
-  }
-  new = (Prop *)Yap_AllocCodeSpace(sizeof(Prop) * new_size);
-  if (new == NULL) {
-    YAPLeaveCriticalSection();
-    LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-    LOCAL_ErrorMessage = "could not allocate space";
-    return FALSE;
-  }
-  Yap_LUClauseSpace += sizeof(Prop) * new_size;
-  for (i = 0; i < new_size; i++) {
-    new[i] = NIL;
-  }
-  for (i = 0; i < INT_KEYS_SIZE; i++) {
-    if (INT_KEYS[i] != NIL) {
-      Prop p0 = INT_KEYS[i];
-      while (p0 != NIL) {
-        DBProp p = RepDBProp(p0);
-        CELL key = (CELL)(p->FunctorOfDB);
-        UInt hash_key = (CELL)key % new_size;
-        p0 = p->NextOfPE;
-        p->NextOfPE = new[hash_key];
-        new[hash_key] = AbsDBProp(p);
-      }
-    }
-  }
-  Yap_LUClauseSpace -= sizeof(Prop) * old_size;
-  Yap_FreeCodeSpace((char *)INT_KEYS);
-  INT_KEYS = new;
-  INT_KEYS_SIZE = new_size;
-  INT_KEYS_TIMESTAMP++;
-  if (INT_KEYS_TIMESTAMP == MAX_ABS_INT)
-    INT_KEYS_TIMESTAMP = 0;
-  YAPLeaveCriticalSection();
-  return TRUE;
-}
-
-static PredEntry *find_lu_int_key(Int key) {
-  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
-  Prop p0;
-
-  if (INT_LU_KEYS != NULL) {
-    p0 = INT_LU_KEYS[hash_key];
-    while (p0) {
-      PredEntry *pe = RepPredProp(p0);
-      if (pe->src.IndxId == key) {
-        return pe;
-      }
-      p0 = pe->NextOfPE;
-    }
-  }
-  if (UPDATE_MODE == UPDATE_MODE_LOGICAL && find_int_key(key) == NULL) {
-    return new_lu_int_key(key);
-  }
-  return NULL;
-}
-
-PredEntry *Yap_FindLUIntKey(Int key) { return find_lu_int_key(key); }
-
-static DBProp find_int_key(Int key) {
-  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
-  Prop p0;
-
-  if (INT_KEYS == NULL) {
-    return NULL;
-  }
-  p0 = INT_KEYS[hash_key];
-  while (p0) {
-    DBProp p = RepDBProp(p0);
-    if (p->FunctorOfDB == (Functor)key)
-      return p;
-    p0 = p->NextOfPE;
-  }
-  return NULL;
-}
-
-static PredEntry *new_lu_int_key(Int key) {
-  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
-  PredEntry *p;
-  Prop p0;
-  Atom ae;
-
-  if (INT_LU_KEYS == NULL) {
-    init_int_lu_keys();
-    if (INT_LU_KEYS == NULL) {
-      CACHE_REGS
-      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-      LOCAL_ErrorMessage = "could not allocate space";
-      return NULL;
-    }
-  }
-  ae = AtomDInteger;
-  WRITE_LOCK(ae->ARWLock);
-  p0 = Yap_NewPredPropByAtom(ae, IDB_MODULE);
-  p = RepPredProp(p0);
-  p->NextOfPE = INT_LU_KEYS[hash_key];
-  p->src.IndxId = key;
-  p->PredFlags |= LogUpdatePredFlag | NumberDBPredFlag;
-  p->ArityOfPE = 3;
-  p->OpcodeOfPred = Yap_opcode(_op_fail);
-  p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = FAILCODE;
-  if (p->PredFlags & ProfiledPredFlag) {
-    if (!Yap_initProfiler(p)) {
-      return NULL;
-    }
-  }
-  INT_LU_KEYS[hash_key] = p0;
-  return p;
-}
-
-static PredEntry *new_lu_entry(Term t) {
-  CACHE_REGS
-  Prop p0;
-  PredEntry *pe;
-
-  if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-
-    FUNC_WRITE_LOCK(f);
-    p0 = Yap_NewPredPropByFunctor(f, IDB_MODULE);
-  } else if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-
-    WRITE_LOCK(RepAtom(at)->ARWLock);
-    p0 = Yap_NewPredPropByAtom(at, IDB_MODULE);
-  } else {
-    FUNC_WRITE_LOCK(FunctorList);
-    p0 = Yap_NewPredPropByFunctor(FunctorList, IDB_MODULE);
-  }
-  pe = RepPredProp(p0);
-  pe->PredFlags |= LogUpdatePredFlag;
-  if (IsAtomTerm(t)) {
-    pe->PredFlags |= AtomDBPredFlag;
-    pe->FunctorOfPred = (Functor)AtomOfTerm(t);
-  } else {
-    pe->FunctorOfPred = FunctorOfTerm(t);
-  }
-  pe->ArityOfPE = 3;
-  pe->OpcodeOfPred = Yap_opcode(_op_fail);
-  if (CurrentModule == PROLOG_MODULE)
-    pe->PredFlags |= StandardPredFlag;
-  pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
-  if (pe->PredFlags & ProfiledPredFlag) {
-    if (!Yap_initProfiler(pe)) {
-      return NULL;
-    }
-  }
-  return pe;
-}
-
-static DBProp find_entry(Term t) {
-  Atom at;
-  UInt arity;
-
-  if (IsVarTerm(t)) {
-    return RepDBProp(NIL);
-  } else if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
-
-  } else if (IsIntegerTerm(t)) {
-    return find_int_key(IntegerOfTerm(t));
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-
-    at = NameOfFunctor(f);
-    arity = ArityOfFunctor(f);
-  } else {
-    at = AtomDot;
-    arity = 2;
-  }
-  DBProp rc = RepDBProp(FindDBProp(RepAtom(at), 0, arity, 0));
-  return rc;
-}
-
-static PredEntry *find_lu_entry(Term t) {
-  Prop p;
-
-  if (IsVarTerm(t)) {
-    Yap_ThrowError(INSTANTIATION_ERROR, t, "while accessing database key");
-    return NULL;
-  }
-  if (IsIntegerTerm(t)) {
-    return find_lu_int_key(IntegerOfTerm(t));
-  } else if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-
-    if (IsExtensionFunctor(f)) {
-      Yap_ThrowError(TYPE_ERROR_KEY, t, "while accessing database key");
-      return NULL;
-    }
-    p = Yap_GetPredPropByFuncInThisModule(FunctorOfTerm(t), IDB_MODULE);
-  } else if (IsAtomTerm(t)) {
-    p = Yap_GetPredPropByAtomInThisModule(AtomOfTerm(t), IDB_MODULE);
-  } else {
-    p = Yap_GetPredPropByFuncInThisModule(FunctorList, IDB_MODULE);
-  }
-  if (p == NIL) {
-    if (UPDATE_MODE == UPDATE_MODE_LOGICAL && !find_entry(t)) {
-      return new_lu_entry(t);
-    } else {
-      return NULL;
-    }
-  }
-  return RepPredProp(p);
-}
-
-static DBProp FetchIntDBPropFromKey(Int key, int flag, int new,
-                                    char *error_mssg) {
-  Functor fun = (Functor)key;
-  UInt hash_key = (CELL)key % INT_KEYS_SIZE;
-  Prop p0;
-
-  if (INT_KEYS == NULL) {
-    init_int_keys();
-    if (INT_KEYS == NULL) {
-      CACHE_REGS
-      LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-      LOCAL_ErrorMessage = "could not allocate space";
-      return NULL;
-    }
-  }
-  p0 = INT_KEYS[hash_key];
-  while (p0 != NIL) {
-    DBProp p = RepDBProp(p0);
-    if (p->FunctorOfDB == fun)
-      return p;
-    p0 = p->NextOfPE;
-  }
-  /* p is NULL, meaning we did not find the functor */
-  if (new) {
-    DBProp p;
-    /* create a new DBProp				 */
-    p = (DBProp)Yap_AllocAtomSpace(sizeof(*p));
-    p->KindOfPE = DBProperty | flag;
-    p->F0 = p->L0 = NULL;
-    p->ArityOfDB = 0;
-    p->First = p->Last = NULL;
-    p->ModuleOfDB = 0;
-    p->FunctorOfDB = fun;
-    p->NextOfPE = INT_KEYS[hash_key];
-    INIT_RWLOCK(p->DBRWLock);
-    INT_KEYS[hash_key] = AbsDBProp(p);
-    return p;
-  } else {
-    return RepDBProp(NULL);
-  }
-}
-
-static DBProp FetchDBPropFromKey(Term twork, int flag, int new,
-                                 char *error_mssg) {
-  Atom At;
-  Int arity;
-  Term dbmod;
-
-  if (flag & MkCode) {
-    if (IsVarTerm(twork)) {
-      Yap_ThrowError(INSTANTIATION_ERROR, twork, error_mssg);
-      return RepDBProp(NULL);
-    }
-    if (!IsApplTerm(twork)) {
-      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, twork, "missing module");
-      return RepDBProp(NULL);
-    } else {
-      Functor f = FunctorOfTerm(twork);
-      if (f != FunctorModule) {
-        Yap_ThrowError(SYSTEM_ERROR_INTERNAL, twork, "missing module");
-        return RepDBProp(NULL);
-      }
-      dbmod = ArgOfTerm(1, twork);
-      if (IsVarTerm(dbmod)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, twork, "var in module");
-        return RepDBProp(NIL);
-      }
-      if (!IsAtomTerm(dbmod)) {
-        Yap_ThrowError(TYPE_ERROR_ATOM, twork, "not atom in module");
-        return RepDBProp(NIL);
-      }
-      twork = ArgOfTerm(2, twork);
-    }
-  } else {
-    dbmod = TermIDB;
-  }
-  if (IsVarTerm(twork)) {
-    Yap_ThrowError(INSTANTIATION_ERROR, twork, error_mssg);
-    return RepDBProp(NIL);
-  } else if (IsAtomTerm(twork)) {
-    arity = 0, At = AtomOfTerm(twork);
-  } else if (IsIntegerTerm(twork)) {
-    return FetchIntDBPropFromKey(IntegerOfTerm(twork), flag, new, error_mssg);
-  } else if (IsApplTerm(twork)) {
-    Register Functor f = FunctorOfTerm(twork);
-    if (IsExtensionFunctor(f)) {
-      Yap_ThrowError(TYPE_ERROR_KEY, twork, error_mssg);
-      return RepDBProp(NIL);
-    }
-    At = NameOfFunctor(f);
-    arity = ArityOfFunctor(f);
-  } else if (IsPairTerm(twork)) {
-    At = AtomDot;
-    arity = 2;
-  } else {
-    Yap_ThrowError(TYPE_ERROR_KEY, twork, error_mssg);
-    return RepDBProp(NIL);
-  }
-  if (new) {
-    DBProp p;
-    AtomEntry *ae = RepAtom(At);
-
-    WRITE_LOCK(ae->ARWLock);
-    if (EndOfPAEntr(
-            p = RepDBProp(FindDBPropHavingLock(ae, flag, arity, dbmod)))) {
-      /* create a new DBProp				 */
-      int OLD_UPDATE_MODE = UPDATE_MODE;
-      if (flag & MkCode) {
-        PredEntry *pp;
-        pp = RepPredProp(Yap_GetPredPropHavingLock(At, arity, dbmod));
-
-        if (!EndOfPAEntr(pp)) {
-          PELOCK(64, pp);
-          if (pp->PredFlags & LogUpdatePredFlag)
-            UPDATE_MODE = UPDATE_MODE_LOGICAL;
-          UNLOCK(pp->PELock);
-        }
-      }
-      p = (DBProp)Yap_AllocAtomSpace(sizeof(*p));
-      p->KindOfPE = DBProperty | flag;
-      p->F0 = p->L0 = NULL;
-      UPDATE_MODE = OLD_UPDATE_MODE;
-      p->ArityOfDB = arity;
-      p->First = p->Last = NIL;
-      p->ModuleOfDB = dbmod;
-      /* This is NOT standard but is QUITE convenient */
-      INIT_RWLOCK(p->DBRWLock);
-      if (arity == 0)
-        p->FunctorOfDB = (Functor)At;
-      else
-        p->FunctorOfDB = Yap_UnlockedMkFunctor(ae, arity);
-      AddPropToAtom(ae, (PropEntry *)p);
-    }
-    WRITE_UNLOCK(ae->ARWLock);
-    return p;
-  } else
-    return RepDBProp(FindDBProp(RepAtom(At), flag, arity, dbmod));
-}
-
 static Int lu_nth_recorded(PredEntry *pe, Int Count USES_REGS) {
   LogUpdClause *cl;
 
@@ -3374,8 +3338,22 @@ static Int in_rded_with_key(USES_REGS1) {
   return (i_recorded(AtProp, Deref(ARG3) PASS_REGS));
 }
 
-/* recorded(+Functor,+Term,-Ref) */
-static Int p_recorded(USES_REGS1) {
+  /** @pred  recorded(+ _K_, _T_, _R_)
+
+
+  Searches in the internal database under the key  _K_, a term that
+  unifies with  _T_ and whose reference matches  _R_. This
+  built-in may be used in one of two ways:
+
+  + _K_ may be given, in this case the built-in will return all
+  elements of the internal data-base that match the key.
+  + _R_ may be given, if so returning the key and element that
+  match the reference.
+
+
+
+  */
+static Int recorded(USES_REGS1) {
   DBProp AtProp;
   Register Term twork = Deref(ARG1); /* initially working with
                                       * ARG1 */
@@ -3774,168 +3752,7 @@ static Int p_heap_space_info(USES_REGS1) {
          Yap_unify(ARG3, MkIntegerTerm(Yap_expand_clauses_sz));
 }
 
-/*
- * This is called when we are erasing a data base clause, because we may have
- * pending references
- */
-static void ErasePendingRefs(DBTerm *entryref USES_REGS) {
-  DBRef *cp;
-  DBRef ref;
-
-  cp = entryref->DBRefs;
-  if (entryref->DBRefs == NULL)
-    return;
-  while ((ref = *--cp) != NULL) {
-    if ((ref->Flags & DBClMask) && (--(ref->NOfRefsTo) == 0) &&
-        (ref->Flags & ErasedMask))
-      ErDBE(ref PASS_REGS);
-  }
-}
-
-inline static void RemoveDBEntry(DBRef entryref USES_REGS) {
-
-  ErasePendingRefs(&(entryref->DBT)PASS_REGS);
-  /* We may be backtracking back to a deleted entry. If we just remove
-     the space then the info on the entry may be corrupt.  */
-  if ((B->cp_ap == RETRY_C_RECORDED_K_CODE ||
-       B->cp_ap == RETRY_C_RECORDEDP_CODE) &&
-      EXTRA_CBACK_ARG(3, 1) == (CELL)entryref) {
-/* make it clear the entry has been released */
-#if MULTIPLE_STACKS
-    DEC_DBREF_COUNT(entryref);
-#else
-    entryref->Flags &= ~InUseMask;
-#endif
-    DBErasedMarker->Next = NULL;
-    DBErasedMarker->Parent = entryref->Parent;
-    DBErasedMarker->n = entryref->n;
-    EXTRA_CBACK_ARG(3, 1) = (CELL)DBErasedMarker;
-  }
-  if (entryref->p != NULL)
-    entryref->p->n = entryref->n;
-  else
-    entryref->Parent->F0 = entryref->n;
-  if (entryref->n != NULL)
-    entryref->n->p = entryref->p;
-  else
-    entryref->Parent->L0 = entryref->p;
-  /*  Yap_LUClauseSpace -= entryref->Size; */
-  FreeDBSpace((char *)entryref);
-}
-
-static yamop *find_next_clause(DBRef ref0 USES_REGS) {
-  Register DBRef ref;
-  yamop *newp;
-
-/* fetch ref0 from the instruction we just started executing */
-#ifdef DEBUG
-  if (!(ref0->Flags & ErasedMask)) {
-    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
-              "find_next_clause (dead clause %x)", ref0);
-    return NULL;
-  }
-#endif
-  /* search for an newer entry that is to the left and points to code */
-  ref = ref0;
-  while ((ref = ref->n) != NULL) {
-    if (!(ref->Flags & ErasedMask))
-      break;
-  }
-  /* no extra alternatives to try, let us leave gracefully */
-  if (ref == NULL) {
-    return NULL;
-  } else {
-    /* OK, we found a clause we can jump to, do a bit of hanky pancking with
-       the choice-point, so that it believes we are actually working from that
-       clause */
-    newp = ref->Code;
-/* and next let's tell the world this clause is being used, just
-   like if we were executing a standard retry_and_mark */
-#if MULTIPLE_STACKS
-    {
-      DynamicClause *cl = ClauseCodeToDynamicClause(newp);
-
-      LOCK(cl->ClLock);
-      TRAIL_CLREF(cl);
-      INC_CLREF_COUNT(cl);
-      UNLOCK(cl->ClLock);
-    }
-#else
-    if (!(DynamicFlags(newp) & InUseMask)) {
-      DynamicFlags(newp) |= InUseMask;
-      TRAIL_CLREF(ClauseCodeToDynamicClause(newp));
-    }
-#endif
-    return newp;
-  }
-}
-
-/* This procedure is called when a clause is officialy deleted. Its job
-   is to find out where the code can go next, if it can go anywhere */
-static Int p_jump_to_next_dynamic_clause(USES_REGS1) {
-  DBRef ref =
-      (DBRef)(((yamop *)((CODEADDR)P - (CELL)NEXTOP((yamop *)NULL, Osbpp)))
-                  ->y_u.Osbpp.bmap);
-  yamop *newp = find_next_clause(ref PASS_REGS);
-
-  if (newp == NULL) {
-    cut_fail();
-  }
-  /* the next alternative to try must be obtained from this clause */
-  B->cp_ap = newp;
-  /* and next, enter the clause */
-  P = NEXTOP(newp, Otapl);
-  /* and return like if nothing had happened. */
-  return TRUE;
-}
-
-static void complete_lu_erase(LogUpdClause *clau) {
-  DBRef *cp;
-
-  if (clau->ClFlags & FactMask)
-    cp = NULL;
-  else
-    cp = clau->lusl.ClSource->DBRefs;
-  if (CL_IN_USE(clau)) {
-    return;
-  }
-#ifndef THREADS
-  if (clau->ClNext)
-    clau->ClNext->ClPrev = clau->ClPrev;
-  if (clau->ClPrev) {
-    clau->ClPrev->ClNext = clau->ClNext;
-  } else {
-    DBErasedList = clau->ClNext;
-  }
-#endif
-  if (cp != NULL) {
-    DBRef ref;
-    while ((ref = *--cp) != NIL) {
-      if (ref->Flags & LogUpdMask) {
-        LogUpdClause *cl = (LogUpdClause *)ref;
-        cl->ClRefCount--;
-        if (cl->ClFlags & ErasedMask && !(cl->ClFlags & InUseMask) &&
-            !(cl->ClRefCount)) {
-          EraseLogUpdCl(cl);
-        }
-      } else {
-        LOCK(ref->lock);
-        ref->NOfRefsTo--;
-        if (ref->Flags & ErasedMask && !(ref->Flags & InUseMask) &&
-            ref->NOfRefsTo) {
-          CACHE_REGS
-          UNLOCK(ref->lock);
-          ErDBE(ref PASS_REGS);
-        } else {
-          UNLOCK(ref->lock);
-        }
-      }
-    }
-  }
-  Yap_InformOfRemoval(clau);
-  Yap_LUClauseSpace -= clau->ClSize;
-  Yap_FreeCodeSpace((char *)clau);
-}
+static void complete_lu_erase(LogUpdClause *clau);
 
 static void EraseLogUpdCl(LogUpdClause *clau) {
   PredEntry *ap;
@@ -4013,60 +3830,6 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
     clau->ClRefCount--;
   }
   complete_lu_erase(clau);
-}
-
-static void MyEraseClause(DynamicClause *clau USES_REGS) {
-  DBRef ref;
-
-  if (CL_IN_USE(clau))
-    return;
-  /*
-    I don't need to lock the clause at this point because
-    I am the last one using it anyway.
-  */
-  ref = (DBRef)NEXTOP(clau->ClCode, Otapl)->y_u.Osbpp.bmap;
-  /* don't do nothing if the reference is still in use */
-  if (DBREF_IN_USE(ref))
-    return;
-  if (P == clau->ClCode) {
-    yamop *np = RTRYCODE;
-    /* make it the next alternative */
-    np->y_u.Otapl.d =
-        find_next_clause((DBRef)(NEXTOP(P, Otapl)->y_u.Osbpp.bmap)PASS_REGS);
-    if (np->y_u.Otapl.d == NULL)
-      P = (yamop *)FAILCODE;
-    else {
-      /* with same arity as before */
-      np->y_u.Otapl.s = P->y_u.Otapl.s;
-      np->y_u.Otapl.p = P->y_u.Otapl.p;
-      /* go ahead and try this code */
-      P = np;
-    }
-  } else {
-    Yap_InformOfRemoval(clau);
-    Yap_LUClauseSpace -= clau->ClSize;
-    Yap_FreeCodeSpace((char *)clau);
-#ifdef DEBUG
-    if (ref->NOfRefsTo)
-      fprintf(stderr, "Error: references to dynamic clause\n");
-#endif
-    RemoveDBEntry(ref PASS_REGS);
-  }
-}
-
-/*
-  This predicate is supposed to be called with a
-  lock on the current predicate
-*/
-void Yap_ErLogUpdCl(LogUpdClause *clau) { EraseLogUpdCl(clau); }
-
-/*
-  This predicate is supposed to be called with a
-  lock on the current predicate
-*/
-void Yap_ErCl(DynamicClause *clau) {
-  CACHE_REGS
-  MyEraseClause(clau PASS_REGS);
 }
 
 static void PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr) {
@@ -4149,6 +3912,145 @@ static void PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr) {
 
 static void PrepareToEraseClause(DynamicClause *clau, DBRef dbr) {}
 
+static yamop *find_next_clause(DBRef ref0 USES_REGS) {
+  Register DBRef ref;
+  yamop *newp;
+
+/* fetch ref0 from the instruction we just started executing */
+#ifdef DEBUG
+  if (!(ref0->Flags & ErasedMask)) {
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
+              "find_next_clause (dead clause %x)", ref0);
+    return NULL;
+  }
+#endif
+  /* search for an newer entry that is to the left and points to code */
+  ref = ref0;
+  while ((ref = ref->n) != NULL) {
+    if (!(ref->Flags & ErasedMask))
+      break;
+  }
+  /* no extra alternatives to try, let us leave gracefully */
+  if (ref == NULL) {
+    return NULL;
+  } else {
+    /* OK, we found a clause we can jump to, do a bit of hanky pancking with
+       the choice-point, so that it believes we are actually working from that
+       clause */
+    newp = ref->Code;
+/* and next let's tell the world this clause is being used, just
+   like if we were executing a standard retry_and_mark */
+#if MULTIPLE_STACKS
+    {
+      DynamicClause *cl = ClauseCodeToDynamicClause(newp);
+
+      LOCK(cl->ClLock);
+      TRAIL_CLREF(cl);
+      INC_CLREF_COUNT(cl);
+      UNLOCK(cl->ClLock);
+    }
+#else
+    if (!(DynamicFlags(newp) & InUseMask)) {
+      DynamicFlags(newp) |= InUseMask;
+      TRAIL_CLREF(ClauseCodeToDynamicClause(newp));
+    }
+#endif
+    return newp;
+  }
+}
+
+/*
+ * This is called when we are erasing a data base clause, because we may have
+ * pending references
+ */
+static void ErDBE(DBRef entryref USES_REGS);
+
+static void ErasePendingRefs(DBTerm *entryref USES_REGS) {
+  DBRef *cp;
+  DBRef ref;
+
+  cp = entryref->DBRefs;
+  if (entryref->DBRefs == NULL)
+    return;
+  while ((ref = *--cp) != NULL) {
+    if ((ref->Flags & DBClMask) && (--(ref->NOfRefsTo) == 0) &&
+        (ref->Flags & ErasedMask))
+      ErDBE(ref PASS_REGS);
+  }
+}
+
+
+inline static void RemoveDBEntry(DBRef entryref USES_REGS) {
+
+  ErasePendingRefs(&(entryref->DBT)PASS_REGS);
+  /* We may be backtracking back to a deleted entry. If we just remove
+     the space then the info on the entry may be corrupt.  */
+  if ((B->cp_ap == RETRY_C_RECORDED_K_CODE ||
+       B->cp_ap == RETRY_C_RECORDEDP_CODE) &&
+      EXTRA_CBACK_ARG(3, 1) == (CELL)entryref) {
+/* make it clear the entry has been released */
+#if MULTIPLE_STACKS
+    DEC_DBREF_COUNT(entryref);
+#else
+    entryref->Flags &= ~InUseMask;
+#endif
+    DBErasedMarker->Next = NULL;
+    DBErasedMarker->Parent = entryref->Parent;
+    DBErasedMarker->n = entryref->n;
+    EXTRA_CBACK_ARG(3, 1) = (CELL)DBErasedMarker;
+  }
+  if (entryref->p != NULL)
+    entryref->p->n = entryref->n;
+  else
+    entryref->Parent->F0 = entryref->n;
+  if (entryref->n != NULL)
+    entryref->n->p = entryref->p;
+  else
+    entryref->Parent->L0 = entryref->p;
+  /*  Yap_LUClauseSpace -= entryref->Size; */
+  FreeDBSpace((char *)entryref);
+}
+
+static void MyEraseClause(DynamicClause *clau USES_REGS) {
+  DBRef ref;
+
+  if (CL_IN_USE(clau))
+    return;
+  /*
+    I don't need to lock the clause at this point because
+    I am the last one using it anyway.
+  */
+  ref = (DBRef)NEXTOP(clau->ClCode, Otapl)->y_u.Osbpp.bmap;
+  /* don't do nothing if the reference is still in use */
+  if (DBREF_IN_USE(ref))
+    return;
+  if (P == clau->ClCode) {
+    yamop *np = RTRYCODE;
+    /* make it the next alternative */
+    np->y_u.Otapl.d =
+        find_next_clause((DBRef)(NEXTOP(P, Otapl)->y_u.Osbpp.bmap)PASS_REGS);
+    if (np->y_u.Otapl.d == NULL)
+      P = (yamop *)FAILCODE;
+    else {
+      /* with same arity as before */
+      np->y_u.Otapl.s = P->y_u.Otapl.s;
+      np->y_u.Otapl.p = P->y_u.Otapl.p;
+      /* go ahead and try this code */
+      P = np;
+    }
+  } else {
+    Yap_InformOfRemoval(clau);
+    Yap_LUClauseSpace -= clau->ClSize;
+    Yap_FreeCodeSpace((char *)clau);
+#ifdef DEBUG
+    if (ref->NOfRefsTo)
+      fprintf(stderr, "Error: references to dynamic clause\n");
+#endif
+    RemoveDBEntry(ref PASS_REGS);
+  }
+}
+
+
 static void ErDBE(DBRef entryref USES_REGS) {
 
   if ((entryref->Flags & DBCode) && entryref->Code) {
@@ -4184,6 +4086,58 @@ static void ErDBE(DBRef entryref USES_REGS) {
     }
   }
 }
+
+
+static void complete_lu_erase(LogUpdClause *clau) {
+  DBRef *cp;
+
+  if (clau->ClFlags & FactMask)
+    cp = NULL;
+  else
+    cp = clau->lusl.ClSource->DBRefs;
+  if (CL_IN_USE(clau)) {
+    return;
+  }
+#ifndef THREADS
+  if (clau->ClNext)
+    clau->ClNext->ClPrev = clau->ClPrev;
+  if (clau->ClPrev) {
+    clau->ClPrev->ClNext = clau->ClNext;
+  } else {
+    DBErasedList = clau->ClNext;
+  }
+#endif
+  if (cp != NULL) {
+    DBRef ref;
+    while ((ref = *--cp) != NIL) {
+      if (ref->Flags & LogUpdMask) {
+        LogUpdClause *cl = (LogUpdClause *)ref;
+        cl->ClRefCount--;
+        if (cl->ClFlags & ErasedMask && !(cl->ClFlags & InUseMask) &&
+            !(cl->ClRefCount)) {
+          EraseLogUpdCl(cl);
+        }
+      } else {
+        LOCK(ref->lock);
+        ref->NOfRefsTo--;
+        if (ref->Flags & ErasedMask && !(ref->Flags & InUseMask) &&
+            ref->NOfRefsTo) {
+          CACHE_REGS
+          UNLOCK(ref->lock);
+          ErDBE(ref PASS_REGS);
+        } else {
+          UNLOCK(ref->lock);
+        }
+      }
+    }
+  }
+  Yap_InformOfRemoval(clau);
+  Yap_LUClauseSpace -= clau->ClSize;
+  Yap_FreeCodeSpace((char *)clau);
+}
+
+
+
 
 void Yap_ErDBE(DBRef entryref) {
   CACHE_REGS
@@ -4223,6 +4177,42 @@ static void EraseEntry(DBRef entryref) {
   } else if ((entryref->Flags & DBCode) && entryref->Code) {
     PrepareToEraseClause(ClauseCodeToDynamicClause(entryref->Code), entryref);
   }
+}
+
+
+
+/* This procedure is called when a clause is officialy deleted. Its job
+   is to find out where the code can go next, if it can go anywhere */
+static Int p_jump_to_next_dynamic_clause(USES_REGS1) {
+  DBRef ref =
+      (DBRef)(((yamop *)((CODEADDR)P - (CELL)NEXTOP((yamop *)NULL, Osbpp)))
+                  ->y_u.Osbpp.bmap);
+  yamop *newp = find_next_clause(ref PASS_REGS);
+
+  if (newp == NULL) {
+    cut_fail();
+  }
+  /* the next alternative to try must be obtained from this clause */
+  B->cp_ap = newp;
+  /* and next, enter the clause */
+  P = NEXTOP(newp, Otapl);
+  /* and return like if nothing had happened. */
+  return TRUE;
+}
+
+/*
+  This predicate is supposed to be called with a
+  lock on the current predicate
+*/
+void Yap_ErLogUpdCl(LogUpdClause *clau) { EraseLogUpdCl(clau); }
+
+/*
+  This predicate is supposed to be called with a
+  lock on the current predicate
+*/
+void Yap_ErCl(DynamicClause *clau) {
+  CACHE_REGS
+  MyEraseClause(clau PASS_REGS);
 }
 
 /* erase(+Ref)	 */
@@ -4745,6 +4735,44 @@ static Int p_instance_module(USES_REGS1) {
   }
 }
 
+/* when reading an entry in the data base we are making it accessible from
+   the outside. If the entry was removed, and this was the last pointer, the
+   target entry would be immediately removed, leading to dangling pointers.
+   We avoid this problem by making every entry accessible.
+
+   Note that this could not happen with recorded, because the original db
+   entry itself is still accessible from a trail entry, so we could not remove
+   the target entry,
+ */
+static void keepdbrefs(DBTerm *entryref USES_REGS) {
+  DBRef *cp;
+  DBRef ref;
+
+  cp = entryref->DBRefs;
+  if (cp == NULL) {
+    return;
+  }
+  while ((ref = *--cp) != NIL) {
+    if (!(ref->Flags & LogUpdMask)) {
+      LOCK(ref->lock);
+      if (!(ref->Flags & InUseMask)) {
+        ref->Flags |= InUseMask;
+        TRAIL_REF(ref); /* So that fail will erase it */
+      }
+      UNLOCK(ref->lock);
+    }
+  }
+}
+
+
+static void ReleaseTermFromDB(DBTerm *ref USES_REGS) {
+  if (!ref)
+    return;
+  keepdbrefs(ref PASS_REGS);
+  ErasePendingRefs(ref PASS_REGS);
+  FreeDBSpace((char *)ref);
+}
+
 inline static int NotActiveDB(DBRef my_dbref) {
   while (my_dbref && (my_dbref->Flags & (DBCode | ErasedMask)))
     my_dbref = my_dbref->Next;
@@ -4758,40 +4786,34 @@ inline static DBEntry *NextDBProp(PropEntry *pp) {
   return ((DBEntry *)pp);
 }
 
-static Int init_current_key(USES_REGS1) { /* current_key(+Atom,?key)	 */
-  Int i = 0;
-  DBEntry *pp;
-  Atom a;
-  Term t1 = ARG1;
+static Int cont_current_key_integer(USES_REGS1) {
+  Term term;
+  UInt i = IntOfTerm(EXTRA_CBACK_ARG(2, 2));
+  Prop pp = (Prop)IntegerOfTerm(EXTRA_CBACK_ARG(2, 1));
+  UInt tstamp = (UInt)IntOfTerm(EXTRA_CBACK_ARG(2, 3));
+  DBProp pptr;
 
-  t1 = Deref(ARG1);
-  if (!IsVarTerm(t1)) {
-    if (IsAtomTerm(t1))
-      a = AtomOfTerm(t1);
-    else {
-      cut_fail();
-    }
-  } else {
-    /* ask for the first hash line */
-    while (TRUE) {
-      READ_LOCK(HashChain[i].AERWLock);
-      a = HashChain[i].Entry;
-      if (a != NIL) {
+  if (tstamp != INT_KEYS_TIMESTAMP) {
+    cut_fail();
+  }
+  while (pp == NIL) {
+    for (; i < INT_KEYS_SIZE; i++) {
+      if (INT_KEYS[i] != NIL) {
+        EXTRA_CBACK_ARG(2, 2) = MkIntTerm(i + 1);
+        pp = INT_KEYS[i];
         break;
       }
-      READ_UNLOCK(HashChain[i].AERWLock);
-      i++;
     }
-    READ_UNLOCK(HashChain[i].AERWLock);
+    if (i == INT_KEYS_SIZE) {
+      cut_fail();
+    }
   }
-  READ_LOCK(RepAtom(a)->ARWLock);
-  pp = NextDBProp(RepProp(RepAtom(a)->PropsOfAE));
-  READ_UNLOCK(RepAtom(a)->ARWLock);
-  EXTRA_CBACK_ARG(2, 3) = MkAtomTerm(a);
-  EXTRA_CBACK_ARG(2, 2) = MkIntTerm(i);
-  EXTRA_CBACK_ARG(2, 1) = MkIntegerTerm((Int)pp);
-  return cont_current_key(PASS_REGS1);
+  pptr = RepDBProp(pp);
+  EXTRA_CBACK_ARG(2, 1) = MkIntegerTerm((Int)(pptr->NextOfPE));
+  term = MkIntegerTerm((Int)(pptr->FunctorOfDB));
+  return Yap_unify(term, ARG1) && Yap_unify(term, ARG2);
 }
+
 
 static Int cont_current_key(USES_REGS1) {
   unsigned int arity;
@@ -4883,33 +4905,41 @@ static Int cont_current_key(USES_REGS1) {
   return (Yap_unify_constant(ARG1, AtT) && Yap_unify(ARG2, term));
 }
 
-static Int cont_current_key_integer(USES_REGS1) {
-  Term term;
-  UInt i = IntOfTerm(EXTRA_CBACK_ARG(2, 2));
-  Prop pp = (Prop)IntegerOfTerm(EXTRA_CBACK_ARG(2, 1));
-  UInt tstamp = (UInt)IntOfTerm(EXTRA_CBACK_ARG(2, 3));
-  DBProp pptr;
+static Int init_current_key(USES_REGS1) { /* current_key(+Atom,?key)	 */
+  Int i = 0;
+  DBEntry *pp;
+  Atom a;
+  Term t1 = ARG1;
 
-  if (tstamp != INT_KEYS_TIMESTAMP) {
-    cut_fail();
-  }
-  while (pp == NIL) {
-    for (; i < INT_KEYS_SIZE; i++) {
-      if (INT_KEYS[i] != NIL) {
-        EXTRA_CBACK_ARG(2, 2) = MkIntTerm(i + 1);
-        pp = INT_KEYS[i];
-        break;
-      }
-    }
-    if (i == INT_KEYS_SIZE) {
+  t1 = Deref(ARG1);
+  if (!IsVarTerm(t1)) {
+    if (IsAtomTerm(t1))
+      a = AtomOfTerm(t1);
+    else {
       cut_fail();
     }
+  } else {
+    /* ask for the first hash line */
+    while (TRUE) {
+      READ_LOCK(HashChain[i].AERWLock);
+      a = HashChain[i].Entry;
+      if (a != NIL) {
+        break;
+      }
+      READ_UNLOCK(HashChain[i].AERWLock);
+      i++;
+    }
+    READ_UNLOCK(HashChain[i].AERWLock);
   }
-  pptr = RepDBProp(pp);
-  EXTRA_CBACK_ARG(2, 1) = MkIntegerTerm((Int)(pptr->NextOfPE));
-  term = MkIntegerTerm((Int)(pptr->FunctorOfDB));
-  return Yap_unify(term, ARG1) && Yap_unify(term, ARG2);
+  READ_LOCK(RepAtom(a)->ARWLock);
+  pp = NextDBProp(RepProp(RepAtom(a)->PropsOfAE));
+  READ_UNLOCK(RepAtom(a)->ARWLock);
+  EXTRA_CBACK_ARG(2, 3) = MkAtomTerm(a);
+  EXTRA_CBACK_ARG(2, 2) = MkIntTerm(i);
+  EXTRA_CBACK_ARG(2, 1) = MkIntegerTerm((Int)pp);
+  return cont_current_key(PASS_REGS1);
 }
+
 
 Term Yap_FetchTermFromDB(void *ref) {
   CACHE_REGS
@@ -5131,35 +5161,6 @@ static Int p_enqueue_unlocked(USES_REGS1) {
   return Yap_enqueue_tqueue(father_key, Deref(ARG2) PASS_REGS);
 }
 
-/* when reading an entry in the data base we are making it accessible from
-   the outside. If the entry was removed, and this was the last pointer, the
-   target entry would be immediately removed, leading to dangling pointers.
-   We avoid this problem by making every entry accessible.
-
-   Note that this could not happen with recorded, because the original db
-   entry itself is still accessible from a trail entry, so we could not remove
-   the target entry,
- */
-static void keepdbrefs(DBTerm *entryref USES_REGS) {
-  DBRef *cp;
-  DBRef ref;
-
-  cp = entryref->DBRefs;
-  if (cp == NULL) {
-    return;
-  }
-  while ((ref = *--cp) != NIL) {
-    if (!(ref->Flags & LogUpdMask)) {
-      LOCK(ref->lock);
-      if (!(ref->Flags & InUseMask)) {
-        ref->Flags |= InUseMask;
-        TRAIL_REF(ref); /* So that fail will erase it */
-      }
-      UNLOCK(ref->lock);
-    }
-  }
-}
-
 static Int p_dequeue(USES_REGS1) {
   db_queue *father_key;
   QueueEntry *cur_instance;
@@ -5299,14 +5300,6 @@ static Int p_resize_int_keys(USES_REGS1) {
   return resize_int_keys(IntegerOfTerm(t1));
 }
 
-static void ReleaseTermFromDB(DBTerm *ref USES_REGS) {
-  if (!ref)
-    return;
-  keepdbrefs(ref PASS_REGS);
-  ErasePendingRefs(ref PASS_REGS);
-  FreeDBSpace((char *)ref);
-}
-
 void Yap_ReleaseTermFromDB(void *ref) {
   CACHE_REGS
   ReleaseTermFromDB(ref PASS_REGS);
@@ -5365,33 +5358,10 @@ static Int p_install_thread_local(USES_REGS1) { /* '$is_dynamic'(+P)	 */
 }
 
 void Yap_InitDBPreds(void) {
-  Yap_InitCPred("$set_pred_flags", 2, p_rcdz, SyncPredFlag);
-  /** @pred  recorded(+ _K_, _T_, _R_)
-
-
-  Searches in the internal database under the key  _K_, a term that
-  unifies with  _T_ and whose reference matches  _R_. This
-  built-in may be used in one of two ways:
-
-  + _K_ may be given, in this case the built-in will return all
-  elements of the internal data-base that match the key.
-  + _R_ may be given, if so returning the key and element that
-  match the reference.
-
-
-
-  */
-  Yap_InitCPred("recorded", 3, p_recorded, SyncPredFlag);
-  Yap_InitCPred("recorda", 3, p_rcda, SyncPredFlag);
-  /** @pred  recorda(+ _K_, _T_,- _R_)
-
-
-  Makes term  _T_ the first record under key  _K_ and  unifies  _R_
-  with its reference.
-
-
-  */
-  Yap_InitCPred("recordz", 3, p_rcdz, SyncPredFlag);
+  Yap_InitCPred("$set_pred_flags", 2, recordz, SyncPredFlag);
+  Yap_InitCPred("recorded", 3, recorded, SyncPredFlag);
+  Yap_InitCPred("recorda", 3, recorda, SyncPredFlag);
+  Yap_InitCPred("recordz", 3, recordz, SyncPredFlag);
   Yap_InitCPred("$still_variant", 2, p_still_variant, SyncPredFlag);
   Yap_InitCPred("recorda_at", 3, p_rcda_at, SyncPredFlag);
   Yap_InitCPred("recordz_at", 3, p_rcdz_at, SyncPredFlag);

@@ -87,6 +87,14 @@ array(Obj, Size) :-
 '$add_array_entries'([Head|Tail], G, (Head, NG)) :-
 	'$add_array_entries'(Tail, G, NG).
 
+/** @pred  static_array_(+_Name_, +Size_, +Type)
+
+Create a static array with indices counting from 0.
+*/
+static_array(A,B,C) :-
+  static_array(A,B,0,C).
+
+
 
 /** @pred  static_array_properties(? _Name_, ? _Size_, ? _Type_)
 
@@ -111,4 +119,3 @@ static_array_properties(Name, Size, Type) :-
 	throw_error(type_error(atom,Name),static_array_properties(Name,Size,Type)).
 
 %% @}
-

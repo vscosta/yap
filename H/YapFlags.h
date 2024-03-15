@@ -19,10 +19,10 @@
  @file YapFlags.h
 
 @{
-@defgroup YAPFlagsImplementation C-code for flags
-@ingroup Builtins
+@addtogroup YAPFlagsImplementation
+@ingroup YAPImplementation
 
-@brief Inquuiring and setting YAP state.
+@brief Inquiring and setting YAP state.
 */
 
 #ifndef YAP_FLAGS_H
@@ -222,28 +222,30 @@ Set or read system properties for  _Param_:
 */
 
 
+#if !defined( YAP_FLAG)
+
 #undef YAP_FLAG
 #undef END_FLAG
-#if DOXYGEN
-#define  YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT,HELPER)   **NAME** = INIT
-#define  END_FLAG() 
 
-#elif !defined(YAP_FLAG)
 #define YAP_FLAG(ID,NAME,WRITABLE,DEF,INIT, HELPER)  ID
-#define  END_FLAG() 
+#define  END_FLAG()
 
+
+
+typedef enum local_flag_t
+  {
+#include "YapLFlagInfo.h"
+} yap_local_flag_t;
+ 
+
+ enum global_flag_t
+  {
+#include "YapGFlagInfo.h"
+  };
 
 #endif
 
-enum local_flag_t {
-#include "YapLFlagInfo.h"
-} ;
- 
-enum global_flag_t {
-#include "YapGFlagInfo.h"
-} ;
- 
- #undef YAP_FLAG
+#undef YAP_FLAG
 #undef END_FLAG
 
 bool Yap_set_flag(Term tflag, Term t2);

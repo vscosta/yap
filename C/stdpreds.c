@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -396,12 +395,17 @@ static Int p_walltime(USES_REGS1) {
           Yap_unify_constant(ARG2, MkIntegerTerm(interval / 1000)));
 }
 
+//  static int cnt;
+
 static Int p_univ(USES_REGS1) { /* A =.. L			 */
   unsigned int arity;
   register Term tin;
   Term twork, t2;
   Atom at;
 
+  //cnt++;
+  //if (cnt==5312800) jmp_deb(1);
+  
   tin = Deref(ARG1);
   t2 = Deref(ARG2);
   if (IsVarTerm(tin)) {
@@ -606,7 +610,7 @@ static Int
         int Outputfile = open(((char *)ExpEnv.analysis_struc.outfile),
                               O_CREAT | O_APPEND | O_WRONLY, 0777);
         if (Outputfile < 0) {
-          fprintf(stderr,
+`          fprintf(stderr,
                   "Error:: I can not write analysis passes's output on %s...\n",
                   ((char *)ExpEnv.analysis_struc.outfile));
           fprintf(stderr, "        %s...\n", strerror(errno));
@@ -635,7 +639,7 @@ static bool valid_prop(Prop p, Term mod,
       mod != pe->ModuleOfPred)
     return false;
   if (task == TermUndefined)
-      return pe->PredFlags & pe->PredFlags & UndefPredFlag;
+      return pe->PredFlags & UndefPredFlag;
   if ((pe->PredFlags & HiddenPredFlag) || (pe->OpcodeOfPred == UNDEF_OPCODE)) {
     return false;
   }
@@ -761,8 +765,8 @@ static PredEntry *firstModulesPred(PredEntry *npp, ModEntry *m, Term task) {
 }
 
 static Int cont_current_predicate(USES_REGS1) {
-  UInt Arity;
-  Term name, task;
+  UInt Arity=0;
+  Term name =  0, task=0;
   Term t1 = ARG1, mod = Deref(ARG2), t3 = Deref(ARG3);
   bool rc, will_cut = false;
   Functor f;
@@ -828,9 +832,8 @@ static Int cont_current_predicate(USES_REGS1) {
   } else if (IsNonVarTerm(t1)) {
     PropEntry *np, *p;
     // run over the same atom any predicate defined for that atom
-    // may be fair bait, depends on whether we know the module.
-    p = AbsPredProp(pp);
-    if (!p) {
+    // may be fair bait, depends on whether we know the m`odule.
+    if (!pp) {
       // initialization time
       if (IsIntTerm(t1)) {
         // or this or nothing....
@@ -950,6 +953,27 @@ static Int current_predicate(USES_REGS1) {
   return cont_current_predicate(PASS_REGS1);
 }
 
+
+static Int functors_for_atom(USES_REGS1) {
+  Atom at = AtomOfTerm(Deref(ARG1));
+  Term o = 0;
+  Term next = TermNil;
+  Prop p = RepAtom(at)->PropsOfAE;
+  while(p) {
+    if (IsFunctorProperty(p->KindOfPE)) {
+      Term t = Yap_MkNewApplTerm( (RepFunctorProp(p)),RepFunctorProp(p)->ArityOfFE);
+      if (!o) {
+	o = AbsPair(HR);
+      }
+      HR[0] = t;
+      HR[1] = next;
+      next = AbsPair(HR);
+      HR += 2;
+    }
+    p = p->NextOfPE;
+  }
+  return Yap_unify(o,ARG2);
+}
 static OpEntry *NextOp(Prop pp USES_REGS) {
 
   while (!EndOfPAEntr(pp) && 
@@ -1540,6 +1564,7 @@ void Yap_InitCPreds(void) {
   Yap_InitCPred("$unlock_system", 0, p_unlock_system, SafePredFlag);
   Yap_InitCPred("$enter_undefp", 0, enter_undefp, SafePredFlag);
   Yap_InitCPred("$exit_undefp", 0, exit_undefp, SafePredFlag);
+  Yap_InitCPred("$functors_for_atom", 2, functors_for_atom, SafePredFlag);
 
 #ifdef YAP_JIT
   Yap_InitCPred("$jit_init", 1, p_jit, SafePredFlag | SyncPredFlag);

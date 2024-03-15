@@ -17,9 +17,9 @@ set (PROBLOG_PROGRAMS
   problog/hash_table.yap 
   problog/intervals.yap 
   problog/logger.yap 
-  problog/math.yap 
   problog/mc_DNF_sampling.yap 
   problog/os.yap 
+  problog/pbmath.yap 
   problog/print.yap 
   problog/sampling.yap 
   problog/tabling.yap 
@@ -44,6 +44,7 @@ set (PROBLOG_PROGRAMS
 set (PROBLOG_EXAMPLES
   problog_examples/alarm.pl 
   problog_examples/graph.pl 
+  problog_examples/graph_bk.yap 
   problog_examples/graph_tabled.pl 
   problog_examples/learn_graph.pl 
   problog_examples/office.pl 

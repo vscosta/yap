@@ -7,15 +7,26 @@
 problog_lbdd(Goal, Prob) :-
     problog_lbdd(Goal, 0.0,Prob).
 
-problog_lbdd(Goal, Threshold,_Prob) :-
+problog_lbdd(Goal, Threshold, _Prob) :-
     build_low_tree(Goal, Threshold),
     fail.
-problog_lbdd(_, _, Prob) :-
+problog_lbdd( _, _, Prob) :-
     close_low_tree(CUDD, MapList),
-    bind_maplist(MapList,Probs),
-    bdd_to_probability_sum_product(CUDD, Probs, Prob),
+    bind_maplist(MapList),
+    bdd_to_probability_sum_product(CUDD, Prob),
     bdd_close(CUDD).
-%	evalp(Tree, Prob).
+
+problog_lbdd(Goal, Threshold, _Tree, _Prob) :-
+    build_low_tree(Goal, Threshold),
+    fail.
+problog_lbdd(_, _, BDD, Prob ) :-
+    close_low_tree(CUDD, MapList),
+    bdd_to_tree(CUDD,MapList,BDD),
+    bdd_close(CUDD),
+    bind_maplist(MapList),
+    tree_to_sp(BDD,Prob).
+
+
 
 problog_lbdd_tree(Goal, BDD) :-
     problog_lbdd_tree(Goal, 0.0, BDD).
@@ -25,9 +36,8 @@ problog_lbdd_tree(Goal, Threshold, _BDD) :-
     fail.
 problog_lbdd_tree(_, _, BDD ) :-
     close_low_tree(CUDD, MapList),
-    bdd_tree(CUDD,MapList,BDD),
+    bdd_to_tree(CUDD,MapList,BDD),
     bdd_close(CUDD).
-%	evalp(Tree, Prob).
 
 %:- spy problog_lbdd_exact.
 
@@ -38,13 +48,14 @@ build_low_tree(Goal, Threshold) :-
     problog_call(Goal),
     add_solution.
 
-close_low_tree(CUDD,MapList):- 
+
+close_low_tree(CUDD,MapList):-
     timer_stop(sld_time,SLD_Time),
      problog_var_set(sld_time, SLD_Time),
     nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
     (user:debug_problog ->
 	 format("~nProofs for query ~w:~n", []),
-	 trie_print(Trie_Completed_Proofs),
+   trie_print(Trie_Completed_Proofs),
 	 writeln('  **********')
     ;
     true
@@ -52,17 +63,17 @@ close_low_tree(CUDD,MapList):-
     trie_to_cudd(Trie_Completed_Proofs, MapList, CUDD),
     nb_setval(problog_completed_proofs, []),
     close_trie(Trie_Completed_Proofs).
-    
+
 problog_lbdd_exact(Goal, Prob) :-
-    problog_lbdd(Goal,_BDD, Prob).
+    problog_lbdd(Goal,Prob).
 
 problog_lbdd_exact_tree(Goal,Tree) :-
-    problog_lbdd(Goal,Tree,_).
+    problog_lbdd_tree(Goal,Tree).
 
 problog_lbdd_kbest(Goal, K, Prob) :-
-	problog_lbdd_kbest_tree(Goal, K, bdd(_Dir, Tree, MapList)),
-	bind_maplist(MapList, _BoundVars), 
-	evalp(Tree, Prob).
+	problog_lbdd_kbest_tree(Goal, K, BDD),
+	bind_maplist(MapList),
+	tree_to_sp(BDD, MapList, Prob).
 
 problog_lbdd_kbest_tree(Goal, K, Tree) :-
 	problog_flag(first_threshold,InitT),
@@ -71,30 +82,14 @@ problog_lbdd_kbest_tree(Goal, K, Tree) :-
 	problog_kbest_id(Goal, K),
 	retract(current_kbest(_,ListFound,_NumFound)),
 	build_prefixtree(ListFound),
+	fail
+	;
+	    nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
 	trie_to_bdd_tree(Trie_Completed_Proofs, Tree),
 	delete_ptree(Trie_Completed_Proofs).
 
 
-problog_lbdd_fl(Goal,  _) :-
-	init_problog_low(0.0),
-	problog_control(off, up),
-	timer_start(sld_time),
-	problog_call(Goal),
-	add_solution,
-	fail.
-problog_lbdd_fl(_,Prob) :-
-	timer_stop(sld_time,SLD_Time),
-	problog_var_set(sld_time, SLD_Time),
-	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
-	trie_to_bdd_tree(Trie_Completed_Proofs, BDD, MapList),
-	bind_maplist(MapList, BoundVars),
-	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
-	(problog_flag(retain_tables, true) -> retain_tabling; true),
-	clear_tabling.
-
-bind_maplist([], []).
-bind_maplist([Node-_|MapList], [ProbFact|BoundVars]) :-
+bind_maplist([]).
+bind_maplist([Node-ProbFact|MapList]) :-
 	get_fact_probability(Node,ProbFact),
-	bind_maplist(MapList, BoundVars).
-
-
+	bind_maplist(MapList).

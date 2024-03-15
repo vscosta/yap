@@ -1200,7 +1200,7 @@ static Int swi_all_atts(USES_REGS1) {
 }
 
 static Term AllAttVars(USES_REGS1) {
-  CELL *pt = H0;
+  CELL *pt = H0+1;
   CELL *myH = HR;
 
   while (pt < myH) {
@@ -1244,15 +1244,18 @@ static Term AllAttVars(USES_REGS1) {
 
 static Int all_attvars(USES_REGS1) {
   do {
-    Term out;
+    Term out, in = Deref(ARG1);
 
+    if (IsVarTerm(in) &&  IsAttVar(VarOfTerm(in))) {
+    return false;
+  }
     if (!(out = AllAttVars(PASS_REGS1))) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-      return FALSE;
+      return false;
     } else {
       return Yap_unify(ARG1, out);
     }
-  } while (TRUE);
+  } while (true);
 }
 
 /** @pred attvar( _-Var_)

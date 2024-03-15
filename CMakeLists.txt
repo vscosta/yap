@@ -264,7 +264,7 @@ IF (WITH_SWIG)
 ENDIF (WITH_SWIG)
 
 
-OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" Off)
+OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" On)
 OPTION(WITH_XML2YAP " Enable the  XML2YAP library" On)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
@@ -458,7 +458,7 @@ set(YAP_PLDIR  ${CMAKE_INSTALL_FULL_DATADIR}/Yap)
 
 set(YAP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/Yap)
 set(YAP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR})
-set(YAP_INSTALL_DLLDIR ${YAP_DLLDIR})
+set(YAP_INSTALL_DLLDIR ${CMAKE_INSTALL_LIBDIR})
 if (ANDROID)
   set(YAP_INSTALL_DATADIR ${CMAKE_SOURCE_DIR}/../yaplib/src/generated/assets/Yap)
 else()
@@ -863,7 +863,7 @@ if (WITH_Java)
 
     set (CMAKE_FIND_FRAMEWORK ${STD_CMAKE_FIND_FRAMEWORK})
 
-    if (JNI_OUND)
+    if (JNI_FOUND)
 
       get_filename_component(JAVA_HOME ${JAVA_INCLUDE_PATH} DIRECTORY)
 
@@ -1053,22 +1053,26 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/GitSHA1.c.in GitSHA1.c @ONLY)
 feature_summary(DESCRIPTION "Packages found:"
   WHAT  ALL
   )
+set (CPACK_PROJECT YAP)
+set (CPACK_DEBIAN_PACKAGE_MAINTAINER vscosta@fc.up.pt)
+set (CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_PACKAGING_INSTALL_PREFIX "/")
+set(CPACK_DEBIAN_VERSION ${YAP_FVERSION})
+
+set(CPACK_DEBIAN_PACKAGE_MAJOR_VERSION 7)
+set(CPACK_DEBIAN_PACKAGE_MINOR_VERSION 4)
+set(CPACK_DEBIAN_PACKAGE_PATCH_VERSION 0)
 
 set(CPACK_PACKAGE_VENDOR "ANY")
 set(CPACK_COMPONENTS_GROUPING "IGNORE")
 
-set( CPACK_DEB_COMPONENT_INSTALL On)
+set( CPACK_DEB_COMPONENT_INSTALL OFF)
 set( CPACK_PACKAGE_CONTACT "vscosta@fc.up.pt")
 
 set( CPACK_RPM_COMPONENT_INSTALL On)
 
-include(CPack)
-cpack_add_component(R
-                    DISPLAY_NAME "YAP4R"
-                    DESCRIPTION "YAP Interface to R")
-cpack_add_component(MPI
-                    DISPLAY_NAME "MPI4YAP"
-                    DESCRIPTION "YAP Interface to MPI")
 
+
+include(CPack)
 
 

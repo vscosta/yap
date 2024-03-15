@@ -330,7 +330,6 @@ prolog:'$inline'(_:'C'(A,B,C),(A=[B|C])) :- !.
 
 
 '$c_phrase'(NT, Xs0, Xs, Mod, B) :-
-    writeln(NT),
     t_body(NT, Mod, _, last, Xs0, Xs, B1),
 
     t_tidy(B1, B) .

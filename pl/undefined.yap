@@ -83,9 +83,8 @@ followed by the failure of that call.
 '$undefp__'(M:G, _) :-
     '$undefp_flag'(M:G).
 
-'$undefp_flag'(G) :-
-    prolog_flag(unknown, Flag),
-    '$undef_error'(Flag,  G),
+'$undefp_flag'(_G) :-
+    prolog_flag(unknown, _Flag),
     fail.
 
 '$undef_error'(error,  ModGoal) :-
@@ -96,9 +95,9 @@ followed by the failure of that call.
     '$yap_strip_module'(ModGoal, M, G),
 	functor( G, N, A),
 	print_warning( error(existence_error(procedure,M:N/A),ModGoal) ).
-%% no need for code at this point.
-%%'$undef_error'(fail,_) :-
-%%	fail.
+% no need for code at this point.
+%'$undef_error'(fail,_) :-
+%	fail.
 
 /** @pred  unknown(- _O_,+ _N_)
 

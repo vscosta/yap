@@ -23,8 +23,11 @@
 				  '$process_fields'/3,
 				  '$check_fields'/2,
 				  '$get_value'/2,
-				  '$get_values_for_insert'/3,
-				  '$make_atom'/2,
+				  '$get_values_for_insert'/firefox
+				  firef
+
+3,
+				  '$make_atom'/2,car975740 
 				  '$make_atom_args'/2,
 				  '$write_or_not'/1,
 				  '$abolish_all'/1,

@@ -3,8 +3,7 @@
 *	 YAP Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 ** Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
 **************************************************************************
 *									 *
@@ -281,6 +280,12 @@ translate_message( Term ) -->
 
 
 
+translate_message(error(style_check(singletons,Culprit,Cl),Exc))-->
+    !,
+    {
+    '$show_consult_level'(LC),
+      Level = warning },
+    main_message(error(style_check(singletons,Culprit,Cl),Exc),  Level, LC ).
 translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     !,
     {
@@ -288,7 +293,7 @@ translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     '$show_consult_level'(LC),
     Level = warning },
     location( Desc, Level, parser, LC),
-  main_message(error(style_check(What,Culprit,Cl),Exc),  warning, LC ).
+  main_message(error(style_check(What,Culprit,Cl),Exc),  Level, LC ).
 translate_message(error(syntax_error(E), Info)) -->
     {
      '$show_consult_level'(LC),
@@ -296,7 +301,7 @@ translate_message(error(syntax_error(E), Info)) -->
      Level = error
     },
       %{start_low_level_trace},
-    syntax_error_location( Desc, Level,full , LC),
+    syntax_location( Desc, Level,full , LC),
    main_message(error(syntax_error(E),Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
@@ -343,18 +348,22 @@ seq([A|Args]) -->
  */
 :- set_prolog_flag(discontiguous_warnings, false).
 
-syntax_error_location( Desc, Level, _More, _LC ) -->
+syntax_location( Desc, Level, _More, _LC ) -->
     {
-     %       query_exception(parserReadingCode, Desc, true),
+     query_exception(parserReadingCode, Desc, true),
      query_exception(parserLine, Desc, LN), 
      nonvar(LN),
      query_exception(parserFile, Desc, FileName),
      nonvar(FileName),
-     query_exception(parserPos, Desc, Pos),
-     (var(Pos) -> Pos=1;true),
-     query_exception(parserPos, Desc, Pos)
-    },
-    [  '~n~s:~d:~d ~a:' -[FileName, LN,Pos,Level] ],
+     (
+       query_exception(parserLinePos, Desc, Pos) ->
+       (var(Pos) -> Pos=0;true)
+       ;
+       Pos=0
+     )
+      }
+      ,
+    [  '~n~s:~d:~d: ~a:' -[FileName, LN,Pos,Level] ],
      ({ query_exception(parserTextA,Desc, TextA) }
      ->
 	 [ '~n%%%%%%%%%%%~n~s'-[ TextA]]
@@ -364,7 +373,7 @@ syntax_error_location( Desc, Level, _More, _LC ) -->
      ['<<<<<<<<<<<<< Syntax Error found at line ~d>>>>>>>' -[LN]],
      ({ query_exception(parserTextB, Desc, TextB) }
      ->
-	 [ '~n~s~n~NN%%%%%%%%%%%~n~n'-[ TextB]]
+	 [ '~n~s~n~N%%%%%%%%%%%~n~n'-[ TextB]]
      ;
      []
      ).
@@ -372,15 +381,20 @@ syntax_error_location( Desc, Level, _More, _LC ) -->
 location( Desc, Level, More, LC ) -->
     {
 %     query_exception(prologConsulting, Desc, true),
-     %       query_exception(parserReadingCode, Desc, true),
+      %       query_exception(parserReadingCode, Desc, true),
+
      query_exception(parserLine, Desc, LN),
-     nonvar(LN),
+      nonvar(LN),
      query_exception(parserFile, Desc, FileName),
      nonvar(FileName),
-     query_exception(parserPos, Desc, Pos),
-     (var(Pos) -> Pos=1;true)
-    },
-    [  '~N~s:~d:~d ~a: ' -[FileName, LN,Pos,Level] ],
+     (
+       query_exception(parserLinePos, Desc, Pos) ->
+       (var(Pos) -> Pos=0;true)
+       ;
+       Pos=0
+     ) 
+      },
+    [  '~N~s:~d:~d: ~a: ' -[FileName, LN,Pos,Level] ],
     !,
     ({More == full}
     ->
@@ -401,7 +415,7 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredModule, Desc, Module)
     },
     !,
-    [  '~N~s:~d:0 ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
+    [  '~N~s:~d:0: ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
      [nl],
      c_caller( Desc, Level, LC).
 prolog_caller( Desc, Level, LC ) -->
@@ -412,12 +426,12 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredModule, Desc, Module)
  },
      !,
-	     [  '~N~s:1:0 ~a executing ~s:~s/~d:'-[FileName, 1,Level,Module,Name,Arity] ],
+	     [  '~N~s:1:0: ~a executing ~s:~s/~d:'-[FileName, 1,Level,Module,Name,Arity] ],
      [nl],
      c_caller( Desc, Level, LC).
 
 prolog_caller( Desc, Level, LC ) -->
-    [  '~Nuser:~d:0 ~a in top-level goal.'-[0,Level]],
+    [  '~Nuser:~d:0: ~a in top-level goal.'-[0,Level]],
     [nl],
     c_caller( Desc, Level, LC).
 
@@ -443,38 +457,32 @@ simplify_pred(F, F).
 
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
-				      [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singletons,SVs,P), _Exc), _Level, LC) -->
+    [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
+main_message(error( style_check(singletons,[VName,Line,Column,F0],P), _Exc),_,_LC) -->
     !,
     {
-	clause_to_indicator(P, I),
-	svs(SVs, SVsL),
-	(  SVs = [_]  -> NVs = 0 ; NVs = 1 )
-    },
+      clause_to_indicator(P, I)
+      },
     [
-	'~*|singleton variable~*c ~s in ~q.' -
-	[ LC,  NVs, 0's, SVsL, I],
+	'~s:~d:~d: warning, singleton variable ~s in ~q.' -
+	[  F0, Line, Column, VName, I],
 	nl,
 	nl
     ].
-main_message(error(style_check(discontiguous,_N,P), _Exc), _Level, LC) -->
+main_message(error(style_check(discontiguous,[F0|L0],I), _Exc), _Level, LC) -->
     !,
-        {
-	clause_to_indicator(P, I)
-    },
-	[  '~*|%% discontiguous definition for ~p.' - [ LC,I],
+	[  '~*|discontiguous definition for ~p.' - [ LC,I],
+	nl,
+	nl,
+	   '~w:~d:0: this is the initial definition for ~p.' - [ F0,L0,I],
 	   nl,
 	   nl
 	].
-main_message(error(style_check(multiple,F0,P      ), _Info),_Level, _LC) -->
-        {
-	clause_to_indicator(P, I)
-	},   [ '~q was previously defined in ~a!!'-[I,F0],
+main_message(error(style_check(multiple,[F0|L0],I      ), _Info),_Level, _LC) -->
+          [ '~q was previously defined at:'-[I],
 	       nl,
+'~a:~d:0: has original definition for ~q'-[F0,L0,I],
 	       nl ].
-main_message(error(What, _Exc), _Level, LC) -->
-    !,
-    main_error_message(What, LC ).
 main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
     !,
     [  '[ Syntax Error:~n      ~s~n]'-[Msg]   ].
@@ -517,8 +525,8 @@ main_error_message(system_error(Who, In),LC) -->
     [ '~*|%%% ~q ~q.' - [LC,Who, In]].
 main_error_message(uninstantiation_error(T),LC) -->
     [ '~*|%%% found ~q, expected unbound variable.' - [LC,T]].
-main_error_message(compilation_warning(Type,Mod,F),LC) -->
-    [ '~*|%%% ~a: ~q in ~a.' - [LC,Type,F,Mod]].
+main_error_message(warning(Type,Culprit),LC) -->
+    [ '~*|%%% ~a: ~q.' - [LC,Type,Culprit]].
 
 fix_pi(Var, Var) :-
     var(Var),
@@ -1447,7 +1455,7 @@ print_warning(_Msg).
 yap_hacks:yap_query_exception(Q,E,V) :-
     query_exception(Q,E,V).
 
-/** @addtogroup Hacks
+/**
  * @pred yap_error_descriptor(+Term,-List).
  *
  * If _Term_ describes an exception, _List_ will be unfied with the

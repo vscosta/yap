@@ -16,21 +16,99 @@
  *************************************************************************/
 
 /**
-  * @file   utils.yap
-  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
-  * @date   Thu Oct 19 12:21:01 2017
-  * 
-  * @brief  Utilities
-  *
-  * @defgroup MixBag Operators
-  * @ingroup Builtins
-  * 
-  * 
-  */
+ * @file   utils.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Thu Oct 19 12:21:01 2017
+ * 
+ * @brief  Utilities
+ */
+ 
+/** @defgroup Operators		Defining operators
+ * @ingroup Builtins
+ * @{ 
+ *
+ * @brief Prolog allows defining operators at run-time.
+ *
+ * The Prolog syntax caters for operators of three main kinds:
+ *
+ * + prefix;
+ * + infix;
+ * + postfix.
+ *
+ * Each operator has precedence in the range 1 to 1200, and this
+ * precedence is used to disambiguate expressions where the structure of the
+ * term denoted is not made explicit using brackets. The operator of higher
+ * precedence is the main functor.
+ * 
+ * If there are two operators with the highest precedence, the ambiguity
+ * is solved analyzing the types of the operators. The possible infix types are:
+ *  _xfx_,  _xfy_, and  _yfx_.
+ * 
+ * With an operator of type  _xfx_ both sub-expressions must have lower
+ * precedence than the operator itself, unless they are bracketed (which
+ * assigns to them zero precedence). With an operator type  _xfy_ only the
+ * left-hand sub-expression must have lower precedence. The opposite happens
+ * for  _yfx_ type.
+ * 
+ * A prefix operator can be of type  _fx_ or  _fy_.
+ * A postfix operator can be of type  _xf_ or  _yf_.
+ * The meaning of the notation is analogous to the above.
+ * 
+ * ```
+ * a + b * c
+ * ```
+ * means
+ * 
+ * ```
+ * a + (b * c)
+ * ```
+ * as + and \* have the following types and precedences:
+ * 
+ * ```
+ * :-op(500,yfx,'+').
+ * :-op(400,yfx,'*').
+ * ```
+ * 
+ * Now defining
+ * 
+ * ```
+ * :-op(700,xfy,'++').
+ * :-op(700,xfx,'=:=').
+ * a ++ b =:= c
+ * ```
+ *  means
+ * 
+ * ```
+ * a ++ (b =:= c)
+ * ```
+ * 
+ * The following is the list of the declarations of the predefined operators:
+ * ```
+ * :-op(1200,fx,['?-', ':-']).
+ * :-op(1200,xfx,[':-','-->']).
+ * :-op(1150,fx,[block,dynamic,mode,public,multifile,meta_predicate,
+ *               sequential,table,initialization]).
+ * :-op(1100,xfy,[';','|']).
+ * :-op(1050,xfy,->).
+ * :-op(1000,xfy,',').
+ * :-op(999,xfy,'.').
+ * :-op(900,fy,['\+', not]).
+ * :-op(900,fx,[nospy, spy]).
+ * :-op(700,xfx,[@>=,@=<,@<,@>,<,=,>,=:=,=\=,\==,>=,=<,==g\=,=..,is]).
+ * :-op(500,yfx,['\/','/\','+','-']).
+ * :-op(500,fx,['+','-']).
+ * :-op(400,yfx,['<<','>>','//','*','/']).
+ * :-op(300,xfx,mod).
+ * :-op(200,xfy,['^','**']).
+ * :-op(50,xfx,same).
+ * ```
+ * 
+ */
 
 
 
-/** @pred op(+ _P_,+ _T_,+ _A_) is iso
+
+/** @pred op(+ _Precedence_,+ _Type_,+ _A_) is iso
 
 
 Defines the operator  _A_ or the list of operators  _A_ with type
@@ -166,10 +244,10 @@ op_cases(P, T, [A|AS], MA) :-
 op_cases(P, T, A, MA) :-
    opdec(P, T, A, MA).	
 
-/** @pred current_op( _P_, _T_, _F_) is iso
+/** @pred current_op( _P_, _Type_, _A_) is iso
 
 
-Defines the relation:  _P_ is a currently defined  operator of type
+Defines the relation: _A_ is a currently defined  operator of type
  _T_ and precedence  _P_.
 
 
@@ -259,3 +337,4 @@ current_op(X,Y,Z) :-
         ).
 
 
+%% @}

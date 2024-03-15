@@ -68,8 +68,12 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
+  if (NEXTOP((yamop*)S,Osbpp) == P) {
+    ip = (yamop*)S;
+    op = Yap_op_from_opcode(ip->opc);
+  }
   if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || ip == TRUSTFAILCODE) {
-    op = P->opc;
+    op = Yap_op_from_opcode(P->opc);
     i->env = ENV; // YENV should be tracking ENV
     i->p = ip;
     i->p_env = ip;
@@ -89,25 +93,97 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
   i->at_yaam = true;
   CalculateStackGap(PASS_REGS1);
   i->gc_min = 2 * MinStackGap;
-  yamop *ip0 = PREVOP(ip, Osbpp);
   if (!op)
     {
-      op_numbers op1 = Yap_op_from_opcode(ip0->opc);
+      op = Yap_op_from_opcode(ip->opc);
       i->at_yaam = false;
-      if (op1 == _call_cpred || op1 == _call_usercpred)
-	op = op1;
-      else
-	{
-	  op = Yap_op_from_opcode(ip->opc);
-	  ip0 = ip;
-	}
-    }
-  else if (ip->opc == Yap_opcode(op))
-    {
-      ip0 = ip;
     }
   switch (op)
     {
+    case _p_plus_vv:                  
+    case _p_plus_vc:
+    case _p_minus_vv:                 
+    case _p_minus_cv:                 
+    case _p_times_vv:                 
+    case _p_times_vc:                 
+    case _p_div_vv:                   
+    case _p_div_vc:                   
+    case _p_div_cv:                   
+    case _p_and_vv:                   
+    case _p_and_vc:                   
+    case _p_xor_vv:                    
+    case _p_xor_vc:                    
+    case _p_sll_vv:                   
+    case _p_sll_vc:                   
+    case _p_sll_cv:                   
+    case _p_slr_vv:                   
+    case _p_slr_vc:                   
+    case _p_slr_cv:                   
+    case _call_bfunc_xx:              
+    case _p_equal:
+    case _p_arg_vv:
+    case _p_arg_cv:                   
+    case _p_arg_y_vv:                 
+    case _p_arg_y_cv:                 
+    case _p_atom_x:
+    case _p_atomic_x:                 
+    case _p_integer_x:                
+    case _p_nonvar_x:                 
+    case _p_number_x:                 
+    case _p_var_x:                    
+    case _p_db_ref_x:                 
+    case _p_primitive_x:              
+    case _p_compound_x:               
+      i->env = ENV; // YENV should be tracking ENV
+      i->p = ip;
+      i->p_env = CP;
+      i->pe = Yap_PredEntryForCode(NULL, ip, FIND_PRED_FROM_CLAUSE );
+      i->a = i->pe->ArityOfPE;
+      i->env_size = 0;
+      return i->pe;
+      break;
+    case _p_plus_y_vv:                
+    case _p_plus_y_vc:                
+    case _p_minus_y_vv:               
+    case _p_minus_y_cv:               
+    case _p_times_y_vv:               
+    case _p_times_y_vc:               
+    case _p_div_y_vv:                 
+    case _p_div_y_vc:                 
+    case _p_div_y_cv:                 
+    case _p_and_y_vv:                 
+    case _p_and_y_vc:                 
+    case _p_or_vv:                    
+    case _p_or_vc:                    
+    case _p_or_y_vv:                  
+    case _p_or_y_vc:                  
+    case _p_xor_y_vv:                  
+    case _p_xor_y_vc:                  
+    case _p_sll_y_vv:                 
+    case _p_sll_y_vc:                 
+    case _p_sll_y_cv:                 
+    case _p_slr_y_vv:                 
+    case _p_slr_y_vc:                 
+    case _p_slr_y_cv:                 
+    case _call_bfunc_yx:              
+    case _call_bfunc_xy:              
+    case _call_bfunc_yy:              
+    case _p_atom_y:                   
+    case _p_atomic_y:                 
+    case _p_integer_y:                
+    case _p_nonvar_y:                 
+    case _p_number_y:                 
+    case _p_var_y:                    
+    case _p_db_ref_y:                 
+    case _p_primitive_y:              
+    case _p_compound_y:               
+      i->env = ENV; // YENV should be tracking ENV
+      i->p = ip;
+      i->p_env = CP;
+      i->pe = Yap_PredEntryForCode(NULL,ip, FIND_PRED_FROM_CLAUSE );
+      i->a = i->pe->ArityOfPE;
+      i->env_size = 0;
+      return i->pe;
     case _call:
       i->env = YENV; // YENV should be tracking ENV
       i->p = ip;
@@ -119,19 +195,19 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     case _call_cpred:
     case _call_usercpred:
       i->env = YENV; // YENV should be tracking ENV
-      i->p_env = NEXTOP(ip0, Osbpp);
-      i->a = ip0->y_u.Osbpp.p->ArityOfPE;
-      i->p = ip0;
-      i->env_size = -ip0->y_u.Osbpp.s / sizeof(CELL);
+      i->p_env = NEXTOP(ip, Osbpp);
+      i->a = ip->y_u.Osbpp.p->ArityOfPE;
+      i->p = ip;
+      i->env_size = -ip->y_u.Osbpp.s / sizeof(CELL);
       i->caller = i->p->y_u.Osbpp.p0;
-      return i->pe =  ip0->y_u.Osbpp.p;
+      return i->pe =  ip->y_u.Osbpp.p;
     case _execute_cpred:
     case _execute:
-      i->a = ip0->y_u.Osbpp.p->ArityOfPE;
+      i->a = ip ->y_u.Osbpp.p->ArityOfPE;
       i->p_env = CP;
       i->env = ENV;
       i->p = P;
-      i->env_size = -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
+      i->env_size =P->y_u.Osbpp.s / sizeof(CELL);
       i->caller = i->p->y_u.Osbpp.p0;
       return i->pe =  ip->y_u.Osbpp.p;
 
@@ -271,6 +347,15 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env_size = EnvSizeInCells;
       i->caller = i->p->y_u.Osbpp.p0;
       return i->pe =  i->p->y_u.Osbpp.p;
+    case _undef_p:
+      i->env = ENV;
+      i->p = P;
+      i->p_env = CP;
+      i->a = PredFromDefCode(P)->ArityOfPE;
+      i->op = op;
+      i->env_size = -CP ->y_u.Osbpp.s / sizeof(CELL);
+      i->caller = CP->y_u.Osbpp.p0;
+      return i->pe = PredFromDefCode(P);
     default:
       i->env = ENV;
       i->p = P;
@@ -398,22 +483,34 @@ Term Yap_PredicateIndicator(Term t, Term mod)
   CACHE_REGS
   // generate predicate indicator in this case
   Term ti[2];
-  t = Yap_YapStripModule(t, &mod);
-  if (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t)))
-  {
-    ti[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
-    ti[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
-  }
-  else if (IsPairTerm(t))
-  {
-    ti[0] = MkAtomTerm(AtomDot);
-    ti[1] = MkIntTerm(2);
-  }
-  else
-  {
-    ti[0] = t;
-    ti[1] = MkIntTerm(0);
-  }
+  bool loop = false;
+  do {
+    t = Yap_YapStripModule(t, &mod);
+    if (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t)))
+      {
+	if (FunctorOfTerm(t)==FunctorAssert && !loop)
+	  {
+	    t = ArgOfTerm(1,t);
+	    loop = true;
+	  } else {
+	  loop = false;
+	ti[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
+	ti[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
+	}
+      }
+    else if (IsPairTerm(t))
+      {
+	  loop = false;
+	ti[0] = MkAtomTerm(AtomDot);
+	ti[1] = MkIntTerm(2);
+      }
+    else
+      {
+	  loop = false;
+	ti[0] = t;
+	ti[1] = MkIntTerm(0);
+      }
+  } while(loop);
   t = Yap_MkApplTerm(FunctorSlash, 2, ti);
   if (mod != CurrentModule)
   {

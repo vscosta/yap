@@ -304,7 +304,7 @@ logger_set_delimiter(Delimiter) :-
 logger_set_variable(Name,Value) :-
 	atom_concat(logger_data_,Name,Key),
 	(
-	    bb_get(logger:Key,null)
+	   true % bb_get(logger:Key,null)
 	->
 	    (
 		bb_put(logger:Key,Value)

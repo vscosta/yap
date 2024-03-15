@@ -1,5 +1,4 @@
 /*************************************************************************
-
  *									 *
  *	 YAP Prolog							 *
  *									 *
@@ -18,6 +17,8 @@
 
  *
  *************************************************************************/
+
+
 
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
@@ -436,7 +437,8 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     //    Yap_JumpToEnv();
     return NULL;
    } else {
-     e->parserFile = RepAtom(StreamFullName(sno))->StrOfAE;
+     const char *s =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
+     e->parserFile = strcpy(malloc(strlen(s)+1),s);
    }
    if (err->TokNext) {
      while (end->TokNext && end->Tok != eot_tok) {
@@ -463,7 +465,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno,SYNTAX_ERROR, MkIntTerm(err_line), TermNil, NULL);
   // const char *p1 =
   e->prologConsulting = LOCAL_consult_level > 0;
-  e->parserReadingCode = false;
+  e->parserReadingCode = true;
   e->parserFirstLine = start_line;
   e->parserLine = err_line;
   e->parserLastLine = end_line;
@@ -480,7 +482,9 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     if ((nt = Yap_StreamUserName(sno))==0) {
       e->parserFile = "<<<"; //
     } else {
-      e->parserFile = RepAtom(AtomOfTerm(nt))->StrOfAE;
+    const char *s =  RepAtom(Yap_source_file_name())->StrOfAE;
+     e->parserFile = strcpy(malloc(strlen(s)+1),s);
+  
     }
   }
   e->culprit = s;
@@ -548,16 +552,17 @@ opos=	ftell(GLOBAL_Stream[sno].file);
       }
       tok =  tok->TokNext;
     }
-	e->parserTextA = realloc(buf, strlen(buf)+1);
-    buf = malloc(MSG_SIZE);
+    size_t bufs = MSG_SIZE;
+    e->parserTextA = realloc(buf, strlen(buf)+1);
+    buf = malloc(bufs);
     buf[0]='\0';
   while (tok &&  tok->Tok != eot_tok) {
       const char *ns = Yap_tokText(tok);
       size_t esz = strlen(ns);
       if (ns && ns[0]) {
-        if (esz + strlen(o) + 1 > MSG_SIZE - 256) {
-break;
-
+        while (esz + strlen(buf) + 1 > bufs - 256) {
+	  buf = realloc(buf,bufs+MSG_SIZE);
+	  bufs += MSG_SIZE;
         }
         strcat(buf, ns);
         strcat(buf, " ");
@@ -566,7 +571,7 @@ break;
         }
       }
       tok = tok->TokNext;
-  }
+      }
   e->parserTextB = realloc(buf, strlen(buf)+1);
 }
 
@@ -592,6 +597,7 @@ typedef struct FEnv {
   size_t nargs;        /// arity of current procedure
   encoding_t enc;      /// encoding of the stream being read
   char * msg;          /// Error  Messagge
+  Term user_file_name; ///stream name inn case it closes
   int top_stream;      /// last open stream
 } FEnv;
 
@@ -617,7 +623,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   args = Yap_ArgListToVector(opts, read_defs, READ_END, args,
                              DOMAIN_ERROR_READ_OPTION);
   fe->top_stream = Yap_FirstFreeStreamD();
-
+  fe->msg = NULL;
   if (args && args[READ_OUTPUT].used) {
     fe->t0 = args[READ_OUTPUT].tvalue;
   } else {
@@ -666,7 +672,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
         args[READ_ALLOW_VARIABLE_NAME_AS_FUNCTOR].tvalue == TermTrue;
   } else {
     fe->scanner.vn_asfl =
-        trueLocalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) == TermTrue;
+      trueGlobalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) == TermTrue;
   }
   if (args && args[READ_COMMENTS].used) {
     fe->scanner.store_comments = args[READ_COMMENTS].tvalue == TermTrue;
@@ -827,36 +833,55 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
           return v;
         }
       } else {
-        reset_regs(tokstart, fe);
+         reset_regs(tokstart, fe);
       }
     }
   }
   return 0;
 }
 
-static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
 
-  Term v;
+static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
   fe->sp = TermNil;
-  v = get_singletons(fe, tokstart);
-  if (v && v != TermNil) {
-      yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
+  Term vn = get_singletons(fe, tokstart);
+  while (vn && vn != TermNil) {
+    int line,col;
+    char *fil;
+    Term myv = ArgOfTerm(1,HeadOfTerm(vn));
+	line = IntOfTerm(HeadOfTerm(TailOfTerm(myv)));
+     col = IntOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(myv))));
+     fil  = RepAtom(AtomOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(TailOfTerm(myv))))))->StrOfAE;
+    yap_error_descriptor_t *e = LOCAL_ActiveError;
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
-                      v, TermNil, "singletons warning");
-    Term ts[3], sc[2];
+                      myv, TermNil, "singletons warning");
+			    Term ts[3], sc[2];
     ts[0] = MkAtomTerm(Yap_LookupAtom("singletons"));
-    ts[1] = v;
+    ts[1] = myv;
     ts[2] = fe->t;
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck,3),3,ts);
     sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
-  }
-
+   if (sno < 0) {
+     
+    e->parserPos = 0;
+    //    Yap_JumpToEnv();
+   } else {
+     e->parserLine = line;
+     e->parserPos = col;
+     e->parserFile = fil;
+     }
+   Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
+        vn = TailOfTerm(vn);
 }
+}
+
+
+		      
 
 static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v;
+
+    
 
   if (fe->tp) {
     while (true) {
@@ -867,7 +892,7 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
           return v;
         }
       } else {
-        reset_regs(tokstart, fe);
+        reset_regs( tokstart, fe);
       }
     }
   }
@@ -900,7 +925,7 @@ static Term scan_to_list(TokEntry * t)
 }
 
 
-static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
+ static bool complete_processing(FEnv *fe, int sno, TokEntry *tokstart) {
   CACHE_REGS
     Term v1, v2, v3, vc, vs =  0;
 
@@ -937,12 +962,10 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   return true;
 }
 
-static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
+ static bool complete_clause_processing(FEnv *fe, int sno, TokEntry *tokstart) {
   CACHE_REGS
     Term v_vprefix, v_vnames, v_comments, v_pos, vs=0;
 
-  if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
-    return false;
   if (fe->t && fe->vprefix)
     v_vprefix = get_variables(fe, tokstart);
   else
@@ -1036,13 +1059,14 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
                                  bool clause) {
   CACHE_REGS
       
-  LOCAL_Error_TYPE = YAP_NO_ERROR;
-  LOCAL_SourceFileName = GLOBAL_Stream[inp_stream].name;
-  LOCAL_eot_before_eof = false;
+  fe->user_file_name = Yap_StreamUserName(inp_stream);
   fe->tp = StreamPosition(inp_stream);
   fe->reading_clause = clause;
 
   fe->top_stream = Yap_FirstFreeStreamD();
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_SourceFileName = AtomOfTerm(fe->user_file_name);
+  LOCAL_eot_before_eof = false;
   if (clause) {
     fe->args = setClauseReadEnv(opts, fe, re, inp_stream);
   } else {
@@ -1170,6 +1194,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   HR = fe->old_H;
   yap_error_number err = LOCAL_Error_TYPE;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_ErrorMessage = NULL;
   if (err == RESOURCE_ERROR_STACK) {
     while (!Yap_dogc(PASS_REGS1)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, MkStringTerm("read_term"), NULL);
@@ -1199,13 +1224,13 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   }
   Term cause;
   if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
-    size_t len = strlen(LOCAL_ErrorMessage)+1;
+    size_t len = strlen(LOCAL_ErrorMessage);
     fe->msg = malloc(len+1);
     strncpy(fe->msg, LOCAL_ErrorMessage, len);
     cause = MkAtomTerm(Yap_LookupAtom(fe->msg));
   } else {
-    cause = MkAtomTerm(Yap_LookupAtom("  "));
-    fe->msg = NULL;
+    cause = TermEmptyAtom;
+    fe->msg = "";
   }
   Yap_syntax_error__(__FILE__, __FUNCTION__, __LINE__,
                      cause, inp_stream, (LOCAL_tokptr), (LOCAL_toktide),
@@ -1213,7 +1238,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   Term action = re->sy;
   if (action == TermFail || action == TermDec10) {
    Term sc[2];
-  sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
+   sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
    sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
    sc[1] = MkSysError(LOCAL_ActiveError);
    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc));
@@ -1316,10 +1341,20 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
     case YAP_PARSING_FINISHED: {
       CACHE_REGS
       bool done;
-      if (clause)
-        done = complete_clause_processing(fe, LOCAL_tokptr);
+      if (clause) {
+  if (fe->t && fe->reading_clause &&
+      !is_goal(fe->t)  &&
+      trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
+  }
+    warn_singletons(fe, sno, LOCAL_tokptr);
+  if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
+    return false;
+        if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
+	  return false;
+      done = complete_clause_processing(fe,sno, LOCAL_tokptr);
+      }
       else
-        done = complete_processing(fe, LOCAL_tokptr);
+        done = complete_processing(fe, sno, LOCAL_tokptr);
       if (!done) {
         state = YAP_PARSING_ERROR;
         rc = fe->t = 0;

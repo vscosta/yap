@@ -223,7 +223,7 @@ static int doexpand(UInt sz) {
   CACHE_REGS
 
   gc_entry_info_t info;
-  Yap_track_cpred(0, P, 0, &info);
+  Yap_track_cpred( 0, P, 0, &info);
   if (!Yap_gc(&info)) {
     return FALSE;
   }

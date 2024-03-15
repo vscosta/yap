@@ -15,10 +15,7 @@
 	log2prob/4,
 	bind_maplist/3,
 	get_prob/2,
-	gradient/3,
-	query_probabilities/2,
-	evalp/2,
-	query_gradients/4]
+	store_gradient/3]
 ).
 
 :- use_module('../problog').
@@ -26,8 +23,9 @@
 :- use_module('logger').
 :- use_module(library(matrix)).
 :- use_module(library(lists)).
+:- use_module(library(bdd)).
 
-set_tunable(I,Slope,P) :-
+set_tunable(I,Slope,P) :-	
     X <== P[I],
     sigmoid(X,Slope,NewProbability),
     Prob_Secure is min(0.99,max(0.01,NewProbability)),
@@ -36,6 +34,7 @@ set_tunable(I,Slope,P) :-
 %========================================================================
 %= Updates all values of query_probability/2 and query_gradient/4
 %= should be called always before these predicates are accessed
+
 %= if the old values are still valid, nothing happens
 %========================================================================
 
@@ -61,69 +60,36 @@ get_prob(Node, Prob) :-
 	problog:get_fact_probability(Node,Prob).
 
 
-bindp(I-(I-Pr)) :-
+bindp(I-Pr) :-
     problog:get_fact_probability(I,Pr).
 
-gradient(_QueryID, l, _).
 
-gradient(QueryID,p,BDDProb) :-
+bindg(I-(I-Pr)) :-
+    problog:get_fact_probability(I,Pr).
+
+
+
+
+store_gradient(QueryID,l,_Slope) :-
 	recorded(QueryID,BDD,_),
-	BDD = bdd(_,_,MapList),
-%		write(MapList:' '),
+	BDD = bdd(_,_,_,MapList),
 	MapList = [_|_],
 	maplist(bindp, MapList),
-	query_probabilities( BDD, BDDProb).
-
-/*	query_probability(21,6.775948e-01). */
-gradient(QueryID, g, Slope) :-
+	tree_to_sp( BDD, MapList, Prob),
+	assert(learning:query_probability_intern(QueryID,Prob)).
+store_gradient(QueryID, g, Slope) :-
+    	user:example(QueryID,_,V0,_),
+	problog:inv_sigmoid(V0, Slope, TrueProb),
 	recorded(QueryID, BDD, _),
-	query_gradients(BDD,Slope,I,Grad),
-	assert(query_gradient_intern(QueryID,I,p,Grad)),
+	BDD = bdd(_,_,_,MapList),
+	maplist(bindg, MapList),
+   	 member(I-_, MapList),
+	tree_to_grad( BDD, I, Prob, Grad0),
+	Error is Prob-TrueProb,
+	Grad is (Grad0*Prob*(1.0-Prob)*2*Error),
+	assert(learning:query_gradient_intern(QueryID,I,p,Grad)),
 	fail.
-gradient(QueryID, g, Slope) :-
-	gradient(QueryID, l, Slope).
-
-query_probabilities( DBDD, Prob) :-
-    DBDD = bdd(Dir, Tree, _MapList),
-    findall(P, evalp(Tree,P), [Prob0]),
-   % nonvar(Prob0),
-    (Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0).
-
-evalp( Tree, Prob0) :-
-    foldl(evalp, Tree, _, Prob0).
-    
-query_gradients(bdd(Dir, Tree, MapList),I,IProb,Grad) :-
-        member(I-(_-IProb), MapList),
-	% run_grad(Tree, I, Slope, 0.0, Grad0),
-	foldl( evalg(I), Tree, _, Grad0),
-	( Dir == 1 -> Grad = Grad0 ; Grad is -Grad0).
-
-evalp( pn(P, _-X, PL, PR), _,P ):-
-    P is X*PL+ (1.0-X)*(1.0-PR).
-evalp( pp(P, _-X, PL, PR), _,P ):-  
-    P is X*PL+ (1.0-X)*PR.
-
-evalg( I, pp(P-G, J-X, L, R), _, G ):-
-    ( number(L) -> PL=L, GL = 0.0 ; L = PL-GL ),
-    ( number(R) -> PR=R, GR = 0.0 ; R = PR-GR ),
-    P is X*PL+ (1.0-X)*PR,
-    (
-	I == J
-    ->
-    G is X*GL+ (1.0-X)*GR+PL-PR
-    ;
-    G is X*GL+ (1.0-X)*GR
-    ).
-evalg( I, pn(P-G, J-X, L, R), _,G ):-
-    ( number(L) -> PL=L, GL = 0.0 ; L = PL-GL ),
-    ( number(R) -> PR=R, GR = 0.0 ; R = PR-GR ),
-    P is X*PL+ (1.0-X)*(1.0-PR),
-    (
-	I == J
-    ->
-    G is X*GL-(1.0-X)*GR+PL-(1-PR)
-    ;
-    G is X*GL- (1.0-X)*GR
-    ).
+store_gradient(QueryID, g, Slope) :-
+	store_gradient(QueryID, l, Slope).
 
 

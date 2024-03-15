@@ -217,7 +217,9 @@ CACHE_REGS
   libpython_initialized = true;
     term_t t = PL_new_term_ref();
     if (!Py_IsInitialized()) {
+    Yap_CloseReadline();
     Py_InitializeEx(0);
+    Yap_InitReadline(TermTrue);
     }
     //  PyGILState_Ensure();
   py_Sys =  PyDict_GetItemString (PySys_GetObject("modules"),"sys");

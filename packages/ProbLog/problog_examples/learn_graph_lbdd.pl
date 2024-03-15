@@ -14,7 +14,7 @@
 % will run 20 iterations of learning with default settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module(library(problog_learning_lbdd)).
+:- reexport(library(problog_learning_lbdd)).
 
 %%%%
 % background knowledge

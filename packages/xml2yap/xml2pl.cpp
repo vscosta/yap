@@ -16,9 +16,9 @@ class XML2YAP {
   pugi::xml_document doc;
 public:
   bool ok;
-  bool strings_to_strings;
-  bool strings_to_atoms;
-  bool interpret_strings ;
+  bool strings_to_strings = true;
+  bool strings_to_atoms = false;
+  bool interpret_strings = true;
 
   
 XML2YAP(Term t)
@@ -52,7 +52,7 @@ ok = true;
   Term val2term(const char *s)
   {
     CACHE_REGS
-    if (interpret_strings) {
+      if (interpret_strings) {
       Term t = Yap_StringToNumberTerm(s, NULL,false);
       if (t) return t;
       std::string st=s;
@@ -61,12 +61,21 @@ ok = true;
       if (st=="F" || st== "false"  || st== "no")
 	return TermFalse;
     }
-    if (strings_to_strings)
-      return MkStringTerm(s);
+ if (strings_to_strings) {
+   Term rc = MkStringTerm(s);
+   return rc;
+ }
     return MkAtomTerm(Yap_LookupAtom(s));
   }
 
   Term visitor(pugi::xml_node node)
+  {
+    Term rc  = visitor_(node);
+  if (!rc) printf("ugh");
+  return rc;
+  }
+
+  Term visitor_(pugi::xml_node node)
 {
   // tag::code[]
 CACHE_REGS
@@ -94,9 +103,7 @@ CACHE_REGS
 			  std::vector <Term> args = {}
 ;
 	  std::vector <Term> children = {};
-	  if (ASP-HR < 16*1024)
-	    throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,MkStringTerm(node.name()),"xml_load to tree");
-	for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute())
+	  for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute())
 	  {
 	    if (attr.name()[0] != '\0') {
 	      if (attr.value()[0] != '\0') {
@@ -113,17 +120,14 @@ CACHE_REGS
 	    }
 	  }
 	out = YAPListTerm(args).gt();
-	 	children.push_back(out);
+	children.push_back(out);
 		for (pugi::xml_node n = node.first_child(); n; n = n.next_sibling()) {
 
 		  if (n.type() == pugi::node_null) {
 		    break;
 		  }
 		  Term  u= visitor(n);
-	  if (ASP-HR < 16*1024)
- throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,MkStringTerm(node.name()),"xml_load to tree");
-
-	  children.push_back(u);
+		  children.push_back(u);
 		}    
 	Term o= YAPApplTerm(node.name(), YAPListTerm(children).gt(	  )).gt();
        	m.reset();
@@ -165,7 +169,8 @@ Term load_as_single_term()
 do {
 CACHE_REGS
   CELL *hi = HR;
-      m=YAPTerm();
+ m=YAPTerm();
+ graph = 0;
     try {
      graph = pltree();
     } catch( YAPError e) {
@@ -174,15 +179,15 @@ CACHE_REGS
 	m.reset();
 	LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
 	  CalculateStackGap(PASS_REGS1);
-	if(!Yap_dogcl((LCL0-H0)/2 * CellSize PASS_REGS)) {
+	if(!Yap_dogc()) {
 	  return 0 ;
+	}
       }
     }
-    }
  }
-while(graph==0);
-m.reset();
-return graph;
+ while(graph==0);
+ m.reset();
+ return graph;
   
 };
 

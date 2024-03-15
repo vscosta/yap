@@ -460,11 +460,12 @@ notrace(G) :-
      !.
      */
 
+'$debuggable'(G, Module,_,_GoalNo) :-
+    '$pred_being_spied'(G,Module),
+    '$get_debugger_state'( spy,  stop ),
+    !.
 '$debuggable'(_G, _Module,Ports, GoalNo) :-
-    '$leap'(Ports,GoalNoLeap),
-    nonvar(GoalNo),
-    nonvar(GoalNoLeap),
-    GoalNoLeap > GoalNo,
+    '$leap'(Ports,GoalNo),
     !,
     fail.
 '$debuggable'(true, _Module,_,_GoalNo) :-
@@ -474,10 +475,6 @@ notrace(G) :-
     current_prolog_flag(debug, false),
     !,
     fail.
-'$debuggable'(G, Module,_,_GoalNo) :-
-    '$pred_being_spied'(G,Module),
-    '$get_debugger_state'( spy,  stop ),
-    !.
 '$debuggable'(_G, _Module,_, _GoalNo).
 
 

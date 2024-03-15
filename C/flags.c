@@ -22,8 +22,8 @@
 
 /**
 
-    @addtogroup YAPFlagsImplemebtation
-
+    @addtogroup YAPFlagsImplementation
+@ingroup YAPImplementation
     @{
 
 @brief Low-level code to support flags.
@@ -919,9 +919,9 @@ GetFlagProp(Atom a) { /* look property list of atom a for kind  */
  */
 
 /**
- *`defgroup YAPflags
+ *`@defgroup YAPFlags Setting and Querying YAP flags
  * @ingroup Builtins
- 
+ * @{
  *  @brief YAP now supports generic access ad uodating. the following builins provide read-writeeeeeee access to YAP internals/
  */
 
@@ -1099,10 +1099,6 @@ static Int cont_prolog_flag(USES_REGS1) {
  *
  */
 static Int yap_flag2(USES_REGS1) {
-  ARG3 = ARG2;
-  if (!IsVarTerm(Deref(ARG2))) {
-    ARG2 = MkVarTerm();
-  }
   return yap_flag(PASS_REGS1);
 }
 

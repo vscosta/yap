@@ -92,6 +92,8 @@ expand_term(Term,Expanded) :-
     expand_term(Term,Expanded,_).
 
 
+expand_term( [], [], []) :-
+    !.
 expand_term( [H|T], [H|T], [H|T]) :-
     !.
 expand_term( Term, UExpanded,  Expanded) :-
@@ -133,6 +135,8 @@ expand_term( Term, UExpanded,  Expanded) :-
     !,
     fail.
 
+'$expand_program_goal'([],[],[]) :-
+    !.
 '$expand_program_goal'(G,G,G) :-
     is_list(G),
     !.
@@ -183,13 +187,11 @@ expand_term( Term, UExpanded,  Expanded) :-
 
 '$prompt_alternatives_on'(determinism).
 
-/* Executing a query */
-
-/* Executing a query */
-
+/* Execute a query */
 query_to_answer(G0,Vs,Port, NVs, Gs) :-
     '$query'(G0,Vs,Port),
-    all_attvars(AVs),
+%    all_attvars(AVs),
+AVs = [],
     attributes:delayed_goals(G0+AVs, Vs, NVs, Gs).
 
 
@@ -198,7 +200,8 @@ query_to_answer(G0,Vs,Port, NVs, Gs) :-
 '$query'(G,[]) :-
     '$query'(G,[],_Port).
 
-
+'$query'([],_Vs,_Port) :-
+    !.
 '$query'(G,_Vs,Port) :-
     prolog_flag(debug,true),
     '$get_debugger_state'(trace,on),

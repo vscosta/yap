@@ -14,6 +14,7 @@
 * comments:	arithmetical expression evaluation			 *
 *									 *
 *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -214,54 +215,29 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
 }
 
 /**
- @pred isnan(? X:float) is det
+ @pred isnan(? X:float) is semidet
 
-   Interface to the IEE754 `isnan` test.
+   Interface to the IEE754 `isnan` test. Changed in Oct 2023 to be a test predicate,
 */
 
 static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
   Term out = 0L;
-
-  while (!(out = Yap_Eval__(Deref(ARG1) PASS_REGS))) {
-    if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_dogc(PASS_REGS1)) {
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-        return FALSE;
-      }
-    } else {
-      Yap_ThrowError(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
-      return FALSE;
-    }
-  }
-  if (!IsFloatTerm(out)) {
-    Yap_ThrowError(TYPE_ERROR_FLOAT, out, "isnan/1");
-    return FALSE;
+  if (IsVarTerm(out) || !IsFloatTerm(out)) {
+    return false;
   }
   return isnan(FloatOfTerm(out));
 }
 
 /**
-   @pred isinf(? X:float) is det
+   @pred isinf(? X:float) is semidet
 
-   Interface to the IEE754 `isinf` test.
+   Interface to the IEE754 `isinf` test. Changed in Oct 2023 to be a test predicate,
 */
 
 static Int p_isinf(USES_REGS1) { /* X is Y        */
   Term out = 0L;
-
-  while (!(out = Yap_Eval__(Deref(ARG1) PASS_REGS))) {
-    if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_dogc(PASS_REGS1)) {
-        Yap_ThrowError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
-        return FALSE;
-      }
-    }
-  }
-  if (!IsFloatTerm(out)) {
-    Yap_ThrowError(TYPE_ERROR_FLOAT, out, "isinf/1");
-    return FALSE;
+  if (IsVarTerm(out) || !IsFloatTerm(out)) {
+    return false;
   }
   return isinf(FloatOfTerm(out));
 }

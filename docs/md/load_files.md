@@ -2,7 +2,7 @@
 
 
 @{
-@brief Next, we present the main predicates and directives available to load
+@brief we present the main predicates and directives available to load
   files and to control the Prolog environment.
 @ref absf
 

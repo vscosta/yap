@@ -1,4 +1,4 @@
-/**
+/*
  * Language Server support
  *
  */
@@ -6,6 +6,7 @@
 :- module(lsp, [
 	      validate_file/2
   ]).
+
 
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
@@ -56,7 +57,7 @@ symbol(N0/Ar0,Mod,
     atom_string(DFile,SFile).
 
 %%
-%% @pred pred_def(URI,Line,Ch,Ob
+%% @pred pred_def(Ob,N0)
 %%
 %% find the definition for the text at URI:Line:Ch
 %%
@@ -67,12 +68,22 @@ user:pred_def(Ob,URI,Line,Ch) :-
 	findall(P,symbol(N0/Ar0, Mod,P),Ps),
 	(var(Ob)
 	->
-	  Ob = P
+	  Ob = Ps
 	;
 	  Ob.items := Ps
 	).
 
+user:pred_def(Ob, Name) :-
+    pred_code(Ob,Name).
 
+name2symbol(N,t(F,L,0)) :-
+    writeln(N),
+    current_predicate(N,Mod:G),
+    writeln(G),
+    functor(G,N,_Ar),
+    predicate_property(Mod:G,file(F) ),
+    predicate_property(Mod:G,line_count(L)),
+    L1 is L+1.
 
 get_ref(N/A,M,Ref) :-
 	scanner:use(predicate,N/A,M,_N0/_A0,_M0,File,L0-C0,LF-CF,LL0-LC0,LLF-LCF),

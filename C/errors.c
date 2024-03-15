@@ -24,7 +24,7 @@
    
 @defgroup YAPErrors Error Handling
 
-@ingroup Implementation
+@ingroup YAPControl
 
 @{
 
@@ -112,8 +112,8 @@ void Yap_RestartYap(int flag) {
 #define set_key_s(k, ks, q, i, t)                                              \
   if (strcmp(ks, q) == 0) {                                                    \
     const char *s = IsAtomTerm(t) ? RepAtom(AtomOfTerm(t))->StrOfAE            \
-                                  : IsStringTerm(t) ? StringOfTerm(t) : NULL;  \
-    if (s && s[0]) {                                                           \
+: IsStringTerm(t) ? StringOfTerm(t) : NULL;  \
+     if (s && s[0]) {                                                           \
       char *tmp = calloc(1, strlen(s) + 1);                                    \
       strcpy(tmp, s);                                                          \
       i->k = tmp;                                                              \
@@ -175,7 +175,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
     if (i->k && i->k[0] != '\0')                                               \
       return MkAtomTerm(Yap_LookupAtom(i->k));                                 \
     else                                                                       \
-      return TermEmptyAtom;                                                    \
+      return TermNil;                                                    \
   }
 
 #define query_key_t(k, ks, q, i)                                               \
@@ -342,7 +342,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_s("prologPredModule", i->prologPredModule, o);
   o = add_key_s("prologPredFile", i->prologPredFile, o);
   o = add_key_i("parserPos", i->parserPos, o);
-  o = add_key_i("parserPos", i->parserLinePos, o);
+  o = add_key_i("parserLinePos", i->parserLinePos, o);
   o = add_key_i("parserLine", i->parserLine, o);
   o = add_key_i("parserFirstLine", i->parserFirstLine, o);
   o = add_key_i("parserLastLine", i->parserLastLine, o);
@@ -465,7 +465,10 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   CACHE_REGS
   yap_error_number err = LOCAL_Error_TYPE;
   const char *serr;
-
+   if (LOCAL_PrologMode & InErrorMode) {
+     LOCAL_ActiveError->errorNo = ABORT_EVENT;
+     Yap_JumpToEnv();
+   }
   if (LOCAL_ErrorMessage) {
     serr = LOCAL_ErrorMessage;
   } else {
@@ -564,8 +567,9 @@ static void error_exit_yap(int value) {
   fprintf(stderr, "%% C-Execution stack:\n");
   for (i = 0; i < frames; ++i) {
     fprintf(stderr, "%%       %s\n", strs[i]);
+    //  free(strs[i]);
   }
-  free(strs);
+  free(callstack);
 #endif
   Yap_exit(value);
 }
@@ -803,12 +807,14 @@ CACHE_REGS
                     YAP_WRITE_IGNORE_OPS |YAP_WRITE_HANDLE_CYCLES);
       msg = "user goal";
    }
-    size_t bsize = 0;
-    if (buf) bsize = 32+strlen(buf);
-    if (msg) bsize += strlen(msg);
+    size_t bsize = 32;
+    if (buf) bsize += strlen(buf)+1;
+    if (msg) bsize += strlen(msg)+1;
     if (bsize > 32) {
       i->errorMsg = malloc(bsize);
       snprintf(i->errorMsg, bsize-1,  "%% %s:  text: %s...", msg, buf);
+    } else {
+      i->errorMsg = NULL;
     }
   //  return Yap_SaveTerm(Yap_MkErrorTerm(i));
   // return MkStringTerm(i->errorMsg);
@@ -819,7 +825,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
                        Term where, Term extra, const char *s) {
   CACHE_REGS
-  if (type!= EVALUATION_ERROR_UNDEFINED && LOCAL_Undef_CP == NULL) {
+    if (type!= EVALUATION_ERROR_UNDEFINED ) { //&& LOCAL_Undef_CP == NULL) {
     if (!Yap_pc_add_location(r, LOCAL_OldP, B, ENV))
       Yap_env_add_location(r, LOCAL_OldCP, B, ENV, 0);
   } else {
@@ -857,8 +863,9 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     r->errorMsg = NULL;
     }
   if (type != SYNTAX_ERROR) {
-    r->parserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
-    r->parserLine = r->parserFirstLine = LOCAL_StartLineCount;
+    const char *s =  RepAtom(Yap_source_file_name())->StrOfAE;
+     r->parserFile = strcpy(malloc(strlen(s)+1),s);
+r->parserLine = r->parserFirstLine = LOCAL_StartLineCount;
     r->parserLastLine = Yap_source_line_no();
     r->parserPos = Yap_source_pos();
     r->parserLinePos = Yap_source_line_pos();
@@ -936,6 +943,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
 
+    s[0]='\0';
   if (!LOCAL_ActiveError) {
     LOCAL_ActiveError = Yap_GetException();
   }
@@ -1105,13 +1113,12 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #ifdef DEBUG
   // DumpActiveGoals( USES_REGS1 );
 #endif // DEBUG
-#if 0
   if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR &&
-      trueLocalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 )
+      trueGlobalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 ) {
     LOCAL_ActiveError->prologStack = Yap_dump_stack();
-#else
-  LOCAL_ActiveError->prologStack = NULL;
-#endif
+  } else  {
+    LOCAL_ActiveError->prologStack = NULL;
+  }
   CalculateStackGap(PASS_REGS1);
 #if DEBUG
   // DumpActiveGoals( PASS_REGS1 );
@@ -1151,6 +1158,13 @@ static Int close_error(USES_REGS1) {
   LOCAL_CommittedError = NULL;
   return true;
 }
+
+typedef struct c_error_info {
+  yap_error_number errnb;
+  yap_error_class_number class;
+  const char *name, *name2;
+} c_error_t;
+
 
 #undef BEGIN_ERROR_CLASSES
 #undef ECLASS
@@ -1200,12 +1214,6 @@ static Int close_error(USES_REGS1) {
   NULL                                                                         \
   }
 
-typedef struct c_error_info {
-  yap_error_number errnb;
-  yap_error_class_number class;
-  const char *name, *name2;
-} c_error_t;
-
 #define BEGIN_ERRORS() static struct c_error_info c_error_list[] = {
 #define E0(X, Y, Z) {X, Y, Z, NULL},
 #define E(X, Y, Z) {X, Y, Z, NULL},
@@ -1218,7 +1226,6 @@ typedef struct c_error_info {
   ;
 
 #include <YapErrors.h>
-
 
 char *Yap_errorName(yap_error_number e) {
   if (e != USER_DEFINED_ERROR)
@@ -1252,16 +1259,6 @@ char *Yap_errorClassName(yap_error_class_number e) {
 static Int reset_exception(USES_REGS1) { return Yap_ResetException(NULL); }
 
 /**
-
-@}
-
-@defgroup  ExceptionDescriptors Exception Descriptor Manipulation
-@ingroup C-ErrorHandler
-@brief Manipulate error/throw descriptors
-
-@{
-
-
 
 Notice that if
 the argument is an error descriptor, and you pass NULL, they always
@@ -1506,13 +1503,7 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
 
 /**
 
-@}
-
-@addtogroup ErrorBuiltins
-
-@{
-
-*/
+ */
 
 Int is_nonvar__(const char *file, const char *function, int lineno,
                 Term t USES_REGS) {

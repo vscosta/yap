@@ -534,7 +534,10 @@ static Term write_strings(unsigned char *s0, seq_tv_t *out USES_REGS) {
     }
   }
 
-  out->val.t = MkUStringTerm(s0);
+  if (HR+strlen((char*)s0)/sizeof(CELL) > ASP-64*1024)
+    out->val.t = 0;
+  else
+    out->val.t = MkUStringTerm(s0);
 
   return out->val.t;
 }
@@ -928,10 +931,10 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   unsigned char *buf;
   int i;
   size_t avai, extra;
-    unsigned char *nbuf=NULL;
-
+    unsigned char const *nbuf=NULL;
+    size_t bsz = tot * 256;
   int lvl = push_text_stack();
-  buf = Malloc(tot * 256);
+  buf = calloc(1,bsz);
   buf[0] = '\0';
   if (!buf) {
      pop_text_stack(lvl);
@@ -939,31 +942,33 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   }
   for (i = 0; i < tot; i++) {
     Term t = inp[i].val.t;
-    if (IsAtomTerm(t) && inp[i].type & YAP_STRING_ATOM) {
+    if (IsAtomTerm(t)) {
       nbuf = RepAtom(AtomOfTerm(t))->UStrOfAE;
-  } else {
+    } else    if (IsStringTerm(t)) {
+      nbuf = UStringOfTerm(t);
+    } else {
       nbuf = Yap_readText(inp + i PASS_REGS);
-  }
-  if (!nbuf) {
+    }
+    if (!nbuf) {
       //     pop_text_stack(lvl);
       //return NULL;
-    continue;
-  }
+      continue;
+    }
     //      if (!nbuf[0])
     //	continue;
-  if (nbuf && nbuf[0]) {
-    size_t sz = strlen((char*)nbuf);
-    avai = (strlen((char *)buf) - 1 - sz);
-    if (avai < sz) {
-      extra= (tot-i)*sz+256;
-      buf = Realloc(buf, extra);
+    if (nbuf && nbuf[0]) {
+      size_t sz = strlen((char*)nbuf);
+      avai = (strlen((char *)buf)+sz -1);
+      if (avai > bsz) {
+	buf = realloc(buf, avai+256);
+      }
+      strcat((char*)buf,(char*)nbuf);
     }
-    strcat((char*)buf,(char*)nbuf);
-  }
   }
  
   bool rc = write_Text(buf, out PASS_REGS);
-   pop_text_stack( lvl );
+  free(buf);
+  pop_text_stack( lvl );
 
   return rc;
 }

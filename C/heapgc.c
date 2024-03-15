@@ -4111,7 +4111,7 @@ LeaveGCMode( USES_REGS1 )
 bool Yap_dogc( USES_REGS1 ) {
   int rc;
   gc_entry_info_t i,  *p = &i;
-  Yap_track_cpred(0, P, 0, p);
+  Yap_track_cpred( 0, P, 0, p);
     LOCAL_PrologMode |= GCMode;
     rc = call_gc(p PASS_REGS);
     LeaveGCMode( PASS_REGS1 );
@@ -4172,7 +4172,7 @@ garbage_collect( USES_REGS1 )
   int res;
   LOCAL_PrologMode |= GCMode;
     gc_entry_info_t i,  *p = &i;
-  Yap_track_cpred(0, P, 0, p);
+    Yap_track_cpred(0, P, 0, p);
   CalculateStackGap( PASS_REGS1 );
   i.gc_min = EventFlag*sizeof(CELL);
     res = call_gc(p PASS_REGS) >= 0;

@@ -641,7 +641,7 @@ seq_tv_t inp;
 
 char *Yap_TermToBuffer(Term t, int flags) {
   CACHE_REGS
-  int sno = Yap_open_buf_write_stream(LOCAL_Flags[ ENCODING_FLAG].at);
+    int sno = Yap_open_buf_write_stream(-1,LOCAL_Flags[ ENCODING_FLAG].at);
 
   if (sno < 0)
     return NULL;

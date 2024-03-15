@@ -1,7 +1,8 @@
-##  Attributed Variables {#AttributedVariables}
+@defgroup AttributedVariables Support for Attributed Variables
 @{
-	
-	YAP supports attributed variables, originally developed at OFAI by
+#  Attributed Variables
+
+YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
   arbitrary term is a property for a variable. These properties can be
 updated during forward execution. Moreover, the unification algorithm is
@@ -24,22 +25,8 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
 
-@ref CohYroutining
 
-@ref New_Style_Attribute_Declarations
-
-@ref SICS_attributes
-
-@ref SICStusCConst
-
-@ref SWICConst
-
-@}
-
-@defgroup SICS_attributes SICStus Style attribute declarations
-@ingroup AttributedVariables
-@{
-
+## SICStus Style attribute declarations
 
 The YAP library `atts` implements attribute variables in the style of
 SICStus Prolog. Attributed variables work as follows:
@@ -103,17 +90,17 @@ that the rewriting process <em>depends</em> on the module on which the
 built-ins have been invoked.
 
 
-The user-predicate predicate verify_attributes/3 is called when
++ The user-defined predicate predicate verify_attributes/3 is called when
 attempting to unify an attributed variable which might have attributes
 in some  Module.
 
 
-Attributes are usually presented as goals. The following routines are
++ Attributes are usually presented as goals. The following routines are
 used by built-in predicates such as call_residue/2 and by the
 Prolog top-level to display attributes:
 
 
-Constraint solvers must be able to project a set of constraints to a set
++ Constraint solvers must be able to project a set of constraints to a set
 of variables. This is useful when displaying the solution to a goal, but
 may also be used to manipulate computations. The user-defined
 project_attributes/2 is responsible for implementing this
@@ -281,16 +268,11 @@ verify_attributes/3 predicates would typically refer to the
 attributes from other known solvers/modules via the module prefix in
 Module:get_atts/2.
 
- @}
+## hProlog and SWI-Prolog style Attribute Declarations
 
+The following documentation is taken from the SWI-Prolog manual.
 
-@defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
-@ingroup AttributedVariables
- @{
-
-  The following documentation is taken from the SWI-Prolog manual.
-
-  Binding an attributed variable schedules a goal to be executed at the
+Binding an attributed variable schedules a goal to be executed at the
   first possible opportunity. In the current implementation the hooks are
   executed immediately after a successful unification of the clause-head
   or successful completion of a foreign language (built-in) predicate. Each
@@ -313,7 +295,7 @@ domain(X, List) :-
   X = Y.
 ```
 
-  An attributed variable with attribute value Domain has been assigned the value Y.
+An attributed variable with attribute value Domain has been assigned the value Y.
 
 ```
 attr_unify_hook(Domain, Y) :-
@@ -355,6 +337,5 @@ The predicate domain/2 fetches (first clause) or assigns
   example). The nonterminal `attribute_goals/3` is used to translate
   remaining attributes to user-readable goals that, when executed, reinstate
   these attributes.
-
 
 @}

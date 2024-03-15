@@ -24,7 +24,7 @@
 %% @{
 %% Prolog boot support
 
-a(X,Z) :- Z is X+2.
+
 '$undefp0'(MG) :-
     '$yap_strip_module'(MG,M,G),
     MG \= M:G,
@@ -152,8 +152,9 @@ initialize_prolog :-
 
 :- c_compile('lf.yap').
 :- c_compile('consult.yap').
-
 :- compile('error.yap').
+
+
 
 :- ['utils.yap',
     'flags.yap'].
@@ -190,7 +191,7 @@ initialize_prolog :-
 %:- Stop_low_level_trace.
 
 
-:- meta_predicate(log_event(+,:)).
+%:- meta_predicate(log_event(+,:)).
 
 :- dynamic prolog:'$user_defined_flag'/4.
 

@@ -24,10 +24,12 @@
       LOG(" %s ", s);
 #endif
       check_trail(TR);
-        CACHE_Y_AS_ENV(YREG);
-        check_stack(NoStackCCall, HR);
-        ENDCACHE_Y_AS_ENV();
       	PredEntry *pt0 = PREG->y_u.Osbpp.p;
+        CACHE_Y_AS_ENV(YREG);
+	if (!(pt0->PredFlags & SafePredFlag)) {
+	  check_stack(NoStackCCall, HR);
+	}
+        ENDCACHE_Y_AS_ENV();
     do_ccall :
       SET_ASP(YREG, AS_CELLS(PREG->y_u.Osbpp.s) );
       /* for slots to work */
@@ -37,9 +39,10 @@
 #endif /* LOW_LEVEL_TRACE */
       BEGD(d0);
       CPredicate f = pt0->cs.f_code;
+      SREG=(CELL *)PREG;
       PREG = NEXTOP(PREG, Osbpp);
       saveregs();
-      d0 = (f)(PASS_REGS1);
+      d0 = f(PASS_REGS1);
       setregs();
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;

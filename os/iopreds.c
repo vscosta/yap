@@ -1385,8 +1385,9 @@ return false;
             Functor f = FunctorOfTerm(tin);
             if (f == FunctorAtom || f == FunctorString1 || f == FunctorCodes1 ||
                 f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
-                if (strchr(io_mode, 'w')) {
-                    return Yap_OpenBufWriteStream(PASS_REGS1);
+	      st->user_name = tin;
+	      if (strchr(io_mode, 'w')) {
+		  Yap_open_buf_write_stream(sno,enc);
                 } else {
                     int j = push_text_stack();
                     const char *buf;

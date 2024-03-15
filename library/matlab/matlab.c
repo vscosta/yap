@@ -14,7 +14,11 @@
 * comments:	regular expression interpreter                           *
 *									 *
 *************************************************************************/
-
+/**
+ * @file matlab.c
+ * @brief YAP Matlab interface: C-code.
+ *
+ */
 #include "config.h"
 #include "YapInterface.h"
 #include <math.h>
@@ -22,6 +26,12 @@
 #if defined(__MINGW32__) || _MSC_VER
 #include <windows.h>
 #endif
+
+/**
+ * @addtogroup YAP_Matlab
+ * @{
+ *
+ */
 
 #include <mex.h>
 #include <engine.h>
@@ -62,6 +72,14 @@ cp_back(YAP_Term vart, mxArray *mat)
   return !engPutVariable(Meng, YAP_AtomName(YAP_AtomOfTerm(vart)), mat);
 }
 
+/**
+
+ @pred start_matlab( +_Options_) 
+
+
+Start a matlab session. The argument  _Options_ may either be the
+empty string/atom or the command to call matlab. The command may fail.
+*/
 static int
 p_startmatlab(void)
 {
@@ -92,12 +110,22 @@ p_startmatlab(void)
   return TRUE;
 }
 
+/** @pred matlab_on 
+
+
+Holds if a matlab session is on.
+
+*/
 static int
 p_matlabon(void)
 {
   return Meng != NULL;
 }
 
+/** @pred close_matlab 
+
+Stop the current matlab session.
+*/
 static int
 p_closematlab(void)
 {
@@ -110,6 +138,13 @@ p_closematlab(void)
     return FALSE;
 }
 
+/** @pred matlab_eval_string( +_Command_) 
+
+
+Holds if matlab evaluated successfully the command  _Command_.
+
+ 
+*/
 static int
 p_evalstring2(void)
 {
@@ -127,6 +162,13 @@ p_evalstring2(void)
   return !engEvalString(Meng, comd);
 }
 
+/** @pred matlab_eval_string( + _Command_, - _Answer_)
+
+MATLAB will evaluate the command  _Command_ and unify  _Answer_
+with a string reporting the result.
+
+ 
+*/
 static int
 p_evalstring3(void)
 {
@@ -150,6 +192,15 @@ p_evalstring3(void)
   return YAP_Unify(YAP_ARG2, YAP_BufferToString(buf));
 }
 
+/** @pred matlab_cells( +_Size_, ? _Array_) 
+
+
+MATLAB will create an empty vector of cells of size  _Size_, and if
+ _Array_ is bound to an atom, store the array in the matlab
+variable with name  _Array_. Corresponds to the MATLAB command `cells`.
+
+ 
+*/
 static int
 p_create_cell_vector(void)
 {
@@ -165,6 +216,15 @@ p_create_cell_vector(void)
   return YAP_Unify(YAP_ARG2,address2term(mat));
 }
 
+/** @pred matlab_cells( +_SizeX_, + _SizeY_, ? _Array_)
+
+MATLAB will create an empty array of cells of size  _SizeX_ and
+ _SizeY_, and if  _Array_ is bound to an atom, store the array
+in the matlab variable with name  _Array_.  Corresponds to the
+MATLAB command `cells`.
+
+ 
+*/
 static int
 p_create_cell_array(void)
 {
@@ -181,6 +241,16 @@ p_create_cell_array(void)
   return YAP_Unify(YAP_ARG3,address2term(mat));
 }
 
+/** @pred matlab_zeros( + _Size_, ? _Array_) 
+
+
+MATLAB will create a vector of zeros of size  _Size_, and if
+ _Array_ is bound to an atom, store the array in the matlab
+variable with name  _Array_. Corresponds to the MATLAB command
+`zeros`.
+
+ 
+*/
 static int
 p_create_double_vector(void)
 {
@@ -196,6 +266,15 @@ p_create_double_vector(void)
   return YAP_Unify(YAP_ARG2,address2term(mat));
 }
 
+/** @pred matlab_zeros( + _SizeX_, + _SizeY_, ? _Array_)
+
+MATLAB will create an array of zeros of size  _SizeX_ and
+ _SizeY_, and if  _Array_ is bound to an atom, store the array
+in the matlab variable with name  _Array_.  Corresponds to the
+MATLAB command `zeros`.
+
+ 
+*/
 static int
 p_create_double_array(void)
 {
@@ -212,6 +291,17 @@ p_create_double_array(void)
   return YAP_Unify(YAP_ARG3,address2term(mat));
 }
 
+/** @pred matlab_zeros( + _SizeX_, + _SizeY_, + _SizeZ_, ? _Array_)
+
+MATLAB will create an array of zeros of size  _SizeX_,  _SizeY_,
+and  _SizeZ_. If  _Array_ is bound to an atom, store the array
+in the matlab variable with name  _Array_.  Corresponds to the
+MATLAB command `zeros`.
+
+
+
+
+ */
 static int
 p_create_double_array3(void)
 {
@@ -266,6 +356,15 @@ p_set_int_array(void)
   return YAP_Unify(YAP_ARG4,address2term(mat));
 }
 
+/** @pred matlab_matrix( + _SizeX_, + _SizeY_, + _List_, ? _Array_) 
+
+
+MATLAB will create an array of floats of size  _SizeX_ and  _SizeY_,
+initialized from the list  _List_, and if  _Array_ is bound to
+an atom, store the array in the matlab variable with name  _Array_.
+
+ 
+*/
 static int
 p_set_float_array(void)
 {
@@ -305,6 +404,15 @@ p_set_float_array(void)
   return YAP_Unify(YAP_ARG4,address2term(mat));
 }
 
+/** @pred matlab_vector( + _Size_, + _List_, ? _Array_) 
+
+
+MATLAB will create a vector of floats of size  _Size_, initialized
+from the list  _List_, and if  _Array_ is bound to an atom,
+store the array in the matlab variable with name  _Array_.
+
+ 
+*/
 static int
 p_set_float_vector(void)
 {
@@ -359,6 +467,15 @@ p_set_int(void)
   return TRUE;
 }
 
+/** @pred matlab_set( + _MatVar_, + _X_, + _Y_, + _Value_) 
+
+
+Call MATLAB to set element  _MatVar_( _X_,  _Y_) to
+ _Value_. Notice that this command uses the MATLAB array access
+convention.
+
+ 
+*/
 static int
 p_set_float(void)
 {
@@ -483,6 +600,13 @@ get_array(YAP_Term ti)
   }
 }
 
+/** @pred matlab_get_variable( + _MatVar_, - _List_) 
+
+
+Unify MATLAB variable  _MatVar_ with the List  _List_.
+
+ 
+*/
 static int
 p_get_variable(void)
 {
@@ -562,6 +686,14 @@ item1(YAP_Term tvar, YAP_Term titem, int off)
   return cp_back(tvar, mat);
 }
 
+/** @pred matlab_item( + _MatVar_, + _X_, ? _Val_) 
+
+
+Read or set MATLAB  _MatVar_( _X_) from/to  _Val_. Use
+`C` notation for matrix access (ie, starting from 0).
+
+ 
+*/
 static int
 p_item(void)
 {
@@ -572,6 +704,14 @@ p_item(void)
   return item1(YAP_ARG1,titem,off);
 }
 
+/** @pred matlab_item1( + _MatVar_, + _X_, ? _Val_) 
+
+
+Read or set MATLAB  _MatVar_( _X_) from/to  _Val_. Use
+MATLAB notation for matrix access (ie, starting from 1).
+
+ 
+*/
 static int
 p_item_1(void)
 {
@@ -638,6 +778,15 @@ item2(YAP_Term tvar, YAP_Term titem, int offx, int offy)
   return cp_back(tvar, mat);
 }
 
+/** @pred matlab_item( + _MatVar_, + _X_, ? _Val_) 
+
+
+Read or set MATLAB  _MatVar_( _X_) from/to  _Val_. Use
+`C` notation for matrix access (ie, starting from 0).
+
+ 
+*/
+
 static int
 p_item2(void)
 {
@@ -649,6 +798,13 @@ p_item2(void)
   return item2(YAP_ARG1,titem,x,y);
 }
 
+/** @pred matlab_item1( + _MatVar_, + _X_, + _Y_, ? _Val_)
+
+Read or set MATLAB  _MatVar_( _X_, _Y_) from/to  _Val_. Use
+MATLAB notation for matrix access (ie, starting from 1).
+
+ 
+*/
 static int
 p_item2_1(void)
 {
@@ -704,6 +860,16 @@ p_call_matlab(void)
   return TRUE;
 }
 
+/** @pred matlab_initialized_cells( + _SizeX_, + _SizeY_, + _List_, ? _Array_) 
+
+
+MATLAB will create an array of cells of size  _SizeX_ and
+ _SizeY_, initialized from the list  _List_, and if  _Array_
+is bound to an atom, store the array in the matlab variable with name
+ _Array_.
+
+ 
+*/
 static int
 p_create_cell_matrix_and_copy1(void)
 {
@@ -779,3 +945,4 @@ int WINAPI win_matlab(HANDLE hinst, DWORD reason, LPVOID reserved)
 }
 #endif
 
+/// @}

@@ -595,6 +595,7 @@ X_API void init_lbfgs_predicates(void) {
   YAP_UserCPredicate("lbfgs_grab", lbfgs_grab, 2);
   YAP_UserCPredicate("lbfgs", p_lbfgs, 2);
     YAP_UserCPredicate("lbfgs_free", lbfgs_release, 1);
+    YAP_UserCPredicate("lbfgs_release", lbfgs_release, 1);
     YAP_UserCPredicate("lbfgs_fx", YAP_lbfgs_fx, 1);
 
   YAP_UserCPredicate("lbfgs_defaults", lbfgs_defaults, 0);

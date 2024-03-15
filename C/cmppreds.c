@@ -81,13 +81,16 @@ static Int a_gen_le(Term, Term);
 static Int a_gen_gt(Term, Term);
 static Int a_gen_ge(Term, Term);
 
-#define rfloat(X) (X > 0.0 ? 1 : (X == 0.0 ? 0 : -1))
-
 static int cmp_atoms(Atom a1, Atom a2) {
   return strcmp(RepAtom(a1)->StrOfAE, RepAtom(a2)->StrOfAE);
 }
 
-static Int compare_complex(register CELL *pt0, register CELL *pt0_end,
+static int rfloat(Float a1, Float a2) {
+  return
+  a1>a2 ? 1 : a1 < a2 ? -1 : 0;
+}
+
+static  Int compare_complex(register CELL *pt0, register CELL *pt0_end,
                            register CELL *pt1) {
   CACHE_REGS
   register CELL **to_visit = (CELL **)HR;
@@ -141,7 +144,7 @@ loop:
 	  goto done;
       } else if (IsFloatTerm(d0)) {
         if (IsFloatTerm(d1)) {
-          out = rfloat(FloatOfTerm(d0) - FloatOfTerm(d1));
+          out = rfloat(FloatOfTerm(d0),FloatOfTerm(d1));
        } else if (IsRefTerm(d1)) {
           out = 1;
         } else {
@@ -396,7 +399,7 @@ inline static Int compare(Term t1, Term t2) /* compare terms t1 and t2	 */
       switch ((CELL)fun1) {
       case double_e: {
         if (IsFloatTerm(t2))
-          return (rfloat(FloatOfTerm(t1) - FloatOfTerm(t2)));
+          return (rfloat(FloatOfTerm(t1), FloatOfTerm(t2)));
         if (IsRefTerm(t2))
           return 1;
         return -1;

@@ -86,19 +86,19 @@ endif()
   # pass to the MPI program.
   #
 
-add_library(mpi4YAP hash.c prologterms2c.c yap_mpi.c)
+add_library(YAPmpi hash.c prologterms2c.c yap_mpi.c)
 
- target_link_libraries(mpi4YAP libYap ${MPI_C_LIBRARIES})
+ target_link_libraries(YAPmpi libYap ${MPI_C_LIBRARIES})
 
   include_directories( ${MPI_C_INCLUDE_DIRS} ${CMAKE_BINARY_DIR})
 
-  set_property( TARGET mpi4YAP  APPEND PROPERTY LINK_FLAGS  ${MPI_C_LINK_FLAGS})
+  set_property( TARGET YAPmpi  APPEND PROPERTY LINK_FLAGS  ${MPI_C_LINK_FLAGS})
 
 set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  HAVE_MPI_H=1;${MPI_C_COMPILE_DEFINITIONS})
 
 add_compile_options( ${MPI_C_COMPILE_OPTIONS})
 
-  install(TARGETS  mpi4YAP
+  install(TARGETS  YAPmpi
     RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
       LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
   ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}

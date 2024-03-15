@@ -21,7 +21,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 /// @defgroup AllocProviders YAP and memory allocation
-/// @ingroup  YAPProgramming
+/// @ingroup  MemAlloc
 /// @{
 /// 
 

@@ -19,7 +19,7 @@
   @file newmod.yap
   @short support for creating a new module.
 
-  @defroup NewModuleBuiltins Creating New Modules
+  @defgroup NewModuleBuiltins Creating New Modules
   @ingroup YAPModules
   @pred module(+M) is det
    set the type-in module
@@ -66,22 +66,15 @@ name with the `:/2` operator.
 
 */
 
-'$declare_module'(HostM, DonorM, Ps) :-
-    source_location(F,Line),
-       ('__NB_getval__'( '$user_source_file', F0 , fail)
-       ->
-           true
-       ;
-           F0 = F
-       ),
-    
-    '$add_module_on_file'(DonorM, F, HostM, Ps, Line),
+'$declare_module'(HostM, DonorM, Ps,Loc) :-
+    stream_property(loop_stream,file_name(F)),  
+    '$add_module_on_file'(DonorM, F, HostM, Ps, Loc),
     current_source_module(HostM,DonorM).
 
 
 
-'$declare_system_module'(HostM,N,Ps,Ss) :-
-    '$declare_module'(HostM,N,Ps),
+'$declare_system_module'(HostM,N,Ps,Ss,Loc) :-
+    '$declare_module'(HostM,N,Ps,Loc),
     '$mk_system_predicates'(Ss),
     set_module_property(N,type(system)).
 
@@ -105,16 +98,16 @@ set_module_property(Mod, base(Base)) :-
 set_module_property(Mod, exports(Exports)) :-
 	must_be_of_type( module, Mod),
 	current_source_module(OMod,OMod),
-	'$add_module_on_file'(Mod, user_input, OMod, Exports, 1).
-set_module_property(Mod, exports(Exports, File, Line)) :-
+	'$add_module_on_file'(Mod, user_input, OMod, Exports, '$stream_position'(0,1,0,0)).
+set_module_property(Mod, exports(Exports, File, Location)) :-
 	current_source_module(OMod,OMod),
 	must_be_of_type( module, Mod),
-	'$add_module_on_file'(Mod, File, OMod, Exports, Line).
+	'$add_module_on_file'(Mod, File, OMod, Exports, Location).
 set_module_property(Mod, class(Class)) :-
 	must_be_of_type( module, Mod),
 	must_be_of_type( atom, Class).
 
-'$add_module_on_file'( DonorM, DonorF, _HostM, Exports, _LineF) :-
+'$add_module_on_file'( DonorM, DonorF, _HostM, Exports, _LocationF) :-
     '$module'(OtherF, DonorM, OExports, _),
     % the module has been found, are we reconsulting?
     (
@@ -129,14 +122,14 @@ set_module_property(Mod, class(Class)) :-
     unload_module(DonorM),
     fail
     ).
-'$add_module_on_file'( DonorM, DonorF0, _, Exports, Line) :-
+'$add_module_on_file'( DonorM, DonorF0, _, Exports, Location) :-
     (DonorM= prolog -> DonorF = user_input ;
      DonorM= user -> DonorF = user_input ;
      DonorF0 = DonorF),
     '$m_normalize'(Exports,DonorM,Tab),
     '$sort'( Tab, AllExports ),
     % last, export to the host.
-    asserta('$module'(DonorF,DonorM, AllExports, Line)),
+    asserta('$module'(DonorF,DonorM, AllExports, Location)),
    (
        recorded('$source_file','$source_file'( DonorF, Time), R), erase(R),
        fail
@@ -216,13 +209,14 @@ account the following observations:
 '$reexport'(user, _, _M ) :-
     !.
 '$reexport'(HostM, AllReExports, _DonorM ) :-
-%        writeln(r0:DonorM/HostM),
-    ( retract('$module'( HostF, HostM, AllExports, Line)) -> true ; HostF = user_input,AllExports=[] ,Line=1),
+%       writeln(r0:DonorM/HostM),
+    ( retract('$module'( HostF, HostM, AllExports, Location)) -> true ; HostF = user_input,AllExports=[] ,Location='$stream_position'(0,1,0,0)),
     '$append'( AllReExports, AllExports, Everything0 ),
     '$sort'( Everything0, Everything ),
     '$operators'(AllReExports, HostM),
+%    '$operators'(AllReExports, DonorM),
     %    writeln(r:DonorM/HostM),
-    asserta('$module'(HostF,HostM, Everything, Line)).
+    asserta('$module'(HostF,HostM, Everything, Location)).
 
 
 

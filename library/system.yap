@@ -81,7 +81,7 @@ are available through the `use_module(library(system))` command.
 
 :- use_module(library(lists), [append/3]).
 
-:- load_foreign_files([sys], [], init_sys).
+:- load_foreign_files([], ['YAPsys'], init_sys).
 
 :- dynamic tmp_file_sequence_counter/1.
 

@@ -92,7 +92,7 @@ typedef struct AliasDescS {
 extern struct vfs *Yap_InitAssetManager(void);
 
 /* routines in parser.c */
-extern VarEntry *Yap_LookupVar(const char *);
+extern VarEntry *Yap_LookupVar(const char *,int,int);
 extern Term Yap_VarNames(VarEntry *, Term);
 extern Term Yap_Variables(VarEntry *, Term);
 extern Term Yap_Singletons(VarEntry *, Term);
@@ -154,7 +154,7 @@ extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(void *st, const char *buf, size_t nchars,
                                     encoding_t *encp, memBufSource src,
                                     Atom name, Term uname);
-extern int Yap_open_buf_write_stream(encoding_t enc);
+extern int Yap_open_buf_write_stream(int sno, encoding_t enc);
 extern Term Yap_BufferToTerm(const char *s, Term opts);
 
 extern X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term opts,

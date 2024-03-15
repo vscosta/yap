@@ -44,12 +44,7 @@
 is_matrix/1,
 	matrix_new/2,
 	matrix_new/3,
-
-
-
-	matrix_new_set/4,
-
-	
+	matrix_new_set/5,
 	    matrix_dims/2,
 	    matrix_ndims/2,
 	    matrix_size/2,
@@ -59,6 +54,7 @@ is_matrix/1,
 	    matrix_get/3,
 	    matrix_set/3,
 	    matrix_inc/2,
+	    matrix_add_to_element/3,
 	    matrix_dec/2,
 	    matrix_inc/3,
 	    matrix_dec/3,
@@ -106,10 +102,6 @@ is_matrix/1,
 :- multifile rhs_opaque/1, array_extension/2.
 
 /**
-  
- @defgroup YAPMatrix YAP Matrix Library
-@ingroup YAPLibrary
-@{
 
 This package provides a fast implementation of multi-dimensional
 matwrices of integers and floats. In contrast to dynamic arrays, these
@@ -127,7 +119,7 @@ natural size of the machine.
 + <tt>floats</tt>: floating-point numbers, represented as an opaque term.
 
 
-The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator to iterate over
+>The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator to iterate over
 elements of a matrix:
 
 + Copy a vector, element by element.
@@ -169,25 +161,25 @@ Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_. 
 
 
 Create a new matrix  _Matrix_ of type  _Type_, which may be one of
-`ints` or `floats`, with dimensions  _Dims_, and
+`ints` or `floats`, with dimensions  _Dims_, base _Base_ and
 initialized from list  _List_.
 
 
 */
-matrix_new_matrix(ints,Dims,Source,O) :-
+matrix_new_matrix(ints,Dims,Base,Source,O) :-
     flatten(Source,L),
-    new_ints_matrix(Dims,L,O).
-matrix_new_matrix(floats,Dims,Source,O) :-
+    new_ints_matrix(Dims,Base,L,O).
+matrix_new_matrix(floats,Dims,Base,Source,O) :-
     flatten(Source,L),
-    new_floats_matrix(Dims,L,O).
+    new_floats_matrix(Dims,Base ,L,O).
 
 
 
-/** @pred matrix_new_matrix(+ _Type_,+ _Dims_,- _Matrix_)
+/** @pred matrix_new_matrix(+ _Type_,+ _Dims_,_Base_.- _Matrix_)
 
 
 
-Create a new matrix  _Matrix_ of type  _Type_, which may be one of
+Create a new matrix  _Matrix_ of type  _Type_ and base _Base_, which may be one of
 `ints` or `floats`, and with a list of dimensions  _Dims_.
 The matrix will be initialized to zeros.
 
@@ -200,23 +192,23 @@ Notice that currently YAP will always write a matrix of numbers as `{..}`.
 
 
 */
-matrix_new_matrix(ints,Dims,O) :-
-    new_ints_matrix(Dims,O).
-matrix_new_matrix(floats,Dims,O) :-
-    new_floats_matrix(Dims,O).
+matrix_new_matrix(ints,Dims,Base,O) :-
+    new_ints_matrix(Dims,Base,O).
+matrix_new_matrix(floats,Dims,Base,O) :-
+    new_floats_matrix(Dims,Base,O).
 /** @pred matrix_new_set(? _Dims_,+ _OldMatrix_,+ _Value_,- _NewMatrix_)
 
 
 
 Create a new matrix  _NewMatrix_ of type  _Type_, with dimensions
- _Dims_. The elements of  _NewMatrix_ are set to  _Value_.
+ _Dims_ and base _Base_. The elements of  _NewMatrix_ are set to  _Value_.
 
 
 */
-matrix_new_set(ints,Dims,C,O) :-
-    new_ints_matrix_set(Dims,C,O).
-matrix_new_set(floats,Dims,C,O) :-
-    new_floats_matrix_set(Dims,C,O).
+matrix_new_set(ints,Dims,Base,C,O) :-
+    new_ints_matrix_set(Dims,Base,C,O).
+matrix_new_set(floats,Dims,Base,C,O) :-
+    new_floats_matrix_set(Dims,Base,C,O).
 /** @pred matrix_offset_to_arg(+ _Matrix_,- _Offset_,+ _Position_)
 
 
@@ -326,7 +318,7 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 %%    1. `Atom <== matrix[1000] of int`
 %%    2. `Atom <== matrix[333] of 0`
 %%
-%% The local matrices allocate on stack: 
+%% The local matrices allocate on stack:
 %%    1. `Var <== [[1000],[1001],[1002]]`
 %%    1. `Var <== matrix[1000] of term`
 %%    2. `Var <==  matrix[333,2] of 3.1415`
@@ -346,7 +338,7 @@ perform non-backtrackable assignment.
 
 Matrix elements can be accessed through the `matrix_get/2` predicate
 or through an <tt>R</tt>-inspired access notation (that uses the ciao
-style extension to `[]`).  Examples include:
+style extension to `[]`). Examples include:
 
 
   + Access the second row, third column of matrix <tt>X</tt>. Indices start from
@@ -407,26 +399,13 @@ all elements of a matrix or list
     natural exponentiation of a number, matrix or list
 
 
-+ _X_ <== array[ _Dim1_,..., _Dimn_] of  _Objects_
-    The of/2 operator can be used to create a new array of
- _Objects_. The objects supported are:
-
-  + `Unbound Variable`
-    create an array of free variables
-  + `ints`
-    create an array of integers
-  + `floats`
-    create an array of floating-point numbers
-  + `_I_: _J_`
-    create an array with integers from  _I_ to  _J_
-  + `[..]`
-    create an array from the values in a list
-
 The dimensions can be given as an integer, and the matrix will be
 indexed `C`-style from  `0..( _Max_-1)`, or can be given
 as  an interval ` _Base_.. _Limit_`. In the latter case,
 matrices of integers and of floating-point numbers should have the same
- _Base_ on every dimension.
+    _Base_ on every dimension.
+
+
 
 */
 
@@ -458,10 +437,12 @@ N <== Lists :-
     is_list(Ms),
     !,
     matrix_new([M|Ms],N,[]).
+ _X_ <== array[ _Dim1_,..., _Dimn_] of  _Objects_
+
 ( N<== (matrix[M|Ms] of Whatever)) :-
-    !,    
+    !,
     N<== matrix([M|Ms]) of Whatever.
-(N <== matrix(M)) :-
+ <==(N, matrix(M)) :-
     !,
     matrix_new(M,N,[]).
 (N<== matrix(M) of type(Type)) :-
@@ -481,26 +462,27 @@ N <== Lists :-
 N<== ones(M) :-
 	!,
     matrix_new(M, N, [fill(1)]).
-%N <==range(M) :- 
+%N <==range(M) :-
  %   matrix_new(range(M),N,[]), !.
-	
+
 LHS <== RHS :-
     compute(RHS, Val),
     set__(LHS,Val).
 
 ( LHS[Off|Offs] +== 1 ) :-
-    maplist(compute,[Off|Offs],[EOff|EOffs]), 
+    maplist(compute,[Off|Offs],[EOff|EOffs]),
     compute(LHS,M),
     matrix_inc(M,[EOff|EOffs]),
     !.
-( LHS +== RHS ) :-
-is_matrix(LHS),
+( LHS[Off|Offs] +== RHS ) :-
+    maplist(compute,[Off|Offs],[EOff|EOffs]),
     compute(RHS,V),
+    compute(LHS,M),
     !,
-    matrix_op(LHS,V,0,LHS).
+    matrix_add_to_element(M,[EOff|EOffs],V).
 ( LHS[Off|Offs] -== 1 ) :-
     !,
-    maplist(compute,[Off|Offs],[EOff|EOffs]), 
+    maplist(compute,[Off|Offs],[EOff|EOffs]),
     compute(LHS,M),
     matrix_dec(M,[EOff|EOffs]).
 
@@ -598,7 +580,7 @@ compute(N, M) :-
 /**> `V <== M[Is]`: fetch a value _V_ from array _M_ and index _Is_.
 
      Notice that this routine evaluates and the indices. That is:
-     
+
 ```
 A <== [[1,2],[3,4]], B = [[1,-2],[-3,4]], V <== (A+B)[0, 0].
 ```
@@ -770,7 +752,7 @@ compute(Cs,Exp) :-
   Cs =.. [Op,X,Y],
   compute(X,NX),
   compute(Y,NY),
-  N=..[Op,NX,NY], 
+  N=..[Op,NX,NY],
   catch( Exp is N,_,fail),
  !.
 
@@ -866,7 +848,7 @@ intervals([A..B|List], [H|NList], A) :-
     intervals(List, NList, A),
     number(H),
     !.
-    
+
 subl([H|L],[N|NL]) :-
     !,
     length([H|L],N),
@@ -880,21 +862,29 @@ matrix_new( Matrix, Target, _Opts ) :-
     !,
     matrix_copy(Matrix, Target).
 matrix_new( Matrix, Target, _Opts ) :-
-    is_matrix(Matrix),
     atom(Target),
+    is_matrix(Matrix),
     !,
     matrix_dims(Matrix,Dims),
     matrix_type(Matrix,Type),
+    matrix_base(Matrix,Base),
     matrix_create(Type,
-		  f,Dims,0,fill,0,Target),
+		  f,Dims,Base,fill,0,Target),
     matrix_copy(Matrix, Target).
 matrix_new( Matrix, Target, _Opts ) :-
     is_matrix(Matrix),
     !,
     matrix_dims(Matrix,Dims),
     matrix_type(Matrix,Type),
-    matrix_new_matrix(Type,Dims,Target),
+    matrix_base(Matrix,Base),
+    matrix_new_matrix(Type,Dims,Base,Target),
     matrix_copy(Matrix, Target).
+matrix_new( Info of Type, Target, Opts) :-
+    !,
+    dimensions(Info, Dims, Base),
+    data(Opts, WhatWhen, Data),
+    liveness(Target, Live),
+    matrix_create(Type, Live, Dims, Base, WhatWhen, Data, Target).
 matrix_new( Info, Target, Opts) :-
     dimensions(Info, Dims, Base),
     data(Opts, WhatWhen, Data),
@@ -902,47 +892,49 @@ matrix_new( Info, Target, Opts) :-
     liveness(Target, Live),
     matrix_create(Type, Live, Dims, Base, WhatWhen, Data, Target).
 
-matrix_create(terms, b, Dims, Base, no_fill, _,
-   '$matrix'(Dims, NDims, Size, Offsets, Matrix ) ) :-
+matrix_create(terms, b, Dims, Base, _, Data,
+   '$matrix'(Dims, NDims, Size, Base, Matrix ) ) :-
     length([H|Dims],NDims),
     length(Offsets,NDims),
     maplist('='(Base),Offsets),
     Dims=[H|RDims],
     multiply(RDims,H,Size),
+    flatten(Data,List),
+    Matrix =.. [matrix|List],
     functor(Matrix,matrix,Size).
-matrix_create(Type, b, Dims, _Base, fill, 0,New) :-
+matrix_create(Type, b, Dims, Base, fill, 0,New) :-
     !,
-    matrix_new_matrix(Type,Dims,New).
-matrix_create(Type, b, Dims, _Base, fill, C,New) :-
+    matrix_new_matrix(Type,Dims,Base,New).
+matrix_create(Type, b, Dims, Base, fill, C,New) :-
     !,
-    matrix_new_set(Type,Dims,C,New).
-matrix_create(Type, b, Dims, _Base, copy, C,New) :-
+    matrix_new_set(Type,Dims,Base,C,New).
+matrix_create(Type, b, Dims, Base, copy, C,New) :-
     !,
-    matrix_new_matrix(Type,Dims,C,New).
-matrix_create(ints, f, Dims, _Base, fill, 0,New) :-
+    matrix_new_matrix(Type,Dims,Base,C,New).
+matrix_create(ints, f, Dims, Base, fill, 0,New) :-
     !,
-    static_array(New,Dims,int).
-matrix_create(floats, f, Dims, _Base, fill, 0,New) :-
+    static_array(New,Dims,Base,int).
+matrix_create(floats, f, Dims, Base, fill, 0,New) :-
     !,
-    static_array(New,Dims,float).
-matrix_create(floats, f, Dims, _Base, fill, C,New) :-
+    static_array(New,Dims, Base,float).
+matrix_create(floats, f, Dims, Base, fill, C,New) :-
     !,
-    static_array(New,Dims,float),
+    static_array(New,Dims, Base,float),
     update_whole_array(New,C).
-matrix_create(ints, f, Dims, _Base, fill, C,New) :-
+matrix_create(ints, f, Dims, Base, fill, C,New) :-
     !,
-    static_array(New,Dims,int),
+    static_array(New,Dims, Base,int),
     update_whole_array(New,C).
-matrix_create(floats, f, Dims, _Base, copy, Lists,New) :-
+matrix_create(floats, f, Dims, Base, copy, Lists,New) :-
     !,
-    static_array(New,Dims,float),
+    static_array(New,Dims, Base,float),
     flatten(Lists,List),
-    matrix_set_all(New,List).    
-matrix_create(ints, f, Dims, _Base, copy, Lists,New) :-
+    matrix_set_all(New,List).
+matrix_create(ints, f, Dims, Base, copy, Lists,New) :-
     !,
-    static_array(New,Dims,int),
+    static_array(New,Dims, Base,int),
     flatten(Lists,List),
-    matrix_set_all(New,List).    
+    matrix_set_all(New,List).
 
 
 zip(A-B0,A,B0,B1) :- B1 is B0+1.
@@ -951,7 +943,7 @@ multiply([],P,P).
 multiply([X|Xs],P0,P) :-
     Pi is X*P0,
     multiply(Xs,Pi,P).
-    
+
 
 foreach( Domain, Goal) :-
 	strip_module(Goal, M, Locals^NG), !,
@@ -1063,7 +1055,7 @@ eval(I, Vs, Bs, NI) :-
 
 matrix_seq(A, B, Dims, M) :-
 	ints(A, B, L),
-	matrix_new_matrix(ints, Dims, L, M).
+	matrix_new_matrix(ints, Dims,0, L, M).
 
 ints(A,B,O) :-
 	( A > B -> O = [] ; O = [A|L], A1 is A+1, ints(A1,B,L) ).
@@ -1081,7 +1073,7 @@ set__( VF, V) :-
     V = VF.
 set__(M,V) :-
     is_matrix(M),
-    
+
     !,
     (
 	number(V)
@@ -1326,9 +1318,6 @@ matrix_type(Matrix,Type) :-
       ( T =:= "i"  -> Type = ints ; T =:= "f" -> Type = floats );
 	  Type = terms ).
 
-matrix_base(Matrix, Bases) :-
-    matrix_dims(Matrix, Bases).
-
 /** @pred matrix_agg_lines(+ _Matrix_,+Operator,+ _Aggregate_)s
 
 
@@ -1443,7 +1432,7 @@ user:inline(map_matrix(P,A),
     	  aux_pred(`map1`,P,
 		[[0,Size,A], % plugin call
 		 [I0,Size,A], % head
-		 [A,Index], % inner call 
+		 [A,Index], % inner call
 		 [I,Size,A]], % recursive call
 	[MainCall, Head, Inner, Recursive]),
 	  compile_clauses([(
@@ -1460,7 +1449,7 @@ user:inline(map_matrix(P,A,B),
     	  aux_pred(`map2`,P,
 		[[0,Size,A,B], % plugin call
 		 [I0,Size,A,B], % head
-		 [A,B,Index], % inner call 
+		 [A,B,Index], % inner call
 		 [I,Size,A,B]], % recursive call
 	[MainCall, Head, Inner, Recursive]),
 	  compile_clauses([(
@@ -1477,11 +1466,11 @@ user:inline(map_matrix(P,A,B),
 %%% most often we can avoid meta-calls.
 user:inline(foldl_matrix(P,A,V0,VF),
     (matrix:matrix_size(A,Size), MainCall)):-
-   writeln(ok), callable(P),	
+   writeln(ok), callable(P),
     	  aux_pred(`foldl`,P,
 		[[0,Size,A,V0,VF], % plugin call
 		 [I0,Size,A,V0,VF], % head
-		 [A,Index,V0,VF], % inner call 
+		 [A,Index,V0,VF], % inner call
 		 [I,Size,A,V0,VF]], % recursive call
 	[MainCall, Head, Inner, Recursive]),
 	  compile_clauses([(
@@ -1507,5 +1496,3 @@ term_to_string(Mod:P, SG),
     Inner =.. [G|InnerArgs],
     append(Args,RecursiveArgs0,RecursiveArgs),
     Recursive =.. [F|RecursiveArgs].
-			 
-

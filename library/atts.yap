@@ -155,7 +155,9 @@ expand_get_attributes([+G1],Mod,V,attributes:get_att(V,Mod,Pos,A)) :-
 expand_get_attributes([G1],Mod,V,attributes:get_att(V,Mod,Pos,A)) :-
 	existing_attribute(G1,Mod,1,Pos), !,
 	arg(1,G1,A).
-expand_get_attributes(Atts,Mod,Var,attributes:get_module_atts(Var,AccessTerm)) :- Atts = [_|_], !,
+expand_get_attributes(Atts,Mod,Var,attributes:get_module_atts(Var,AccessTerm)) :-
+    Atts = [_|_],
+    !,
 	attributed_module(Mod,NOfAtts,AccessTerm),
 	void_term(Void),
 	cvt_atts(Atts,Mod,Void,LAtts),

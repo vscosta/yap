@@ -12,9 +12,9 @@
 
 /**
  *
- *   @defgroup yap-cplus-db-interface Data-Base Component of YAP interface.
+ *   @defgroup YAP-cplus-db-interface Data-Base Component of YAP interface.
  *
- *   @ingroup yap-cplus-interface
+ *   @ingroup YAP-cplus-interface
  * @{
  *
  *
