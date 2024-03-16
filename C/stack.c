@@ -198,6 +198,8 @@ static bool write_goal(FILE *f, PredEntry *pe, ClausePointer cl,  char env_s, ch
      Atom owner = pe->src.OwnerFile;
      if (owner) {
        source = RepAtom(owner)->StrOfAE;
+     } else {
+       source = NULL;
      }
 
      line = get_clause_line(pe,cl);

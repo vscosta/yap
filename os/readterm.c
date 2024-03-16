@@ -978,7 +978,7 @@ vs = fe->scanner.stored_scan;
  if (fe->t && fe->reading_clause &&
       !is_goal(fe->t)  &&
       trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
-    warn_singletons(fe, tokstart);
+   warn_singletons(fe, sno, tokstart);
   }
   if (fe->t && fe->scanner.tcomms)
     v_comments = TermNil;

@@ -74,7 +74,6 @@ static Int p_call_count_set(USES_REGS1);
 static Int p_call_count_reset(USES_REGS1);
 static void kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 
-#define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G, F, N) ((N) < 5 ? (op_numbers)((int)F + (N)*3) : G)
 
 

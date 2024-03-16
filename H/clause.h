@@ -44,7 +44,7 @@ typedef struct CONSULT_OBJ {
 #define PredLastClause 2
 
 typedef struct logic_upd_index {
-  CELL ClFlags;
+  dbentry_flags ClFlags;
   UInt ClRefCount;
 #if defined(YAPOR) || defined(THREADS)
 /* A lock for manipulating the clause */
@@ -66,7 +66,7 @@ typedef struct logic_upd_clause {
               /*   as dbref                           */
   /* A set of flags describing info on the clause */
   /* A set of flags describing info on the clause */
-  CELL ClFlags;
+  dbentry_flags   ClFlags;
 #if defined(YAPOR) || defined(THREADS)
 /* A lock for manipulating the clause */
 //  lockvar          ClLock;
@@ -101,7 +101,7 @@ INLINE_ONLY int VALID_TIMESTAMP(UInt timestamp,
 
 typedef struct dynamic_clause {
   /* A set of flags describing info on the clause */
-  CELL ClFlags;
+  dbentry_flags ClFlags;
 #if defined(YAPOR) || defined(THREADS)
   /* A lock for manipulating the clause */
   lockvar ClLock;
@@ -116,7 +116,7 @@ typedef struct dynamic_clause {
 
 typedef struct static_index {
   /* A set of flags describing info on the clause */
-  CELL ClFlags;
+  dbentry_flags   ClFlags;
   UInt ClSize;
   struct static_index *SiblingIndex;
   struct static_index *ChildIndex;
@@ -127,13 +127,14 @@ typedef struct static_index {
 
 typedef struct static_clause {
   /* A set of flags describing info on the clause */
-  CELL ClFlags;
+  dbentry_flags ClFlags;
   UInt ClSize;
   struct  {
     DBTerm *ClSource;
     Int ClLine;
   } usc;
   Atom ClOwner;
+  PredEntry *ClPred;
   struct static_clause *ClNext;
   /* The instructions, at least one of the form sl */
   yamop ClCode[MIN_ARRAY];
@@ -141,7 +142,7 @@ typedef struct static_clause {
 
 typedef struct static_mega_clause {
   /* A set of flags describing info on the clause */
-  CELL ClFlags;
+  dbentry_flags ClFlags;
   UInt ClSize;
   PredEntry *ClPred;
   UInt ClItemSize;
@@ -308,6 +309,7 @@ void Yap_RemoveClauseFromIndex(PredEntry *, yamop *);
 LogUpdClause *Yap_NthClause(PredEntry *, Int);
 LogUpdClause *Yap_FollowIndexingCode(PredEntry *, yamop *, yhandle_t, yamop *,
                                      yamop *);
+extern PredEntry *Yap_pc_to_pred(yamop *ip);
 
 /* exo.c */
 yamop *Yap_ExoLookup(PredEntry *ap USES_REGS);

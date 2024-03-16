@@ -603,15 +603,14 @@ public:
   ///
   /// @param[in] the array of terms
   YAPConjunctiveTerm(std::vector<Term>);
+  
   //      YAPConjunctiveTerm( vector<YAPTerm> v );
   /// Return the number of elements in a list term.
   size_t length() {
     Term *tailp;
     Term t1 = gt();
-    size_t cnt = 1;
     while (IsApplTerm(t1) && FunctorOfTerm(t1)==FunctorComma) {
       t1 = ArgOfTerm(2,t1);
-      cnt++;
     }
     return Yap_SkipList(&t1, &tailp);
   }

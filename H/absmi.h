@@ -1053,27 +1053,6 @@ typedef CELL label;
  * Lookup PredEntry Structure
  *
  */
-
-#define pred_entry(X)                                                          \
-  ((PredEntry *)(Unsigned(X) - (CELL)(&(((PredEntry *)NULL)->StateOfPred))))
-#define pred_entry_from_code(X)                                                \
-  ((PredEntry *)(Unsigned(X) - (CELL)(&(((PredEntry *)NULL)->CodeOfPred))))
-#define PredFromDefCode(X)                                                     \
-  ((PredEntry *)(Unsigned(X) - (CELL)(&(((PredEntry *)NULL)->OpcodeOfPred))))
-#define PredFromExpandCode(X)                                                  \
-  ((PredEntry *)(Unsigned(X) -                                                 \
-                 (CELL)(&(((PredEntry *)NULL)->cs.p_code.ExpandCode))))
-#define PredCode(X) pred_entry(X)->CodeOfPred
-#define PredOpCode(X) pred_entry(X)->OpcodeOfPred
-#define TruePredCode(X) pred_entry(X)->TrueCodeOfPred
-#define PredFunctor(X) pred_entry(X)->FunctorOfPred
-#define PredArity(X) pred_entry(X)->ArityOfPE
-
-#define FlagOff(Mask, w) !(Mask & w)
-#define FlagOn(Mask, w) (Mask & w)
-#define ResetFlag(Mask, w) w &= ~Mask
-#define SetFlag(Mask, w) w |= Mask
-
 /**********************************************************************
  *                                                                    *
  *                         X register access                          *

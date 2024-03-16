@@ -3859,7 +3859,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
     cl->ClFlags |= SrcMask;
     x->ag.line_number = Yap_source_line_no();
     cl->ClSize = osize;
-
+    cl->ClPred =  cip->CurrentPred;
 
     LOCAL_ProfEnd = code_p;
     Yap_inform_profiler_of_clause(cl, LOCAL_ProfEnd, ap, GPROF_CLAUSE);
@@ -3886,7 +3886,8 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
         cl->usc.ClLine = cip->pos;
         cl->ClSize = size;
         cl->ClFlags = 0;
-        Yap_ClauseSpace += size;
+	cl->ClPred = cip->CurrentPred;
+	Yap_ClauseSpace += size;
       }
     } else {
       if (ap->PredFlags & LogUpdatePredFlag) {

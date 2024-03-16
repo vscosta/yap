@@ -1,0 +1,376 @@
+
+#include "Yap.h"
+#include "Yatom.h"
+#include "clause.h"
+
+#define Op(opc,type) case opc: ip = NEXTOP(ip,type); break;
+#define OpRW(opc,type) case opc: ip = NEXTOP(ip,type); break;
+#define OpW(opc,type) case opc: ip = NEXTOP(ip,type); break;
+#define pOp(opc,type,field) case opc: return ip->y_u.type.field
+#define oOp(opc,type) case opc: return 
+
+PredEntry *Yap_pc_to_pred(yamop *ip)
+{
+  op_numbers opc= _Nstop; 
+  
+  while (opc != _Ystop) {
+    opc=Yap_op_from_opcode(ip->opc);
+    switch(opc) {
+      pOp(_enter_lu_pred, Illss,I->ClPred);
+#if JIT
+    pOp(_jit_handler, J) return ip-> J;
+#endif
+    pOp(_alloc_for_logical_pred, L,ClBase->ClPred);
+ Op(_write_dbterm, D);
+Op(_write_bigint, N);
+ pOp(_either, Osblp,p0);
+ pOp(_or_else, Osblp,p0);
+ pOp(_or_last, Osblp,p0);
+#if 0
+ pOp(_p_execute, Osbmp,p0);
+ pOp(_p_execute_tail, Osbmp,u.Osbmp.p0);
+ pOp(_p_execute2, Osbpp,p0;);
+#endif
+ pOp(_ensure_space, Osbpa,p);
+ pOp(_call, Osbpp,p0);
+ pOp(_call_cpred, Osbpp,p0);
+ pOp(_call_usercpred, Osbpp,p0);
+ pOp(_dexecute, Osbpp,p0);
+ pOp(_execute, Osbpp,p0);
+ pOp(_execute_cpred, Osbpp,p0);
+ pOp(_fcall, Osbpp,p0);
+ pOp(_count_trust_logical, OtILl,d->ClPred);
+ pOp(_profiled_trust_logical, OtILl,d->ClPred);
+ pOp(_trust_logical, OtILl,d->ClPred);
+ pOp(_count_retry_logical, OtaLl,d->ClPred);
+ pOp(_profiled_retry_logical, OtaLl,d->ClPred);
+ pOp(_retry_logical, OtaLl,d->ClPred);
+ pOp(_try_logical, OtaLl,d->ClPred);
+ pOp(_cut_c, OtapFs,p);
+ pOp(_cut_userc, OtapFs,p);
+ pOp(_retry_c, OtapFs,p);
+ pOp(_try_c, OtapFs,p);
+ pOp(_count_retry_and_mark, Otapl,p);
+ pOp(_count_retry_me, Otapl,p);
+ pOp(_count_trust_me, Otapl,p);
+ pOp(_profiled_retry_and_mark, Otapl,p);
+ pOp(_profiled_retry_me, Otapl,p);
+ pOp(_profiled_trust_me, Otapl,p);
+ pOp(_retry, Otapl,p);
+ pOp(_retry_and_mark, Otapl,p);
+ pOp(_retry_me, Otapl,p);
+ pOp(_spy_or_trymark, Otapl,p);
+ pOp(_trust, Otapl,p);
+ pOp(_trust_me, Otapl,p);
+ pOp(_try_and_mark, Otapl,p);
+ pOp(_try_clause, Otapl,p) ;
+ pOp(_try_me, Otapl,p);
+Op(_write_atom, c);
+Op(_get_2atoms, cc);
+Op(_get_3atoms, ccc);
+Op(_get_4atoms, cccc);
+Op(_get_5atoms, ccccc);
+Op(_get_6atoms, cccccc);
+Op(_if_not_then, clll);
+Op(_write_float, d);
+Op(_Nstop, e);
+Op(_allocate, e);
+oOp(_copy_idb_term, e) ClauseCodeToLogUpdClause(ip)->ClPred;
+oOp(_enter_exo, e)  PredFromDefCode(ip);
+oOp(_expand_index, e)  PredFromDefCode(ip);
+Op(_index_blob, e);
+Op(_index_dbref, e);
+Op(_index_long, e);
+oOp(_index_pred, e)  PredFromDefCode(ip);
+oOp(_lock_pred, e)  PredFromDefCode(ip);
+Op(_op_fail, e);
+Op(_p_equal, e);
+Op(_p_functor, e);
+Op(_pop, e);
+#if 0
+ Op(_retry_eam, e);
+#endif
+oOp(_spy_pred, e)   PredFromDefCode(ip);
+#if USE_THREADS
+Op(_thread_local, e);
+#endif
+Op(_trust_fail, e);
+oOp(_undef_p, e)  PredFromDefCode(ip);
+oOp(_unify_idb_term, e) ClauseCodeToLogUpdClause(ip)->ClPred;
+Op(_unlock_lu, e);
+Op(_write_l_list, e);
+Op(_write_list, e);
+Op(_write_void, e);
+Op(_write_l_struc, fa);
+Op(_write_struct, fa);
+Op(_write_longint, i);
+    case _Ystop:
+  {
+    ClausePointer cl;
+    cl.pe = (PredEntry*)(ip->y_u.l.l);
+    if (cl.luc->Id == FunctorDBRef)
+      return cl.luc->ClPred;
+    else if ((cl.lui->ClFlags & (IndexMask|LogUpdMask)) == (IndexMask|LogUpdMask ))
+      return cl.lui->ClPred;
+    else if ((cl.si->ClFlags & IndexMask) == IndexMask )
+      return cl.si->ClPred;
+    return cl.sc->ClPred;
+  }
+Op(_jump, l);
+Op(_jump_if_var, l);
+Op(_move_back, l);
+#if INLINE_BIG_COMPARISONS
+ Op(_p_dif, l);
+Op(_p_eq, l);
+#endif
+ Op(_retry2, l);
+Op(_retry3, l);
+Op(_retry4, l);
+Op(_skip, l);
+Op(_try_clause2, l);
+Op(_try_clause3, l);
+Op(_try_clause4, l);
+Op(_try_in, l);
+Op(_switch_on_type, llll);
+ pOp(_retry_all_exo, lp,p);
+ pOp(_retry_exo, lp,p);
+ pOp(_retry_exo_udi, lp,p);
+ pOp(_try_all_exo, lp,p);
+ pOp(_try_exo, lp,p);
+ pOp(_try_exo_udi, lp,p);
+ pOp(_user_switch, lp,p);
+Op(_unify_l_void, o);
+Op(_unify_l_void_write, o);
+Op(_unify_void, o);
+ Op(_unify_l_list, o);
+Op(_unify_list, o);
+Op(_unify_l_struc, ofa);
+Op(_unify_struct, ofa);
+Op(_unify_dbterm, oD);
+Op(_unify_l_dbterm, oD);
+Op(_unify_bigint, oN);
+Op(_unify_l_bigint, oN);
+Op(_unify_atom, oc);
+Op(_unify_l_atom, oc);
+Op(_unify_l_atom_write, oc);
+Op(_unify_float, od);
+Op(_unify_l_float, od);
+Op(_unify_l_float_write, od);
+Op(_unify_l_longint, oi);
+Op(_unify_l_longint_write, oi);
+Op(_unify_longint, oi);
+Op(_switch_list_nl, ollll);
+ #if BEAM
+Op(_run_eam, os);
+ #endif
+Op(_unify_l_n_voids, os);
+Op(_unify_l_n_voids_write, os);
+Op(_unify_n_voids, os);
+Op(_unify_n_atoms, osc);
+Op(_unify_l_string, ou);
+Op(_unify_string, ou);
+Op(_save_appl_x, ox);
+Op(_save_pair_x, ox);
+Op(_unify_l_x_loc, ox);
+Op(_unify_l_x_loc_write, ox);
+Op(_unify_l_x_val, ox);
+Op(_unify_l_x_val_write, ox);
+Op(_unify_l_x_var, ox);
+Op(_unify_l_x_var_write, ox);
+Op(_unify_x_loc, ox);
+Op(_unify_x_val, ox);
+Op(_unify_x_var, ox);
+Op(_unify_l_x_var2, oxx);
+Op(_unify_l_x_var2_write, oxx);
+Op(_unify_x_var2, oxx);
+Op(_save_appl_y, oy);
+Op(_save_pair_y, oy);
+Op(_unify_l_y_loc, oy);
+Op(_unify_l_y_loc_write, oy);
+Op(_unify_l_y_val, oy);
+Op(_unify_l_y_val_write, oy);
+Op(_unify_l_y_var, oy);
+Op(_unify_l_y_var_write, oy);
+Op(_unify_y_loc, oy);
+Op(_unify_y_val, oy);
+Op(_unify_y_var, oy);
+ pOp(_count_call,p,p);
+ pOp(_count_retry, p,p);
+ pOp(_deallocate, p,p);
+ pOp(_enter_profiling, p,p);
+ pOp(_retry_profiled, p,p);
+ pOp(_lock_lu, p,p);
+ pOp(_procceed, p,p);
+ pOp(_try_udi, p, p);
+ pOp(_retry_udi, p, p);
+ pOp(_try_userc, p, p);
+ pOp(_retry_userc, p, p);
+  pOp(_call_bfunc_xx, plxxs,p);
+  pOp(_call_bfunc_xy, plxys,p);
+  pOp(_call_bfunc_yx, plxys,p);
+  pOp(_call_bfunc_yy, plyys,p);
+Op(_cut, s);
+Op(_cut_e, s);
+Op(_cut_t, s);
+ Op(_pop_n, s);
+Op(_write_n_perms, s);
+Op(_write_n_voids, s);
+Op(_write_n_atoms, sc);
+Op(_switch_on_sub_arg_type, sllll);
+ pOp(_call_c_wfail, slpp,p);
+Op(_go_on_cons, sssl);
+Op(_go_on_func, sssl);
+Op(_if_cons, sssl);
+Op(_if_func, sssl);
+Op(_switch_on_cons, sssl);
+Op(_switch_on_func, sssl);
+ pOp(_expand_clauses, sssllp,p);
+Op(_get_atom_exo, x);
+ Op(_get_list, x);
+Op(_get_struct, xfa);
+Op(_glist_valx, xx);
+Op(_glist_valy, yx);
+
+Op(_put_list, x);
+Op(_save_b_x, x);
+Op(_write_x_loc, x);
+    Op(_write_x_val, x);
+Op(_write_x_var, x);
+Op(_get_dbterm, xD);
+Op(_put_dbterm, xD);
+Op(_get_bigint, xN);
+Op(_put_bigint, xN);
+Op(_get_atom, xc);
+Op(_put_atom, xc);
+Op(_get_float, xd);
+Op(_put_float, xd);
+Op(_put_struct, xfa);
+Op(_get_longint, xi);
+Op(_put_longint, xi);
+Op(_p_atom_x, xl);
+Op(_p_atomic_x, xl);
+Op(_p_compound_x, xl);
+Op(_p_db_ref_x, xl);
+Op(_p_float_x, xl);
+Op(_p_integer_x, xl);
+Op(_p_nonvar_x, xl);
+Op(_p_number_x, xl);
+Op(_p_primitive_x, xl);
+Op(_p_var_x, xl);
+Op(_jump_if_nonvar, xll);
+Op(_switch_on_arg_type, xllll);
+ pOp(_commit_b_x, xps,p0);
+Op(_get_string, xu);
+Op(_get_x_val, xx);
+Op(_get_x_var, xx);
+Op(_gl_void_valx, xx);
+Op(_gl_void_varx, xx);
+Op(_put_x_val, xx);
+Op(_put_x_var, xx);
+Op(_p_func2s_cv, xxc);
+Op(_p_and_vc, xxn);
+Op(_p_arg_cv, xxn);
+Op(_p_div_cv, xxn);
+Op(_p_div_vc, xxn);
+Op(_p_func2s_vc, xxn);
+Op(_p_minus_cv, xxn);
+Op(_p_or_vc, xxn);
+Op(_p_plus_vc, xxn);
+Op(_p_sll_cv, xxn);
+Op(_p_sll_vc, xxn);
+Op(_p_slr_cv, xxn);
+Op(_p_slr_vc, xxn);
+Op(_p_times_vc, xxn);
+Op(_p_xor_vc, xxn);
+Op(_p_and_vv, xxx);
+Op(_p_arg_vv, xxx);
+Op(_p_div_vv, xxx);
+Op(_p_func2f_xx, xxx);
+Op(_p_func2s_vv, xxx);
+Op(_p_minus_vv, xxx);
+Op(_p_or_vv, xxx);
+Op(_p_plus_vv, xxx);
+Op(_p_sll_vv, xxx);
+Op(_p_slr_vv, xxx);
+Op(_p_times_vv, xxx);
+Op(_p_xor_vv, xxx);
+Op(_put_xx_val, xxxx);
+Op(_p_func2f_xy, xxy);
+Op(_save_b_y, y);
+Op(_write_y_loc, y);
+Op(_write_y_val, y);
+Op(_write_y_var, y);
+Op(_p_atom_y, yl);
+Op(_p_atomic_y, yl);
+Op(_p_compound_y, yl);
+Op(_p_db_ref_y, yl);
+Op(_p_float_y, yl);
+Op(_p_integer_y, yl);
+Op(_p_nonvar_y, yl);
+Op(_p_number_y, yl);
+Op(_p_primitive_y, yl);
+Op(_p_var_y, yl);
+ pOp(_commit_b_y, yps,p0);
+Op(_get_y_val, yx);
+Op(_get_y_var, yx);
+Op(_gl_void_valy, yx);
+Op(_gl_void_vary, yx);
+Op(_put_unsafe, yx);
+Op(_put_y_val, yx);
+Op(_put_y_var, yx);
+Op(_p_func2s_y_cv, yxc);
+Op(_p_and_y_vc, yxn);
+Op(_p_arg_y_cv, yxn);
+Op(_p_div_y_cv, yxn);
+Op(_p_div_y_vc, yxn);
+Op(_p_func2s_y_vc, yxn);
+Op(_p_minus_y_cv, yxn);
+Op(_p_or_y_vc, yxn);
+Op(_p_plus_y_vc, yxn);
+Op(_p_sll_y_cv, yxn);
+Op(_p_sll_y_vc, yxn);
+Op(_p_slr_y_cv, yxn);
+Op(_p_slr_y_vc, yxn);
+Op(_p_times_y_vc, yxn);
+Op(_p_xor_y_vc, yxn);
+Op(_p_and_y_vv, yxx);
+Op(_p_arg_y_vv, yxx);
+Op(_p_div_y_vv, yxx);
+Op(_p_func2f_yx, yxx);
+Op(_p_func2s_y_vv, yxx);
+Op(_p_minus_y_vv, yxx);
+Op(_p_or_y_vv, yxx);
+Op(_p_plus_y_vv, yxx);
+Op(_p_sll_y_vv, yxx);
+Op(_p_slr_y_vv, yxx);
+Op(_p_times_y_vv, yxx);
+Op(_p_xor_y_vv, yxx);
+Op(_p_func2f_yy, yyx);
+Op(_get_yy_var, yyxx);
+Op(_put_y_vals, yyxx);
+OpW(_unify_l_list_write, o);
+OpW(_unify_list_write, o);
+OpW(_unify_void_write, o);
+OpW(_unify_atom_write, oc);
+OpW(_unify_float_write, od);
+OpW(_unify_l_struc_write, ofa);
+OpW(_unify_struct_write, ofa);
+OpW(_unify_longint_write, oi);
+OpW(_unify_n_voids_write, os);
+OpW(_unify_n_atoms_write, osc);
+OpW(_save_appl_x_write, ox);
+OpW(_save_pair_x_write, ox);
+OpW(_unify_x_loc_write, ox);
+OpW(_unify_x_val_write, ox);
+OpW(_unify_x_var_write, ox);
+OpW(_unify_x_var2_write, oxx);
+OpW(_save_appl_y_write, oy);
+OpW(_save_pair_y_write, oy);
+OpW(_unify_y_loc_write, oy);
+OpW(_unify_y_val_write, oy);
+OpW(_unify_y_var_write, oy);
+#include "skip.tabs.h"
+    }
+  }
+  return NULL;
+}

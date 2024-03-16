@@ -71,6 +71,7 @@ set (ENGINE_SOURCES
   C/save.c
   C/scanner.c
   C/signals.c
+  C/skip.c
   C/sort.c
   C/stdpreds.c
   C/stack.c

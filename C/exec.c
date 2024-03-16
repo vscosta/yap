@@ -137,7 +137,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env = ENV; // YENV should be tracking ENV
       i->p = ip;
       i->p_env = CP;
-      i->pe = Yap_PredEntryForCode(NULL, ip, FIND_PRED_FROM_CLAUSE );
+      i->pe = Yap_pc_to_pred( ip );
       i->a = i->pe->ArityOfPE;
       i->env_size = 0;
       return i->pe;
@@ -180,7 +180,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env = ENV; // YENV should be tracking ENV
       i->p = ip;
       i->p_env = CP;
-      i->pe = Yap_PredEntryForCode(NULL,ip, FIND_PRED_FROM_CLAUSE );
+      i->pe = Yap_pc_to_pred( ip );
       i->a = i->pe->ArityOfPE;
       i->env_size = 0;
       return i->pe;
@@ -234,10 +234,11 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env = ENV; // YENV should be tracking ENV
       i->p = P;
       i->p_env = CP;
+      i->pe = Yap_pc_to_pred( i->p );
       i->a = 3;
       i->env_size =  -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
       i->caller = NULL;
-      return i->pe =  NULL;
+      return i->pe;
     case _ensure_space:
       i->env = ENV;
       i->p = P;
@@ -246,7 +247,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->op = _ensure_space;
       i->env_size = EnvSizeInCells;
       i->caller =   P->y_u.Osbpa.p;
-      return i->pe =  NULL;
+      return i->pe =  P->y_u.Osbpa.p;
     case _p_func2s_vv:
       i->env = ENV;
       i->p = P;
@@ -260,11 +261,11 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env = ENV;
       i->p = P;
       i->p_env = CP;
-      i->a = 0;
+      i->a = 3;
       i->op = _p_func2s_vc;
       i->env_size = -NEXTOP(P, xxc)->y_u.Osbpp.s / sizeof(CELL);
-      i->caller = NULL;
-      return i->pe =  NULL;
+      i->caller = NEXTOP(P, xxn)->y_u.Osbpp.p0;
+      return i->pe = NEXTOP(P, xxn)->y_u.Osbpp.p;
     case _p_func2s_vc:
       i->env = ENV;
       i->p = P;
@@ -360,11 +361,12 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env = ENV;
       i->p = P;
       i->p_env = CP;
-      i->a = 0;
+      i->pe = Yap_pc_to_pred( i->p );
+      i->a = i->pe->ArityOfPE;
       i->op = 0;
       i->env_size = EnvSizeInCells;
-      i->caller = NULL;
-      return i->pe =  NULL;
+      i->caller = Yap_pc_to_pred( i->p_env );;
+      return i->pe;
     }
 }
 
