@@ -63,6 +63,8 @@ defined, or search the default library directory.
 
 */
 
+:- dynamic '$file_property'/1.
+
 /** @pred save_program(+ _F_)
 Saves the current state of the data-base in file _F_ .
 
@@ -294,7 +296,7 @@ qsave_file(F0, State) :-
         '$qsave_file_preds'(S, File),
         close(S)
     ),
-    abolish(user:'$file_property'/1).
+    retractall(user:'$file_property'(_)).
 
 '$fetch_multi_files_file'(File, Multi_Files) :-
 	setof(Info, '$fetch_multi_file_module'(File, Info), Multi_Files).
@@ -632,6 +634,6 @@ qload_file( F0 ) :-
     '$process_directive'(G, reconsult, M, VL, Pos),
     fail.
 '$ql_process_directives'( _FilePl ) :-
-    abolish(user:'$file_property'/1).
+    retractall(user:'$file_property'(_)).
 
 %% @}

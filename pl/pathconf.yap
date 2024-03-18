@@ -55,7 +55,7 @@ library_directory( Dir ) :-
 
 
 commons_directory( Path ):-
-    system_commons( Path ).
+    commons_library( Path ).
 
 /**
   @pred foreign_directory(? _Directory_:atom) is nondet, dynamic

@@ -182,20 +182,21 @@
         {
           PredEntry *p = PREG->y_u.Osbpp.p;
 
-          PREG = NEXTOP(PREG, Osbpp);
           savedP = PREG;
           saveregs();
           save_machine_regs();
 
           SREG = (CELL *)YAP_Execute(p, p->cs.f_code);
-        }
         setregs();
         LOCAL_PrologMode &= ~UserCCallMode;
         restore_machine_regs();
-        PREG = savedP;
+      if (PREG==savedP)
+	PREG=NEXTOP(PREG, Osbpp);
+        }
+
       }
       if (Yap_HasException(PASS_REGS1)) {
-bool Yap_RaiseException();
+Yap_RaiseException();
         SREG = NULL;
       }
       if (!SREG) {
