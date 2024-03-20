@@ -1204,7 +1204,7 @@ prefix_(debug,	      '~N'-[]).
 prefix_(warning,      '~N'-[]).
 prefix_(error,	      '~N'-[]).
 prefix_(banner,	      '~N'-[]).
-prefix_(informational, '~N~*|% '-[LC]) :-
+prefix_(informational, '~N~*| '-[LC]) :-
     '$show_consult_level'(LC),
     LC > 0,
     !.

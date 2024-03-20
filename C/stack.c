@@ -1,4 +1,3 @@
-
  /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -34,6 +33,7 @@
 
 #include "Yap.h"
 
+#include "YapError.h"
 #include "YapTags.h"
 #include "Yapproto.h"
 #include "Yatom.h"
@@ -1503,13 +1503,11 @@ static Int p_choicepoint_info(USES_REGS1) {
     return UnifyPredInfo(pe, 3 PASS_REGS);
 }
 
-static int legal_env(CELL *CACHE_TYPE);
-
 #define ONLOCAL(ptr)                            \
   (CellPtr(ptr) > CellPtr(HR) && CellPtr(ptr) < CellPtr(LOCAL_LocalBase))
 
-
-static int legal_env(CELL *ep USES_REGS) {
+#if 0
+  static int legal_env(CELL *ep USES_REGS) {
     CELL cp, ps;
     PredEntry *pe;
     if (!ONLOCAL(ep) || Unsigned(ep) & 3)
@@ -1528,7 +1526,7 @@ static int legal_env(CELL *ep USES_REGS) {
     return (TRUE);
 }
 
-#if 0
+
 static Int program_continuation(USES_REGS1) {
     PredEntry *pe = EnvPreg((yamop *) ((ENV_Parent(ENV))[E_CP]));
     if (pe->ModuleOfPred) {
@@ -1700,14 +1698,32 @@ f = open_memstream(&nbuf, &nsize);
  file = fmemopen((void *)nbuf, nsize, "w+");
   #endif
 
+  Yap_output_bug_location(f, B, P, FIND_PRED_FROM_ANYWHERE, "caller:");
+ Yap_output_bug_location(f, B, CP, FIND_PRED_FROM_ENV, "continuation:");
+ Yap_output_bug_location(f, B, B->cp_ap, FIND_PRED_FROM_CP, "choice point:");
+   
+    fputs("%% \n%%  -------------------------------------\n%%\n", f);
+        fputs("%% Goals in stack\n", f);
+	DumpActiveGoals(f PASS_REGS);
+        fprintf( f, "%%    Performed %ld garbage collections\n",
+                        (unsigned long int) LOCAL_GcCalls);	
+#if LOW_LEVEL_TRACER
+        {
+            extern unsigned long long vsc_count;
+            if (vsc_count) {
+#if _WIN32
+                fprintf( f , "Trace Counter at %I64d\n", vsc_count);
+#else
+                fprintf( f, "Trace Counter at %lld\n", vsc_count);
+#endif
+            }
+        }
+#endif
     /* check if handled */
     // if (handled_exception(PASS_REGS1))
     //  return;
-    fputs("%%  =====================================\n%%\n", f);
-
-    fprintf( f, "%% Stacks:\n");
-    fprintf( f, "%% Global-->                        <-- Local | Trail -->\n" );
-    fprintf( f, "%% %p--%p-->      <---%p--%p--%p\n" , H0, HR, ASP, LCL0, TR); 
+    fprintf( f, "%% Stacks: Global-->                 <-- Local | Trail -->\n" );
+    //    fprintf( f, "%% %p--%p-->      <---%p--%p--%p\n" , H0, HR, ASP, LCL0, TR); 
     fprintf( f, "%% %luKB-->                              <--  %luKB | %luKB\n",
 	     (unsigned long int) (sizeof(CELL) * (HR - H0)) / 1024,
 	     (unsigned long int) (sizeof(CELL) * (LCL0 - ASP)) / 1024,
@@ -1735,16 +1751,8 @@ f = open_memstream(&nbuf, &nsize);
 #endif
 #endif
     }
-
-    fputs("%% \n%%  =====================================\n%%\n", f);
-    fputs("%% \n%%  Status:\n", f);
-    fputs("%% \n%%  -------------------------------------\n%%\n", f);
-    yap_error_number errnbr = LOCAL_Error_TYPE;
-    yap_error_class_number classno = Yap_errorClass(errnbr);
-
-    if (errnbr)
-      fprintf( f, "%% Error STATUS: %s/%s\n\n", Yap_errorName(errnbr),
-	     Yap_errorClassName(classno));
+    if (LOCAL_Error_TYPE)
+      fprintf( f, "%% Error STATUS:   %s ", Yap_errorName(LOCAL_Error_TYPE));
     /*
     fputs("%% Execution mode", f);
     if (LOCAL_PrologMode & BootMode)
@@ -1789,31 +1797,6 @@ f = open_memstream(&nbuf, &nsize);
     fputs("%% \n%%  -------------------------------------\n%%\n", f);
     fprintf( f, "%% Program Position: %s\n\n", Yap_errorName(errno));
     */
-    char *o = Yap_output_bug_location(B, P, FIND_PRED_FROM_ANYWHERE, 256);
-    fprintf( f, "%%          PC: %s\n", o);
-    /* o = Yap_output_bug_location(B, CP, FIND_PRED_FROM_ENV, 256); */
-    /* fprintf( f, "%%          Continuation: %s\n", o); */
-    /* o = Yap_output_bug_location(B, B->cp_ap, FIFIND_PRED_FROM_ANYWHEREND_PRED_FROM_CP, 256); */
-    /* fprintf( f, "%%         TOP Alternative: %s\n", o); */
-
-    /* fputs("%% \n%%  -------------------------------------\n%%\n", f); */
-    //fputs("%% \n%%  -------------------------------------\n%%\n", f);
-        fprintf( f, "%%    Performed %ld garbage collections\n",
-                        (unsigned long int) LOCAL_GcCalls);	
-#if LOW_LEVEL_TRACER
-        {
-            extern unsigned long long vsc_count;
-            if (vsc_count) {
-#if _WIN32
-                fprintf( f , "Trace Counter at %I64d\n", vsc_count);
-#else
-                fprintf( f, "Trace Counter at %lld\n", vsc_count);
-#endif
-            }
-        }
-#endif
-        fputs("%% Goals in stack\n", f);
-	DumpActiveGoals(f PASS_REGS);
 	fflush(f);
     size_t sz = ftell(f);
     nbuf[sz]='\0';
@@ -1835,7 +1818,7 @@ bool DumpStack(USES_REGS1) {
  * Used for debugging.
  *
  */
-char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int psize) {
+ bool Yap_output_bug_location(FILE *f,choiceptr ap, struct yami *yap_pc, int where_from, const char*why) {
     CACHE_REGS
     Atom pred_name;
     UInt pred_arity;
@@ -1844,30 +1827,33 @@ char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int p
     ClausePointer cl;
 
 
-    char *o = Malloc(1024);
     if ((pred = Yap_PredForCode(yap_pc, where_from,&cl)) == NULL) {
       /* system predicate */
-        snprintf(o, 255, "%% %s", "meta-call");
+        fprintf(f, "%s: from internal_code:0", why );
     } else {
         pred_arity = pred->ArityOfPE;
         pred_name = NameOfPred(pred);
 	pred_module = pred->ModuleOfPred;
-	if (pred_module == PROLOG_MODULE)
-	  pred_module = TermProlog;
-	if (cl.pe == pred) {
-            snprintf(o, 255, "%% %s:%s0/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-                     RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
+	if (pred_module == PROLOG_MODULE) {
+	  fprintf(f, "system_code %s: %s/%lu\n", why, RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
         } else {
-            snprintf(o, 1023, "%% %s:%s/%lu at clause %p\n",
-                     RepAtom(AtomOfTerm(pred_module))->StrOfAE,
-                     RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity,
-                     cl.sc);
+          char *source;
+     Atom owner = pred->src.OwnerFile;
+     if (owner) {
+       source = RepAtom(owner)->StrOfAE;
+     } else {
+       source = "user_input";
+     }
+     int      line = get_clause_line(pred,cl);
+	  fprintf(f, "%s:%d:0  %s: %s:%s/%lu\n", source, line,why, RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+                     RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
+
         }
 	//	char *s=o+strlen(o);
 	//char *top = o+1023;
 	//Yap_show_goal(o, RepAtom(pred_name)->StrOfAE,  pred_arity,RepAtom(AtomOfTerm(pred_module))->StrOfAE,XREGS+1,&o,s,&top);
     }
-    return o;
+    return true;
 }
 
 static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,

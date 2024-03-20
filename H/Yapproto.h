@@ -346,7 +346,7 @@ extern Term Yap_Module(Term);
 extern Term Yap_Module_Name(struct pred_entry *);
 extern struct pred_entry *Yap_ModulePred(Term);
 extern void Yap_NewModulePred(struct pred_entry *);
-extern char *Yap_output_bug_location(choiceptr ap, yamop *yap_pc, int where_from, int psize);
+extern bool Yap_output_bug_location(FILE *,choiceptr ap, yamop *yap_pc, int where_from, const char *why);
 extern void Yap_NewModulePred_HoldingLock(struct pred_entry *);
 extern void Yap_RemovePredFromModule(struct pred_entry *);
 extern Term Yap_StripModule(Term, Term *);

@@ -589,11 +589,14 @@ init_one_query(QueryID,Query,_Type) :-
     ;
     true).
 
-:- spy init_one_query.
 
 
 set_p0(X,I,P) :- X[I] <==P.
 
+add_bdd(QueryID, _, _) :-
+    QueryID mod 100 =:= 0,
+    format('~n~d: ',[QueryID]),
+    fail.
 add_bdd(QueryID,Query, Bdd) :-
     Bdd = bdd(Dir, Tree0,Prob0,MapList),
     user:graph2bdd(Query,1,Bdd),
@@ -601,12 +604,9 @@ add_bdd(QueryID,Query, Bdd) :-
     !.
 add_bdd(_QueryID,_Query, bdd(1,[],_,[])).
 
-store_bdd(QueryID, _Dir, _Tree,_, _MapList) :-
-    QueryID mod 100 =:= 0,
-    format('~n~d: ',[QueryID]),
-    fail.
-store_bdd(QueryID, Dir, Tree,Prob0, MapList) :
-Tree = [_,_|_],
+store_bdd(QueryID, Dir, Tree,Prob0, MapList) :-
+    Tree = [_,_|_],
+    !,
     ignore((recorded(QueryID,_,Ref),
 	    erase(Ref),
 	    fail)),

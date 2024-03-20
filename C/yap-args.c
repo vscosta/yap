@@ -499,8 +499,8 @@ static void Yap_set_locations(YAP_init_args *iap) {
   Yap_INPUT_STARTUP =
     sel( is_file,
 		   iap->INPUT_STARTUP,
+	 join((path_binary_dir),"startup.yss"),
          join(Yap_LIBDIR, "startup.yss" ),
-	 join(Yap_FindExecutable(),"../startup.yss"),
 #if !defined(__ANDROID__)
 	 join(getenv("DESTDIR"), YAP_INPUT_STARTUP),
 #endif

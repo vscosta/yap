@@ -68,10 +68,6 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
-  if (NEXTOP((yamop*)S,Osbpp) == P) {
-    ip = (yamop*)S;
-    op = Yap_op_from_opcode(ip->opc);
-  }
   if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || ip == TRUSTFAILCODE) {
     op = Yap_op_from_opcode(P->opc);
     i->env = ENV; // YENV should be tracking ENV
@@ -207,7 +203,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->p_env = CP;
       i->env = ENV;
       i->p = P;
-      i->env_size =P->y_u.Osbpp.s / sizeof(CELL);
+      i->env_size = -P->y_u.Osbpp.s / sizeof(CELL);
       i->caller = i->p->y_u.Osbpp.p0;
       return i->pe =  ip->y_u.Osbpp.p;
 

@@ -78,7 +78,7 @@
 	( var(Warn) ->	current_prolog_flag( redefine_warnings, Redefine ), Redefine = Warn ; true ).
 '$lf_option'(reexport, 23, false).
 '$lf_option'(def_use_map, 24, false).
-%'$lf_option'(sandboxed, 24, false).
+% '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
 '$lf_option'(modified, 26, true).
 '$lf_option'(source_module, 27, _).
