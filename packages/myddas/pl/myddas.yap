@@ -79,4 +79,14 @@
 				% myddas_mysql.ypp,
           		  db_multi_queries_number/2
 ]).
+
+:- load_foreign_files([libYAPmyddas], [], init_myddas).
+
+
+
+
+/* Initialize MYDDAS GLOBAL STRUCTURES */
+:- c_db_initialize_myddas.
+
+
 :- include( myddas/myddas_core ).

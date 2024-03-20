@@ -15,7 +15,7 @@
   *									 *
   *************************************************************************/
 
-#ifdef DEBUG
+#if DEBUG
 :- yap_flag(single_var_warnings,on).
 :- yap_flag(write_strings,on).
 #endif
@@ -48,96 +48,17 @@
 		  myddas_odbc:c_odbc_ ## G               \
 		)
 
-:- module(myddas,[
-		  db_open/5,
-		  db_open/4,
-		  db_open/2,
-		  db_open/1,
-		  db_open/0,
-		  db_close/1,
-		  db_close/0,
 
-		  db_verbose/1,
-		  db_module/1,
-		  db_is_database_predicate/3,
-		  #ifdef MYDDAS_STATS
-		 db_stats/1,
-		  db_stats/2,
-		  db_stats_time/2,
-		  #endif
-		 db_sql/2,
-		  db_sql/3,
-		  db_sql_select/3,
-		  db_prolog_select/2,
-		  db_prolog_select/3,
-		  db_prolog_select_multi/3,
-		  db_command/2,
-		  db_assert/2,
-		  db_assert/1,
-		  db_create_table/3,
-		  db_export_view/4,
-		  db_update/2,
-		  db_describe/2,
-		  db_describe/3,
-		  db_show_tables/2,
-		  db_show_tables/1,
-	  db_get_attributes_types/2,
-		  db_get_attributes_types/3,
-		  db_number_of_fields/2,
-		  db_number_of_fields/3,
-      % myddas_shared.c
-      c_db_connection_type/2,
-      c_db_add_preds/4,
-      c_db_preds_conn/4,
-      c_db_connection/1,
-      c_db_check_if_exists_pred/3,
-      c_db_delete_predicate/2,
-      c_db_multi_queries_number/2,
-      #ifdef MYDDAS_STATS
-      c_db_stats/2,
-      c_db_stats_walltime/1,
-      c_db_stats_translate/2,
-      c_db_stats_time/2,
-      #endif
-      #ifdef DEBUG
-      c_db_check/0,
-      #endif
-      c_db_initialize_myddas/0,
-      c_db_connection_type/2,
-      c_db_add_preds/4,
-      c_db_preds_conn/4,
-      c_db_connection/1,
-      c_db_check_if_exists_pred/3,
-      c_db_delete_predicate/2,
-      c_db_multi_queries_number/2,
-      #ifdef MYDDAS_STATS
-      c_db_stats/2,
-      c_db_stats_walltime/1,
-      c_db_stats_translate/2,
-      c_db_stats_time/2,
-      #endif
-      #ifdef DEBUG
-      c_db_check/0,
-      #endif
-				% myddas_top_level.ypp
-		  #ifdef MYDDAS_TOP_LEVEL
-          db_top_level/4,
-		  db_top_level/5,
-n		  db_datalog_select/3,
-		  #endif
-				% myddas_assert_predicates.ypp
-				% myddas_mysql.ypp,
-          		  db_multi_queries_number/2
-]).
+:- reexport((myddas_sqlite3)).
+:- start_low_level_trace.
+:- reexport((myddas_odbc)).
+:- stop_low_level_trace.
+:- reexport((myddas_postgres)).
+:- reexport((myddas_mysql)).
 
 
-:- load_foreign_files([myddas], [], init_myddas).
-
-/* Initialize MYDDAS GLOBAL STRUCTURES */
-:- c_db_initialize_myddas.
-
-#ifdef MYDDAS_TOP_LEVEL
-:- use_module(myddas_top_level,[
+#if MYDDAS_TOP_LEVEL
+:- reexport(myddas_top_level,[
 				db_top_level/4,
 				db_top_level/5,
 				db_datalog_select/3
@@ -158,20 +79,8 @@ n		  db_datalog_select/3,
 
 :- meta_predicate db_import(+,+,:), db_import(+,:).
 
-#ifdef MYDDAS_SQLITE3
-:- use_module(myddas_sqlite3,[
-		  % myddas_mysql.ypp
-		  c_sqlite3_connect/4,
-		  c_sqlite3_disconnect/1,
-		  c_sqlite3_query/5,
-		  c_sqlite3_number_of_fields/3,
-		  c_sqlite3_get_attributes_types/3,
-		  sqlite3_result_set/1,
-		  sqlite3_describe/3,
-		  sqlite3_show_tables/2,
-		  sqlite3_row/3
-	      ]).
-#endif
+
+
 :- use_module(myddas_util_predicates,[
 				      '$prolog2sql'/3,
 				      '$create_multi_query'/3,
@@ -186,7 +95,7 @@ n		  db_datalog_select/3,
 				      '$get_table_name'/2,
 				      '$get_values_for_update'/4,
 				      '$extract_args'/4,
-				      #ifdef MYDDAS_STATS
+				      #if MYDDAS_STATS
 				      '$make_stats_list'/2,
 				      #endif
 				     '$lenght'/2
@@ -242,14 +151,14 @@ user:prolog_file_type( db, dataset ).
 %
 % _Interface_ : a supported server, it may be one of mysql, odbc, postgres, sqlite3.
 % _Handle_ : a name that refers to the database-conectionn. By default is `myddas`,
-% _Connection Info': either a sequence Host/Db/Port/Socket or a file name. You can use 0 for the defaukt port and sockets,
+% _Connection Info': either a sequence Host/Db/Port/Socket or a file name. You can use xb0 for the defaukt port and sockets,
 % _UserId_; the use identifier, ignored by sqlite3;
 % _Password_ : access control, ignored by sqlite3,
 %
 %
 %
 
-#ifdef MYDDAS_MYSQL
+#if MYDDAS_MYSQL
 db_open(mysql,Connection,Host/Db/Port/Socket,User,Password) :- !,
 	'$error_checks'(db_open(mysql,Connection,Host/Db/Port/Socket,User,Password)),
 	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
@@ -263,7 +172,7 @@ db_open(mysql,Connection,Host/Db,User,Password) :-
 	db_open(mysql,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
 #endif
 
-#ifdef MYDDAS_POSTGRES
+#if MYDDAS_POSTGRES
 db_open(postgres,Connection,Host/Db/Port/Socket,User,Password) :- !,
 	'$error_checks'(db_open(postgres,Connection,Host/Db/Port/Socket,User,Password)),
 	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
@@ -277,14 +186,14 @@ db_open(postgres,Connection,Host/Db,User,Password) :-
     db_open(postgres,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socpket
 #endif
 
-#ifdef MYDDAS_ODBC
+#if MYDDAS_ODBC
 db_open(odbc,Connection,ODBCEntry,User,Password) :-
     '$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
     c_odbc_connect(ODBCEntry,User,Password,Con),
     set_value(Connection,Con).
 #endif
 
-#ifdef MYDDAS_SQLITE3
+#if MYDDAS_SQLITE3
 db_open(sqlite3,Connection,File,User,Password) :-
     absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
     '$error_checks'(db_open(sqlite3,Connection,Db,User,Password)),
@@ -357,7 +266,7 @@ db_is_database_predicate(Module,PredName,Arity):-
     c_db_check_if_exists_pred(PredName,Arity,Module).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#ifdef MYDDAS_STATS
+#if MYDDAS_STATS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_stats(+,-)
 %
@@ -377,7 +286,7 @@ db_stats(Protocol,List):-
     ),
     '$make_stats_list'(ListX1,List).
 
-#ifdef DEBUG
+#if  DEBUG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_stats_time(+,-)
 % Reference is C pointer (memory reference)

@@ -10,34 +10,47 @@
 *									 *
 * File:		myddas_mysql.yap					 *
 * Last rev:								 *
-* mods:									 *show
+* mods:									 *
 * comments:	MySQL Predicates                 			 *
 *									 *
 *************************************************************************/
 #ifdef sqlite3
-#undef sqlite3
+#if MYDDAS_SQLITE3
+#define LOAD 1
+#endif
 #define DBMS(x) sqlite3_##x
 #define c_DBMS(x) c_sqlite3_##x
 #define NAME() 'YAPsqlite3'
 #define MODULE() myddas_sqlite3
 #define INIT() init_sqlite3
 #elif defined( odbc ) && !defined(ANDROID)
-#undef odbc
+#if MYDDAS_ODBC
+#define LOAD 1
+#endif
 #define DBMS(x) odbc_##x
 #define c_DBMS(x) c_odbc_##x
 #define NAME() 'YAPodbc'
 #define MODULE() myddas_odbc
 #define INIT() init_odbc
 #elif defined( postgres ) && !defined(ANDROID)
-#undef postgres
+#if MYDDAS_POSTGRES
+#define LOAD 1
+#endif
 #define DBMS(x) postgres_##x
 #define c_DBMS(x) c_postgres_##x
 #define NAME() 'YAPpostgres'
 #define MODULE() myddas_postgres
 #define INIT() init_postgres
+#elif defined( mysql ) && !defined(ANDROID)
+#if MYDDAS_MYSQL
+#define LOAD 1
 #endif
-
-#if defined(DBMS)
+#define DBMS(x) my_##x
+#define c_DBMS(x) c_my_##x
+#define NAME() 'YAPmysql'
+#define MODULE() myddas_mysql
+#define INIT() init_mysql
+#endif
 
 :- module(MODULE(),[
 			  c_DBMS(change_database)/2,
@@ -54,6 +67,8 @@
               DBMS(show_tables)/2,
               DBMS(row)/3
 			 ]).
+
+#if defined(LOAD)
 
 
 :- use_module(library(lists)).
@@ -239,5 +254,22 @@ DBMS(row)(ResultSet,Arity,Args) :-
         c_DBMS(row_terminate)(State, Caught)
         ).
 
+
+
+#else
+
+c_DBMS(change_database)(A,B) :- throw(error(stub_call,change_database(A,B))).
+c_DBMS(connect)(A,B,C,D) :- throw(error(stub_call,connect(A,B,C,D))).
+c_DBMS(disconnect)(A) :- throw(error(stub_call,disconnect(A))).
+c_DBMS(get_attributes_types)(A,B,C) :- throw(error(stub_call,get_attributes_types(A,B,C))).
+c_DBMS(get_database)(A,B) :- throw(error(stub_call,get_database(A,B))).
+c_DBMS(get_fields_properties)(A,B,C) :- throw(error(stub_call,get_fields_properties(A,B,C))).
+c_DBMS(get_next_result_set)(A,B,C) :- throw(error(stub_call,get_next_result_set(A,B,C))).
+c_DBMS(query)(A,B,C,D,E) :- throw(error(stub_call,query(A,B,C,D,E))).
+c_DBMS(number_of_fields)(A,B,C) :- throw(error(stub_call,number_of_fields(A,B,C))).
+DBMS(describe)(A,B,C) :- throw(error(stub_call,describe(A,B,C))).
+              DBMS(result_set)(A) :- throw(error(stub_call,result_set(A))).
+              DBMS(show_tables)(A,B) :- throw(error(stub_call,show_tables(A,B))).
+              DBMS(row)(A,B,C) :- throw(error(stub_call,row(A,B,C))).
 
 #endif /* MYDDAS_DBMS */

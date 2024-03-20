@@ -31,7 +31,7 @@ myddas_init_initialize_myddas(void) {
 #endif
 
 #ifdef DEBUG
-/* We first malloc for this struct and the stats struct */
+/* We first malloc forXo this struct and the stats struct */
 #ifdef MYDDAS_STATS
   global->malloc_called = 2;
   global->memory_allocated =

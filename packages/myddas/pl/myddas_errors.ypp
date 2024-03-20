@@ -19,11 +19,18 @@
 			 '$error_checks'/1
 			 ]).
 
+:- reexport((myddas_sqlite3)).
+:- reexport((myddas_odbc)).
+:- reexport((myddas_postgres)).
+:- reexport((myddas_mysql)).
+
 :- use_module(myddas_util_predicates,[
 				      '$make_a_list'/2,
 				      '$check_fields'/2,
 				      '$check_list_on_list'/2
 				      ]).
+
+
 
 '$error_checks'(db_abolish(ModulePredName,Arity)):-!,
 	(ModulePredName = Module:PredName ->
@@ -84,8 +91,8 @@
 	c_db_connection_type(Con,ConType),
 	( ConType == mysql ->
 	    c_db_my_number_of_fields(Relation,Con,Arity)
-	; ConType == sqlit3 ->
-	    c_sqlit3_number_of_fields(Relation,Con,Arity)
+	; ConType == sqlite3 ->
+	    c_sqlite3_number_of_fields(Relation,Con,Arity)
 	;
 	    c_db_odbc_number_of_fields(Relation,Con,Arity)
 	),
@@ -94,8 +101,8 @@
 	'$make_a_list'(Arity,FieldsProperties),
 	( ConType == mysql ->
 	    c_db_my_get_fields_properties(Relation,Con,FieldsProperties)
-	;ConType == sqlit3 ->
-	    c_sqlit3_get_fields_properties(Relation,Con,FieldsProperties)
+	;ConType == sqlite3 ->
+	    c_db_sqlite3_get_fields_properties(Relation,Con,FieldsProperties)
 	;
 	    c_db_odbc_get_fields_properties(Relation,Con,FieldsProperties)
 	),

@@ -17,17 +17,17 @@ set(MYDDAS_DRIVERS
         )
 set(MYDDAS_DBMS sqlite3)
 set(MYDDAS_FLAGS ${MYDDAS_FLAGS};-DMYDDAS_SQLITE3=1)
-if (POSTGRES_FOUND)
     list(APPEND MYDDAS_DBMS postgres)
+if (POSTGRES_FOUND)
     set(MYDDAS_FLAGS ${MYDDAS_FLAGS};-DMYDDAS_POSTGRES=1)
     endif()
+   list(APPEND MYDDAS_DBMS odbc)
 if (ODBC_FOUND)
  set(MYDDAS_FLAGS ${MYDDAS_FLAGS};-DMYDDAS_ODBC=1)
-   list(APPEND MYDDAS_DBMS odbc)
 endif()
+ list(APPEND MYDDAS_DBMS mysql)
 if (MYSQL_FOUND)
    set(MYDDAS_FLAGS ${MYDDAS_FLAGS};-DMYDDAS_MYSQL=1)
- list(APPEND MYDDAS_DBMS mysql)
         endif()
 
 
@@ -37,7 +37,7 @@ if (ANDROID)
       file( COPY myddas.yap DESTINATION ${YAP_INSTALL_DATADIR} )
   else()
  set (MYDDAS_PL_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
- endif()
+endif()
 foreach (filename ${MYDDAS_YPP})
     get_filename_component(base ${filename} NAME_WE)
     set(base_abs ${MYDDAS_PL_OUTDIR}/${base})
@@ -53,8 +53,8 @@ foreach (dbms ${MYDDAS_DBMS} )
     set(outfile ${MYDDAS_PL_OUTDIR}/myddas_${dbms}.yap)
     list(APPEND MYDDAS_YAP_FILES ${outfile})
   add_custom_command(OUTPUT ${outfile}
-                COMMAND ${CMAKE_C_COMPILER} -D${dbms} -x c -E -P -w   ${CMAKE_CURRENT_SOURCE_DIR}/myddas_driver.ypp -o ${outfile}
-            DEPENDS  ${CMAKE_CURRENT_SOURCE_DIR}/myddas_driver.ypp
+    COMMAND ${CMAKE_C_COMPILER} ${MYDDAS_FLAGS} -x c -E -P -w   ${CMAKE_CURRENT_SOURCE_DIR}/myddas_driver.ypp -D${dbms}} -o ${outfile}
+            DEPENDS  ${CMAKE_CURRENT_SOURCE_DIR}/myddas_driver.ypp myddas.yap
             )
 
     set_source_files_properties(outfile PROPERTIES GENERATED TRUE)
@@ -64,8 +64,8 @@ endforeach()
     list(APPEND MYDDAS_YAP_FILES  ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/sqlitest.yap ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/chinook.db)
 
         install(FILES ${MYDDAS_YAP_FILES} DESTINATION ${YAP_INSTALL_DATADIR}/myddas)
-    install(FILES myddas.yap DESTINATION ${YAP_INSTALL_DATADIR})
+    install(FILES  ${CMAKE_CURRENT_SOURCE_DIR}/myddas.yap DESTINATION ${YAP_INSTALL_DATADIR})
 
 add_custom_target(MYDDAS_PL
         ALL
-        DEPENDS ${MYDDAS_YAP_FILES})
+        DEPENDS ${MYDDAS_YAP_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/myddas.yap)
