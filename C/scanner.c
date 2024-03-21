@@ -174,7 +174,7 @@ static inline int getchr(struct stream_desc *inp) {
   /*   inp0 = inp; */
   /* } */
   int sno = inp - GLOBAL_Stream;
-  int ch = inp->stream_wgetc_for_read(sno);
+int ch = inp->stream_wgetc_for_read(sno);
   // fprintf(stderr,"%c", ch);
   return ch;
 }
@@ -231,8 +231,7 @@ int bad_nl_error(TokEntry *tok, char *TokImage, int quote, struct stream_desc *s
       fprintf(stderr, "%s:%ld%ld unexpected newline while  reading quoted text %s\n", s0, tok->TokLine, tok->TokLinePos, TokImage);
       if (st->status & RepClose_Prolog_f) {
 	fprintf(stderr, "%%\n%% injecting an EOF at this position.\n%%\n");
-	return EOFCHAR;
-      }
+	      }
     }
   return quote;
 
@@ -742,6 +741,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
 
   if (!(ptr = Malloc(4096) )){
         pop_text_stack(lvl);
+
 	if (throw_error) {
 	  Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "scanner: failed to allocate token image");
 	}
@@ -1007,6 +1007,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           }
 	  add_ch_to_buff(ch);
        }
+
+	if (ch != EOF)
 	  ch = getchr(st);
       }
       add_ch_to_buff('\0');
@@ -1014,6 +1016,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       t->TokSize = strlen(TokImage);
 	t->TokInfo = MkStringTerm(TokImage);
       t->Tok = Ord(kind = Comment_tok);
+      if (ch==EOF)
+	goto do_eof;
       break;
 
     case UC:
@@ -1097,6 +1101,12 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       ch = getchrq(st);
 
       while (true) {
+        if (ch == 10 && !(Yap_GetModuleEntry(CurrentModule)->flags & M_MULTILINE)) {
+	  ch = bad_nl_error(t, TokImage, quote, st);           /* in ISO a new linea terminates a string */
+	}
+	if (ch == EOFCHAR) {
+	    *charp = '\0';
+         }
         if (charp > (unsigned char *)TokImage + (imgsz - 1)) {
           size_t sz = charp - (unsigned char *)TokImage;
           TokImage =
@@ -1106,13 +1116,6 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           }
           charp = (unsigned char *)TokImage + sz;
           break;
-        }
-        if (ch == 10 && !(Yap_GetModuleEntry(CurrentModule)->flags & M_MULTILINE)) {
-	  ch = bad_nl_error(t, TokImage, quote, st);           /* in ISO a new linea terminates a string */
-	}
-	if (ch == EOFCHAR) {
-	    *charp = '\0';
-            break;
         }
         else if (ch == quote) {
           ch = getchrq(st);
@@ -1124,10 +1127,6 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         } else if (ch == '\\'  &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
           ch = read_escaped_char(st);
-        if (ch == EOFCHAR) {
-	    *charp = '\0';
-            break;
-        }
 	}
 	
         add_ch_to_buff(ch);
@@ -1146,7 +1145,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	} else	if (IsPairTerm(t->TokInfo)) {
 	  t->Tok = Ord(kind = String_tok);
 	}
-      }                       
+      }
+      if (ch == EOF)
+	goto do_eof;
       break;
 
     case BS:
@@ -1367,10 +1368,7 @@ t->Tok = Ord(kind = Name_tok);
               break;
             }
           } else if (chtype(ch) == EF) {
-            mark_eof(st);
-            t->Tok = Ord(kind = eot_tok);
-            t->TokInfo = TermOutOfHeapError;
-            break;
+	    goto do_eof;
           } else {
             charp += put_utf8(charp, ch);
             ch = getchrq(st);
@@ -1405,6 +1403,7 @@ t->Tok = Ord(kind = Name_tok);
       t->Tok = Ord(kind = Ponctuation_tok);
       break;
     case EF:
+    do_eof:
       mark_eof(st);
       if (!l)
 	l = t;

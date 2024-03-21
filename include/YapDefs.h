@@ -282,7 +282,7 @@ typedef enum stream_f {
     Tty_Stream_f = 0x000040,    /**< Stream is a terminal */
     Socket_Stream_f = 0x000080, /**< Socket Stream */
     Binary_Stream_f = 0x000100, /**< Stream is not eof */
-    Eof_Error_Stream_f =
+    Repeat_Eof_Stream_f =
     0x000200, /**< Stream should generate error on trying to read after EOF */
     Reset_Eof_Stream_f =
     0x000400, /**< Stream should be reset on findind an EO (C-D and console.*/

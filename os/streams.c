@@ -544,11 +544,11 @@ eof_action(int sno,
            Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags =
       GLOBAL_Stream[sno].status &
-      (Eof_Error_Stream_f | Reset_Eof_Stream_f | Push_Eof_Stream_f);
+      (Eof_Stream_f | Reset_Eof_Stream_f | Push_Eof_Stream_f);
   //  if (!IsVarTerm(t2) && !(IsAtomTerm(t2))) {
   //  return ;
   //}
-  if (flags & Eof_Error_Stream_f) {
+  if (flags & Eof_Stream_f) {
     return Yap_unify(t2, TermError);
   }
   if (flags & Reset_Eof_Stream_f) {
@@ -917,13 +917,13 @@ static bool do_set_stream(int sno,
       case SET_STREAM_EOF_ACTION: {
         Term t2 = args[SET_STREAM_EOF_ACTION].tvalue;
         if (t2 == TermError) {
-          GLOBAL_Stream[sno].status |= Eof_Error_Stream_f;
+          GLOBAL_Stream[sno].status |= Eof_Stream_f;
           GLOBAL_Stream[sno].status &= ~Reset_Eof_Stream_f;
         } else if (t2 == TermReset) {
-          GLOBAL_Stream[sno].status &= ~Eof_Error_Stream_f;
+          GLOBAL_Stream[sno].status &= ~Eof_Stream_f;
           GLOBAL_Stream[sno].status |= Reset_Eof_Stream_f;
         } else if (t2 == TermEOfCode) {
-          GLOBAL_Stream[sno].status &= ~Eof_Error_Stream_f;
+          GLOBAL_Stream[sno].status &= ~Eof_Stream_f;
           GLOBAL_Stream[sno].status &= ~Reset_Eof_Stream_f;
         } else {
           LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;

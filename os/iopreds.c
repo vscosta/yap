@@ -159,13 +159,7 @@ char *Yap_VFAlloc(const char *path) {
 
 /* check if we read a LOCAL_newline or an EOF */
 static bool reset_on_eof(StreamDesc *s) {
-  if (s->status & Eof_Error_Stream_f) {
-    Atom name = (Atom)s->name;
-    //    Yap_CloseStream(s - GLOBAL_Stream);
-    Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
-              "GetC");
-    return false;
-  } else if (s->status & Reset_Eof_Stream_f) {
+ if (s->status & Reset_Eof_Stream_f) {
     s->status &= ~Push_Eof_Stream_f;
     /* reset the eof indicator on file */
     if (feof(s->file))
@@ -178,11 +172,17 @@ static bool reset_on_eof(StreamDesc *s) {
     /* try reading again */
     Yap_DefaultStreamOps(s);
     return true;
-  } else {
+ } else if (s->status &Repeat_Eof_Stream_f ) {
     s->status |= Past_Eof_Stream_f;
     return false;
-  }
-}
+} // else if (s->status & Eof_Error_Stream_f) {
+    Atom name = (Atom)s->name;
+    //    Yap_CloseStream(s - GLOBAL_Stream);
+    Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
+              "GetC");
+    return false;
+    }
+
 
 
 /* handle reading from a stream after having found an EO*/
@@ -298,11 +298,11 @@ void Yap_stream_id(StreamDesc *s, Term user_name, Atom system_name) {
     
 }
 
-static void default_peek(StreamDesc *st) {
+void Yap_default_peek(StreamDesc *st)
   {
     st->stream_peek = Yap_peekChar;
     st->stream_wpeek = Yap_peekWide;
-  }
+  
   if (st->status & Eof_Stream_f) {
     st->stream_peek = EOFPeek;
     st->stream_wpeek = EOFPeek;
@@ -371,6 +371,7 @@ int post_process_read_char(int ch, StreamDesc *s) {
     Yap_EOF_Stream(s);
     return EOF;
   }
+
 #if DEBUG
   if (GLOBAL_Option[1]) {
     static int v;
@@ -396,12 +397,12 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_wputc = st->vfs->put_wchar;
     st->stream_getc = st->vfs->get_char;
     st->stream_wgetc = st->vfs->get_wchar;
-    default_peek(st);
+    Yap_default_peek(st);
     return;
   }
   st->stream_wputc = put_wchar;
   st->stream_wgetc_for_read = st->stream_wgetc = get_wchar;
-  default_peek(st);
+  Yap_default_peek(st);
 
   if (st->encoding == ENC_ISO_UTF8) {
     st->stream_wgetc_for_read = get_wchar_UTF8;

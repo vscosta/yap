@@ -145,6 +145,7 @@ extern bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS);
 extern Term Yap_scan_num(struct stream_desc *, bool throw_on);
 
 extern void Yap_DefaultStreamOps(StreamDesc *st);
+extern void Yap_default_peek(StreamDesc *st);
 extern void Yap_EOF_Stream(StreamDesc *st);
 extern void Yap_PipeOps(StreamDesc *st);
 extern void Yap_MemOps(StreamDesc *st);

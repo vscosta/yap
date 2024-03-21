@@ -83,8 +83,9 @@ followed by the failure of that call.
 '$undefp__'(M:G, _) :-
     '$undefp_flag'(M:G).
 
-'$undefp_flag'(_G) :-
-    prolog_flag(unknown, _Flag),
+'$undefp_flag'(G) :-
+    current_prolog_flag(unknown, Flag),
+    '$undef_error'(Flag,G),
     fail.
 
 '$undef_error'(error,  ModGoal) :-

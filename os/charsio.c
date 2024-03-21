@@ -97,7 +97,7 @@ static Int flush_output(USES_REGS1);
 }
 
 
- int popWide(int sno)
+ int Yap_popWide(int sno)
 {
     StreamDesc *s = GLOBAL_Stream + sno;
     s->buf.on = false;
@@ -111,40 +111,22 @@ static Int flush_output(USES_REGS1);
 }
 
 int Yap_peekWide(int sno) {
-int ch;
   StreamDesc *s = GLOBAL_Stream + sno;
-      int pos = s->charcount;
-      int line = s->linecount;
-      int lpos = s->linestart;
-      ch = s->stream_wgetc(sno);
-     if (ch == EOF) {
-          s->status &= ~Eof_Error_Stream_f;
-     } else {
-        s->buf.on = true;
-        s->buf.ch = ch;
-         s->stream_wgetc = popWide;
-         s->stream_wgetc_for_read = popWide;
-         s->stream_getc = popWide;
-      s->ocharcount = s->charcount;
-      s->olinecount = s->linecount;
-      s->olinestart = s->linestart;
-      }
-       s->charcount = pos;
-       s->linecount = line;
-    s->linestart = lpos;
-  return ch;
-}
-
-
-static int Yap_popOctet(int sno)
-{
-  StreamDesc *s = GLOBAL_Stream + sno;
-  if ( s->file&&fileno(s->file)>=0) {
-    if (s->status & Eof_Error_Stream_f ) {
-    s->status &= ~Eof_Error_Stream_f;
+   if (s->status & Eof_Stream_f ) {
+     if (s->status & Repeat_Eof_Stream_f ) {
+       return EOF;
+     } else     s->status &= ~Push_Eof_Stream_f;
+    /* reset the eof indicator on file */
+    if (feof(s->file))
       clearerr(s->file);
-    }
-    s->buf.on = false;
+    /* reset our function for reading input */
+    Yap_default_peek(s);
+    /* next, reset our own error indicator */
+
+    s->status &= ~Eof_Stream_f;
+    /* try reading again */
+    Yap_DefaultStreamOps(s);
+       s->buf.on = false;
 int ch = s->buf.ch;
  ungetc(ch, s->file);
     return ch;
@@ -161,8 +143,8 @@ int Yap_popChar(int sno)
 
   StreamDesc *s = GLOBAL_Stream + sno;
   if ( s->file&&fileno(s->file)>=0) {
-    if (s->status & Eof_Error_Stream_f ) {
-    s->status &= ~Eof_Error_Stream_f;
+    if (s->status & Eof_Stream_f ) {
+    s->status &= ~Eof_Stream_f;
       clearerr(s->file);
     }
     s->buf.on = false;
@@ -183,7 +165,7 @@ int Yap_peekChar(int sno) {
         ch = fgetc(s->file);
         if (ch == EOF) {
             clearerr(s->file);
-            s->status &= ~Eof_Error_Stream_f;
+            s->status &= ~Eof_Stream_f;
         } else
 	  {
             // do not try doing error processing
@@ -199,12 +181,12 @@ int Yap_peekChar(int sno) {
         s->linecount = line;
        s->linestart = lpos;
         if (ch == EOF) {
-            s->status &= ~Eof_Error_Stream_f;
+            s->status &= ~Eof_Stream_f;
             return ch;
         } else {
             s->buf.on = true;
             s->buf.ch = ch;
-            s->stream_wgetc = Yap_popOctet;
+            s->stream_wgetc = Yap_popWide;
             s->stream_getc =  Yap_popChar;
         }
         //  Yap_SetCurInpPos(sno, pos);

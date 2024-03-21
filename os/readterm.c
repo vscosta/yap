@@ -369,7 +369,19 @@ static Int scan_stream(USES_REGS1) {
   Term end = TermNil;
   LOCAL_tokptr = NULL;
   LOCAL_ErrorMessage = NULL;
-  while (!(st->status & (Eof_Stream_f|Past_Eof_Stream_f))) {
+  while (true) {
+    if (st->status & (Eof_Stream_f|Past_Eof_Stream_f)) {
+      post_process_eof(st);
+    TokEntry *tokptr = Malloc(sizeof(TokEntry));
+  tokptr->TokNext = NULL;
+  tokptr->TokLine = 1;
+  tokptr->TokLinePos =0;
+  tokptr->TokOffset = 0;
+  tokptr->Tok = Ord(eot_tok);		\
+  tokptr->TokInfo = TermEof;
+    return TermNil;
+ return TermEof;
+      }
    TokEntry * t = 
       Yap_tokenizer(GLOBAL_Stream + inp_stream, &params);
     while (t) {
@@ -927,7 +939,7 @@ static Term scan_to_list(TokEntry * t)
 
  static bool complete_processing(FEnv *fe, int sno, TokEntry *tokstart) {
   CACHE_REGS
-    Term v1, v2, v3, vc, vs =  0;
+    Term v1, v2, v3, vs =  0;
 
   if (fe->t0 && fe->t && !(Yap_unify(fe->t, fe->t0)))
     return false;
