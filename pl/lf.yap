@@ -430,6 +430,9 @@
     !,
  '$end_consult'.
 
+'$loop'(Stream,_Status) :-
+at_end_of_stream(Stream),
+!.
 '$loop'(Stream,Status) :-
     repeat,
     catch(

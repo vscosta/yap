@@ -1275,7 +1275,7 @@ thread_sleep(Time) :-
 	).
 thread_sleep(Time) :-
 	float(Time), !,
-	(	Time > 0.0 ->
+	(	Time > 0 ->
 		STime is integer(float_integer_part(Time)),
 		NTime is integer(float_fractional_part(Time))*1000000000,
 		'$thread_sleep'(STime,NTime,_,_)
