@@ -157,13 +157,14 @@ char *Yap_VFAlloc(const char *path) {
 }
 
 
-int ResetEOF(StreamDesc *s) {
+/* check if we read a LOCAL_newline or an EOF */
+static bool reset_on_eof(StreamDesc *s) {
   if (s->status & Eof_Error_Stream_f) {
-    Atom name = s->name;
-    // Yap_CloseStream(s - GLOBAL_Stream);
+    Atom name = (Atom)s->name;
+    //    Yap_CloseStream(s - GLOBAL_Stream);
     Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
               "GetC");
-    return FALSE;
+    return false;
   } else if (s->status & Reset_Eof_Stream_f) {
     s->status &= ~Push_Eof_Stream_f;
     /* reset the eof indicator on file */
@@ -172,45 +173,33 @@ int ResetEOF(StreamDesc *s) {
     /* reset our function for reading input */
     Yap_DefaultStreamOps(s);
     /* next, reset our own error indicator */
+
     s->status &= ~Eof_Stream_f;
     /* try reading again */
-    return TRUE;
+    Yap_DefaultStreamOps(s);
+    return true;
   } else {
     s->status |= Past_Eof_Stream_f;
-    return FALSE;
+    return false;
   }
 }
 
-/* handle reading from a stream after having found an EOF */
+
+/* handle reading from a stream after having found an EO*/
 static int EOFWGetc(int sno) {
   register StreamDesc *s = &GLOBAL_Stream[sno];
 
-  if (s->status & Push_Eof_Stream_f) {
-    /* ok, we have pushed an EOF, send it away */
-    s->status &= ~Push_Eof_Stream_f;
-    return EOF;
-  }
-  if (ResetEOF(s)) {
-    Yap_DefaultStreamOps(s);
-    return (s->stream_wgetc(sno));
-  }
+  if ( reset_on_eof (s))
+    return s->stream_wgetc(sno);
   return EOF;
 }
 
 static int EOFGetc(int sno) {
   register StreamDesc *s = &GLOBAL_Stream[sno];
-
-  if (s->status & Push_Eof_Stream_f) {
-    /* ok, we have pushed an EOF, send it away */
-    s->status &= ~Push_Eof_Stream_f;
-    ResetEOF(s);
-    return EOF;
-  }
-  if (ResetEOF(s)) {
-    Yap_DefaultStreamOps(s);
+  if ( reset_on_eof (s))
     return s->stream_getc(sno);
-  }
   return EOF;
+
 }
 
 void Yap_stream_id(StreamDesc *s, Term user_name, Atom system_name) {
@@ -337,6 +326,70 @@ static int NullPutc(int sno, int ch) {
   count_output_char(ch, s);
   return ((int)ch);
 }
+
+
+void Yap_EOF_Stream(StreamDesc *st)
+{
+  st->status |= Eof_Stream_f;
+    st->stream_peek = EOFPeek;
+    st->stream_wpeek = EOFPeek;
+    st->stream_getc = EOFGetc;
+    st->stream_wgetc = EOFWGetc;
+}
+
+int post_process_eof(StreamDesc *s) {
+Yap_EOF_Stream(s);
+return EOF;
+}
+
+int post_process_read_wchar(int ch, size_t n, StreamDesc *s) {
+  if (ch == EOF) {
+    Yap_EOF_Stream(s);
+    return EOF;
+  }
+#if DEBUG
+  if (GLOBAL_Option[1]) {
+    static int v;
+    fprintf(stderr, "%d %C\n", v, ch);
+    v++;
+  }
+#endif
+  s->charcount += n;
+  if (ch == '\n') {
+    ++s->linecount;
+    s->linestart = s->charcount;
+    /* don't convert if the stream is binary */
+    if (!(s->status & Binary_Stream_f))
+      ch = 10;
+  }
+  return ch;
+}
+
+
+int post_process_read_char(int ch, StreamDesc *s) {
+  if (ch == EOF) {
+    Yap_EOF_Stream(s);
+    return EOF;
+  }
+#if DEBUG
+  if (GLOBAL_Option[1]) {
+    static int v;
+    fprintf(stderr, "%d %C\n", v, ch);
+    v++;
+  }
+#endif
+  s->charcount ++;
+  if (ch == '\n') {
+    ++s->linecount;
+    s->linestart = s->charcount;
+    /* don't convert if the stream is binary */
+    if (!(s->status & Binary_Stream_f))
+      ch = 10;
+  }
+  return ch;
+}
+
+
 void Yap_DefaultStreamOps(StreamDesc *st) {
   if (st->vfs && !st->file) {
     st->stream_putc = st->vfs->put_char;
@@ -717,52 +770,7 @@ int FilePutc(int sno, int ch) {
   return ((int)ch);
 }
 
-/* check if we read a LOCAL_newline or an EOF */
-int console_post_process_eof(StreamDesc *s) {
-  CACHE_REGS
-  if (!ResetEOF(s)) {
-    s->status |= Eof_Stream_f;
-    s->stream_getc = EOFGetc;
-    s->stream_wgetc = EOFWGetc;
-    s->stream_wgetc_for_read = EOFWGetc;
-    LOCAL_newline = true;
-  }
-  return EOFCHAR;
-}
-
-/* check if we read a newline or an EOF */
-int post_process_read_wchar(int ch, size_t n, StreamDesc *s) {
-  if (ch == EOF) {
-    return post_process_weof(s);
-  }
-#if DEBUG
-  if (GLOBAL_Option[1]) {
-    static int v;
-    fprintf(stderr, "%d %C\n", v, ch);
-    v++;
-  }
-#endif
-  s->charcount += n;
-  if (ch == '\n') {
-    ++s->linecount;
-    s->linestart = s->charcount;
-    /* don't convert if the stream is binary */
-    if (!(s->status & Binary_Stream_f))
-      ch = 10;
-  }
-  return ch;
-}
-
-int post_process_weof(StreamDesc *s) {
-  if (!ResetEOF(s)) {
-    s->status |= Eof_Stream_f;
-    s->stream_wgetc = EOFWGetc;
-    s->stream_getc = EOFGetc;
-    s->stream_wgetc_for_read = EOFWGetc;
-  }
-  return EOFCHAR;
-}
-
+ 
 void *Yap_RepStreamFromId(int sno) { return GLOBAL_Stream + (sno); }
 
 /**

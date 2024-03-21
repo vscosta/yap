@@ -153,14 +153,14 @@ ConsolePipeGetc(int sno)
   count = read(s->u.pipe.fd, &c, sizeof(char));
   LOCAL_PrologMode &= ~ConsoleGetcMode;
   if (count == 0) {
-    return console_post_process_eof(s);
+    ch=-1;
   } else if (count > 0) {
     ch = c;
   } else {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "read");
-    return console_post_process_eof(s);
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "read");
+    return -1;
   }
-  return console_post_process_read_char(ch, s);
+  return post_process_read_char(ch, s);
 }
 
 
@@ -175,7 +175,8 @@ PipeGetc(int sno)
   int count;
   count = read(s->u.pipe.fd, &c, sizeof(char));
   if (count == 0) {
-    return EOF;
+    Yap_EOF_Stream(s);
+    return  EOF;
   } else if (count > 0) {
     ch = c;
   } else {

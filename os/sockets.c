@@ -157,12 +157,13 @@ ConsoleSocketGetc(int sno)
 #endif
   LOCAL_PrologMode &= ~ConsoleGetcMode;
   if (count == 0) {
-    return console_post_process_eof(s);
+    Yap_EOF_Stream(s);
+    return  EOF;
   } else if (count > 0) {
     ch = c;
   } else {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "read");
-    return console_post_process_eof(s);
+    ch=-1;
   }
   return ch;
 }

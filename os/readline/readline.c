@@ -370,7 +370,7 @@ int ReadlineGetc(int sno) {
     /* window of vulnerability opened */
     LOCAL_PrologMode |= ConsoleGetcMode;
     if (!getLine(sno)) {
-      return console_post_process_eof(s);
+      return post_process_eof(s);
     }
   }
   const unsigned char *ttyptr = s->u.irl.ptr, *myrl_line = s->u.irl.buf;

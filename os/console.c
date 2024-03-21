@@ -55,22 +55,7 @@ int console_post_process_read_char(int ch, StreamDesc *s) {
   CACHE_REGS
   /* the character is also going to be output by the console handler */
   console_count_output_char(ch, GLOBAL_Stream + LOCAL_c_error_stream);
-  if (ch == '\r') {
-    s->linestart = s->charcount;
-    LOCAL_newline = true;
-} else
- if (ch == '\n') {
-    CACHE_REGS
-    ++s->linecount;
-    ++s->charcount;
-    s->linestart = s->charcount;
-    LOCAL_newline = true;
- } else if (ch != EOF) {
-    CACHE_REGS
-    ++s->charcount;
-    LOCAL_newline = false;
-  }
-  return ch;
+  return post_process_read_char( ch, s);
 }
 
 bool is_same_tty(FILE *f1, FILE *f2) {
@@ -132,7 +117,7 @@ int ConsoleGetc(int sno) {
   register StreamDesc *s = &GLOBAL_Stream[sno];
   int ch;
 
-  /* keep the prompt around, just in case, but don't actually
+  /*§ keep the prompt around, just in case, but don't actually
      show it in silent mode */
   if (Yap_DoPrompt(s)) {
     if (!silentMode()) {
@@ -173,8 +158,6 @@ int ConsoleGetc(int sno) {
     LOCAL_PrologMode |= ConsoleGetcMode;
 #endif
     LOCAL_PrologMode &= ~ InterruptMode;
-      if (ch == EOF)
-      return console_post_process_eof(s);
     return console_post_process_read_char(ch, s);
 }
 

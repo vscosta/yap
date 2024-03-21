@@ -1081,11 +1081,6 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
     return YAP_PARSING_FINISHED;
     ;
   }
-  if (GLOBAL_Stream[inp_stream].status & Push_Eof_Stream_f) {
-    fe->t = MkAtomTerm(AtomEof);
-    GLOBAL_Stream[inp_stream].status &= ~Push_Eof_Stream_f;
-    return YAP_PARSING_FINISHED;
-  }
   if (!fe->args) {
     return YAP_PARSING_FINISHED;
   }
@@ -1220,7 +1215,10 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   }
 
   if (err != SYNTAX_ERROR && err != YAP_NO_ERROR) {
-  return YAP_SCANNING_ERROR;
+
+    Yap_ThrowError(err, MkStringTerm("read_term"), NULL);
+      RECOVER_H();
+      return 0L;
   }
   Term cause;
   if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {

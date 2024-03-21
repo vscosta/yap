@@ -2,20 +2,12 @@
 #define utf_cont(ch)  (((ch) & 0xc0) == 0x80)
 
 
-static int post_process_f_weof(StreamDesc *st)
-{
-  if (st->file != NULL && ferror(st->file)) {
-    clearerr(st->file);
-    return 1;
-  } else {
-    return post_process_weof(st);
-  }
-
+inline int post_process_weof(StreamDesc *st) {
+  Yap_EOF_Stream(st);
+  Yap_encoding_error(-1,0,st);
+  return -1;
 }
-
-
-
-static int  get_wide_UTF8(StreamDesc *st, int ch)
+  static int  get_wide_UTF8(StreamDesc *st, int ch)
 {
    utf8proc_uint8_t str[5];
   utf8proc_ssize_t strlen = 1;
@@ -41,7 +33,7 @@ extern int get_wchar(int sno) {
   int ch = st->stream_getc(sno);
 
   if (ch == -1)
-    return post_process_f_weof(st);
+    return post_process_eof(st);
 
   switch (st->encoding) {
   case ENC_OCTET:
@@ -67,8 +59,10 @@ extern int get_wchar(int sno) {
     while ((out = mbrtowc(&wch, buf, 1, &(mbstate))) != 1) {
       int ch = buf[0] = st->stream_getc(sno);
       n++;
-      if (ch == -1)
-        return post_process_weof(st);
+      if (ch == -1) {
+	Yap_EOF_Stream(st);
+        return ch;
+    }
     }
     return post_process_read_wchar(wch, n, st);
   }
@@ -85,15 +79,16 @@ extern int get_wchar(int sno) {
       unsigned int wch;
       int c1 = st->stream_getc(sno);
       if (c1 == -1)
-        return post_process_weof(st);
+        return post_process_eof(st);
       wch = (unsigned int)(c1 << 8) + ch;
       if (wch >= 0xd800 && wch < 0xdc00) {
         int c2 = st->stream_getc(sno);
         if (c2 == -1)
-          return post_process_weof(st);
+              return post_process_eof(st);
+
         int c3 = st->stream_getc(sno);
         if (c3 == -1)
-          return post_process_weof(st);
+          return post_process_eof(st);
         wch = wch + ((unsigned int)((unsigned int)((c3 << 8) + c2) << 8) + SURROGATE_OFFSET);
         return post_process_read_wchar(wch, 4, st);
       }
@@ -101,12 +96,13 @@ extern int get_wchar(int sno) {
     }
 
   case ENC_UTF16_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-      // little-endian: least significant octet first
+
+    // little-endian: least significant octet first
   {
       unsigned int wch;
       int c1 = st->stream_getc(sno);
       if (c1 == -1)
-        return post_process_weof(st);
+        return post_process_eof(st);
       wch = (c1) + (ch << 8);
 
 
@@ -114,10 +110,10 @@ extern int get_wchar(int sno) {
       if (wch >= 0xd800 && wch < 0xdc00) {
         int c3 = st->stream_getc(sno);
         if (c3 == -1)
-          return post_process_weof(st);
+          return post_process_eof(st);
         int c2 = st->stream_getc(sno);
         if (c2 == -1)
-          return post_process_weof(st);
+          return post_process_eof(st);
         wch = (((c3 << 8) + c2) << 8) + wch + SURROGATE_OFFSET;
         return post_process_read_wchar(wch, 4, st);
       }
@@ -130,7 +126,7 @@ extern int get_wchar(int sno) {
       unsigned int wch;
       int c1 = st->stream_getc(sno);
       if (c1 == -1)
-        return post_process_weof(st);
+        return post_process_eof(st);
       wch = (c1) + (ch << 8);
       return post_process_read_wchar(wch, 2, st);
     }
@@ -141,7 +137,7 @@ extern int get_wchar(int sno) {
       unsigned int wch;
       int c1 = st->stream_getc(sno);
       if (c1 == -1)
-        return post_process_weof(st);
+        return post_process_eof(st);
       wch = (c1 << 8) + ch;
 
       return post_process_read_wchar(wch, 2, st);
@@ -154,19 +150,19 @@ extern int get_wchar(int sno) {
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
-          return post_process_weof(st);
+          return post_process_eof(st);
         wch = wch + (unsigned int)c1;
       }
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
-          return post_process_weof(st);
+          return post_process_eof(st);
         wch = (wch << 8) + (unsigned int)c1;
       }
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
-          return post_process_weof(st);
+          return post_process_eof(st);
         wch = (wch << 8) + (unsigned int)c1;
       }
       return post_process_read_wchar(wch, 4, st);
@@ -178,19 +174,19 @@ extern int get_wchar(int sno) {
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
-          return post_process_weof(st);
+          return post_process_eof(st);
         wch += (unsigned int)(c1 << 8);
       }
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
-          return post_process_weof(st);
+          return post_process_eof(st);
         wch += (unsigned int)(c1 << 16);
       }
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
-          return post_process_weof(st);
+          return post_process_eof(st);
         wch += (unsigned int)(c1 << 24);
       }
       return post_process_read_wchar(wch, 4, st);
@@ -209,7 +205,7 @@ extern int get_wchar_UTF8(int sno) {
   ch = st->stream_getc(sno);
   if (ch < 0x80) {
     if (ch==-1) {
-      return post_process_weof(st);
+      return post_process_eof(st);
     }
     return post_process_read_wchar(ch, 1, st);
   }

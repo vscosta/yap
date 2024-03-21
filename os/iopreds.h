@@ -145,6 +145,7 @@ extern bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS);
 extern Term Yap_scan_num(struct stream_desc *, bool throw_on);
 
 extern void Yap_DefaultStreamOps(StreamDesc *st);
+extern void Yap_EOF_Stream(StreamDesc *st);
 extern void Yap_PipeOps(StreamDesc *st);
 extern void Yap_MemOps(StreamDesc *st);
 extern bool Yap_CloseMemoryStream(int sno);
@@ -194,11 +195,6 @@ extern int Yap_peekWideWithSeek(int sno);
 extern int Yap_peekWithSeek(int sno);
 extern int Yap_peekWide(int sno);
 extern int Yap_peekChar(int sno);
-
-extern int console_post_process_read_char(int, StreamDesc *);
-extern int console_post_process_eof(StreamDesc *);
-extern int post_process_read_wchar(int, size_t, StreamDesc *);
-extern int post_process_weof(StreamDesc *);
 
 extern bool is_same_tty(FILE *f1, FILE *f2);
 
@@ -259,6 +255,7 @@ inline static Term StreamName(int i) {
     return GLOBAL_Stream[i].user_name;
   return MkAtomTerm((Atom)StreamFullName(i));
 }
+
 
 inline static void console_count_output_char(int ch, StreamDesc *s) {
   CACHE_REGS
@@ -333,3 +330,8 @@ extern int Yap_symbol_encoding_error(int ch, seq_type_t code,
                                      struct stream_desc *st, const char *s);
 extern int Yap_bad_nl_error(Term t, struct stream_desc *st);
 #endif
+
+extern  int post_process_eof( StreamDesc *s);
+extern  int console_post_process_read_char(int ch, StreamDesc *s);
+extern  int post_process_read_char(int ch, StreamDesc *s);
+extern  int post_process_read_wchar(int ch, size_t n, StreamDesc *s);

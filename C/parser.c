@@ -977,7 +977,11 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
     LOCAL_ActiveError->errorMsg=NULL;
     LOCAL_ActiveError->errorMsgLen=0;
   Volatile Term t = 0;
-  JMPBUFF FailBuff;
+JMPBUFF FailBuff;
+  sigjmp_buf *sigold = LOCAL_RestartEnv;
+  if (!sigold)
+    LOCAL_TopRestartEnv = &(FailBuff.JmpBuff);
+  LOCAL_RestartEnv = &FailBuff.JmpBuff;
   yhandle_t sls = Yap_StartSlots();
   LOCAL_ErrorMessage = NULL;
   LOCAL_toktide = LOCAL_tokptr;
@@ -1008,6 +1012,7 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
 #endif
     Yap_CloseSlots(sls);
   }
+    LOCAL_RestartEnv = sigold;
   if ((LOCAL_tokptr == NULL || LOCAL_tokptr->TokInfo == TermEof ||LOCAL_tokptr->Tok == Ord(eot_tok)) &&
        t != 0) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -1015,11 +1020,12 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
     return t;
     
       }
+  if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
     LOCAL_Error_TYPE =SYNTAX_ERROR; 
       size_t sz = strlen("bracket or operator expected.");
       LOCAL_ErrorMessage =malloc(sz+1);
       strncpy(LOCAL_ErrorMessage, "bracket or operator expected.", sz  );
-  
+  }
    return (0L);
 }
 
