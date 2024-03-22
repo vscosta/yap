@@ -143,7 +143,7 @@ absf_trace_component( _, _ ).
 	    ;
               Names = [Name4]
              ),
-	    '$member'(Name5,Names),
+	    member(Name5,Names),
 	    absf_trace('pick ~s', Name5),
 	    '$clean_name'(Name5,Opts,File),
 	    get_abs_file_parameter( file_type, Opts, Type ),
@@ -216,7 +216,7 @@ absf_trace_component( _, _ ).
 '$suffix'(F,Opts,Ext,NF) :-
     (
 	get_abs_file_parameter( extensions, Opts, Exts ),
-	'$member'(Ext, Exts),
+        member(Ext, Exts),
 	absf_trace(' trying suffix ~a from ~w', [Ext,Exts])
     ;
     get_abs_file_parameter( file_type, Opts, Type ),

@@ -107,7 +107,7 @@ expand_term( Term, UExpanded,  Expanded) :-
    (
        TermI = [_|_]
    ->
-   '$member'(T,TermI)
+   member(T,TermI)
    ;
    T = TermI
    ),

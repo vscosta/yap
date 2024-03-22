@@ -624,7 +624,7 @@ qload_file( F0 ) :-
     fail.
 '$ql_process_directives'( _FilePl ) :-
     user:'$file_property'( multifile( List ) ),
-    '$member'( Clause, List ),
+    member( Clause, List ),
     assert( Clause ),
     fail.
 '$ql_process_directives'( FilePl ) :-

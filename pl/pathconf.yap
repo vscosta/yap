@@ -154,7 +154,7 @@ file_search_path(path, C) :-
           ->  atomic_list_concat(B, ;, A)
         ;   atomic_list_concat(B, :, A)
         ),
-        '$member'(C, B)
+        member(C, B)
     ).
 
 ```
@@ -189,7 +189,7 @@ file_search_path(path, C) :-
 	->  atomic_list_concat(B, ;, A)
 	;   atomic_list_concat(B, :, A)
 	),
-	'$member'(C, B)
+	member(C, B)
     ).
 
 

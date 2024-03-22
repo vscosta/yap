@@ -79,7 +79,7 @@ name with the `:/2` operator.
     set_module_property(N,type(system)).
 
 '$mk_system_predicates'( Ps ) :-
-    '$member'(Name/A , Ps),
+    member(Name/A , Ps),
     '$new_system_predicate'(Name, A, prolog),
     fail.
 '$mk_system_predicates'( _Ps ).
@@ -249,7 +249,7 @@ This predicate actually exports _Module to the _ContextModule_.
 '$import_module'(DonorM, HostM,File, Opts) :-
     DonorM \= HostM,
     '$module'(File, DonorM, Exports, _),
-    ignore('$member'(imports(Imports),Opts)),
+    ignore(member(imports(Imports),Opts)),
     '$filter'(Imports, Exports, Tab),
     '$add_to_imports'(Tab, DonorM, HostM),
     (     '$memberchk'(reexport(true),Opts)
@@ -343,7 +343,7 @@ This predicate actually exports _Module to the _ContextModule_.
 '$import_module'(DonorM, HostM,File, Opts) :-
     DonorM \= HostM,
     '$module'(File, DonorM, Exports, _),
-    ignore('$member'(imports(Imports),Opts)),
+    ignore(member(imports(Imports),Opts)),
     '$filter'(Imports, Exports, Tab),
     '$add_to_imports'(Tab, DonorM, HostM),
     (     '$memberchk'(reexport(true),Opts)
@@ -405,20 +405,20 @@ This predicate actually exports _Module to the _ContextModule_.
      '$select_ms'(L,E, LI,L0).
 
 '$select_p'(P/N,E,    [P0-P/N|F],   F) :-
-    '$member'(P0-P/N,E),
+    member(P0-P/N,E),
     !.
 '$select_p'(op(A,B,C),_E,    [op(A,B,C)|F],   F) :-
-%    '$member'(P0-P/N,_E),
+%    member(P0-P/N,_E),
     !,
     [op(A,B,C)].
 '$select_p'(P//N,E,    [P0-P/N|F],   F) :-
     (var(N)
     ->
-	'$member'(P0-P/N2,E),
+	member(P0-P/N2,E),
 	N is N2-2
     ;
     N2 is N+2,
-    '$member'(P0-P/N2,E)
+    member(P0-P/N2,E)
     ),
     !,
     [P0-P/N2].

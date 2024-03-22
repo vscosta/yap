@@ -40,9 +40,9 @@ to test for an element or to enumerate all the elements by backtracking.
 
 
 */
-'$member'(X,[X|_]).
-'$member'(X,[_|L]) :-
-       '$member'(X,L).
+member(X,[X|_]).
+member(X,[_|L]) :-
+       member(X,L).
 
 %% @pred  identical_member(?Element, ?Set) is nondet
 %

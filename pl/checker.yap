@@ -121,7 +121,7 @@ style_check(-charset) :-
 	'$style_checker'( [  -charset ] ).
 style_check('?'(Info) ) :-
 	L =  [ singleton, discontiguous, multiple ],
-	( '$member'(Style, L ) -> Info = +Style ; Info = -Style ).
+	( member(Style, L ) -> Info = +Style ; Info = -Style ).
 style_check([]).
 style_check([H|T]) :- style_check(H), style_check(T).
 

@@ -736,7 +736,7 @@ reconsult(Fs) :-
 compile_clauses(Commands) :-
      '$active_predicate'(P),
     (
-    '$member'(C,Commands),
+      member(C,Commands),
      compile_clause(C),
      fail;
     '$active_predicate'(P)

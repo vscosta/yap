@@ -29,17 +29,7 @@
 				   ]).
 
 
-:- use_module(myddas_core,[
-		  db_module/1,
-    c_db_check_if_exists_pred/3,
-       c_db_preds_conn/4,
-      c_db_connection_type/2,
-      c_db_add_preds/4,
-      c_db_preds_conn/4,
-      c_db_connection/1,
-      c_db_check_if_exists_pred/3,
-      c_db_delete_predicate/2
-              ]).
+:- use_module(library(myddas)).
 
 :- use_module(myddas_errors,[
 			     '$error_checks'/1
@@ -60,14 +50,23 @@
 				 translate/3,
 				 queries_atom/2
 				]).
-#if MYDDAS_MYSQL
 :- use_module(myddas_mysql,[
-			    db_my_result_set/1
+db_my_result_set/1,
+			    			      my_show_tables/1,
+			      c_my_change_database/2,
+			      c_my_connect/4,
+			      c_my_disconnect/1,
+			      c_my_get_attributes_types/3,
+			      c_my_get_database/2,
+			      c_my_get_fields_properties/3,
+			      c_my_get_next_result_set/3,
+			      c_my_query/5,
+			      c_db_my_number_of_fields/3,
+				  my_row/3,
+			    my_result_set/1
 			    ]).
-#endif
-#if MYDDAS_SQLITE3
-:- use_module(myddas_sqlite3,[
-			      sqlite3_result_set/1,
+ :- use_module(myddas_sqlite3,[
+sqlite3_result_set/1,
 			      sqlite3_show_tables/1,
 			      c_sqlite3_change_database/2,
 			      c_sqlite3_connect/4,
@@ -80,8 +79,6 @@
 			      c_sqlite3_number_of_fields/3,
 				  sqlite3_row/3
                            ]).
-#endif
-#if MYDDAS_ODBC
 :- use_module(myddas_odbc,[
 			      odbc_result_set/1,
 			      c_odbc_change_database/2,
@@ -95,11 +92,22 @@
 			      c_odbc_number_of_fields/3,
 			      c_odbc_row/3
                            ]).
-#endif
-#if MYDDAS_POSTGRES
-#endif
+:- use_module(myddas_postgres,[
+			      postgres_result_set/1,
+			      c_postgres_change_database/2,
+			      c_postgres_connect/4,
+			      c_postgres_disconnect/1,
+			      c_postgres_get_attributes_types/3,
+			      c_postgres_get_database/2,
+			      c_postgres_get_fields_properties/3,
+			      c_postgres_get_next_result_set/3,
+			      c_postgres_query/5,
+			      c_postgres_number_of_fields/3,
+			      c_postgres_row/3
+                           ]).
+			   
 
-:- use_module( library(lists)).
+:- use_module( libary(lists)).
 
 :- meta_predicate db_import(+,+,:), db_import(+,:).
 
@@ -132,7 +140,7 @@ db_import(Connection,RelationName,PredName0) :-
 	P=..[PredName|LA],
 	%build PredName clause
 	table_access_predicate( ConType, Con, Arity, P, LA, Module, Assert0 ),
-	strip_module(Assert0,_,Assert),
+		strip_module(Assert0,_,Assert),
 	assert_static(user:Assert),
 	c_db_add_preds(PredName,Arity,Module,Con).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

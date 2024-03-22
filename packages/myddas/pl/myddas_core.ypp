@@ -49,13 +49,6 @@
 		)
 
 
-:- reexport((myddas_sqlite3)).
-:- start_low_level_trace.
-:- reexport((myddas_odbc)).
-:- stop_low_level_trace.
-:- reexport((myddas_postgres)).
-:- reexport((myddas_mysql)).
-
 
 #if MYDDAS_TOP_LEVEL
 :- reexport(myddas_top_level,[
@@ -65,78 +58,6 @@
 			       ]).
 #endif
 
-:- reexport(myddas_assert_predicates,[
-					db_import/2,
-					db_import/3,
-					db_view/2,
-					db_view/3,
-					db_insert/2,
-					db_insert/3,
-					db_abolish/2,
-					db_listing/0,
-					db_listing/1
-	      ]).
-
-:- meta_predicate db_import(+,+,:), db_import(+,:).
-
-
-
-:- use_module(myddas_util_predicates,[
-				      '$prolog2sql'/3,
-				      '$create_multi_query'/3,
-				      '$get_multi_results'/4,
-				      '$process_sql_goal'/4,
-				      '$process_fields'/3,
-				      '$get_values_for_insert'/3,
-				      '$make_atom'/2,
-				      '$write_or_not'/1,
-				      '$abolish_all'/1,
-				      '$make_a_list'/2,
-				      '$get_table_name'/2,
-				      '$get_values_for_update'/4,
-				      '$extract_args'/4,
-				      #if MYDDAS_STATS
-				      '$make_stats_list'/2,
-				      #endif
-				     '$lenght'/2
-				     ]).
-
-:- use_module(myddas_errors,[
-			     '$error_checks'/1
-
-			    ]).
-
-:- use_module(myddas_prolog2sql,[
-				 translate/3,
-				 queries_atom/2
-				]).
-
-:- use_module(library(lists),[
-		  append/3,
-      member/2
-	      ]).
-
-:- set_prolog_flag(verbose,silent).
-
-:- multifile user:file_search_path/2.
-
-:- dynamic user:file_search_path/2.
-
-user:file_search_path(dataset, C) :-
-    library_directory(Dir),
-    (   current_prolog_flag(windows, true)
-    ->  atomic_list_concat([Dir,data], ;, C)
-    ;
-    atomic_list_concat([Dir,data], :, C)
-    ).
-user:file_search_path(dataset, '.').
-
-
-:- multifile user:prolog_file_type/2.
-
-:- dynamic user:prolog_file_type/2.
-
-user:prolog_file_type( db, dataset ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				% db_open/5
@@ -322,7 +243,7 @@ db_sql(Connection,SQL,LA):-
 db_sql_(ConType, Con, SQL,LA):-
 	'$write_or_not'(SQL),
 	( ConType == mysql ->
-	  db_my_result_set(Mode),
+	  my_result_set(Mode),
 	  c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
 	;ConType == postgres ->
 	  postgres_result_set(Mode),
@@ -347,7 +268,7 @@ db_sql_(ConType, Con, SQL,LA):-
 db_prolog_select(LA,DbGoal):-
 	db_prolog_select(myddas,LA,DbGoal).
 db_prolog_select(Connection,LA,DbGoal):-
-	lenght(LA,Arity),
+	length(LA,Arity),
 	Name=viewname,
 	functor(ViewName,Name,Arity),
 				% build arg list for viewname/Arity

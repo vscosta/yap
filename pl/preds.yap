@@ -292,20 +292,6 @@ abolish(X0) :-
 '$new_abolish'(Na,Ar, M) :-
     throw_error(type_error(predicate_indicator,Na/Ar),abolish(M:Na/Ar)).
 
-'$abolish_all'(M) :-
-        '$current_predicate'(Na, M, S, _),
-        functor(S, Na, Ar),
-	'$new_abolish'(Na/Ar, M),
-	fail.
-'$abolish_all'(_).
-
-'$abolish_all_atoms'(Na, M) :-
-        '$current_predicate'(Na,M,S,_),
-        functor(S, Na, Ar),
-	'$new_abolish'(Na/Ar, M),
-	fail.
-'$abolish_all_atoms'(_,_).
-
 
 '$check_error_in_module'(M, Msg) :-
 	var(M), !,
@@ -332,20 +318,6 @@ abolish(X0) :-
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
 '$old_abolish'(T, M) :-
 	throw_error(type_error(predicate_indicator,T),abolish(M:T)).
-
-'$abolish_all_old'(M) :-
-        '$current_predicate'(Na, M, S, _),
-	functor( S, Na, Ar ),
-	'$abolish'(Na, Ar, M),
-	fail.
-'$abolish_all_old'(_).
-
-'$abolish_all_atoms_old'(Na, M) :-
-        '$current_predicate'(Na, M, S, _),
-	functor(S, Na, Ar),
-	'$abolish'(Na, Ar, M),
-	fail.
-'$abolish_all_atoms_old'(_,_).
 
 '$abolishs'(G, M) :- '$is_system_predicate'(G,M), !,
 	functor(G,Name,Arity),

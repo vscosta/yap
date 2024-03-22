@@ -19,10 +19,10 @@
 			 '$error_checks'/1
 			 ]).
 
-:- reexport((myddas_sqlite3)).
-:- reexport((myddas_odbc)).
-:- reexport((myddas_postgres)).
-:- reexport((myddas_mysql)).
+:- use_module(myddas_sqlite3).
+:- use_module(myddas_odbc).
+:- use_module(myddas_postgres).
+:- use_module(myddas_mysql).
 
 :- use_module(myddas_util_predicates,[
 				      '$make_a_list'/2,

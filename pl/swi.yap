@@ -54,7 +54,7 @@ build_alias_cache :-
 		search_path(Alias, Dir, AliasLen, DirLen), Ts),
 	sort(Ts, List0),
 	reverse(List0, List),
-	forall('$member'(t(_, _, Alias, Dir), List),
+	forall(member(t(_, _, Alias, Dir), List),
 	       assert(alias_cache(Alias, Dir))).
 
 search_path('.', Here, 999, DirLen) :-

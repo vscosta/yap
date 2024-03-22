@@ -389,7 +389,7 @@ export_resource(P) :-
 	clause('$module'(File,Mod,ExportedPreds,Pos),_,R)
     ->
     (
-	'$member'(P,ExportedPreds)
+	member(P,ExportedPreds)
     ->
     true
     ;

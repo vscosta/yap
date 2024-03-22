@@ -422,7 +422,7 @@ source_file(Mod:Pred, FileName) :-
 '$owned_by'(T, Mod, FileName) :-
 	functor(T, Name, Arity),
 	setof(FileName, Ref^recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), Ref), L),
-	'$member'(FileName, L).
+	member(FileName, L).
 '$owned_by'(T, Mod, FileName) :-
 	'$owner_file'(T, Mod, FileName).
 

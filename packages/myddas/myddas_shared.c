@@ -20,7 +20,6 @@
 #include <stdlib.h>
 
 
-#ifdef MYDDAS
 
 #include "myddas.h"
 
@@ -703,7 +702,6 @@ void Yap_MYDDAS_delete_all_myddas_structs(void) {
 #endif
 }
 
-#endif
 
 void init_myddas(void) {
   CACHE_REGS
@@ -711,7 +709,6 @@ void init_myddas(void) {
   {
     return;
   }
-#if MYDDAS
 Yap_InitMYDDAS_SharedPreds();
   Yap_InitBackMYDDAS_SharedPreds();
 #define stringify(X) _stringify(X)
@@ -727,7 +724,6 @@ Yap_InitMYDDAS_SharedPreds();
 #if defined MYDDAS_TOP_LEVEL &&                                                \
     defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
   Yap_InitMYDDAS_TopLevelPreds();
-#endif
 #endif
   myddas_initialised = true;
 }
