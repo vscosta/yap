@@ -1,9 +1,9 @@
 :- module(myddas,[
 		  db_open/5,
 		  db_open/4,
-		  db_open/2,
-		  db_open/1,
-		  db_open/0,
+%		  db_open/2,
+%		  db_open/1,
+%		  db_open/0,
 		  db_close/1,
 		  db_close/0,
 
@@ -11,9 +11,9 @@
 		  db_module/1,
 		  db_is_database_predicate/3,
 		  %#ifdef MYDDAS_STATS
-		 db_stats/1,
-		  db_stats/2,
-		  db_stats_time/2,
+%		 db_stats/1,
+%		  db_stats/2,
+%		  db_stats_time/2,
 		  %#endif
 		 db_sql/2,
 		  db_sql/3,
@@ -102,10 +102,10 @@
 				      '$get_table_name'/2,
 				      '$get_values_for_update'/4,
 				      '$extract_args'/4,
-				      #if MYDDAS_STATS
+/*				      #if MYDDAS_STATS
 				      '$make_stats_list'/2,
 				      #endif
-				     '$lenght'/2
+*/				     '$lenght'/2
 				     ]).
 
 :- use_module(myddas/myddas_errors,[

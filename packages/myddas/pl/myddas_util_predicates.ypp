@@ -222,27 +222,27 @@
 % End of Predicates for making the SQL query
 %
 '$make_a_list'(0,[]) :- !.
-'$make_a_list'(N,[_|T]) :-
-	N1 is N-1,
-	'$make_a_list'(N1,T).
-
+ '$make_a_list'(N,[_|T]) :-
+ 	N1 is N-1,
+    	'$make_a_list'(N1,T).
+ 
 '$assert_attribute_information'(N,N,_,_) :- !.
 '$assert_attribute_information'(N,M,Relation,[FieldName,HeadType|TailTypes]) :-
-	functor(Attrib,attribute,4),
-	N1 is N+1,
-	arg(1,Attrib,N1),
+ 	functor(Attrib,attribute,4),
+     	N1 is N+1,
+ 	arg(1,Attrib,N1),
 	arg(2,Attrib,Relation),
 	arg(3,Attrib,FieldName),
 	arg(4,Attrib,HeadType),
 	'$assert_facts'(myddas_prolog2sql,Attrib),
 	%assert(myddas_prolog2sql:Attrib),
-	'$assert_attribute_information'(N1,M,Relation,TailTypes).
-
-
+     	'$assert_attribute_information'(N1,M,Relation,TailTypes).
+ 
+ 
 '$copy_term_nv'(T,Dic,NT,[(T,NT)|Dic]) :-
 	var(T),!, 
-	'$v_member'(T,Dic,(T,NT)).
-'$copy_term_nv'(T,Dic,T,Dic) :-
+      	'$v_member'(T,Dic,(T,NT)).
+ '$copy_term_nv'(T,Dic,T,Dic) :-
 	functor(T,_,0),!.
 '$copy_term_nv'(T,Dic,NT,NDic) :-
 	functor(T,F,N),

@@ -46,7 +46,7 @@
 #define LOAD 1
 #endif
 #define DBMS(x) my_##x
-#define c_DBMS(x) c_my_##x
+#define c_DBMS(x) c_mysql_##x
 #define NAME() 'YAPmysql'
 #define MODULE() myddas_mysql
 #define INIT() init_mysql
@@ -62,7 +62,9 @@
 			  c_DBMS(get_next_result_set)/3,
 			  c_DBMS(query)/5,
 			  c_DBMS(number_of_fields)/3,
-              DBMS(describe)/3,
+#if INIT() == init_odbc
+#endif
+DBMS(describe)/3,
               DBMS(result_set)/1,
               DBMS(show_tables)/2,
               DBMS(row)/3
@@ -83,7 +85,6 @@
 				      '$make_a_list'/2,
 				      '$write_or_not'/1
 				     ]).
-:- load_foreign_files( [myddas], [], init_myddas).
 :- load_foreign_files( [NAME()], [], INIT()).
 
 %--------------------------------------------------------
@@ -268,3 +269,9 @@ DBMS(describe)(A,B,C) :- throw(error(stub_call,describe(A,B,C))).
               DBMS(row)(A,B,C) :- throw(error(stub_call,row(A,B,C))).
 
 #endif /* MYDDAS_DBMS */
+
+#if !MYDDAS_ODBC
+c_DBMS(number_of_fields_in_query)(A,B,C) :- throw(error(stub_call,number_of_fields_in_query(A,B,C))).
+#endif
+
+

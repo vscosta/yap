@@ -28,8 +28,8 @@
 #endif
 
 extern void init_myddas(void);
-
-static Int c_db_initialize_myddas(USES_REGS1);
+X_API extern Int c_db_initialize_myddas(USES_REGS1);
+  
 static Int c_db_connection_type(USES_REGS1);
 static Int c_db_add_preds(USES_REGS1);
 static Int c_db_preds_conn_start(USES_REGS1);
@@ -110,10 +110,9 @@ void Yap_InitBackMYDDAS_SharedPreds(void) {
 static bool myddas_initialised;
 
 /* Initialize all of the MYDDAS global structures */
-static Int c_db_initialize_myddas(USES_REGS1) {
+X_API Int c_db_initialize_myddas(USES_REGS1) {
   
   if (!myddas_initialised) {
-    myddas_initialised= true;
     init_myddas();
   }
   Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas();
