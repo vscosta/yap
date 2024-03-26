@@ -22,15 +22,15 @@
  */
 
 
-:- system_module(coroutining,
-		 [	     ],[
-	      dif/1,
-	      dif/2,
-	      when/2,
-%	      block/1,
-	      wait/1,
-	      frozen/2,
-	      freeze/2
+:-  module(coroutining,
+		 [	     
+/*	      prolog:dif/1,
+	      prolog:dif/2,
+	      prolog:when/2,
+%	      prolog:block/1,
+	      prolog:wait/1,
+	      prolog:frozen/2,
+	      prolog:freeze/2 */
 		 ]).
 
 :-  op(1150, fx, prolog:block).
@@ -173,14 +173,14 @@ Delay execution of goal  _G_ until the variable  _X_ is bound.
 
 
 */
-freeze(V, G) :-
+prolog:freeze(V, G) :-
 	var(V), !,
 	when(nonvar(V),G).
-freeze(_, G) :-
+prolog:freeze(_, G) :-
 	'$execute'(G).
 
-dif([]).
-dif([Term | Terms]) :-
+prolog:dif([]).
+prolog:dif([Term | Terms]) :-
     dif_cs(Terms, Term),
     dif(Terms).
 
@@ -236,12 +236,12 @@ j variables. Basically, in this case the engine must be sure to wake
  whether that is in fact the case.
 
 */
-dif(X, Y) :-
+prolog:dif(X, Y) :-
     constraining_variables(X, Y, LVars),
     !,
     LVars = [_|_],
     dif_suspend_on_lvars(LVars, when( ?=(X,Y), dif(X,Y), _Done)).
-dif(_,_).
+prolog:dif(_,_).
 
 
 dif_suspend_on_lvars([], _).
@@ -276,19 +276,19 @@ Note that when/2 will fail if the conditions fail.
 
 
 */
-when((C1,C2), Goal) :-
+prolog:when((C1,C2), Goal) :-
     !,
-    when(C1,when(C2,Goal)).
-when(Conds,Goal) :-
+    prolog:when(C1,when(C2,Goal)).
+prolog:when(Conds,Goal) :-
     strip_module(Goal, Mod, G),
     prepare_goal_for_when(G, Mod, ModG),
-    when(Conds, ModG, _Done).
+    prolog:when(Conds, ModG, _Done).
 
-when((C1;C2), Goal, Done) :-
+prolog:when((C1;C2), Goal, Done) :-
     !,
-    when(C1, Goal, Done),
-    when(C2, Goal, Done).
-when(C, Goal, Done) :-
+    prolog:when(C1, Goal, Done),
+    prolog:when(C2, Goal, Done).
+prolog:when(C, Goal, Done) :-
     ( Done == true -> true ;
       call(C) -> Done = true, call(Goal) ;
       when_suspend(C, Goal, Done) ).
@@ -364,10 +364,10 @@ when_suspend(ground(X), G, Done) :-
 % choicepoint and make things a bit slower, but it's probably not as
 % significant as the remaining overheads.
 %
-'$block'(Conds) :-
+prolog:'$block'(Conds) :-
     generate_blocking_code(Conds, _, Code),
     compile_clause(Code), fail.
-'$block'(_).
+prolog:'$block'(_).
 
 generate_blocking_code(Conds, G, Code) :-
 	extract_head_for_block(Conds, G),
@@ -451,11 +451,11 @@ argument is bound.
 The wait declaration is a simpler and more efficient version of block.
 
 */
-wait((X,Y)) :-
+prolog:wait((X,Y)) :-
     !,
     wait(X),
     wait(Y).
-wait(G) :-
+prolog:wait(G) :-
     arg(1,G,A),
     freeze(A,G).
 
@@ -473,12 +473,12 @@ or `true` if no goal has suspended. Also succeeds if _X_ is bound.
 
 
 */
-frozen(V, LG) :-
+prolog:frozen(V, LG) :-
     var(V),
     attributes:attvars_residuals([V], Gs, []),
     simplify_frozen( Gs, LGs ),
     list_to_conj( LGs, LG ).
-frozen(_V, true).
+prolog:frozen(_V, true).
 
 conj_to_list( (A,B) ) -->
     !,

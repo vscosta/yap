@@ -826,17 +826,9 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        Term where, Term extra, const char *s) {
   CACHE_REGS
     if (type!= EVALUATION_ERROR_UNDEFINED ) { //&& LOCAL_Undef_CP == NULL) {
-    if (!Yap_pc_add_location(r, LOCAL_OldP, B, ENV))
-      Yap_env_add_location(r, LOCAL_OldCP, B, ENV, 0);
-  } else {
-  LOCAL_Undef_B = NULL;
-  LOCAL_Undef_ENV = NULL;
-    LOCAL_Undef_CP  = NULL;
-    }
-  
-  LOCAL_OldP = NULL;
-  LOCAL_OldCP = NULL;
-
+    if (!Yap_pc_add_location(r, P, B, ENV))
+      Yap_env_add_location(r, CP, B, ENV, 0);
+  } 
  r->errorNo = type;
     if (type == USER_DEFINED_EVENT||
 	type == USER_DEFINED_ERROR ) {

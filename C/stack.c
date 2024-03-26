@@ -822,9 +822,15 @@ PredEntry * Yap_PredForCode(yamop *codeptr, find_pred_type hint,
 
 	    ClausePointer*c) {
     gc_entry_info_t info;
-    
+
     if (codeptr) {
+        if (hint==FIND_PRED_FROM_ENV) {
+              info.pe = EnvPreg(codeptr);
+	} else if (hint==FIND_PRED_FROM_CP) {
+	  info.pe = Yap_PredForChoicePt(B);
+	} else {
       Yap_track_cpred( 0, codeptr, 0,   &info);
+	}
       *c = code_in_pred(info.pe, codeptr);
 	return (info.pe);
     }
@@ -1825,7 +1831,6 @@ bool DumpStack(USES_REGS1) {
     Term pred_module;
     PredEntry *pred;
     ClausePointer cl;
-
 
     if ((pred = Yap_PredForCode(yap_pc, where_from,&cl)) == NULL) {
       /* system predicate */

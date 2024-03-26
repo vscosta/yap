@@ -40,14 +40,16 @@
       BEGD(d0);
       CPredicate f = pt0->cs.f_code;
       SREG=(CELL *)PREG;
-      PREG = NEXTOP(PREG, Osbpp);
+      yamop *op = PREG;
       saveregs();
       d0 = f(PASS_REGS1);
       setregs();
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;
 #endif
-
+      if (PREG==op) {
+     PREG = NEXTOP(PREG, Osbpp);
+     }
       if (!d0) {
         FAIL();
       }

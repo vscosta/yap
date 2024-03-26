@@ -71,6 +71,7 @@ nonexhausted((A,B)) -->
 	nonexhausted(A),
 	nonexhausted(B).
 
+:- multifile attr_unify_hook/2.
 attr_unify_hook(g(CLP,goals(Gx),_),Y) :-
 	!,
 	(   var(Y),

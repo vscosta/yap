@@ -3308,7 +3308,7 @@ static Int lu_recorded(PredEntry *pe USES_REGS) {
     P = pe->CodeOfPred;
   } else {
     if (P->opc != Yap_opcode(_execute_cpred)) {
-      CP = P;
+      CP = NEXTOP(P,Osbpp);
       ENV = YENV;
       YENV = ASP;
       YENV[E_CB] = (CELL)B;
@@ -3384,7 +3384,7 @@ static Int recorded(USES_REGS1) {
       if (opc == _procceed) {
         P = cl->ClCode;
       } else {
-        CP = P;
+        CP = NEXTOP(P,Osbpp);
 #if defined(YAPOR) || defined(THREADS)
         PP = cl->ClPred;
 #endif
@@ -4445,7 +4445,7 @@ static Int static_instance(StaticClause *cl, PredEntry *ap USES_REGS) {
       for (i = 0; i < arity; i++) {
         XREGS[i + 1] = ptr[i];
       }
-      CP = P;
+      CP = NEXTOP(P,Osbpp);
       YENV = ASP;
       YENV[E_CB] = (CELL)B;
       P = cl->ClCode;
@@ -4496,7 +4496,7 @@ static Int exo_instance(Int i, PredEntry *ap USES_REGS) {
       XREGS[i + 1] = ptr[i];
     }
     S = ptr;
-    CP = P;
+    CP = NEXTOP(P,Osbpp);
     YENV = ASP;
     YENV[E_CB] = (CELL)B;
     P = mcl->ClCode;
@@ -4523,7 +4523,7 @@ static Int mega_instance(yamop *code, PredEntry *ap USES_REGS) {
     for (i = 0; i < arity; i++) {
       XREGS[i + 1] = ptr[i];
     }
-    CP = P;
+    CP = NEXTOP(P,Osbpp);
     YENV = ASP;
     YENV[E_CB] = (CELL)B;
     P = code;
@@ -4597,7 +4597,7 @@ static Int p_instance(USES_REGS1) {
         for (i = 0; i < arity; i++) {
           XREGS[i + 1] = ptr[i];
         }
-        CP = P;
+         CP = NEXTOP(P,Osbpp);
         YENV = ASP;
         YENV[E_CB] = (CELL)B;
         P = cl->ClCode;

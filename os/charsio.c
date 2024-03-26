@@ -97,82 +97,45 @@ static Int flush_output(USES_REGS1);
 }
 
 
- int Yap_popWide(int sno)
-{
-    StreamDesc *s = GLOBAL_Stream + sno;
-    s->buf.on = false;
-  int ch = s->buf.ch;
-      s->charcount = s->ocharcount;
-      s->linecount = s->olinecount;
-      s->linestart = s->olinestart;
- Yap_DefaultStreamOps(s);
- return ch;
-
-}
-
-int Yap_peekWide(int sno) {
-  StreamDesc *s = GLOBAL_Stream + sno;
-   if (s->status & Eof_Stream_f ) {
-     if (s->status & Repeat_Eof_Stream_f ) {
-       return EOF;
-     } else     s->status &= ~Push_Eof_Stream_f;
-    /* reset the eof indicator on file */
-    if (feof(s->file))
-      clearerr(s->file);
-    /* reset our function for reading input */
-    Yap_default_peek(s);
-    /* next, reset our own error indicator */
-
-    s->status &= ~Eof_Stream_f;
-    /* try reading again */
-    Yap_DefaultStreamOps(s);
-       s->buf.on = false;
-int ch = s->buf.ch;
- ungetc(ch, s->file);
-    return ch;
-  } else {
-    s->buf.on = false;
-Yap_DefaultStreamOps(s);
-return s->buf.ch;
-  }
-}
-
-
 int Yap_popChar(int sno)
 {
 
   StreamDesc *s = GLOBAL_Stream + sno;
-  if ( s->file&&fileno(s->file)>=0) {
+  
+  
     if (s->status & Eof_Stream_f ) {
     s->status &= ~Eof_Stream_f;
+    if (s->file)
       clearerr(s->file);
     }
     s->buf.on = false;
-int ch = s->buf.ch;
- ungetwc(ch, s->file);
-    return ch;
-  } else {
-    s->buf.on = false;
 Yap_DefaultStreamOps(s);
 return s->buf.ch;
-  }
 }
 
 int Yap_peekChar(int sno) {
     StreamDesc *s = GLOBAL_Stream + sno;
     int ch;
-     if (s->file) {
-        ch = fgetc(s->file);
-        if (ch == EOF) {
-            clearerr(s->file);
-            s->status &= ~Eof_Stream_f;
-        } else
-	  {
-            // do not try doing error processing
-            ungetc(ch, s->file);
-        }
-    }else {
-        Int pos = s->charcount;
+   Int pos = s->charcount;
+        Int line = s->linecount;
+        Int lpos = s->linestart;
+
+	ch = s->stream_getc(sno);
+        s->charcount = pos;
+        s->linecount = line;
+       s->linestart = lpos;
+                 s->buf.on = true;
+            s->buf.ch = ch;
+            s->stream_wgetc = Yap_popChar;
+            s->stream_getc =  Yap_popChar;
+        //  Yap_SetCurInpPos(sno, pos);
+    return ch;
+}
+
+int Yap_peekWide(int sno) {
+    StreamDesc *s = GLOBAL_Stream + sno;
+    int ch;
+   Int pos = s->charcount;
         Int line = s->linecount;
         Int lpos = s->linestart;
 
@@ -180,17 +143,12 @@ int Yap_peekChar(int sno) {
         s->charcount = pos;
         s->linecount = line;
        s->linestart = lpos;
-        if (ch == EOF) {
-            s->status &= ~Eof_Stream_f;
-            return ch;
-        } else {
-            s->buf.on = true;
+                 s->buf.on = true;
             s->buf.ch = ch;
-            s->stream_wgetc = Yap_popWide;
+            s->stream_wgetc = Yap_popChar;
             s->stream_getc =  Yap_popChar;
-        }
         //  Yap_SetCurInpPos(sno, pos);
-    }
+
     return ch;
 }
 

@@ -725,7 +725,7 @@ user:goal_expansion(maplist(Meta, List), Mod:Goal) :-
     append_args(HeadPrefix, [Ins], RecursiveCall),
     compile_clauses([
 		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
+		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
 		   ]).
 
 user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
@@ -745,7 +745,7 @@ user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
     append_args(Pred, [In, Out], Apply),
     append_args(HeadPrefix, [Ins, Outs], RecursiveCall),
     compile_clauses([	       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
+		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
 		   ]).
 
 user:goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
@@ -766,7 +766,7 @@ user:goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
     append_args(HeadPrefix, [A1s, A2s, A3s], RecursiveCall),
     compile_clauses([
 		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
+		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
 		   ]).
 
 user:goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
@@ -787,7 +787,7 @@ user:goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
     append_args(HeadPrefix, [A1s, A2s, A3s, A4s], RecursiveCall),
     compile_clauses([
 		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
+		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
 		   ]).
 
 user:goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
@@ -808,7 +808,7 @@ user:goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
     append_args(HeadPrefix, [A1s, A2s, A3s, A4s, A5s], RecursiveCall),
     compile_clauses([
 		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
+		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
 		   ]).
 
 user:goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-

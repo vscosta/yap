@@ -635,7 +635,7 @@ static Int put_atts(USES_REGS1) {
     Term t = Deref(ARG1);
     Term tatts = Deref(ARG2);
     if (IsAttVar(VarOfTerm(t))) {
-      attv0 = RepAttVar(VarOfTerm(t));
+1      attv0 = RepAttVar(VarOfTerm(t));
       MaBind(&(attv0->Atts),tatts);
       return true;
       } */
@@ -1036,8 +1036,8 @@ static Int put_attr(USES_REGS1) {
 
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
-      ts[2] = attv->Atts;
-      MaBind(&attv->Atts,  Yap_MkApplTerm(FunctorAtt1, 3, ts));
+      //ts[2] = attv->Atts;
+      //MaBind(&attv->Atts,  Yap_MkApplTerm(FunctorAtt1, 3, ts));
       Term start = attv->Atts;
   do {
     if (IsVarTerm(start))

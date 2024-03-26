@@ -2808,10 +2808,8 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
     addcl_permission_error(RepAtom(at), arity, FALSE);
     return false;
   }
-  if (pe->OpcodeOfPred == UNDEF_OPCODE) {
     pe->OpcodeOfPred = FAIL_OPCODE;
     pe->PredFlags &= ~UndefPredFlag;
-  }
   pe->src.OwnerFile = Yap_source_file_name();
   pe->PredFlags |= LogUpdatePredFlag;
   return true;
@@ -3360,7 +3358,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
       }
       /* don't need no ENV */
       if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
-        CP = P;
+        CP = NEXTOP(P,Osbpp);
         ENV = YENV;
         YENV = ASP;
         YENV[E_CB] = (CELL)B;
@@ -3427,7 +3425,7 @@ p_log_update_clause(USES_REGS1) {
   if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
-    new_cp = P;
+    new_cp = NEXTOP(P,Osbpp);
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
     if (pe == NULL || EndOfPAEntr(pe)||pe->ModuleOfPred == TermIDB)
@@ -3508,7 +3506,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yhandle_t yt
       }
       /* don't need no ENV */
       if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
-        CP = P;
+        CP = NEXTOP(P,Osbpp);
         ENV = YENV;
         YENV = ASP;
         YENV[E_CB] = (CELL)B;
@@ -3579,7 +3577,7 @@ p_log_update_clause_erase(USES_REGS1) {
   if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
-    new_cp = P;
+    new_cp = NEXTOP(P,Osbpp);
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
     if (pe == NULL || EndOfPAEntr(pe)|| pe->OpcodeOfPred == UNDEF_OPCODE)
@@ -3946,7 +3944,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
       }
       /* don't need no ENV */
       if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
-        CP = P;
+        CP = NEXTOP(P,Osbpp);
         ENV = YENV;
         YENV = ASP;
         YENV[E_CB] = (CELL)B;
@@ -3974,7 +3972,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
       }
       /* don't need no ENV */
       if (first_time && P->opc != EXECUTE_CPRED_OPCODE) {
-        CP = P;
+        CP = NEXTOP(P,Osbpp);
         ENV = YENV;
         YENV = ASP;
         YENV[E_CB] = (CELL)B;
@@ -4048,7 +4046,7 @@ p_static_clause(USES_REGS1) {
     if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
-    new_cp = P;
+    new_cp = NEXTOP(P,Osbpp);
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
   if (pe == NULL || EndOfPAEntr(pe) || pe->OpcodeOfPred == UNDEF_OPCODE || pe->PredFlags & LogUpdatePredFlag||pe->PredFlags & SystemPredFlags)
@@ -4528,6 +4526,14 @@ static Int predicate_flags(
 
 
 struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {
+  if (pe->PredFlags & LogUpdatePredFlag)
+    return pe;
+  if ( (pe->PredFlags  & SystemPredFlags ||
+	( pe->cs.p_code.NOfClauses >0))) {
+     if (CurrentModule != PROLOG_MODULE)
+       Yap_ThrowError(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateToIndicator(pe),NULL);
+      return NULL;
+      } 
   pe->PredFlags = LogUpdatePredFlag;
   pe->OpcodeOfPred = FAIL_OPCODE;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;

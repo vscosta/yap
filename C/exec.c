@@ -223,9 +223,9 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->a = i->p->y_u.OtapFs.s + i->p->y_u.OtapFs.extra;
       i->p_env = CP;
       i->env = ENV;
-      i->env_size = EnvSizeInCells;
-      i->caller = PREVOP(CP,OtapFs)->y_u.OtapFs.p;
-      return i->pe =  i->caller;
+      i->env_size = -CP ->y_u.Osbpp.s / sizeof(CELL);
+      i->caller = EnvPreg(CP);
+      return i->pe =  i->p->y_u.OtapFs.p;
     case _copy_idb_term:
       i->env = ENV; // YENV should be tracking ENV
       i->p = P;
@@ -416,8 +416,8 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
     //        ENV = YENV;
     ENV = YENV;
     YENV = ASP;
-    CP = P;
-  }
+      CP = NEXTOP(P,Osbpp);
+}
   /* make sure we have access to the user given cut */
   YENV[E_CB] = (CELL)cut_pt;
   P = code;
@@ -470,6 +470,7 @@ Term Yap_ExecuteCallMetaCall(Term g, Term mod)
   ts[2] = g;
   ts[3] = mod;
   if (Yap_GetGlobal(AtomDebugMeta) == TermOn)
+
   {
     return Yap_MkApplTerm(PredTraceMetaCall->FunctorOfPred, 3, ts);
   }

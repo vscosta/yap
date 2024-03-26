@@ -640,7 +640,15 @@ unload_file(F) :-
 	clause_property(R,file(File)),
 	erase(R)
 	;
-    predicate_property(M:P, file(File)),
+	(
+	    predicate_property(M:P, dynamic)
+	->
+	clause(M:P,_,R),
+	clause_property(R,file(File)),
+	erase(R)
+	)
+	;
+	predicate_property(M:P, file(File)),
     functor(P,N,A),
 	abolish(M:N/A)
 	),
