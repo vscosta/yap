@@ -45,7 +45,7 @@
 				  '$check_list_on_list'/2
 				  ]).
 
-:- use_module(myddas_core,[
+:- use_module(myddas,[
 		      db_verbose/1,
           c_db_preds_conn/4
 		     ]).

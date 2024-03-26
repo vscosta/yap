@@ -50,15 +50,6 @@
 
 
 
-#if MYDDAS_TOP_LEVEL
-:- reexport(myddas_top_level,[
-				db_top_level/4,
-				db_top_level/5,
-				db_datalog_select/3
-			       ]).
-#endif
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				% db_open/5
 				% db_open/4
