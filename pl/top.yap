@@ -518,16 +518,17 @@ log_event( String, Args ) :-
   
 
 
-live  :- catch(live__,_E,error_handler).
+live  :-
+    repeat,
+    live__,
+    !.
 
 
 
 live__ :-    
     at_end_of_stream(user_input),
     !.
-    live__ :-    
-    repeat,
-
+live__ :-    
     current_source_module(Module,Module),
     set_prolog_flag(verbose,normal),
     ( Module==user ->

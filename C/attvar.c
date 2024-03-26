@@ -1038,7 +1038,20 @@ static Int put_attr(USES_REGS1) {
       attv = RepAttVar(VarOfTerm(inp));
       //ts[2] = attv->Atts;
       //MaBind(&attv->Atts,  Yap_MkApplTerm(FunctorAtt1, 3, ts));
-      Term start = attv->Atts;
+    } else {
+    
+      while (!(attv = BuildNewAttVar(PASS_REGS1))) {
+        LOCAL_Error_Size = sizeof(attvar_record);
+        if (!Yap_dogc(PASS_REGS1)) {
+          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          return FALSE;
+        }
+      }
+      attv->Atts = MkGlobal(ARG3);
+        inp = Deref(ARG1);
+	MaBind(VarOfTerm(inp),attv->Done);
+    }
+    Term start = attv->Atts;
   do {
     if (IsVarTerm(start))
       break;
@@ -1064,28 +1077,10 @@ static Int put_attr(USES_REGS1) {
    
 
     MaBind(&attv->Atts, Yap_MkApplTerm(FunctorAtt1,3,ts))
-  } else {
-    
-      while (!(attv = BuildNewAttVar(PASS_REGS1))) {
-        LOCAL_Error_Size = sizeof(attvar_record);
-        if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-          return FALSE;
-        }
-      }
-	S = HR;
-	HR+=4;
-	*S++ = (CELL)FunctorAtt1;
-	*S++ = Deref(ARG2);
-      *S++= MkGlobal(ARG3);
-      *S++ = TermNil;
-      attv->Atts = AbsAppl(S-4);
-        inp = Deref(ARG1);
-	MaBind(VarOfTerm(inp),attv->Done);
+
+
 
 	
-    }
-    
  } 
     return true;
 }
@@ -1168,7 +1163,7 @@ side-effects.
 
 
 */
-static Int del_attrs(USES_REGS1) {
+ static Int del_attrs(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */

@@ -178,10 +178,12 @@ namespace generic_gecode
     IntVarArgs nivars;
     BoolVarArgs nbvars;
     BoolVarArray bvars;
-    FloatVarArray fvars;
+     FloatVarArgs nfvars;
+   FloatVarArray fvars;
+    SetVarArgs nsvars;
     SetVarArray svars;
    public:
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        LoadingDock* dock;
+    LoadingDock* dock;
      Space* space() { return this; }
 
        Space* copy(bool share)
@@ -267,7 +269,9 @@ namespace generic_gecode
    
 
     int new_fvar(double lo, double hi)
-    {
+    {      FloatVar v(*this,lo,hi);
+       nfvars = nfvars + v;
+      return nfvars.size()-1; 
      }
 
  
@@ -362,3 +366,4 @@ namespace generic_gecode
 #endif
 
 #endif
+

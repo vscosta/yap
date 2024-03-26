@@ -227,6 +227,7 @@ The product of constant  _Cs_ by  _Vs_ must be in relation
 */
 
 :- use_module(library(gecode)).
+:- use_module(library(lists)).
 :- use_module(library(maplist)).
 
 :- reexport(library(matrix), [(<==)/2, op(800, xfx, '<=='),
@@ -698,7 +699,7 @@ post( rel( sum(Foreach, Cond), Op, Out), Space-Map, Reify):- !,
 	).
 post( rel( sum(L0), Op, Out), Space-Map, Reify):-
 !,
-    selectlist(var,L0,L,LC),
+    selectlist(var2,L0,L,LC),
     sumlist(LC,0),
 	( var(Out) -> l(Out, IOut, Map) ; integer(Out) -> IOut = Out ; equality(Out, NOut, Space-Map), l(NOut, IOut, Map) ),
 	maplist(ll(Map), [Out|L], [IOut|IL] ),
@@ -1414,6 +1415,8 @@ ll(Map, X, Y) :-
 l(V, IV, A, B, _) :-
 	get_attr(V, gecode_clpfd, v(IV, A, B)).
 
+var2(V,V) :- var(V), !.
+
 /*
 l(_NV, _OV, _, _, Vs) :-
 	var(Vs), !,
@@ -1429,3 +1432,4 @@ is_one(1).
 /**
 @}
 */
+

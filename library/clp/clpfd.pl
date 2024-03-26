@@ -1119,7 +1119,8 @@ label([], _, _, _, Consistency) :- !,
         ;   true
         ).
 label(Vars, Selection, Order, Choice, Consistency) :-
-        (   Vars = [V|Vs], nonvar(V) -> label(Vs, Selection, Order, Choice, Consistency)
+           writeln(label(Vars, Selection, Order, Choice, Consistency) ),
+ (   Vars = [V|Vs], nonvar(V) -> label(Vs, Selection, Order, Choice, Consistency)
         ;   select_var(Selection, Vars, Var, RVars),
             (   var(Var) ->
                 (   Consistency = upto_in(I0,I), fd_get(Var, _, Ps), all_dead(Ps) ->

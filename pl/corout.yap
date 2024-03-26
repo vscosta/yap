@@ -139,9 +139,9 @@ attgoal_for_delay(when(X, Goal,Done), _V) -->
 	[ when((X),Goal) ].   
 attgoal_for_delay(_, _V) --> [].
 
-remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
-	remove_when_declarations(Goal, NoWGoal).
-remove_when_declarations(Goal, Goal).
+remove_whendeclarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
+	remove_whendeclarations(Goal, NoWGoal).
+remove_whendeclarations(Goal, Goal).
 
 /** 
 @}
@@ -282,13 +282,13 @@ prolog:when((C1,C2), Goal) :-
 prolog:when(Conds,Goal) :-
     strip_module(Goal, Mod, G),
     prepare_goal_for_when(G, Mod, ModG),
-    prolog:when(Conds, ModG, _Done).
+    when(Conds, ModG, _Done).
 
-prolog:when((C1;C2), Goal, Done) :-
+when((C1;C2), Goal, Done) :-
     !,
-    prolog:when(C1, Goal, Done),
-    prolog:when(C2, Goal, Done).
-prolog:when(C, Goal, Done) :-
+    when(C1, Goal, Done),
+    when(C2, Goal, Done).
+when(C, Goal, Done) :-
     ( Done == true -> true ;
       call(C) -> Done = true, call(Goal) ;
       when_suspend(C, Goal, Done) ).
@@ -308,7 +308,7 @@ prolog:when(C, Goal, Done) :-
 %
 generate_code_for_when(Conds, G,
 	( G :- when(Conds, ModG, Done, [], LG), !,
-	suspend_when_goals(LG, Done)) ) :-
+	suspend_whengoals(LG, Done)) ) :-
 	'$current_module'(Mod),
 	prepare_goal_for_when(G, Mod, ModG).
 

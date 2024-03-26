@@ -430,16 +430,19 @@
     !,
  '$end_consult'.
 
-'$loop'(Stream,_Status) :-
-at_end_of_stream(Stream),
-!.
 '$loop'(Stream,Status) :-
     repeat,
-    catch(
+    ' $loop_'(Stream,Status),
+   !.
+
+' $loop_'(Stream,_Status) :-
+   at_end_of_stream(Stream),
+   !.
+' $loop_'(Stream,Status) :-
+   catch(
 	 enter_compiler(Stream,Status),
 	 _Error,
-	 error_handler),
-    !.
+	 error_handler).
 
 enter_compiler(Stream,Status) :-
     prompt1(': '), prompt(_,'     '),
