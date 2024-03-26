@@ -78,7 +78,7 @@ static Int c_sqlite3_change_database(USES_REGS1);
 
 static Int c_sqlite3_connect(USES_REGS1) {
   Term arg_file = Deref(ARG1);
-  Term arg_db = ARG4;
+  Term arg_db = ARG2;
 
   MYDDAS_UTIL_CONNECTION new = NULL;
   sqlite3 *db;
@@ -638,6 +638,7 @@ static void Yap_InitMYDDAS_SQLITE3Preds(void) {
    CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
   /* db_dbect: Host x User x Passwd x Database x dbection x ERROR_CODE */
   Yap_InitCPred("c_sqlite3_connect", 4, c_sqlite3_connect, 0);
+  Yap_InitCPred("c_sqlite3_connect", 2, c_sqlite3_connect, 0);
 
   /* db_number_of_fields: Relation x connection x NumberOfFields */
   Yap_InitCPred("c_sqlite3_number_of_fields", 3, c_sqlite3_number_of_fields, 0);

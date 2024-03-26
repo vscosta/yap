@@ -24,8 +24,8 @@
 				    db_insert/3,
 				    db_abolish/2,
 				    db_listing/0,
-				    db_listing/1,
-				    relation/3
+				    db_listing/1
+%				    relation/3
 				   ]).
 
 
@@ -61,7 +61,7 @@ db_my_result_set/1,
 			      c_my_get_fields_properties/3,
 			      c_my_get_next_result_set/3,
 			      c_my_query/5,
-			      c_db_my_number_of_fields/3,
+			      cc_db_my_number_of_fields/3,
 				  my_row/3,
 			    my_result_set/1
 			    ]).
@@ -123,9 +123,9 @@ db_import(Connection,RelationName,PredName0) :-
 	table_arity( Con, ConType, RelationName, Arity ),
 	strip_module(PredName0, Module, PredName),
 	\+ c_db_check_if_exists_pred(PredName,Arity,Module),
-	R=..[relation,PredName,Arity,RelationName],
+	R=..[relation,Module,PredName,Arity,RelationName],
 	% assert relation fact
-	assert(Module:R),
+	assert(myddas_prolog2sql:R),
 
 	Size is 2*Arity,
         length(TypesList, Size),
@@ -198,7 +198,7 @@ db_insert(Connection,RelationName,PredName) :-
 	db_module(Module),
 	not c_db_check_if_exists_pred(PredName,Arity,Module),
 
-	R=..[relation,PredName,Arity,RelationName],
+	R=..[relation,Module,PredName,Arity,RelationName],
 	% assert relation fact
 	assert(myddas_prolog2sql:R),
 

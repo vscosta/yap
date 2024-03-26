@@ -720,6 +720,11 @@ Yap_InitMYDDAS_SharedPreds();
     defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
   Yap_InitMYDDAS_TopLevelPreds();
 #endif
+  Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas();
+#ifdef MYDDAS_STATS
+  Yap_REGS.MYDDAS_GLOBAL_POINTER =
+      myddas_stats_initialize_global_stats(Yap_REGS.MYDDAS_GLOBAL_POINTER);
+#endif /* MYDDAS_STATS */
   myddas_initialised = true;
 }
 

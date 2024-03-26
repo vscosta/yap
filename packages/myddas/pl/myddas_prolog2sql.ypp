@@ -465,7 +465,7 @@ translate_comparison(LeftArg,RightArg,CompOp,Dict,Comparison):-
 % --------------------------------------------------------------------------------------
 
 translate_functor(Functor,Arity,rel(TableName,RangeVariable)):-
-   relation(Functor,Arity,TableName),
+   relation(_,Functor,Arity,TableName),
    gensym(rel,RangeVariable).
 
 
