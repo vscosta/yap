@@ -431,18 +431,19 @@
  '$end_consult'.
 
 '$loop'(Stream,Status) :-
-    repeat,
-    ' $loop_'(Stream,Status),
-   !.
+   catch(
+(    repeat,
+    ' $loop_'(Stream,Status)
+ ),
+	 _Error,
+	 error_handler),
+  !.
 
 ' $loop_'(Stream,_Status) :-
    at_end_of_stream(Stream),
    !.
 ' $loop_'(Stream,Status) :-
-   catch(
-	 enter_compiler(Stream,Status),
-	 _Error,
-	 error_handler).
+	 enter_compiler(Stream,Status) .
 
 enter_compiler(Stream,Status) :-
     prompt1(': '), prompt(_,'     '),
@@ -451,6 +452,7 @@ enter_compiler(Stream,Status) :-
     (
 	Clause == end_of_file
     ->
+
     !
     ;
     '$conditional_compilation_skip'(Clause)

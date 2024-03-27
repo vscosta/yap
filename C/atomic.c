@@ -2508,44 +2508,31 @@ static Int cont_sub_atomic(USES_REGS1) {
   /* we can have one of two cases: A5 bound or unbound */
   if (mask & SUB_ATOM_HAS_VAL) {
     bool found = false;
-    {
-      const unsigned char *p1 = p;
-
-      while (!found && minv < sz-len) {
-	if (minv)
-	  p = skip_utf8(p1, minv);
-	else
-	  p = p1;
-        if (cmpn_utf8(p, p5, len) == 0) {
-          Yap_unify(ARG2, MkIntegerTerm(minv));
-          Yap_unify(ARG3, MkIntegerTerm(len));
-          Yap_unify(ARG4, MkIntegerTerm(after));
-          found = true;
-          /* found one, check if there is any left */
-          while (minv <= sz - len) {
-            int chr;
-            p += get_utf8((unsigned char *)p, -1, &chr);
-            after--;
-            minv++;
-            if (cmpn_utf8(p, p5, len) == 0)
-              break;
-          }
-        } else {
-          if (minv == sz - len)
-            break;
-          after--;
-          minv++;
-        }
-      }
-    }
+      while (!found) {
+	int chr;
+	const unsigned char * p0=p;
+	if (sz-minv <  len) {
+	  break;
+	}
+	found = cmpn_utf8(p0, p5, len) == 0;
+        p += get_utf8((unsigned char *)p, -1, &chr);
+        after--;
+        minv++;
+        	if (found) {
+          Yap_unify(ARG2, MkIntegerTerm(minv-1));
+	  Yap_unify(ARG3, MkIntegerTerm(len));
+          Yap_unify(ARG4, MkIntegerTerm(after+1));
+	  break;
+	}
+	}
     if (found) {
-      if (minv > sz - len)
+      if (minv > sz - len){
         cut_succeed();
-
+      }
     } else {
       cut_fail();
-    }
-  } else if (mask & SUB_ATOM_HAS_SIZE) {
+      }
+ } else if (mask & SUB_ATOM_HAS_SIZE) {
     Term nat = build_new_atomic(mask, p, minv, len, sz PASS_REGS);
     Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG4, MkIntegerTerm(after));
@@ -2573,7 +2560,7 @@ static Int cont_sub_atomic(USES_REGS1) {
     minv++;
     if (len-- == 0) {
       cut_succeed();
-    }
+  }
   } else {
     Term nat = build_new_atomic(mask, p, minv, len, sz PASS_REGS);
     Yap_unify(ARG2, MkIntegerTerm(minv));
@@ -2597,10 +2584,10 @@ static Int cont_sub_atomic(USES_REGS1) {
   EXTRA_CBACK_ARG(5, 5) = MkIntegerTerm(sz);
 
   return TRUE;
-}
+  }
 
 
-/** @pred  sub_atomic(+ _Atomic_,? _Bef_, ? _Size_, ? _After_, ?
+/** @Pred  sub_atomic(+ _Atomic_,? _Bef_, ? _Size_, ? _After_, ?
     _At_out_) is iso
 
 Similar to sub_atom/5, but the first argument can be any atomic.

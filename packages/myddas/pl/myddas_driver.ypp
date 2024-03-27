@@ -62,7 +62,10 @@
 			  c_DBMS(get_next_result_set)/3,
 			  c_DBMS(query)/5,
 			  c_DBMS(number_of_fields)/3,
-#if MYDDAS_SQLITE3
+#ifdef odbc
+			  c_DBMS(number_of_fields_in_query)/3,
+#endif
+#ifdef sqlite3
 			  c_DBMS(connect)/2,
 #endif
 DBMS(describe)/3,
@@ -275,8 +278,6 @@ DBMS(describe)(A,B,C) :- throw(error(stub_call,describe(A,B,C))).
 c_DBMS(number_of_fields_in_query)(A,B,C) :- throw(error(stub_call,number_of_fields_in_query(A,B,C))).
 #endif
 
-#if !MYDDAS_SQLITE3
-c_DBMS(connect)(A,B) :- throw(error(stub_call,connect(A,B))).
-#endif
+
 
 

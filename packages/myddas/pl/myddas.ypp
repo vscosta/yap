@@ -60,11 +60,11 @@
 		  db_verbose/1,
 		  db_module/1,
 		  db_is_database_predicate/3,
-		  %#ifdef MYDDAS_STATS
+		  #ifdef MYDDAS_STATS
 %		 db_stats/1,
 %		  db_stats/2,
 %		  db_stats_time/2,
-		  %#endif
+		  #endif
 		 db_sql/2,
 		  db_sql/3,
 		  db_sql_select/3,
@@ -94,21 +94,20 @@
       c_db_check_if_exists_pred/3,
       c_db_delete_predicate/3,
       c_db_multi_queries_number/2,
-/*      %#ifdef MYDDAS_STATS
+#ifdef MYDDAS_STATS
       c_db_stats/2,
       c_db_stats_walltime/1,
       c_db_stats_translate/2,
       c_db_stats_time/2,
-      %#endif
-      %#ifdef DEBUG
+      #endif
+      #ifdef DEBUG
       c_db_check/0,
-      %#endif
-		  %#ifdef MYDDAS_TOP_LEVEL
+      #endif
+		  #ifdef MYDDAS_TOP_LEVEL
           db_top_level/4,
 		  db_top_level/5,
 		  db_datalog_select/3,
-		  %#endif
-*/
+		  #endif
 				% myddas_assert_predicates.ypp
 				% myddas_mysql.ypp,
           		  db_multi_queries_number/2
@@ -194,6 +193,7 @@ user:file_search_path(dataset, '.').
 :- dynamic user:prolog_file_type/2.
 
 user:prolog_file_type( db, dataset ).
+user:prolog_file_type( gpkg, dataset ).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -272,6 +272,9 @@ db_open(File) :-
     '$error_checks'(db_open(sqlite3,'',Db,'',Password)),
     c_sqlite3_connect(Db,Con),
     set_value(myddas,Con).
+
+sqlite3(File) :-
+    db_open(File).
 #endif
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
