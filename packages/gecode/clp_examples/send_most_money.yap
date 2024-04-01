@@ -23,8 +23,6 @@ main :-
         statistics( runtime, _ ),
         once( send_most_money(Letters, Money) ),
         statistics( runtime, [DT|_] ),
-%       findall(Queens, queens(I, Queens), Solutions ),
-%       length( Solutions, N),
         format('took ~w msec to find first solution, ~w.~n', [DT, Letters:Money]),
         fail.
 main.
@@ -40,8 +38,8 @@ send_most_money(Letters, Money) :-
 	M #\= 0,
 	S #\= 0,
 	all_distinct(Letters),
-	          1000*S + 100*E + 10*N + D +
-                  1000*M + 100*O + 10*S + T #= Money,
-	10000*M + 1000*O + 100*N + 10*E + Y #= Money,
+	Money #=          1000*S + 100*E + 10*N + D +
+                  1000*M + 100*O + 10*S + T,
+	Money #= 10000*M + 1000*O + 100*N + 10*E + Y,
 	maximize(Money),
 	labeling([], Letters).

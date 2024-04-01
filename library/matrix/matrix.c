@@ -219,7 +219,8 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
   // source: stack
   //
   inp = YAP_Deref(inp);
-    if ((mat = YAP_BlobOfTerm(inp))) {
+  if (YAP_IsBlobTerm(inp)) {
+    mat = YAP_BlobOfTerm(inp);
       o->type = mat[MAT_TYPE] == MATRIX_INT ? 'i' : 'f';
       o->c_ord = true;
       o->sz = mat[MAT_SIZE];
@@ -234,6 +235,7 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
       if (f == MFunctorM)
 	{
 	  YAP_Term bases = YAP_IntOfTerm(YAP_ArgOfTerm(4,inp));
+	  o->type = 't';
 	  o->sz = YAP_IntOfTerm(YAP_ArgOfTerm(3,inp));
 	  if (YAP_IsIntTerm(bases))
 	    o->base = YAP_IntOfTerm(bases);
@@ -242,7 +244,6 @@ static bool GET_MATRIX(YAP_Term inp, M *o) {
 	  o->c_ord = o->base == 0;
 	  o->ndims = YAP_IntOfTerm(YAP_ArgOfTerm(2,inp));
 	  o->dims = malloc(o->ndims*sizeof(intptr_t));
-	  o->base=0;
 	  YAP_Term l = YAP_ArgOfTerm(1,inp);
 	  intptr_t *d = o->dims;
 	  while(YAP_IsPairTerm(l)) {
@@ -704,8 +705,7 @@ static YAP_Bool matrix_set_one(void) {
       return false;
     }
   case 't':
-    mat.terms[offset] = YAP_ARG3;
-    return true;
+    return YAP_Unify(mat.terms[offset],YAP_ARG3);
   default:
     return false;
   }

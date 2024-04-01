@@ -603,7 +603,8 @@ dfa( S0, Transitions, Finals, DFA) :-
 	DFA := dfa( S0, Transitions, Finals ).
 
 check(V, NV) :-
-	( var(V) -> V = NV ;
+	( attvar(V) -> V = NV ;
+	  var(V) -> V = NV ;
 	  number(V) -> V = NV ;
 	  is_list(V) -> maplist(check, V, NV) ;
 	  V = sum(_,_) -> V = NV ;
@@ -712,7 +713,7 @@ post( rel( sum(L0), Op, Out), Space-Map, Reify):-
 
 post( rel(A1+A2, Op, B), Space-Map, Reify):-
 	var( B ), !,
-	linearize(A1+A2, 1, As, [], CAs, [], 0, B0, Space-Map),
+	linearize(A1+A2, 1, As, [], CAs, [], 0, _B0, Space-Map),
 	l(B, B0, Map),
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->
@@ -745,7 +746,7 @@ post( rel(A1+A2, Op, B), Space-Map, Reify):-
 
 post( rel(A1-A2, Op, B), Space-Map, Reify):-
     ( var(B) ), !,
-	linearize(A1-A2, 1, As, [], CAs, [], 0, B0, Space-Map),
+	linearize(A1-A2, 1, As, [], CAs, [], 0, _B0, Space-Map),
 	l(B, B0, Map),
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->
@@ -924,6 +925,9 @@ reverse_arith_op( (#>=) ,  (#=<) ).
 reverse_arith_op( (#<)  ,  (#>) ).
 reverse_arith_op( (#=<) ,  (#>=) ).
 
+/*
+  convert to a list of basic constraints
+*/
 linearize(V, C, [A|As], As, [C|CAs], CAs, I, I, _-Map) :-
 	var(V), !,
 	l(V, A, Map).
@@ -938,26 +942,21 @@ linearize([A|B], C, As, Bs, CAs, CBs, I, IF, Env) :-
 	linearize(A, C, As, A1s, CAs, CA1s, I, I1, Env),
 	linearize(B, C, A1s, Bs, CA1s, CBs, I1, IF, Env).
 linearize(A-B, C, As, Bs, CAs, CBs, I, IF, Env) :-
-    !,
 	NC is -C,
 	linearize(A, C, As, A1s, CAs, CA1s, I, I1, Env),
 	linearize(B, NC, A1s, Bs, CA1s, CBs, I1, IF, Env).
 linearize(A, C, As, As, CAs, CAs, I, IF, _) :-
-    !,
 	integer(A), !,
 	IF is I-C*A.
 linearize(A, C, As, As, CAs, CAs, I, IF, _) :-
-    !,
 	ground(A),
 	catch( (B is eval(A)), _, fail ), !,
 	IF is I-C*B.
 linearize(C1*B, C, As, Bs, CAs, CBs, I, IF, Env) :-
-    !,
 	integer(C1), !,
 	NC is C*C1,
 	linearize(B, NC, As, Bs, CAs, CBs, I, IF, Env).
 linearize(B*C1, C, As, Bs, CAs, CBs, I, IF, Env) :-
-    !,
 	integer(C1), !,
 	NC is C*C1,
 	linearize(B, NC, As, Bs, CAs, CBs, I, IF, Env).
@@ -1315,12 +1314,13 @@ in_c(C, A, Space-Map) :-
 in_c_l(Env, V, IV) :-
 	in_c(V, IV, Env).
 
-user:term_expansion( ( H :- B), (H :- (gecode_clpfd:init_gecode(Space, Me), NB, gecode_clpfd:close_gecode(Space, Vs, Me)) ) ) :-
+/*
+user:term_expansion( ( H :- B), (H :- (gecode_clpfd:init_gecode(Space, Me), NB, term_variables(B,Vs), gecode_clpfd:close_gecode(Space, Vs, Me)) ) ) :-
     process_constraints(B, NB, Env, Labeling),
     nonvar(Labeling),
-	term_variables(H, Vs),
 	nonvar( Env ), !,
 	Env = env( Space ).
+*/
 
 init_gecode(Space, old) :-
 	nb_current(gecode_space, Space), nonvar(Space), !.
@@ -1336,7 +1336,9 @@ close_gecode(Space-Map, Vs0, new) :-
 	maplist(ll(Map), CVs, IVs),
 	SolSpace := search(Space),
 	b_setval(gecode_done, true),
-	CVs := val(SolSpace,IVs).
+    Result := val(SolSpace,IVs),
+    writeln(Result),
+    Result=Vs0.
 
 intvar(Map, V) :-
 	l(V, _IV, Map).
@@ -1358,8 +1360,8 @@ add_el(_G0, _El, Cs-Vs, Cs-Vs).
 %       An attributed variable with attribute value Domain has been
 %       assigned the value Y
 
-attr_unify_hook(_, _) :-
-	b_getval(gecode_done, true), !.
+attr_unify_hook(_A, _B) :-
+  	b_getval(gecode_done, true), !.
 attr_unify_hook(v(IV1,_,_), Y) :-
         (   get_attr(Y, gecode_clpfd, v(IV2,_,_))
         ->

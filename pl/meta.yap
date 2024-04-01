@@ -123,6 +123,17 @@ false,
 
 '$expand_args'([],  _, _, [], _, []).
 '$expand_args'([A|GArgs], SM, BM,   [M|GDefs], HVars, [NA|NGArgs]) :-
+    number(M),
+    M > 0,
+    length(A1s,M),
+    '$append'(A1s,R,GArgs),
+    '$append'(A1s,NR,NGArgs),
+    length(Defs,M),
+    '$append'(Defs,RGDefs,GDefs),
+    !,
+    ('$vmember'(A,HVars) -> NA = A ; NA=BM:A ),
+    '$expand_args'(R, SM, BM, RGDefs, HVars, NR).
+'$expand_args'([A|GArgs], SM, BM,   [M|GDefs], HVars, [NA|NGArgs]) :-
     (number(M);M== ':'),
     !,
     '$expand_arg'(A, SM, BM, M, HVars, NA),
@@ -162,51 +173,6 @@ false,
     OF = MF:O
     ).
 
-'$expand_arg'(S, _SM, BM, Meta, HVars, OF) :-
-    number(Meta),
-    functor(S,F,A),
-    A=:=Meta+1,
-    !,
-    S =.. [F,A1|Extras],
-    (
-	var(A1)
-    ->
-    ( '$vmember'(G,HVars) -> NS=S ; NS=..[F,BM:G|Extras] ),
-    ( nonvar(M), '$predicate_exists'(NS,prolog) -> OF = NS ; OF= BM:NS)
-    ;
-    strip_module(BM:A1,M,G),
-
-    G =.. [ID|A1s],
-    '$append'(A1s,Extras,As),
-    NG =.. [ID|As],
-    '$expand_goals'(NG, MIG, _,M, M, M, HVars-[]),
-    strip_module(MIG,MF,IG),
-    length(Xs,Meta),	
-    IG =.. [ID|IAs],	
-    '$append'(NA1s,Xs,IAs),
-    FG =.. [ID|NA1s],
-    NS =.. [F,O1|Xs],
-    '$import_expansion'(MF:FG,MF1:FG1),
-    strip_module(MF1:FG1, MSF, FSG),
-    (
-	nonvar(MSF),
-      	'$pred_exists'(FSG,prolog),
-	fail
-    -> O1 = FSG
-    ;
-    O1 = MSF:FSG
-    ),
-    '$import_expansion'(BM:NS,BM1:NS1),
-    strip_module(BM1:NS1, OMF, O),
-    (
-	nonvar(OMF),
-	'$pred_exists'(O,prolog),
-	fail
-    -> O=OF
-    ;
-    OF = OMF:O
-    )
-    ).
 '$expand_arg'(A, _,BM,_, _HVars, O) :-
     (
 	nonvar(A),
@@ -379,19 +345,6 @@ false,
 	 OG =.. [F|OArgs].
 '$meta_expansion'(G, GM, _SM, _HVars, M:NG) :-
     '$yap_strip_module'(GM:G,M,NG).
-
-'$meta_expansion'(G, GM, SM, HVars, OG) :-
-    nonvar(GM),
-    functor(G, F, Arity ),
-	 functor(PredDef, F, Arity ),
-	 '$is_metapredicate'(PredDef,GM),
-	 recorded('$m' , meta_predicate(M0,PredDef),_),
-	 (M0==GM->true;M0==prolog),
-    !,
-	 G =.. [F|LArgs],
-	 PredDef =.. [F|LMs],
-	 '$expand_args'(LArgs, GM, SM, LMs, HVars, OArgs),
-	 OG =.. [F|OArgs].
 
  /**
  * @brief Perform meta-variable and user expansion on a goal _G_

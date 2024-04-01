@@ -277,6 +277,9 @@ and lookup values of variables in each solution:
 is_int(X,Y) :- integer(X), Y=X.
 is_int(X) :- integer(X).
 
+is_double(X,Y) :- float(X), Y=X.
+is_double(X) :- float(X).
+
 is_bool_(true,true).
 is_bool_(false,false).
 is_bool(X,Y) :- nonvar(X), Y=X.
@@ -368,6 +371,70 @@ is_DFA_('DFA'(TS),TS).
 is_DFA(X,Y) :- nonvar(X), is_DFA_(X,Y).
 is_DFA(X) :- is_DFA(X,_).
 
+is_Rnd_('Rnd'(TS),TS).
+is_Rnd(X,Y) :- nonvar(X), is_Rnd_(X,Y).
+is_Rnd(X) :- is_Rnd(X,_).
+
+is_SetAssign_('SetAssign'(TS),TS).
+is_SetAssign(X,Y) :- nonvar(X), is_SetAssign_(X,Y).
+is_SetAssign(X) :- is_SetAssign(X,_).
+
+is_IntAssign_('IntAssign'(TS),TS).
+is_IntAssign(X,Y) :- nonvar(X), is_IntAssign_(X,Y).
+is_IntAssign(X) :- is_IntAssign(X,_).
+
+is_FloatAssign_('FloatAssign'(TS),TS).
+is_FloatAssign(X,Y) :- nonvar(X), is_FloatAssign_(X,Y).
+is_FloatAssign(X) :- is_FloatAssign(X,_).
+
+is_BoolAssign_('BoolAssign'(TS),TS).
+is_BoolAssign(X,Y) :- nonvar(X), is_BoolAssign_(X,Y).
+is_BoolAssign(X) :- is_BoolAssign(X,_).
+
+is_Symmetries_('Symmetries'(TS),TS).
+is_Symmetries(X,Y) :- nonvar(X), is_Symmetries_(X,Y).
+is_Symmetries(X) :- is_Symmetries(X,_).
+
+is_SetVarValPrint_('SetVarValPrint'(TS),TS).
+is_SetVarValPrint(X,Y) :- nonvar(X), is_SetVarValPrint_(X,Y).
+is_SetVarValPrint(X) :- is_SetVarValPrint(X,_).
+
+is_IntVarValPrint_('IntVarValPrint'(TS),TS).
+is_IntVarValPrint(X,Y) :- nonvar(X), is_IntVarValPrint_(X,Y).
+is_IntVarValPrint(X) :- is_IntVarValPrint(X,_).
+
+is_FloatVarValPrint_('FloatVarValPrint'(TS),TS).
+is_FloatVarValPrint(X,Y) :- nonvar(X), is_FloatVarValPrint_(X,Y).
+is_FloatVarValPrint(X) :- is_FloatVarValPrint(X,_).
+
+is_BoolVarValPrint_('BoolVarValPrint'(TS),TS).
+is_BoolVarValPrint(X,Y) :- nonvar(X), is_BoolVarValPrint_(X,Y).
+is_BoolVarValPrint(X) :- is_BoolVarValPrint(X,_).
+
+is_SetBranchFilter_('SetBranchFilter'(TS),TS).
+is_SetBranchFilter(X,Y) :- nonvar(X), is_SetBranchFilter_(X,Y).
+is_SetBranchFilter(X) :- is_SetBranchFilter(X,_).
+
+is_IntBranchFilter_('IntBranchFilter'(TS),TS).
+is_IntBranchFilter(X,Y) :- nonvar(X), is_IntBranchFilter_(X,Y).
+is_IntBranchFilter(X) :- is_IntBranchFilter(X,_).
+
+is_FloatBranchFilter_('FloatBranchFilter'(TS),TS).
+is_FloatBranchFilter(X,Y) :- nonvar(X), is_FloatBranchFilter_(X,Y).
+is_FloatBranchFilter(X) :- is_FloatBranchFilter(X,_).
+
+is_BoolBranchFilter_('BoolBranchFilter'(TS),TS).
+is_BoolBranchFilter(X,Y) :- nonvar(X), is_BoolBranchFilter_(X,Y).
+is_BoolBranchFilter(X) :- is_BoolBranchFilter(X,_).
+
+is_std_function_('std_function'(TS),TS).
+is_std_function(X,Y) :- nonvar(X), is_std_function_(X,Y).
+is_std_function(X) :- is_std_function(X,_).
+
+
+is_FloatNum(X,Y) :- float(X), Y=X.
+is_FloatNum(X) :- float(X).
+
 new_intset(X,I,J) :- intset(X,I,J).
 new_intset(X,L) :- intset(X,L).
 
@@ -406,6 +473,36 @@ assert_is_TupleSet(X,Y) :-
 	is_TupleSet(X,Y) -> true ; throw(gecode_error(expected(tupleset))).
 assert_is_DFA(X,Y) :-
 	is_DFA(X,Y) -> true ; throw(gecode_error(expected(dfa))).
+assert_is_Rnd(X,Y) :-
+	is_Rnd(X,Y) -> true ; throw(gecode_error(expected(rnd))).
+assert_is_Symmetries(X,Y) :-
+	is_Symmetries(X,Y) -> true ; throw(gecode_error(expected(symmetries))).
+assert_is_SetAssign(X,Y) :-
+	is_SetAssign(X,Y) -> true ; throw(gecode_error(expected(set_assign))).
+assert_is_IntAssign(X,Y) :-
+	is_IntAssign(X,Y) -> true ; throw(gecode_error(expected(int_assign))).
+assert_is_FloatAssign(X,Y) :-
+	is_FloatAssign(X,Y) -> true ; throw(gecode_error(expected(float_assign))).
+assert_is_BoolAssign(X,Y) :-
+	is_BoolAssign(X,Y) -> true ; throw(gecode_error(expected(bool_assign))).
+assert_is_SetBranchFilter(X,Y) :-
+	is_SetBranchFilter(X,Y) -> true ; throw(gecode_error(expected(set_branch_filter))).
+assert_is_IntBranchFilter(X,Y) :-
+	is_IntBranchFilter(X,Y) -> true ; throw(gecode_error(expected(int_branch_filter))).
+assert_is_FloatBranchFilter(X,Y) :-
+	is_FloatBranchFilter(X,Y) -> true ; throw(gecode_error(expected(float_branch_filter))).
+assert_is_BoolBranchFilter(X,Y) :-
+	is_BoolBranchFilter(X,Y) -> true ; throw(gecode_error(expected(bool_branch_filter))).
+assert_is_SetVarValPrint(X,Y) :-
+	is_SetVarValPrint(X,Y) -> true ; throw(gecode_error(expected(set_var_val_printer))).
+assert_is_IntVarValPrint(X,Y) :-
+	is_IntVarValPrint(X,Y) -> true ; throw(gecode_error(expected(int_var_val_printer))).
+assert_is_FloatVarValPrint(X,Y) :-
+	is_FloatVarValPrint(X,Y) -> true ; throw(gecode_error(expected(float_var_val_printer))).
+assert_is_BoolVarValPrint(X,Y) :-
+	is_BoolVarValPrint(X,Y) -> true ; throw(gecode_error(expected(bool_var_val_printer))).
+assert_is_std_function(X,Y) :-
+	is_std_function(X,Y) -> true ; throw(gecode_error(expected(dfa))).
 assert_is_IntVar(X,Y) :-
 	is_IntVar(X,Y) -> true ; throw(gecode_error(expected(intvar))).
 assert_is_BoolVar(X,Y) :-
@@ -775,29 +872,29 @@ new_setvar(SVar, Space, X1, X2, X3, X4, X5) :-
 %% (Glb,LubMin,LubMax,CardMin)                   4 new_setvar_5
 %% (GlbMin,GlbMax,Lub,CardMin)                   4 new_setvar_8
 %% (Glb,Lub,CardMin,CardMax)                     4 new_setvar_10
-new_setvar(SVar,Space,X1,X2,X3,X4) :-
-	assert_var(SVar),
-	assert_is_Space_or_Clause(Space,Space_),
-	assert_integer(X4),
-	(is_IntSet(X1,X1_)
-	-> (is_IntSet(X2,X2_)
-	   ->
-	    assert_integer(X3),
-	    gecode_new_setvar_10(Idx,Space_,X1_,X2_,X3,X4)
-	   ;
-	    assert_integer(X2),
-	    assert_integer(X3),
-	    gecode_new_setvar_5(Idx,Space_,X1_,X2,X3,X4))
-	;
-	 assert_integer(X1),
-	 assert_integer(X2),
-	 (is_IntSet(X3,X3_)
-	 ->
-	  gecode_new_setvar_8(Idx,Space_,X1,X2,X3_,X4)
-	 ;
-	  assert_integer(X3),
-	  gecode_new_setvar_3(Idx,Space_,X1,X2,X3,X4))),
-	SVar='SetVar'(Idx,-1).
+%% new_setvar(SVar,Space,X1,X2,X3,X4) :-
+%% 	assert_var(SVar),
+%% 	assert_is_Space_or_Clause(Space,Space_),
+%% 	assert_integer(X4),
+%% 	(is_IntSet(X1,X1_)
+%% 	-> (is_IntSet(X2,X2_)
+%% 	   ->
+%% 	    assert_integer(X3),
+%% 	    gecode_new_setvar_10(Idx,Space_,X1_,X2_,X3,X4)
+%% 	   ;
+%% 	    assert_integer(X2),
+%% 	    assert_integer(X3),
+%% 	    gecode_new_setvar_5(Idx,Space_,X1_,X2,X3,X4))
+%% 	;
+%% 	 assert_integer(X1),
+%% 	 assert_integer(X2),
+%% 	 (is_IntSet(X3,X3_)
+%% 	 ->
+%% 	  gecode_new_setvar_8(Idx,Space_,X1,X2,X3_,X4)
+%% 	 ;
+%% 	  assert_integer(X3),
+%% 	  gecode_new_setvar_3(Idx,Space_,X1,X2,X3,X4))),
+%% 	SVar='SetVar'(Idx,-1).
 
 %% 3 arguments
 %% (Glb,LubMin,LubMax)                           3 new_setvar_6
@@ -1125,6 +1222,13 @@ get_values(X, Space, Var) :-
 	-> gecode_intvar_values(X,Space_,Var_)
 	; get_for_vars(X,Space,Var,gecode:get_values)).
 
+gecode_has_disjunctors(false).
+
+:- if( gecode_has_disjunctors(true)).
+
+(X := disjunctor(Space)) :- !, new_disjunctor(X,Space).
+(X := clause(Disj)) :- !, new_clause(X,Disj).
+
 new_disjunctor(X, Space) :-
 	assert_is_Space(Space,Space_),
 	gecode_new_disjunctor(D,Space_),
@@ -1153,9 +1257,6 @@ assert_is_Clause(X,Y) :-
 
 is_Space_or_Clause(X,Y) :-
 	(is_Space(X,Y);is_Clause(X,Y)), !.
-assert_is_Space_or_Clause(X,Y) :-
-	is_Space_or_Clause(X,Y)	-> true
-	; throw(gecode_error(expected(space,clause))).
 
 new_forward(Clause, X, Y) :-
 	assert_is_Clause(Clause, Clause_),
@@ -1177,6 +1278,15 @@ new_forward(Clause, X, Y) :-
 	      -> (new_forward(Clause,H1,H2),
 		  new_forward(Clause,T1,T2))
 	      ; throw(gecode_error(forward)))))).
+
+:-else.
+
+is_Space_or_Clause(X,Y) :-
+	is_Space(X,Y).
+:- endif.
+assert_is_Space_or_Clause(X,Y) :-
+	is_Space_or_Clause(X,Y)	-> true
+	; throw(gecode_error(expected(space,clause))).
 
 new_intvars_(L,Space,N,I,J) :- length(L,N), new_intvars(L,Space,I,J).
 new_intvars_(L,Space,N,IntSet) :- length(L,N), new_intvars(L,Space,IntSet).
@@ -1256,14 +1366,13 @@ keep_list_(_, X) :-
 (X := lub_values(Space,Var)) :- !, get_lub_values(X,Space,Var).
 (X := unknown_values(Space,Var)) :- !, get_unknown_values(X,Space,Var).
 
-(X := disjunctor(Space)) :- !, new_disjunctor(X,Space).
-(X := clause(Disj)) :- !, new_clause(X,Disj).
-
 (X := search(Y)) :- !, search(Y,X).
 (X := search(Y,L)) :- !, search(Y,X,L).
 
 % these should be autogenerated:
+:- if( gecode_has_disjunctors(true)).
 (C += forward(X,Y)) :- !, new_forward(C,X,Y).
+:- endif.
 (Space += abs(X1,X2)) :- !, abs(Space,X1,X2).
 %(Space += abs(X1,X2,X3)) :- !, abs(Space,X1,X2,X3).
 (Space += assign(X1,X2)) :- !, assign(Space,X1,X2).
@@ -1336,41 +1445,41 @@ keep_list_(_, X) :-
 (Space += nooverlap(X1,X2,X3,X4,X5,X6)) :- !, nooverlap(Space,X1,X2,X3,X4,X5,X6).
 (Space += nooverlap(X1,X2,X3,X4,X5,X6,X7)) :- !, nooverlap(Space,X1,X2,X3,X4,X5,X6,X7).
 %(Space += nooverlap(X1,X2,X3,X4,X5,X6,X7,X8)) :- !, nooverlap(Space,X1,X2,X3,X4,X5,X6,X7,X8).
-(Space += notMax(X1,X2)) :- !, notMax(Space,X1,X2).
-(Space += notMin(X1,X2)) :- !, notMin(Space,X1,X2).
+%(Space += notMax(X1,X2)) :- !, notMax(Space,X1,X2).
+%(Space += notMin(X1,X2)) :- !, notMin(Space,X1,X2).
 (Space += path(X1,X2,X3)) :- !, path(Space,X1,X2,X3).
 (Space += path(X1,X2,X3,X4)) :- !, path(Space,X1,X2,X3,X4).
 (Space += path(X1,X2,X3,X4,X5)) :- !, path(Space,X1,X2,X3,X4,X5).
 (Space += path(X1,X2,X3,X4,X5,X6)) :- !, path(Space,X1,X2,X3,X4,X5,X6).
 (Space += path(X1,X2,X3,X4,X5,X6,X7)) :- !, path(Space,X1,X2,X3,X4,X5,X6,X7).
-(Space += path(X1,X2,X3,X4,X5,X6,X7,X8)) :- !, path(Space,X1,X2,X3,X4,X5,X6,X7,X8).
+%(Space += path(X1,X2,X3,X4,X5,X6,X7,X8)) :- !, path(Space,X1,X2,X3,X4,X5,X6,X7,X8).
 (Space += precede(X1,X2)) :- !, precede(Space,X1,X2).
 (Space += precede(X1,X2,X3)) :- !, precede(Space,X1,X2,X3).
-(Space += precede(X1,X2,X3,X4)) :- !, precede(Space,X1,X2,X3,X4).
+%(Space += precede(X1,X2,X3,X4)) :- !, precede(Space,X1,X2,X3,X4).
 (Space += reify(X1,X2,X3)) :- !, reify(Space,X1,X2,X3).
 (Space += rel(X1,X2)) :- !, rel(Space,X1,X2).
 (Space += rel(X1,X2,X3)) :- !, rel(Space,X1,X2,X3).
 (Space += rel(X1,X2,X3,X4)) :- !, rel(Space,X1,X2,X3,X4).
-(Space += rel(X1,X2,X3,X4,X5)) :- !, rel(Space,X1,X2,X3,X4,X5).
-(Space += rel(X1,X2,X3,X4,X5,X6)) :- !, rel(Space,X1,X2,X3,X4,X5,X6).
-(Space += sequence(X1)) :- !, sequence(Space,X1).
-(Space += sequence(X1,X2)) :- !, sequence(Space,X1,X2).
+%(Space += rel(X1,X2,X3,X4,X5)) :- !, rel(Space,X1,X2,X3,X4,X5).
+%(Space += rel(X1,X2,X3,X4,X5,X6)) :- !, rel(Space,X1,X2,X3,X4,X5,X6).
+%(Space += sequence(X1)) :- !, sequence(Space,X1).
+%(Space += sequence(X1,X2)) :- !, sequence(Space,X1,X2).
 (Space += sequence(X1,X2,X3,X4,X5)) :- !, sequence(Space,X1,X2,X3,X4,X5).
-(Space += sequence(X1,X2,X3,X4,X5,X6)) :- !, sequence(Space,X1,X2,X3,X4,X5,X6).
+%(Space += sequence(X1,X2,X3,X4,X5,X6)) :- !, sequence(Space,X1,X2,X3,X4,X5,X6).
 (Space += sorted(X1,X2)) :- !, sorted(Space,X1,X2).
 (Space += sorted(X1,X2,X3)) :- !, sorted(Space,X1,X2,X3).
-(Space += sorted(X1,X2,X3,X4)) :- !, sorted(Space,X1,X2,X3,X4).
-(Space += sqr(X0,X1,X2,X3)) :- !, sqr(Space,X0,X1,X2,X3).
+%(Space += sorted(X1,X2,X3,X4)) :- !, sorted(Space,X1,X2,X3,X4).
+%(Space += sqr(X0,X1,X2,X3)) :- !, sqr(Space,X0,X1,X2,X3).
 (Space += sqr(X1,X2)) :- !, sqr(Space,X1,X2).
 (Space += sqrt(X1,X2)) :- !, sqrt(Space,X1,X2).
-(Space += sqrt(X1,X2,X3)) :- !, sqrt(Space,X1,X2,X3).
+%(Space += sqrt(X1,X2,X3)) :- !, sqrt(Space,X1,X2,X3).
 (Space += unary(X1,X2)) :- !, unary(Space,X1,X2).
 (Space += unary(X1,X2,X3)) :- !, unary(Space,X1,X2,X3).
 (Space += unary(X1,X2,X3,X4)) :- !, unary(Space,X1,X2,X3,X4).
-(Space += unary(X1,X2,X3,X4,X5)) :- !, unary(Space,X1,X2,X3,X4,X5).
+%(Space += unary(X1,X2,X3,X4,X5)) :- !, unary(Space,X1,X2,X3,X4,X5).
 (Space += unshare(X1)) :- !, unshare(Space,X1).
-(Space += unshare(X1,X2)) :- !, unshare(Space,X1,X2).
-(Space += weights(X1,X2,X3,X4)) :- !; weights(Space,X1,X2,X3,X4).
+%(Space += unshare(X1,X2)) :- !, unshare(Space,X1,X2).
+%(Space += weights(X1,X2,X3,X4)) :- !; weights(Space,X1,X2,X3,X4).
 
 (Space += minimize(X)) :- !, minimize(Space,X).
 (Space += maximize(X)) :- !, maximize(Space,X).

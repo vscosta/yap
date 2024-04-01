@@ -956,13 +956,13 @@ static Int current_predicate(USES_REGS1) {
 
 static Int functors_for_atom(USES_REGS1) {
   Atom at = AtomOfTerm(Deref(ARG1));
-  Term o = 0;
+  Term o = TermNil;
   Term next = TermNil;
   Prop p = RepAtom(at)->PropsOfAE;
   while(p) {
     if (IsFunctorProperty(p->KindOfPE)) {
       Term t = Yap_MkNewApplTerm( (RepFunctorProp(p)),RepFunctorProp(p)->ArityOfFE);
-      if (!o) {
+      if (o == TermNil) {
 	o = AbsPair(HR);
       }
       HR[0] = t;

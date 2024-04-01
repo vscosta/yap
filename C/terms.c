@@ -1023,7 +1023,7 @@ static Int term_attterms(USES_REGS1)
   {			\
 INC_H(2,ts);\
 ts[0] = (CELL)fvar;			\
-if ( handle_singles){				\
+ if ( handle_singles){	\
     ts[1] = TermUnderscore;			\
 } \
  else if (prefix) {				\

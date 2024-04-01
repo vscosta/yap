@@ -638,15 +638,13 @@ unload_file(F) :-
     ->
 	clause(M:P,_,R),
 	clause_property(R,file(File)),
-	erase(R)
+	'$erase_clause'(R,M)
 	;
-	(
-	    predicate_property(M:P, dynamic)
+      predicate_property(M:P, dynamic)
 	->
 	clause(M:P,_,R),
 	clause_property(R,file(File)),
 	erase(R)
-	)
 	;
 	predicate_property(M:P, file(File)),
     functor(P,N,A),

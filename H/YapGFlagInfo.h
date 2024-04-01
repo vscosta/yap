@@ -239,7 +239,7 @@ YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
              list_option,
 	   "[quoted(true),  \
 	     portrayed(true),\
-	     name_variables(0),\
+	     numbervars(true),\
 	     max_depth(20)]" ,
              NULL),
   

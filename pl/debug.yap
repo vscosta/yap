@@ -304,13 +304,17 @@ prolog:'$spy'(Mod:G) :-
 '$trace'( yap_hacks:trace( MG), Ctx) :-
     !,
     '$trace'( MG,Ctx).
-    '$trace'(MG, Ctx) :-
+'$trace'( MG, _Ctx) :-
+    strip_module(MG,M,G),
+    '$id_goal'(GN0),
+    '$zip_at_port'( call, GN0, M:G),
+    !,
+    '$execute_non_stop'(M:G).
+'$trace'(MG, Ctx) :-
     strip_module(MG,M,G),
     '$id_goal'(GoalNumberN),
-    '$debuggable'(G,M,[call],GoalNumberN),
     !,
-    '$get_debugger_state'(trace,Trace),
-    '$set_debugger_state'( creep, 0, yes, Trace, false ),
+    '$set_debugger_state'( creep, 0, stop, true, false ),
     current_choice_point(CP0),
     catch(
 	trace_goal(G,M, Ctx, GoalNumberN, CP0),
@@ -336,7 +340,7 @@ prolog:'$spy'(Mod:G) :-
 
 '$retrace'(M:G,Ctx, GoalNumberN) :-
     '$get_debugger_state'(trace,Trace),
-    '$set_debugger_state'( creep, 0, yes, Trace, false ),
+    '$set_debugger_state'( creep, 0, stop, Trace, false ),
     current_choice_point(CP0),
     catch(
 	trace_goal(G,M, Ctx, GoalNumberN, CP0),
@@ -459,18 +463,21 @@ trace_goal((A|B), M, Ctx, GN0, CP) :- !,
      trace_goal(B, M, Ctx, GN0, CP)).
 trace_goal(true, _M, _Ctx, _GN, _CP) :- !.
 trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
-    '$debuggable'(G,M,[call],GoalNumberN),
-    !,
     '$id_goal'(GoalNumberN),
     '$predicate_type'(G,M,T),
+    handle_port([call],GoalNumberN,G,M,Ctx,CP0, Deterministic),
+    (
+      '$zip_at_port'(call,GoalNumberN,M:G)
+      ->
+      '$execute_non_stop'(M:G)
+      ;
     catch(
 	trace_goal_(T,G,M, Ctx, GoalNumberN, CP0,Deterministic),
 		Error,
         trace_error(Error, GoalNumberN, trace_goal_(T,G,M, Ctx, GoalNumberN, CP0, Deterministic))
+    )
     ),
     (Deterministic == deterministic -> ! ; true).
-trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
-    '$execute_non_stop'(M:G).
 
 
 
@@ -485,8 +492,6 @@ trace_goal_(mega_procedure,G,M, _Ctx,GoalNumber, CPN, Deterministic) :-
     trace_goal_(source_procedure,G,M, _Ctx,GoalNumber, CPN, Deterministic).
 trace_goal_(undefined_procedure,G, M, _Ctx, _GoalNumber, _CPN, _Deterministic) :-
     trace_goal_(system_procedure, '$undefp'(M:G), M, _Ctx, _GoalNumber, _CPN, _Deterministic).
-trace_goal_(foreign_procedure,G, M, _Ctx, _GoalNumber, _CPN, _Deterministic) :-
-    trace_goal_(system_procedure, '$undefp'(M:G), M, _Ctx, _GoalNumber, _CPN, _Deterministic).
 trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, Deterministic) :-
     '$id_goal'(GoalNumber),
     current_choice_point(CP),
@@ -494,7 +499,7 @@ trace_goal_(source_procedure,G,M, Ctx,GoalNumber, _CP, Deterministic) :-
 %	N > 0,
     !,
     '$creep_enumerate_sources'(
-       handle_port([call],GoalNumber,G,M,Ctx,CP, Deterministic),
+true,
        M:G, B,
        Port0,
        handle_port([Port0], GoalNumber, G, M, Ctx, CP,  Deterministic)
@@ -514,7 +519,7 @@ trace_goal_(static_procedure,GoalNumber, G,M, Ctx,_CP, Deterministic) :-
 	N > 0,
     !,
     '$creep_enumerate_refs'(
-	'$trace_port'([call], GoalNumber, G, M , Ctx, CP, Deterministic),
+true,
 			    M:G,
 			    N,
 			    Ref,
@@ -532,32 +537,21 @@ trace_goal_(system_procedure,throw(G), _M, _Ctx, _GoalNumber, _CP, _Deterministi
 	!,
 	throw(G).
 trace_goal_(system_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-
-     '$meta_hook'(M:G,NM:NG),
-    trace_goal_(private_procedure,NG, NM,
-
-		Ctx, GoalNumber, CP, Deterministic).
+    '$meta_hook'(M:G,NM:NG),
+	gated_call(
+	true,
+    % debugging allowed.
+	    '$execute_non_stop'(NM:NG),
+	    Port,
+	    handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic)
+	).
 trace_goal_(proxy_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-
     !,
     '$import'(MDonor,M,GDonor,G,_,_),
     '$predicate_type'(GDonor,MDonor,T),
     trace_goal_(T,GDonor, MDonor, Ctx, GoalNumber, CP, Deterministic).
-trace_goal_(private_procedure,G, M, Ctx, GoalNumber, CP, Deterministic) :-
-	'$id_goal'(GoalNumber),
- /* (
-	'$is_private'(G, M)
-    ;
-    current_prolog_flag(debug,false)
-    ),
-    !,
-  */
-	'$port'(call,G,M,GoalNumber,nondeterministic,Ctx,CP),
-	gated_call(
-	    % debugging allowed.
-	    '$meta_hook'(M:G,M:NG),
-	    M:NG,
-	    Port,
-	    handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic)
-	).
+trace_goal_(private_procedure,G, M, _Ctx, _GoalNumber, _CP, _Deterministic) :-
+	    '$execute_non_stop'(M:G).
 
 handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
     (Port == exit -> Deterministic =  deterministic
@@ -593,7 +587,7 @@ handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
     '$setup_call_catcher_cleanup'(Setup),
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
-	'$tag_cleanup'(CP0, Task0),
+    '$tag_cleanup'(CP0, Task0),
 	trace_goal(B,M,Ctx,GoalNumber, CP),
 	'$cleanup_on_exit'(CP0, TaskF).
 
@@ -616,7 +610,7 @@ handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
 
 '$meta_hook'(MG,M:NG) :-
     '$yap_strip_module'(MG,M,G),
-    functor(G,N,A),
+    functor(G,N,A),    
     N\=throw,
     functor(PredDef,N,A),
     G  =..[_|As],
@@ -627,12 +621,11 @@ handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
 ;
       recorded('$m', meta_predicate(M,PredDef),_)
       ),
-    PredDef=..[N|Ms],
- 
+    PredDef=..[N|Ms], 
     '$debugger_prepare_meta_arguments'(As, Ms, NAs),
-    NAs \== As,
-    !,
-    NG=..[N|NAs].
+    NG=..[N|NAs],
+    G \== NG,
+    !.
 '$meta_hook'(MG,MG).
 
 /**
@@ -665,8 +658,6 @@ handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
 
 
 handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
-%    writeln((Ports->G;GoalNumber)),
-    '$debuggable'(G,M,Ports,GoalNumber),
     '$stop_creeping'(_),
    '$trace_port'(Ports, GoalNumber, G, M, Ctx, CP,  Info).
 
@@ -683,19 +674,19 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
  * @parameter _Info_ describes the goal
  *
  */
-'$trace_port'(_Ports, _GoalNumber, _G, _Module,_Ctx, _CP,_Info) :-
-    prolog_flag( debug, false),
-    !.
-'$trace_port'(Ports, GoalNumber, _G, _Module,_Ctx, _CP,_Info) :-
-    '$leap'(Ports,GoalNumber),
-    !.
 '$trace_port'(Ports, GoalNumber, Goal, Module, Ctx, CP,Info) :-
     ('$ports_to_port'(Ports, Port)->true;Port=internal),
-    '$trace_port_'(Port, GoalNumber, Goal, Module, Ctx, CP,Info).
+    (
+      '$zip_at_port'(Port, GoalNumber, Module:Goal)
+      ->
+    true
+    ;
+    '$trace_port_'(Port, GoalNumber, Goal, Module, Ctx, CP,Info)
+).
 
 %        
 % last.first
-%'$ports_to_port'(P, _) :- writeln(P), fail. 
+'$ports_to_port'(P, _) :- writeln(P), fail. 
 '$ports_to_port'([answer,exit], exit).
 '$ports_to_port'([answer,answer], exit).
 '$ports_to_port'([call], call).
@@ -785,7 +776,7 @@ trace_error(error(debugger_event(redo,G0),[]), GoalNumber, G) :-
     throw(error(debugger_event(redo,G0),[]))
     ;
     '$get_debugger_state'(trace,Trace),
-    '$set_debugger_state'( creep, 0, yes, Trace, false ),
+    '$set_debugger_state'( creep, 0, stop, Trace, false ),
      G
     ).
 %trace_error( error(Id,Info), _, _, _, _) :-
@@ -811,11 +802,15 @@ trace_error(Event,_,_,_,_,_) :-
     Goal.
 
 
+'$port'(P,_G,_Module,_L,_Deterministic, Ctx, _CP) :-
+    '$get_debugger_state'(creep,leap),
+    !,
+    '$exit_debugger'(P,Ctx).
 '$port'(P,G,Module,L,Deterministic, Ctx, _CP) :-
     '$id_goal'(L),        /* get goal no.	*/
     % at this point we are done with leap or skipe
     '$get_debugger_state'(trace,Trace),
-    '$set_debugger_state'( creep, L, yes, Trace, false ),
+    '$set_debugger_state'( creep, L, stop, Trace, false ),
     repeat,
     '$clear_input'(debugger_input),
     '$trace_msg'(P,G,Module,L,Deterministic),
@@ -1187,10 +1182,10 @@ trace_error(Event,_,_,_,_,_) :-
     '$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
 '$debugger_prepare_meta_arguments'([(A*->B)|As], [0|Ms], [(NA*->NB)|NAs]) :-	!,
     '$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
-'$debugger_prepare_meta_arguments'([A|As], [M|Ms], [yap_hacks:trace(MA:GA)|NAs]) :-
-     	number(M),
+'$debugger_prepare_meta_arguments'([A|As], [0|Ms], [yap_hacks:trace(MA:GA)|NAs]) :-
+    '$yap_strip_module'(A,MA,GA),
+    GA \= trace(_),
 	!,
-	'$yap_strip_module'(A,MA,GA),
    	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
 '$debugger_prepare_meta_arguments'([A|As], [_|Ms], [A|NAs]):-
     '$debugger_prepare_meta_arguments'(As, Ms, NAs).

@@ -1046,43 +1046,31 @@ static Int put_attr(USES_REGS1) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
+	inp = Deref(ARG1);
       }
-      attv->Atts = MkGlobal(ARG3);
-        inp = Deref(ARG1);
-	MaBind(VarOfTerm(inp),attv->Done);
+      MaBind(VarOfTerm(inp),attv->Done);
     }
-    Term start = attv->Atts;
-  do {
-    if (IsVarTerm(start))
-      break;
-    if (!IsApplTerm(start))
-      break;
+    Term *startp = &attv->Atts, start;
+    while ((start = *startp) != TermNil && !IsVarTerm(start)) {
+      if (!IsApplTerm(start))
+	return false;
     if (FunctorOfTerm(start) != FunctorAtt1) {
       start = ArgOfTerm(1, start);
       continue;
     }
-    if (ts[0] != ArgOfTerm(1, start)) {
-      start = ArgOfTerm(3, start);
-      continue;
+    if (ts[0] == ArgOfTerm(1, start)) {
+      MaBind( RepAppl(start)+2 , MkGlobal(ARG3));
+      return true;
     }
-    // got it
-    MaBind(RepAppl(start)+2, Deref(ARG3));
+    }
+    ts[1] = MkGlobal(ARG3);
+    ts[2] = TermNil;
+    MaBind(startp, Yap_MkApplTerm(FunctorAtt1,3,ts))
     return true;
-  } while (TRUE);
-  ts[1] = MkGlobal(ARG3);
-    if (IsVarTerm(attv->Atts))
-      ts[2] = TermNil;
-    else
-      ts[2] = attv->Atts;
-   
-
-    MaBind(&attv->Atts, Yap_MkApplTerm(FunctorAtt1,3,ts))
-
-
-
-	
- } 
-    return true;
+  } else {
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp, "bound call to put_attr");
+    return false;
+  }
 }
 
 /** @pred put_attrs(+ _Var_,+ _Attributes_)

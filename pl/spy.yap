@@ -72,9 +72,11 @@ mode and the existing spy-points, when the debugger is on.
     '$u_spy'(S,P,M).
 '$u_spy'([],_,_) :- !.
 '$u_spy'([F|L],S,M) :- !, ( '$u_spy'(F,S,M) ; '$u_spy'(L,S,M) ).
- '$u_spy'(F/N,S,M) :- !,
+'$u_spy'(F/N,S,M) :- !,
     functor(T,F,N),
-    '$do_u_spy'(S, F, N, T, M).
+    '$imported_predicate'(M:T,M0:T0),
+    functor(T0,F0,N0),
+   '$do_u_spy'(S, F0, N0, T0, M0).
 '$u_spy'(A,S,M) :- atom(A), !,
     '$u_spy_name'(A,S,M).
 '$u_spy'(P,spy,M) :- !,
@@ -88,7 +90,8 @@ mode and the existing spy-points, when the debugger is on.
 	   current_predicate(A,M:T)
 	   *->
 	   functor(T,A,N),
-	   '$may_set_spy_point'(M:T),
+	   '$imported_predicate'(M:T,InitialPred),
+	   '$may_set_spy_point'(InitialPred),
     '$do_u_spy'(S,A,N,T,M)
     ;
    Error =..[S,M:A],
@@ -413,7 +416,7 @@ notrace(G) :-
     ->
       true
     ;
-      Creep == cceep
+      Creep == creep
     ->
       '$creep'
     ;
@@ -460,50 +463,32 @@ notrace(G) :-
      !.
      */
 
-'$debuggable'(G, Module,_,_GoalNo) :-
-    '$pred_being_spied'(G,Module),
-    '$get_debugger_state'( spy,  stop ),
-    !.
-'$debuggable'(_G, _Module,Ports, GoalNo) :-
-    '$leap'(Ports,GoalNo),
-    !,
-    fail.
-'$debuggable'(true, _Module,_,_GoalNo) :-
-    !,
-    fail.
 '$debuggable'(_G, _Module, _, _GoalNo) :-
     current_prolog_flag(debug, false),
     !,
     fail.
-'$debuggable'(_G, _Module,_, _GoalNo).
 
-
-'$leap'(Ports,GoalNo) :-
-    '$get_debugger_state'( creep, L),
-    (L == zip; L==leap),
+'$zip_at_port'(_Port,_GoalNo,_) :-
+    current_prolog_flag( debug, true),
+    '$get_debugger_state'( debugging, false),
+    !.
+'$zip_at_port'(_,_GoalNo,M:T) :-
+    '$get_debugger_state'( spy, stop),
+    recorded('$spy','$spy'(T,M),_),
     !,
-    (
-      var(GoalNo)
-    ->
-      true
-    ;
-      '$get_debugger_state'( goal_number, TargetGoal ),
+    fail.
+'$zip_at_port'(Port,GoalNo,_) :-
+    '$get_debugger_state'( creep, zip),
+    '$get_debugger_state'( goal_number, TargetGoal ),
       number(GoalNo),
-      number(TargetGoal),
-      (
-	GoalNo > TargetGoal                                                        ->
-        true
-      ;
-	GoalNo == TargetGoal
+    number(TargetGoal),
+    (Port == redo
       ->
-	(
-          Ports == [redo];
-          Ports == [fail,answer];
-	  Ports == [call]
-	)
-	, !
-      )
-    ).
+      GoalNo >= TargetGoal
+    ;
+      GoalNo > TargetGoal
+    ).      
+      
 
 
 '$run_deb'(_Port,Ctx,_GN) :-

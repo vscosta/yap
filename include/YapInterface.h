@@ -601,6 +601,7 @@ extern X_API int YAP_ThreadDetachEngine(int);
 extern X_API int YAP_ThreadDestroyEngine(int);
 
 /* blob stuff */
+extern X_API YAP_Bool YAP_IsBlobTerm(YAP_Term);
 extern X_API YAP_Term YAP_MkBlobTerm(unsigned int);
 extern X_API void *YAP_BlobOfTerm(YAP_Term);
 

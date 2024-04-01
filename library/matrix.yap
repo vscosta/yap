@@ -78,9 +78,16 @@ is_matrix/1,
 	    matrix_to_logs/2,
 	    matrix_to_exps/2,
 	    matrix_op/4,
-	map_matrix/2,
-		map_matrix/3,
-	foldl_matrix/4,
+	matrix_map/2,
+		matrix_map/3,
+		matrix_map/4,
+	mapmatrix/2,
+		mapmatrix/3,
+		mapmatrix/4,
+	foldlmatrix/4,
+	foldlmatrix/5,
+	matrix_foldl/4,
+	matrix_foldl/5,
 	    matrix_op_to_all/4,
 	    matrix_op_to_lines/4,
 	    matrix_op_to_cols/4,
@@ -247,21 +254,20 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 
 */
 
-
-
 :- multifile rhs_opaque/1, array_extension/2.
-
-:- meta_predicate foreach(+,0), foreach(+,2, +, -).
-
-:- meta_predicate map_matrix(2,+).
-:- meta_predicate map_matrix(3,++).
-:- meta_predicate foldl_matrix(4,?,?,?).
 
 :- use_module(library(maplist)).
 :- use_module(library(mapargs)).
 
 :- use_module(library(lists)).
 :- use_module(library(ordsets)).
+
+:- meta_predicate matrix_map(1,+).
+:- meta_predicate matrix_map(2,+,+).
+:- meta_predicate matrix_map(3,+,+,+).
+
+:- meta_predicate matrix_foldl(3,?,?,?).
+:- meta_predicate matrix_foldl(4,?,?,?,?).
 
 %term_expansion((M[I] := P), [(eval(M.[I],V) :- is_matrix(M), matrix:matrix_get(M,[I],V))]) :-
 %    !.
@@ -437,32 +443,38 @@ N <== Lists :-
     is_list(Ms),
     !,
     matrix_new([M|Ms],N,[]).
- _X_ <== array[ _Dim1_,..., _Dimn_] of  _Objects_
-
-( N<== (matrix[M|Ms] of Whatever)) :-
+(N <== matrix[H|T] of Type) :-
+    memberchk(Type,[ints,floats,terms]),
     !,
-    N<== matrix([M|Ms]) of Whatever.
- <==(N, matrix(M)) :-
+    matrix_new([H|T], N, [type(Type)]).
+(N <== matrix[H|T] of Num) :-
+    number(Num),
+    memberchk(Type,[ints,floats,terms]),
     !,
-    matrix_new(M,N,[]).
-(N<== matrix(M) of type(Type)) :-
+    matrix_new([H|T], N, [type(Type)]).
+(N<== matrix[H|T]  of Op) :-
+	!,
+    matrix_new([H|T], N, [fill(Op)]).
+(N<== matrix(M) of Type) :-
     memberchk(Type,[ints,floats,terms]),
     !,
     matrix_new(M, N, [type(Type)]).
 (N<== matrix(M) of Op) :-
 	!,
     matrix_new(M, N, [fill(Op)]).
+(N <== matrix(M)) :-
+    !,
+     matrix_new(M,N,[]).
 (N <== zeros(M)) :-
     number(M),
     !,
     matrix_new([M],N,[]).
-(N <== zeros(M)) :-
+(N <== zeros[H|T]) :-
 	!,
-    matrix_new(M,N,[]).
-N<== ones(M) :-
+    matrix_new([H|T],N,[]).
+N<== ones[H|T] :-
 	!,
-    matrix_new(M, N, [fill(1)]).
-%N <==range(M) :-
+    matrix_new([H|T], N, [fill(1)]).
  %   matrix_new(range(M),N,[]), !.
 
 LHS <== RHS :-
@@ -492,7 +504,7 @@ LHS <== RHS :-
     matrix_op(LHS,V,1,LHS).
 
 /**
-  @pred  map_matrix(Pred, A)
+  @pred  matrix_map(Pred, A)
 
   Apply Pred(A,Index) to every element of matrix _A_, where _Index_ ranges over all entries in the array.
 
@@ -501,58 +513,117 @@ LHS <== RHS :-
 ```{.prolog}
 log(A,[X,Y]) :- V <== A[X,Y], LV is log(V), A[X,Y] <== LV.
 
-?- X <== [[1.2,0.9,5],[0.1.0.2,0.3]], map_matrix(log, X),  Y <== X.list().
+?- X <== [[1.2,0.9,5],[0.1.0.2,0.3]], matrix_map(log, X),  Y <== X.list().
 ```
 */
-map_matrix(Pred,A) :-
-matrix_size(Pred,Size),
- do_map(Pred, A, 0, Size).
 
-do_map(_P, _A, I, I) :- !.
-do_map(P, A, I, Size) :-
+mapmatrix(Pred, A) :-
+    matrix_map(Pred,A).
+
+matrix_map(Pred,A) :-
+    matrix_size(A,Size),
+    do_matrix_map(Pred, A, 0- Size).
+
+do_matrix_map( _P, _A, I-I) :- !.
+do_matrix_map( P, A,I-Size) :-
     matrix_offset_to_arg(A, I, Index),
     call(P,A,Index),
     I1 is I+1,
-    do_map(P, A, I1, Size).
+    do_matrix_map( P, A , I1-Size).
 
+mapmatrix(Pred, A, B) :-
+    matrix_map(Pred,A, B).
 
-map_matrix(Pred,A, B) :-
-matrix_size(A,Size),
- do_map(Pred, A, B, 0, Size).
+matrix_map(Pred,A,B) :-
+    matrix_size(A,Size),
+    do_matrix_map(Pred, A, B, 0- Size).
 
-do_map(_P, _A,_B, I, I) :- !.
-do_map(P, A, B,I, Size) :-
+do_matrix_map( _P, _A, _, I-I) :- !.
+do_matrix_map( P, A, B, I-Size) :-
     matrix_offset_to_arg(A, I, Index),
     call(P,A,B,Index),
     I1 is I+1,
-    do_map(P, A, B, I1, Size).
+    do_matrix_map(P, A, B ,I1-Size).
+
+mapmatrix(Pred, A, B, C) :-
+    matrix_map(Pred,A, B, C).
+
+
+matrix_map(Pred,A,B,C) :-
+    matrix_size(A,Size),
+    do_matrix_map(Pred, A, B, C,0- Size).
+
+do_matrix_map( _P, _A, _B, _C, I-I) :- !.
+do_matrix_map( P, A, B, C, I-Size) :-
+    matrix_offset_to_arg(A, I, Index),
+    call(P,A,B,C,Index),
+    I1 is I+1,
+    do_matrix_map(P, A, B, C ,I1-Size).
+
 
 
 /**
-  @pred  foldl_matrix(Pred, A, V0, VF)
+  @pred  matrix_foldl(Pred, A, V0, VF)
 
-  Apply Pred(A,Index,V1,V2) to every element of matrix _A_, where _Index_ ranges over all entries in the array.
+  Apply Pred(A,V1,V2,Index) to every element of matrix _A_, where _Index_ ranges over all entries in the array.
 
   As an example, to sum all elements of a numeric matrix:
 ```{.prolog}
-add(A,	I, S0, S) :- matrix_get( A, I, V), S is S0+V.
+add(A,	S0, S, B) :- matrix_get( A, I, V), S is S0+V.
 
-sum_matrix(A,S) :- foldl_matrix(add,A,0,S).
+sum_matrix(A,S) :- matrix_foldl(add,A,0,S).
 
 ?- X <== [[1.2,0.9,5],[0.1,0.2,0.3]], sum_matrix(X,S).
 ```
+
+
 */
 
-foldl_matrix(Pred,A,V0,VF) :-
-matrix_size(A,Size),
- do_foldl(0, Size, Pred, A, V0, VF).
+foldlmatrix(Pred, A, V, VF) :-
+    matrix_foldl(Pred,A, V, VF).
 
-do_foldl(I, I, _P, _A, V, V) :- !.
-do_foldl(I0, Size, P, A, V0, VF) :-
+matrix_foldl(Pred,A,V0,VF) :-
+    matrix_size(A,Size),
+    do_matrix_foldl(Pred, A, V0, VF, 0- Size).
+
+do_matrix_foldl(_P, _A, V, V,I-I) :- !.
+do_matrix_foldl( P, A, V0, VF, I0-Size) :-
     matrix_offset_to_arg(A, I0, Index),
-    call(P,A,Index, V0, VI),
+    call(P,A, V0, VI,Index),
     I1 is I0+1,
-    do_foldl( I1, Size, P, A, VI, VF).
+    do_matrix_foldl( P, A, VI, VF, I1 - Size).
+
+/**
+  @pred  matrix_foldl(Pred, A, V0, VF)
+5B
+  Apply Pred(A, B,V1,V2,Index) to every element of matrixes _A_, _B_, where _Index_ ranges over all entries in the matric.
+
+  As an example, to compute the absolute error betwern numeric matrix:
+```{.prolog}
+add_d(A,B,	S0, S, [I]) :- V is A[I]-B[I], S is S0+abs(V).
+
+sum_d_matrix(A,B,S) :- matrix_foldl(add_d,A,B,0,S).
+
+?- X <== [[1.2,0.9,5],[0.1,0.2,0.3]], sum_d_matrix(X,S).
+```
+
+
+*/
+
+foldlmatrix(Pred, A,  B, V, VF) :-
+    matrix_foldl(Pred,A, B, V, VF).
+
+matrix_foldl(Pred,A,B, V0,VF) :-
+    matrix_size(A,Size),
+    do_matrix_foldl(Pred, A,B, V0, VF, 0- Size).
+
+do_matrix_foldl(_P, _A, _B, V, V,I-I) :- !.
+do_matrix_foldl( P, A, B, V0, VF, I0-Size) :-
+    matrix_offset_to_arg(A, I0, Index),
+    call(P,A, B, V0, VI,Index),
+    I1 is I0+1,
+    do_matrix_foldl( P, A, B, VI, VF, I1 - Size).
+
 
 /** @pred compute(Inp,Out)
  *
@@ -849,6 +920,9 @@ intervals([A..B|List], [H|NList], A) :-
     number(H),
     !.
 
+subl(V,[]) :-
+    var(V),
+    !.
 subl([H|L],[N|NL]) :-
     !,
     length([H|L],N),
@@ -894,12 +968,11 @@ matrix_new( Info, Target, Opts) :-
 
 matrix_create(terms, b, Dims, Base, _, Data,
    '$matrix'(Dims, NDims, Size, Base, Matrix ) ) :-
-    length([H|Dims],NDims),
-    length(Offsets,NDims),
-    maplist('='(Base),Offsets),
+    length(Dims,NDims),
     Dims=[H|RDims],
     multiply(RDims,H,Size),
-    flatten(Data,List),
+    length(List,Size),
+    fill(Data,List),
     Matrix =.. [matrix|List],
     functor(Matrix,matrix,Size).
 matrix_create(Type, b, Dims, Base, fill, 0,New) :-
@@ -943,6 +1016,19 @@ multiply([],P,P).
 multiply([X|Xs],P0,P) :-
     Pi is X*P0,
     multiply(Xs,Pi,P).
+
+fill(V,_) :-
+    var(V),
+    !.
+fill([H|L],NL) :-
+    flatten([H|L],NL),
+    !.
+fill(G,L) :-
+    maplist(run(G),L).
+
+run(G,V) :-
+    call(user:G,V),
+    !.
 
 
 foreach( Domain, Goal) :-
@@ -1407,6 +1493,9 @@ offset( I, Dim, BlkSz, NBlkSz, Base, I0, IF) :-
 	I is I0 div NBlkSz + Base,
 	IF is I0 rem NBlkSz.
 
+first(V,V) :-
+    var(V),
+    !.
 first([H|_],F) :-
     !,
     first(H,F).
@@ -1424,9 +1513,10 @@ inc(I1, I, I1) :-
 
 %%% most often we can avoid meta-calls.
 
+/*
 :- multifile user:inline/2.
 
-user:inline(map_matrix(P,A),
+user:inline(matrix_map(P,A),
     (matrix:matrix_size(A,Size), MainCall)):-
     callable(P),
     	  aux_pred(`map1`,P,
@@ -1443,7 +1533,7 @@ user:inline(map_matrix(P,A),
 		     Inner,
 		     Recursive))] ).
 
-user:inline(map_matrix(P,A,B),
+user:inline(matrix_map(P,A,B),
     (matrix:matrix_size(A,Size), MainCall)):-
 	  callable(P),
     	  aux_pred(`map2`,P,
@@ -1496,3 +1586,4 @@ term_to_string(Mod:P, SG),
     Inner =.. [G|InnerArgs],
     append(Args,RecursiveArgs0,RecursiveArgs),
     Recursive =.. [F|RecursiveArgs].
+*/

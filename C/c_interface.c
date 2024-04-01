@@ -1934,6 +1934,10 @@ X_API Term YAP_NewOpaqueObject(YAP_opaque_tag_t blob_tag, size_t cells) {
   return t;
 }
 
+X_API YAP_Bool YAP_IsBlobTerm(Term t) {
+  return IsBlobTerm(t);
+}
+
 X_API YAP_Bool YAP_IsOpaqueObjectTerm(Term t, YAP_opaque_tag_t tag) {
   return IsExternalBlobTerm(t, (CELL)tag);
 }

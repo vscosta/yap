@@ -192,7 +192,9 @@ namespace generic_gecode
        Space* copy(void) {return copy(false);}
     GenericSpace(bool share, GenericSpace& s)
       : Space(  s), optim(s.optim)
-    {         ivars.update(*this,  s.ivars);
+    {
+      dock = new LoadingDock();
+      ivars.update(*this,  s.ivars);
       bvars.update(*this,  s.bvars);
       svars.update(*this,  s.svars);
       fvars.update(*this,  s.fvars);

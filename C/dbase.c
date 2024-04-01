@@ -4446,7 +4446,8 @@ static Int static_instance(StaticClause *cl, PredEntry *ap USES_REGS) {
         XREGS[i + 1] = ptr[i];
       }
       CP = NEXTOP(P,Osbpp);
-      YENV = ASP;
+      
+  YENV = ASP;
       YENV[E_CB] = (CELL)B;
       P = cl->ClCode;
       return TRUE;

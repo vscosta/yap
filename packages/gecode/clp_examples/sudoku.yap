@@ -4,10 +4,10 @@
 
 :- use_module(library(gecode/clpfd)).
 :- use_module(library(maplist)).
+:- use_module(library(matrix)).
 
 main :-
-    ex(Ex, _),
-    sudoku(Ex, _My),
+    problem(Ex, My),
 	fail.
 main.
 
@@ -19,20 +19,45 @@ sudoku( Ex, Els ) :-
 % gecode constraints
 %
 problem(Ex, Els) :-
-	length(Els, 81),
-	Els ins 1..9,
-	M <== matrix( Els, [dim=[9,9]] ),
-	% select rows
-	foreach( I in 0..8 , all_different(M[I,_]) ),
-	% select cols
-	foreach( J in 0..8,  all_different(M[_,J]) ),
-	% select squares
-	foreach( [I,J] ins 0..2 ,
-           all_different(M[I*3+(0..2),J*3+(0..2)]) ),
-	ex(Ex, Els),
-%	maplist( bound, Els, Exs),
-	labeling( [], Els ).
+    ex(Ex,Info),
+     gecode_clpfd:init_gecode(Space, Me),
+   length(Els, 81),
+    Els ins 1..9,
+    M <== matrix[9,9] of Els,
+    % select rows
+    Z <== zeros[9],
+    Q <== zeros[3,3],
+    matrix_map( row(M), Z ),
+    matrix_map( col(M), Z ),
+    matrix_map(sqr(M), Q ), 
+    maplist(bind,Els,Info),
+    %	maplist( bound, Els, Exs),
+    labeling( [], Els ),
+ gecode_clpfd:close_gecode(Space, Els, Me).
 
+bind(V,C) :- number(C), !,V #= C.
+bind(V,V).
+
+sqr(M,Q,[I,J]) :-
+    matrix_foldl(sqrdiff(M,[I,J]),Q,[],Els),
+all_different(Els).
+
+sqrdiff(M,[I,J],_,Els,[V|Els],[A,B]) :-
+    V <== M[I*3+A, J*3+B].
+
+row(M, Z, [I]) :-
+    matrix_foldl(col1(M,I),Z,[],Vs),
+    all_different(Vs).
+
+col1(M,I,_Z,Els,[V|Els],[J]) :-
+    V <== M[I,J].
+
+col(M, Z, [I]) :-
+    matrix_foldl(row1(M,I),Z,[],Vs),
+    all_different(Vs).
+
+row1(M,I,_Z,Els,[V|Els],[J]) :-
+    V <== M[J,I].
 
 % The gecode interface doesn't support wake-ups on binding constained variables, this is the closest.
 %
@@ -43,7 +68,10 @@ bound(El, X) :-
 % output using matrix library
 %
 output(Els) :-
-	M <== matrix( Els, [dim=[9,9]] ),
+    L <== Els.list(),
+    writeln(L).
+
+/*
 	foreach( I in 0..2 , output(M, I) ),
 	output_line.
 
@@ -57,6 +85,7 @@ output_row( M, Row ) :-
 
 output_line :-
 	format(' ~|~`-t~24+~n', []).
+*/
 
 ex( 1, [
             _,6,_,1,_,4,_,5,_,

@@ -24,7 +24,7 @@ main :-
 	statistics( runtime, [DT|_] ),
 %	findall(Queens, queens(I, Queens), Solutions ),
 %	length( Solutions, N),
-	format('took ~w msec to find first solution, ~w.~n', [I, DT, Letters]),
+	format('took ~w msec to find first solution, ~w.~n', [DT, Letters]),
 	fail.
 main.
 
