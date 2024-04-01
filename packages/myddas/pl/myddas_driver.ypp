@@ -46,7 +46,7 @@
 #define LOAD 1
 #endif
 #define DBMS(x) my_##x
-#define c_DBMS(x) c_mysql_##x
+#define c_DBMS(x) c_db_my_##x
 #define NAME() 'YAPmysql'
 #define MODULE() myddas_mysql
 #define INIT() init_mysql
@@ -54,19 +54,27 @@
 
 :- module(MODULE(),[
 			  c_DBMS(change_database)/2,
-			  c_DBMS(connect)/4,
 			  c_DBMS(disconnect)/1,
 			  c_DBMS(get_attributes_types)/3,
 			  c_DBMS(get_database)/2,
 			  c_DBMS(get_fields_properties)/3,
-			  c_DBMS(get_next_result_set)/3,
 			  c_DBMS(query)/5,
 			  c_DBMS(number_of_fields)/3,
+#ifdef mysql
+			  c_DBMS(get_next_result_set)/2,
+			  c_DBMS(connect)/7,
+#endif
 #ifdef odbc
+			  c_DBMS(connect)/7,
 			  c_DBMS(number_of_fields_in_query)/3,
 #endif
 #ifdef sqlite3
+			  c_DBMS(connect)/4,
 			  c_DBMS(connect)/2,
+#endif
+#ifdef postgres
+			  c_DBMS(connect)/7,
+c_DBMS(connect)/2,
 #endif
 DBMS(describe)/3,
               DBMS(result_set)/1,
@@ -259,11 +267,14 @@ DBMS(row)(ResultSet,Arity,Args) :-
 #else
 
 c_DBMS(change_database)(A,B) :- throw(error(stub_call,change_database(A,B))).
+c_DBMS(connect)(A,B) :- throw(error(stub_call,connect(A,B))).
 c_DBMS(connect)(A,B,C,D) :- throw(error(stub_call,connect(A,B,C,D))).
+c_DBMS(connect)(A,B,C,D,E,F,G) :- throw(error(stub_call,connect(A,B,C,D,E,F,G))).
 c_DBMS(disconnect)(A) :- throw(error(stub_call,disconnect(A))).
 c_DBMS(get_attributes_types)(A,B,C) :- throw(error(stub_call,get_attributes_types(A,B,C))).
 c_DBMS(get_database)(A,B) :- throw(error(stub_call,get_database(A,B))).
 c_DBMS(get_fields_properties)(A,B,C) :- throw(error(stub_call,get_fields_properties(A,B,C))).
+c_DBMS(get_next_result_set)(A,B) :- throw(error(stub_call,get_next_result_set(A,B))).
 c_DBMS(get_next_result_set)(A,B,C) :- throw(error(stub_call,get_next_result_set(A,B,C))).
 c_DBMS(query)(A,B,C,D,E) :- throw(error(stub_call,query(A,B,C,D,E))).
 c_DBMS(number_of_fields)(A,B,C) :- throw(error(stub_call,number_of_fields(A,B,C))).

@@ -39,8 +39,8 @@
 
 
 :- module(myddas_prolog2sql,[
-			     translate/3,
-			     queries_atom/2
+	      queries_atom/2,
+			     translate/3
 			    ]).
 
  
@@ -67,6 +67,8 @@
 % Prolog term representation of the SQL query. 
 %
 % --------------------------------------------------------------------------------------
+
+:- dynamic relation/4.
 
 #ifdef MYDDAS_STATS
 translate(ProjectionTerm,DatabaseGoal,SQLQueryTermOpt):-

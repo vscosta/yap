@@ -34,7 +34,7 @@
 				  '$copy_term_nv'/4,
 				  '$assert_attribute_information'/4,
 				  '$make_a_list'/2,
-				  '$make_list_of_args'/4,
+				  % '$make_list_of_args'/4,
 				  '$where_exists'/2,
 				  '$build_query'/5,
 				  '$assert_facts'/2,
@@ -50,14 +50,19 @@
           c_db_preds_conn/4
 		     ]).
 
+:- use_module(myddas_prolog2sql,[
+	      queries_atom/2,
+			     translate/3
+			    ]).
+
 :- use_module(myddas_errors,[
 			     '$error_checks'/1
 			     ]).
 
-:- use_module(myddas_prolog2sql,[
-				 translate/3,
-				 queries_atom/2
-				 ]).
+:- use_module(myddas_mysql,[
+		  my_row/3,
+		  c_db_my_get_next_result_set/2
+	      ]).
 
 '$prolog2sql'(ProjTerm,DbGoal,SQL):-
 	copy_term((ProjTerm,DbGoal),(CopyTerm,CopyGoal)),
@@ -68,7 +73,7 @@
 	'$lenght'(ProjTerm,Arity),
 	Name=viewname,
 	functor(ViewName,Name,Arity),
-	ViewName=..[Name|ProjTerm],
+	ViewName=..[Name	|ProjTerm],
 	'$prolog2sql'(ViewName,DbGoal,SQL).
 '$create_multi_query'([ProjTerm|TermList],[DbGoal|GoalList],SQL):-
 	'$lenght'(ProjTerm,Arity),
@@ -83,7 +88,7 @@
 '$get_multi_results'(Con,ConType,ResSet,[List|Results]):-
 	'$lenght'(List,Arity),
 	( ConType == mysql ->
-	    c_db_my_row(ResSet,Arity,List),!,
+	    my_row(ResSet,Arity,List),!,
 	    c_db_my_get_next_result_set(Con,NextResSet)
 	;
 	    true
@@ -99,6 +104,7 @@
 	    % with top-level variables   A='var('A')' error
 	    copy_term((TableViewName,SQLorDbGoal),(CopyView,CopyGoal)),
 	    translate(CopyView,CopyGoal,Code),
+
 	    queries_atom(Code,SQL),
 	    functor(TableViewName,TableName,_)
 	).
@@ -434,8 +440,9 @@
 '$member_strick'(Element, [_|Rest]) :-
         '$member_strick'(Element, Rest).
 
-
+#ifdef MYDDAS_STATS
 '$make_stats_list'([],[]).
 '$make_stats_list'([Ref|Tail],[Time|Final]):-
 	c_db_stats_time(Ref,Time),
 	'$make_stats_list'(Tail,Final).
+#endif

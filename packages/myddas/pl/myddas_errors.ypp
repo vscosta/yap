@@ -92,7 +92,7 @@
         % equal to the number of attributes
 	c_connection_type(Con,ConType),
 	( ConType == mysql ->
-	    c_my_number_of_fields(Relation,Con,Arity)
+	    c_db_my_number_of_fields(Relation,Con,Arity)
 	; ConType == sqlite3 ->
 	    c_sqlite3_number_of_fields(Relation,Con,Arity)
 	;
@@ -102,7 +102,7 @@
 	% All fields must be Instanciated ( FALTA POR O NULL )
 	'$make_a_list'(Arity,FieldsProperties),
 	( ConType == mysql ->
-	    c_my_get_fields_properties(Relation,Con,FieldsProperties)
+	    c_db_my_get_fields_properties(Relation,Con,FieldsProperties)
 	;ConType == sqlite3 ->
 	    c_sqlite3_get_fields_properties(Relation,Con,FieldsProperties)
 	;

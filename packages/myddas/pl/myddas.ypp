@@ -216,7 +216,7 @@ user:prolog_file_type( gpkg, dataset ).
 %
 %
 
-#if MYDDAS_MYSQL
+
 db_open(mysql,Connection,Host/Db/Port/Socket,User,Password) :- !,
 	'$error_checks'(db_open(mysql,Connection,Host/Db/Port/Socket,User,Password)),
 	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
@@ -228,12 +228,11 @@ db_open(mysql,Connection,Host/Db/Socket,User,Password) :- !,
 	db_open(mysql,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
 db_open(mysql,Connection,Host/Db,User,Password) :-
 	db_open(mysql,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
-#endif
 
-#if MYDDAS_POSTGRES
+
 db_open(postgres,Connection,Host/Db/Port/Socket,User,Password) :- !,
 	'$error_checks'(db_open(postgres,Connection,Host/Db/Port/Socket,User,Password)),
-	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
+	c_postgres_connect(Host,User,Password,Db,Port,Socket,Con),
 	set_value(Connection,Con).
 db_open(postgres,Connection,Host/Db/Port,User,Password) :-
 	integer(Port),!,
@@ -242,16 +241,12 @@ db_open(postgres,Connection,Host/Db/Socket,User,Password) :- !,
     db_open(postgres,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
 db_open(postgres,Connection,Host/Db,User,Password) :-
     db_open(postgres,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socpket
-#endif
 
-#if MYDDAS_ODBC
 db_open(odbc,Connection,ODBCEntry,User,Password) :-
     '$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
     c_odbc_connect(ODBCEntry,User,Password,Con),
     set_value(Connection,Con).
-#endif
 
-#if MYDDAS_SQLITE3
 db_open(sqlite3,Connection,File,User,Password) :-
     absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
     '$error_checks'(db_open(sqlite3,Connection,Db,User,Password)),
@@ -264,18 +259,18 @@ db_open(sqlite3,File,User,Password) :-
     set_value(myddas,Con).
 db_open(sqlite3,File) :-
     absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
-    '$error_checks'(db_open(sqlite3,'',Db,'',Password)),
+    '$error_checks'(db_open(sqlite3,'',Db,'',_Password)),
     c_sqlite3_connect(Db,Con),
     set_value(myddas,Con).
 db_open(File) :-
     absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
-    '$error_checks'(db_open(sqlite3,'',Db,'',Password)),
+    '$error_checks'(db_open(sqlite3,'',Db,'',_Password)),
     c_sqlite3_connect(Db,Con),
     set_value(myddas,Con).
 
 sqlite3(File) :-
     db_open(File).
-#endif
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -394,7 +389,7 @@ db_sql_(ConType, Con, SQL,LA):-
 	'$write_or_not'(SQL),
 	( ConType == mysql ->
 	  my_result_set(Mode),
-	  c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
+	  my_query(SQL,ResultSet,Con,Mode,Arity)
 	;ConType == postgres ->
 	  postgres_result_set(Mode),
 	  c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
@@ -458,7 +453,7 @@ db_command(Connection,SQL):-
 	'$write_or_not'(SQL),
 	c_db_connection_type(Con,ConType),
 	( ConType == mysql ->
-	  db_my_result_set(Mode),
+	  my_result_set(Mode),
 	  c_db_my_query(SQL,_,Con,Mode,_)
 	;
 	  true
@@ -482,7 +477,7 @@ db_assert(Connection,PredName):-
 	c_db_connection_type(Con,ConType),
 	'$write_or_not'(SQL),
 	( ConType == mysql ->
-	  db_my_result_set(Mode),
+	  my_reult_set(Mode),
 	  c_db_my_query(SQL,_,Con,Mode,_)
 	;ConType == postgres ->
 	  postgres_result_set(Mode),
@@ -511,10 +506,10 @@ db_create_table(Connection,TableName,FieldsInf):-
 	c_db_connection_type(Con,ConType),
 	'$write_or_not'(FinalSQL),
 	( ConType == mysql ->
-	  db_my_result_set(Mode),
+	  my_reult_set(Mode),
 	  c_db_my_query(FinalSQL,_,Con,Mode,_)
 	;ConType == posgres ->
-	  postgres_result_set(Mode),
+	 c_postgres_result_set(Mode),
 	  c_postsgres_query(FinalSQL,_,Con,Mode,_)
 	;ConType == sqlite3 ->
 	  sqlite3_result_set(Mode),
@@ -547,7 +542,7 @@ db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
 	c_db_connection_type(Con,ConType),
 	'$write_or_not'(FinalSQL),
 	( ConType == mysql ->
-	  db_my_result_set(Mode),
+	  my_reult_set(Mode),
 	  c_db_my_query(FinalSQL,_,Con,Mode,_)
 	;
 	  c_odbc_query(FinalSQL,_,_,_,Con)
@@ -586,7 +581,7 @@ db_update(Connection,WherePred-SetPred):-
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
 	( ConType == mysql ->
-	db_my_result_set(Mode),
+	my_reult_set(Mode),
 	  c_db_my_query(SQL,_,Conn,Mode,_)
 	;
 	  ConType == mysql ->
