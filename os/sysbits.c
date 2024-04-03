@@ -1019,7 +1019,7 @@ char *Yap_RegistryGetString(char *name) {
 
  
 static Int p_sleep(USES_REGS1) {
-  Term ts = ARG1;
+  Term ts = Deref(ARG1);
 #if defined(__MINGW32__) || _MSC_VER
   {
     unsigned long int secs = 0, usecs = 0, msecs;
