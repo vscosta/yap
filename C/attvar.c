@@ -435,7 +435,11 @@ static void ReplaceAtts(attvar_record *attv, Term oatt, Term att USES_REGS) {
 #endif
 
 static void DelAllAtts(attvar_record *attv USES_REGS) {
-  MaBind(&(attv->Done), attv->Future);
+  MaBind(&(attv->Atts), TermNil);
+  /* MaBind(&(attv->Done), MkVarTerm()); */
+  /* MaBind(&(attv->Future), attv->Done); */
+
+
 }
 
 static void DelAtts(attvar_record *attv, Term oatt USES_REGS) {
@@ -1110,7 +1114,7 @@ static Int del_attr(USES_REGS1) {
   Term inp = Deref(ARG1);
   Term mod = must_be_module(ARG2);
   /* if this is unbound, ok */
-  if (!IsVarTerm(inp) || IsAttachedTerm(inp)) {
+  if (!IsVarTerm(inp) || !IsAttachedTerm(inp)) {
     return true;
   }
   attvar_record *attv = RepAttVar(VarOfTerm(inp));
@@ -1133,7 +1137,9 @@ static Int del_attr(USES_REGS1) {
     // got it
     Term next = ArgOfTerm(3, start);
     if (outside == &attv->Atts && next == TermNil) {
+      Term nv = MkVarTerm();
       DelAllAtts(attv PASS_REGS);
+      MaBind(&attv->Done,nv);
     } else {
       MaBind(outside, next);
     }
@@ -1160,6 +1166,8 @@ side-effects.
   }
   attvar_record *attv;
   attv = RepAttVar(VarOfTerm(inp));
+  Term nv = MkVarTerm();
+  MaBind(&attv->Done,nv);
   DelAllAtts(attv PASS_REGS);
   return TRUE;
 }
