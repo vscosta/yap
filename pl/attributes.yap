@@ -144,7 +144,7 @@ unify_attributed_variable(V,New) :-
     get_attrs(V,Atts),
     !,
     bind_attvar(V),
-     do_hook_attributes(Atts, New).
+    do_hook_attributes(Atts, New).
     
 % SICStus 
 unify_attributed_variable(V,New) :-

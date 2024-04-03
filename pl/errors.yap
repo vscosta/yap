@@ -90,16 +90,9 @@ error_handler(_, _) :-
     flush_output(user_output),
     flush_output(user_error),
     fail.
-error_handler(error(event(abort,I),C), _Level) :-
+error_handler(error(event(abort,_I),_C), _Level) :-
     !,
-    (
-        prolog_flag(break_level, 0)
-    ->
-    print_message(informational,abort(user)),
-    '$error_clean',
-    fail
-    ;	 throw( error(event(abort,I),C) )
-    ).
+    abort.
 error_handler(Level,error(Spec,Info)) :-
     !,
     '$process_error'(error(Spec,Info), Level).

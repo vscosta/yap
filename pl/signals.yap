@@ -182,12 +182,38 @@
     throw(error(signal(pipe,[]),true)).
 '$signal_handler'(sig_fpe) :-
     throw(error(signal(fpe,[]),true)).
+'$signal_handler'(abort) :-
+    abort.
 
 int_action(s) :-
     statistics.
+int_action(a) :-
+    abort.
+int_action(b) :-
+    break.
+int_action(e) :-
+    halt.
+int_action(d) :-
+    debug.
+int_action(g) :-
+    yap_hacks:stack_dump.
 int_action(t) :-
     trace,
     '$creep'.
+int_action('T') :-
+    start_low_level_trace.
+int_action(h) :-
+    format(user_error, "Please press one of:~n"),
+    format(user_error, "    a for abort~n",[]),
+    format(user_error, "    b for break~n",[]),
+    format(user_error, "    c for continue~n",[]),
+    format(user_error, "    d for enabling debug mode~n",[]),
+    format(user_error, "    e for exit (halt)~n", []),
+    format(user_error, "    g for a stack dump~n",[]),
+    format(user_error, "    s for statistics~n",[]),
+    format(user_error, "    t for trace\n").
+
+
 
 
 '$start_creep'(Mod:G) :-

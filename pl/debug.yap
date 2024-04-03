@@ -657,6 +657,9 @@ handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
 '$id_goal'(L) :- integer(L).
 
 
+handle_port(_Ports, _GoalNumber, _G, _M, _Ctx, _CP,  _Info) :-
+    prolog_flag(debug,false),
+    !.
 handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
     '$stop_creeping'(_),
    '$trace_port'(Ports, GoalNumber, G, M, Ctx, CP,  Info).

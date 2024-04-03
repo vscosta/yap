@@ -8,19 +8,19 @@
 
 main :-
     problem(Ex, My),
-	fail.
+    output(Ex, My).
 main.
 
-sudoku( Ex, Els ) :-
-	problem(Ex, Els),
-	output(Els).
+sudoku( Ex, M ) :-
+	problem(Ex, M),
+	output(Ex,M).
 
 %
 % gecode constraints
 %
-problem(Ex, Els) :-
+problem(Ex, M) :-
     ex(Ex,Info),
-     gecode_clpfd:init_gecode(Space, Me),
+     gecode_clpfd:init_gecode(Space,new),
    length(Els, 81),
     Els ins 1..9,
     M <== matrix[9,9] of Els,
@@ -30,10 +30,11 @@ problem(Ex, Els) :-
     matrix_map( row(M), Z ),
     matrix_map( col(M), Z ),
     matrix_map(sqr(M), Q ), 
-    maplist(bind,Els,Info),
+  %  maplist(bind,Els,Info),
     %	maplist( bound, Els, Exs),
+    Els=Info,
     labeling( [], Els ),
- gecode_clpfd:close_gecode(Space, Els, Me).
+ gecode_clpfd:close_gecode(Space, Els,new).
 
 bind(V,C) :- number(C), !,V #= C.
 bind(V,V).
@@ -67,25 +68,21 @@ bound(El, X) :-
 %
 % output using matrix library
 %
-output(Els) :-
-    L <== Els.list(),
-    writeln(L).
+output(Ex,M) :-
+    maplist(output3(M),[0,1,2]),
+    output_line.
 
-/*
-	foreach( I in 0..2 , output(M, I) ),
-	output_line.
-
-output(M, I) :-
+output3(M, I) :-
 	output_line,
-	foreach( J in 0..2 , output_row(M, J+I*3) ).
+    maplist(output_row(M,I),[0,1,2]).
 
-output_row( M, Row ) :-
-	L <== M[Row,_],
-	format('| ~d ~d ~d | ~d ~d ~d | ~d ~d ~d |~n', L).
+output_row( M, I, J ) :-
+    Row is I*3+J,
+    L <== M[Row,_],
+    format('| ~d ~d ~d | ~d ~d ~d | ~d ~d ~d |~n', L).
 
 output_line :-
-	format(' ~|~`-t~24+~n', []).
-*/
+    format(' ~|~`-t~24+~n', []).
 
 ex( 1, [
             _,6,_,1,_,4,_,5,_,

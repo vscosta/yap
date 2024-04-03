@@ -91,7 +91,10 @@ declares a set of  boolean variable.
 		  clause/4,
 		  dfa/4,
 		  in_dfa/2,
-		  in_dfa/4, /*
+		  in_dfa/4,
+		  init_gecode/2,
+		    close_gecode/3,
+		    /*
                   tuples_in/2, */
                   labeling/2,
                   bool_labeling/2 /*,
@@ -1335,10 +1338,9 @@ close_gecode(Space-Map, Vs0, new) :-
 	selectlist(intvar(Map), Vs, CVs),
 	maplist(ll(Map), CVs, IVs),
 	SolSpace := search(Space),
-	b_setval(gecode_done, true),
-    Result := val(SolSpace,IVs),
-    writeln(Result),
-    Result=Vs0.
+    maplist(delete_attributes,Vs),
+    CVs := val(SolSpace,IVs).
+
 
 intvar(Map, V) :-
 	l(V, _IV, Map).
@@ -1363,17 +1365,18 @@ add_el(_G0, _El, Cs-Vs, Cs-Vs).
 attr_unify_hook(_A, _B) :-
   	b_getval(gecode_done, true), !.
 attr_unify_hook(v(IV1,_,_), Y) :-
-        (   get_attr(Y, gecode_clpfd, v(IV2,_,_))
-        ->
-	    nb_getval(gecode_space, Space-_),
-	    ( IV1 == IV2 -> true ;
-	    Space += rel(IV1, 'IRT_EQ', IV2) )
-        ;   var(Y)
-        ->  true
-        ;   integer(Y) ->
-	    nb_getval(gecode_space, Space-_),
-	    Space += rel(IV1, 'IRT_EQ', Y)
-        ).
+    get_home(Space-_),( 
+      get_attr(Y, gecode_clpfd, v(IV2,_,_))
+      ->
+      (IV1==IV2
+	->
+	true
+	;
+	Space += rel(IV2, 'IRT_EQ', IV1)
+      )
+      ;
+      Space += rel(IV1, 'IRT_EQ', Y)
+    ).
 
 %       Translate attributes from this module to residual goals
 
@@ -1415,7 +1418,7 @@ ll(Map, X, Y) :-
 	l(X, Y, Map).
 
 l(V, IV, A, B, _) :-
-	get_attr(V, gecode_clpfd, v(IV, A, B)).
+	get_attr(V, gecode_clpfd, v(IV, A, B, V)).
 
 var2(V,V) :- var(V), !.
 
