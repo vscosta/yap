@@ -1119,7 +1119,7 @@ label([], _, _, _, Consistency) :- !,
         ;   true
         ).
 label(Vars, Selection, Order, Choice, Consistency) :-
-           writeln(label(Vars, Selection, Order, Choice, Consistency) ),
+          % writeln(label(Vars, Selection, Order, Choice, Consistency) ),
  (   Vars = [V|Vs], nonvar(V) -> label(Vs, Selection, Order, Choice, Consistency)
         ;   select_var(Selection, Vars, Var, RVars),
             (   var(Var) ->
@@ -2863,7 +2863,7 @@ linsum(A-B, S0, S) --> linsum(A, S0, S1), mulsum(B, -1, S1, S).
  %no_reactivation(scalar_product(_,_,_,_)).
 
  activate_propagator(propagator(P,State)) :-
-	  format("running: ~w\n", [P]),
+	  % format("running: ~w\n", [P]),
 	 del_attr(State, clpfd_aux),
 	 (   no_reactivation(P) ->
 	     b_setval('$clpfd_current_propagator', State),
