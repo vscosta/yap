@@ -61,10 +61,14 @@
 			  c_DBMS(query)/5,
 			  c_DBMS(number_of_fields)/3,
 #ifdef mysql
+			  c_DBMS(call_procedure)/4,
+			  c_DBMS(call_procedure)/5,
+			  c_DBMS(get_next_result_set)/2,
 			  c_DBMS(get_next_result_set)/2,
 			  c_DBMS(connect)/7,
 #endif
 #ifdef odbc
+			  c_DBMS(connect)/4,
 			  c_DBMS(connect)/7,
 			  c_DBMS(number_of_fields_in_query)/3,
 #endif
@@ -238,7 +242,7 @@ DBMS(change_database)(Connection,Database) :-
 	c_DBMS(change_database)(Con,Database).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+#ifdef mysql
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DBMS(call_procedure)/4
 % DBMS(call_procedure)/3
@@ -253,6 +257,7 @@ DBMS(call_procedure)(Connection,Procedure,Args,LA) :-
 	'$make_atom'(['CALL ',Procedure,'(',ArgsSQL,')'],SQL),
 	DBMS(sql)(Connection,SQL,LA).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#endif
 
 DBMS(row)(ResultSet,Arity,Args) :-
     setup_call_catcher_cleanup(
@@ -279,9 +284,9 @@ c_DBMS(get_next_result_set)(A,B,C) :- throw(error(stub_call,get_next_result_set(
 c_DBMS(query)(A,B,C,D,E) :- throw(error(stub_call,query(A,B,C,D,E))).
 c_DBMS(number_of_fields)(A,B,C) :- throw(error(stub_call,number_of_fields(A,B,C))).
 DBMS(describe)(A,B,C) :- throw(error(stub_call,describe(A,B,C))).
-              DBMS(result_set)(A) :- throw(error(stub_call,result_set(A))).
-              DBMS(show_tables)(A,B) :- throw(error(stub_call,show_tables(A,B))).
-              DBMS(row)(A,B,C) :- throw(error(stub_call,row(A,B,C))).
+DBMS(result_set)(A) :- throw(error(stub_call,result_set(A))).
+DBMS(show_tables)(A,B) :- throw(error(stub_call,show_tables(A,B)).
+DBMS(row)(A,B,C) :- throw(error(stub_call,row(A,B,C))).
 
 #endif /* MYDDAS_DBMS */
 

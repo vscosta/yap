@@ -389,7 +389,7 @@ db_sql_(ConType, Con, SQL,LA):-
 	'$write_or_not'(SQL),
 	( ConType == mysql ->
 	  my_result_set(Mode),
-	  my_query(SQL,ResultSet,Con,Mode,Arity)
+	  c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
 	;ConType == postgres ->
 	  postgres_result_set(Mode),
 	  c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
@@ -477,7 +477,7 @@ db_assert(Connection,PredName):-
 	c_db_connection_type(Con,ConType),
 	'$write_or_not'(SQL),
 	( ConType == mysql ->
-	  my_reult_set(Mode),
+	  my_result_set(Mode),
 	  c_db_my_query(SQL,_,Con,Mode,_)
 	;ConType == postgres ->
 	  postgres_result_set(Mode),
@@ -506,14 +506,14 @@ db_create_table(Connection,TableName,FieldsInf):-
 	c_db_connection_type(Con,ConType),
 	'$write_or_not'(FinalSQL),
 	( ConType == mysql ->
-	  my_reult_set(Mode),
+	  my_result_set(Mode),
 	  c_db_my_query(FinalSQL,_,Con,Mode,_)
 	;ConType == posgres ->
-	 c_postgres_result_set(Mode),
-	  c_postsgres_query(FinalSQL,_,Con,Mode,_)
+	 postgres_result_set(Mode),
+	  c_postgres_query(FinalSQL,_,Con,Mode,_)
 	;ConType == sqlite3 ->
 	  sqlite3_result_set(Mode),
-	  myddas_myddas_sqlite3:c_sqlite3_query(FinalSQL,_,Con,Mode,_)
+	  c_sqlite3_query(FinalSQL,_,Con,Mode,_)
 	;
 	  c_odbc_query(FinalSQL,_,_,_,Con)
 	).
@@ -542,7 +542,7 @@ db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
 	c_db_connection_type(Con,ConType),
 	'$write_or_not'(FinalSQL),
 	( ConType == mysql ->
-	  my_reult_set(Mode),
+	  my_result_set(Mode),
 	  c_db_my_query(FinalSQL,_,Con,Mode,_)
 	;
 	  c_odbc_query(FinalSQL,_,_,_,Con)
@@ -581,7 +581,7 @@ db_update(Connection,WherePred-SetPred):-
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
 	( ConType == mysql ->
-	my_reult_set(Mode),
+	my_result_set(Mode),
 	  c_db_my_query(SQL,_,Conn,Mode,_)
 	;
 	  ConType == mysql ->
@@ -590,7 +590,7 @@ db_update(Connection,WherePred-SetPred):-
 	;
 	ConType == sqlite3 ->
 	sqlite3_result_set(Mode),
-	 myddas_sqlite3:c_sqlite3_query(SQL,_,Conn,Mode,_)
+	 c_sqlite3_query(SQL,_,Conn,Mode,_)
 	;
 	  ConType == odbc ->
 	odbc_result_set(Mode),
@@ -718,7 +718,7 @@ db_datalog_show_tables(Connection)  :-
 	'$error_checks'(db_datalog_show_tables(Connection) ),
 	get_value(Connection,Con),
 	c_db_connection_type(Con,DBMS),
-	switch( DBMS, datalog_show_tables(Connection) ).
+	SWITCH( DBMS, datalog_show_tables(Connection) ).
 
 
 /**

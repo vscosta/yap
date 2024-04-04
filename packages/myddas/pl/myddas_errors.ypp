@@ -90,7 +90,7 @@
 	get_value(Connection,Con),
 	% Number of fields of the Relation, must be
         % equal to the number of attributes
-	c_connection_type(Con,ConType),
+	c_db_connection_type(Con,ConType),
 	( ConType == mysql ->
 	    c_db_my_number_of_fields(Relation,Con,Arity)
 	; ConType == sqlite3 ->
