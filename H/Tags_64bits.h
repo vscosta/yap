@@ -45,7 +45,7 @@ property list
 #define	AdrHiBit    /* 0x08000000L */ (((UInt)1) << (SHIFT_HIGH_TAG-3))
 #define MaskPrim    /* 0x0ffffff8L */ (~TagBits)
 #define MaskLow     /* 0x0ffffff8L */( (((CELL)1)<<58)-1)
-#define	NumberTag   /* 0x00000001L */ MKTAG(0x1,1)
+#define	NumberTag   /* 0x00000001L */ MKTAG(0x4,1)
 #define	AtomTag	    /* 0x20000001L */ MKTAG(0x0,1)
 #define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (SHIFT_HIGH_TAG-4)))
 
@@ -58,7 +58,7 @@ property list
 #define	PairBits    /* 0x00000003L */ 3
 #define	ApplBits    /* 0x00000005L */ 5
 #define PrimiBits   /* 0x70000004L */ MKTAG(0x7,7)
-#define NumberMask  /* 0x20000007L */ MKTAG(0x2,7)
+#define NumberMask  /* 0x20000007L */ MKTAG(0x4,7)
 
 #define TagOf(t) 	(Unsigned(t)&TagBits)
 #define LowTagOf(t) 	(Unsigned(t)&LowTagBits)
