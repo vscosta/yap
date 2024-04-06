@@ -144,16 +144,16 @@ the implementation section.
 /// @brief initialize the slot data-structure: all existing slots will be
 /// discarded. Typically, this would be used at the beginning
 /// top-level or other outer quqqery.
-X_API void YAP_StartSlots(void) {
+X_API int YAP_StartSlots(void) {
   CACHE_REGS
-   Yap_RebootHandles(worker_id);
+   return Yap_StartHandles();
 }
 
 /// @brief discard all existing slots: operates as
 /// StartSlots, but should be called when we're done.
-X_API void YAP_EndSlots(void) {
+X_API void YAP_EndSlots(int slot) {
     CACHE_REGS
-  Yap_RebootHandles(worker_id); }
+      Yap_CloseHandles( slot); }
 
 /// @brief report the current position of the slots, assuming that they occupy
 /// the top of the stack.
@@ -2696,7 +2696,7 @@ X_API void *YAP_Record(Term t) {
   DBTerm *dbterm;
   DBRecordList *dbt;
 
-  dbterm = Yap_StoreTermInDB(Deref(t), 0);
+  dbterm = Yap_StoreTermInDB(Deref(t));
   if (dbterm == NULL)
     return NULL;
   dbt = (struct record_list *)Yap_AllocCodeSpace(sizeof(struct record_list));

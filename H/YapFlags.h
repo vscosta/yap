@@ -162,16 +162,6 @@ typedef struct x_el {
   Term tvalue;
 } xarg;
 
-INLINE_ONLY void badBoolean(yap_error_number err, xarg *entry)
-{
-  if (IsVarTerm(entry->tvalue)) {
-      Yap_ThrowError(INSTANTIATION_ERROR, entry->tvalue, "on parameter %s", NameOfFunctor(FunctorOfTerm(entry->source)));
-  }
-  if (!IsAtomTerm(entry->tvalue)) {
-    Yap_ThrowError(TYPE_ERROR_ATOM, entry->tvalue, "on parameter %s",  "on parameter %s", NameOfFunctor(FunctorOfTerm(entry->source)));
-  }
-  Yap_ThrowError(err, entry->source, NULL);
-}
 
 
 typedef struct struct_param {

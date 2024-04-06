@@ -318,6 +318,8 @@ LOCAL_INIT(yhandle_t, NSlots, 0);
 LOCAL_INIT(yhandle_t , HandleBorder, 0);
 LOCAL_INIT(CELL *, SlotBase, InitHandles(wid));
 
+LOCAL(DBTerm *,Ball);
+
 // Mutexes
 LOCAL_INIT(struct swi_mutex *, Mutexes, NULL);
 

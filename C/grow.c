@@ -526,7 +526,6 @@ AdjustLocal(bool thread_copying USES_REGS)
   fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
   fixPointerCells( pt, pt_bot, thread_copying PASS_REGS);
-  AdjustSlots( thread_copying PASS_REGS);
 }
 
 static Term
@@ -637,6 +636,7 @@ AdjustStacksAndTrail(Int sz, bool copying_threads USES_REGS)
   AdjustTrail(true, copying_threads PASS_REGS);
   AdjustLocal(copying_threads PASS_REGS);
   AdjustGlobal(sz, copying_threads PASS_REGS);
+  AdjustSlots( copying_threads PASS_REGS);
 }
 
 void
@@ -655,6 +655,7 @@ AdjustGrowStack( USES_REGS1 )
 {
   AdjustTrail(FALSE, STACK_SHIFTING PASS_REGS);
   AdjustLocal(STACK_SHIFTING PASS_REGS);
+  AdjustSlots(false PASS_REGS);
 }
 
 static void

@@ -2255,37 +2255,37 @@ bool Yap_JumpToEnv(void ) {
       return
        JumpToEnv(PASS_REGS1);
     }
-                                                                                  
+
 
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
   //  Yap_DebugPlWriteln(Yap_ChoicePoints(B));
- Term t = Deref(
-		   ARG1);
- //Yap_DebugPlWriteln(t);
+ Term t = Deref(ARG1);
+ // Yap_DebugPlWriteln(t);
  
- if (t == TermDAbort)
-	    LOCAL_ActiveError->errorNo =  ABORT_EVENT;
+     LOCAL_OldP = P;
+    LOCAL_OldCP = CP;
+      //     
+      //	Yap_SaveTerm( Yap_MkErrorTerm(LOCAL_ActiveError) );
+      //Yap_JumpToEnv();
+if (t == TermDAbort) {
+   Yap_ThrowError(ABORT_EVENT, TermDAbort, NULL);
+   return false;
+    }
       if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
     }
-  LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(t);
+
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-      Yap_ThrowError(USER_DEFINED_ERROR, t, NULL);
+    Yap_ThrowError(USER_DEFINED_ERROR, t, NULL);
       return false;
       } else {
     Yap_ThrowError(USER_DEFINED_EVENT, t, NULL);
     return false;
     
   }
-    LOCAL_OldP = P;
-    LOCAL_OldCP = CP;
-      //     
-      //	Yap_SaveTerm( Yap_MkErrorTerm(LOCAL_ActiveError) );
-      //Yap_JumpToEnv();
-      return false;
-}
+ }
 
   /** @pred  abort
 
@@ -2300,7 +2300,7 @@ static Int yap_throw(USES_REGS1) {
 static Int p_abort(USES_REGS1) { /* abort			 */
   /* make sure we won't go creeping around */
   
-  LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(TermDAbort);
+  LOCAL_ActiveError->errorUserTerm = (TermDAbort);
   Yap_JumpToEnv();
   return false;
  }

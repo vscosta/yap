@@ -830,20 +830,19 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
       Yap_env_add_location(r, CP, B, ENV, 0);
   } 
  r->errorNo = type;
-    if (type == USER_DEFINED_EVENT||
-	type == USER_DEFINED_ERROR ) {
-      termToError(where, extra, r);
-   } else {
-      if (extra)
-      r->culprit_t = Yap_SaveTerm(extra);
-	r->culprit = NULL;
-	r->errorAsText = Yap_errorName(type);
-    r->errorAsText2 = Yap_errorName2(type);
-    r->errorClass = Yap_errorClass(type);
-    r->classAsText = Yap_errorClassName(r->errorClass);
-    }
+ if (type != USER_DEFINED_EVENT &&
+     type != USER_DEFINED_ERROR ) {
+
+   if (extra)
+     r->culprit_t = Yap_SaveTerm(extra);
+   r->culprit = NULL;
+   r->errorAsText = Yap_errorName(type);
+   r->errorAsText2 = Yap_errorName2(type);
+   r->errorClass = Yap_errorClass(type);
+   r->classAsText = Yap_errorClassName(r->errorClass);
+ }
    
-    type = LOCAL_ActiveError ->errorNo;
+ type = LOCAL_ActiveError ->errorNo;
 
  
   if (s && s[0]) {
@@ -924,17 +923,19 @@ Term Yap_MkFullError(yap_error_descriptor_t *i, yap_error_number type) {
    - constructing a list with all available info on the bug
    - generating the throw
    - forcing backtracking in order to restart.
-
+4
    In a bad day, it has to deal with OOM, abort, and errors within errorts.
 */
 yamop *Yap_Error__(bool throw, const char *file, const char *function,
                    int lineno, yap_error_number type, Term where, const char *fmt, ...) {
   CACHE_REGS
 
+    
     char  s[PATH_MAX];
     LOCAL_OldP = P;
     LOCAL_OldCP = CP;
-
+    if (where == 0)
+      where = TermNil;
     s[0]='\0';
   if (!LOCAL_ActiveError) {
     LOCAL_ActiveError = Yap_GetException();
@@ -983,6 +984,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   switch (type) {
   case USER_DEFINED_ERROR:
     {
+      LOCAL_ActiveError->errorNo = type;     
+      LOCAL_ActiveError->errorUserTerm = (where);
     }
     break;
   case EVALUATION_ERROR_UNDEFINED:
@@ -1002,6 +1005,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     }
     break;
   case USER_DEFINED_EVENT:    
+      LOCAL_ActiveError->errorUserTerm = (where);
   case THROW_EVENT:
     {
       LOCAL_ActiveError->errorNo = type;
@@ -1067,20 +1071,20 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
       break;
     }
   }
-  Term user_info, t1;
   bool is_error = false;
-  if (type && Yap_errorClass(type) != EVENT) {
-      is_error=true;
-    user_info =where;
-    t1 =  TermNil;
-    } else if (where && IsApplTerm(where) && FunctorOfTerm(where) == FunctorError) {
-      is_error=true;
-    user_info = ArgOfTerm(2,where);
-    t1 = ArgOfTerm(1,where);
-    }
+  Term user_info = TermNil;
+  if (LOCAL_ActiveError->errorNo <= USER_DEFINED_ERROR)  {
+    if (LOCAL_ActiveError->errorNo == USER_DEFINED_ERROR) {
+      user_info = ArgOfTerm(2,where);
+  }
+    is_error = true;
+  }
+  
+
+  
   if (is_error) {
     Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, 
-		    t1, user_info, s);
+		    where, user_info, s);
        
   }
 
@@ -1129,7 +1133,9 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   Yap_JumpToEnv();
   //  reset_error_description();
   pop_text_stack(LOCAL_MallocDepth + 1);
-  if (throw) {
+  if (throw ) {
+    if (LOCAL_ActiveError->errorUserTerm )
+      LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(LOCAL_ActiveError->errorUserTerm);
     Yap_RaiseException();
   } else {
     LOCAL_ActiveError->culprit = NULL;
@@ -1417,8 +1423,19 @@ static Int drop_exception(USES_REGS1) {
   Term tn;
   bool rc = false;
   if (LOCAL_Error_TYPE) {
-    tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
-    rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);                                              ;
+    if (LOCAL_Error_TYPE == USER_DEFINED_EVENT) {
+      rc = Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1) &&
+	Yap_unify( TermNil, ARG2);
+    } else if (LOCAL_Error_TYPE == USER_DEFINED_ERROR ) {
+      rc = Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1) &&
+	Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
+      if (rc && IsVarTerm(ArgOfTerm(2,ARG1))) {
+	Yap_unify(ArgOfTerm(2,ARG1), ARG2);
+      }
+    } else {
+      tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
+      rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
+    }
     memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
   } else {
     rc = false;

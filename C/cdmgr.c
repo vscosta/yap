@@ -3435,7 +3435,6 @@ p_log_update_clause(USES_REGS1) {
     }
   PELOCK(41, pe);
   yhandle_t yth, ytb, ytr;
-  Yap_RebootHandles(worker_id);
   yth = Yap_InitHandle(t1);
   ytb = Yap_InitHandle(Deref(ARG3));
   ytr = Yap_InitHandle(Deref(ARG4));
@@ -3483,8 +3482,8 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yhandle_t yt
   rtn = MkDBRefTerm((DBRef)cl);
 #if MULTIPLE_STACKS
   TRAIL_CLREF(cl); /* So that fail will erase it */
-  INC_CLREF_COUNT(cl);
-#else
+  INC_CLREF_COUNT(cl);#
+else
   if (!(cl->ClFlags & InUseMask)) {
     cl->ClFlags |= InUseMask;
     TRAIL_CLREF(cl); /* So that fail will erase it */
@@ -4038,10 +4037,7 @@ p_static_clause(USES_REGS1) {
   Term t1 = Deref(ARG1);
   yamop *new_cp;
     yhandle_t yth, ytb, ytr;
-    Yap_RebootHandles(worker_id);
-    yth = Yap_InitHandle(t1);
-    ytb = Yap_InitHandle(Deref(ARG3));
-    ytr = Yap_InitHandle(Deref(ARG4));
+
 
     if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
@@ -4055,6 +4051,10 @@ p_static_clause(USES_REGS1) {
         Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
         }
   PELOCK(46, pe);
+
+    yth = Yap_InitHandle(t1);
+    ytb = Yap_InitHandle(Deref(ARG3));
+    ytr = Yap_InitHandle(Deref(ARG4));
   Int rc= fetch_next_static_clause(pe, pe->CodeOfPred, yth, ytb, ytr, new_cp,
                                   true);
     Yap_PopHandle(ytr);
@@ -4067,7 +4067,7 @@ static Int /* $hidden_predicate(P) */
 p_continue_static_clause(USES_REGS1) {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
-  Yap_RebootHandles(worker_id);
+
     yhandle_t yth, ytb, ytr;
     yth = Yap_InitHandle(Deref(ARG3));
     ytb = Yap_InitHandle(Deref(ARG4));

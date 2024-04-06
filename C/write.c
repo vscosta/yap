@@ -79,6 +79,18 @@ typedef struct write_globs {
 #define lastw wglb->lw
 #define last_minus wglb->last_atom_minus
 
+static void badBoolean(yap_error_number err, yhandle_t ys, xarg *entry)
+{
+  	    Yap_CloseHandles(ys);
+  if (IsVarTerm(entry->tvalue)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, entry->tvalue, "on parameter %s", NameOfFunctor(FunctorOfTerm(entry->source)));
+  }
+  if (!IsAtomTerm(entry->tvalue)) {
+    Yap_ThrowError(TYPE_ERROR_ATOM, entry->tvalue, "on parameter %s",  "on parameter %s", NameOfFunctor(FunctorOfTerm(entry->source)));
+  }
+  Yap_ThrowError(err, entry->source, NULL);
+}
+
 static bool callPortray(Term t, int sno USES_REGS) {
   PredEntry *pe;
   Int b0 = LCL0 - (CELL *)B;
@@ -1102,7 +1114,7 @@ ythe SBA */
 }
 
 
-static yap_error_number bind_variable_names(Term t,Functor FunctorF  USES_REGS) {
+static yap_error_number bind_variable_names(Term t,yhandle_t ys,Functor FunctorF  USES_REGS) {
   while (!IsVarTerm(t) && IsPairTerm(t)) {
     Term th = HeadOfTerm(t);
     Functor f;
@@ -1115,15 +1127,17 @@ static yap_error_number bind_variable_names(Term t,Functor FunctorF  USES_REGS) 
     }
     t1 = ArgOfTerm(1, th);
     if (IsVarTerm(t1)) {
+      Yap_CloseHandles(ys);
       Yap_ThrowError(INSTANTIATION_ERROR, t1, "variable_names");
       return false;
     }
     t2 = ArgOfTerm(2, th);
     if (IsVarTerm(t2)) {
       Term nt2 =    Yap_MkApplTerm(FunctorF, 1, &t1);
-      if (ASP < HR+1024)
+      if (ASP < HR+1024) {
+	    Yap_CloseHandles(ys);
 	return RESOURCE_ERROR_STACK;
-
+      }
       YapBind(VarOfTerm(t2), nt2);
 
     }
@@ -1169,9 +1183,10 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	    flags |= AttVar_Dots_f;
 	  } else if (ctl != TermIgnore) {
 	    if (IsVarTerm(ctl)) {
+	    Yap_CloseHandles(ys);
 		Yap_ThrowError(INSTANTIATION_ERROR, ctl, "variable_names");
 	    }
-	    CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
+	    Yap_CloseHandles(ys);
 	    Yap_ThrowError(
 		   DOMAIN_ERROR_WRITE_OPTION, ctl,
 			   "write attributes should be one of {dots,ignore,portray,write}");
@@ -1186,7 +1201,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	  } else if (args[WRITE_QUOTED].tvalue == TermFalse) {
 	    flags &= ~ YAP_WRITE_QUOTED;
 	  } else {
-	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_QUOTED]);
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, ys, &args[WRITE_QUOTED]);
 	  }
 	}
 	if (args[WRITE_IGNORE_OPS].used) {
@@ -1195,7 +1210,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	  } else if (args[WRITE_IGNORE_OPS].tvalue == TermFalse) {
 	    flags &= ~YAP_WRITE_IGNORE_OPS;
 	  } else {
-	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_IGNORE_OPS]);
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, ys, &args[WRITE_IGNORE_OPS]);
 	  }
 	}
 	if (args[WRITE_PORTRAY].used) {
@@ -1204,7 +1219,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	  } else if (args[WRITE_PORTRAY].tvalue == TermFalse) {
 	    flags &= ~YAP_WRITE_USE_PORTRAY;
 	  } else {
-	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_PORTRAY]);
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_PORTRAY]);
 	  }
 	}
 	if (args[WRITE_PORTRAYED].used) {
@@ -1213,7 +1228,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	  } else if (args[WRITE_PORTRAYED].tvalue == TermFalse) {
 	    flags &= ~YAP_WRITE_USE_PORTRAY;
 	  } else {
-	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_PORTRAYED]);
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_PORTRAYED]);
 	  }
 	}
 	if (args[WRITE_CHARACTER_ESCAPES].used) {
@@ -1222,7 +1237,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	  } else if (args[WRITE_CHARACTER_ESCAPES].tvalue == TermFalse) {
 	    flags |= No_Escapes_f;
 	  } else {
-	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_CHARACTER_ESCAPES]);
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_CHARACTER_ESCAPES]);
 	  }
 	}
 	if (args[WRITE_BACKQUOTES].used) {
@@ -1231,7 +1246,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	  } else if (args[WRITE_BACKQUOTES].tvalue == TermFalse) {
 	    flags &= ~BackQuote_String_f;
 	  } else {
-	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_BACKQUOTES]);
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_BACKQUOTES]);
 	  }
 	}
 	if (args[WRITE_CHARACTER_ESCAPES].used) {
@@ -1240,7 +1255,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	  } else if (args[WRITE_CHARACTER_ESCAPES].tvalue == TermFalse) {
 	    flags |= No_Escapes_f;
 	  } else {
-	    badBoolean(DOMAIN_ERROR_WRITE_OPTION, &args[WRITE_CHARACTER_ESCAPES]);
+	    badBoolean(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_CHARACTER_ESCAPES]);
 	  }
 	}
 	if (args[WRITE_BRACE_TERMS].used &&
@@ -1257,6 +1272,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
     if (args && args[WRITE_PRIORITY].used) {
 	  Term ctl = args[WRITE_ATTRIBUTES].tvalue;
 	    if (IsVarTerm(ctl)) {
+	    Yap_CloseHandles(ys);
 		Yap_ThrowError(INSTANTIATION_ERROR, ctl, "variable_names");
 	      }	  
 	  priority = IntegerOfTerm(ctl);
@@ -1335,7 +1351,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
   }  
   if (flags  & Named_vars_f) {
 
-    if ((*errp = bind_variable_names(tnames, FunctorF PASS_REGS))!=YAP_NO_ERROR) {
+    if ((*errp = bind_variable_names(tnames, ys, FunctorF PASS_REGS))!=YAP_NO_ERROR) {
       CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
      }
 	

@@ -1292,7 +1292,7 @@ void Yap_UpdateTimestamps(PredEntry *);
 
 /* dbase.c */
 void Yap_ErDBE(DBRef);
-DBTerm *Yap_StoreTermInDB(Term, int);
+DBTerm *Yap_StoreTermInDB(Term);
 DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term, UInt, UInt *);
 Term Yap_FetchTermFromDB(void *);
 Term Yap_FetchClauseTermFromDB(void *);

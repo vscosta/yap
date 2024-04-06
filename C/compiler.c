@@ -669,7 +669,7 @@ static int try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level,
   return false;
   /* store ground term away */
   HR = CellPtr(cglobs->cint.freep);
-  if ((dbt = Yap_StoreTermInDB(t, -1)) == NULL) {
+  if ((dbt = Yap_StoreTermInDB(t)) == NULL) {
     HR = h0;
     switch (LOCAL_Error_TYPE) {
     case RESOURCE_ERROR_STACK:
@@ -1972,7 +1972,11 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
             Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
         }
         return;
-      } else if (op >= _plus && op <= _functor) {
+	    } else if (op >= _plus && op <= _functor) {
+	/*   } else if (op == _plus ||
+		 op == _minus ||
+		 op == _arg ||
+		 op == _functor) {*/
         if (profiling)
           Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
         else if (call_counting)
@@ -1980,8 +1984,8 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         if (op == _functor) {
           c_functor(Goal, mod, cglobs);
         } else {
-          c_bifun(op, ArgOfTerm(1, Goal), ArgOfTerm(2, Goal),
-                  ArgOfTerm(3, Goal), Goal, mod, cglobs);
+	    c_bifun(op, ArgOfTerm(1, Goal), ArgOfTerm(2, Goal),
+		    ArgOfTerm(3, Goal), Goal, mod, cglobs);
         }
         if (cglobs->onlast) {
           Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);

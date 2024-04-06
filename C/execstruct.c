@@ -1,4 +1,4 @@
- /*************************************************************************
+/*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -284,7 +284,7 @@ static Int cleanup_on_exit(USES_REGS1)
   return true;
 }
 
-static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping)
+static bool complete_ge(bool out, Term omod, yamop *oP, yhandle_t sl, bool creeping)
 {
   CACHE_REGS
     if (creeping)
@@ -292,48 +292,55 @@ static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping)
 	Yap_signal(YAP_CREEP_SIGNAL);
       }
   CurrentModule = omod;
+  if (!out) out = Yap_unify(Yap_GetFromHandle(sl),Yap_GetFromHandle(sl+1));
   Yap_CloseSlots(sl);
   return out;
 }
 
+//volatile static int vsc_stop;
 static Int _user_expand_goal(USES_REGS1)
 {
+  //  while (vsc_stop==0);
+
   yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
   Term cmod = CurrentModule;
   Term g = Deref(ARG1);
+  yamop * oP = P;
    if (IsVarTerm(g))
     return false;
- yhandle_t h1 = Yap_InitSlot(g),
-    h2 = Yap_InitSlot(ARG2);
+   yhandle_t h1 = Yap_InitSlot(MkGlobal(g)),
+     h2 = Yap_InitSlot(MkGlobal(ARG2));
   /* CurMod:goal_expansion(A,B) */
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE  &&
       pe->OpcodeOfPred != UNDEF_OPCODE  &&
       Yap_execute_pred(pe, NULL, true PASS_REGS))
     {
-      return complete_ge( true, cmod, sl, creeping);
+      return complete_ge( true, cmod,oP, sl, creeping);
     }
   if (Yap_HasException(PASS_REGS1)){ // if (throw) {
       //  Yap_JumpToEnv();
     Yap_ResetException(NULL);
+   return complete_ge( false, cmod,oP, sl, creeping);
   }
 
   /* user:goal_expansion(A,B) */
-  ARG1 = Yap_GetFromSlot(h1);
   ARG2 = Yap_GetFromSlot(h2);
+  ARG1 = Yap_GetFromSlot(h1);
   if ((pe = RepPredProp(
 			Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE))) &&
       pe->OpcodeOfPred != UNDEF_OPCODE  &&
       pe->OpcodeOfPred != FAIL_OPCODE &&
       Yap_execute_pred(pe, NULL, true PASS_REGS))
     {
-      return complete_ge( true, cmod, sl, creeping);
+      return complete_ge( true, cmod,oP, sl, creeping);
     }
   if (Yap_HasException(PASS_REGS1))  { // if (throw) {
       //  Yap_JumpToEnv();
     Yap_ResetException(NULL);
+      return complete_ge( false, cmod,oP, sl, creeping);
   }
   /* user:goal_expansion(A,CurMod,B) */
   ARG1 = Yap_GetFromSlot(h1);
@@ -345,11 +352,12 @@ static Int _user_expand_goal(USES_REGS1)
       pe->OpcodeOfPred != UNDEF_OPCODE  &&
       Yap_execute_pred(pe, NULL, true PASS_REGS))
     {
-      return complete_ge( true, cmod, sl, creeping);
+      return complete_ge( true, cmod,oP, sl, creeping);
     }
   if (Yap_HasException(PASS_REGS1)){ // if (throw) {
       //  Yap_JumpToEnv();
     Yap_ResetException(NULL);
+      return complete_ge( false, cmod,oP, sl, creeping);
   }
 
   ARG1 = Yap_GetFromSlot(h1);
@@ -360,9 +368,13 @@ static Int _user_expand_goal(USES_REGS1)
       pe->OpcodeOfPred != FAIL_OPCODE &&
       Yap_execute_pred(pe, NULL, true PASS_REGS))
     {
-      return complete_ge( true, cmod, sl, creeping);
+      return complete_ge( true, cmod,oP, sl, creeping);
     }
-  return  complete_ge(false, cmod, sl, creeping);
+  if (Yap_HasException(PASS_REGS1)){ // if (throw) {
+      //  Yap_JumpToEnv();
+    Yap_ResetException(NULL);
+  }
+  return  complete_ge(false, cmod,oP, sl, creeping);
 }
 
 
@@ -371,6 +383,7 @@ static Int do_term_expansion(USES_REGS1)
   yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
+  yamop *oP=P;
   Term cmod = CurrentModule, omod = cmod;
   Term g = Deref(ARG1), o = Deref(ARG2);
   yhandle_t h1 = Yap_InitSlot(g), h2 = Yap_InitSlot(o);
@@ -380,7 +393,7 @@ static Int do_term_expansion(USES_REGS1)
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, true PASS_REGS))
     {
-      return complete_ge(true, omod, sl, creeping);
+      return complete_ge(true, omod, oP, sl, creeping);
     }
   ARG1 =
     Yap_GetFromSlot(h1);
@@ -391,7 +404,7 @@ static Int do_term_expansion(USES_REGS1)
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred )
     {
 
-      return complete_ge(true, omod, sl, creeping);
+      return complete_ge(true, omod, oP, sl, creeping);
 
     }
   /* CurMod:term_expansion(A,B) */
@@ -403,7 +416,7 @@ static Int do_term_expansion(USES_REGS1)
       Yap_execute_pred(pe, NULL, true PASS_REGS))
     {
 
-      return complete_ge(true, omod, sl, creeping);
+      return complete_ge(true, omod, oP, sl, creeping);
     }
   /* system:term_expansion(A,B) */
   ARG1 =   Yap_GetFromSlot(h1);
@@ -414,11 +427,11 @@ static Int do_term_expansion(USES_REGS1)
       pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, true PASS_REGS))
     {
-      return complete_ge(true, omod, sl, creeping);
+      return complete_ge(true, omod,oP, sl, creeping);
     }
 
   return complete_ge(
-		     false , omod, sl, creeping);
+		     false , omod, oP, sl, creeping);
 }
 
 void Yap_InitExecStruct(void)
