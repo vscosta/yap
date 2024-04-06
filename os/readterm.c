@@ -1259,7 +1259,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
     TokEntry *tokstart;
-  Term vs;
+
 LOCAL_toktide= tokstart = LOCAL_tokptr;
     LOCAL_StartLineCount = LOCAL_tokptr->TokLine;
  fe->tokstart = tokstart;

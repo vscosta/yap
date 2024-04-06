@@ -142,18 +142,21 @@ bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
   yap_error_number err = YAP_NO_ERROR;
   int lvl = push_text_stack();
   xarg *args = NULL;
-  yhandle_t  yt = Yap_InitHandle(t);
+   yhandle_t  yt = Yap_InitHandle(t);
   yhandle_t y0 = yt,
-	  yargs = Yap_InitHandle(opts);
-args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
+    yargs = Yap_InitHandle(opts);
+  while (true) {
+ args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
                                    DOMAIN_ERROR_WRITE_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE)
+ if (args == NULL) {
+   if (LOCAL_Error_TYPE) {
+     t = Yap_GetFromHandle(yt);
+      opts = Yap_GetFromHandle(yargs);
       Yap_ThrowError(LOCAL_Error_TYPE, opts, NULL);
+   }
     CLOSE_LOCAL_STACKS_AND_RETURN(y0,lvl) false;
  }
-  while (true) {
-    if (err != YAP_NO_ERROR) {
+ if (err != YAP_NO_ERROR) {
       //      HR = VarOfTerm(Yap_GetFromHandle(ylow));
       //HB = B->cp_h;
       //      clean_tr(B->cp_tr+mytr PASS_REGS);
@@ -161,27 +164,26 @@ args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
       if (err == RESOURCE_ERROR_TRAIL) {
 
 	if (!Yap_growtrail(0, false)) {
+      t = Yap_GetFromHandle(yt);
+      opts = Yap_GetFromHandle(yargs);
 	  Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
 	}
       } else if (err == RESOURCE_ERROR_STACK) {
 	//    printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
 	//     cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,(LCL0-cs->oASP)-H0)  ;
 	if (!Yap_dogcl(0 PASS_REGS)) {
+      t = Yap_GetFromHandle(yt);
+      opts = Yap_GetFromHandle(yargs);
 	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	}
     //     printf("In H0=%p Hb=%ld H=%ld G0=%ld GF=%ld ASP=%ld\n",H0, cs->oHB-H0,
      //      cs->oH-H0, ArenaPt(*arenap)-H0,ArenaLimit(*arenap)-H0,LCL0-cs->oASP-H0)  ;
   }
+ }
       t = Yap_GetFromHandle(yt);
       opts = Yap_GetFromHandle(yargs);
       
-    args = Yap_ArgListToVector(opts, write_defs, WRITE_END,NULL,
-                                   DOMAIN_ERROR_WRITE_OPTION);
-    if (args == NULL) {
-      CLOSE_LOCAL_STACKS_AND_RETURN(y0,lvl) false;
-    }
-    }
-    o = write_term(output_stream, t, false,&err, args PASS_REGS);
+     o = write_term(output_stream, t, false,&err, args PASS_REGS);
     if (o)
       break;
   }
@@ -569,10 +571,8 @@ static Int term_to_string(USES_REGS1) {
     s = StringOfTerm(t2);
   }
   yhandle_t y1 = Yap_InitHandle( t1 );
-  yhandle_t y0 = y1;
   Term tf = readFromBuffer(s, TermNil);
   Int rc  = Yap_unify(tf, Yap_PopHandle(y1));
-   Yap_CloseHandles(y0);
    return rc;
 }
 

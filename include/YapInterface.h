@@ -510,10 +510,10 @@ extern X_API void YAP_CloseAllOpenStreams(void);
 extern X_API void YAP_FlushAllStreams(void);
 
 /*  YAP_Term  *YAP_StartSlots()  */
-extern X_API void YAP_StartSlots(void);
+extern X_API int YAP_StartSlots(void);
 
 /*  YAP_Term  *YAP_EndSlots()  */
-extern X_API void YAP_EndSlots(void);
+extern X_API void YAP_EndSlots(int);
 
 /*  YAP_Term  *YAP_NewSlots()  */
 extern X_API YAP_handle_t YAP_NewSlots(int);
