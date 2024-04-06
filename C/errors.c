@@ -153,7 +153,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   set_key_s(parserFile, "parserFile", q, i, t);
   set_key_b(parserReadingCode, "parserReadingCode", q, i, t);
   set_key_b(prologConsulting, "prologConsulting", q, i, t);
-  //  set_key_t(culprit_t, "culprit_t", q, i, t);
+  set_key_t(culprit_t, "culprit_t", q, i, t);
   set_key_t(errorUserTerm, "errorUserTerm", q, i, t);
   set_key_s(prologStack, "prologStack", q, i, t);
   set_key_s(errorMsg, "errorMsg", q, i, t);
@@ -213,7 +213,7 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_b(parserReadingCode, "parserReadingCode", q, i);
   query_key_b(prologConsulting, "prologConsulting", q, i);
   query_key_s(prologStack, "prologStack", q, i);
-  //  query_key_t(culprit_t, "culprit_t", q, i);
+  query_key_t(culprit_t, "culprit_t", q, i);
   query_key_t(errorUserTerm, "errorUserTerm", q, i);
   Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, MkAtomTerm(Yap_LookupAtom(q)), "Bad error parameter  %s in error query", q);
   return false;
@@ -276,7 +276,7 @@ static void printErr(yap_error_descriptor_t *i, FILE *out) {
   print_key_s(out, "prologPredFile", i->prologPredFile);
   print_key_b(out, "parserReadingCode", i->parserReadingCode);
   print_key_b(out, "prologConsulting", i->prologConsulting);
-  //  print_key_t(out, "culprit_t", i->culprit_t);
+  print_key_t(out, "culprit_t", i->culprit_t);
   print_key_s(out, "prologStack", i->prologStack);
   print_key_t(out, "errorUserterm", i->errorUserTerm);
   print_key_s(out, "errorMsg", i->errorMsg);
@@ -353,7 +353,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_s("parserFile", i->parserFile, o);
   o = add_key_b("parserReadingCode", i->parserReadingCode, o);
   o = add_key_b("prologConsulting", i->prologConsulting, o);
-  //  o = add_key_t("culprit_t", i->culprit_t, o);
+  o = add_key_t("culprit_t", i->culprit_t, o);
   o = add_key_s("prologStack", i->prologStack, o);
   o = add_key_t("errorUserTerm", i->errorUserTerm, o);
   o = add_key_s("errorMsg", i->errorMsg, o);
@@ -833,8 +833,8 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
  if (type != USER_DEFINED_EVENT &&
      type != USER_DEFINED_ERROR ) {
 
-   if (extra)
-     r->culprit_t = Yap_SaveTerm(extra);
+   if (where)
+     r->culprit_t = Yap_SaveTerm(where);
    r->culprit = NULL;
    r->errorAsText = Yap_errorName(type);
    r->errorAsText2 = Yap_errorName2(type);
