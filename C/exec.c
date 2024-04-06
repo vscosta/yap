@@ -341,17 +341,26 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->p_env = CP;
       i->a = 0;
       i->op = op;
-      i->env_size = EnvSizeInCells;
+      i->env_size =   -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
       i->caller = i->p->y_u.Osbpp.p0;
       return i->pe =  i->p->y_u.Osbpp.p;
+    case _procceed:
+      i->env = ENV;
+      i->p = P;
+      i->p_env = CP;
+      i->a = 0;
+      i->op = op;
+      i->env_size =   -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
+      i->caller =  Yap_pc_to_pred(P );
+      return i->pe =PREVOP(CP,Osbpp)->y_u.Osbpp.p0;
     case _undef_p:
       i->env = ENV;
       i->p = P;
       i->p_env = CP;
       i->a = PredFromDefCode(P)->ArityOfPE;
       i->op = op;
-      i->env_size = -CP ->y_u.Osbpp.s / sizeof(CELL);
-      i->caller = CP->y_u.Osbpp.p0;
+      i->env_size =   -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
+      i->caller = PREVOP(CP,Osbpp)->y_u.Osbpp.p0;
       return i->pe = PredFromDefCode(P);
     default:
       i->env = ENV;
@@ -1345,8 +1354,6 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   int lval, out;
 
    Int OldBorder = LOCAL_CBorder;
-   //Int OldSlots = LOCAL_CurSlot;
-   LOCAL_CurSlot = 0;
   LOCAL_CBorder = LCL0 - (CELL *)B;
   sigjmp_buf signew, *sigold = LOCAL_RestartEnv;
   if (!sigold)
@@ -1378,7 +1385,8 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     {
     case 0:
     { /* restart */
-    out = Yap_absmi(0);
+      out = Yap_absmi(0);
+    }
     break;
     case 1:
       { /* restart */
@@ -1404,8 +1412,6 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     if (!Yap_has_a_signal())
       CalculateStackGap(PASS_REGS1);
 
-    out = Yap_absmi(0);
-    }
     break;
     case 2:
     {
@@ -1421,7 +1427,6 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     break;
     case 3:
     { /* saved state */
-      LOCAL_CurSlot = 0;
       LOCAL_CBorder = OldBorder;
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       LOCAL_RestartEnv = sigold;
@@ -1433,9 +1438,9 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
       // but we should inform the caller on what happened.
 
       out = false;
+    Yap_CloseTemporaryStreams(top_stream);
      }
-    }                                                                                                                    
-     Yap_CloseTemporaryStreams(top_stream);
+    }
     LOCAL_CBorder = OldBorder;
     LOCAL_RestartEnv = sigold;
     //if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
@@ -1590,10 +1595,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out, rc;
-  CELL *base = LOCAL_SlotBase;
-  yhandle_t cury = LOCAL_CurSlot;
-  LOCAL_CurSlot = 0;
-  LOCAL_SlotBase+=cury;
+
 
   saved_p = P;
   saved_cp = CP;
@@ -1603,7 +1605,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
   out = do_goal(CodeAdr, ppe->ArityOfPE, pt, true, true PASS_REGS);
-  LOCAL_SlotBase = base;
+
 
   if (out)
   {
@@ -1688,8 +1690,8 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "emulator crashed");
     rc = false;
   }
-  LOCAL_CurSlot = cury;
-  LOCAL_SlotBase = base;
+
+
   return rc;
 }
 
@@ -2183,7 +2185,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
 
   CalculateStackGap(PASS_REGS1);
   /* the first real choice-point will also have AP=FAIL */
-  /* always have an empty slots for people to use */
+  /* always have an empty slos for people to use */
 #if defined(YAPOR) || defined(THREADS)
   //  LOCAL = REMOTE(myworker_id);
   regcache->worker_local_ = REMOTE(myworker_id);

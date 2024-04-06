@@ -376,6 +376,10 @@
 
       BOp(procceed, p);
       CACHE_Y_AS_ENV(YREG);
+#ifndef NO_CHECKING
+        check_stack(NoStackProcceed, HR);
+#endif
+    restart_procceed:
       ALWAYS_LOOKAHEAD(CPREG->opc);
       PREG = CPREG;
       /* for profiler */
@@ -387,6 +391,26 @@
       WRITEBACK_Y_AS_ENV();
       ALWAYS_GONext();
       ALWAYS_END_PREFETCH();
+    NoStackProcceed:
+     {
+      saveregs();
+       PredEntry *pt0=interrupt_procceed(PASS_REGS1);
+       setregs();
+      if (pt0==NULL)
+	 goto restart_procceed;
+	ENV_YREG=ENV;   
+        CACHE_A1();
+        BEGD(d0);
+        d0 = (CELL)B;
+        PREG = pt0->CodeOfPred;
+        /* for profiler */
+        save_pc();
+        ENV_YREG[E_CB] = d0;
+        ENDD(d0);
+     }
+      GONext();
+
+
       ENDCACHE_Y_AS_ENV();
 
       ENDBOp();
