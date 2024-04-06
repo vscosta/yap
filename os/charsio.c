@@ -186,11 +186,8 @@ static Int at_end_of_stream(USES_REGS1) { /* at_end_of_stream */
     return (FALSE);
   out = GLOBAL_Stream[sno].status & Eof_Stream_f;
   if (!out) {
-    if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-      out = (dopeek_byte(sno) < 0);
-    } else {
-      out = (Yap_peek(sno) < 0);
-    }
+    if (GLOBAL_Stream[sno].file)
+      return feof(GLOBAL_Stream[sno].file);
   }
   return out;
 }
@@ -210,7 +207,8 @@ static Int at_end_of_stream_0(USES_REGS1) { /* at_end_of_stream */
   int sno = LOCAL_c_input_stream;
   out = GLOBAL_Stream[sno].status & Eof_Stream_f;
   if (!out) {
-    out = (Yap_peek(sno) < 0);
+    if (GLOBAL_Stream[sno].file)
+      return feof(GLOBAL_Stream[sno].file);
   }
   return out;
 }
