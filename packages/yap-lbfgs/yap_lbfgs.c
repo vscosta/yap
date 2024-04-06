@@ -136,7 +136,7 @@ static lbfgsfloatval_t  evaluate(void *instance, const lbfgsfloatval_t *tmpx,
   YAP_Term  v;
    lbfgsfloatval_t tmp_fx;
 
-   YAP_StartSlots();
+  int ys0= YAP_StartSlots();
    t[0] = v = YAP_MkVarTerm();
    int ys = YAP_InitSlot(v);
   YAP_Term t_1[2];
@@ -162,13 +162,13 @@ static lbfgsfloatval_t  evaluate(void *instance, const lbfgsfloatval_t *tmpx,
     if (result == FALSE) {
     printf("ERROR: the evaluate call failed in YAP.\n");
     // Goal did not succeed
-    YAP_EndSlots();
+    YAP_EndSlots(ys0);
     return 0.0;
   }
     YAP_ShutdownGoal(false);
   // YAP_ShutdownGoal(true);
     tmp_fx = YAP_FloatOfTerm(YAP_GetFromSlot(ys));
-    YAP_EndSlots();
+    YAP_EndSlots(ys0);
 
   return tmp_fx;
 
@@ -287,11 +287,12 @@ static YAP_Bool p_lbfgs(void) {
   if (!YAP_IsIntTerm(t1)) {
     return false;
   }
+  int ys0 = YAP_StartSlots();
 
   n = YAP_IntOfTerm(t1);
 
   if (n < 1) {
-    YAP_EndSlots();
+    YAP_EndSlots(ys0);
     return FALSE;
   }
   if (YAP_IsVarTerm(YAP_ARG2)) {
@@ -301,7 +302,7 @@ static YAP_Bool p_lbfgs(void) {
    ts[1] = YAP_MkIntTerm(n);
 
     if( !YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 2, ts))
-	) {    YAP_EndSlots();
+	) {    YAP_EndSlots(ys0);
 
       return false;
     }
@@ -315,7 +316,7 @@ static YAP_Bool p_lbfgs(void) {
   int ret = lbfgs(n, x, &f_x, evaluate, progress, ui, param);
 
   if (ret >= 0 ) {
-     YAP_EndSlots();
+     YAP_EndSlots(ys0);
     return true;   
   }
 
@@ -325,7 +326,7 @@ static YAP_Bool p_lbfgs(void) {
      break;
  }
  fprintf(stderr, "optimization terminated with code %d: %s\n ",ret, msgs[i].msg);
-   YAP_EndSlots();
+   YAP_EndSlots(ys0);
    return true;
   }
 
