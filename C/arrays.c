@@ -2049,7 +2049,7 @@ static Int assign_static(USES_REGS1) {
       } else if (IsAtomicTerm(t3)) {
         ptr->ValueOfStaticVE.lterms[indx].tstore = t3;
       } else {
-        DBTerm *new = Yap_StoreTermInDB(t3, 3);
+        DBTerm *new = Yap_StoreTermInDB(t3);
         if (!new) {
           WRITE_UNLOCK(ptr->ArRWLock);
           return FALSE;
@@ -2065,7 +2065,7 @@ static Int assign_static(USES_REGS1) {
       if (ref != NULL) {
         Yap_ReleaseTermFromDB(ref);
       }
-      ptr->ValueOfStaticVE.terms[indx] = Yap_StoreTermInDB(t3, 3);
+      ptr->ValueOfStaticVE.terms[indx] = Yap_StoreTermInDB(t3);
       if (ptr->ValueOfStaticVE.terms[indx] == NULL) {
         WRITE_UNLOCK(ptr->ArRWLock);
         return FALSE;

@@ -1292,7 +1292,7 @@ if (!(t2 = fv->type(t2))) {
 if (IsAtomOrIntTerm(t2)) {
     tarr[fv->FlagOfVE].at = t2;
 }  else {
-    tarr[fv->FlagOfVE].DBT = Yap_StoreTermInDB(t2, 2);
+    tarr[fv->FlagOfVE].DBT = Yap_StoreTermInDB(t2);
   }
          CurrentModule=modt;
 return true;
@@ -1475,7 +1475,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
     if (IsIntTerm(t))
       tarr->at = t;
     else {
-      tarr->DBT = Yap_StoreTermInDB(t, 2);
+      tarr->DBT = Yap_StoreTermInDB(t);
     }
     return true;
   } else if (f == at2n) {
@@ -1542,7 +1542,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
         continue;
       } else {
         HR[-1] = TermNil;
-        tarr->DBT = Yap_StoreTermInDB(t0, 2);
+        tarr->DBT = Yap_StoreTermInDB(t0);
         return true;
       }
     }
@@ -1557,7 +1557,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
     if (IsAtomOrIntTerm(t)) {
       tarr->at = t;
     } else {
-      tarr->DBT = Yap_StoreTermInDB(t, 2);
+      tarr->DBT = Yap_StoreTermInDB(t);
     }
 
   } else {
@@ -1582,7 +1582,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
         tarr->at = t0;
       }
     } else {
-      tarr->DBT = Yap_StoreTermInDB(t0, 2);
+      tarr->DBT = Yap_StoreTermInDB(t0);
     }
     return true;
   }
@@ -1774,7 +1774,7 @@ static void newFlag(Term fl, Term val) {
   if (IsAtomOrIntTerm(val)) {
     GLOBAL_Flags[i].at = val;
   } else {
-    GLOBAL_Flags[i].DBT = Yap_StoreTermInDB(val, 2);
+    GLOBAL_Flags[i].DBT = Yap_StoreTermInDB(val);
   }
 }
 

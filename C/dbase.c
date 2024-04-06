@@ -185,7 +185,7 @@ static UInt new_trail_size(void) {
   return sz;
 }
 
-static int recover_from_record_error(int nargs) {
+static int recover_from_record_error(void) {
   CACHE_REGS
   switch (LOCAL_Error_TYPE) {
   case RESOURCE_ERROR_STACK:
@@ -2205,11 +2205,14 @@ LogUpdClause *Yap_new_ludbe(Term t, PredEntry *pe, UInt nargs) {
     if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
       break;
     } else {
+      
       XREGS[nargs + 1] = t;
-      if (recover_from_record_error(nargs + 1)) {
-        t = Deref(XREGS[nargs + 1]);
-      } else {
-        return FALSE;
+      yhandle_t ys = Yap_InitHandle(t);
+      if (recover_from_record_error()) {
+        t = Yap_PopHandle(ys);
+      } else { 
+        Yap_PopHandle(ys);
+       return FALSE;
       }
     }
   }
@@ -2392,7 +2395,7 @@ restart_record:
     TRef = MkDBRefTerm(record(MkFirst, t1, Deref(ARG2), Unsigned(0) PASS_REGS));
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (recover_from_record_error(3)) {
+    if (recover_from_record_error()) {
       goto restart_record;
     } else {
       return FALSE;
@@ -2414,7 +2417,7 @@ restart_record:
   TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, Unsigned(0) PASS_REGS));
 
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (recover_from_record_error(3)) {
+    if (recover_from_record_error()) {
       t1 = Deref(ARG1);
       t2 = Deref(ARG2);
       goto restart_record;
@@ -2463,7 +2466,7 @@ restart_record:
         record_at(MkFirst, DBRefOfTerm(t1), t2, Unsigned(0) PASS_REGS));
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (recover_from_record_error(3)) {
+    if (recover_from_record_error()) {
       t1 = Deref(ARG1);
       t2 = Deref(ARG2);
       goto restart_record;
@@ -2510,7 +2513,7 @@ restart_record:
     TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0) PASS_REGS));
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (recover_from_record_error(3)) {
+    if (recover_from_record_error()) {
       t1 = Deref(ARG1);
       t2 = Deref(ARG2);
       goto restart_record;
@@ -2537,11 +2540,12 @@ restart_record:
     record(MkLast, MkAtomTerm(at), t2, Unsigned(0) PASS_REGS);
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    ARG1 = t2;
-    if (recover_from_record_error(1)) {
-      t2 = ARG1;
+    yhandle_t ys = Yap_InitHandle(t2);
+    if (recover_from_record_error()) {
+      t2 = Yap_PopHandle(ys);
       goto restart_record;
     } else {
+      Yap_PopHandle(ys);
       return FALSE;
     }
   }
@@ -2558,7 +2562,7 @@ static Int p_rcdzp(USES_REGS1) {
 restart_record:
   TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, Unsigned(0) PASS_REGS));
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (recover_from_record_error(3)) {
+    if (recover_from_record_error()) {
       t1 = Deref(ARG1);
       t2 = Deref(ARG2);
       goto restart_record;
@@ -2606,7 +2610,7 @@ restart_record:
     TRef = MkDBRefTerm(record_at(MkLast, dbr, t2, Unsigned(0) PASS_REGS));
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (recover_from_record_error(3)) {
+    if (recover_from_record_error()) {
       t1 = Deref(ARG1);
       t2 = Deref(ARG2);
       goto restart_record;
@@ -2636,7 +2640,7 @@ restart_record:
   else
     TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, MkIntTerm(0) PASS_REGS));
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (recover_from_record_error(4)) {
+    if (recover_from_record_error()) {
       t1 = Deref(ARG1);
       t2 = Deref(ARG2);
       t3 = Deref(ARG3);
@@ -2660,7 +2664,7 @@ static Int p_drcdap(USES_REGS1) {
 restart_record:
   TRef = MkDBRefTerm(record(MkFirst | MkCode | WithRef, t1, t2, t4 PASS_REGS));
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (recover_from_record_error(4)) {
+    if (recover_from_record_error()) {
       t1 = Deref(ARG1);
       t2 = Deref(ARG2);
       t4 = Deref(ARG4);
@@ -2684,7 +2688,7 @@ restart_record:
   LOCAL_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkLast | MkCode | WithRef, t1, t2, t4 PASS_REGS));
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (recover_from_record_error(4)) {
+    if (recover_from_record_error()) {
       t1 = Deref(ARG1);
       t2 = Deref(ARG2);
       t4 = Deref(ARG4);
@@ -2740,7 +2744,7 @@ static Int p_still_variant(USES_REGS1) {
     if (dbr->Flags & DBVar)
       return IsVarTerm(t2);
     dbt = &(dbr->DBT);
-  }
+    }
   /*
     we checked the trail, so we are sure only variables in the new term
     were bound
@@ -4965,7 +4969,7 @@ Term Yap_PopTermFromDB(void *ref) {
   return t;
 }
 
-static DBTerm *StoreTermInDB(Term t, int nargs USES_REGS) {
+static DBTerm *StoreTermInDB(Term t USES_REGS) {
   DBTerm *x;
   int needs_vars;
   struct db_globs dbg;
@@ -4975,13 +4979,11 @@ static DBTerm *StoreTermInDB(Term t, int nargs USES_REGS) {
                                        &dbg)) == NULL) {
     if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
       break;
-    } else if (nargs == -1) {
-      return NULL;
-    } else {
-      XREGS[nargs + 1] = t;
-      if (recover_from_record_error(nargs + 1)) {
-        t = Deref(XREGS[nargs + 1]);
+      yhandle_t ys = Yap_InitHandle(t);
+      if (recover_from_record_error()) {
+        t = Yap_PopHandle(ys);
       } else {
+	Yap_PopHandle(ys);
         return NULL;
       }
     }
@@ -4989,9 +4991,9 @@ static DBTerm *StoreTermInDB(Term t, int nargs USES_REGS) {
   return x;
 }
 
-DBTerm *Yap_StoreTermInDB(Term t, int nargs) {
+DBTerm *Yap_StoreTermInDB(Term t) {
   CACHE_REGS
-  return StoreTermInDB(t, nargs PASS_REGS);
+  return StoreTermInDB(t PASS_REGS);
 }
 
 DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size, UInt *sz) {
@@ -5011,7 +5013,6 @@ void Yap_init_tqueue(db_queue *dbq) {
   dbq->FirstInQueue = dbq->LastInQueue = NULL;
   INIT_RWLOCK(dbq->QRWLock);
 }
-
 void Yap_destroy_tqueue(db_queue *dbq USES_REGS) {
   QueueEntry *cur_instance = dbq->FirstInQueue;
   while (cur_instance) {
@@ -5033,7 +5034,7 @@ bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
     }
   }
   /* Yap_LUClauseSpace += sizeof(QueueEntry); */
-  x->DBT = StoreTermInDB(Deref(t), 2 PASS_REGS);
+  x->DBT = StoreTermInDB(Deref(t) PASS_REGS);
   if (x->DBT == NULL) {
     return false;
   }

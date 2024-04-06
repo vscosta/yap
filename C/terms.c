@@ -762,7 +762,8 @@ Term Yap_TermVariables(Term t, Term t0 USES_REGS) /* variables in term t  */
     appearance when traversing the term depth-first, left-to-right.
 
 */
-static Int term_variables(USES_REGS1) /* variables in term t		 */
+static Int term_variables(USES_REGS1) /* variables in term t
+				       */
 {
   if (!Yap_IsListOrPartialListTerm(Deref(ARG2))) {
     Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "term_variables/2");
@@ -781,7 +782,8 @@ static Int term_variables(USES_REGS1) /* variables in term t		 */
   return Yap_unify(out,ARG2);
     
 }
-
+	       
+  
 /** routine to locate attributed variables */
 
 typedef struct att_rec {
@@ -794,7 +796,7 @@ typedef struct att_rec {
     _Term_ that do not occur in _CurrentVariables_. That is:
 
     `Variables = vars(Term) - CurrentVariables`
-=
+    
     The variables occur in
 the order of their first appearance when traversing the term depth-first,
 left-to-right.
@@ -808,7 +810,8 @@ p_new_variables_in_term(USES_REGS1) /* variables within term t		 */
   ARG2 = ARG1;
   ARG1 = t;
   return term_variables_difference(PASS_REGS1);
-    }
+
+}
 
 static Int
 free_variables_in_term(USES_REGS1) /* variables within term t		 */
