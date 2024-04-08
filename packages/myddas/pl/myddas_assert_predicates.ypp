@@ -262,7 +262,7 @@ db_listing(Name):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % table_arity :- number of columns in a relation.
 %				%
-table_arity( Con, ConType, RelationName, Arity ) :-
+table_arity( Con, _ConType, RelationName, Arity ) :-
 	   db_number_of_fields(Con,RelationName,Arity).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

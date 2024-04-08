@@ -844,7 +844,7 @@ static void spy_goal(USES_REGS1) {
 #if THREADS
     UNLOCK(GLOBAL_ThreadHandlesLock);
 #endif
-#ifdef LOW_LEVEL_TRACER
+#ifdef LOW_LEVEL_TRACER_FOR_DEBUGGER
     if (Yap_do_low_level_trace)
       low_level_trace(enter_pred, pt0, XREGS + 1);
 #endif /* LOW_LEVEL_TRACE */

@@ -54,6 +54,7 @@
 		  db_open/2,
 		  db_open/1,
 %		  db_open/0,
+		  sqlite3/1,
 		  db_close/1,
 		  db_close/0,
 
@@ -209,7 +210,7 @@ user:prolog_file_type( gpkg, dataset ).
 %
 % _Interface_ : a supported server, it may be one of mysql, odbc, postgres, sqlite3.
 % _Handle_ : a name that refers to the database-conectionn. By default is `myddas`,
-% _Connection Info': either a sequence Host/Db/Port/Socket or a file name. You can use xb0 for the defaukt port and sockets,
+% _Connection Info': either a sequence Host/Db/Port/Socket or a file name. You can use xb0 for the default port and sockets,
 % _UserId_; the use identifier, ignored by sqlite3;
 % _Password_ : access control, ignored by sqlite3,
 %
@@ -218,25 +219,25 @@ user:prolog_file_type( gpkg, dataset ).
 
 
 db_open(mysql,Connection,Host/Db/Port/Socket,User,Password) :- !,
-	'$error_checks'(db_open(mysql,Connection,Host/Db/Port/Socket,User,Password)),
-	c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
-	set_value(Connection,Con).
+    '$error_checks'(db_open(mysql,Connection,Host/Db/Port/Socket,User,Password)),
+    c_db_my_connect(Host,User,Password,Db,Port,Socket,Con),
+    set_value(Connection,Con).
 db_open(mysql,Connection,Host/Db/Port,User,Password) :-
-	integer(Port),!,
-	db_open(mysql,Connection,Host/Db/Port/_,User,Password).  % Var to be NULL, the  default socket
+    integer(Port),!,
+    db_open(mysql,Connection,Host/Db/Port/_,User,Password).  % Var to be NULL, the  default socket
 db_open(mysql,Connection,Host/Db/Socket,User,Password) :- !,
-	db_open(mysql,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
+    db_open(mysql,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
 db_open(mysql,Connection,Host/Db,User,Password) :-
-	db_open(mysql,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
+    db_open(mysql,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socket
 
 
 db_open(postgres,Connection,Host/Db/Port/Socket,User,Password) :- !,
-	'$error_checks'(db_open(postgres,Connection,Host/Db/Port/Socket,User,Password)),
-	c_postgres_connect(Host,User,Password,Db,Port,Socket,Con),
-	set_value(Connection,Con).
+    '$error_checks'(db_open(postgres,Connection,Host/Db/Port/Socket,User,Password)),
+    c_postgres_connect(Host,User,Password,Db,Port,Socket,Con),
+    set_value(Connection,Con).
 db_open(postgres,Connection,Host/Db/Port,User,Password) :-
-	integer(Port),!,
-	db_open(postgres,Connection,Host/Db/Port/_,User,Password).  % Var to be NULL, the  default socket
+    integer(Port),!,
+    db_open(postgres,Connection,Host/Db/Port/_,User,Password).  % Var to be NULL, the  default socket
 db_open(postgres,Connection,Host/Db/Socket,User,Password) :- !,
     db_open(postgres,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
 db_open(postgres,Connection,Host/Db,User,Password) :-
@@ -254,7 +255,7 @@ db_open(sqlite3,Connection,File,User,Password) :-
     set_value(Connection,Con).
 db_open(sqlite3,File,User,Password) :-
     absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
-    '$error_checks'(db_open(sqlite3,Connection,Db,User,Password)),
+    '$error_checks'(db_open(sqlite3,Db,User,Password)),
     c_sqlite3_connect(Db,User,Password,Con),
     set_value(myddas,Con).
 db_open(sqlite3,File) :-
@@ -268,8 +269,17 @@ db_open(File) :-
     c_sqlite3_connect(Db,Con),
     set_value(myddas,Con).
 
+%% @pred sqlite3(+File)
+%
+% Open the file as a database and import all its tables as Prolog
+% predicates of the same name.
+%
 sqlite3(File) :-
-    db_open(File).
+    db_open(File),
+    db_show_tables(table(T)),
+    db_import(T,T),
+    fail.
+sqlite3(_).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -356,10 +366,10 @@ db_stats(Protocol,List):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_stats_time(+,-)
 % Reference is C pointer (memory reference)
-				%
+%
 db_stats_time(Reference,Time):-
-	'$error_checks'(db_stats_time(Reference,Time)),
-	c_db_stats_time(Reference,Time).
+    '$error_checks'(db_stats_time(Reference,Time)),
+    c_db_stats_time(Reference,Time).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #endif /* DEBUG */
@@ -368,234 +378,234 @@ db_stats_time(Reference,Time):-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_sql(+,+,-)
-				%
-				%
+% db_sql(+,+,-)
+%
+%
 
-				%compatibility
+%compatibility
 db_sql_select(Protocol,SQL,LA):-
-	db_sql(Protocol,SQL,LA).
+    db_sql(Protocol,SQL,LA).
 
 db_sql(SQL,LA):-
-	db_sql(myddas,SQL,LA).
+    db_sql(myddas,SQL,LA).
 
 db_sql(Connection,SQL,LA):-
-	'$error_checks'(db_sql(Connection,SQL,LA)),
-	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
-	db_sql_(ConType, Con, SQL, LA).
+    '$error_checks'(db_sql(Connection,SQL,LA)),
+    get_value(Connection,Con),
+    c_db_connection_type(Con,ConType),
+    db_sql_(ConType, Con, SQL, LA).
 
 db_sql_(ConType, Con, SQL,LA):-
-	'$write_or_not'(SQL),
-	( ConType == mysql ->
-	  my_result_set(Mode),
-	  c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
-	;ConType == postgres ->
-	  postgres_result_set(Mode),
-	  c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
-	;ConType == sqlite3 ->
-	  sqlite3_result_set(Mode),
-	  c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
-	;
-	  c_odbc_query(SQL,ResultSet,Arity,LA,Con),
-	  c_odbc_number_of_fields_in_query(SQL,Con,Arity)
-	),
-	'$make_a_list'(Arity,LA),
-	SWITCH( ConType, row(ResultSet,Arity,LA) ).
+    '$write_or_not'(SQL),
+    ( ConType == mysql ->
+      my_result_set(Mode),
+      c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
+    ;ConType == postgres ->
+     postgres_result_set(Mode),
+     c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
+    ;ConType == sqlite3 ->
+     sqlite3_result_set(Mode),
+     c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
+    ;
+    c_odbc_query(SQL,ResultSet,Arity,LA,Con),
+    c_odbc_number_of_fields_in_query(SQL,Con,Arity)
+    ),
+    '$make_a_list'(Arity,LA),
+    SWITCH( ConType, row(ResultSet,Arity,LA) ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_prolog_select(+,+,+)
-				%
-				%
+% db_prolog_select(+,+,+)
+%
+%
 db_prolog_select(LA,DbGoal):-
-	db_prolog_select(myddas,LA,DbGoal).
+    db_prolog_select(myddas,LA,DbGoal).
 db_prolog_select(Connection,LA,DbGoal):-
-	length(LA,Arity),
-	Name=viewname,
-	functor(ViewName,Name,Arity),
-				% build arg list for viewname/Arity
-	ViewName=..[Name|LA],
-	'$prolog2sql'(ViewName,DbGoal,SQL),
-	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
+    length(LA,Arity),
+    Name=viewname, 
+    functor(ViewName,Name,Arity),
+    % build arg list for viewname/Arity
+    ViewName=..[Name|LA],
+    '$prolog2sql'(ViewName,DbGoal,SQL),
+    get_value(Connection,Con),
+    c_db_connection_type(Con,ConType),
     db_sql_(ConType, Con, SQL,LA).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_prolog_select_multi(+,+,-)
-				% db_prolog_select_multi(guest,[(ramos(A,C),A=C),(ramos(D,B),B=10)],[[A],[D,B]]).
-				%
+% db_prolog_select_multi(+,+,-)
+% db_prolog_select_multi(guest,[(ramos(A,C),A=C),(ramos(D,B),B=10)],[[A],[D,B]]).
+%
 db_prolog_select_multi(Connection,DbGoalsList,ListOfResults) :-
-	'$error_checks'(db_prolog_select_multi(Connection,DbGoalsList,ListOfResults)),
-	'$create_multi_query'(ListOfResults,DbGoalsList,SQL),
+    '$error_checks'(db_prolog_select_multi(Connection,DbGoalsList,ListOfResults)),
+    '$create_multi_query'(ListOfResults,DbGoalsList,SQL),
 
-	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
-	'$write_or_not'(SQL),
-	C_SWITCH(ConType, query(SQL,ResultSet,Con,Mode,_) ),
-	'$get_multi_results'(Con,ConType,ResultSet,ListOfResults).
+    get_value(Connection,Con),
+    c_db_connection_type(Con,ConType),
+    '$write_or_not'(SQL),
+    C_SWITCH(ConType, query(SQL,ResultSet,Con,Mode,_) ),
+    '$get_multi_results'(Con,ConType,ResultSet,ListOfResults).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_command/2
-				%
-				%
+% db_command/2
+%
+%
 db_command(Connection,SQL):-
-	'$error_checks'(db_command(Connection,SQL)),
-	get_value(Connection,Con),
-	'$write_or_not'(SQL),
-	c_db_connection_type(Con,ConType),
-	( ConType == mysql ->
-	  my_result_set(Mode),
-	  c_db_my_query(SQL,_,Con,Mode,_)
-	;
-	  true
-	).
+    '$error_checks'(db_command(Connection,SQL)),
+    get_value(Connection,Con),
+    '$write_or_not'(SQL),
+    c_db_connection_type(Con,ConType),
+    ( ConType == mysql ->
+      my_result_set(Mode),
+      c_db_my_query(SQL,_,Con,Mode,_)
+    ;
+    true
+    ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_assert/2
-				% db_assert/1
-				%
+% db_assert/2
+% db_assert/1
+%
 db_assert(PredName):-
-	db_assert(myddas,PredName).
+    db_assert(myddas,PredName).
 
 db_assert(Connection,PredName):-
-	translate(PredName,PredName,Code),
-	'$error_checks'(db_insert2(Connection,PredName,Code)),
-	'$get_values_for_insert'(Code,ValuesList,RelName),
-	'$make_atom'(['INSERT INTO `',RelName,'` VALUES '|ValuesList],SQL),
-	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
-	'$write_or_not'(SQL),
-	( ConType == mysql ->
-	  my_result_set(Mode),
-	  c_db_my_query(SQL,_,Con,Mode,_)
-	;ConType == postgres ->
-	  postgres_result_set(Mode),
-	  c_postgres_query(SQL,_,Con,Mode,_)
-	;ConType == sqlite3 ->
-	  sqlite3_result_set(Mode),
-	  myddas_myddas_sqlite3:c_sqlite3_query(SQL,_,Con,Mode,_)
-	;
-	  c_odbc_query(SQL,_,_,_,Con)
-	).
+    translate(PredName,PredName,Code),
+    '$error_checks'(db_insert2(Connection,PredName,Code)),
+    '$get_values_for_insert'(Code,ValuesList,RelName),
+    '$make_atom'(['INSERT INTO `',RelName,'` VALUES '|ValuesList],SQL),
+    get_value(Connection,Con),
+    c_db_connection_type(Con,ConType),
+    '$write_or_not'(SQL),
+    ( ConType == mysql ->
+      my_result_set(Mode),
+      c_db_my_query(SQL,_,Con,Mode,_)
+    ;ConType == postgres ->
+     postgres_result_set(Mode),
+     c_postgres_query(SQL,_,Con,Mode,_)
+    ;ConType == sqlite3 ->
+     sqlite3_result_set(Mode),
+     myddas_myddas_sqlite3:c_sqlite3_query(SQL,_,Con,Mode,_)
+    ;
+    c_odbc_query(SQL,_,_,_,Con)
+    ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_create_table/3
-				% FieldsList = [field(Name,Type,Null,Key,DefaultValue)]
-				% Example [field(campo1,'char(12)',y,y,a),field(campo2,int,y,y,0)]
-				% TODO Test with ODBC & Type Checks
+% db_create_table/3
+% FieldsList = [field(Name,Type,Null,Key,DefaultValue)]
+% Example [field(campo1,'char(12)',y,y,a),field(campo2,int,y,y,0)]
+% TODO Test with ODBC & Type Checks
 db_create_table(Connection,TableName,FieldsInf):-
-	'$error_checks'(db_create_table(Connection,TableName,FieldsInf)),
-	get_value(Connection,Con),
+    '$error_checks'(db_create_table(Connection,TableName,FieldsInf)),
+    get_value(Connection,Con),
 
-	'$process_fields'(FieldsInf,FieldString,KeysSQL),
-	'$make_atom'(['CREATE TABLE `',TableName,'` ( ',FieldString,KeysSQL,' )'],FinalSQL),
+    '$process_fields'(FieldsInf,FieldString,KeysSQL),
+    '$make_atom'(['CREATE TABLE `',TableName,'` ( ',FieldString,KeysSQL,' )'],FinalSQL),
 
-	c_db_connection_type(Con,ConType),
-	'$write_or_not'(FinalSQL),
-	( ConType == mysql ->
-	  my_result_set(Mode),
-	  c_db_my_query(FinalSQL,_,Con,Mode,_)
-	;ConType == posgres ->
-	 postgres_result_set(Mode),
-	  c_postgres_query(FinalSQL,_,Con,Mode,_)
-	;ConType == sqlite3 ->
-	  sqlite3_result_set(Mode),
-	  c_sqlite3_query(FinalSQL,_,Con,Mode,_)
-	;
-	  c_odbc_query(FinalSQL,_,_,_,Con)
-	).
+    c_db_connection_type(Con,ConType),
+    '$write_or_not'(FinalSQL),
+    ( ConType == mysql ->
+      my_result_set(Mode),
+      c_db_my_query(FinalSQL,_,Con,Mode,_)
+    ;ConType == posgres ->
+     postgres_result_set(Mode),
+     c_postgres_query(FinalSQL,_,Con,Mode,_)
+    ;ConType == sqlite3 ->
+     sqlite3_result_set(Mode),
+     c_sqlite3_query(FinalSQL,_,Con,Mode,_)
+    ;
+    c_odbc_query(FinalSQL,_,_,_,Con)
+    ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_export_view/4
-				% TODO Test with ODBC
-				%
+% db_export_view/4
+% TODO Test with ODBC
+%
 db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
-	'$error_checks'(db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf)),
-	get_value(Connection,Con),
-	'$process_sql_goal'(TableViewName,SQLorDbGoal,TableName,SQL),
+    '$error_checks'(db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf)),
+    get_value(Connection,Con),
+    '$process_sql_goal'(TableViewName,SQLorDbGoal,TableName,SQL),
 
-				% Case there's some information about the
-				% attribute fields of the relation given
-				% by the user
-	( FieldsInf == [] ->
-	  '$make_atom'(['CREATE TABLE ',TableName,' AS ',SQL],FinalSQL)
-	;
-	  '$process_fields'(FieldsInf,FieldString,KeysSQL),
-	  '$make_atom'(['CREATE TABLE ',TableName,' (',FieldString,KeysSQL,') AS ',SQL],FinalSQL)
-	),
+    % Case there's some information about the
+    % attribute fields of the relation given
+    % by the user
+    ( FieldsInf == [] ->
+      '$make_atom'(['CREATE TABLE ',TableName,' AS ',SQL],FinalSQL)
+    ;
+    '$process_fields'(FieldsInf,FieldString,KeysSQL),
+    '$make_atom'(['CREATE TABLE ',TableName,' (',FieldString,KeysSQL,') AS ',SQL],FinalSQL)
+    ),
 
-	c_db_connection_type(Con,ConType),
-	'$write_or_not'(FinalSQL),
-	( ConType == mysql ->
-	  my_result_set(Mode),
-	  c_db_my_query(FinalSQL,_,Con,Mode,_)
-	;
-	  c_odbc_query(FinalSQL,_,_,_,Con)
-	).
+    c_db_connection_type(Con,ConType),
+    '$write_or_not'(FinalSQL),
+    ( ConType == mysql ->
+      my_result_set(Mode),
+      c_db_my_query(FinalSQL,_,Con,Mode,_)
+    ;
+    c_odbc_query(FinalSQL,_,_,_,Con)
+    ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_update/2
-				% BUG: db_update dosen't work for this case, just an example
-				% db_update(my1,edge(1,3)-edge(99,99)).
-				% The case where the set condition is "set" to change all the fields
+% db_update/2
+% BUG: db_update dosen't work for this case, just an example
+% db_update(my1,edge(1,3)-edge(99,99)).
+% The case where the set condition is "set" to change all the fields
 db_update(Connection,WherePred-SetPred):-
-				%TODO: error_checks
-	get_value(Connection,Conn),
+    %TODO: error_checks
+    get_value(Connection,Conn),
 
-				% Match and Values must be "unifiable"
-	functor(WherePred,PredName,Arity),
-	functor(SetPred,PredName,Arity),
+    % Match and Values must be "unifiable"
+    functor(WherePred,PredName,Arity),
+    functor(SetPred,PredName,Arity),
 
-	functor(NewRelation,PredName,Arity),
+    functor(NewRelation,PredName,Arity),
 
-	'$extract_args'(WherePred,1,Arity,WhereArgs),
-	'$extract_args'(SetPred,1,Arity,SetArgs),
+    '$extract_args'(WherePred,1,Arity,WhereArgs),
+    '$extract_args'(SetPred,1,Arity,SetArgs),
 
-	copy_term(WhereArgs,WhereArgsTemp),
-	NewRelation=..[PredName|WhereArgsTemp],
-	translate(NewRelation,NewRelation,Code),
+    copy_term(WhereArgs,WhereArgsTemp),
+    NewRelation=..[PredName|WhereArgsTemp],
+    translate(NewRelation,NewRelation,Code),
 
-	'$get_values_for_update'(Code,SetArgs,SetCondition,WhereCondition),
+    '$get_values_for_update'(Code,SetArgs,SetCondition,WhereCondition),
 
-	'$get_table_name'(Code,TableName),
-	append(SetCondition,WhereCondition,Conditions),
-	'$make_atom'(['UPDATE `',TableName,'` '|Conditions],SQL),
-	'$write_or_not'(SQL),
-	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
-	( ConType == mysql ->
-	my_result_set(Mode),
-	  c_db_my_query(SQL,_,Conn,Mode,_)
-	;
-	  ConType == mysql ->
-	postgres_result_set(Mode),
-	  c_postgres_query(SQL,_,Conn,Mode,_)
-	;
-	ConType == sqlite3 ->
-	sqlite3_result_set(Mode),
-	 c_sqlite3_query(SQL,_,Conn,Mode,_)
-	;
-	  ConType == odbc ->
-	odbc_result_set(Mode),
-	  c_odbc_query(SQL,_,Conn,Mode,_)
-	).
+    '$get_table_name'(Code,TableName),
+    append(SetCondition,WhereCondition,Conditions),
+    '$make_atom'(['UPDATE `',TableName,'` '|Conditions],SQL),
+    '$write_or_not'(SQL),
+    get_value(Connection,Con),
+    c_db_connection_type(Con,ConType),
+    ( ConType == mysql ->
+      my_result_set(Mode),
+      c_db_my_query(SQL,_,Conn,Mode,_)
+    ;
+    ConType == mysql ->
+    postgres_result_set(Mode),
+    c_postgres_query(SQL,_,Conn,Mode,_)
+    ;
+    ConType == sqlite3 ->
+    sqlite3_result_set(Mode),
+    c_sqlite3_query(SQL,_,Conn,Mode,_)
+    ;
+    ConType == odbc ->
+    odbc_result_set(Mode),
+    c_odbc_query(SQL,_,Conn,Mode,_)
+    ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /**
  *
@@ -613,11 +623,11 @@ yes
 where `Hello World` is the name of the relation and `myddas` is the connection identifier.
  */
 db_get_attributes_types(RelationName,TypesList) :-
-	db_get_attributes_types(myddas,RelationName,TypesList).
+    db_get_attributes_types(myddas,RelationName,TypesList).
 db_get_attributes_types(Connection,RelationName,TypesList) :-
-	'$error_checks'(db_get_attributes_types(Connection,RelationName,TypesList)),
-	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
+    '$error_checks'(db_get_attributes_types(Connection,RelationName,TypesList)),
+    get_value(Connection,Con),
+    c_db_connection_type(Con,ConType),
     C_SWITCH(ConType, get_attributes_types(RelationName,Con,TypesList) ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -639,7 +649,7 @@ of a given relation.
 Arity = 3 ?
 yes
 ˜˜˜˜
-where `Hello World` is the name of the relation and `myddas` is the connection identifier.
+mwhere `Hello World` is the name of the relation and `myddas` is the connection identifier.
  */
 				%
 db_number_of_fields(RelationName,Arity) :-
@@ -691,7 +701,7 @@ db_datalog_describe(Connection,Y)  :-
 
 	 ~~~~
 	 ?- db_describe(myddas,’Hello World’,Term).
-	 Term = tableInfo(’Number’,int(11),’YES’,’’,null(0),’’) ? ;
+	 Term = tableInfo('Number’,int(11),’YES’,’’,null(0),’’) ? ;
 	 Term = tableInfo(’Name’,char(10),’YES’,’’,null(1),’’) ? ;
 	 Term = tableInfo(’Letter’,char(1),’YES’,’’,null(2),’’) ? ;
 	 no
