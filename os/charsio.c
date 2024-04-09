@@ -103,8 +103,8 @@ int Yap_popChar(int sno)
   StreamDesc *s = GLOBAL_Stream + sno;
   
   
-    if (s->status & Eof_Stream_f ) {
-    s->status &= ~Eof_Stream_f;
+    if (s->status & Past_Eof_Stream_f ) {
+      s->status &= ~Past_Eof_Stream_f;
     if (s->file)
       clearerr(s->file);
     }
@@ -184,7 +184,7 @@ static Int at_end_of_stream(USES_REGS1) { /* at_end_of_stream */
 
   if (sno < 0)
     return (FALSE);
-  out = GLOBAL_Stream[sno].status & Eof_Stream_f;
+  out = GLOBAL_Stream[sno].status & Past_Eof_Stream_f;
   if (!out) {
     if (GLOBAL_Stream[sno].file)
       return feof(GLOBAL_Stream[sno].file);
@@ -205,7 +205,7 @@ static Int at_end_of_stream_0(USES_REGS1) { /* at_end_of_stream */
   Int out;
 
   int sno = LOCAL_c_input_stream;
-  out = GLOBAL_Stream[sno].status & Eof_Stream_f;
+  out = GLOBAL_Stream[sno].status & Past_Eof_Stream_f;
   if (!out) {
     if (GLOBAL_Stream[sno].file)
       return feof(GLOBAL_Stream[sno].file);
@@ -268,10 +268,9 @@ static Int get_char(USES_REGS1) { /* '$get'(Stream,-N)                     */
   Term t2 = Deref(ARG2);
   bool rc = Yap_unify_constant(t2, MkCharTerm(ch));
   if (!rc) {
-    if (!IsAtomTerm(t2)) {
-      Yap_ThrowError(TYPE_ERROR_IN_CHARACTER, ARG2, "in input argument");
+    must_be_char(ARG2);
     }
-  }
+  
   return rc;
 }
 

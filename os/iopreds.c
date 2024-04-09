@@ -30,9 +30,7 @@ static char SccsId[] = "%W% %G%";
  */
 /*
  * This file includes the definition of a miscellania of standard predicates *
- *for yap refering to: Files and GLOBAL_1588
- *451ams, Simple Input/Output,
- *Rua do Orfeão do Po
+ *for yap refering to Input/Output.
  */
 
 #include "Yap.h"
@@ -158,48 +156,30 @@ char *Yap_VFAlloc(const char *path) {
 
 
 /* check if we read a LOCAL_newline or an EOF */
-static bool reset_on_eof(StreamDesc *s) {
- if (s->status & Reset_Eof_Stream_f) {
-    s->status &= ~Push_Eof_Stream_f;
-    /* reset the eof indicator on file */
-    if (feof(s->file))
-      clearerr(s->file);
-    /* reset our function for reading input */
-    Yap_DefaultStreamOps(s);
-    /* next, reset our own error indicator */
-
-    s->status &= ~Eof_Stream_f;
-    /* try reading again */
-    Yap_DefaultStreamOps(s);
-    return true;
- } else if (s->status &Repeat_Eof_Stream_f ) {
+static bool past_eof(StreamDesc *s) {
     s->status |= Past_Eof_Stream_f;
-    return false;
-} // else if (s->status & Eof_Error_Stream_f) {
-    Atom name = (Atom)s->name;
-    //    Yap_CloseStream(s - GLOBAL_Stream);
-    Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
-              "GetC");
-    return false;
+
+    if (s->status & Repeat_Eof_Stream_f) {
+      return EF;
+    } else {
+      Atom name = (Atom)s->name;
+      //    Yap_CloseStream(s - GLOBAL_Stream);
+      Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
+		     "GetC");
+      return false;
     }
-
-
+    return EF;
+ }
 
 /* handle reading from a stream after having found an EO*/
 static int EOFWGetc(int sno) {
   register StreamDesc *s = &GLOBAL_Stream[sno];
-
-  if ( reset_on_eof (s))
-    return s->stream_wgetc(sno);
-  return EOF;
+  return past_eof(s);
 }
 
 static int EOFGetc(int sno) {
   register StreamDesc *s = &GLOBAL_Stream[sno];
-  if ( reset_on_eof (s))
-    return s->stream_getc(sno);
-  return EOF;
-
+  return past_eof(s);
 }
 
 void Yap_stream_id(StreamDesc *s, Term user_name, Atom system_name) {
@@ -303,7 +283,8 @@ void Yap_default_peek(StreamDesc *st)
     st->stream_peek = Yap_peekChar;
     st->stream_wpeek = Yap_peekWide;
   
-  if (st->status & Eof_Stream_f) {
+  if (st->status & Past_Eof_Stream_f ||
+      (st-> file && feof(st->file))) {
     st->stream_peek = EOFPeek;
     st->stream_wpeek = EOFPeek;
     st->stream_getc = EOFGetc;
@@ -330,7 +311,16 @@ static int NullPutc(int sno, int ch) {
 
 void Yap_EOF_Stream(StreamDesc *st)
 {
-  st->status |= Eof_Stream_f;
+   if (st->status & Reset_Eof_Stream_f) {
+    st->status &= ~Push_Eof_Stream_f;
+    /* reset the eof indicator on file */
+    if (feof(st->file))
+      clearerr(st->file);
+    /* reset our function for reading input */
+    st->status &= ~Past_Eof_Stream_f;
+    return;
+   }
+  st->status |=Past_Eof_Stream_f;
     st->stream_peek = EOFPeek;
     st->stream_wpeek = EOFPeek;
     st->stream_getc = EOFGetc;
@@ -1849,7 +1839,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     if (sname == AtomUser) {
       if (kind & Input_Stream_f) {
         if (kind & (Output_Stream_f | Append_Stream_f)) {
-          Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg,
+          Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg,
                       "ambiguous use of 'user' as <a stream");
           return (-1);
         }
@@ -1861,7 +1851,6 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     if ((sno = Yap_CheckAlias(sname)) < 0) {
       Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
       return -1;
-    } else {
     }
   } else if (IsApplTerm(arg) && FunctorOfTerm(arg) == FunctorStream) {
     arg = ArgOfTerm(1, arg);
@@ -1880,19 +1869,54 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
     return -1;
   }
-  if ((GLOBAL_Stream[sno].status & Input_Stream_f) &&
-      !(kind & Input_Stream_f)) {
-    Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
-    return -1;
-  }
-  if ((GLOBAL_Stream[sno].status & (Append_Stream_f | Output_Stream_f)) &&
-      !(kind & Output_Stream_f)) {
-    Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
-    return -1;
+  switch (kind) {
+   case Output_Stream_f:
+    if
+      ((GLOBAL_Stream[sno].status & (Input_Stream_f))) {
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
+      return -1;
+    }
+    break;
+  case Input_Stream_f:
+    if
+      ((GLOBAL_Stream[sno].status & (Append_Stream_f|Output_Stream_f))) {
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+      return -1;
+    }
+break;
+   case Text_Stream_f| Output_Stream_f:
+    if
+      ((GLOBAL_Stream[sno].status & (Input_Stream_f|Binary_Stream_f))) {
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
+      return -1;
+    }
+break;
+  case Text_Stream_f| Input_Stream_f:
+    if
+      ((GLOBAL_Stream[sno].status & (Append_Stream_f|Output_Stream_f|Binary_Stream_f))) {
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
+      return -1;
+    }
+break;
+  case Binary_Stream_f|Input_Stream_f:
+    if
+      ((GLOBAL_Stream[sno].status & (Append_Stream_f|Output_Stream_f))
+       ||!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
+      return -1;
+    }
+break;
+  case Binary_Stream_f|Output_Stream_f:
+    if
+      ((GLOBAL_Stream[sno].status & (Input_Stream_f))
+       ||!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg, msg);
+      return -1  ;
+    }
   }
   return sno;
-}
-
+  }
+ 
 int Yap_CheckStream__(const char *file, const char *f, int line, Term arg,
                       int kind, const char *msg) {
   return CheckStream__(file, f, line, arg, kind, msg);
@@ -1902,66 +1926,32 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
                           int kind, const char *msg) {
   int sno;
 
-  if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
+  if ((sno = CheckStream__(file, f, line, arg, (Text_Stream_f|kind), msg)) < 0)
     return -1;
-  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    if (kind == Input_Stream_f)
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
-                  msg);
-    else
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
-                  msg);
-    return -1;
-  }
-  return sno;
+   return sno;
 }
 
 int Yap_CheckTextWriteStream__(const char *file, const char *f, int line,
                                Term arg, const char *msg) {
-  int sno, kind = Output_Stream_f;
+  int sno, kind = Output_Stream_f|Text_Stream_f ;
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
-  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    if (kind & Output_Stream_f)
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
-                  msg);
-    else
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
-                  msg);
-    return -1;
-  }
-  return sno;
+   return sno;
 }
 
 int Yap_CheckTextReadStream__(const char *file, const char *f, int line,
                               Term arg, const char *msg) {
-  int sno, kind = Input_Stream_f;
+  int sno, kind = Input_Stream_f|Text_Stream_f;
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
-  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    if (kind & Input_Stream_f)
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
-                  msg);
-    else
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
-                  msg);
-    return -1;
-  }
   return sno;
 }
 
 int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
                             int kind, const char *msg) {
   int sno;
-  if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
+  if ((sno = CheckStream__(file, f, line, arg, kind|Binary_Stream_f, msg)) < 0)
     return -1;
-  if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    if (kind == Input_Stream_f)
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
-    else
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
-    return -1;
-  }
   return sno;
 }
 

@@ -277,7 +277,6 @@ typedef enum stream_f {
     Input_Stream_f = 0x000002,  /**< Input Stream */
     Output_Stream_f = 0x000004, /**< Output Stream in Truncate Mode */
     Append_Stream_f = 0x000008, /**< Output Stream in Append Mod */
-    Eof_Stream_f = 0x000010,    /**< Stream found an EOF */
     Null_Stream_f = 0x000020,   /**< Stream is /dev/null, or equivant */
     Tty_Stream_f = 0x000040,    /**< Stream is a terminal */
     Socket_Stream_f = 0x000080, /**< Socket Stream */
@@ -311,7 +310,9 @@ typedef enum stream_f {
     RepClose_Prolog_f =
    0x01000000,	                /**< handle representation error as Prolog terms */
    Aliased_Stream_f =
-    0x01000000              /**< stream has an alias, or more */
+   0x02000000,              /**< stream has an alias, or more */
+   Text_Stream_f =
+   0x04000000              /**< stream has an alias, or more */
  } estream_f;
 
 

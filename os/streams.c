@@ -437,14 +437,14 @@ static bool
 found_eof(int sno,
           Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags =
-      GLOBAL_Stream[sno].status & (Past_Eof_Stream_f | Eof_Stream_f);
+      GLOBAL_Stream[sno].status & (Past_Eof_Stream_f );
   if (!IsVarTerm(t2) && !(isatom(t2))) {
     return FALSE;
   }
+  if (GLOBAL_Stream[sno].file && feof(GLOBAL_Stream[sno].file))
+     return Yap_unify(t2, MkAtomTerm(AtomAt));
   if (flags & Past_Eof_Stream_f)
-    return Yap_unify(t2, MkAtomTerm(AtomPast));
-  if (flags & Eof_Stream_f)
-    return Yap_unify(t2, MkAtomTerm(AtomAt));
+   return Yap_unify(t2, MkAtomTerm(AtomPast));
   return Yap_unify(t2, MkAtomTerm(AtomAltNot));
 }
 
@@ -543,18 +543,14 @@ static bool
 eof_action(int sno,
            Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags =
-      GLOBAL_Stream[sno].status &
-      (Eof_Stream_f | Reset_Eof_Stream_f | Push_Eof_Stream_f);
-  //  if (!IsVarTerm(t2) && !(IsAtomTerm(t2))) {
-  //  return ;
-  //}
-  if (flags & Eof_Stream_f) {
-    return Yap_unify(t2, TermError);
+    GLOBAL_Stream[sno].status;
+    if (flags & Repeat_Eof_Stream_f) {
+    return Yap_unify(t2, TermEOfCode);
   }
   if (flags & Reset_Eof_Stream_f) {
     return Yap_unify(t2, TermReset);
   }
-  return Yap_unify(t2, TermEOfCode);
+  return Yap_unify(t2, TermError);
 }
 
 #define STREAM_PROPERTY_DEFS()                                                 \
@@ -917,14 +913,13 @@ static bool do_set_stream(int sno,
       case SET_STREAM_EOF_ACTION: {
         Term t2 = args[SET_STREAM_EOF_ACTION].tvalue;
         if (t2 == TermError) {
-          GLOBAL_Stream[sno].status |= Eof_Stream_f;
-          GLOBAL_Stream[sno].status &= ~Reset_Eof_Stream_f;
+          GLOBAL_Stream[sno].status &= ~(Reset_Eof_Stream_f|Repeat_Eof_Stream_f);
         } else if (t2 == TermReset) {
-          GLOBAL_Stream[sno].status &= ~Eof_Stream_f;
-          GLOBAL_Stream[sno].status |= Reset_Eof_Stream_f;
+             GLOBAL_Stream[sno].status &= ~(Repeat_Eof_Stream_f);
+       GLOBAL_Stream[sno].status |= Reset_Eof_Stream_f;
         } else if (t2 == TermEOfCode) {
-          GLOBAL_Stream[sno].status &= ~Eof_Stream_f;
           GLOBAL_Stream[sno].status &= ~Reset_Eof_Stream_f;
+          GLOBAL_Stream[sno].status |= ~Repeat_Eof_Stream_f;
         } else {
           LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
           LOCAL_ErrorMessage = "in set_stream/2:eof_action";

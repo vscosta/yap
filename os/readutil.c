@@ -46,7 +46,7 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
     return false;
   status = GLOBAL_Stream[sno].status;
   binary_stream = GLOBAL_Stream[sno].status & Binary_Stream_f;
-  if (status & Eof_Stream_f) {
+  if (status & Past_Eof_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno]. streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
   }
@@ -80,13 +80,13 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
     if (do_as_binary && !binary_stream)
       GLOBAL_Stream[sno].status &= ~Binary_Stream_f;
     if (sz == -1 || sz == 0) {
-      if (GLOBAL_Stream[sno].status & Eof_Stream_f) {
+      if (GLOBAL_Stream[sno].status & Past_Eof_Stream_f) {
         return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
       }
     }
-    if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz - 1] == 10) {
+    if (GLOBAL_Stream[sno].status & Past_Eof_Stream_f || buf[sz - 1] == 10) {
       /* we're done */
-      if (!(do_as_binary || GLOBAL_Stream[sno].status & Eof_Stream_f)) {
+      if (!(do_as_binary || GLOBAL_Stream[sno].status & Past_Eof_Stream_f)) {
         /* handle CR before NL */
         if ((Int)sz - 2 >= 0 && buf[sz - 2] == 13)
           buf[sz - 2] = '\0';
@@ -167,7 +167,7 @@ static Int read_line_to_string(USES_REGS1) {
   if (sno < 0)
     return false;
   status = GLOBAL_Stream[sno].status;
-  if (status & Eof_Stream_f) {
+  if (status & Past_Eof_Stream_f) {
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
   }
   max_inp = (ASP - HR) / 2 - 1024;
@@ -198,15 +198,15 @@ static Int read_line_to_string(USES_REGS1) {
       sz = pt - buf;
     }
   if (sz == -1 || sz == 0) {
-    if (GLOBAL_Stream[sno].status & Eof_Stream_f) {
+    if (GLOBAL_Stream[sno].status & Past_Eof_Stream_f) {
       return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
     }
     return false;
   }
-  if (GLOBAL_Stream[sno].status & Eof_Stream_f || buf[sz - 1] == 10) {
+  if (GLOBAL_Stream[sno].status & Past_Eof_Stream_f || buf[sz - 1] == 10) {
     /* we're done */
 
-    if (!(GLOBAL_Stream[sno].status & Eof_Stream_f)) {
+    if (!(GLOBAL_Stream[sno].status & Past_Eof_Stream_f)) {
       /* handle CR before NL */
       if ((Int)sz - 2 >= 0 && buf[sz - 2] == 13)
         buf[sz - 2] = '\0';
@@ -247,7 +247,7 @@ static Int read_stream_to_codes(USES_REGS1) {
 
   if (sno < 0)
     return FALSE;
-  while (!(GLOBAL_Stream[sno].status & Eof_Stream_f)) {
+  while (!(GLOBAL_Stream[sno].status & Past_Eof_Stream_f)) {
     /* skip errors */
     Int ch = GLOBAL_Stream[sno].stream_getc(sno);
     Term t;
@@ -301,7 +301,7 @@ static Int read_stream_to_terms(USES_REGS1) {
  Term td = TermDec10;
  Term opts =  MkPairTerm(Yap_MkApplTerm(FunctorSyntaxErrors,1,&td),TermNil);
   hdl = Yap_InitSlot(ARG2);
-  while (!(GLOBAL_Stream[sno].status & Eof_Stream_f)) {
+  while (!(GLOBAL_Stream[sno].status & Past_Eof_Stream_f)) {
     r = Yap_read_term(sno, opts, 2);
       ;
       Yap_DebugPlWriteln(r);

@@ -370,7 +370,7 @@ static Int scan_stream(USES_REGS1) {
   LOCAL_tokptr = NULL;
   LOCAL_ErrorMessage = NULL;
   while (true) {
-    if (st->status & (Eof_Stream_f|Past_Eof_Stream_f)) {
+    if (st->status & (Past_Eof_Stream_f)) {
       post_process_eof(st);
     TokEntry *tokptr = Malloc(sizeof(TokEntry));
   tokptr->TokNext = NULL;

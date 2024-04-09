@@ -527,7 +527,7 @@ live  :-
 
 live__ :-    
     at_end_of_stream(user_input),
-    !.
+     !.	
 live__ :-    
     current_source_module(Module,Module),
     set_prolog_flag(verbose,normal),

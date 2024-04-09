@@ -1619,6 +1619,30 @@ static Int must_be_atom1(USES_REGS1) {
   return must_be_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
 
+bool must_be_char__(const char *file, const char *function, int lineno,
+                    Term t USES_REGS) {
+  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  if (IsVarTerm(t)) {
+    Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, "is atom");
+    return false;
+  }
+  if (!IsAtomTerm(t)) {
+    Yap_ThrowError__(file, function, lineno, TYPE_ERROR_IN_CHARACTER, t, "is atom");
+    return false;
+  }
+  if (t==TermEof)
+    return true;
+  u_char *a=RepAtom(AtomOfTerm(t))->UStrOfAE;
+  utf8proc_int32_t  v;
+  int off = 0;
+  if(a[0] == '\0' ||(off=__get_utf8(a,1,&v))<=0 || a[off] != '\0') {
+      Yap_ThrowError(TYPE_ERROR_IN_CHARACTER, t, "in input argument");
+      return false;
+  }
+  return true;
+}
+
+
 /** @pred is_list( ?_List_ )
  *
  *  _List_ must be a list, that is, it must be bound  to a true list.
@@ -1965,10 +1989,10 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("must_be_ground", 1, must_be_ground1, TestPredFlag);
   Yap_InitCPred("must_be_list", 1, must_be_list1, TestPredFlag);
 
-  Yap_InitCPred("is_list", 1, is_list1, TestPredFlag);
   Yap_InitCPred("must_be_predicate_indicator", 4, must_be_predicate_indicator1,
                 0);
-}
+ Yap_InitCPred("is_list", 1, is_list1, TestPredFlag);
+}  
 
 /**
 @}

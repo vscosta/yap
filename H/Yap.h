@@ -763,6 +763,10 @@ Yap_has_a_signal__ (USES_REGS1)
 
 
 #define must_be_variable(t) if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, v, NULL)
+#define must_be_char(t) must_be_char__(__FILE__,__FUNCTION__,__LINE__,t)
+
+extern bool must_be_char__(const char *file, const char *function, int lineno,
+                    Term t USES_REGS);
 
 INLINE_ONLY Term must_be_module(Term t) {
   t = Deref(t);

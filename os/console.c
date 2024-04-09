@@ -214,10 +214,13 @@ Make sure we have a prompt at this point, even if we have to
 introduce a new line.
 
 */
-static Int ensure_prompting(USES_REGS1) { /* prompt(Old,New)       */
-  if (!LOCAL_newline) {
-    GLOBAL_Stream[2].stream_wputc(2, 10); // hack!
-  }
+static Int ensure_prompting(USES_REGS1) /* prompt(Old,New)       */
+  {
+    if(GLOBAL_Stream[2].status &  Past_Eof_Stream_f) {
+    return false;
+   } else if (!LOCAL_newline) {
+      GLOBAL_Stream[2].stream_wputc(2, 10); // hack!
+    }
   return true;
 }
 
