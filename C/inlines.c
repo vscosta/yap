@@ -707,12 +707,12 @@ p_arg( USES_REGS1 )
 	i = LongIntOfTerm(d0);
       } else {
 	if (!IsBigIntTerm( d0 ))
-	  Yap_Error(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
+	  Yap_ThrowError(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	return(FALSE);
       }
       if (i<0)
 	{
-	  Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, d0, "arg 1 of arg/3");
+	  Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, d0, "arg 1 of arg/3");
 	  return false;
 	}
       /* d0 now got the argument we want */
@@ -727,7 +727,7 @@ p_arg( USES_REGS1 )
 	pt0 = RepAppl(d1);
 	d1 = *pt0;
 	if (IsExtensionFunctor((Functor) d1)) {
-	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	  Yap_ThrowError(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	  return(FALSE);
 	}
 	save_hb();
@@ -736,7 +736,7 @@ p_arg( USES_REGS1 )
 	    Yap_IUnify(pt0[i], ARG3) == FALSE) {
 	  /* don't complain here for Prolog compatibility
 	  if (i <= 0) {
-	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	  }
 	  */
@@ -764,27 +764,27 @@ p_arg( USES_REGS1 )
 	}
 	else {
 	  if (i < 0)
-	    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
+	    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,
 		  MkIntegerTerm(d0),"arg 1 of arg/3");
 	  return(FALSE);
 	}
 	ENDP(pt0);
       }
       else {
-	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	Yap_ThrowError(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
 	return(FALSE);
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_unk, arg_arg2_nvar);
-      Yap_Error(INSTANTIATION_ERROR,(CELL)pt0,"arg 2 of arg/3");;
+      Yap_ThrowError(INSTANTIATION_ERROR,(CELL)pt0,"arg 2 of arg/3");;
       ENDP(pt0);
       return(FALSE);
       ENDD(d1);
 
       BEGP(pt0);
       deref_body(d0, pt0, arg_arg1_unk, arg_arg1_nvar);
-      Yap_Error(INSTANTIATION_ERROR,(CELL)pt0,"arg 1 of arg/3");;
+      Yap_ThrowError(INSTANTIATION_ERROR,(CELL)pt0,"arg 1 of arg/3");;
       ENDP(pt0);
       return(FALSE);
       ENDD(d0);
@@ -816,10 +816,6 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
 {
 #if SHADOW_HB
   register CELL *HBREG;
-#endif
-
- restart:
-#if SHADOW_HB
   HBREG = HB;
 #endif
   BEGD(d0);
@@ -916,14 +912,14 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     d1 = IntegerOfTerm(d1);
   else {
     if (IsBigIntTerm(d1)) {
-      Yap_Error(RESOURCE_ERROR_STACK, ARG3, "functor/3");
+      Yap_ThrowError(RESOURCE_ERROR_STACK, ARG3, "functor/3");
     } else {
-      Yap_Error(TYPE_ERROR_INTEGER,ARG3,"functor/3");
+      Yap_ThrowError(TYPE_ERROR_INTEGER,ARG3,"functor/3");
     }
-    return(FALSE);
+    return false;
   }
   if (!IsAtomicTerm(d0)) {
-    Yap_Error(TYPE_ERROR_ATOMIC,d0,"functor/3");
+    Yap_ThrowError(TYPE_ERROR_ATOMIC,d0,"functor/3");
     return(FALSE);
   }
   /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -937,25 +933,21 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
   else if ((Int)d1 > 0) {
     /* now let's build a compound term */
     if (!IsAtomTerm(d0)) {
-      Yap_Error(TYPE_ERROR_ATOM,d0,"functor/3");
+      Yap_ThrowError(TYPE_ERROR_ATOM,d0,"functor/3");
       return(FALSE);
     }
+    while (HR+d1 > ASP - StackGap( PASS_REGS1 )) {
+      if (!Yap_dogc(PASS_REGS1)) {
+	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+	return false;
+      }
+      pt0 = VarOfTerm(Deref(ARG1));
+    }
+    d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
     BEGP(pt1);
-    if (!IsAtomTerm(d0)) {
-      return(FALSE);
-    }
-    else
-      d0 = (CELL) Yap_MkFunctor(AtomOfTerm(d0), (Int) d1);
     pt1 = HR;
     *pt1++ = d0;
     d0 = AbsAppl(HR);
-    while (pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
-      if (!Yap_dogc(PASS_REGS1)) {
-	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-	return FALSE;
-      }
-      goto restart;
-    }
     while (d1-- > 0) {
       RESET_VARIABLE(pt1);
       pt1++;
@@ -964,13 +956,13 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     HR = pt1;
     ENDP(pt1);
   } else if ((Int)d1  < 0) {
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
-    return(FALSE);
+    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,MkIntegerTerm(d1),"functor/3");
+    return false;
   }
   /* else if arity is 0 just pass d0 through */
   /* Ding, ding, we made it */
   YapBind(pt0, d0);
-  return(TRUE);
+  return true;
 
 
   BEGP(pt1);
@@ -990,6 +982,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
   return(FALSE);
   ENDP(pt0);
   ENDD(d0);
+
 }
 
 static Term
@@ -1103,7 +1096,7 @@ p_cut_upto( USES_REGS1 )
 static Int
 p_erroneous_call( USES_REGS1 )
 {
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad call to internal built-in");
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "bad call to internal built-in");
   return(FALSE);
 }
 
@@ -1200,11 +1193,11 @@ static Int parent_choice_point(USES_REGS1)
      }
    }
    if (IsVarTerm(t1)) {
-     Yap_Error(INSTANTIATION_ERROR,t1,"genarg/3");
+     Yap_ThrowError(INSTANTIATION_ERROR,t1,"genarg/3");
     return FALSE;
   }
   if (IsPrimitiveTerm(t1)) {
-    Yap_Error(TYPE_ERROR_COMPOUND,t1,"genarg/3");
+    Yap_ThrowError(TYPE_ERROR_COMPOUND,t1,"genarg/3");
     return FALSE;
   }
   if (IsPairTerm(t1)) {

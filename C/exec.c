@@ -203,7 +203,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->p_env = CP;
       i->env = ENV;
       i->p = P;
-      i->env_size = -P->y_u.Osbpp.s / sizeof(CELL);
+      i->env_size = -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
       i->caller = i->p->y_u.Osbpp.p0;
       return i->pe =  ip->y_u.Osbpp.p;
 
