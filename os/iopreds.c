@@ -1869,50 +1869,42 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
     return -1;
   }
-  switch (kind) {
-   case Output_Stream_f:
-    if
-      ((GLOBAL_Stream[sno].status & (Input_Stream_f))) {
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
-      return -1;
-    }
-    break;
-  case Input_Stream_f:
-    if
-      ((GLOBAL_Stream[sno].status & (Append_Stream_f|Output_Stream_f))) {
+  if ((kind& (Output_Stream_f|Append_Stream_f))) {
+      if ( !(kind & Input_Stream_f)&&!(GLOBAL_Stream[sno].status & (Output_Stream_f|Append_Stream_f))) {
+	Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
+	return -1;
+      }
+      if (kind&Binary_Stream_f) {
+	if (!(GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
+	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg, msg);
+	  return -1;
+      } else  {
+	if ((GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
+	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
+	  return -1;
+	}
+      }
+
+
+
+      }
+  }
+  if (kind & Input_Stream_f) {
+    if (!(kind & (Output_Stream_f|Append_Stream_f) ) && !(GLOBAL_Stream[sno].status & (Input_Stream_f))) {
       Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
-      return -1;
-    }
-break;
-   case Text_Stream_f| Output_Stream_f:
-    if
-      ((GLOBAL_Stream[sno].status & (Input_Stream_f|Binary_Stream_f))) {
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
-      return -1;
-    }
-break;
-  case Text_Stream_f| Input_Stream_f:
-    if
-      ((GLOBAL_Stream[sno].status & (Append_Stream_f|Output_Stream_f|Binary_Stream_f))) {
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
-      return -1;
-    }
-break;
-  case Binary_Stream_f|Input_Stream_f:
-    if
-      ((GLOBAL_Stream[sno].status & (Append_Stream_f|Output_Stream_f))
-       ||!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
-      return -1;
-    }
-break;
-  case Binary_Stream_f|Output_Stream_f:
-    if
-      ((GLOBAL_Stream[sno].status & (Input_Stream_f))
-       ||!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg, msg);
-      return -1  ;
-    }
+	return -1;
+      }
+      if (kind&Binary_Stream_f) {
+	if (!(GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
+	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
+	  return -1;
+	}
+      } else  {
+	if ((GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
+	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
+	  return -1;
+	}
+      }
   }
   return sno;
   }
