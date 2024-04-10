@@ -883,7 +883,7 @@ static Int qsave_module_preds(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, t1, "save_module/3");
     return (FALSE);
   }
-  if (!(stream = Yap_GetOutputStream(t1, "save_module"))) {
+  if (!(stream = Yap_GetBinaryOutputStream(t1, "save_module"))) {
     return FALSE;
   }
   if (IsVarTerm(tmod)) {
@@ -901,7 +901,7 @@ static Int qsave_program(USES_REGS1) {
   FILE *stream;
   Term t1 = Deref(ARG1);
 
-  if (!(stream = Yap_GetOutputStream(t1, "save_program"))) {
+  if (!(stream = Yap_GetBinaryOutputStream(t1, "save_program"))) {
     return FALSE;
   }
   return save_program(stream) != 0;
@@ -912,7 +912,7 @@ static Int qsave_file(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term tfile = Deref(ARG2);
 
-  if (!(stream = Yap_GetOutputStream(t1, "save_file/2"))) {
+  if (!(stream = Yap_GetBinaryOutputStream(t1, "save_file/2"))) {
     return FALSE;
   }
   if (IsVarTerm(tfile)) {

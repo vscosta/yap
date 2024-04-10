@@ -124,7 +124,7 @@ extern int Yap_PlFGetchar(void);
 extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
 int Yap_OpenStream(Term tin, const char* io_mode, YAP_Term user_name, encoding_t enc);
-extern int Yap_FileStream(FILE *, Atom, Term, int, VFS_t *);
+extern int Yap_FileStream(FILE *, Atom, Term, estream_f, VFS_t *);
 extern char *Yap_TermToBuffer(Term t, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);
@@ -162,6 +162,7 @@ extern X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term opts,
                                                    int prio);
 extern FILE *Yap_GetInputStream(Term t, const char *m);
 extern FILE *Yap_GetOutputStream(Term t, const char *m);
+extern FILE *Yap_GetBinaryOutputStream(Term t, const char *m);
 extern Atom Yap_guessFileName( int sno, Atom n, Term un, size_t max);
 
 extern int Yap_CheckSocketStream(Term stream, const char *error);

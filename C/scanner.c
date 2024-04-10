@@ -224,17 +224,19 @@ int bad_nl_error(TokEntry *tok, char *TokImage, int quote, struct stream_desc *s
       s0 = RepAtom(n)->StrOfAE;
     }
    //  return ch;
-     if (st->status & RepError_Prolog_f) {
-      Yap_ThrowError__(s0, "parser", tok->TokLine,SYNTAX_ERROR, TermNil, "unexpected newline while  reading quoted text %s", TokImage);
-      return -1;
-    } else {
-      fprintf(stderr, "%s:%ld%ld unexpected newline while  reading quoted text %s\n", s0, tok->TokLine, tok->TokLinePos, TokImage);
-      if (st->status & RepClose_Prolog_f) {
-	fprintf(stderr, "%%\n%% injecting an EOF at this position.\n%%\n");
-	      }
+    if (st->status & RepClose_Prolog_f) {
+      Yap_CloseStream(st-GLOBAL_Stream);
+      return EOF;
     }
-  return quote;
+    if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
+      LOCAL_Error_TYPE = SYNTAX_ERROR;
+    } else {
+      LOCAL_Error_TYPE = SYNTAX_WARNING;
+    }
+    LOCAL_ErrorMessage=malloc(2048);
+    snprintf(LOCAL_Error_Message, 2047, "%s:%ld%ld unexpected newline while  reading quoted text %s\n", s0, tok->TokLine, tok->TokLinePos, TokImage);
 
+    return 10;
 }
 
 

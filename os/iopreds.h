@@ -37,16 +37,16 @@ extern bool Yap_initStream__(const char *filename, const char *func, int line,
 
 #define Yap_CheckStream(arg, kind, msg)                                        \
   Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
-extern int Yap_CheckStream__(const char *, const char *, int, Term, int,
+extern int Yap_CheckStream__(const char *, const char *, int, Term, estream_f,
                              const char *);
 #define Yap_CheckTextStream(arg, kind, msg)                                    \
   Yap_CheckTextStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
-extern int Yap_CheckTextStream__(const char *, const char *, int, Term, int,
+extern int Yap_CheckTextStream__(const char *, const char *,int,Term, estream_f,
                                  const char *);
 
 #define Yap_CheckTextReadStream(arg, msg)                                      \
   Yap_CheckTextReadStream__(__FILE__, __FUNCTION__, __LINE__, arg, msg)
-extern int Yap_CheckTextReadStream__(const char *, const char *, int, Term,
+extern int Yap_CheckTextReadStream__(const char *, const char *,int, Term,
                                      const char *);
 #define Yap_CheckTextWriteStream(arg, msg)                                     \
   Yap_CheckTextWriteStream__(__FILE__, __FUNCTION__, __LINE__, arg, msg)
@@ -55,11 +55,11 @@ extern int Yap_CheckTextWriteStream__(const char *, const char *, int, Term,
 
 #define Yap_CheckBinaryStream(arg, kind, msg)                                  \
   Yap_CheckBinaryStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
-extern int Yap_CheckBinaryStream__(const char *, const char *, int, Term, int,
+extern int Yap_CheckBinaryStream__(const char *, const char *, int, Term, estream_f,
                                    const char *);
 
 static inline StreamDesc *Yap_GetStreamHandle(Term t) {
-  int sno = Yap_CheckStream(t, 0, "stream search");
+  int sno = Yap_CheckStream(t, (estream_f)0, "stream search");
   if (sno < 0)
     return NULL;
   return GLOBAL_Stream + sno;

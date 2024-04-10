@@ -157,6 +157,17 @@ FILE *Yap_GetOutputStream(Term t, const char *msg) {
   return rc;
 }
 
+FILE *Yap_GetBinaryOutputStream(Term t, const char *msg) {
+  int sno = Yap_CheckStream(t, Output_Stream_f|Binary_Stream_f, msg);
+  FILE *rc;
+
+  if (!(GLOBAL_Stream[sno].status & (Tty_Stream_f | Socket_Stream_f)))
+    rc = GLOBAL_Stream[sno].file;
+  else
+    rc = NULL;
+  return rc;
+}
+
 int GetFreeStreamD(void) {
   LOCK(GLOBAL_StreamDescLock);
   int sno;

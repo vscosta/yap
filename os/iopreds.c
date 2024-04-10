@@ -1796,7 +1796,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
   return -1;
 }
 
-int Yap_FileStream(FILE *fd, Atom name, Term file_name, int flags,
+int Yap_FileStream(FILE *fd, Atom name, Term file_name, estream_f flags,
                    VFS_t *vfsp) {
   CACHE_REGS
   int sno;
@@ -1824,7 +1824,7 @@ int Yap_FileStream(FILE *fd, Atom name, Term file_name, int flags,
   CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 
 static int CheckStream__(const char *file, const char *f, int line, Term arg,
-                         int kind, const char *msg) {
+                         estream_f kind, const char *msg) {
   int sno = -1;
   arg = Deref(arg);
 
@@ -1869,53 +1869,52 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
     return -1;
   }
-  if ((kind& (Output_Stream_f|Append_Stream_f))) {
-      if ( !(kind & Input_Stream_f)&&!(GLOBAL_Stream[sno].status & (Output_Stream_f|Append_Stream_f))) {
+  if ((kind& (Output_Stream_f|Append_Stream_f))!=0) {
+    if ( (kind & Input_Stream_f) == 0 &&
+	 (GLOBAL_Stream[sno].status & (Output_Stream_f|Append_Stream_f))==0) {
 	Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
 	return -1;
       }
       if (kind&Binary_Stream_f) {
 	if (!(GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
-	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg, msg);
-	  return -1;
-      } else  {
-	if ((GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
 	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
 	  return -1;
 	}
-      }
-
-
-
+      } else if (kind & Text_Stream_f) {
+	if ((GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
+	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg, msg);
+	  return -1;
+	}
       }
   }
-  if (kind & Input_Stream_f) {
+   if (kind & Input_Stream_f) {
     if (!(kind & (Output_Stream_f|Append_Stream_f) ) && !(GLOBAL_Stream[sno].status & (Input_Stream_f))) {
       Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
 	return -1;
       }
       if (kind&Binary_Stream_f) {
 	if (!(GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
-	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
-	  return -1;
-	}
-      } else  {
-	if ((GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
 	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
 	  return -1;
 	}
+      } else  if (kind & Text_Stream_f)  {
+	if ((GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
+	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
+	  return -1;
+	}
       }
-  }
-  return sno;
-  }
+   }
+   return sno;
+ }
+
  
 int Yap_CheckStream__(const char *file, const char *f, int line, Term arg,
-                      int kind, const char *msg) {
+                      estream_f kind, const char *msg) {
   return CheckStream__(file, f, line, arg, kind, msg);
 }
 
 int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
-                          int kind, const char *msg) {
+                          estream_f kind, const char *msg) {
   int sno;
 
   if ((sno = CheckStream__(file, f, line, arg, (Text_Stream_f|kind), msg)) < 0)
@@ -1933,19 +1932,31 @@ int Yap_CheckTextWriteStream__(const char *file, const char *f, int line,
 
 int Yap_CheckTextReadStream__(const char *file, const char *f, int line,
                               Term arg, const char *msg) {
-  int sno, kind = Input_Stream_f|Text_Stream_f;
+  int sno;
+  estream_f kind = Input_Stream_f|Text_Stream_f;
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
   return sno;
 }
 
 int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
-                            int kind, const char *msg) {
+                            estream_f kind, const char *msg) {
   int sno;
   if ((sno = CheckStream__(file, f, line, arg, kind|Binary_Stream_f, msg)) < 0)
     return -1;
   return sno;
 }
+
+
+int Yap_CheckOutputBinaryStream__(const char *file, const char *f, int line, Term arg,
+                            estream_f kind, const char *msg) {
+  int sno;
+  if ((sno = CheckStream__(file, f, line, arg, Output_Stream_f|Append_Stream_f|Binary_Stream_f, msg)) < 0)
+    return -1;
+  return sno;
+}
+
+
 
 /* used from C-interface */
 int Yap_GetFreeStreamDForReading(void) {

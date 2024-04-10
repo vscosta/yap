@@ -148,25 +148,26 @@ static encoding_t enc_os_default(encoding_t rc) {
 }
 
 
-int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st) {
+int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st, int TokLine, int TokLinePos, char *TokImage) {
   //  if (LOCAL_encoding_errors == TermIgnore)
   //  return ch;
   const char *s0;
     s0 =
     AtomName((Atom)st->name);
- if ( st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
-    Yap_ThrowError__(s0, "parser", st->linecount, SYNTAX_ERROR, MkIntTerm(code),
-                    "encoding error at column %lu, character %d",
-		     st->charcount-st->linestart, ch);
-}  else {
-      fprintf(stderr, "%s:%d:%d warning: encoding error.\n%%\n",
-             s0, st->linecount, st->charcount-st->linestart);
-   if (st->status & RepClose_Prolog_f) {
-      fprintf(stderr, "%s:%d:%d warning: encoding error.\n%%\n%% generating an EOF at this position.\n%%\n",
-              s0, st->linecount, st->charcount-st->linestart);
-  return -1;
+   //  return ch;
+    if (st->status & RepClose_Prolog_f) {
+      Yap_CloseStream(st-GLOBAL_Stream);
+      return EOF;
+    }
+    if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
+      LOCAL_Error_TYPE = SYNTAX_ERROR;
+    } else {
+      LOCAL_Error_TYPE = SYNTAX_WARNING;
+    }
+    LOCAL_ErrorMessage=malloc(2048);
+    snprintf(LOCAL_ErrorMessage, 2047, "%s:%ld%ld unexpected newline while  reading quoted text %s\n", s0, TokLine, TokLinePos, TokImage);
+    return code;
    }
- }
   return 0;
   
 }
