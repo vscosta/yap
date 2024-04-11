@@ -31,13 +31,12 @@
 #endif
 
 #include "utf8proc.h"
-
+  
 #ifndef INLINE_ONLY
 #define  INLINE_ONLY
 #endif
 
-
-inline static utf8proc_ssize_t __get_utf8(const utf8proc_uint8_t *ptr,
+ inline static utf8proc_ssize_t __get_utf8(const utf8proc_uint8_t *ptr,
                                                     size_t n,
                                                     utf8proc_int32_t *valp USES_REGS) {
      utf8proc_ssize_t rc = utf8proc_iterate(ptr, n, valp);
@@ -46,7 +45,9 @@ inline static utf8proc_ssize_t __get_utf8(const utf8proc_uint8_t *ptr,
           *valp = 0;
           return 2;
       }
-       LOCAL_ActiveError->errorNo = REPRESENTATION_ERROR_IN_CHARACTER_CODE;
+      Yap_encoding_error(ptr[0],0,NULL);
+      *valp = -1;
+      return  1;
   }
   return rc < 1 ? 1 : rc;
 }
@@ -61,7 +62,8 @@ inline static utf8proc_ssize_t __put_xutf8(utf8proc_uint8_t *ptr,
     utf8proc_ssize_t rc = utf8proc_encode_char(val, ptr);
   if (rc <= 0) {
 
-      LOCAL_ActiveError->errorNo = REPRESENTATION_ERROR_CHARACTER_CODE;
+      Yap_encoding_error(ptr[0],0,NULL);
+      return  1;
   }
   return rc < 1 ? 1 : rc;
 }
@@ -72,7 +74,8 @@ inline static utf8proc_ssize_t __put_utf8(utf8proc_uint8_t *ptr,
     utf8proc_ssize_t rc = utf8proc_encode_char(val, ptr);
     if (rc <= 0) {
 
-        LOCAL_ActiveError->errorNo = REPRESENTATION_ERROR_CHARACTER_CODE;
+      Yap_encoding_error(ptr[0],0,NULL);
+
     }
     return rc < 1 ? 1 : rc;
 }

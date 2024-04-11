@@ -156,19 +156,19 @@ char *Yap_VFAlloc(const char *path) {
 
 
 /* check if we read a LOCAL_newline or an EOF */
-static bool past_eof(StreamDesc *s) {
+static int past_eof(StreamDesc *s) {
     s->status |= Past_Eof_Stream_f;
 
     if (s->status & Repeat_Eof_Stream_f) {
-      return EF;
+      return EOF;
     } else {
       Atom name = (Atom)s->name;
       //    Yap_CloseStream(s - GLOBAL_Stream);
       Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
 		     "GetC");
-      return false;
+      return EOF;
     }
-    return EF;
+    return EOF;
  }
 
 /* handle reading from a stream after having found an EO*/

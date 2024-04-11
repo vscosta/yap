@@ -45,7 +45,7 @@ Support for text processing:
 
 
 
-#include "YapUTF8.h"
+
 
 #ifndef Yap_Min
 #define Yap_Min(x, y) (x < y ? x : y)
@@ -133,6 +133,10 @@ typedef enum
 
 typedef UInt seq_type_t;
 
+#include "iopreds.h"
+
+#include "YapUTF8.h"
+  
 #define YAP_TYPE_MASK 0x0FFF
 /// targets for processing
 typedef union {

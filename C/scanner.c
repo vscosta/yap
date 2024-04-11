@@ -217,13 +217,7 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
 
 
 int bad_nl_error(TokEntry *tok, char *TokImage, int quote, struct stream_desc *st) {
-        char *s0;
 
-  Atom n;
-    if ((n=StreamFullName(st-GLOBAL_Stream))) {
-      s0 = RepAtom(n)->StrOfAE;
-    }
-   //  return ch;
     if (st->status & RepClose_Prolog_f) {
       Yap_CloseStream(st-GLOBAL_Stream);
       return EOF;
@@ -234,8 +228,7 @@ int bad_nl_error(TokEntry *tok, char *TokImage, int quote, struct stream_desc *s
       LOCAL_Error_TYPE = SYNTAX_WARNING;
     }
     LOCAL_ErrorMessage=malloc(2048);
-    snprintf(LOCAL_Error_Message, 2047, "%s:%ld%ld unexpected newline while  reading quoted text %s\n", s0, tok->TokLine, tok->TokLinePos, TokImage);
-
+    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text %s", TokImage);
     return 10;
 }
 
@@ -275,31 +268,25 @@ static Term float_send(char *s, int sign) {
  * @param code
  * @param st
  * @param s
- * @return
+ * @returnppp
  */
 int number_encoding_error(const char* image, int ch, seq_type_t code, struct stream_desc *st, const char *comment) {
-      Atom n;
-  char *s0;
-    if ((n=StreamFullName(st-GLOBAL_Stream))) {
-      s0 = RepAtom(n)->StrOfAE;
-    }
-     if (st->status & RepError_Prolog_f) {
-       Yap_ThrowError__(s0, "parser", st->linecount,SYNTAX_ERROR, TermNil, "while  reading number %s%C: %s", image,ch,comment);
-      return -1;
-    } else {
-       fprintf(stderr, "%s:%d:%d warning: while  reading number %s%C: %s\n%%\ny",
-	   s0,st->linecount, st->charcount-st->linestart, image,ch,comment);
-      return -1;
-	if (st->status & RepClose_Prolog_f) {
-	fprintf(stderr, "%%\n%% injecting an EOF at this position.\n%%\n");
-	return EOFCHAR;
-	}
-	
-  }
-  return 0;
+  if (st->status & RepClose_Prolog_f) {
+    Yap_CloseStream(st-GLOBAL_Stream);
+    return EOF;
+  }   if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
+      LOCAL_Error_TYPE = SYNTAX_ERROR;
+    LOCAL_ErrorMessage=malloc(2048);
+    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text %s\n",image);
+} else 
+  Yap_Warning("unexpected newline while  reading quoted text %s\n",image);
+
+
+return ch;
+
 }
 
-static Term read_int_overflow(const char *s, Int base, Int val, int sign) {
+Term read_int_overflow(const char *s, Int base, Int val, int sign) {
 #ifdef USE_GMP
   /* try to scan it as a bignum */
   mpz_t new;
@@ -469,7 +456,7 @@ do_switch:
         ch = getchrq(st);
 	i++;
       }
-      if (ch == '\\') {
+  if (ch == '\\') {
         return so_far;
       } else {
          return  Yap_encoding_error(ch, 1, st);
@@ -521,7 +508,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
   }
   if (ch == '\'') {
     if (base > 36) {
-      ch=number_encoding_error(buf0, ch, 1, st, "Admissible bases are 11..36");
+      ch=Yap_encoding_error(ch, 1, st); //, "Admissible bases are 11..36");
     } else {
       might_be_float = FALSE;
       if (--left == 0)
@@ -569,7 +556,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
     if (!my_isxdigit(ch, 'f', 'F')) {
       if (throw_error)  {
 	*sp = '\0';
-	return number_encoding_error(buf0, ch, 1, st, "invalid hexadecimal digit");
+	return Yap_encoding_error(ch, 1, st );//nvalid hexadecimal digit");
 	      } else {
 	return TermNil;
       }
@@ -596,7 +583,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
     if (ch < '0' || ch > '7') {
       if (throw_error)  {
 	*sp = '\0';
-       return number_encoding_error(buf0, ch, 1, st, "invalid octal digit");
+	return Yap_encoding_error( ch, 1, st); //, "invalid octal digit");
       }
       return MkIntTerm( 0);
     }
@@ -607,7 +594,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
     if (ch < '0' || ch > '1') { 
 	*sp = '\0';
       if (throw_error)  {
-      return number_encoding_error(buf0, ch, 1, st, "invalid octal digit");
+	return Yap_encoding_error(ch, 1, st); //, "invalid octal digit");
       }
       return MkIntTerm( 0);
     }
@@ -648,7 +635,7 @@ int decp = '.'; //decimalpoint[0];
 		   ) != NU) {
 	  if (trueGlobalPrologFlag(ISO_FLAG)) {
 	  *sp = '\0';
-	  number_encoding_error(buf0, ch, 1, st, "e/E float format not allowed in ISO mode");
+	  Yap_encoding_error( ch, 1, st); //, "e/E float format not allowed in ISO mode");
 	  return TermNil;
 	}
 	    *chp = ch;
@@ -783,7 +770,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
       if (ASP - HR < 1024) {
         pop_text_stack(lvl);
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "scanner: failed to allocate token image");
-	return 0;
+	return -1;
     }
     size_t sz = 1024;
     char *buf = Malloc(sz);
@@ -807,7 +794,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   if (throw_error) {
   Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
   }
-  return 0; 
+  return -1; 
 }
 
 #define CHECK_SPACE()                                                          \
@@ -1107,7 +1094,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  ch = bad_nl_error(t, TokImage, quote, st);           /* in ISO a new linea terminates a string */
 	}
 	if (ch == EOFCHAR) {
-	    *charp = '\0';
+	  *charp = '\0';
+	  if (LOCAL_ActiveError->errorNo)
+	    goto ldefault;
          }
         if (charp > (unsigned char *)TokImage + (imgsz - 1)) {
           size_t sz = charp - (unsigned char *)TokImage;
@@ -1406,23 +1395,26 @@ t->Tok = Ord(kind = Name_tok);
       break;
     case EF:
     do_eof:
-      mark_eof(st);
-      if (!l)
-	l = t;
-      else
-	p->TokNext=t;
-      t->Tok = Ord(kind = eot_tok);
-      t->TokInfo = TermEof;
-      t->TokNext = NULL;
-      p = t;
-      break;
-    default: {
-      kind = Error_tok;
-      char err[1024];
-      snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
-               ch, ch, chtype(ch));
-      t->Tok = Ord(kind = eot_tok);
-      t->TokInfo = MkIntTerm(0);
+      if (LOCAL_ActiveError->errorNo)
+	goto ldefault;
+							 mark_eof(st);
+							 if (!l)
+							   l = t;
+							 else
+							   p->TokNext=t;
+							 t->Tok = Ord(kind = eot_tok);
+							 t->TokInfo = TermEof;
+							 t->TokNext = NULL;
+							 p = t;
+							 break;
+						       default: {
+						       ldefault:
+							 kind = Error_tok;
+							 char err[1024];
+							 snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
+								  ch, ch, chtype(ch));
+							 t->Tok = Ord(kind = eot_tok);
+							 t->TokInfo = MkIntTerm(0);
     }
     }
     if (LOCAL_ErrorMessage) {

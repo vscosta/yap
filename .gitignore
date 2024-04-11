@@ -40,6 +40,7 @@ YapTermConfig.h
 \#*\#
 */#*#
 *bak
+
 *rej
 *.db
 groups
@@ -116,7 +117,7 @@ packages/raptor/raptor_config.h
 packages/real/rconfig.h
 
 packages/ProbLog/problog/#completion.yap#
-
+xml0
 packages/ProbLog/problog_examples/output
 packages/ProbLog/problog_examples/queries
 

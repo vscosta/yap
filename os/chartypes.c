@@ -99,6 +99,7 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   if (error_on) {
     GLOBAL_Stream[sno].status |= RepError_Prolog_f;
+
     return 0;
   }
   int i = push_text_stack();
@@ -148,27 +149,24 @@ static encoding_t enc_os_default(encoding_t rc) {
 }
 
 
-int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st, int TokLine, int TokLinePos, char *TokImage) {
-  //  if (LOCAL_encoding_errors == TermIgnore)
+int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st ) {
+  //  IF (LOCAL_encoding_errors == TermIgnore)
   //  return ch;
-  const char *s0;
-    s0 =
-    AtomName((Atom)st->name);
+
    //  return ch;
-    if (st->status & RepClose_Prolog_f) {
-      Yap_CloseStream(st-GLOBAL_Stream);
+    if (st &&st->status & RepClose_Prolog_f) {
+      if (st)      Yap_CloseStream(st-GLOBAL_Stream);
       return EOF;
     }
-    if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
+    if (!st ||st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
       LOCAL_Error_TYPE = SYNTAX_ERROR;
-    } else {
-      LOCAL_Error_TYPE = SYNTAX_WARNING;
+      LOCAL_ErrorMessage = "bad codes ";
+      return EOF;
+   } else {
+      Yap_Warning("unexpected newline while  reading quoted ");
     }
-    LOCAL_ErrorMessage=malloc(2048);
-    snprintf(LOCAL_ErrorMessage, 2047, "%s:%ld%ld unexpected newline while  reading quoted text %s\n", s0, TokLine, TokLinePos, TokImage);
-    return code;
-   }
-  return 0;
+
+     return code;
   
 }
 
