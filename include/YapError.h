@@ -79,14 +79,6 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 #define Yap_syntax_error(t,sno, inp, ...)					\
   Yap_syntax_error__(__FILE__, __FUNCTION__, __LINE__,t,sno,LOCAL_tokptr, LOCAL_toktide, inp,  __VA_ARGS__)
 
-#define must_be_char(t)						\
-  must_be_char_(__FILE__, __FUNCTION__, __LINE__,t)
-
-#define must_be_code(t)						\
-  must_be_code_(__FILE__, __FUNCTION__, __LINE__,t)
-
-
-
 
 
 #define Yap_do_warning(id, inp,  ...)					\
@@ -323,13 +315,12 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
  extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass, yap_error_descriptor_t *);
 
  extern void Yap_must_be_list0(YAP_Term t);
- extern void Yap_must_be_code__(YAP_Term t);
- extern void Yap_must_be_cha__r(YAP_Term t);
  extern bool Yap_must_be_callable(YAP_Term t, YAP_Term m);
 #include "ScannerTypes.h"
      
  extern char *Yap_syntax_error__(const char *file, const char *function, int lineno, YAP_Term t, int sno, TokEntry *start,
                               TokEntry *err, char *s,  ...);
+
 #endif
 
   

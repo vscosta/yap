@@ -282,17 +282,17 @@ code with  _C_.
 
 */
 static Int get_code(USES_REGS1) { /* get0(Stream,-N)                    */
-  int sno = Yap_CheckTextReadStream(ARG1);
+  int sno = Yap_CheckTextReadStream(ARG1, "get_code");
   // Int status;
   Int out;
 
   if (sno < 0)
     return (FALSE);
   // status = GLOBAL_Stream[sno].status;
-  out = GLOBAL_Stream[sno].stream_wgetc(sno);
-  bool rc = Yap_unify_constant(t2, MkIntegerTerm(ch));
+  int ch = GLOBAL_Stream[sno].stream_wgetc(sno);
+  bool rc = Yap_unify_constant(ARG2, MkIntegerTerm(ch));
   if (!rc) {
-    must_be_code(t2);
+    must_be_code(ARG2);
     }
   
   return rc;
@@ -934,7 +934,7 @@ static Int peek_byte(USES_REGS1) { /* at_end_of_stream */
   if (sno < 0)
     return false;
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    Yap_ThrowError(PERMISSION_ERROR_INPUT__BINARY_STREAM, ARG1, "peek_byte/2");
+    Yap_ThrowError(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
   if ((ch = dopeek_byte(sno)) < 0) {
@@ -960,7 +960,7 @@ static Int peek_byte_1(USES_REGS1) { /* at_end_of_stream */
   if (sno < 0)
     return (FALSE);
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_byte/2");
+    Yap_ThrowError(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
   if ((ch = dopeek_byte(sno)) < 0) {

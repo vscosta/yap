@@ -1617,7 +1617,7 @@ bool must_be_atom__(const char *file, const char *function, int lineno,
   }
 }
 
-static bool must_be_atom1(USES_REGS1) {
+static Int must_be_atom1(USES_REGS1) {
   Term t = Deref(ARG1);
   return must_be_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
@@ -1645,7 +1645,7 @@ bool must_be_char__(const char *file, const char *function, int lineno,
   return true;
 }
 
-static bool must_be_char1(USES_REGS1) {
+static Int must_be_char1(USES_REGS1) {
   Term t = Deref(ARG1);
   return must_be_char__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
@@ -1662,15 +1662,15 @@ bool must_be_code__(const char *file, const char *function, int lineno,
     Yap_ThrowError__(file, function, lineno, TYPE_ERROR_IN_CHARACTER, t, "is atom");
     return false;
   }
-  Int i = IntegerOfTerm(i);
-  if (i < -1 || i > CHARCODE_MAX) {
+  Int i = IntegerOfTerm(t);
+  if (i < -1 || i > CHARCODE_MAX) { 
   Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, t, NULL);
       return false;
   }
   return true;
 }
 
-static bool must_be_code1(USES_REGS1) {
+static Int must_be_code1(USES_REGS1) {
   Term t = Deref(ARG1);
   return must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
