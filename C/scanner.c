@@ -270,16 +270,16 @@ static Term float_send(char *s, int sign) {
  * @param s
  * @returnppp
  */
-int number_encoding_error(const char* image, int ch, seq_type_t code, struct stream_desc *st, const char *comment) {
-  if (st->status & RepClose_Prolog_f) {
+static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st)
+{if(st->status & RepClose_Prolog_f) {
     Yap_CloseStream(st-GLOBAL_Stream);
     return EOF;
   }   if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
       LOCAL_Error_TYPE = SYNTAX_ERROR;
     LOCAL_ErrorMessage=malloc(2048);
-    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text %s\n",image);
+    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text");
 } else 
-  Yap_Warning("unexpected newline while  reading quoted text %s\n",image);
+  Yap_Warning("unexpected newline while  reading quoted text");
 
 
 return ch;
@@ -360,7 +360,7 @@ do_switch:
       } else if (ch >= 'A' && ch <= 'F') {
         wc += ((ch - 'A') + 10) << ((3 - i) * 4);
       } else {
-	return Yap_encoding_error(wc, 1, st);
+	return number_encoding_error(wc, 1, st);
       }
     }
     return wc;
@@ -378,7 +378,7 @@ do_switch:
       } else if (ch >= 'A' && ch <= 'F') {
         wc += ((ch - 'A') + 10) << ((7 - i) * 4);
       } else {
-        return  Yap_encoding_error(wc, 1, st);
+        return  number_encoding_error(wc, 1, st);
       }
     }
     return wc;
@@ -386,7 +386,7 @@ do_switch:
   case 'v':
     return '\v';
   case 'z': /* Prolog end-of-file */
-    return Yap_encoding_error(ch, 1, st);
+    return number_encoding_error(ch, 1, st);
   case '\'':
     return '\'';
   case '"':
@@ -395,7 +395,7 @@ do_switch:
     return '`';
   case '^':
     if (trueGlobalPrologFlag(ISO_FLAG)) {
-      return  Yap_encoding_error(ch, 1, st);
+      return  number_encoding_error(ch, 1, st);
     } else {
       ch = getchrq(st);
       if (ch == '?') { /* delete character */
@@ -428,18 +428,18 @@ do_switch:
           so_far = so_far * 8 + (ch - '0');
           ch = getchrq(st);
           if (ch != '\\') {
-           return Yap_encoding_error(ch, 1, st);
+           return number_encoding_error(ch, 1, st);
           }
           return so_far;
         } else if (ch == '\\') {
           return so_far;
         } else {
-          return  Yap_encoding_error(ch, 1, st);
+          return  number_encoding_error(ch, 1, st);
         }
       } else if (ch == '\\') {
         return so_far;
       } else {
-        return  Yap_encoding_error(ch, 1, st);
+        return  number_encoding_error(ch, 1, st);
       }
     }
   case 'x':
@@ -459,14 +459,14 @@ do_switch:
   if (ch == '\\') {
         return so_far;
       } else {
-         return  Yap_encoding_error(ch, 1, st);
+         return  number_encoding_error(ch, 1, st);
       }
     }
   default:
     /* reject sequence. The ISO standard does not
      consider this sequence legal, whereas SICStus would
      eat up the escape sequence. */
-        return  Yap_encoding_error(ch, 1, st);
+        return  number_encoding_error(ch, 1, st);
   }
 }
 
@@ -557,7 +557,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
       if (throw_error)  {
 	*sp = '\0';
 	return Yap_encoding_error(ch, 1, st );//nvalid hexadecimal digit");
-	      } else {
+      } else {
 	return TermNil;
       }
 
@@ -770,13 +770,13 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
       if (ASP - HR < 1024) {
         pop_text_stack(lvl);
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "scanner: failed to allocate token image");
-	return -1;
+	return TermNil;
     }
     size_t sz = 1024;
     char *buf = Malloc(sz);
     out = get_num(&ch, inp, sign, &buf, &sz, throw_error PASS_REGS); /*  */   
   } else {
-    out = 0;
+    out = TermNil;
   }
   pop_text_stack(lvl);
  
@@ -794,7 +794,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   if (throw_error) {
   Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
   }
-  return -1; 
+  return TermNil; 
 }
 
 #define CHECK_SPACE()                                                          \
