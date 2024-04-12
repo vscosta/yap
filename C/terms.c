@@ -755,6 +755,7 @@ Term Yap_TermVariables(Term t, Term t0 USES_REGS) /* variables in term t  */
   return out;
 }
 
+#if 0
 /** @pred  term_variables(? _Term_, - _Variables_) is iso
 
     Unify  _Variables_ with the list of all variables of term
@@ -762,7 +763,7 @@ Term Yap_TermVariables(Term t, Term t0 USES_REGS) /* variables in term t  */
     appearance when traversing the term depth-first, left-to-right.
 
 */
-static Int term_variables(USES_REGS1) /* variables in term t
+static Int  term_variables(USES_REGS1) /* variables in term t
 				       */
 {
   if (!Yap_IsListOrPartialListTerm(Deref(ARG2))) {
@@ -782,7 +783,7 @@ static Int term_variables(USES_REGS1) /* variables in term t
   return Yap_unify(out,ARG2);
     
 }
-	       
+#endif	       
   
 /** routine to locate attributed variables */
 
