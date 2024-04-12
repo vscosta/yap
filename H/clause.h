@@ -289,31 +289,31 @@ extern void Yap_EraseStaticClause(StaticClause *, PredEntry *, Term);
 extern ClausePointer Yap_find_owner_index(yamop *, PredEntry *);
 
 /* dbase.c */
-void Yap_ErCl(DynamicClause *);
-void Yap_ErLogUpdCl(LogUpdClause *);
-void Yap_ErLogUpdIndex(LogUpdIndex *);
-Int Yap_Recordz(Atom, Term);
-Int Yap_db_nth_recorded(PredEntry *, Int USES_REGS);
-Int Yap_unify_immediate_ref(DBRef ref USES_REGS);
+extern void Yap_ErCl(DynamicClause *);
+extern void Yap_ErLogUpdCl(LogUpdClause *);
+extern void Yap_ErLogUpdIndex(LogUpdIndex *);
+extern Int Yap_Recordz(Atom, Term);
+extern Int Yap_db_nth_recorded(PredEntry *, Int USES_REGS);
+extern Int Yap_unify_immediate_ref(DBRef ref USES_REGS);
 
 /* exec.c */
-Term Yap_cp_as_integer(choiceptr);
+extern Term Yap_cp_as_integer(choiceptr);
 
 /* index.c */
-yamop *Yap_PredIsIndexable(PredEntry *, UInt, yamop *);
-yamop *Yap_ExpandIndex(PredEntry *, UInt);
-void Yap_CleanUpIndex(struct logic_upd_index *);
-void Yap_CleanKids(struct logic_upd_index *);
-void Yap_AddClauseToIndex(PredEntry *, yamop *, int);
-void Yap_RemoveClauseFromIndex(PredEntry *, yamop *);
-LogUpdClause *Yap_NthClause(PredEntry *, Int);
-LogUpdClause *Yap_FollowIndexingCode(PredEntry *, yamop *, yhandle_t, yamop *,
+extern yamop *Yap_PredIsIndexable(PredEntry *, UInt, yamop *);
+extern yamop *Yap_ExpandIndex(PredEntry *, UInt);
+extern void Yap_CleanUpIndex(struct logic_upd_index *);
+extern void Yap_CleanKids(struct logic_upd_index *);
+extern void Yap_AddClauseToIndex(PredEntry *, yamop *, int);
+extern void Yap_RemoveClauseFromIndex(PredEntry *, yamop *);
+extern LogUpdClause *Yap_NthClause(PredEntry *, Int);
+extern LogUpdClause *Yap_FollowIndexingCode(PredEntry *, yamop *, yhandle_t, yamop *,
                                      yamop *);
 extern PredEntry *Yap_pc_to_pred(yamop *ip);
 
 /* exo.c */
-yamop *Yap_ExoLookup(PredEntry *ap USES_REGS);
-CELL Yap_NextExo(choiceptr cpt, struct index_t *it);
+extern yamop *Yap_ExoLookup(PredEntry *ap USES_REGS);
+extern CELL Yap_NextExo(choiceptr cpt, struct index_t *it);
 
 #
 #if USE_THREADED_CODE
@@ -338,7 +338,7 @@ INLINE_ONLY int rtable_hash_op(OPCODE opc, int hash_mask) {
 
 /* given an opcode find the corresponding opnumber. This should make
    switches on ops a much easier operation */
-static inline  op_numbers Yap_op_from_opcode(OPCODE opc) {
+INLINE_ONLY  op_numbers Yap_op_from_opcode(OPCODE opc) {
   int j = rtable_hash_op(opc, OP_HASH_SIZE - 1);
 
   while (OP_RTABLE[j].opc != opc) {
@@ -353,13 +353,12 @@ static inline  op_numbers Yap_op_from_opcode(OPCODE opc) {
   return OP_RTABLE[j].opnum;
 }
 #else
-static inline op_numbers Yap_op_from_opcode(OPCODE opc) {
+INLINE_ONLY OPCODE op_numbers Yap_op_from_opcode(OPCODE opc) {
   return ((op_numbers)opc);
 }
 #endif /* USE_THREADED_CODE */
 
 #if defined(YAPOR) || defined(THREADS)
-static inline int same_lu_block(yamop **, yamop *);
 
 static inline int same_lu_block(yamop **paddr, yamop *p) {
   yamop *np = *paddr;
@@ -388,41 +387,41 @@ static inline Term __Yap_MkStaticRefTerm(StaticClause *cp,
   return Yap_MkApplTerm(FunctorStaticClause, 2, t);
 }
 
-static inline StaticClause *Yap_ClauseFromTerm(Term t) {
+INLINE_ONLY StaticClause *Yap_ClauseFromTerm(Term t) {
   return (StaticClause *)IntegerOfTerm(ArgOfTerm(1, t));
 }
 
 #define Yap_MkMegaRefTerm(ap, ipc) __Yap_MkMegaRefTerm((ap), (ipc)PASS_REGS)
 
-static inline Term __Yap_MkMegaRefTerm(PredEntry *ap, yamop *ipc USES_REGS) {
+INLINE_ONLY  Term __Yap_MkMegaRefTerm(PredEntry *ap, yamop *ipc USES_REGS) {
   Term t[2];
   t[0] = MkIntegerTerm((Int)ap);
   t[1] = MkIntegerTerm((Int)ipc);
   return Yap_MkApplTerm(FunctorMegaClause, 2, t);
 }
 
-static inline yamop *Yap_MegaClauseFromTerm(Term t) {
+INLINE_ONLY  yamop *Yap_MegaClauseFromTerm(Term t) {
   return (yamop *)IntegerOfTerm(ArgOfTerm(2, t));
 }
 
-static inline PredEntry *Yap_MegaClausePredicateFromTerm(Term t) {
+INLINE_ONLY  PredEntry *Yap_MegaClausePredicateFromTerm(Term t) {
   return (PredEntry *)IntegerOfTerm(ArgOfTerm(1, t));
 }
 
 #define Yap_MkExoRefTerm(ap, i) __Yap_MkExoRefTerm((ap), (i)PASS_REGS)
 
-static inline Term __Yap_MkExoRefTerm(PredEntry *ap, Int i USES_REGS) {
+INLINE_ONLY  Term __Yap_MkExoRefTerm(PredEntry *ap, Int i USES_REGS) {
   Term t[2];
   t[0] = MkIntegerTerm((Int)ap);
   t[1] = MkIntegerTerm((Int)i);
   return Yap_MkApplTerm(FunctorExoClause, 2, t);
 }
 
-static inline Int Yap_ExoClauseFromTerm(Term t) {
+INLINE_ONLY  Int Yap_ExoClauseFromTerm(Term t) {
   return IntegerOfTerm(ArgOfTerm(2, t));
 }
 
-static inline PredEntry *Yap_ExoClausePredicateFromTerm(Term t) {
+INLINE_ONLY  PredEntry *Yap_ExoClausePredicateFromTerm(Term t) {
   return (PredEntry *)IntegerOfTerm(ArgOfTerm(1, t));
 }
 
@@ -431,9 +430,6 @@ static inline PredEntry *Yap_ExoClausePredicateFromTerm(Term t) {
                         EXECUTING PROLOG CLAUSES
 
 ******************************************************************/
-
-bool Yap_search_for_static_predicate_in_use(PredEntry *p,
-                                            bool check_everything);
 
 static inline bool Yap_static_in_use(PredEntry *p, bool check_everything) {
 #if defined(YAPOR) || defined(THREADS)
@@ -468,16 +464,16 @@ extern LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
 extern Term Yap_LUInstance(LogUpdClause *, UInt);
 
 /* udi.c */
-int Yap_new_udi_clause(PredEntry *, yamop *, Term);
-yamop *Yap_udi_search(PredEntry *);
+extern int Yap_new_udi_clause(PredEntry *, yamop *, Term);
+extern yamop *Yap_udi_search(PredEntry *);
 
-Term Yap_bug_location(yamop *p, yamop *cp, choiceptr b_ptr, CELL *env);
-Term Yap_pc_location(yamop *p, choiceptr b_ptr, CELL *env);
-Term Yap_env_location(yamop *p, choiceptr b_ptr, CELL *env, Int ignore_first);
+extern Term Yap_bug_location(yamop *p, yamop *cp, choiceptr b_ptr, CELL *env);
+extern Term Yap_pc_location(yamop *p, choiceptr b_ptr, CELL *env);
+extern Term Yap_env_location(yamop *p, choiceptr b_ptr, CELL *env, Int ignore_first);
 
 #if LOW_PROF
-void Yap_InformOfRemoval(void *);
-void Yap_dump_code_area_for_profiler(void);
+extern void Yap_InformOfRemoval(void *);
+extern void Yap_dump_code_area_for_profiler(void);
 #else
 #define Yap_InformOfRemoval(X)
 #endif

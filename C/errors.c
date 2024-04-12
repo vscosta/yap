@@ -746,6 +746,7 @@ Term MkSysError(yap_error_descriptor_t *i) {
   return Yap_MkApplTerm(FunctorException, 1, &et);
 }
 
+#if 0
 static void
 termToError(Term t1, Term user_info, yap_error_descriptor_t *i) {
 CACHE_REGS
@@ -820,6 +821,7 @@ CACHE_REGS
   // return MkStringTerm(i->errorMsg);
 
 }
+#endif
 
 bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
