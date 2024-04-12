@@ -950,7 +950,7 @@ YAP_FLAG(VERSION_GIT_FLAG, "version_git", false, isatom, YAP_GIT_HEAD,
 YAP_FLAG(WRITE_ATTRIBUTES_FLAG, "write_attributes", true, isatom, "ignore",
              NULL),
 
-YAP_FLAG(WINDOWS_FLAG, "windows", false, ro, "true", NULL),
+YAP_FLAG(WINDOWS_FLAG, "windows", false, ro, YAP_FOR_WIN32, NULL),
 /**< 
 
     Read-only boolean Flag flag that unifies with `true` if YAP is

@@ -951,9 +951,9 @@ static YAP_Bool pid(void) {
 
 static YAP_Bool win(void) {
 #if defined(__MINGW32__) || _MSC_VER
-  return (TRUE);
+  return true;
 #else
-  return (FALSE);
+  return false;
 #endif
 }
 
