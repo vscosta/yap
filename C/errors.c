@@ -746,6 +746,8 @@ Term MkSysError(yap_error_descriptor_t *i) {
   return Yap_MkApplTerm(FunctorException, 1, &et);
 }
 
+# if 0
+
 static void
 termToError(Term t1, Term user_info, yap_error_descriptor_t *i) {
 CACHE_REGS
@@ -820,6 +822,7 @@ CACHE_REGS
   // return MkStringTerm(i->errorMsg);
 
 }
+#endif
 
 bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
@@ -1614,7 +1617,7 @@ bool must_be_atom__(const char *file, const char *function, int lineno,
   }
 }
 
-static Int must_be_atom1(USES_REGS1) {
+static bool must_be_atom1(USES_REGS1) {
   Term t = Deref(ARG1);
   return must_be_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
@@ -1636,11 +1639,42 @@ bool must_be_char__(const char *file, const char *function, int lineno,
   utf8proc_int32_t  v;
   int off = 0;
   if(a[0] == '\0' ||(off=__get_utf8(a,1,&v))<=0 || a[off] != '\0') {
-      Yap_ThrowError(TYPE_ERROR_IN_CHARACTER, t, "in input argument");
+      Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, t, NULL);
       return false;
   }
   return true;
 }
+
+static bool must_be_char1(USES_REGS1) {
+  Term t = Deref(ARG1);
+  return must_be_char__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
+}
+
+
+bool must_be_code__(const char *file, const char *function, int lineno,
+                    Term t USES_REGS) {
+  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  if (IsVarTerm(t)) {
+    Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, "is atom");
+    return false;
+  }
+  if (!IsIntegerTerm(t)) {
+    Yap_ThrowError__(file, function, lineno, TYPE_ERROR_IN_CHARACTER, t, "is atom");
+    return false;
+  }
+  Int i = IntegerOfTerm(i);
+  if (i < -1 || i > CHARCODE_MAX) {
+  Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, t, NULL);
+      return false;
+  }
+  return true;
+}
+
+static bool must_be_code1(USES_REGS1) {
+  Term t = Deref(ARG1);
+  return must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
+}
+
 
 
 /** @pred is_list( ?_List_ )
@@ -1986,6 +2020,8 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("must_be_boolean", 1, must_be_boolean1, TestPredFlag);
   Yap_InitCPred("must_be_bound", 1, must_be_bound1, TestPredFlag);
   Yap_InitCPred("must_be_callable", 1, must_be_callable1, TestPredFlag);
+  Yap_InitCPred("must_be_char", 1, must_be_char1, TestPredFlag);
+  Yap_InitCPred("must_be_code", 1, must_be_code1, TestPredFlag);
   Yap_InitCPred("must_be_ground", 1, must_be_ground1, TestPredFlag);
   Yap_InitCPred("must_be_list", 1, must_be_list1, TestPredFlag);
 
