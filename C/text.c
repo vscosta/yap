@@ -747,6 +747,37 @@ static Term string_to_term(void *s, seq_tv_t *out USES_REGS) {
   return o;
 }
 
+Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
+  CACHE_REGS
+  int sno;
+  Atom nat = AtomEmptyBrackets;
+  sno = Yap_open_buf_read_stream(NULL, s, strlen(s), encp, MEM_BUF_USER, nat,
+                                 TermEvaluable);
+  if (sno < 0)
+    return TermNil;
+  if (encp)
+    GLOBAL_Stream[sno].encoding = *encp;
+  else
+    GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+#ifdef __ANDROID__
+
+  while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
+    s++;
+#endif
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+  if (error_on) {
+    GLOBAL_Stream[sno].status |= RepError_Prolog_f;
+
+    return TermNil;
+  }
+  int i = push_text_stack();
+  Term t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
+  Yap_CloseStream(sno);
+  pop_text_stack(i);
+  return t;
+}
+
+
 bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
   /* we know what the term is */
   out->val.t = 0;
@@ -756,7 +787,7 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
 
   if (out->type & (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG)) {
     if ((out->val.t = write_number(
-             inp, out PASS_REGS)) != 0L) {
+             inp, out PASS_REGS)) !=TermNil) {
       // Yap_DebugPlWriteln(out->val.t);
 
       return true;
@@ -817,7 +848,7 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
   case YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG:
     out->val.t = write_number(inp, out PASS_REGS);
     // Yap_DebugPlWriteln(out->val.t);
-    if (out->val.t==0 &&(out->type & (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG |YAP_STRING_ATOM | YAP_STRING_STRING| YAP_STRING_TERM)) ==
+    if (out->val.t==TermNil &&(out->type & (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG |YAP_STRING_ATOM | YAP_STRING_STRING| YAP_STRING_TERM)) ==
 	(YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG))
       Yap_ThrowError(TYPE_ERROR_NUMBER, MkUStringTerm(inp), NULL);
     return out->val.t != 0;
@@ -930,7 +961,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
 bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   unsigned char *buf;
   int i;
-  size_t avai, extra;
+  size_t avai;
     unsigned char const *nbuf=NULL;
     size_t bsz = tot * 256;
   int lvl = push_text_stack();

@@ -784,11 +784,11 @@ static inline Atom Yap_ListToAtom(Term t0 USES_REGS) {
 static inline Term Yap_ListToAtomic(Term t0 USES_REGS) {
   seq_tv_t  inp,out;
   inp.val.t = t0;
-  inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
+  inp.type = YAP_STRING_CODES|YAP_STRING_ATOM|YAP_STRING_STRING|YAP_STRING_INT|YAP_STRING_FLOAT|YAP_STRING_BIG;
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
-  out.type = YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
-    YAP_STRING_BIG | YAP_STRING_OUTPUT_TERM;
+  out.type = YAP_STRING_INT | YAP_STRING_FLOAT |
+    YAP_STRING_BIG | YAP_STRING_ATOM|YAP_STRING_OUTPUT_TERM;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0;
   return out.val.t;
