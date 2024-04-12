@@ -407,6 +407,7 @@ prolog:'$spy'(Mod:G) :-
  *
  */
 '$creep'(G) :-
+    '$stop_creeping'(_),
     '$yap_strip_module'(G,M,Q),
     current_choice_point(CP),
     trace_goal(Q, M, outer, _Id, CP ),
@@ -426,6 +427,12 @@ trace_goal(V, M, _Ctx, _, _) :-
     ->
     throw_error(instantiation_error,call(M:V))
     ).
+trace_goal(true,_, _, _,  _CP) :-
+    !.
+trace_goal(false,_, _, _,  _CP) :-
+    !.
+trace_goal(fail,_, _, _,  _CP) :-
+    !.
 trace_goal(!,_, _, _,  CP) :-
     !,
     cut_by(CP).
@@ -678,6 +685,7 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
  *
  */
 '$trace_port'(Ports, GoalNumber, Goal, Module, Ctx, CP,Info) :-
+    '$stop_creeping'(_),
     ('$ports_to_port'(Ports, Port)->true;Port=internal),
     (
       '$zip_at_port'(Port, GoalNumber, Module:Goal)
