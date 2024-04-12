@@ -1208,7 +1208,7 @@ watch_goal(G) :-
 	).
 
 
-yap_hacks:trace(G) :-
+trace(G) :-
     '$trace'(G,outer).
 
 

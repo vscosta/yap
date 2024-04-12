@@ -1452,7 +1452,7 @@ print_warning(_Msg).
  *
  * Term describes an exception as a set of mappings: unify val with the value for key Key, or fil if the key is not in Tern,
  */
-yap_hacks:yap_query_exception(Q,E,V) :-
+exception_property(Q,E,V) :-
     query_exception(Q,E,V).
 
 /**
@@ -1463,7 +1463,7 @@ yap_hacks:yap_query_exception(Q,E,V) :-
  *
  * _List_ shpi;d be unbound, as YAP does not fuarantee an irder for the resulting _List_.
  */
-yap_hacks:yap_error_descriptor(Inf,Des) :-
+yap_error_descriptor(Inf,Des) :-
     error_descriptor(Inf,Des).
 
 

@@ -656,6 +656,8 @@ static Int current_source_module(USES_REGS1) {
     Yap_ThrowError(TYPE_ERROR_ATOM, t, NULL);
     return false;
   }
+  if (t == TermProlog)
+    t = PROLOG_MODULE;
   LOCAL_SourceModule = CurrentModule = t;
   return true;
 }

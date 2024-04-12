@@ -2217,7 +2217,7 @@ static void InitCommaPreds(void) {
   arity_t i;
   CommaPredicates = malloc(8*sizeof(struct pred_entry *));
   for (i=2;i<10;i++) {
-    CommaPredicates[i-2] = RepPredProp(Yap_NewPredPropByFunctor(Yap_MkFunctor((AtomInnerComma), i), TermProlog));
+    CommaPredicates[i-2] = RepPredProp(Yap_NewPredPropByFunctor(Yap_MkFunctor((AtomInnerComma), i), PROLOG_MODULE));
   }
 }
 
@@ -2225,7 +2225,6 @@ void Yap_InitExecFs(void)
 {
   CACHE_REGS
 
-  Term cm = CurrentModule;
   InitCommaPreds();
   Yap_InitCPred("$execute", 1, execute, 0);
   Yap_InitCPred("$execute0", 1, execute, 0);
@@ -2265,7 +2264,7 @@ void Yap_InitExecFs(void)
   Yap_InitCPred("cut_at", 1, cut_at1, SafePredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
-  CurrentModule = cm;
+  CurrentModule = PROLOG_MODULE;
   Yap_InitCPred("$restore_regs", 1, restore_regs,
                 NoTracePredFlag | SafePredFlag);
   Yap_InitCPred("$restore_regs", 2, restore_regs2,
