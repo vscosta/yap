@@ -352,7 +352,7 @@ static const char *join(const char *s0, const char *s1) {
 static void Yap_set_locations(YAP_init_args *iap) {
   is_install= iap->install;
   const char *binarypath=Yap_FindExecutable(),
-    *root_binary_dir= Yap_AbsoluteFile(join(Yap_FindExecutable(),"../.."),true),
+    *root_binary_dir= Yap_AbsoluteFile(join(binarypath,"../.."),true),
     *path_binary_dir= Yap_AbsoluteFile(join(root_binary_dir,"bin"),true),
     *path_binary_lib= Yap_AbsoluteFile(join(root_binary_dir,"lib"),true),
     *path_binary_pllib= Yap_AbsoluteFile(join(root_binary_dir,"share/Yap"),true);

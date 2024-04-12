@@ -63,6 +63,11 @@ class YAPEngine;
   }
 %}
 
+
+  extern "C"{
+%include "../../include/YapInit.h"
+  }
+
 #ifdef SWIGPYTHON
   %typemap(typecheck) Term*  {
     $1 = PySequence_Check($input);
