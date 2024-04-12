@@ -318,7 +318,6 @@ translate_message(error(Exc, Info)) -->
  {
      '$show_consult_level'(LC),
         error_descriptor(Info, Desc),
-	stop_low_level_trace,
 	Level = error,
      Exc \= exception(_)
     },
@@ -326,6 +325,7 @@ translate_message(error(Exc, Info)) -->
     location( Desc, Level,full , LC),
    main_message(error(Exc,Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
+     c_caller( Desc, Level, LC),
     extra_info( Desc, Level, LC ),
     stack_info( Desc, Level, LC ),
     [nl],
@@ -406,7 +406,7 @@ location( Desc, Level, _, LC ) -->
     prolog_caller( Desc, Level, LC).
 
 
-prolog_caller( Desc, Level, LC ) -->
+prolog_caller( Desc, Level, _LC ) -->
     {
      query_exception(prologPredLine, Desc, LN),
      query_exception(prologPredFile, Desc, FileName),
@@ -416,8 +416,7 @@ prolog_caller( Desc, Level, LC ) -->
     },
     !,
     [  '~N~s:~d:0: ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
-     [nl],
-     c_caller( Desc, Level, LC).
+     [nl].
 prolog_caller( Desc, Level, LC ) -->
     {
      query_exception(prologPredFile, Desc, FileName),

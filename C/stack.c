@@ -122,34 +122,34 @@ static bool GetPredInfo(PredEntry *pe, indicator_t *info USES_REGS) {
   if (pe == NULL) {
     info->name=info->module = NULL;
     info->arity = 0;
-  } 
-        if (pe->ModuleOfPred == PROLOG_MODULE) {
-	  info->module = RepAtom(AtomProlog)->StrOfAE;
-        } else {
-	  info->module  = RepAtom(AtomOfTerm(pe->ModuleOfPred))->StrOfAE;
-        }
-	if (pe->ModuleOfPred != IDB_MODULE) {
-        if (pe->ArityOfPE == 0) {
-	  info->name = RepAtom((Atom)( pe->FunctorOfPred))->StrOfAE;
-        } else {
-            Functor f = pe->FunctorOfPred;
-            info->name =RepAtom(NameOfFunctor(f))->StrOfAE;
-        }
-	info->arity =  pe->ArityOfPE;
+  } else {
+    if (pe->ModuleOfPred == PROLOG_MODULE) {
+      info->module = RepAtom(AtomProlog)->StrOfAE;
     } else {
-	  info->arity = pe->ArityOfPE;
-
-        if (pe->PredFlags & NumberDBPredFlag) {
-            info->idbkey = pe->src.IndxId;
-        } else if (pe->PredFlags & AtomDBPredFlag) {
-	  info->name = ((Atom) pe->FunctorOfPred)->StrOfAE;
-        } else {
-            Functor f = pe->FunctorOfPred;
-            info->name = NameOfFunctor(f)->StrOfAE;
-        }
+      info->module  = RepAtom(AtomOfTerm(pe->ModuleOfPred))->StrOfAE;
     }
-
-	return true;
+    if (pe->ModuleOfPred != IDB_MODULE) {
+      if (pe->ArityOfPE == 0) {
+	info->name = RepAtom((Atom)( pe->FunctorOfPred))->StrOfAE;
+      } else {
+	Functor f = pe->FunctorOfPred;
+	info->name =RepAtom(NameOfFunctor(f))->StrOfAE;
+      }
+      info->arity =  pe->ArityOfPE;
+    } else {
+      info->arity = pe->ArityOfPE;
+      
+      if (pe->PredFlags & NumberDBPredFlag) {
+	info->idbkey = pe->src.IndxId;
+      } else if (pe->PredFlags & AtomDBPredFlag) {
+	info->name = ((Atom) pe->FunctorOfPred)->StrOfAE;
+      } else {
+	Functor f = pe->FunctorOfPred;
+	info->name = NameOfFunctor(f)->StrOfAE;
+      }
+    }
+  }
+    return true;
 }
 
 static int get_clause_line(PredEntry *pe, ClausePointer cl) {
@@ -187,6 +187,10 @@ static bool write_goal(FILE *f, PredEntry *pe, ClausePointer cl,  char env_s, ch
      indicator_t info;
    int line;
    if (!GetPredInfo(pe,&info)) {
+     return false;
+   }
+   if (pe==NULL) {
+     fputs("NULL\n",f);
      return false;
    }
      char src[20];
@@ -1630,17 +1634,25 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
 #endif
 
 
-static bool outputep(FILE *f, yamop *my_cp, CELL *ep, int depth) {
+static bool outputep(FILE *f, bool ignore_sys, yamop *my_cp, CELL *ep, int depth) {
     CACHE_REGS
       PredEntry *pe = (((yamop *)((CODEADDR)(my_cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p0);
+    if (pe && !pe->ModuleOfPred) {
+      fprintf(f, "...\n");
+      return false;
+    }
     ClausePointer cl = find_code_in_clause(pe,my_cp);
     return write_goal(f, pe,cl, ' ', ' ', depth);
 }
 
-      static bool outputcp(FILE *f, choiceptr cp, int depth) {
+      static bool outputcp(FILE *f, bool ignore_sys, choiceptr cp, int depth) {
      CACHE_REGS
     choiceptr b_ptr = cp;
     PredEntry *pe = Yap_PredForChoicePt(b_ptr);
+    if (pe && !pe->ModuleOfPred) {
+      fprintf(f, "...\n");
+      return false;
+    }
     op_numbers opnum = Yap_op_from_opcode(b_ptr->cp_ap->opc);
     if (opnum == _Nstop) {
       fputs("  ********** C-Code Interface Boundary ***********\n",f);
@@ -1651,7 +1663,7 @@ static bool outputep(FILE *f, yamop *my_cp, CELL *ep, int depth) {
     return write_goal(f, pe, cl, ' ', '*', depth);
 }
 
- bool DumpActiveGoals(FILE *f USES_REGS) {
+bool DumpActiveGoals(FILE *f, bool ignore_top USES_REGS) {
     /* try to dump active goals */
     CELL *env = ENV; /* and current environment		  */
     choiceptr cp = B;
@@ -1661,19 +1673,17 @@ static bool outputep(FILE *f, yamop *my_cp, CELL *ep, int depth) {
     while ( (cp || env)) { //env is above
       // B is top of stack;
       if (cp && (CELL*)cp < env) {
-	choiceptr p = cp;
-	outputcp(f,cp, depth++)  ;
+	outputcp(f, ignore_top,cp, depth++)  ;
         cp = cp->cp_b;
-        env = fr_e =p->cp_env;
       } else if ((CELL*) cp == env) {
 	next = (yamop *)cp->cp_env[E_CP];
-	if (!outputep(f,next, fr_e, depth++))
+	if (!outputep(f, ignore_top,next, fr_e, depth++))
 	  break;
         env=	fr_e = cp->cp_env;
 	next = (yamop *)env[E_CP];
  	cp = cp->cp_b;
       } else {
-	if (!outputep(f,next, env, depth++))
+	if (!outputep(f, ignore_top,next, env, depth++))
 	  break;
 	next = (yamop *)env[E_CP];
 	env = (CELL *)env[E_E];
@@ -1682,7 +1692,7 @@ static bool outputep(FILE *f, yamop *my_cp, CELL *ep, int depth) {
       while (env && fr_e <env && fr_e < (CELL*)cp)
 	{
 	// check_for frozen
-	  if (!outputep(f,next, fr_e, depth++))
+	  if (!outputep(f, ignore_top,next, fr_e, depth++))
                 break;
                fr_e = (void*)env[E_E];
 		next = (yamop *)env[E_CP];
@@ -1710,7 +1720,7 @@ f = open_memstream(&nbuf, &nsize);
    
     fputs("%% \n%%  -------------------------------------\n%%\n", f);
         fputs("%% Goals in stack\n", f);
-	DumpActiveGoals(f PASS_REGS);
+	DumpActiveGoals(f, false PASS_REGS);
         fprintf( f, "%%    Performed %ld garbage collections\n",
                         (unsigned long int) LOCAL_GcCalls);	
 #if LOW_LEVEL_TRACER
@@ -1815,7 +1825,7 @@ f = open_memstream(&nbuf, &nsize);
 
 
 bool DumpStack(USES_REGS1) {
-    bool rc = DumpActiveGoals(stderr PASS_REGS);
+  bool rc = DumpActiveGoals(stderr, false PASS_REGS);
     fflush(stderr);
     return rc;
 }
@@ -1852,7 +1862,6 @@ bool DumpStack(USES_REGS1) {
      int      line = get_clause_line(pred,cl);
 	  fprintf(f, "%s:%d:0  %s: %s:%s/%lu\n", source, line,why, RepAtom(AtomOfTerm(pred_module))->StrOfAE,
                      RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
-
         }
 	//	char *s=o+strlen(o);
 	//char *top = o+1023;
