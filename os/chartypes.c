@@ -79,38 +79,6 @@ static char SccsId[] = "%W% %G%";
 static Int p_change_type_of_char(USES_REGS1);
 
 
-Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
-  CACHE_REGS
-  int sno;
-  Atom nat = AtomEmptyBrackets;
-  sno = Yap_open_buf_read_stream(NULL, s, strlen(s), encp, MEM_BUF_USER, nat,
-                                 TermEvaluable);
-  if (sno < 0)
-    return FALSE;
-  if (encp)
-    GLOBAL_Stream[sno].encoding = *encp;
-  else
-    GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-#ifdef __ANDROID__
-
-  while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
-    s++;
-#endif
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
-  if (error_on) {
-    GLOBAL_Stream[sno].status |= RepError_Prolog_f;
-
-    return 0;
-  }
-  int i = push_text_stack();
-  Term t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
-  Yap_CloseStream(sno);
-  pop_text_stack(i);
-  if (t == TermNil)
-    return 0;
-  return t;
-}
-
 const char *encvs[] = {"LANG", "LC_ALL", "LC_CTYPE", NULL};
 
 // where we can fins an encoding

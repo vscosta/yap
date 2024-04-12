@@ -510,8 +510,6 @@ ArityAdjust__ (Int val USES_REGS)
   return val;
 }
 
-INLINE_ONLY OPCODE OpcodeAdjust__ (OPCODE CACHE_TYPE);
-
 INLINE_ONLY OPCODE
 OpcodeAdjust__ (OPCODE val USES_REGS)
 {
