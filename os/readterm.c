@@ -687,19 +687,14 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
       trueGlobalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) == TermTrue;
   }
   if (args && args[READ_COMMENTS].used) {
-    fe->scanner.store_comments = args[READ_COMMENTS].tvalue == TermTrue;
+    fe->scanner.store_comments = args[READ_COMMENTS].tvalue;
   } else {
-    fe->scanner.store_comments = false;
+    fe->scanner.store_comments = 0;
   }
   if (args && args[READ_QUASI_QUOTATIONS].used) {
     fe->qq = args[READ_QUASI_QUOTATIONS].tvalue;
   } else {
     fe->qq = 0;
-  }
-  if (args && args[READ_COMMENTS].used) {
-    fe->scanner.tcomms = args[READ_COMMENTS].tvalue == TermTrue;
-  } else {
-    fe->scanner.tcomms = false;
   }
   if (args && args[READ_TERM_POSITION].used) {
     fe->tp = args[READ_TERM_POSITION].tvalue;
@@ -976,7 +971,7 @@ static Term scan_to_list(TokEntry * t)
 
  static bool complete_clause_processing(FEnv *fe, int sno, TokEntry *tokstart) {
   CACHE_REGS
-    Term v_vprefix, v_vnames, v_comments, v_pos, vs=0;
+    Term v_vprefix, v_vnames, v_pos, vs=0;
 
   if (fe->t && fe->vprefix)
     v_vprefix = get_variables(fe, tokstart);
@@ -987,10 +982,6 @@ static Term scan_to_list(TokEntry * t)
   else
     v_vnames = 0L;
 vs = fe->scanner.stored_scan;
-  if (fe->t && fe->scanner.tcomms)
-    v_comments = TermNil;
-  else
-    v_comments = 0L;
   if (fe->t && fe->tp)
     v_pos = get_stream_position(fe, tokstart);
   else
@@ -1000,6 +991,7 @@ vs = fe->scanner.stored_scan;
   // trail must be ok by now.]
   if (fe->t) {
     return (!v_vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
+      (!fe->scanner.store_comments || Yap_unify(fe->scanner.tcomms, fe->scanner.store_comments)) &&
            (!v_vnames || Yap_unify(v_vnames, fe->np)) &&
       (! vs ||   Yap_unify(vs, fe->scan)) &&
            (!v_pos || Yap_unify(v_pos, fe->tp)) ;
@@ -1604,8 +1596,16 @@ static Int start_mega(USES_REGS1)
     fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
   }
  if (fe->store_comments) {
+   Term comms = TermNil;
    while (LOCAL_tokptr->TokNext) {
      if (LOCAL_tokptr->TokNext->Tok == Ord(Comment_tok)) {
+       Term new =  Yap_MkNewPairTerm();
+       if (comms == TermNil)
+	 fe->scanner.comms = new;
+       else
+	 VarOfTerm(TailOfTerm(comms) = new;
+       Yap_unify(HeadOfTerm(new),LOCAL_tokptr->TokNext->TokInfo);
+       comms = TailOfTerm(new);
     LOCAL_tokptr->TokNext=LOCAL_tokptr->TokNext->TokNext;
   }
    }
