@@ -307,7 +307,6 @@ mksys(op(A,B,C)) :-
 %:- ( recorded('$lf_loaded',_,R), erase(R), fail ; true ).
 %:- ( recorded('$module',_,R), erase(R), fail ; true ).
 
-:- set_value('$user_module',user), '$protect'.
 
 :- style_check([+discontiguous,+multiple,+single_var]).
 
@@ -322,8 +321,6 @@ mksys(op(A,B,C)) :-
 	prolog:comment_hook/3.
 
 :- source.
-
-:- module(user).
 
 
 /** @pred user:term_expansion( _T_,- _X_)
@@ -347,9 +344,9 @@ as directives.
 
 
 */
-:- multifile term_expansion/2.
+:- multifile user:term_expansion/2.
 
-:- dynamic term_expansion/2.
+:- dynamic user:term_expansion/2.
 
 
 :- multifile swi:swi_predicate_table/4.
@@ -374,8 +371,12 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- dynamic user:exception/3.
 
+:- yap_flag(user:unknown,error).
+
+:- module(user).
+
 :- ensure_loaded('../pl/pathconf.yap').
 
-:- yap_flag(user:unknown,error).
+:- set_value('$user_module',user), '$protect'.
 
 %% @}

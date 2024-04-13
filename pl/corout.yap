@@ -67,7 +67,7 @@ attributed variables to implement co-routining.
 Hook that must be defined in the module an attributed variable refers
 to. Is is called <em>after</em> the attributed variable has been
 unified with a non-var term, possibly another attributed variable.
- _AttValue_ is the attribute that was associated to the variable
+[ _AttValue_ is the attribute that was associated to the variable
 in this module and  _VarValue_ is the new value of the variable.
 Normally this predicate fails to veto binding the variable to
  _VarValue_, forcing backtracking to undo the binding.  If
@@ -78,7 +78,7 @@ the two attribute and associates the combined attribute with
 
 */
 
-attr_unify_hook(Delay, V) :-
+coroutining:attr_unify_hook(Delay, V) :-
     strip_module(Delay,_,D),
 	wake_delay(D, V).
 

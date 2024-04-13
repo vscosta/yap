@@ -2056,7 +2056,19 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
     tf = ArgOfTerm(1, t);
   else
     tf = t;
-  p = Yap_new_pred(tf,  mod, mklog, RepAtom(AtomOfTerm(t1))->StrOfAE);
+  Term modh = mod;
+  tf = Yap_StripModule(tf, &modh);
+  p = Yap_new_pred(tf,  modh, mklog, RepAtom(AtomOfTerm(t1))->StrOfAE);
+  if (p &&
+  	CurrentModule!=PROLOG_MODULE &&
+	 p->ModuleOfPred == PROLOG_MODULE &&
+	  p->CodeOfPred->opc != UNDEF_OPCODE &&
+      !(p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) &&
+      p->src.OwnerFile != Yap_source_file_name())
+    {
+      Yap_ThrowError(  PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateIndicator(tf,modh), "trying to change a system predicate");
+	return false;
+  }
   Yap_track_cpred( 0, P, 0,   &info);
 
   PELOCK(20, p);

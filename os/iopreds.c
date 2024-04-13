@@ -681,17 +681,21 @@ void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
 void Yap_DebugPlWrite(Term t) {
   CACHE_REGS
     
-  if (t == 0)
+    if (t == 0) {
     fprintf(stderr, "NULL");
+    return;
+    }
   Yap_plwrite(t, GLOBAL_Stream + 2, HR, 0,0, NULL);
 }
 
 void
 Yap_DebugPlWriteln(Term t) {
   CACHE_REGS
-  if (t == 0)
+    if (t == 0) {
     fprintf(stderr, "NULL");
-     Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream, HR, 0,YAP_WRITE_QUOTED, NULL);
+    return;
+    }
+Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream, HR, 0,YAP_WRITE_QUOTED, NULL);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }

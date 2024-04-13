@@ -214,6 +214,10 @@ extern int Yap_SWIHandleError(const char *, ...);
 extern void Yap_InitErrorPreds(void);
 extern bool Yap_callable(Term t);
 
+extern bool must_be_code__(const char *file, const char *function, int lineno,Term t USES_REGS );
+extern bool must_be_char__(const char *file, const char *function, int lineno,Term t USES_REGS );
+ 
+
 /* eval.c */
 extern void Yap_InitEval(void);
 

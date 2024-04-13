@@ -660,7 +660,7 @@ prolog_current_frame(Env) :-
 
 
    
-yap_hacks:call_in_module(M:G) :-
+call_in_module(M:G) :-
     gated_call(
 	'$module_boundary'(call, M0, M),
 	call(G),

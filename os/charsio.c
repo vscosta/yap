@@ -245,8 +245,7 @@ static Int get(USES_REGS1) { /* '$get'(Stream,-N)                     */
   if (sno < 0)
     return FALSE;
   // status = GLOBAL_Stream[sno].status;
-  while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0)
-    ;
+  while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0);
   return store_code(ch, ARG2 PASS_REGS);
 }
 
@@ -268,7 +267,7 @@ static Int get_char(USES_REGS1) { /* '$get'(Stream,-N)                     */
   Term t2 = Deref(ARG2);
   bool rc = Yap_unify_constant(t2, MkCharTerm(ch));
   if (!rc) {
-    must_be_char(ARG2);
+    must_be_char(t2);
     }
   
   return rc;
@@ -283,15 +282,20 @@ code with  _C_.
 
 */
 static Int get_code(USES_REGS1) { /* get0(Stream,-N)                    */
-  int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "get0/2");
+  int sno = Yap_CheckTextReadStream(ARG1, "get_code");
   // Int status;
   Int out;
 
   if (sno < 0)
     return (FALSE);
   // status = GLOBAL_Stream[sno].status;
-  out = GLOBAL_Stream[sno].stream_wgetc(sno);
-  return store_code(out, ARG2 PASS_REGS);
+  int ch = GLOBAL_Stream[sno].stream_wgetc(sno);
+  bool rc = Yap_unify_constant(ARG2, MkIntegerTerm(ch));
+  if (!rc) {
+    must_be_code(ARG2);
+    }
+  
+  return rc;
 }
 
 /** @pred  get(- _C_)
@@ -369,12 +373,9 @@ static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
   }
   bool rc = Yap_unify_constant(ARG1, MkCharTerm(ch));
   if (!rc) {
-    Term t2 = Deref(ARG1);
-    if (!IsAtomTerm(t2)) {
-      Yap_ThrowError(TYPE_ERROR_IN_CHARACTER, ARG1, "in input argument");
-    }
+    must_be_char(ARG1);
   }
-  return rc;
+    return rc;
 }
 
 static Int get0_line_codes(USES_REGS1) { /* '$get0'(Stream,-N) */
@@ -408,7 +409,7 @@ static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
 
   if (!IsVarTerm(out)) {
     if (!IsIntegerTerm(out)) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG1, " bad type");
-    Int ch = IntegerOfTerm(out);
+   Int ch = IntegerOfTerm(out);
     if (ch < -1 || ch > 255) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG1, " bad type");
   }
 
@@ -888,7 +889,9 @@ static Int peek_code(USES_REGS1) { /* at_end_of_stream */
     return false;
 #endif
   }
-  return (Yap_unify_constant(ARG2, MkIntTerm(ch)));
+  bool rc = Yap_unify_constant(ARG2, MkIntTerm(ch));
+  if (!rc) must_be_code(ARG2);
+  return rc;
 }
 
 /** @pred  peek_code( - _C_) is iso
@@ -910,12 +913,10 @@ static Int peek_code_1(USES_REGS1) { /* at_end_of_stream */
     Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_code/2");
     return FALSE;
   }
-  if ((ch = Yap_peekWide(sno)) < 0) {
-#ifdef PEEK_EOF
-    return false;
-#endif
-  }
-  return (Yap_unify_constant(ARG1, MkIntTerm(ch)));
+  ch = Yap_peekWide(sno);
+  bool rc = Yap_unify_constant(ARG1, MkIntTerm(ch));
+  if (!rc) must_be_code(ARG1);
+  return rc;
 }
 
 /** @pred  peek_byte(+Stream, - _C_) is iso
@@ -979,7 +980,7 @@ atom with  _C_, while leaving the  stream position unaltered.
 */
 static Int peek_char(USES_REGS1) {
   /* the next character is a EOF */
-  int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "peek/2");
+  int sno = Yap_CheckTextReadStream(ARG1, NULL);
   unsigned char sinp[16];
   Int ch;
 
@@ -994,11 +995,12 @@ static Int peek_char(USES_REGS1) {
     return false;
   }
   sinp[off] = '\0';
-  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
+  bool rc = Yap_unify_constant(ARG2, MkIntTerm(ch));
+  if (!rc) must_be_char(ARG2);
+  return rc;
 }
 
 /** @pred  peek_char( - _C_) is iso
-
 
 If  _C_ is unbound, or is a character code, and the current input stream is a
 binary stream, read the next byte from the current stream and unify the
@@ -1016,7 +1018,9 @@ static Int peek_char_1(USES_REGS1) {
   }
   int off = put_utf8(sinp, ch);
   sinp[off] = '\0';
-  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
+  bool rc = Yap_unify_constant(ARG2, MkIntTerm(ch));
+  if (!rc) must_be_char(ARG2);
+  return rc;
 }
 
 /** @pred  peek(+ _S_, - _C_) is deprecated
@@ -1029,17 +1033,6 @@ leaving the current stream position unaltered.
 
 Please use the ISO built-in peek_code/2.
 */
-
-/** @pred  peek( - _C_) is iso
-    
-
-If  _C_ is unbound, or is the code for a character, and
-the  currrent input stream  is a text stream, read the next character from the
-current stream and unify its code with  _C_, while
-leaving the current stream position unaltered.
-
-*/
-
 void Yap_flush_all(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }
 
 void Yap_FlushStreams(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }

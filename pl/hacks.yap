@@ -62,7 +62,7 @@ ctrace(G) :-
  * makes available a list with the variable names of the last interaction.
  *
  */
-yap_hacks:context_variables(Vs) :-
+context_variables(Vs) :-
     b_getval(name_variables, Vs).
 
 %% @}
