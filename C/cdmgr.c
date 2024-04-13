@@ -51,7 +51,6 @@ static void asserta_stat_clause(PredEntry *, yamop *, int);
 static void asserta_dynam_clause(PredEntry *, yamop *);
 static void assertz_stat_clause(PredEntry *, yamop *, int);
 static void assertz_dynam_clause(PredEntry *, yamop *);
-static void expand_consult(USES_REGS1);
 static int RemoveIndexation(PredEntry *);
 static Int number_of_clauses(USES_REGS1);
 static Int p_compile(USES_REGS1);
@@ -107,18 +106,13 @@ static assert_control_t get_mode(Term tmode) {
 
 }
 
-static void InitConsultStack(void) {
+static void InitConsult(void) {
   CACHE_REGS
-  LOCAL_ConsultLow = NULL;
-  expand_consult(PASS_REGS1);
+    LOCAL_consult_level++;
 }
 
 void Yap_ResetConsultStack(void) {
-  CACHE_REGS
-  Yap_FreeCodeSpace((char *)LOCAL_ConsultBase);
-  LOCAL_ConsultSp = -1;
-  LOCAL_ConsultBase =  LOCAL_ConsultLow = NULL;
-  LOCAL_ConsultCapacity = InitialConsultCapacity;
+  LOCAL_consult_level-- ;
 }
 
 
@@ -1415,82 +1409,20 @@ void Yap_AssertzClause(PredEntry *p, yamop *cp) {
   }
 }
 
-static consult_obj *c_objp(ssize_t offset USES_REGS) {
-  return (consult_obj *)((ADDR)LOCAL_ConsultBase+offset);
-}
-
-static inline ssize_t consult_top(USES_REGS1) {
-  if ( LOCAL_ConsultSp <0 ) {
-    return 0;
-  }
-  consult_obj *fp = c_objp(LOCAL_ConsultSp PASS_REGS);
-  return (ADDR)&(fp->p[fp->c])-(ADDR)LOCAL_ConsultBase;
-}
-
-static void expand_consult(USES_REGS1) {
-  consult_obj *old;
-
-
-      /* now double consult capacity */
-  if ( LOCAL_ConsultBase==NULL) {
-    LOCAL_ConsultBase = malloc(sizeof(Prop) * InitialConsultCapacity);
-    LOCAL_ConsultCapacity = InitialConsultCapacity;
-    LOCAL_ConsultLow = (consult_obj *)((char*)LOCAL_ConsultBase +  LOCAL_ConsultCapacity);
- LOCAL_ConsultSp = -1;
- } else {
-  old = LOCAL_ConsultBase;
-    LOCAL_ConsultCapacity += InitialConsultCapacity;
-    /* I assume it always works ;-) */
-    LOCAL_ConsultBase = realloc(old,sizeof(Prop) *LOCAL_ConsultCapacity);
-    LOCAL_ConsultLow = LOCAL_ConsultBase +  LOCAL_ConsultCapacity;
-  }
-  
-}
-
-static bool defining_pred(Prop p0 USES_REGS) {
-  ssize_t f = LOCAL_ConsultSp;
-    while (f >= 0) {
-      consult_obj *fp = c_objp(f PASS_REGS);
-      ssize_t i;
-    for (i=0; i<fp->c; ++i) {
-      if (fp->p[i] == p0) {
-        return true;
-      }
-    }
-    f=fp->b;
-    }
-    return false;  
-}
 
 static bool one_more_clause(PredEntry *p, Term t, assert_control_t mode) {
   CACHE_REGS
-  Prop p0 = AbsProp((PropEntry *)p);
 
   if (LOCAL_consult_level == 0)
     return true;
   if (p == LOCAL_LastAssertedPred)
     return false;
   LOCAL_LastAssertedPred = p;
-  
-if (!LOCAL_ConsultBase) {
-    return true;
-  }
-  if (p->cs.p_code.NOfClauses) {
-    consult_obj  *fp;
-if (defining_pred(p0 PASS_REGS)) {
+   if (p->cs.p_code.NOfClauses) {
      LOCAL_LastAssertedPred = p;        
         return false;
 }
-   if ( mode) { // consulting again a predicate in the original file.
-     if (LOCAL_ConsultSp +32 > LOCAL_ConsultCapacity) {
-      expand_consult(PASS_REGS1);
-    }
-   fp = c_objp(LOCAL_ConsultSp PASS_REGS);
-   if (p0!= fp->p[fp->c])
-   fp->p[fp->c++] = p0;
-   }
-  }
-  return true; /* careful */
+   return true; /* careful */
 }
 
 static void addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) {
@@ -1564,9 +1496,6 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
   if ((mode != TermConsult && mode != TermReconsult)) {
     return false;
   }
-  if (LOCAL_consult_level == 0 || LOCAL_ConsultSp<0 ) {
-    return false;
-  }
    if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag) ||
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
    return false;
@@ -1630,8 +1559,6 @@ bool Yap_multiple(PredEntry *ap, Term mode USES_REGS) {
 
   if ((ap->PredFlags & (MultiFileFlag | LogUpdatePredFlag | DynamicPredFlag)) ||
       mode != TermReconsult)
-    return false;
-  if (LOCAL_consult_level == 0)
     return false;
    if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag) ||
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
@@ -2247,24 +2174,6 @@ we should have:
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
 void Yap_init_consult(int mode, const char *filenam) {
-  CACHE_REGS
-  if (LOCAL_ConsultSp<0) {
-    InitConsultStack();
-  }
-   if (LOCAL_ConsultSp + 32 > LOCAL_ConsultCapacity ) {
-    expand_consult(PASS_REGS1);
-  }
-    ssize_t top = consult_top(PASS_REGS1);
-    consult_obj*fp = (consult_obj*)((char*)LOCAL_ConsultBase+top);  
-  fp->f_name = (const unsigned char *)filenam;
- fp->mode = mode;
-   fp->c = 0;
-  fp->b = LOCAL_ConsultSp;
-  LOCAL_ConsultSp = top;
- #if !defined(YAPOR) && !defined(YAPOR_SBA)
-/*  if (LOCAL_consult_level == 0)
-    do_toggle_static_predicates_in_use(TRUE); */
-#endif
   LOCAL_consult_level++;
   LOCAL_LastAssertedPred = NULL;
 }
@@ -2283,26 +2192,6 @@ static Int startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   return (Yap_unify_constant(ARG4, t));
 }
 
-static Int being_consulted(USES_REGS1) { /* '$start_consult'(+Mode)	 */
-
-  const char *s = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
-  ssize_t base = LOCAL_ConsultSp;
-  if (base <0) {
-    return false;
-  } else {
-    base = 0;
-  }
-do {
-    consult_obj*fp = c_objp(base PASS_REGS);
-    if (!strcmp((const char *)fp->f_name,s))
-      return true;
-    if (base ==0) {
-      return false;
-    }
-    base=fp->b;
-  }
-  while (true );
-}
 
 static Int active_pred(USES_REGS1) { /* '$start_consult'(+Mode)	 */
 
@@ -2322,19 +2211,7 @@ static Int p_showconslultlev(USES_REGS1) {
 }
 
 static void end_consult(USES_REGS1) {
-  if (LOCAL_ConsultSp > 0) {
-    consult_obj*fp = (consult_obj*)((char*)LOCAL_ConsultBase+LOCAL_ConsultSp);
-    LOCAL_ConsultSp = fp->b;
-  } else {
-    LOCAL_ConsultSp=-1;
-  }
     LOCAL_LastAssertedPred = NULL;
-    ssize_t base = LOCAL_ConsultSp;
-    if (base >= 0) {
-    consult_obj*fp = (consult_obj*)((char*)LOCAL_ConsultBase+base);
-    if (fp->c)
-    LOCAL_LastAssertedPred = RepPredProp(fp->p[fp->c-1]);
-}
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
 /*  if (LOCAL_consult_level == 0)
     do_toggle_static_predicates_in_use(FALSE);*/
@@ -4571,7 +4448,6 @@ void Yap_InitCdMgr(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);
   Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$being_consulted", 1, being_consulted, SafePredFlag | SyncPredFlag);
   /* gc() may happen during compilation, hence these predicates are
         now unsafe */
   Yap_InitCPred("$predicate_flags", 4, predicate_flags, SyncPredFlag);
