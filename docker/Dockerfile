@@ -31,13 +31,11 @@ RUN apt update && apt -y upgrade  \
     # R support \
     && apt -y install r-cran-rcpp \
     # XML and RDF \
-    && apt -y install libxml2-dev  libraptor2-dev \
-    && apt -y install  openjdk-11-jdk-headless
-
+    && apt -y install  libraptor2-dev \
 
 #yap binary
 
-
+# BDD library
 RUN  git clone https://github.com/vscosta/cudd.git /app/cudd \
     && cd /app/cudd \
     && aclocal\
@@ -47,36 +45,24 @@ RUN  git clone https://github.com/vscosta/cudd.git /app/cudd \
 RUN  git clone https://github.com/vscosta/yap /app/yap --depth=6\
     && mkdir -p /app/yap/build\
     && cd /app/yap/build\
-    && cmake .. -DWITH_DOXYGEN=1  -DWITH_PACKAGES=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    && cmake .. -DWITH_DOXYGEN=1 -DCMAKE_BUILD_TYPE=Release -DWITH_PACKAGES=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja \
     && cmake --build . --parallel --target install
 
-
-RUN  git clone https://github.com/vscosta/doxygen-yap.git /app/doxygen-yap &&\
-    cd /app/doxygen-yap &&\
-    mkdir -p build&&\
-    cd build&&\
-    cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build . --target install --parallel
-
-RUN  mkdir -p /app/yap/build && \
-    cd /app/yap/build &&\
-    doxygen-yap  Doxyfile.dox 
-
-#Python extras
-# RUN  apt-get install -y nodejs\
-#     && sudo pip3 install jupyterlab\
-#     && sudo pip3 install /app/yap/build/packages/python/yap4py\
-#       && sudo pip3 install /app/yap/packages/python/yapkernel \
-#     && sudo python3 -m yapkernel.kernelspec
+RUN 
 
 
-# RUN python3 -m jupyter lab build\
-#     &&mkdir /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/prolog\
-#     &&cp /app/yap/misc/editors/codemirror/meta.js /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/meta.js\
-#     &&cp /app/yap/misc/editors/codemirror/prolog.js /usr/local/share/jupyter/lab/staging/node_modules/codemirror/mode/prolog\
-#     &&python3 -m jupyter lab build\
-#     &&cp /app/yap/misc/tut.ipynb /app
+# RUN  git clone https://github.com/vscosta/doxygen-yap.git /app/doxygen-yap &&\
+#     cd /app/doxygen-yap &&\
+#     mkdir -p build&&\
+#     cd build&&\
+#     cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build . --target install --parallel -G Ninja
 
+# RUN  mkdir -p /app/yap/build && \
+#     cd /app/yap/build &&\
+#     doxygen-yap  Doxyfile.dox 
 
+# RUN cd /app/yap/build 
+cpack --config CPackConfig.cmake
 #R extras
 
 # RUN cd /app/yap/build \

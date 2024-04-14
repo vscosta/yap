@@ -53,18 +53,18 @@ ok = true;
   {
     CACHE_REGS
       if (interpret_strings) {
-      Term t = Yap_StringToNumberTerm(s, NULL,false);
-      if (t) return t;
-      std::string st=s;
-      if (st=="T" || st== "true"  || st== "yes")
+	Term t = Yap_StringToNumberTerm(s, NULL,false);
+	if (t!=TermNil) return t;
+	std::string st=s;
+	if (st=="T" || st== "true"  || st== "yes")
 	return TermTrue;
-      if (st=="F" || st== "false"  || st== "no")
+	if (st=="F" || st== "false"  || st== "no")
 	return TermFalse;
     }
- if (strings_to_strings) {
-   Term rc = MkStringTerm(s);
-   return rc;
- }
+    if (strings_to_strings) {
+      Term rc = MkStringTerm(s);
+      return rc;
+    }
     return MkAtomTerm(Yap_LookupAtom(s));
   }
 
@@ -99,9 +99,8 @@ CACHE_REGS
        case pugi::node_element:
 	{
 	  Term out;
-	  	  	  YAPTerm m = YAPTerm();
-			  std::vector <Term> args = {}
-;
+	  YAPTerm m = YAPTerm();
+	  std::vector <Term> args = {};
 	  std::vector <Term> children = {};
 	  for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute())
 	  {

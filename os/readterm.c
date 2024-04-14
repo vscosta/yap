@@ -962,7 +962,8 @@ static Term scan_to_list(TokEntry * t)
   // trail must be ok by now.]
   if (fe->t) {
     return (!v1 || Yap_unify(v1, fe->vprefix)) &&
-           (!v2 || Yap_unify(v2, fe->np)) && (!v3 || Yap_unify(v3, fe->sp)) &&
+           (!v2 || Yap_unify(v2, fe->np)) &&
+      (!v3 || Yap_unify(v3, fe->sp)) &&
 (! vs ||  !fe->scan || Yap_unify(vs, fe->scan)) &&
                  (!fe->tp || Yap_unify(fe->tp, tpos));
   }

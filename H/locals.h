@@ -75,15 +75,6 @@ LOCAL_INIT(YAP_ULONG_LONG, RetriesCounter, 0L);
 LOCAL_INIT(int, ReductionsCounterOn, 0L);
 LOCAL_INIT(int, PredEntriesCounterOn, 0L);
 LOCAL_INIT(int, RetriesCounterOn, 0L);
-// support for consulting files
-/* current consult stack */
-LOCAL_INIT(ssize_t, ConsultSp, -1);
-/* current maximum number of cells in consult stack */
-LOCAL(ssize_t, ConsultCapacity);
-/* top of consult stack  */
-LOCAL_INIT(struct CONSULT_OBJ *, ConsultBase, NULL);
-/* low-water mark for consult  */
-LOCAL_INIT(struct CONSULT_OBJ *, ConsultLow, NULL);
 LOCAL_INIT(Term, VarNames, ((Term)0));
 LOCAL_INIT(Atom, SourceFileName, NULL);
 LOCAL_INIT(int, SourceFileLineno, 0);

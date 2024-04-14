@@ -23,14 +23,6 @@
 #include "Yatom.h"
 
 
-/** Each entry in the consult stack starts with this header */
-typedef struct CONSULT_OBJ {
-  const unsigned char *f_name; //> file being consulted
-  int mode;   //> consult, reconsult
-  size_t c,b; //> link everything
-  Prop p[1];  //> predicates
-} consult_obj;
-
 /* Either we are assembling clauses or indexing code */
 
 #define ASSEMBLING_CLAUSE 0

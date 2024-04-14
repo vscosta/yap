@@ -103,7 +103,9 @@ file( MAKE_DIRECTORY mkdocs/docs)
 file( MAKE_DIRECTORY mkdocs/docs/images)
 configure_file(yap.md.in ${CMAKE_BINARY_DIR}/README.md)
 configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
-			     
+
+set (Doxygen:doxygen doxygen-yap)
+
 doxygen_add_docs(
   dox
     ${CMAKE_BINARY_DIR}/INSTALL.md
@@ -122,19 +124,6 @@ doxygen_add_docs(
     COMMENT "Generated Xmls"
 )
 
-doxygen_add_docs(
-  dox2
-    ${CMAKE_SOURCE_DIR}/C
-    ${CMAKE_SOURCE_DIR}/H
-    ${CMAKE_SOURCE_DIR}/H/generated
-    ${CMAKE_SOURCE_DIR}/CXX
-    ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/library
-    ${CMAKE_SOURCE_DIR}/os
-    ${CMAKE_SOURCE_DIR}/OPTYap
-    ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
-    COMMENT "Generated Xmls"
-)
 
 
 add_custom_target (mkdocs
@@ -157,7 +146,7 @@ COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.i
       )
 
     add_custom_target(moxygen
-      COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../../xml -g %.md -p -H
+      COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../../xml -g %s.md -p -H
       WORKING_DIRECTORY mkdocs/docs/mox
       DEPENDS dox2
      )

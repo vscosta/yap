@@ -205,6 +205,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- set_prolog_flag(multiline_quoted_text, true).
 :-source.
 :- module(problog_lfi,[do_learning/1,
 		       do_learning/2,
