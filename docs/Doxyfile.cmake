@@ -3,13 +3,13 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 
 
 set(DOX_MD_FILES
-${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
-${CMAKE_SOURCE_DIR}/docs/md/fli_c_xx.md
-${CMAKE_SOURCE_DIR}/docs/md/load_files.md
-${CMAKE_SOURCE_DIR}/docs/md/packages.md
-${CMAKE_SOURCE_DIR}/docs/md/run.md
-${CMAKE_SOURCE_DIR}/docs/md/swi.md
-${CMAKE_SOURCE_DIR}/docs/md/syntax.md
+# ${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
+# ${CMAKE_SOURCE_DIR}/docs/md/fli_c_xx.md
+# ${CMAKE_SOURCE_DIR}/docs/md/load_files.md
+# ${CMAKE_SOURCE_DIR}/docs/md/packages.md
+# ${CMAKE_SOURCE_DIR}/docs/md/run.md
+# ${CMAKE_SOURCE_DIR}/docs/md/swi.md
+# ${CMAKE_SOURCE_DIR}/docs/md/syntax.md
 )
 
 file( MAKE_DIRECTORY sphinx )

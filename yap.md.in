@@ -17,21 +17,21 @@ The manual is organised as follows:
 
 * [run](run)
 
-* [Core Facilities in YAP](group__Builtins.md)
+* [Core Facilities in YAP](group__Builtins)
 
-* [The YAP Library](group__YAPLibrary.md)
+* [The YAP Library](group__YAPLibrary)
 
-* [Writing Programs in YAP](group__YAPProgramming.md)
+* [Writing Programs in YAP](group__YAPProgramming)
 
-* [Extending YAP](group__YapExtensions.md)
+* [Extending YAP](group__YapExtensions)
 
-* [The Foreign Language Interfaces](fli_c_xx.md)
+* [The Foreign Language Interfaces](fli_c_xx)
 
-* [YAP Packages](packages.md)
+* [YAP Packages](packages)
 
 
 
 \author Vitor Santos Costa,
 \author Luís Damas,
 \author Rogério Reis
-\author Rúben Azevedo
+author Rúben Azevedo
