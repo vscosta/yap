@@ -25,6 +25,9 @@ run_task(compound([[refid(Ref),kind(`predicate`)],name([[],Name])|_])) -->
 run_task(compound([[refid(Ref),kind(`group`)],name([[],Name])|_])) -->
     !,
     [group(Ref,Name)].
+run_task(compounddef([[id(Ref),kind(`group`)],compoundname([[],Name])|_])) -->
+    !,
+    [group(Ref,Name)].
 run_task(compound([[refid(Ref),kind(`concept`)],name([[],Name])|_])) -->
     !,
     [predicate(Ref,Name)].
@@ -35,7 +38,6 @@ run_task(compound([[refid(_Ref),kind(`class`)],name(_Name)|_])) -->
     !.
 run_task(compound([[refid(_),kind(`page`)],name(_)|_])) -->
     !.
-run_task(compound([[refid(_),kind(`file`)],name(_)|_])) --> !.
 run_task(compound([[refid(_),kind(`file`)],name(_)|_])) --> !.
 run_task(compound([[refid(_),kind(`dir`)],name(_)|_])) --> !.
 run_task(compound([[refid(_),kind(`namespace`)],name([[],_Name])|_])) -->
@@ -73,25 +75,25 @@ fetch(predicate(Ref,Name)) :-
     !,
     arg(7,Descriptor,Text),
 %    add_tail(LText,Text),
-    ( var(Text) -> Text = `` ; true ),
+    ( var(Text) -> Text = Text0 ; true ),
     assert( Descriptor  ).
 fetch(group(Ref,Name)) :-
-	\+ visited(Ref),
-	    assert(visited(Ref)),
-	atom_concat(['../xml/',Ref,'.xml'],G),
+    \+ visited(Ref),
+    assert(visited(Ref)),
+    atom_concat(['../xml/',Ref,'.xml'],G),
     catch(load_xml(G,[doxygen([_|Info])]),_,fail),
     functor(Descriptor,group,8),
     arg(1,Descriptor,Ref),
     arg(2,Descriptor,Name),
-writeln(+Name),
     once(foldl(par(0,Descriptor),Info,``,Text0)),
-   arg(6,Descriptor,Brief),
-   ( var(Brief) -> Brief = `` ; true ),
+    arg(6,Descriptor,Brief),
+    ( var(Brief) -> Brief = `` ; true ),
     arg(7,Descriptor,Text),
-    ( var(Text) ->Text = `` ; true ),
-   arg(8,Descriptor,Title),
+    ( var(Text) ->Text = Text0 ; true ),	
+    arg(8,Descriptor,Title),
     ( var(Title) -> Title = Name ; true ),
-%writeln(Descriptor),
+    writeln(Name),
+    
     !,
    assert( Descriptor).
 
@@ -120,18 +122,25 @@ rpar(U,Ts) -->
     foldl(par(U),Ts),
          cstr(`\n`).
 
-par(_U0,_,C)--> {writeln(xxxxxxxxxxxxxxx:C), fail}.
+%par(_U0,_,C)--> {writeln(xxxxxxxxxxxxxxx:C), fail}.
 par(U0,Info,sectiondef([_|Paras])) -->
-    foldl(par(U0,Info),Paras).
+    foldl(par(U0,Info),Paras),
+    add_nl(0).
 par(U0,Info,sect1([[id(Id)],title([[],Title])|Paras])) -->
     mcstr([`## `,Title,`               {#`,Id,`};`]),
     add_nl(U0),
-    foldl(par(U0,Info),Paras).
+    foldl(par(U0,Info),Paras),
+    add_nl(0).
 par(U0,Info,sect2([[id(Id)],title([[],Title])|Paras])) -->
     !,
     mcstr([`### `,Title,`               {#`,Id,`};`]),
     add_nl(U0),
-    foldl(par(U0,Info),Paras).
+    foldl(par(U0,Info),Paras),
+    add_nl(0).
+par(U0,Info,compounddef([_|Ps])) -->
+    !,
+   foldl(par(U0,Info),Ps) ,
+    add_nl(0).
 par(_U0,Info,innergroup([[refid(Ref)],Name])) -->
     !,
     {arg(1,Info,Ref0),
@@ -139,13 +148,14 @@ par(_U0,Info,innergroup([[refid(Ref)],Name])) -->
 par(_U0,Info,innerclass([[refid(Ref),_],Name])) -->
     !,
     {arg(1,Info,Ref0),
-    assert(group(Ref0,Ref,Name))}.
+    assert(pred(Ref0,Ref,Name))}.
 
 par(U0,Info,
 	briefdescription([[]|Paras])) -->
     !,
     {arg(6,Info,Out),
-    foldl(par(U0,Info),Paras,``,Out)}.
+    foldl(par(U0,Info),Paras,``,Out)},
+    add_nl(0).
 par(U0,Info,detaileddescription([[]|Paras]))-->
     {
       arg(7,Info, D0),
@@ -187,9 +197,6 @@ par(_U0,_Info,compoundname(_)) -->
     !.
 par(_U0,_Info,innerfile(_)) -->
     !.
-par(U0,Info,compounddef([_|Ps])) -->
-    !,
-   foldl(par(U0,Info),Ps) .
 par(U,Info,mdash(_)) -->
      !,
      par(U,Info,`-`).
@@ -212,6 +219,8 @@ par(_U0,_Info,sectiondef([[kind(`def`)|_]|_])) -->
     !.
 par(_U0,_Info,sectiondef([[kind(`enum`)|_]|_])) -->
     !.
+    par(_U0,_Info,sectiondef([[kind(`struct`)|_]|_])) -->
+    !.
 par(_U0,_Info,sectiondef([[kind(`typedef`)|_]|_])) -->
     !.
 par(U,Info,sectiondef([[kind(_)]|Text])) -->
@@ -220,7 +229,8 @@ par(U,Info,sectiondef([[kind(_)]|Text])) -->
     foldl(par(U,Info),Text).
 par(_,_,rsquo(_)) -->
      !,
-     cstr(`\'`).
+     cstr(`\'`),
+    add_nl(0).
 par(_,_,zwj(_)) -->
      !.
 par(U,_Info, definition([_,Name])) -->
@@ -242,17 +252,21 @@ par(_U, _Info, inbodydescription([])) -->
     !.
 par(U, Info, inbodydescription([_|Paras])) -->
     !,
-      foldl(par(U,Info),Paras).
+      foldl(par(U,Info),Paras),
+    add_nl(0).
 par(_U, _Info, briefdescription([])) -->
     !.
 par(U,Info, briefdescription([_|Paras])) -->
     !,
-      foldl(par(U,Info),Paras).
+      foldl(par(U,Info),Paras),
+    add_nl(0).
 par(_U, _Info, detaileddescription([])) -->
-    !.
+    !,
+    add_nl(0).
 par(U,Info, detaileddescription([_|Paras])) -->
     !,
-    foldl(par(U,Info),Paras).
+    foldl(par(U,Info),Paras),
+    add_nl(0).
 %:- start_low_level_trace.
 par(U,Info,emphasis([[]|Text])) -->
     !,
@@ -289,13 +303,16 @@ par(U0,Item,listitem([_|Text])) -->
 par(_U0,_,para([_,Seq]))-->
     {string(Seq)},
     !,
-    cstr(Seq).
+    cstr(Seq),
+    add_nl(0).
 par(U0,Item,para([_|Seq]))-->
     !,
-        foldl(par(U0,Item),Seq).
+        foldl(par(U0,Item),Seq),
+	add_nl(0).
 par(U0,Item,simplesect([_,para([_|Seq])])) -->
     !,
-    foldl(par(U0,Item),Seq).
+    foldl(par(U0,Item),Seq),
+    add_nl(0).
 par(U0,Item,xrefsect([[id(ID)],xreftitle([[],Title]),xrefdescription([[]|Seq])])) -->
     !,
     add_nl(U0),
@@ -311,7 +328,8 @@ par(U0,Item, programlisting([_|L])) -->
     !,
     mcstr([`\n\`\`\`\n`]),
     foldl(codeline(U0,Item),L),
-    mcstr([`\n\`\`\`\n`]).
+    mcstr([`\n\`\`\`\n`]),
+    add_nl(0).
 par(U0,Item, itemizedlist([[]|L])) -->
     !,
     foldl(item(U0,Item),L).
@@ -415,8 +433,10 @@ add_nl(U,S0,SF) :-
 merge_nodes :-    
     group(Id,_Name,File,Line,Column,Brief,Text,Title),
     atomic_concat(['docs/',Id,'.md'],F),
-    open(F,write,S),
+    (stream_property(S0,[alias(group)])->close(S0);true),
+    open(F,write,S,[alias(group)]),
  format(S,'# ~s~n~n~s~n',[Title,Brief]),
+    writeln(Name),
     (group(Id,_,_)
       ->
 	  format(S,'## Summary~n~n### SubGroups~n~n' ,[]),
@@ -473,8 +493,7 @@ strip_late_blanks(Brief,Brieffer) :-
 strip_late_blanks(Brief,Brieffer) :-
     atom(Brief),
     sub_atom(Brief,Brief1,1,0,C),
-    atom_codes(C,[SC]),
-    code_type_white(SC),
+    char_type_white(C),
     !,
     sub_atom(Brief,0,Brief1,1,Brieffie),
     strip_late_blanks(Brieffie,Brieffer).
