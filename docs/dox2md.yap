@@ -69,7 +69,7 @@ fetch(predicate(Ref,Name)) :-
     functor(Descriptor,predicate,8),
     arg(1,Descriptor,Ref),
     arg(2,Descriptor,Name),
-    once(maplist(xml2txt(0,Descriptor),Info)),
+    once(foldl(par(0,Descriptor),Info,``,Text0)),
     !,
     arg(7,Descriptor,Text),
 %    add_tail(LText,Text),
@@ -83,85 +83,17 @@ fetch(group(Ref,Name)) :-
     functor(Descriptor,group,8),
     arg(1,Descriptor,Ref),
     arg(2,Descriptor,Name),
-    once(maplist(xml2txt(0,Descriptor),Info)),
+writeln(+Name),
+    once(foldl(par(0,Descriptor),Info,``,Text0)),
    arg(6,Descriptor,Brief),
    ( var(Brief) -> Brief = `` ; true ),
     arg(7,Descriptor,Text),
     ( var(Text) ->Text = `` ; true ),
    arg(8,Descriptor,Title),
     ( var(Title) -> Title = Name ; true ),
+%writeln(Descriptor),
     !,
    assert( Descriptor).
-fetch(_).
-
-xml2txt(U0,Info,compounddef([_|Ps])) :-
-    maplist(xml2txt(U0,Info),Ps),
-    !.
-xml2txt(_U0,_Info,compoundname(_)) :- !.
-xml2txt(_U0,_Info,sectiondef([[kind(`func`)|_]|_])) :-
-    !.
-xml2txt(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) :-
-    !.
-xml2txt(_U0,_Info,sectiondef([[kind(`def`)|_]|_])) :-
-    !.
-xml2txt(_U0,_Info,sectiondef([[kind(`enum`)|_]|_])) :-
-    !.
-xml2txt(_U0,_Info,sectiondef([[kind(`typedef`)|_]|_])) :-
-    !.
-xml2txt(_U0,_Info,sectiondef([[kind(`user-defined`)|_]|_])) :-
-    !.
-xml2txt(U0,Info,sectiondef([_|Paras])) :-
-    foldl(par(U0),Paras,``,D),
-    arg(7,Info,D0),
-(var(D0)->D0=D;arg(1,Info,Id),assert(extra(Id,D))).
-xml2txt(U0,Info,sect1([[id(Id)],title([[],S])|Paras])) :-
-    (Id == `group__AttributedVariables_1autotoc_md7` -> assert(show);true),
-    !,
-    mcstr([`## `,S,`               {#`,Id,`};`],``,S0),
-    add_nl(U0,S0,S1),
-    foldl(par(U0),Paras,S1,D),
-    arg(7,Info,D0),
-    (var(D0)->D0=D;arg(1,Info,Id0),assert(extra(Id0,D))).
-xml2txt(U0,Info,sect2([[id(Id)],title([[],S])|Paras])) :-
-    !,
-    mcstr([`### `,S,`               {#`,Id,`};`],``,S0),
-    add_nl(U0,S0,S1),
-    foldl(par(U0),Paras,S1,D),
-    arg(7,Info,D0),
-    (var(D0)->D0=D;arg(1,Info,Id0),assert(extra(Id0,D))).
-xml2txt(_U0,Info,innergroup([[refid(Ref)],Name])) :-
-    !,
-    arg(1,Info,Ref0),
-    assert(group(Ref0,Ref,Name)).
-xml2txt(_U0,Info,innerclass([[refid(Ref)|_],Name])) :-
-    !,
-    arg(1,Info,Ref0),
-	assert(pred(Ref0,Ref,Name)).
-
-xml2txt(_U0,_Info,innerfile(_)).
-xml2txt(U0,Info,
-	briefdescription([[]|Paras])) :-
-    !,
-    arg(6,Info,Out),
-    foldl(xml2tex(U0),Paras,``,Out).
-xml2txt(U0,Info,detaileddescription([[]|Paras])) :-
-    !,
-    arg(7,Info, D0),
-    foldl(xml2tex(U0),Paras,``,Desc),
-    (var(D0)->D0=Desc;arg(1,Info,Id),assert(extra(Id,Desc))).
-xml2txt(_U0,GT,location([[file(File),line(Line),column(Column)|_]])) :-
-    !,
-    arg(3,GT,File),
-    arg(4,GT,Line),	
-    arg(5,GT,Column).
-xml2txt(_,GT,title([[],Title])) :-
-     !,
-     arg(8,GT,Title).
-xml2txt(_,_GT,initializer([[]|_L])) :- !.
-xml2txt(_,_GT,listofallmembers([[]|_L])) :-
-    !.
-xml2txt(_,_GT,includes(_)).
-xml2txt(_,_,Task) :- writeln(xml:Task), !.
 
 add2tail([V|_],V) :- !.
 add2tail([_|L], V) :-
@@ -174,13 +106,6 @@ compacttail([V|Vs]) -->
     !,
     cstr(V),
     compacttail(Vs).
-
-xml2tex(U0,para([[]|Seq]))-->
-    add_space(U0),
-    foldl(par(U0),Seq),
-    !,
-    add_nl(U0).
-xml2tex(_U0,Task)-->{writeln(xml2tex:Task), !, fail}.
 
 
     
@@ -195,224 +120,284 @@ rpar(U,Ts) -->
     foldl(par(U),Ts),
          cstr(`\n`).
 
-par(U0,C)--> {show,writeln(xxxxxxxxxxxxxxx:C), fail}.
-par(U0,memberdef([_|Seq]))-->
+par(_U0,_,C)--> {writeln(xxxxxxxxxxxxxxx:C), fail}.
+par(U0,Info,sectiondef([_|Paras])) -->
+    foldl(par(U0,Info),Paras).
+par(U0,Info,sect1([[id(Id)],title([[],Title])|Paras])) -->
+    mcstr([`## `,Title,`               {#`,Id,`};`]),
+    add_nl(U0),
+    foldl(par(U0,Info),Paras).
+par(U0,Info,sect2([[id(Id)],title([[],Title])|Paras])) -->
+    !,
+    mcstr([`### `,Title,`               {#`,Id,`};`]),
+    add_nl(U0),
+    foldl(par(U0,Info),Paras).
+par(_U0,Info,innergroup([[refid(Ref)],Name])) -->
+    !,
+    {arg(1,Info,Ref0),
+    assert(group(Ref0,Ref,Name))}.
+par(_U0,Info,innerclass([[refid(Ref),_],Name])) -->
+    !,
+    {arg(1,Info,Ref0),
+    assert(group(Ref0,Ref,Name))}.
+
+par(U0,Info,
+	briefdescription([[]|Paras])) -->
+    !,
+    {arg(6,Info,Out),
+    foldl(par(U0,Info),Paras,``,Out)}.
+par(U0,Info,detaileddescription([[]|Paras]))-->
+    {
+      arg(7,Info, D0),
+      foldl(par(U0,Info),Paras,``,Desc),
+      (var(D0)->D0=Desc;arg(1,Info,Id),
+	assert(extra(Id,Desc)))
+      }.
+par(_U0,GT,location([[file(File),line(Line),column(Column)|_]])) -->
+    !,
+    {
+      arg(3,GT,File),
+    arg(4,GT,Line),	
+      arg(5,GT,Column)
+      }.
+par(_,GT,title([[],Title])) -->
+     !,
+     {arg(8,GT,Title) }.
+par(_,_GT,initializer([[]|_L])) -->
+    !.
+par(_,_GT,listofallmembers([[]|_L])) -->
+    !.
+par(_,_GT,includes(_)) --> !.
+par(_,_,memberdef([[kind(`variable`)|_Seq]|_]))-->
+    !.
+par(_,_,memberdef([[kind(`function`)|_Seq]|_]))-->
+    !.
+par(U0,Info,memberdef([_|Seq]))-->
     !,
     { U is U0+4 },
     cstr(`* ` ),
-    foldl(par(U),Seq),
+    foldl(par(U,Info),Seq),
     add_nl(U).
-par(U,lsquo(_)) -->
+par(U,Info,lsquo(_)) -->
      !,
-     par(U,`\``).
-par(_,param(_)) -->
+     par(U,Info,`\``).
+par(_,_,param(_)) -->
 !.	
-par(U,mdash(_)) -->
+par(_U0,_Info,compoundname(_)) -->
+    !.
+par(_U0,_Info,innerfile(_)) -->
+    !.
+par(U0,Info,compounddef([_|Ps])) -->
+    !,
+   foldl(par(U0,Info),Ps) .
+par(U,Info,mdash(_)) -->
      !,
-     par(U,`-`).
-par(U,ndash(_)) -->
+     par(U,Info,`-`).
+par(U,Info,ndash(_)) -->
      !,
-     par(U,`-`).
-par(_,true) -->
+     par(U,Info,`-`).
+par(_,_,true) -->
      !,
      cstr(`true`).
-par(_,false) -->
+par(_,_,false) -->
      !,
     cstr(`false`).
-par(_,ulink([[url(_)],_Text])) -->
+par(_,_,ulink([[url(_)],_Text])) -->
      !.
-par(U,sectiondef([[kind(`user-defined`)]|Text])) -->
+par(_U0,_Info,sectiondef([[kind(`func`)|_]|_])) -->
+    !.
+par(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) -->
+    !.
+par(_U0,_Info,sectiondef([[kind(`def`)|_]|_])) -->
+    !.
+par(_U0,_Info,sectiondef([[kind(`enum`)|_]|_])) -->
+    !.
+par(_U0,_Info,sectiondef([[kind(`typedef`)|_]|_])) -->
+    !.
+par(U,Info,sectiondef([[kind(_)]|Text])) -->
     !,
     add_nl(U),
-    foldl(par(U),Text).
-par(U,sect1([[id(Id)],title([],S)|Text])) -->
-    !,
-    mcstr([`## `,S,`               {#`,Id,`};`]),
-    add_nl(U),
-    foldl(par(U),Text).
-par(U,sect2([[id(Id)],title([],S)|Text])) -->
-    !,
-    mcstr([`### `,S,`               {#`,Id,`};`]),
-    add_nl(U),
-    foldl(par(U),Text).
-par(_,rsquo(_)) -->
+    foldl(par(U,Info),Text).
+par(_,_,rsquo(_)) -->
      !,
      cstr(`\'`).
-par(_,zwj(_)) -->
+par(_,_,zwj(_)) -->
      !.
-par(U, definition([_,Name])) -->
+par(U,_Info, definition([_,Name])) -->
     cstr(Name),
     !,
     cstr(`:`),
     add_nl(U).
-par(_U, argsstring(_)) -->
+par(_U,_Info, argsstring(_)) -->
     !.
-par(_U, initializer(_)) -->
+par(_U,_Info, initializer(_)) -->
     !.
-par(_U, name(_)) -->
+par(_U,_Info, name(_)) -->
     !.
-par(_U, type(_)) -->
+par(_U, _Info, type(_)) -->
     !.
-par(_U, location(_)) -->
+par(_U, _Info, location(_)) -->
     !.
-par(_U, inbodydescription([])) -->
+par(_U, _Info, inbodydescription([])) -->
     !.
-par(U, inbodydescription([_|Paras])) -->
+par(U, Info, inbodydescription([_|Paras])) -->
     !,
-      foldl(par(U),Paras).
-par(_U, briefdescription([])) -->
+      foldl(par(U,Info),Paras).
+par(_U, _Info, briefdescription([])) -->
     !.
-par(U, briefdescription([_|Paras])) -->
+par(U,Info, briefdescription([_|Paras])) -->
     !,
-      foldl(par(U),Paras).
-par(_U, detaileddescription([])) -->
+      foldl(par(U,Info),Paras).
+par(_U, _Info, detaileddescription([])) -->
     !.
-par(U, detaileddescription([_|Paras])) -->
+par(U,Info, detaileddescription([_|Paras])) -->
     !,
-    foldl(par(U),Paras).
+    foldl(par(U,Info),Paras).
 %:- start_low_level_trace.
-par(U,emphasis([[]|Text])) -->
+par(U,Info,emphasis([[]|Text])) -->
     !,
     cstr(`_`),
-    foldl(par(U),Text),
+    foldl(par(U,Info),Text),
     cstr(`_`).
-par(U,computeroutput([_|Text])) -->
+par(U,Info,computeroutput([_|Text])) -->
     !,
     cstr(`\``),
-    foldl(par(U),Text),
+    foldl(par(U,Info),Text),
     cstr(`\``).
-par(U,verbatim([[]|Text])) -->
+par(U,Info,verbatim([[]|Text])) -->
     !,
     cstr(`\``),
-    foldl(par(U),Text),
+    foldl(par(U,Info),Text),
     cstr(`\``).
-par(U,bold([[]|Text])) -->
+par(U,Info,bold([[]|Text])) -->
     !,
     cstr(`*`),
-    foldl(par(U),Text),
+    foldl(par(U,Info),Text),
     cstr(`*`).
-par(U,anchor([[_Id]|Text])) -->
+par(U,Info,anchor([[_Id]|Text])) -->
     !,
-    foldl(par(U),Text).
-par(_,linebreak(_)) -->
+    foldl(par(U,Info),Text).
+par(_,_,linebreak(_)) -->
     !,
     cstr(`\n`).
-par(U0,listitem([_|Text])) -->
+par(U0,Item,listitem([_|Text])) -->
     !,
-    add_nl(U),
     {U is U0+4},
+    add_nl(U),
     cstr(`*`),
-foldl(par(U),Text).
-par(_U0,para([_,Seq]))-->
+    foldl(par(U,Item),Text).
+par(_U0,_,para([_,Seq]))-->
     {string(Seq)},
     !,
     cstr(Seq).
-par(U0,para([_|Seq]))-->
+par(U0,Item,para([_|Seq]))-->
     !,
-        foldl(par(U0),Seq).
-par(U0,simplesect([_,para([_|Seq])])) -->
+        foldl(par(U0,Item),Seq).
+par(U0,Item,simplesect([_,para([_|Seq])])) -->
     !,
-    foldl(par(U0),Seq).
-par(U0,xrefsect([_|Seq])) -->
+    foldl(par(U0,Item),Seq).
+par(U0,Item,xrefsect([[id(ID)],xreftitle([[],Title]),xrefdescription([[]|Seq])])) -->
     !,
-    foldl(par(U0),Seq).
-par(U0,xrefdescription([_|Seq])) -->
+    add_nl(U0),
+    {foldl(par(U0,Item),Seq,``,Text) },
+    mcstr([`[`,Title,`](#`,ID,`)      `,Text]).
+par(U0,Item,xrefdescription([_|Seq])) -->
     !,
-    foldl(par(U0),Seq).
-par(U0,xreftitle([[],Seq])) -->
+    foldl(par(U0,Item),Seq).
+par(U0,Item,xreftitle([[],Seq])) -->
     !,
-    foldl(par(U0),Seq).
-par(U0, programlisting([_|L])) -->
+    foldl(par(U0,Item),Seq).
+par(U0,Item, programlisting([_|L])) -->
     !,
     mcstr([`\n\`\`\`\n`]),
-    foldl(codeline(U0),L),
+    foldl(codeline(U0,Item),L),
     mcstr([`\n\`\`\`\n`]).
-par(U0, itemizedlist([[]|L])) -->
+par(U0,Item, itemizedlist([[]|L])) -->
     !,
-    foldl(item(U0),L).
-par(U0,orderedlist([[]|L])) -->
+    foldl(item(U0,Item),L).
+par(U0,Item,orderedlist([[]|L])) -->
     !,
-    foldl(oitem(U0),L).
-par(_U0, parameterlist(_)) -->
+    foldl(oitem(U0,Item),L).
+par(_U0, _, parameterlist(_)) -->
     !.
-par(_U0, bodystart(_)) -->
+par(_U0, _, bodystart(_)) -->
     !.
-par(_U0, bodylist(_)) -->
+par(_U0, _, bodylist(_)) -->
     !.
-par(_U0, bodyend(_)) -->
+par(_U0, _, bodyend(_)) -->
     !.
-par(_U0, enumvalue(_)) -->
+par(_U0, _, enumvalue(_)) -->
     !.
-par(U0, codeline([_|Par])) -->
+par(U0,Item, codeline([_|Par])) -->
     !,
-    foldl(cline(U0),Par).
-par(U0,highlight([_|Seq])) -->
+    foldl(cline(U0,Item),Par).
+par(U0,Item,highlight([_|Seq])) -->
     !,
-    foldl(par(U0),Seq).
-par(U0, par(_,Par)) -->
+    foldl(par(U0,Item),Seq).
+par(U0,Item, par(_,Par)) -->
     !,
-    par(U0,Par).
+    par(U0,Item,Par).
 /*    foldl(parameteritem(U0),L,S0,SF).
-par(U, parameterlist([[_|_]|Seq])) -->
+par(U,Info, parameterlist([[_|_]|Seq])) -->
     foldl(par(U),Seq,S0,SF).
 */
-par(_U, ref([[refid(R)|_],Name])) -->
+par(_U,_Info, ref([[refid(R)|_],Name])) -->
     { string(Name) },
     !,
     mcstr([`[`,Name,`](#`,R,`)`]).
-par(_U, ref([[refid(R)|_T]|Name])) -->
+par(_U,_, ref([[refid(R)|_T]|Name])) -->
     !,
     { atom_string(Name,SName) },
     mcstr([`[`,SName,`](#`,R,`)`]).
-par(_U0, sp(_)) -->
+par(_U0,_, sp(_)) -->
     !,
     cstr(`.`).
-par(U0, blockquote([_|Pars])) -->
+par(U0,Item, blockquote([_|Pars])) -->
     !,
     cstr(`\``),
-    foldl(par(U0),Pars),
+    foldl(par(U0,Item),Pars),
     cstr(`\``).
-par(_U0, A) -->
+par(_U0,_, A) -->
     { string(A) },
     !,
      cstr(A).
-par(_U0, A) -->
+par(_U0,_, A) -->
     { atom(A) },
     !,
     { atom_string(A,S) },
     cstr(S).
-par(_U0, A) -->
+par(_U0, _,A) -->
     { number(A) },
     !,
     { number_string(A,S) },
     cstr(S).
-par(_,Task) --> {writeln(par:Task)}.
+par(_,_,Task) --> {writeln(par:Task)}.
 
-item(U0,listitem([[]|Seq]),S0,SF) :-
+item(U0,Item,listitem([[]|Seq]),S0,SF) :-
     string_concat(S0,`- `,S1),
     U is U0+4,
-    foldl(par(U),Seq,S1,SF).
+    foldl(par(U,Item),Seq,S1,SF).
 
-oitem(U0,listitem([[]|Seq]),S0,SF) :-
+oitem(U0,Item,listitem([[]|Seq]),S0,SF) :-
     string_concat(S0,`1. `,S1),
     U is U0+4,
-    foldl(par(U),Seq,S1,SF).
+    foldl(par(U,Item),Seq,S1,SF).
 
-parameteritem(_U0,parameteritem([[]|_Seq]),S,S) :-
+parameteritem(_U0,_Item,parameteritem([[]|_Seq]),S,S) :-
     !.
-codeline(U0,codeline([_|Seq]),S0,SF) :-
+codeline(U0,Item,codeline([_|Seq]),S0,SF) :-
     !,
-    foldl(cline(U0),Seq,S0,SF).
-codeline(_U0,Seq,S0,SF) :-
+    foldl(cline(U0,Item),Seq,S0,SF).
+codeline(_U0,_Item,Seq,S0,SF) :-
     string(Seq),
     string_concat(S0,Seq,SF).
 
-cline(_,sp(_),S,S) :-
+cline(_,_,sp(_),S,S) :-
     !.
-cline(U0,highlight([_|Codes]),S0,SF) :-
+cline(U0,Item,highlight([_|Codes]),S0,SF) :-
     !,
-    foldl(par(U0),Codes,S0,SF).
-cline(_,S,S0,SF) :-
+    foldl(par(U0,Item),Codes,S0,SF).
+cline(_,_,S,S0,SF) :-
     !,
     string_concat(S0,S,SF).
 
@@ -427,7 +412,7 @@ add_nl(U,S0,SF) :-
     add_space(U,S0,SI),
     string_concat(SI,`\n\n`,SF).
 
-merge_nodes :-
+merge_nodes :-    
     group(Id,_Name,File,Line,Column,Brief,Text,Title),
     atomic_concat(['docs/',Id,'.md'],F),
     open(F,write,S),

@@ -51,7 +51,7 @@ variable. Unification will resume after this call.
 + The user-defined predicate
 attribute_goal/2 converts from an attribute to a goal.
 
-+ The user-defined predicate project_attributes/2 is used from a set
+o+ The user-defined predicate project_attributes/2 is used from a set
 of variables into a set of constraints or goals. One application of
 project_attributes/2 is in the top-level, where it is used to output
 the set of floundered constraints at the end of a query.

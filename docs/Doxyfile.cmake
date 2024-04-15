@@ -3,13 +3,13 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 
 
 set(DOX_MD_FILES
-# ${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
-# ${CMAKE_SOURCE_DIR}/docs/md/fli_c_xx.md
-# ${CMAKE_SOURCE_DIR}/docs/md/load_files.md
-# ${CMAKE_SOURCE_DIR}/docs/md/packages.md
-# ${CMAKE_SOURCE_DIR}/docs/md/run.md
-# ${CMAKE_SOURCE_DIR}/docs/md/swi.md
-# ${CMAKE_SOURCE_DIR}/docs/md/syntax.md
+ ${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
+ ${CMAKE_SOURCE_DIR}/docs/md/fli_c_xx.md
+ ${CMAKE_SOURCE_DIR}/docs/md/load_files.md
+ ${CMAKE_SOURCE_DIR}/docs/md/packages.md
+ ${CMAKE_SOURCE_DIR}/docs/md/run.md
+ ${CMAKE_SOURCE_DIR}/docs/md/swi.md
+ ${CMAKE_SOURCE_DIR}/docs/md/syntax.md
 )
 
 file( MAKE_DIRECTORY sphinx )
@@ -17,6 +17,7 @@ file( MAKE_DIRECTORY sphinx/source)
 file( MAKE_DIRECTORY sphinx/source/images)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/Makefile DESTINATION sphinx)
 file( COPY ${DOX_MD_FILES} DESTINATION sphinx/source)
+file( COPY ${DOX_MD_FILES} DESTINATION mkdocs/docs)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/conf.py DESTINATION sphinx/source)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/index.rst DESTINATION sphinx/source)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION  sphinx/source/images)
@@ -103,19 +104,20 @@ file( MAKE_DIRECTORY mkdocs/docs)
 file( MAKE_DIRECTORY mkdocs/docs/images)
 configure_file(yap.md.in ${CMAKE_BINARY_DIR}/README.md)
 configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
+configure_file(yap.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/index.md)
+configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/INSTALL.md)
 
 set (Doxygen:doxygen doxygen-yap)
 
 doxygen_add_docs(
   dox
-    ${CMAKE_BINARY_DIR}/INSTALL.md
+	${CMAKE_SOURCE_DIR}/docs/md/api.md
+	${CMAKE_BINARY_DIR}/INSTALL.md
     ${CMAKE_BINARY_DIR}/README.md
-    ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/docs/extra
     ${CMAKE_SOURCE_DIR}/C
     ${CMAKE_SOURCE_DIR}/H
     ${CMAKE_SOURCE_DIR}/H/generated
-    ${CMAKE_SOURCE_DIR}/CXX
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/library
@@ -126,24 +128,18 @@ doxygen_add_docs(
 
 
 
-add_custom_target (mkdocs
+add_custom_target (mkdocs 
   COMMAND ${CMAKE_COMMAND} -E make_directory docs
-   COMMAND ${CMAKE_COMMAND} -E make_directory docs/mox
- COMMAND ${CMAKE_COMMAND} -E make_directory docs/images
-  COMMAND ${CMAKE_COMMAND} -E make_directory  docs/images/images
+  COMMAND ../yap -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main
+     COMMAND ${CMAKE_COMMAND} -E make_directory  docs/images/images
   COMMAND ${CMAKE_COMMAND} -E make_directory docs/javascripts
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs.yml
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  docs/javascripts/highlight.min.js
 COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png   docs/images/yap_256x256x32.png
 COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico  docs/images/favicon.ico
-  COMMAND yap -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main
-  COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/INSTALL.md docs
-  COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/README.md docs/index.md
-  COMMAND ${CMAKE_COMMAND} -E copy ${DOX_MD_FILES} docs
-  COMMAND  mkdocs build
-  DEPENDS dox docs/mkdocs/mkdocs.yml docs/dox2md.yap ${MD_TARGETS}
+DEPENDS dox docs/mkdocs/mkdocs.yml docs/dox2md.yap ${MD_TARGETS}
   WORKING_DIRECTORY mkdocs
-      )
+   )
 
     add_custom_target(moxygen
       COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../../xml -g %s.md -p -H
