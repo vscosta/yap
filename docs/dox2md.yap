@@ -304,14 +304,17 @@ par(_U0,_,para([_,Seq]))-->
     {string(Seq)},
     !,
     cstr(Seq),
+    cstr(`.`),
     add_nl(0).
 par(U0,Item,para([_|Seq]))-->
     !,
         foldl(par(U0,Item),Seq),
+    cstr(`.`),
 	add_nl(0).
 par(U0,Item,simplesect([_,para([_|Seq])])) -->
     !,
     foldl(par(U0,Item),Seq),
+    cstr(`.`),
     add_nl(0).
 par(U0,Item,xrefsect([[id(ID)],xreftitle([[],Title]),xrefdescription([[]|Seq])])) -->
     !,
@@ -355,7 +358,7 @@ par(U0,Item,highlight([_|Seq])) -->
 par(U0,Item, par(_,Par)) -->
     !,
     par(U0,Item,Par).
-/*    foldl(parameteritem(U0),L,S0,SF).
+             /*    foldl(parameteritem(U0),L,S0,SF).
 par(U,Info, parameterlist([[_|_]|Seq])) -->
     foldl(par(U),Seq,S0,SF).
 */

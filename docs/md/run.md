@@ -1,6 +1,6 @@
 
 
-# Running YAP                                 
+# run Executing  YAP Programs
 
 
 We next describe how to invoke YAP in Unix systems.
