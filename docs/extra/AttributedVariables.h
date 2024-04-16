@@ -1,6 +1,9 @@
-@defgroup AttributedVariables Support for Attributed Variables
+/**
+   @addtogroup AttributedVariables Support for Attributed Variables
+@ingroup YapExtensions
 @{
-#  Attributed Variables
+
+@verbatim
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
@@ -337,5 +340,6 @@ The predicate domain/2 fetches (first clause) or assigns
   example). The nonterminal `attribute_goals/3` is used to translate
   remaining attributes to user-readable goals that, when executed, reinstate
   these attributes.
-
+@endverbatim
 @}
+*/

@@ -4,7 +4,7 @@
 
 @ingroup mainpage
 
-@brief Describes major changes to the original Prolog engine
+@brief Describes a number of useful modules.
 
 
 */

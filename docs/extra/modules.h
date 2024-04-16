@@ -1,8 +1,9 @@
-# The YAP Module system
-
-
+/**
+   @defgroup YAPModules The YAP Module system
+@ingroup YAPProgramming
+@{
   The YAP module system is based on the Quintus/SISCtus module
-system ˜\cite quintus . In this design, modules are named collections of predicates,
+system \cite quintus . In this design, modules are named collections of predicates,
 and all predicates belong to a single module. By default, predicates are only
 visible within a module, or _private_ to that module. The module
 may also define a list of predicates that are
@@ -42,13 +43,13 @@ the type-in module permanently by using the built-in `module/1`.
 
 The module system allows one to _explicitly_ specify the source mode for
 a clause by prefixing a clause with its module, say:
-```{.prolog}
+```
 user:(a :- b).
 ```
 
 it is also possible to type
 
-```{.prolog}
+```
 
 user:a :- user:b.
 
@@ -60,13 +61,13 @@ current type-in module.
 In fact, it is sufficient to specify the source mode for the clause's
 head:
 
-```{.prolog}
+```
 user:a :- b.
 ```
 
 if the current type-in module is `m`, the clause could also be written as:
 
-```{.prolog}
+```
 user:a :- m:b.
 ```
 
@@ -82,7 +83,7 @@ initialization/1 directive for more details).
 Again, one can override this rule by prefixing a goal with a module to
 be consulted. The following query:
 
-```{.prolog}
+```
 ?- nasa:launch(apollo,13).
 ```
  invokes the goal `launch(apollo,13)` as if the current source
@@ -98,14 +99,14 @@ Modules are not always associated with a source-file. They
 may range over several files, by using the
 `include`directive. Moreover, they may not be associated to any source
 file. As an example,
-```{.prolog}
+```
 ?- assert( nasa:launch(apollo,13) ).
 ```
 will create a module `nasa`, if does not already exist. In fact it is
 sufficient to call a predicate from a module to implicitly create the
 module. Hence after this call:
 
-```{.prolog}
+```
 ?- nasa:launch(apollo,13).
 ```
 
@@ -119,7 +120,7 @@ This predicate loads the file specified by _Files_, importing all
 their public predicates into the current type-in module. It is
 implemented as if by:
 
-```{.prolog}
+```
 use_module(F) :-
 	load_files(F, [if(not_loaded),must_be_module(true)]).
 ```
@@ -139,7 +140,7 @@ In the first case, the local predicate is considered to have priority
 and use_module/1 simply gives a warning. As an example, if the file
 `a.pl` contains:
 
-```{.prolog}
+```
 :- module( a, [a/1] ).
 
 :- use_module(b).
@@ -150,7 +151,7 @@ a(X) :- b(X).
 
 and the file `b.pl` contains:
 
-```{.prolog}
+```
 :- module( b, [a/1,b/1] ).
 
 a(2).
@@ -161,7 +162,7 @@ b(1).
 YAP will execute as follows:
 
 
-```{.prolog}
+```
 ?- [a].
  % consulting .../a.pl...
   % consulting .../b.pl...
@@ -181,7 +182,7 @@ accessed as a predicate in the module 'a' by using the `:` operator.
 
 Next, consider the three files `c.pl`, `d1.pl`, and `d2.pl`:
 
-```{.prolog}
+```
 % c.pl
 :- module( c, [a/1] ).
 
@@ -210,7 +211,7 @@ d(4).
 
 The result is as follows:
 
-```{.prolog}
+```
 ./yap -l c
 YAP 6.3.4 (x86_64-darwin13.3.0): Tue Jul 15 10:42:11 CDT 2014
 
@@ -277,7 +278,7 @@ This predicate loads the file specified by _Files_, importing their
 public predicates specified by _Imports_ into the current type-in
 module. It is implemented as if by:
 
-```{.prolog}
+```
 use_module(Files, Imports) :-
 	load_files(Files, [if(not_loaded),must_be_module(true),imports(Imports)]).
 ```
@@ -286,7 +287,7 @@ The _Imports_ argument may be use to specify which predicates one
 wants to load. It can also be used to give the predicates a different name. As an example,
 the graphs library is implemented on top of the red-black trees library, and some predicates are just aliases:
 
-```{.prolog}
+```
 :- use_module(library(rbtrees), [
 	rb_min/3 as min_assoc,
 	rb_max/3 as max_assoc,
@@ -314,25 +315,27 @@ list containing the module's public predicates specification, in the
 form `[predicate_name/arity,...]`.
 
 The last argument  _Options_ must be a list of options, which can be:
-    +<b>filename</b>
+    +*filename
        the filename for a module to import into the current module.
 
-    + <b>library( +File )</b>
+    + *library( +File )*
        a library file to import into the current module.
 
-    + <b>hide( +Opt)</b>
+    + *hide( +Opt)*
         if  _Opt_ is `false`, keep source code for current module, if `true`, disable.
 
-    + <b>export(+PredicateIndicator )</b>
+    + *export(+PredicateIndicator )*
 		Add predicates to the public list of the context module. This implies
 	the predicate will be imported into another module if this module
 	is imported with use_module/1 and use_module/2.
 
-    + <b>export_list(? _Mod_,? _ListOfPredicateIndicator_)</b>
+    + *export_list(? _Mod_,? _ListOfPredicateIndicator_)* 
        The list  _ListOfPredicateIndicator_ contains all predicates
      	exported by module  _Mod_
 
 Note that predicates are normally exported using the directive
-`module/2`. The `export/1` argument is meant to allow export from
+module/2. The export/1 argument is meant to allow export from
 dynamically created modules. The directive argument may also be a list
 of predicates.
+@}
+*/
