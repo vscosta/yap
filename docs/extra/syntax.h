@@ -1,6 +1,10 @@
-#  YAP Syntax
+ /**
 
+@addtogroup YAPSyntax Syntax of YAP Programs
+@ingroup YAPProgramming
 
+@{
+@verbatim
 We will describe the syntax of YAP at two levels. We first will
 describe the syntax for Prolog terms. In a second level we describe
 the  tokens from which Prolog  terms are
@@ -592,3 +596,6 @@ The following is the list of the declarations of the predefined operators:
 :-op(200,xfy,['^','**']).
 :-op(50,xfx,same).
 ```
+@endverbatim
+@}
+*/

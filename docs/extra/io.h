@@ -4,7 +4,7 @@
 
 @ingroup Builtins
 
-@brief Describes major changes to the original Prolog engine
+@brief Describes how to input and output data in YAP.
 
 
 */

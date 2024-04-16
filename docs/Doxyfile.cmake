@@ -3,13 +3,11 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 
 
 set(DOX_MD_FILES
- ${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
  ${CMAKE_SOURCE_DIR}/docs/md/fli_c_xx.md
  ${CMAKE_SOURCE_DIR}/docs/md/load_files.md
  ${CMAKE_SOURCE_DIR}/docs/md/packages.md
  ${CMAKE_SOURCE_DIR}/docs/md/run.md
  ${CMAKE_SOURCE_DIR}/docs/md/swi.md
- ${CMAKE_SOURCE_DIR}/docs/md/syntax.md
 )
 
 file( MAKE_DIRECTORY sphinx )
@@ -95,6 +93,7 @@ set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
 set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
 set(DOXYGEN_INLINE_GROUPED_CLASSES  YES)
 set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${CMAKE_SOURCE_DIR}/H/generated  ${CMAKE_SOURCE_DIR}/H  ${CMAKE_SOURCE_DIR}/include   ${CMAKE_SOURCE_DIR}/os   ${CMAKE_SOURCE_DIR}/OPTYap   ${CMAKE_SOURCE_DIR}/CXX)
+set(DOXYGEN_EXAMPLE_PATH  ${CMAKE_SOURCE_DIR}/docs/md)
 set(DOXYGEN_SOURCE_BROWSER NO)
 #set(DOXYGEN_VERBATIM_HEADERS NO)
 
@@ -116,9 +115,6 @@ doxygen_add_docs(
     ${CMAKE_BINARY_DIR}/README.md
     ${CMAKE_SOURCE_DIR}/docs/extra
     ${CMAKE_SOURCE_DIR}/C
-    ${CMAKE_SOURCE_DIR}/H
-    ${CMAKE_SOURCE_DIR}/H/generated
-    ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
