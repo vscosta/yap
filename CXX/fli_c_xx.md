@@ -1,4 +1,4 @@
-# The Foreign Language Interfaces
+# The Foreign Language Interfaces 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
 most language implementations were linkable to `C`, and the first interface exported  the YAP machinery to the C language. YAP also implements most of the SWI-Prolog foreign language interface.

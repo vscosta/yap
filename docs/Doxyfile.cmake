@@ -3,7 +3,6 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 
 
 set(DOX_MD_FILES
- ${CMAKE_SOURCE_DIR}/docs/md/fli_c_xx.md
  ${CMAKE_SOURCE_DIR}/docs/md/load_files.md
  ${CMAKE_SOURCE_DIR}/docs/md/packages.md
  ${CMAKE_SOURCE_DIR}/docs/md/run.md
@@ -16,6 +15,7 @@ file( MAKE_DIRECTORY sphinx/source/images)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/Makefile DESTINATION sphinx)
 file( COPY ${DOX_MD_FILES} DESTINATION sphinx/source)
 file( COPY ${DOX_MD_FILES} DESTINATION mkdocs/docs)
+
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/conf.py DESTINATION sphinx/source)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/index.rst DESTINATION sphinx/source)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION  sphinx/source/images)
@@ -115,7 +115,11 @@ doxygen_add_docs(
     ${CMAKE_BINARY_DIR}/README.md
     ${CMAKE_SOURCE_DIR}/docs/extra
     ${CMAKE_SOURCE_DIR}/C
-    ${CMAKE_SOURCE_DIR}/pl
+    ${CMAKE_SOURCE_DIR}/CXX
+    ${CMAKE_SOURCE_DIR}/H
+         ${CMAKE_SOURCE_DIR}/include
+${CMAKE_SOURCE_DIR}/library/dialect/swi/fli
+${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/OPTYap

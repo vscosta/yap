@@ -30,7 +30,8 @@ nav:
    - run: run.md
    - Core Built-ins: group__Builtins.md
    - Programming: group__YAPProgramming.md
-   - Extensions: group__YAPExtensions.md
+   - Extensions: group__YapExtensions.md
    - Library: group__YAPLibrary.md
    - packages: packages.md
-   - Foreign Language Interface : fli_c_xx.md
+   - Foreign Language Interface : mox/group__ChYInterface.md 
+
