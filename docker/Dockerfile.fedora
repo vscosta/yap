@@ -1,0 +1,78 @@
+# Use an official Python runtime as a parent image
+FROM fedora AS yap-fedora 
+
+ENV TZ=Europe/Lisbon
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
+
+# Set the working directory to /app
+WORKDIR /app
+
+# the basics: must always be in the image
+# MPI (MPich should also work
+# python support (requires numpy)
+# tools for yap4py
+# tools for yapkernel
+# gecode support
+# R support
+# RDF
+RUN dnf -y upgrade
+
+
+RUN  dnf -y install git gcc g++ make cmake\
+      automake autoconf m4 doxygen flex bison\
+        readline-devel gmp-devel \
+    openmpi openmpi-devel \
+    swig ninja-build\
+    python3-devel python3-numpy \
+    python3-pip   python3-wheel python3-setuptools\
+    gecode-devel \
+    R-devel R-Rcpp fedora-packager rpmdevtools\
+    raptor2-devel
+
+#yap binary
+
+# BDD library
+RUN  git clone https://github.com/vscosta/cudd.git /app/cudd \
+    && cd /app/cudd \
+    && aclocal\
+    && automake\
+    && ./configure --prefix=/usr --enable-shared --enable-obj --enable-dddmp&& make -j install&& cd ..
+
+RUN  git clone https://github.com/vscosta/yap /app/yap --depth=6\
+    && mkdir -p /app/yap/build\
+    && cd /app/yap/build\
+    && cmake .. -DWITH_DOXYGEN=1 -DCMAKE_BUILD_TYPE=Release -DWITH_PACKAGES=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja \
+    && cmake --build .  --target install
+
+
+# RUN  git clone https://github.com/vscosta/doxygen-yap.git /app/doxygen-yap &&\
+#     cd /app/doxygen-yap &&\
+#     mkdir -p build&&\
+#     cd build&&\
+#     cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build . --target install                  Ninja
+
+# RUN  mkdir -p /app/yap/build && \
+#     cd /app/yap/build &&\
+#     doxygen-yap  Doxyfile.dox 
+
+RUN cd /app/yap/build  &&\
+    cpack --config CPackConfig.cmake -G RPM                                                    
+
+#R extras
+
+RUN cd /app/yap/build \
+    && cmake --build . --target YAP4R
+RUN cd /app/yap/build \
+    &&  R CMD INSTALL packages/real/yap4r
+
+# Make port 80 available to the world outside this container
+EXPOSE 22 80 8888
+
+# Define environment variable
+ENV NAME World
+
+## Run app.py when the container launches
+#CMD ["jupyter", "lab", "--port=8888", "--no-browser","--NotebookApp.token=''","--NotebookApp.password=''", "--ip=0.0.0.0", "--allow-root", "tut.ipynb" ]
+
