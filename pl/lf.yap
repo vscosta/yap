@@ -295,7 +295,7 @@
     ->
 	Type = qly
   ;
-    throw_file_error(file,error(existence_error(source_sink,File),Call))
+    throw(error(existence_error(source_sink,File),Call))
     ),
     (
 	'$memberchk'(encoding(Encoding), Opts)
