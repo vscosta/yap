@@ -84,19 +84,26 @@ mode and the existing spy-points, when the debugger is on.
 '$u_spy'(P,nospy,M) :-
     throw_error(type_error(predicate_indicator,P),nospy(M:P)).
 
-'$u_spy_name'(A,S,M) :-
-	 % just check one such predicate exists
-	 (
-	   current_predicate(A,M:T)
-	   *->
-	   functor(T,A,N),
-	   '$imported_predicate'(M:T,InitialPred),
-	   '$may_set_spy_point'(InitialPred),
-    '$do_u_spy'(S,A,N,T,M)
+'$u_spy_name'(A0,Command,M0) :-
+    strip_module(M0:A0,M,A),
+    (
+	(
+	current_predicate(A,M:SF),
+	    functor(SF,A,N),
+	   M = MF
     ;
-   Error =..[S,M:A],
-	   print_message(warning,no_match(Error))
-	 ).
+    '$import'(M1,M,S1,S,_N,_K),
+	   functor(S,A,N),
+	   '$imported_predicate'(M1:S1,MF:SF)
+	)
+    *->
+	'$may_set_spy_point'(MF:SF),
+	'$do_u_spy'(Command,A,N,SF,MF),
+	fail
+    ;
+    Error =..[S,M:A],
+    print_message(warning,no_match(Error))
+    ).
 
  %
  % protect against evil arguments.
