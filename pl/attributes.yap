@@ -23,11 +23,11 @@
 
 */	
 
-:- system_module(attributes,
+:- module(attributes,
 	  [
 	      call_residue/2,
-	      attvars_residuals/3],
-	  [copy_term/3]
+	      attvars_residuals/3]
+%	  [copy_term/3]
 	 ).
 
 :- dynamic existing_attribute/4.

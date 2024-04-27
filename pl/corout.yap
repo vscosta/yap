@@ -38,7 +38,7 @@
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
 
-:- use_module( attributes, [attvars_residuals/3]).
+%:- use_module( attributes, [attvars_residuals/3]).
 
 
 
