@@ -130,7 +130,7 @@ int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
     sno = Yap_open_buf_write_stream(-1, LOCAL_encoding);
   fg->lstart = 0;
   fg->phys_start = j;
-  fg->gapi = 0;
+  fg->gapi = 1;
   return sno;
 }
 

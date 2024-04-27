@@ -472,7 +472,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     format_info *finfo = Malloc(sizeof(format_info));
     // it starts here
     finfo->sno0 = sno0;
-    finfo->gapi = 0;
+    finfo->gapi = 1;
+    finfo->gap[0].filler = ' ';
     finfo->phys_start = 0;
     finfo->lstart = 0;
     finfo->lvl = l;
