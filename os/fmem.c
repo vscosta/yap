@@ -76,61 +76,48 @@ int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   int nfillers, fill_space, lfill_space, nchars, len, j = fg->phys_start;
   int (*f_putc)(int, int);
    char *buf;
-
   f_putc = GLOBAL_Stream[sno0].stream_putc;
-  len = 
-  fseek(GLOBAL_Stream[sno].file, 0, SEEK_END);
   fflush(GLOBAL_Stream[sno].file);
-  len = GLOBAL_Stream[sno].charcount;
+  len = 
+    GLOBAL_Stream[sno].nsize;
   buf = GLOBAL_Stream[sno].nbuf;
-  buf[len] = '\0';
   nchars =total-len;
   if (nchars < 0||fg->gapi==0) {
     nchars = 0; /* ignore */
     fg->gapi = 0;
     nfillers = 0;
   }
-  if (fg->gapi  == 0){
-    fg->gap[0].log = -1;
-  } else {
+  if (nchars){
     nfillers = fg->gapi;
   fill_space = nchars / nfillers;
   lfill_space = nchars % nfillers;
 
   }
   // printf("%d %d %d %s\n", total, len,fg->gap->log,buf);
-  int i = 0;
+  int i = 0, l=0;
+  j=0;
   gap_t *padi = fg->gap;
-  while (i < len ) {
-    if (fg->gapi >padi-fg->gap && i == padi->log) {
+  while (j < total) {
+    if ( i == padi->log) {
       int k;
       for (k = 0; k < fill_space; k++) {
         f_putc(sno0, padi->filler);
-	padi->log = -1;
-	j++;
-	//++;
-
-      }
+     		j++;
+ }
       padi++;
-    } else {
+    } else if (i<len) {
       f_putc(sno0, buf[i++]);
       j++;
+    } else {
+        f_putc(sno0, padi->filler);
+	j++;
     }
    }
-  //  final gap
-  if (fg->gapi >padi-fg->gap){
-    int k;
-    for (k = 0; k < fill_space + lfill_space; k++) {
-      f_putc(sno0, padi->filler);
-    j++;
-    }
-  };
-  Yap_flush(sno0);
   Yap_CloseMemoryStream( sno);
-    sno = Yap_open_buf_write_stream(-1, LOCAL_encoding);
+  sno = Yap_open_buf_write_stream(-1, LOCAL_encoding);
   fg->lstart = 0;
-  fg->phys_start = j;
-  fg->gapi = 1;
+  fg->phys_start += total;
+  fg->gapi = 0;
   return sno;
 }
 
@@ -228,10 +215,13 @@ int Yap_open_buf_write_stream(int sno, encoding_t enc) {
   st->nbuf = NULL;
   st->status |= (Seekable_Stream_f|CloseOnException_Stream_f);
   #if HAVE_OPEN_MEMSTREAM
+  st->nsize=0;
   st->file = open_memstream(&st->nbuf, &st->nsize);
   #else
-   if (st->nbuf == NULL)
+  if (st->nbuf == NULL) {
      st->nbuf = malloc(32*K);
+     st->nsize=32*K-1;
+  }
    st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
   #endif
   Yap_DefaultStreamOps(st);
@@ -268,24 +258,18 @@ open_mem_write_stream(USES_REGS1) /* $open_mem_write_stream(-Stream) */
  */
 char *Yap_MemExportStreamPtr(int sno) {
   FILE *f = GLOBAL_Stream[sno].file;
-  if (fflush(f) < 0) {
-    return NULL;
-  }
-  
-  size_t sz =  GLOBAL_Stream[sno].nsize+2;
-  GLOBAL_Stream[sno].nsize='\0';
-  sz = sz < 32? 32:sz;
+  fflush(f);
 #if HAVE_OPEN_MEMSTREAM
+  size_t sz =  GLOBAL_Stream[sno].nsize+1;
+  sz = sz < 32? 32:sz;
   char *buf = malloc( sz );
   strcpy(buf,  GLOBAL_Stream[sno].nbuf );
-
-
 #else
-  size_t len;
-  len = fseek(GLOBAL_Stream[sno].file, 0, SEEK_END);
-  buf = malloc(len+1);
-  fread(buf, len, 1, GLOBAL_Stream[sno].file);
-  buf[len] = '\0';
+  size_t len, sz;
+  len = strlen(buf);
+  sz = len < 32? 32:sz;
+  char *buf = malloc( sz );
+  strcpy(buf,  GLOBAL_Stream[sno].nbuf );
 #endif
   
   return buf;
@@ -370,7 +354,6 @@ bool Yap_CloseMemoryStream(int sno) {
     return true;
   if ((GLOBAL_Stream[sno].status & Output_Stream_f) &&
      GLOBAL_Stream[sno].file) {
-    fflush(GLOBAL_Stream[sno].file);
     if (IsApplTerm(GLOBAL_Stream[sno].user_name)) {
       Term inp = GLOBAL_Stream[sno].user_name,
 	rc = Yap_memStreamToTerm(sno, FunctorOfTerm(inp), inp);

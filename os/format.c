@@ -404,6 +404,14 @@ static Int fetch_index_from_args(Term t) {
 
     if (IsVarTerm(t))
         return -1;
+    if (IsAtomTerm(t)) {
+      unsigned char *fptr = RepAtom(AtomOfTerm(t))->UStrOfAE;
+      int ch;
+      fptr += get_utf8(fptr, -1, &ch);
+      if (fptr[0] == '\0') {
+	return ch;
+      }
+    }
     if (!IsIntegerTerm(t))
         return -1;
     i = IntegerOfTerm(t);
@@ -434,9 +442,12 @@ static bool tabulated(const unsigned char *fptr)
        if (ch == '~') {
 	 while ((off = get_utf8(pt, -1, &ch))>0 &&
 		(isdigit((ch=pt[off]))|| ch != '*'))
-               pt += off;
-           if (ch == '|' || ch == '+' || ch == 't') {
-           return true;
+	   {
+
+
+  pt += off;
+            || ch == 't') {
+           xoreturn true;
        }
     }
        }
@@ -472,7 +483,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     format_info *finfo = Malloc(sizeof(format_info));
     // it starts here
     finfo->sno0 = sno0;
-    finfo->gapi = 1;
+    finfo->gapi = 0;
     finfo->gap[0].filler = ' ';
     finfo->phys_start = 0;
     finfo->lstart = 0;
@@ -997,10 +1008,20 @@ switch (ch) {
                         break;
                         /* padding */
                         case '|':
+			  if (finfo->gapi==0) {
+			    finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount;
+			    finfo->gap[finfo->gapi].filler = ' ';
+                            finfo->gapi++;
+			  }
                             sno = fill_pads(sno, sno0, repeats-finfo->phys_start, finfo PASS_REGS);
                         break;
                         case '+':
-                            sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
+ 			  if (finfo->gapi==0) {
+			    finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount-1;
+			    finfo->gap[finfo->gapi].filler = ' ';
+                            finfo->gapi++;
+			  }
+                             sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
                         break;
                         case 't': {
 			  Yap_flush(sno);
