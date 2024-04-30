@@ -966,7 +966,7 @@ static Int abs_file_parameters(USES_REGS1) {
   if (args[ABSOLUTE_FILE_NAME_EXPAND].used)
     t[ABSOLUTE_FILE_NAME_EXPAND] = args[ABSOLUTE_FILE_NAME_EXPAND].tvalue;
   else
-    t[ABSOLUTE_FILE_NAME_EXPAND] =getAtomicLocalPrologFlag(EXPAND_FILE_NAME_FLAG) ;
+    t[ABSOLUTE_FILE_NAME_EXPAND] =getAtomicLocalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG) ;
   if (args[ABSOLUTE_FILE_NAME_GLOB].used) {
     t[ABSOLUTE_FILE_NAME_GLOB] = args[ABSOLUTE_FILE_NAME_GLOB].tvalue;
     t[ABSOLUTE_FILE_NAME_EXPAND] = TermTrue;
