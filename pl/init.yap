@@ -70,7 +70,7 @@ init_prolog :-
     '$init_consult',
     '$version',
     '$init_preds',
-    set_prolog_flag(expand_file_name, true),
+    set_prolog_flag(open_expands_filename, true),
     set_prolog_flag(file_errors, false),
     set_prolog_flag(verbose_file_search, false),
 %    set_prolog_flag( source_mode, true),

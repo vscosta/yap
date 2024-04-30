@@ -128,7 +128,7 @@ minimise variable  _V_
 	    dump/3%, projecting_assert/1
 	]).
 
-:- expects_dialect(swi).
+%:- expects_dialect(swi).
 
 %
 % Don't report export of private predicates from clpr

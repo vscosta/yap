@@ -141,7 +141,7 @@ YAP_FLAG(LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap",
 		    */
     
 
-YAP_FLAG(EXPAND_FILE_NAME_FLAG, "expand_file_name", true, booleanFlag,
+YAP_FLAG(OPEN_EXPANDS_FILENAME_FLAG, "open_expands_filename", true, booleanFlag,
               "true", NULL),
   /**< 
 

@@ -76,7 +76,7 @@ COMMENT "Generating Xmls"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/CXX
 )
 
-add_custom_target (mkdocs++
+add_custom_target (moxFLI
 
   COMMAND moxygen ${CMAKE_BINARY_DIR}/CXX/xml -g -o mox/group__%s.md -H
      DEPENDS dox++

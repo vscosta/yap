@@ -82,7 +82,7 @@ absf_trace_component( _, _ ).
     absf_trace('input: ~w',File),
     absf_trace_component('     ', LOpts),
     abs_file_parameters(LOpts,Opts),
-    current_prolog_flag( expand_file_name, PreviousFileNameExpand ),
+    current_prolog_flag( open_expands_filename, PreviousFileNameExpand ),
     current_prolog_flag( file_errors, PreviousFileErrors ),
     current_prolog_flag( verbose_file_search, PreviousVerbose ),
     working_directory(D0,D0),
@@ -93,12 +93,12 @@ absf_trace_component( _, _ ).
     get_abs_file_parameter( expand, Opts, PreviousFileNameExpand ),
     get_abs_file_parameter( file_errors, Opts, FileErrors ),
     set_prolog_flag( file_errors, FileErrors ),
-    set_prolog_flag( expand_file_name, PreviousFileNameExpand ),
+    set_prolog_flag( open_expands_filename, PreviousFileNameExpand ),
     set_prolog_flag( verbose_file_search,  Verbose ).
 
 '$restore_absf'(abs_entry(_OldF, D0, PreviousFileErrors, PreviousVerbose, PreviousFileNameExpand) ) :- !,
     working_directory(_,D0),
-    set_prolog_flag( expand_file_name, PreviousFileNameExpand ),
+    set_prolog_flag( open_expands_filename, PreviousFileNameExpand ),
     set_prolog_flag( file_errors, PreviousFileErrors ),
     set_prolog_flag( verbose_file_search, PreviousVerbose ).
 

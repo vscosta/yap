@@ -450,7 +450,7 @@ prolog_file_name(File, PrologFileName) :-
 prolog_file_name(user, Out) :- !, Out = user.
 prolog_file_name(File, PrologFileName) :-
         atom(File), !,
-        system:true_file_name(File, PrologFileName).
+        true_file_name(File, PrologFileName).
 prolog_file_name(File, PrologFileName) :-
         throw_error(type_error(atom,File), prolog_file_name(File, PrologFileName)).
 

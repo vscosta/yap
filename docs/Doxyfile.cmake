@@ -115,10 +115,6 @@ doxygen_add_docs(
     ${CMAKE_BINARY_DIR}/README.md
     ${CMAKE_SOURCE_DIR}/docs/extra
     ${CMAKE_SOURCE_DIR}/C
-    ${CMAKE_SOURCE_DIR}/CXX
-    ${CMAKE_SOURCE_DIR}/H
-         ${CMAKE_SOURCE_DIR}/include
-${CMAKE_SOURCE_DIR}/library/dialect/swi/fli
 ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
@@ -141,13 +137,8 @@ DEPENDS dox docs/mkdocs/mkdocs.yml docs/dox2md.yap ${MD_TARGETS}
   WORKING_DIRECTORY mkdocs
    )
 
-    add_custom_target(moxygen
-      COMMAND $ENV{HOME}/github/moxygen/bin/moxygen.js ../../../xml -g %s.md -p -H
-      WORKING_DIRECTORY mkdocs/docs/mox
-      DEPENDS dox2
-     )
     add_custom_target(full
-       DEPENDS mkdocs moxygen 
+       DEPENDS mkdocs moxFLI
      )
 
     add_custom_target(sphinx

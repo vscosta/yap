@@ -532,25 +532,25 @@ predicate_erased_statistics(P0,NCls,Sz,ISz) :-
 Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_.
 */
 current_predicate(A,T0) :-
-	'$yap_strip_module'(T0, M, T),
-	( var(M) -> '$all_current_modules'(M) ; true ),
-	(nonvar(T) ->
-	   functor(T, A, _),
+    '$yap_strip_module'(T0, M, T),
+    (var(A) -> true ; atom(A)),
+    ( var(M) -> '$all_current_modules'(M) ; true ),
+    (nonvar(T) ->
+	 functor(T, A, _),
 	 '$pred_exists'( T, M)
-	 ;
-	 atom(A)
-	 ->
-	 (
-	     '$pred_exists'( A, M)
-	 ;
-	 '$functors_for_atom'(A,Ts),
-	 writeln(Ts),
-	 '$enumerate_functors'(Ts,M,T)
-	 )
-;	 
-	 '$current_predicate'(A,M, T, user),
-	M \= prolog
-	 ).
+    ;
+    atom(A)
+    ->
+    (
+	'$pred_exists'( A, M)
+    ;
+    '$functors_for_atom'(A,Ts),
+    '$enumerate_functors'(Ts,M,T)
+    )
+    ;	 
+    '$current_predicate'(A,M, T, user),
+    M \= prolog
+    ).
 
 '$enumerate_functors'([T|_Ts],M,T):-	 
 	 '$pred_exists'( T, M).

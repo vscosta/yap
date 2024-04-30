@@ -1,6 +1,6 @@
 site_name: YAP Prolog Reference Manual
 site_url: https://www.dcc.fc.up.pt/YAP
-use_directory_urls: false
+use_directory_urls: true
 theme:
   name: 'material'
   logo: 'images/favicon.ico'
@@ -33,5 +33,5 @@ nav:
    - Extensions: group__YapExtensions.md
    - Library: group__YAPLibrary.md
    - packages: packages.md
-   - Foreign Language Interface : mox/group__ChYInterface.md 
+   - Foreign Language Interface : mox/group__YAPFLI.md 
 
