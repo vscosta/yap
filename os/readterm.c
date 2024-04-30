@@ -827,7 +827,7 @@ static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
   return 0;
 }
 
-static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
+static Term get_singletons(FEnv *fe, bool var_only, TokEntry *tokstart) {
   CACHE_REGS
   Term v;
 
@@ -836,7 +836,7 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
       fe->old_H = HR;
 
       if (setjmp(LOCAL_IOBotch) == 0) {
-        if ((v = Yap_Singletons(LOCAL_VarList, TermNil))) {
+        if ((v = Yap_Singletons(LOCAL_VarList, var_only, TermNil))) {
           return v;
         }
       } else {
@@ -850,7 +850,7 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
 
 static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
   fe->sp = TermNil;
-  Term vn = get_singletons(fe, tokstart);
+  Term vn = get_singletons(fe, false, tokstart);
   while (vn && vn != TermNil) {
     int line,col;
     char *fil;
@@ -948,7 +948,7 @@ static Term scan_to_list(TokEntry * t)
   else
     v2 = 0L;
   if (fe->t && fe->sp)
-    v3 = get_singletons(fe, tokstart);
+    v3 = get_singletons(fe, true, tokstart);
   else
     v3 = 0L;
   vs = fe->scanner.stored_scan;

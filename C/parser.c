@@ -235,14 +235,18 @@ Term Yap_VarNames(VarEntry *p, Term l) {
   return VarNames(p, l PASS_REGS);
 }
 
-static Term Singletons(VarEntry *p, Term l USES_REGS) {
+static Term Singletons(VarEntry *p, bool var_only, Term l USES_REGS) {
   while (p != NULL) {
       if (RepAtom(p->VarRep)->StrOfAE[0] != '_' && p->refs == 1) {
           Term t[2];
           Term o;
 
+	  if (var_only) {
+	    t[0] = MkAtomTerm(p->VarRep);
+	  } else {
           t[0] = MkPairTerm(MkAtomTerm(p->VarRep),MkPairTerm(MkIntTerm(p->lineno),MkPairTerm(MkIntTerm(p->linepos ),
 											     MkPairTerm(MkAtomTerm(LOCAL_SourceFileName),TermNil))));
+	  }
           t[1] = p->VarAdr;
           o = Yap_MkApplTerm(FunctorEq, 2, t);
 	  l = MkPairTerm(o,l);
@@ -256,9 +260,9 @@ static Term Singletons(VarEntry *p, Term l USES_REGS) {
     return l;
 }
 
-Term Yap_Singletons(VarEntry *p, Term l) {
+Term Yap_Singletons(VarEntry *p, bool vars_only, Term l) {
   CACHE_REGS
-  return Singletons(p, l PASS_REGS);
+    return Singletons(p, vars_only, l PASS_REGS);
 }
 
 static Term Variables(VarEntry *p, Term l USES_REGS) {

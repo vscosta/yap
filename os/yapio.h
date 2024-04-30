@@ -95,7 +95,7 @@ extern struct vfs *Yap_InitAssetManager(void);
 extern VarEntry *Yap_LookupVar(const char *,int,int);
 extern Term Yap_VarNames(VarEntry *, Term);
 extern Term Yap_Variables(VarEntry *, Term);
-extern Term Yap_Singletons(VarEntry *, Term);
+extern Term Yap_Singletons(VarEntry *, bool, Term);
 
 /* routines in scanner.c */
 extern void Yap_clean_tokenizer(void);
