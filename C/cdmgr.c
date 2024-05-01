@@ -106,11 +106,6 @@ static assert_control_t get_mode(Term tmode) {
 
 }
 
-static void InitConsult(void) {
-  CACHE_REGS
-    LOCAL_consult_level++;
-}
-
 void Yap_ResetConsultStack(void) {
   LOCAL_consult_level-- ;
 }
@@ -2223,6 +2218,8 @@ static Int p_showconslultlev(USES_REGS1) {
 }
 
 static void end_consult(USES_REGS1) {
+ if (LOCAL_consult_level > 0)
+      LOCAL_consult_level--;
     LOCAL_LastAssertedPred = NULL;
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
 /*  if (LOCAL_consult_level == 0)
