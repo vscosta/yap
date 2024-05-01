@@ -412,7 +412,7 @@
  
    ),
    ( LC == 0 -> prompt(_,'   |: ') ; true),
-    current_source_module(_OM,_M0),
+    current_source_module(OldM,_M0),
     % surely, we were in run mode or we would not have included the file!
     % back to include mode!
 %	'$memberchk'(must_be_module, Opts),
@@ -423,7 +423,7 @@
     '$check_module'(File,InnerModule)
 
    ;
-   InnerModule=_OM),
+   InnerModule=OldM),
     '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
     working_directory( _, OldD),
        '$exec_initialization_goals'(File),
