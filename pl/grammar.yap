@@ -67,7 +67,9 @@ right hand side of a grammar rule
 Grammar related built-in predicates:
 
 */
-:- system_module_( '$_grammar', [!/2,
+:- module_( '$_grammar', []).
+/*
+!/2,
          (',')/4,
          (->)/4,
          ('.')/4,
@@ -79,9 +81,9 @@ Grammar related built-in predicates:
         phrase/2,
         phrase/3,
         {}/3,
-        ('|')/4], [throw_error/2,
+        ('|')/4]. [throw_error/2,
 t_body/6]).
-
+*/
 
 % :- meta_predicate ^(?,0,?).
 % ^(Xs, Goal, Xs) :- call(Goal).
@@ -271,11 +273,10 @@ phrase_(String, _,S, S0) :-
     string(String),
     !,
     string_codes(String,Codes),
-    '$append'(Codes,S0,S),
-    !.
+    '$append'(Codes,S0,S).
 phrase_([H|T],_, SR, SL) :-
-    '$append'([H|T],SL,SR),
-    !.
+    !,
+    '$append'([H|T],SL,SR).
 phrase_([], _, S0, S) :-
     !,
     S0 = S.
