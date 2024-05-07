@@ -3,10 +3,7 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 
 
 set(DOX_MD_FILES
- ${CMAKE_SOURCE_DIR}/docs/md/load_files.md
- ${CMAKE_SOURCE_DIR}/docs/md/packages.md
- ${CMAKE_SOURCE_DIR}/docs/md/run.md
- ${CMAKE_SOURCE_DIR}/docs/md/swi.md
+ ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
 )
 
 file( MAKE_DIRECTORY sphinx )
@@ -14,7 +11,6 @@ file( MAKE_DIRECTORY sphinx/source)
 file( MAKE_DIRECTORY sphinx/source/images)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/Makefile DESTINATION sphinx)
 file( COPY ${DOX_MD_FILES} DESTINATION sphinx/source)
-file( COPY ${DOX_MD_FILES} DESTINATION mkdocs/docs)
 
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/conf.py DESTINATION sphinx/source)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/index.rst DESTINATION sphinx/source)
@@ -30,7 +26,7 @@ if (DOXYGEN_FOUND)
   set(DOXYGEN_CMAKE_NUMBER  ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
   set(DOXYGEN_BRIEF  "The YAP Prolog Compiler Manual")
   set( DOXYGEN_CMAKE_LOGO ${CMAKE_SOURCE_DIR}/docs/icons/yap_96x96x32.png)
-#  set( DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/docs)
+  set( DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
   set( DOXYGEN_CREATE_SUBDIRS NO)
   set( DOXYGEN_ALLOW_UNICODE_NAMES NO)
   set( DOXYGEN_OUTPUT_LANGUAGE English)
@@ -78,7 +74,8 @@ set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/assets/css/solarized
   set(DOXYGEN_XML_PROGRAMLISTING NO)
   set(DOXYGEN_GENERATE_MAN NO)
   set(DOXYGEN_SHOW_FILES NO)
-  set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C NO)
+   set(DOXYGEN_FILTER_SOURCE_FILES NO)
+ set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C NO)
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_PROLOG YES)
   set(DOXYGEN_SHOW_NAMESPACES NO)
   set(DOXYGEN_CREATE_SUBDIRS NO)
@@ -102,43 +99,46 @@ file( MAKE_DIRECTORY mkdocs )
 file( MAKE_DIRECTORY mkdocs/docs)
 file( MAKE_DIRECTORY mkdocs/docs/images)
 configure_file(yap.md.in ${CMAKE_BINARY_DIR}/README.md)
-configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
-configure_file(yap.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/index.md)
 configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/INSTALL.md)
+file( COPY ${DOX_MD_FILES} DESTINATION ${CMAKE_BINARY_DIR}/mkdocs/docs )
 
-set (Doxygen:doxygen doxygen-yap)
 
 doxygen_add_docs(
   dox
-	${CMAKE_SOURCE_DIR}/docs/md/api.md
+    ${CMAKE_SOURCE_DIR}/docs/index.md
 	${CMAKE_BINARY_DIR}/INSTALL.md
-    ${CMAKE_BINARY_DIR}/README.md
+ ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
+    ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/docs/extra
-    ${CMAKE_SOURCE_DIR}/C
+    ${CMAKE_SOURCE_DIR}/H
+    ${CMAKE_SOURCE_DIR}/include
+#    ${CMAKE_SOURCE_DIR}/CXX
 ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/OPTYap
-    COMMENT "Generated Xmls"
+    COMMENT "Generating Xmls"
 )
 
 
 
 add_custom_target (mkdocs 
-  COMMAND ${CMAKE_COMMAND} -E make_directory docs
-  COMMAND ../yap -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main
-     COMMAND ${CMAKE_COMMAND} -E make_directory  docs/images/images
-  COMMAND ${CMAKE_COMMAND} -E make_directory docs/javascripts
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs.yml
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  docs/javascripts/highlight.min.js
-COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png   docs/images/yap_256x256x32.png
-COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico  docs/images/favicon.ico
-DEPENDS dox docs/mkdocs/mkdocs.yml docs/dox2md.yap ${MD_TARGETS}
-  WORKING_DIRECTORY mkdocs
+  COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
+  COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
+  COMMAND ./yap -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main -- xml mkdocs/docs
+COMMAND ${CMAKE_COMMAND} -E copy ${DOX_MD_FILES} mkdocs/docs
+  COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs/images/images
+  COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs/mkdocs.yml
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  mkdocs/docs/javascripts/highlight.min.js
+COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png   mkdocs/docs/images/yap_256x256x32.png
+COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico  mkdocs/docs/images/favicon.ico
+COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/README.md mkdocs/docs/index.md
+DEPENDS dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
    )
 
-    add_custom_target(full
-       DEPENDS mkdocs moxFLI
+    add_custom_target(docs
+    COMMAND mkdocs build
      )
 
     add_custom_target(sphinx

@@ -1111,7 +1111,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #ifdef DEBUG
   // DumpActiveGoals( USES_REGS1 );
 #endif // DEBUG
-  if (LOCAL_ActiveError->errorNo != SYNTAX_ERROR &&
+  if (false && LOCAL_ActiveError->errorNo != SYNTAX_ERROR &&
       trueGlobalPrologFlag(STACK_DUMP_ON_ERROR_FLAG)	 ) {
     LOCAL_ActiveError->prologStack = Yap_dump_stack();
   } else  {

@@ -30,13 +30,14 @@ class X_API YAPPPredicate;
 /// take information on a Prolog error:
 class X_API YAPError {
 		      //int swigcode;
-  yap_error_descriptor_t *info;
+
 
 public:
+  yap_error_descriptor_t *info;
   /// wraps the default error descriptor
   YAPError() {
     CACHE_REGS
-    info = LOCAL_ActiveError;
+      info = LOCAL_ActiveError;
     if (!info)
       LOCAL_ActiveError = info = (yap_error_descriptor_t *)calloc( sizeof( yap_error_descriptor_t ), 1);
     //  if (info->errorNo != YAP_NO_ERROR) {};

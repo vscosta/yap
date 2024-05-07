@@ -27,11 +27,12 @@ markdown_extensions:
 nav:
    - Home: index.md
    - INSTALL: INSTALL.md
-   - run: run.md
+   - run: CALLING_YAP.md
    - Core Built-ins: group__Builtins.md
    - Programming: group__YAPProgramming.md
    - Extensions: group__YapExtensions.md
    - Library: group__YAPLibrary.md
-   - packages: packages.md
-   - Foreign Language Interface : mox/group__YAPFLI.md 
+   - packages: group_YAPPackages.md
+   - Foreign Language Interface : group_YAPAPI.md
+
 

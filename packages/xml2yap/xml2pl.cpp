@@ -79,7 +79,11 @@ ok = true;
 {
   // tag::code[]
 CACHE_REGS
-    {
+  if (ASP-HR < 32*1024) {
+    YAPError *err = new YAPError();
+    err->info->errorNo = RESOURCE_ERROR_STACK;
+    throw err;
+  }{
       switch(node.type()) {
       case pugi::node_null:
 	return TermEmptyAtom;

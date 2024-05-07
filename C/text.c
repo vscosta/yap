@@ -989,9 +989,10 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     //	continue;
     if (nbuf && nbuf[0]) {
       size_t sz = strlen((char*)nbuf);
-      avai = (strlen((char *)buf)+sz -1);
-      if (avai > bsz) {
-	buf = realloc(buf, avai+256);
+      avai = (strlen((char *)buf)+sz +1);
+      size_t x = 256*(tot-i-1);
+      if (avai > bsz-x) {
+	buf = realloc(buf, avai+x);
       }
       strcat((char*)buf,(char*)nbuf);
     }

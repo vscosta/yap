@@ -65,7 +65,7 @@ set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${CMAKE_SOURCE_DIR}/H/generated
 set(DOXYGEN_SOURCE_BROWSER NO)
 #set(DOXYGEN_VERBATIM_HEADERS NO)
 
-file( MAKE_DIRECTORY  ${CMAKE_BINARY_DIR}/mkdocs/docs/mox )
+file( MAKE_DIRECTORY  ${CMAKE_BINARY_DIR}/mkdocs/docs/fli )
 
 doxygen_add_docs(
   dox++
@@ -76,11 +76,11 @@ COMMENT "Generating Xmls"
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/CXX
 )
 
-add_custom_target (moxFLI
-
-  COMMAND moxygen ${CMAKE_BINARY_DIR}/CXX/xml -g -o mox/group__%s.md -H
-     DEPENDS dox++
-         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/mkdocs/docs
-)
+add_custom_target (mkdocsFLI
+#  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/CXX/index.md fli
+  COMMAND   moxygen ${CMAKE_BINARY_DIR}/CXX/xml -g -o fli/group__%s.md -H
+DEPENDS  dox++
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/mkdocs/docs
+    )
 
 endif()

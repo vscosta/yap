@@ -23,7 +23,7 @@
 /**
 
     @addtogroup YAPFlagsImplementation
-@ingroup YAPImplementation
+    @ingroup YAPImplementation
     @{
 
 @brief Low-level code to support flags.
@@ -1183,17 +1183,18 @@ static Int current_prolog_flag2(USES_REGS1) {
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);
     return cont_yap_flag(PASS_REGS1);
   }
-  do_cut(0);
   if (IsStringTerm(tflag)) {
     tflag = MkStringTerm(RepAtom(AtomOfTerm(tflag))->StrOfAE);
   }
   if (!IsAtomTerm(tflag)) {
     Yap_ThrowError(TYPE_ERROR_ATOM, tflag, "current_prolog_flag/3");
+  do_cut(0);
     return (FALSE);
   }
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (!fv) {
     // should itself depend on a flag
+  do_cut(0);
     return FALSE;
   }
   if (fv->global)
@@ -1203,6 +1204,7 @@ static Int current_prolog_flag2(USES_REGS1) {
   tout = tarr[fv->FlagOfVE].at;
   if (tout == TermZERO) {
     //    Yap_DebugPlWriteln(tflag);
+  do_cut(0);
     return false;
   }
   if (!IsAtomicTerm(tout)) {
@@ -1214,6 +1216,7 @@ static Int current_prolog_flag2(USES_REGS1) {
 	  Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
 			 LOCAL_ErrorMessage);
 	  //UNLOCK(ap->PELock);
+  do_cut(0);
 	  return false;
 	}
       } else {
@@ -1221,11 +1224,13 @@ static Int current_prolog_flag2(USES_REGS1) {
 	if (!Yap_dogc(PASS_REGS1)) {
 	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  //UNLOCK(ap->PELock);
+  do_cut(0);
 	  return false;
 	}
       }
     }
   }
+  do_cut(0);
   return (Yap_unify(ARG2, tout));
 }
 

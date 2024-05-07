@@ -1523,9 +1523,11 @@ static Int atom_concat2(USES_REGS1) {
   int l = push_text_stack();
 restart_aux:
   t1 = Deref(ARG1);
-  n = Yap_SkipList(&t1, &tailp);
+  Term tmp = t1;
+  n = Yap_SkipList(&tmp, &tailp);
   if (*tailp != TermNil) {
     LOCAL_Error_TYPE = TYPE_ERROR_LIST;
+    goto error;
   } else {
     seq_tv_t *inpv = (seq_tv_t *)Malloc(n * sizeof(seq_tv_t)), out;
     int i = 0;

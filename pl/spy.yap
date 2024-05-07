@@ -374,15 +374,16 @@ notrace(G) :-
 */
 '$init_debugger' :-
     '$debugger_io',
-    '$init_debugger_trace',
     '__NB_setval__'('$spy_glist',[]),
     '__NB_setval__'('$spy_gdlist',[]),
-    '__NB_setval__'('$spy_gn',1).
+    '__NB_setval__'('$spy_gn',1),
+    '$init_debugger_trace'.
 
 '$init_debugger_trace' :-
     '$get_debugger_state'( trace, on ),
     !,
-    '$set_debugger_state'( creep,  0, stop, on, true ).
+    '$set_debugger_state'( creep,  0, stop, on, true ),
+    '$creep'.
 '$init_debugger_trace' :-
     '$set_debugger_state'( zip, 0, stop, off, true ).
 
