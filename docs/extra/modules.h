@@ -1,8 +1,15 @@
 /**
+   @file modules.h
+   @brief Module Systenm';;;;;'lllllllllllllllllllllllllllllllllllllll
+
+/**
    @defgroup YAPModules The YAP Module system
 @ingroup YAPProgramming
+
+@brief The YAP Predicate Module System
 @{
-  The YAP module system is based on the Quintus/SISCtus module
+
+The YAP module system is based on the Quintus/SISCtus module
 system \cite quintus . In this design, modules are named collections of predicates,
 and all predicates belong to a single module. By default, predicates are only
 visible within a module, or _private_ to that module. The module
@@ -42,9 +49,9 @@ the type-in module permanently by using the built-in `module/1`.
 ## Explicit Naming
 
 The module system allows one to _explicitly_ specify the source mode for
-a clause by prefixing a clause with its module, say:
+,,,mmmmmmmm                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           a clause by prefixing a clause with its module, say:
 ```
-user:(a :- b).
+user:(a :- b).  
 ```
 
 it is also possible to type
@@ -124,10 +131,9 @@ implemented as if by:
 use_module(F) :-
 	load_files(F, [if(not_loaded),must_be_module(true)]).
 ```
-
-Notice that _Files_ may be a single file, or a list with a number
+Notice that _Files_ may be a ingle file, or a list with a number
 files. The _Files_  are loaded in YAP only once, even if they have been
-updated meanwhile. YAP should also verify whether the files actually
+updated meanwhile. YAP should lso verify whether the files actually
 define modules. Please consult load_files/3 for other options when
 loading a file.
 

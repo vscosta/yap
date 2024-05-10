@@ -400,93 +400,6 @@ static Int exists_directory(USES_REGS1) {
 #endif
 }
 
-static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
-  Term t = Deref(ARG1);
-  Atom at;
-  bool rc;
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
-    return false;
-  }
-  int l = push_text_stack();
-  const char *buf = Yap_TextTermToText(t PASS_REGS);
-  if (buf) {
-    rc = Yap_IsAbsolutePath(buf, true);
-  } else {
-    at = AtomOfTerm(t);
-#if _WIN32
-    rc = PathIsRelative(RepAtom(at)->StrOfAE);
-#else
-    rc = RepAtom(at)->StrOfAE[0] == '/';
-#endif
-  }
-  pop_text_stack(l);
-  return rc;
-}
-
-static Int file_base_name(USES_REGS1) { /* file_base_name(Stream,N) */
-  Term t = Deref(ARG1);
-  Atom at;
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
-    return FALSE;
-  }
-  at = AtomOfTerm(t);
-  const char *c = RepAtom(at)->StrOfAE;
-  const char *s;
-#if HAVE_BASENAME && 0 // DISABLED: Linux basename is not compatible with
-                       // file_base_name in SWI and GNU
-  char c1[MAX_PATH + 1];
-  strncpy(c1, c, MAX_PATH);
-  s = basename(c1);
-#else
-  Int i = strlen(c);
-  while (i && !Yap_dir_separator((int)c[--i]))
-    ;
-  if (Yap_dir_separator((int)c[i])) {
-    i++;
-  }
-  s = c + i;
-#endif
-  return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
-}
-
-static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
-  Term t = Deref(ARG1);
-  Atom at;
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "file_directory_name/2");
-    return false;
-  }
-  at = AtomOfTerm(t);
-  const char *c = RepAtom(at)->StrOfAE;
-#if HAVE_BASENAME && 0 // DISABLED: Linux basename is not compatible with
-                       // file_base_name in SWI and GNU
-  const char *s;
-  char c1[MAX_PATH + 1];
-  strncpy(c1, c, MAX_PATH);
-  s = dirname(c1);
-#else
-  char s[MAX_PATH + 1];
-  ssize_t i=0;
-  if (c && c[0]) {
-    i = strlen(c);
-      strncpy(s, c, MAX_PATH);
-      while (--i) {
-	if (Yap_dir_separator((int)c[i]))
-	  break;
-      }
-  }  else {
-    if (i == 0) {
-      s[0] = '.';
-      i = 1;
-    }
-  }
-  s[i] = '\0';
-#endif
-  return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
-}
-
 /** @pred make_directory(+ _Dir_)
 
 Create a directory  _Yap_Dir_. If the parent directory does not exist, silently
@@ -822,10 +735,6 @@ static Int delete_file(USES_REGS1) {
  }
 
 void Yap_InitFiles(void) {
-  Yap_InitCPred("file_base_name", 2, file_base_name, SafePredFlag);
-  Yap_InitCPred("file_directory_name", 2, file_directory_name, SafePredFlag);
-  Yap_InitCPred("is_absolute_file_name", 1, is_absolute_file_name,
-                SafePredFlag);
   Yap_InitCPred("same_file", 2, same_file, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$access_file", 2, access_file, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$lines_in_file", 2, lines_in_file,

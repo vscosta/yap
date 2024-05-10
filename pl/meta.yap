@@ -1,10 +1,15 @@
 /**
 
   @file meta.yap
+@brief meta-expansion of programs
 
-  @defgroup YAPMetaPredicates Using Meta-Calls with Modules
+*/
+
+/**
+  @defgroup YAPMeta  Meta-Calls with Modules
  @ingroup YAPModules
  @{
+
 
   @pred meta_predicate(G1 , Gj , Gn) is directive
 
@@ -25,9 +30,9 @@ For example, the declaration for call/1 and setof/3 are:
 
 meta_predicate declaration
  implemented by asserting
-
+```
 meta_predicate(SourceModule,Declaration)
-
+```
 */
 
 % directive now meta_predicate Ps :- $meta_predicate(Ps).
@@ -513,4 +518,4 @@ expand_goal(Input, Output) :-
     '$expand_meta_call'(Input, [], Output ).
 
 
-%% @}
+%%XS @}

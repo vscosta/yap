@@ -1,21 +1,33 @@
-# YAP Documentation                          {#mainpage}
+/**
+@file extra/main.h
+
+@brief top-level for YAP
+*/
+
+/**
+@defgroup mainpage YAP Documentation
 
 The manual is organised as follows:
 
-* @subpage INSTALL
+- @subpage INSTALL
 
-* @ref Builtins
+- @subpage CALLING_YAP
 
-* @ref    YAPLibrary
+- @ref Builtins
 
-* @ref YAPProgramming
+- @ref    YAPLibrary
 
- @ref YapExtensions
+- @ref YAPProgramming
 
-* @ref YAPPackages
+- @ref YapExtensions
 
+- @ref YAPPackages
 
-@defgroup Builtins YAP  to Prolog
+*/
+
+/**
+
+@defgroup Builtins YAP Core Builtin Predicates
 
 @ingroup mainpage
 
@@ -24,6 +36,12 @@ The manual is organised as follows:
 @{
 
 @}
+
+
+*/
+
+/**
+
 
 
 @defgroup InputOutput YAP  support for InputOutput
@@ -35,6 +53,13 @@ The manual is organised as follows:
 
 @}
 
+
+*/
+
+/**
+
+
+
 @defgroup YAPProgramming Programming in YAP
 
 @ingroup mainpage
@@ -45,16 +70,29 @@ The manual is organised as follows:
 
 @}
 
-@defgroup load_files Loading and Organising YAP Programs
+*/
 
-@ingroup YAPProgramming
+/**
 
-@brief we present the main predicates and directives available to load
-  files and to control the Prolog environment.
+   @defgroup YAPConsulting Loading and Organising YAP Programs
+
+   @ingroup YAPProgramming
+
+   @brief we present the main predicates and directives available to load
+   files and to control the Prolog environment.
 
 @{
 
 @}
+
+
+*/
+
+/**
+
+
+
+
 
 @defgroup YapExtensions YAP Supported Extensions to Prolog
 
@@ -64,6 +102,16 @@ The manual is organised as follows:
 @{
 
 @}
+
+
+
+*/
+
+/**
+
+
+
+
 @defgroup YAPLibrary The YAP Library
 
 @ingroup mainpage
@@ -72,6 +120,16 @@ The manual is organised as follows:
 @{
 
 @}
+
+
+
+*/
+
+/**
+
+
+
+
 
 @defgroup YAPPackages YAP Packages
 
@@ -83,24 +141,30 @@ The manual is organised as follows:
 @}
 
 
+
+*/
+
+/**
+
+
+
+
+
 @defgroup YAPAPI YAP Foreign Language API
 
 @ingroup mainpage
 
 @brief The Foreign Language Interfaces
+
 @{
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
 most language implementations were linkable to `C`, and the first interface exported  the YAP machinery to the C language. YAP also implements most of the SWI-Prolog foreign language interface.
-This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is
+This gives portability with a number of SWI-Prolog packages and avoids garbage collection by using @ref slotInterface. Last, a new C++ based interface is
 being designed to work with the swig (www.swig.orgv) interface compiler.
-
-- @subpage fli_c
-
-- @ref  FLI_swi-c-interface
-
--  @ref FLI_YAP-cplus-interface
 
 
 @}
 
+
+*/

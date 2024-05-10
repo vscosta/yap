@@ -13,6 +13,7 @@ extern "C"  bool xml_load();
  */
 class XML2YAP {
   YAPTerm inpt;
+
   pugi::xml_document doc;
 public:
   bool ok;

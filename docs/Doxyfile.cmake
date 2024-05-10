@@ -100,20 +100,19 @@ file( MAKE_DIRECTORY mkdocs/docs)
 file( MAKE_DIRECTORY mkdocs/docs/images)
 configure_file(yap.md.in ${CMAKE_BINARY_DIR}/README.md)
 configure_file(INSTALL.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/INSTALL.md)
+configure_file(yap.md.in ${CMAKE_BINARY_DIR}/yap.md)
 file( COPY ${DOX_MD_FILES} DESTINATION ${CMAKE_BINARY_DIR}/mkdocs/docs )
 
 
 doxygen_add_docs(
   dox
-    ${CMAKE_SOURCE_DIR}/docs/index.md
-	${CMAKE_BINARY_DIR}/INSTALL.md
- ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
-    ${CMAKE_SOURCE_DIR}/docs/md
+  	${CMAKE_BINARY_DIR}/INSTALL.md
+	${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/docs/extra
     ${CMAKE_SOURCE_DIR}/H
     ${CMAKE_SOURCE_DIR}/include
-#    ${CMAKE_SOURCE_DIR}/CXX
-${CMAKE_SOURCE_DIR}/pl
+    ${CMAKE_SOURCE_DIR}/CXX
+    ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/OPTYap
@@ -122,11 +121,11 @@ ${CMAKE_SOURCE_DIR}/pl
 
 
 
-add_custom_target (mkdocs 
+Add_custom_target (mkdocs 
   COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
   COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
   COMMAND ./yap -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main -- xml mkdocs/docs
-COMMAND ${CMAKE_COMMAND} -E copy ${DOX_MD_FILES} mkdocs/docs
+  COMMAND ${CMAKE_COMMAND} -E copy ${DOX_MD_FILES} mkdocs/docs
   COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs/images/images
   COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs/mkdocs.yml

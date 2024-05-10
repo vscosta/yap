@@ -472,7 +472,7 @@ static char SccsId[] = "%W% %G%";
    @file index.c
 
    @defgroup Indexing Indexing
-   @ingroup programming
+   @ingroup YAPImplementation
 
    The
    indexation mechanism restricts the set of clauses to be tried in a

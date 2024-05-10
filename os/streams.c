@@ -25,7 +25,10 @@ static char SccsId[] = "%W% %G%";
  * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *
  */
-
+/** addtogroup StreamOps
+ *
+ */
+    
 #include "Yap.h"
 #if HAVE_FCNTL_H
 /* for O_BINARY and O_TEXT in WIN32 */

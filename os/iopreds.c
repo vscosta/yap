@@ -33,6 +33,17 @@ static char SccsId[] = "%W% %G%";
  *for yap refering to Input/Output.
  */
 
+/** defgroup StreamOps Stream Operations
+
+    @brief Main operations on streams.
+@{
+    YAP uses streams to perform Input/Output. Streams are
+    non-backtrackable objects loosely based on the Unix library IO
+    primitives. They must be open, their properties can be queried or
+    modified, and ultimately they need to be closed.
+@}
+*/
+
 #include "Yap.h"
 #include "YapEval.h"
 #include "YapHeap.h"

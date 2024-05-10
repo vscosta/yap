@@ -99,7 +99,7 @@ form colour(Left, Key, Value, Right), where _colour_  is one of =red= or
 :- pred next(tree(K,V),K,pair(K,V),V,tree(K,V)).
 */
 
-/** @pred rb_new(? _T_)
+/** @pred rb_new(? _Tree_)
 
 
 Create a new tree.
@@ -110,19 +110,19 @@ rb_new(t(Nil,Nil)) :- Nil = black('',_,_,'').
 
 rb_new(K,V,t(Nil,black(Nil,K,V,Nil))) :- Nil = black('',_,_,'').
 
-/** @pred rb_empty(? _T_)
+/** @pred rb_empty(? _Tree_)
 
 
-Succeeds if tree  _T_ is empty.
+Succeeds if tree  _Tree_ is empty.
 
 
 */rb_empty(t(Nil,Nil)) :- Nil = black('',_,_,'').
 
-/** @pred rb_lookup(+ _Key_,- _Value_,+ _T_)
+/** @pred rb_lookup(+ _Key_,- _Value_,+ _Tree_)
 
 
 Backtrack through all elements with key  _Key_ in the red-black tree
- _T_, returning for each the value  _Value_.
+ _Tree_, returning for each the value  _Value_.
 
 
 */
@@ -144,10 +144,10 @@ lookup(<, K, V, Tree) :-
 lookup(=, _, V, Tree) :-
 	arg(3,Tree,V).
 
-/** @pred rb_min(+ _T_,- _Key_,- _Value_)
+/** @pred rb_min(+ _Tree_,- _Key_,- _Value_)
 
 
- _Key_  is the minimum key in  _T_, and is associated with  _Val_.
+ _Key_  is the minimum key in  _Tree_, and is associated with  _Val_.
 
 
 */
@@ -161,10 +161,10 @@ min(red(Right,_,_,_), Key, Val) :-
 min(black(Right,_,_,_), Key, Val) :-
 	min(Right,Key,Val).
 
-/** @pred rb_max(+ _T_,- _Key_,- _Value_)
+/** @pred rb_max(+ _Tree_,- _Key_,- _Value_)
 
 
- _Key_  is the maximal key in  _T_, and is associated with  _Val_.
+ _Key_  is the maximal key in  _Tree_, and is associated with  _Val_.
 
 
 */
@@ -178,10 +178,10 @@ max(red(_,_,_,Left), Key, Val) :-
 max(black(_,_,_,Left), Key, Val) :-
 	max(Left,Key,Val).
 
-/** @pred rb_next(+ _T_, + _Key_,- _Next_,- _Value_)
+/** @pred rb_next(+ _Tree_, + _Key_,- _Next_,- _Value_)
 
 
- _Next_ is the next element after  _Key_ in  _T_, and is
+ _Next_ is the next element after  _Key_ in  _Tree_, and is
 associated with  _Val_.
 
 
@@ -241,22 +241,22 @@ previous(=, _, _, _, K, Val, Tree, Candidate) :-
 	    Candidate = (K-Val)
 	).
 
-/** @pred rb_update(+ _T_,+ _Key_,+ _NewVal_,- _TN_)
+/** @pred rb_update(+ _Tree_,+ _Key_,+ _NewVal_,- _TreeN_)
 
 
-Tree  _TN_ is tree  _T_, but with value for  _Key_ associated
-with  _NewVal_. Fails if it cannot find  _Key_ in  _T_.
+Tree  _TreeN_ is tree  _Tree_, but with value for  _Key_ associated
+with  _NewVal_. Fails if it cannot find  _Key_ in  _Tree_.
 
 
 */
 rb_update(t(Nil,OldTree), Key, OldVal, Val, t(Nil,NewTree)) :-
 	update(OldTree, Key, OldVal, Val, NewTree).
 
-/** @pred rb_update(+ _T_,+ _Key_,- _OldVal_,+ _NewVal_,- _TN_)
+/** @pred rb_update(+ _Tree_,+ _Key_,- _OldVal_,+ _NewVal_,- _TreeN_)
 
 
-Tree  _TN_ is tree  _T_, but with value for  _Key_ associated
-with  _NewVal_. Fails if it cannot find  _Key_ in  _T_.
+Tree  _TreeN_ is tree  _Tree_, but with value for  _Key_ associated
+with  _NewVal_. Fails if it cannot find  _Key_ in  _Tree_.
 
 
 */
@@ -338,13 +338,13 @@ rewrite(Node, Key, OldVal, Val) :-
 	).
 
 
-/** @pred rb_apply(+ _T_,+ _Key_,+ _G_,- _TN_)
+/** @pred rb_apply(+ _Tree_,+ _Key_,+ _G_,- _TreeN_)
 
 
-  If the value associated with key  _Key_ is  _Val0_ in  _T_, and
-if `call(G,Val0,ValF)` holds, then  _TN_ differs from
- _T_ only in that  _Key_ is associated with value  _ValF_ in
-tree  _TN_. Fails if it cannot find  _Key_ in  _T_, or if
+  If the value associated with key  _Key_ is  _Val0_ in  _Tree_, and
+if `call(G,Val0,ValF)` holds, then  _TreeN_ differs from
+ _Tree_ only in that  _Key_ is associated with value  _ValF_ in
+tree  _TreeN_. Fails if it cannot find  _Key_ in  _Tree_, or if
 `call(G,Val0,ValF)` is not satisfiable.
 
 
@@ -411,11 +411,11 @@ enum_cases(Key, Val, _, _, _, R) :-
 	enum(Key, Val, R).
 
 
-/** @pred rb_lookupall(+ _Key_,- _Value_,+ _T_)
+/** @pred rb_lookupall(+ _Key_,- _Value_,+ _Tree_)
 
 
 Lookup all elements with key  _Key_ in the red-black tree
- _T_, returning the value  _Value_.
+ _Tree_, returning the value  _Value_.
 
 
 */
@@ -445,15 +445,15 @@ lookupall(<, K, V, Tree) :-
 		 *	 TREE INSERTION		*
 		 *******************************/
 
-/** @pred rb_insert(+ _T0_,+ _Key_,? _Value_,+ _TF_)
+/** @pred rb_insert(+ _Tree0_,+ _Key_,? _Value_,+ _TreeF_)
 
 
 Add an element with key  _Key_ and  _Value_ to the tree
- _T0_ creating a new red-black tree  _TF_. Duplicated elements are not
+ _Tree0_ creating a new red-black tree  _TreeF_. Duplicated elements are not
 allowed.
 
 Add a new element with key  _Key_ and  _Value_ to the tree
- _T0_ creating a new red-black tree  _TF_. Fails is an element
+ _Tree0_ creating a new red-black tree  _TreeF_. Fails is an element
 with  _Key_ exists in the tree.
 
 
@@ -653,21 +653,21 @@ pretty_print(black(L,K,_,R),D) :-
 	pretty_print(R,DN).
 
 
-/** @pred rb_delete(+ _T_,+ _Key_,- _TN_)
+/** @pred rb_delete(+ _Tree_,+ _Key_,- _TreeN_)
 
 
-Delete element with key  _Key_ from the tree  _T_, returning a new
-tree  _TN_.
+Delete element with key  _Key_ from the tree  _Tree_, returning a new
+tree  _TreeN_.
 
 
 */
 rb_delete(t(Nil,T), K, t(Nil,NT)) :-
 	delete(T, K, _, NT, _).
 
-/** @pred rb_delete(+ _T_,+ _Key_,- _Val_,- _TN_)
+/** @pred rb_delete(+ _Tree_,+ _Key_,- _Val_,- _TreeN_)
 
-Delete element with key  _Key_ from the tree  _T_, returning the
-value  _Val_ associated with the key and a new tree  _TN_.
+Delete element with key  _Key_ from the tree  _Tree_, returning the
+value  _Val_ associated with the key and a new tree  _TreeN_.
 
 
 */
@@ -701,12 +701,12 @@ delete(black(L,_,V,R), _, V, OUT, Flag) :-
 %	K == K0,
 	delete_black_node(L,R,OUT,Flag).
 
-/** @pred rb_del_min(+ _T_,- _Key_,- _Val_,- _TN_)
+/** @pred rb_del_min(+ _Tree_,- _Key_,- _Val_,- _TreeN_)
 
 
-Delete the least element from the tree  _T_, returning the key
+Delete the least element from the tree  _Tree_, returning the key
  _Key_, the value  _Val_ associated with the key and a new tree
- _TN_.
+ _TreeN_.
 
 
 */
@@ -725,12 +725,12 @@ del_min(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	fixup_left(Flag0,black(NL,K0,V0,R),NT, Flag).
 
 
-/** @pred rb_del_max(+ _T_,- _Key_,- _Val_,- _TN_)
+/** @pred rb_del_max(+ _Tree_,- _Key_,- _Val_,- _TreeN_)
 
 
-Delete the largest element from the tree  _T_, returning the key
+Delete the largest element from the tree  _Tree_, returning the key
  _Key_, the value  _Val_ associated with the key and a new tree
- _TN_.
+ _TreeN_.
 
 
 */
@@ -868,10 +868,10 @@ fixup3(black(black(red(Fi,KE,VE,Ep),KD,VD,C),KB,VB,black(Be,KA,VA,Al)),
 % whole list
 %
 
-/** @pred rb_visit(+ _T_,- _Pairs_)
+/** @pred rb_visit(+ _Tree_,- _Pairs_)
 
 
- _Pairs_ is an infix visit of tree  _T_, where each element of
+ _Pairs_ is an infix visit of tree  _Tree_, where each element of
  _Pairs_ is of the form   _K_- _Val_.
 
 */
@@ -891,13 +891,13 @@ visit(black(L,K,V,R),L0,Lf) :-
 
 :- meta_predicate map(?,2,?,?).  % this is required.
 
-/** @pred rb_map(+ _T_,+ _G_,- _TN_)
+/** @pred rb_map(+ _Tree_,+ _G_,- _TreeN_)
 
 
-For all nodes  _Key_ in the tree  _T_, if the value associated with
-key  _Key_ is  _Val0_ in tree  _T_, and if
+For all nodes  _Key_ in the tree  _Tree_, if the value associated with
+key  _Key_ is  _Val0_ in tree  _Tree_, and if
 `call(G,Val0,ValF)` holds, then the value associated with  _Key_
-in  _TN_ is  _ValF_. Fails if or if `call(G,Val0,ValF)` is not
+in  _TreeN_ is  _ValF_. Fails if or if `call(G,Val0,ValF)` is not
 satisfiable for all  _Var0_.
 
 
@@ -943,11 +943,11 @@ map(black(L,_,V,R),Goal) :-
 :- meta_predicate rb_fold(3,?,?,?).  % this is required.
 :- meta_predicate map_acc(?,3,?,?).  % this is required.
 
-/** @pred rb_fold(+ _T_,+ _G_,+ _Acc0_, - _AccF_)
+/** @pred rb_fold(+ _Tree_,+ _G_,+ _Acc0_, - _AccF_)
 
 
-For all nodes  _Key_ in the tree  _T_, if the value
-associated with key  _Key_ is  _V_ in tree  _T_, if
+For all nodes  _Key_ in the tree  _Tree_, if the value
+associated with key  _Key_ is  _V_ in tree  _Tree_, if
 `call(G,V,Acc1,Acc2)` holds, then if  _VL_ is value of the
 previous node in inorder, `call(G,VL,_,Acc0)` must hold, and if
  _VR_ is the value of the next node in inorder,
@@ -970,11 +970,11 @@ map_acc(black(L,_,V,R), Goal, Left, Right) :-
 :- meta_predicate rb_key_fold(4,?,?,?).  % this is required.
 :- meta_predicate map_key_acc(?,4,?,?).  % this is required.
 
-/** @pred rb_key_fold(+ _T_,+ _G_,+ _Acc0_, - _AccF_)
+/** @pred rb_key_fold(+ _Tree_,+ _G_,+ _Acc0_, - _AccF_)
 
 
-For all nodes  _Key_ in the tree  _T_, if the value
-associated with key  _Key_ is  _V_ in tree  _T_, if
+For all nodes  _Key_ in the tree  _Tree_, if the value
+associated with key  _Key_ is  _V_ in tree  _Tree_, if
 `call(G,Key,V,Acc1,Acc2)` holds, then if  _VL_ is value of the
 previous node in inorder, `call(G,KeyL,VL,_,Acc0)` must hold, and if
  _VR_ is the value of the next node in inorder,
@@ -995,7 +995,7 @@ map_key_acc(black(L,Key,V,R), Goal, Left, Right) :-
 	once(call(Goal, Key, V, Left1, Right1)),
 	map_key_acc(R,Goal, Right1, Right).
 
-/** @pred rb_clone(+ _T_,?_OldNodes_,?_NT_,?_Nodes_)
+/** @pred rb_clone(+ _Tree_,?_OldNodes_,?_NT_,?_Nodes_)
 
 
 =Clone= the red-back tree into a new tree with the same keys as the
@@ -1016,12 +1016,12 @@ clone(black(L,K,V,R),Nil,ONsF,ONs0,black(NL,K,NV,NR),NsF,Ns0) :-
 	clone(L,Nil,ONsF,[K-V|ONs1],NL,NsF,[K-NV|Ns1]),
 	clone(R,Nil,ONs1,ONs0,NR,Ns1,Ns0).
 
-/** @pred rb_partial_map(+ _T_,+ _Keys_,+ _G_,- _TN_)
+/** @pred rb_partial_map(+ _Tree_,+ _Keys_,+ _G_,- _TreeN_)
 
 
 For all nodes  _Key_ in  _Keys_, if the value associated with key
- _Key_ is  _Val0_ in tree  _T_, and if `call(G,Val0,ValF)`
-holds, then the value associated with  _Key_ in  _TN_ is
+ _Key_ is  _Val0_ in tree  _Tree_, and if `call(G,Val0,ValF)`
+holds, then the value associated with  _Key_ in  _TreeN_ is
  _ValF_. Fails if or if `call(G,Val0,ValF)` is not satisfiable
 for all  _Var0_. Assumes keys are not repeated.
 
@@ -1073,10 +1073,10 @@ partial_map(black(L,K,V,R),Map,MapF,Nil,Goal,black(NL,K,NV,NR)) :-
 	).
 
 
-/** @pred rb_keys(+ _T_,+ _Keys_)
+/** @pred rb_keys(+ _Tree_,+ _Keys_)
 
 
- _Keys_ is an infix visit with all keys in tree  _T_. Keys will be
+ _Keys_ is an infix visit with all keys in tree  _Tree_. Keys will be
 sorted, but may be duplicate.
 
 
@@ -1155,10 +1155,10 @@ build_node( 0, Left, K, Val, Right, red(Left, K, Val, Right)) :- !.
 build_node( _, Left, K, Val, Right, black(Left, K, Val, Right)).
 
 
-/** @pred rb_size(+ _T_,- _Size_)
+/** @pred rb_size(+ _Tree_,- _Size_)
 
 
- _Size_ is the number of elements in  _T_.
+ _Size_ is the number of elements in  _Tree_.
 
 
 */

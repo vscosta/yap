@@ -7,7 +7,7 @@
   * @brief  support Prolog dialects
   *
   * @defgroup Dialects Generic Support for Prolog dialects
-  * @ingroup load_files
+  * @ingroup YAPConsulting
  
   * @{
   * 

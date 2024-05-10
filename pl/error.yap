@@ -8,8 +8,7 @@
 
 /*
 :- module(system(error,
-	  [ must_be_of_type/2,		% +Type, +Term
-	    must_be_of_type/3,		% +Type, +Term, +Comment
+	  [ must_be_of_type/2,		% +	    must_be_of_type/3,		% +Type, +Term, +Comment
 		must_be/2,		% +Type, +Term
   	    must_be/3,		% +Type, +Term, +Comment
   	    type_error/2,		% +Type, +Term
@@ -30,9 +29,18 @@
  @defgroup ErrorBuiltins Error generating type-checking
 @ingroup YAPError
 
+@beiwd\\\
+]]]]]
+
+
+]
+
+
+
 This  code is based oon the SWI   predicates  to  simplify  error  generation  and
 checking. Adapted to use YAP built-ins.
 
+@{
 Its implementation is based on a discussion on the SWI-Prolog
 mailinglist on best practices in error   handling. The utility predicate
 must_be/2  provides  simple  run-time  type    validation.  The  *_error

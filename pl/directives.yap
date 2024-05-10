@@ -23,7 +23,7 @@
   * @brief  Control File Loading
   %
   % @defgroup Directives Prolog Directives
-  % @ingroup YAPConsult
+  % @ingroup YAPConsulting
   *
   * Directives are instructions to start or change the compilation process.
   * @{

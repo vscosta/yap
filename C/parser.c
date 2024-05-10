@@ -23,7 +23,7 @@ static char SccsId[] = "%W% %G%";
  * @file parser.c
  *
  * @addtogroup Parser Parser Implementation
- * @ingroup Implementation
+ * @ingroup YAPImplementation
  *
  * @{
  *

@@ -1,4 +1,4 @@
-/*************************************************************************
+/************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -20,10 +20,9 @@
 @file modules.yap
 
   @addtogroup ModuleBuiltins
-  @ingroup YAPModules
   @{
 
-  **/
+  */
 :- system_module_( '$_modules', [abolish_module/1,
 				add_import_module/3,
 				current_module/1,
@@ -204,7 +203,7 @@ use_module(F) :- load_files(F,[if(not_loaded),must_be_module(true)]).
 
 
 /**
-  \pred  use_module(+Files, +Imports)
+  @pred  use_module(+Files, +Imports)
   loads a module file but only imports the named predicates
 
 
@@ -815,7 +814,7 @@ module_state.
     \+  '$import'(_,Mod,_,P,_,_),
     '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),
-    format(string(Msg),`could not find a definition for ~q within the module ~a or its imports`,[NE/AE,Mod]),
+    format(string(Msg),`coul>>d not find a definition for ~q within the module ~a or its imports`,[NE/AE,Mod]),
     print_message(warning, error(warning(undefined_in_module,Mod:
     NE/AE),[parserReadingCode=true,parserPos=0, parserFile=File,parserLine=Line,errorMsg = Msg,prologConsulting=true ])),
     fail.
@@ -825,3 +824,4 @@ module_state.
 
 
 
+">>>>>>>>>>>>>>>>>>>>>>>>>>>>>

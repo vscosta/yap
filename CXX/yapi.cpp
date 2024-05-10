@@ -493,6 +493,10 @@ YAPListTerm::YAPListTerm(Term ts[], size_t n) {
         CACHE_REGS
 
   BACKUP_H();
+  if (n == 0) {
+    mk(TermNil);
+    return;
+  }
   if (HR + n * 3 > ASP-1024) {
     throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(ts[],n)");
   }
@@ -512,8 +516,10 @@ YAPListTerm::YAPListTerm( std::vector<YAPTerm> ts) {
   CACHE_REGS
   BACKUP_H();
   size_t n=ts.size();
-  if (n == 0)
+  if (n == 0) {
     mk(TermNil);
+    return;
+  }
   if (HR + n * 2 > ASP - 1024) {
     throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::vector<YAPTerm>)");
   }

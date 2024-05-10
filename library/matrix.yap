@@ -287,7 +287,7 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 %%    - matrix(Dims), same as  matrix(Dims, [])
 %%
 %%    - ListOfLists,
-%%
+hhhh%%
 %%    - matrix(Dims) of Type
 %%
 %%    - matrix(Dims) of Number

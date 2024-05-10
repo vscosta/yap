@@ -150,9 +150,14 @@ t_hlist(T, _, _, _, Goal) :-
 % variables.
 % Last tells whether we are the ones who should close that chain.
 %
+t_body(Var, SM, filled_in, _, S, S1, call(SM:Var,S,S1)) :-
+    var(Var),
+    !.
 t_body(Var0, SM, filled_in, _, S, S1, call(SM:Var0,S,S1)) :-
     \+ callable(Var0),
     !.
+t_body({T}, SM, _, _, S, S, call(SM:T)) :- var(T), !.
+t_body({T}, SM, _, _, S, S, SM:T) :- !.
 t_body(!,_, _, _, S, S, !) :- !.
 t_body([], _,_, _, S, S, true) :- !.
 t_body(X, SM, FilledIn, Last, S, SR, OS) :- string(X), !,
@@ -160,7 +165,6 @@ t_body(X, SM, FilledIn, Last, S, SR, OS) :- string(X), !,
 	t_body(Codes, SM, FilledIn, Last, S, SR, OS).
 t_body([X|R], _, filled_in, _Last, S, SR, (S=SF)) :-
     '$append'([X|R],SR,SF), !.
-t_body({T}, SM, _, _, S, S, SM:T) :- !.
 t_body((T,R), SM, ToFill, Last, S, SR, (Tt,Rt)) :- !,
 	t_body(T, SM, ToFill, not_last, S, SR1, Tt),
 	t_body(R, SM, ToFill, Last, SR1, SR, Rt).

@@ -4,7 +4,9 @@
 /** @file preddyns.yap */
 
 /**
- * @addtogroup Database
+ * @adefgroup DatabasePredDyns
+ * @ingroup Builtins
+
 
 Next follow the main operations on dynamic predicates.
 
@@ -86,7 +88,7 @@ assertz(Clause) :-
     '$assert'(Clause, assertz, []).
 
 /** @pred  assert(+ _C_)
-eu
+
 Same as assertz/1. Adds clause  _C_ to the program. If the predicate is undefined,
 declare it as dynamic. New code should use assertz/1 for better portability.
 
@@ -124,7 +126,7 @@ declared dynamic.
 
 The same as `assertz(C)` but unifying  _R_ with
 the  database reference that identifies the new clause, in a
-one-to-one way. Note that `asserta/2` only works for dynamic
+one-to-one way. Note that assertz/2 only works for dynamic
 predicates. If the predicate is undefined, it will automatically be
 declared dynamic.
 
@@ -137,7 +139,7 @@ assertz(Clause, Ref) :-
 
 The same as `assert(C)` ( (see Modifying the Database)) but
 unifies  _R_ with the  database reference that identifies the new
-clause, in a one-to-one way. Note that `asserta/2` o>ly works for dynamic
+clause, in a one-to-one way. Note that assert/2 only works for dynamic
 predicates. If the predicate is undefined, it will automatically be
 declared dynamic.
 

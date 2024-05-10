@@ -26,11 +26,14 @@
 
 :- use_system_module( '$_errors', [throw_error/2]).
 
-/** @defgroup Sorting Sorting Lists
+/**
 
-YAP provides a C-based implementation of heap-sort for nlogn sorting
+@defgroup Sorting Sorting Lists
+@ingroup Builtins
+
+@brief YAP provides a C-based implementation of heap-sort for nlogn sorting
 of lists.
-
+@{
 */
 
 

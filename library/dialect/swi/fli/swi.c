@@ -14,7 +14,7 @@ Moyle.  All rights reserved.
  *
  *   @file swi.c
  *
- *   @addtogroup FLI_swi-c-interface
+ *   @addtogroup swi-c-interface
  *
  *  @brief a reimplementation of the SWI-Prolog interface.
  *
@@ -111,8 +111,8 @@ static void UserCPredicate(char *a, CPredicate def, arity_t arity,
 
 //!  @}
 
-/** @defgroup FLI_swi-ATOMS Atom Construction
- *  @ingroup FLI_swi-c-interface
+/** @defgroup swi-ATOMS Atom Construction
+ *  @ingroup swi-c-interface
  *  @{
  *  */
 
@@ -316,8 +316,8 @@ int PL_chars_to_term(const char *s, term_t t)
 
 /**
  *
- * @defgroup FLI_swi-term_references Term References
- *  @ingroup FLI_swi-c-interface
+ * @defgroup swi-term_references Term References
+ *  @ingroup swi-c-interface
  *  @{
 */
 
@@ -359,8 +359,8 @@ X_API void PL_reset_term_refs(term_t after) {
 /** @}
  */
 
-/**  @defgroup FLI_swi-get-operations Reading Terms
- *  @ingroup FLI_swi-c-interface
+/**  @defgroup swi-get-operations Reading Terms
+ *  @ingroup swi-c-interface
  * @{
  *  */
 
@@ -785,8 +785,8 @@ X_API int PL_get_head(term_t ts, term_t h) {
  *  */
 
 /**
-*  @defgroup FLI_swi-unify-operations Unifying Terms
-*  @ingroup FLI_swi-c-interface
+*  @defgroup swi-unify-operations Unifying Terms
+*  @ingroup  swi-c-interface
 *  @{
 *
 */

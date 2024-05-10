@@ -23,7 +23,7 @@
   * @brief  Compiling expressions
   *
   * @defgroup CompiledExpressions Compiled Form of Arithmetic Expressions in Prolog
-  * @ingroup drectives
+  * @ingroup Directives
   *
   *
 */

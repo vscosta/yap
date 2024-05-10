@@ -1,5 +1,6 @@
 
-## The YAP C-interface {#fli_c}
+@defgroup fli_c The YAP C-interface 
+@ingroup YAPAPI
 
 
 

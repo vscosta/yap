@@ -26,8 +26,8 @@ Welcome to YAP's documentation!
    '../../md'/load_files.md'
    '../../md'/modules.md'
    '../../md'/packages.md'
-   '../../md'/run.md'
-   '../../md'/swi.md'
+	     '../../md'/xivrun.md'
+      '../../md'/swi.md'xovxov
    '../../md'/syntax.md'
    '../../md'/yap.md'
    'classlist.rst'

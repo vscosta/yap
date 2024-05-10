@@ -33,8 +33,15 @@ static char SccsId[] = "%W% %G%";
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 00:45:56 2016
  *
- * @brief  absolute file name: C ut in a different light.
+ * @brief  absolute file name: c-code
  lo *
+ */
+
+/**
+ * @addtogroup absf
+ *
+ * @brief C-code support for dealing with paths
+ *
  */
 
 static Term do_glob(const char *spec, bool glob_vs_wordexp);
@@ -52,8 +59,8 @@ static Term gethdir(Term t) {
         return false;
     }
     if (TermDot == t) {
-        return 
-	  MkAtomTerm(Yap_LookupAtom(Yap_getcwd(buf,
+        return
+          MkAtomTerm(Yap_LookupAtom(Yap_getcwd(buf,
 PATH_MAX - 1)));
     }
     nsz = strlen(s);
@@ -93,8 +100,7 @@ static Term is_file_errors(Term t) {
         return TermZERO;
     }
     if (IsAtomTerm(t)) {
-        Yap_ThrowError(DOMAIN_ERROR_FILE_ERRORS, t, "file_error in {fail,error}.");
-        return TermZERO;
+        Yap_ThrowError(DOMAIN_ERROR_FILE_ERRORS, t, "file_error in 1{fail,error}."); return TermZERO;
     }
     Yap_ThrowError(TYPE_ERROR_ATOM, t, "file_error in {fail,error}.");
     return TermZERO;
@@ -116,8 +122,8 @@ static Term is_file_type(Term t) {
               "file_type in {txt,prolog,exe,directory...}");
     return TermZERO;
   }
-  Yap_ThrowError(TYPE_ERROR_ATOM, t, "file_type in {txt,prolog,exe,directory...}");
-  return TermZERO;
+  Yap_ThrowError(TYPE_ERROR_ATOM, t, "file_type in in {txt,prolog,exe,directory...}");
+  	   return TermZERO;
 }
 
 
@@ -126,10 +132,10 @@ static Term is_file_type(Term t) {
   char *o = Malloc(FILENAME_MAX+1), *wd = Malloc(FILENAME_MAX+1);
   const char *cwd =  Yap_getcwd(wd, FILENAME_MAX);
  size_t sz = cwk_path_get_absolute(
-				  cwd, path,
-				     o,
-			 FILENAME_MAX
-			 );
+                                  cwd, path,
+                                     o,
+                         FILENAME_MAX
+                         );
   if (sz <0)
     return NULL;
 return pop_output_text_stack(lvl,o);
@@ -996,12 +1002,129 @@ static Int get_abs_file_parameter(USES_REGS1) {
 }
 
 
+static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
+  Term t = Deref(ARG1);
+  Atom at;
+  bool rc;
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
+    return false;
+  }
+  int l = push_text_stack();
+  const char *buf = Yap_TextTermToText(t PASS_REGS);
+  if (buf) {
+    rc = Yap_IsAbsolutePath(buf, true);
+  } else {
+    at = AtomOfTerm(t);
+#if _WIN32
+    rc = PathIsRelative(RepAtom(at)->StrOfAE);
+#else
+    rc = RepAtom(at)->StrOfAE[0] == '/';
+#endif
+  }
+  pop_text_stack(l);
+  return rc;
+}
+
+static Int file_base_name(USES_REGS1) { /* file_base_name(Stream,N) */
+  const char *s, *c;
+  Term t = Deref(ARG1);
+  Atom at;
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
+    return FALSE;
+  }
+  if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
+    c = RepAtom(at)->StrOfAE;
+  } else if (IsStringTerm(t)) {
+    c = StringOfTerm(t);
+  } else {
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, NULL);
+    return false;
+  }
+#if HAVE_BASENAME && 0 // DISABLED: Linux basename is not compatible with
+                       // file_base_name in SWI and GNU
+  char c1[MAX_PATH + 1];
+  strncpy(c1, c, MAX_PATH);
+  s = basename(c1);
+#else
+  Int i = strlen(c);
+  while (i && !Yap_dir_separator((int)c[--i]))
+    ;
+  if (Yap_dir_separator((int)c[i])) {
+    i++;
+  }
+  s = c + i;
+#endif
+  if (IsAtomTerm(t))
+    return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
+  else
+    return Yap_unify(ARG2, MkStringTerm(s));
+}
+
+/**
+ * file_directory_name(+Path, -DirSubPath)
+ *
+ * given a path, return the prefix of the path that describes the directory  the path leads to.
+ *
+ * Notice  that the directory may not exist. In UNIX/Linux this is just the prefix for the last `/`.
+ */
+
+static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
+  Term t = Deref(ARG1);
+  Atom at;
+  const char *c;
+  
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, t, "file_directory_name/2");
+    return false;
+  }
+  if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
+    c = RepAtom(at)->StrOfAE;
+  } else if (IsStringTerm(t)) {
+    c = StringOfTerm(t);
+  } else {
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, NULL);
+    return false;
+  }
+#if HAVE_BASENAME && 0 // DISABLED: Linux basename is not compatible with
+                       // file_base_name in SWI and GNU
+  const char *s;
+  char c1[MAX_PATH + 1];
+  strncpy(c1, c, MAX_PATH);
+  s = dirname(c1);
+#else
+  char s[MAX_PATH + 1];
+  ssize_t i=0;
+  if (c && c[0]) {
+    i = strlen(c);
+      strncpy(s, c, MAX_PATH);
+      while (--i) {
+	if (Yap_dir_separator((int)c[i]))
+	  break;
+      }
+  }  else {
+    if (i == 0) {
+      s[0] = '.';
+      i = 1;
+    }
+  }
+  s[i] = '\0';
+#endif
+  if (IsAtomTerm(t))
+  return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
+  else
+      return Yap_unify(ARG2, MkStringTerm(s));
+
+}
+
 void Yap_InitAbsfPreds(void) {
   Yap_InitCPred("path_concat", 2, path_concat,0);
   Yap_InitCPred("expand_file_name", 2, p_expand_file_name, SyncPredFlag);
   Yap_InitCPred("prolog_to_os_filename", 2, prolog_to_os_filename,
                 SyncPredFlag);
-  Yap_InitCPred("absolute_file_system_path", 2, absolute_file_system_path, 0);
   Yap_InitCPred("absolute_file_system_path", 2, absolute_file_system_path, 0);
   Yap_InitCPred("absolute_file_name", 2, real_path, 0);
   Yap_InitCPred("true_file_name", 2, true_file_name, SyncPredFlag);
@@ -1009,4 +1132,7 @@ void Yap_InitAbsfPreds(void) {
   Yap_InitCPred("abs_file_parameters", 2, abs_file_parameters,  HiddenPredFlag);
   Yap_InitCPred("get_abs_file_parameter", 3, get_abs_file_parameter, HiddenPredFlag);
   Yap_InitCPred("file_name_extension", 3, file_name_extension, 0);
+  Yap_InitCPred("file_base_name", 2, file_base_name, SafePredFlag);
+  Yap_InitCPred("file_directory_name", 2, file_directory_name, SafePredFlag);
+  Yap_InitCPred("is_absolute_file_name", 1, is_absolute_file_name, SafePredFlag);
 }

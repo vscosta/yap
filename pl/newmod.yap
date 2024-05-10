@@ -17,12 +17,15 @@
 /**
 
   @file newmod.yap
-  @short support for creating a new module.
+  @brief support for creating a new module.
 
   @defgroup NewModuleBuiltins Creating New Modules
   @ingroup YAPModules
+
+
+  @{
   @pred module(+M) is det
-   set the type-in module
+  @brief set the type-in module
 
 
 Defines  _M_ to be the current working or type-in module. All files
@@ -44,9 +47,9 @@ module(N) :-
 	throw_error(type_error(atom,N),module(N)).
 
 /**
- \pred	module(+ Module:atom, +ExportList:list) is directive
+ @pred	module(+ Module:atom, +ExportList:list) is directive
 
-  @brief define a new module
+ @brief define a new module
 
 This directive defines the file where it appears as a _module file_;
 it must be the first declaration in the file.  _Module_ must be an
@@ -147,8 +150,10 @@ set_module_property(Mod, class(Class)) :-
 
 /**
 
+@}
+
 @defgroup ModPreds Module Interface Predicates
-@ingroup modules
+@ingroup YAPModules
 
 
   @{
@@ -240,7 +245,7 @@ This predicate actually exports _Module to the _ContextModule_.
 	assert('$source_file_scope'( F, M) )
     ).
 '$import_module'(DonorM, HostM, File, _Opts) :-
-    \+
+v    \+
 	'$module'(File, DonorM, _ModExports, _),                                                                 
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, DonorM], _),
@@ -260,14 +265,6 @@ This predicate actually exports _Module to the _ContextModule_.
     ),
     !.
 
-/**
-
-@defgroup ModPreds Module Interface Predicates
-@ingroup modules
-
-
-  @{
-**/
 
 
 /**
