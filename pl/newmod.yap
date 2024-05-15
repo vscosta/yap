@@ -18,33 +18,21 @@
 
   @file newmod.yap
   @brief support for creating a new module.
+*/
 
+/*
   @defgroup NewModuleBuiltins Creating New Modules
   @ingroup YAPModules
 
+@brief Predicates that create a new module. or export predicates from other modules. 
 
   @{
-  @pred module(+M) is det
-  @brief set the type-in module
-
-
-Defines  _M_ to be the current working or type-in module. All files
-which are not bound to a module are assumed to belong to the working
-module (also referred to as type-in module). To compile a non-module
-file into a module which is not the working one, prefix the file name
-with the module name, in the form ` _Module_: _File_`, when
-loading the file.
-
 */
+
 module(N) :-
-	var(N),
-	throw_error(instantiation_error,module(N)).
-module(N) :-
-	atom(N), !,
+	must_be_atom(N), !,
 	% set it as current module.
 	'$current_module'(_,N).
-module(N) :-
-	throw_error(type_error(atom,N),module(N)).
 
 /**
  @pred	module(+ Module:atom, +ExportList:list) is directive
@@ -148,18 +136,6 @@ set_module_property(Mod, class(Class)) :-
 '$operators'([_|AllExports0], DonorM) :-
     '$operators'(AllExports0, DonorM).
 
-/**
-
-@}
-
-@defgroup ModPreds Module Interface Predicates
-@ingroup YAPModules
-
-
-  @{
-
-**/
-
 
 '$export_preds'([]).
 '$export_preds'([N/A|Decls]) :-
@@ -245,7 +221,6 @@ This predicate actually exports _Module to the _ContextModule_.
 	assert('$source_file_scope'( F, M) )
     ).
 '$import_module'(DonorM, HostM, File, _Opts) :-
-v    \+
 	'$module'(File, DonorM, _ModExports, _),                                                                 
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, DonorM], _),

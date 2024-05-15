@@ -15,7 +15,17 @@
 *									 *
 *************************************************************************/
 
+/**
+    @file modules.c
+    @brief Low-Leve; Module Support.
+*/
 
+/**
+   @defgroup ModBuiLtins Supporting the module system
+   @ingroup YAPModules
+   @brief Low-level Builtins used ro interact with the module system.
+   @{
+*/
 
 #ifdef SCCSLookupSystemModule
 static char SccsId[] = "%W% %G%";
@@ -773,3 +783,5 @@ void Yap_InitModules(void) {
   CurrentModule = PROLOG_MODULE;
   LOCAL_SourceModule = PROLOG_MODULE;
 }
+
+%% @}

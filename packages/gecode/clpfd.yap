@@ -1,3 +1,4 @@
+
 /**
 @defgroup YAP_Gecode5and+ClPbBFDbC Programming Finite Domain Constraints in YAP/Gecode
 @ingroup YAP_Gecode5
@@ -68,8 +69,7 @@ declares a set of  boolean variable.
                   (#\)/1,
                   (#\/)/2,
                   (#/\)/2,
-                  in/2 ,
-                  fd_in/2 ,
+                  in/2,
                   ins/2,
 		  boolvar/1,
 		  boolvars/1,
@@ -94,27 +94,26 @@ declares a set of  boolean variable.
 		  in_dfa/4,
 		  init_gecode/2,
 		    close_gecode/3,
-		    /*
-                  tuples_in/2, */
+                  tuples_in/2,
                   labeling/2,
-                  bool_labeling/2 /*,
+                  bool_labeling/2,
                   label/1,
                   indomain/1,
                   serialized/2,
                   global_cardinality/2,
                   global_cardinality/3,
                   circuit/1,
-                  element/3,
-                  automaton/3,
-                  automaton/8,
+%                  element/3,
+%                  automaton/3,
+%                  automaton/8,
                   transpose/2,
                   zcompare/3,
-                  chain/2,
+ %                 chain/2,
                   fd_var/1,
                   fd_inf/2,
                   fd_sup/2,
                   fd_size/2,
-                  fd_dom/2 */
+                  fd_dom/2
                  ]).
 
 /** @pred _X_ #<  _B_  is det
@@ -233,13 +232,7 @@ The product of constant  _Cs_ by  _Vs_ must be in relation
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
 
-:- reexport(library(matrix), [(<==)/2, op(800, xfx, '<=='),
-	    op(700, xfx, in),
-	    op(700, xfx, fd_in),
-	    op(700, xfx, ins),
-            op(450, xfx, ..), % should bind more tightly than \/
-	    op(710, xfx, of),
-	    foreach/2, foreach/4, of/2]).
+:- reexport(library(matrix)).
 
 % build array of constraints
 %
@@ -262,7 +255,7 @@ constraint( (_ #<==> _) ).
 constraint( (_ #==> _) ).
 constraint( (_ #<== _) ).
 constraint( (_ #\/ _) ).
-constraint( fd_in(_, _) ). %2,
+constraint( in(_, _) ). %2,
 constraint( ins(_, _) ). %2,
 constraint( all_different(_) ). %1,
 constraint( all_distinct(_) ). %1,
@@ -456,13 +449,6 @@ fd_sum( L, Op, V) :-
 	check(B, NB),
 	m(X, NX, NA, NB, Map),
 	NX := intvar(Space, NA, NB).
-( X fd_in A..B) :-
-    var(X),
-	get_home(Space-Map),
-	check(A, NA),
-	check(B, NB),
-	m(X, NX, NA, NB, Map),
-	NX := intvar(Space, NA, NB).
 ( Xs ins A..B) :-
 	get_home(Space-Map),
  	check(A, NA),
@@ -617,7 +603,7 @@ check(V, NV) :-
 	  V = A-B -> check(A,NA), check(B, NB), NV = NB-NA ;
 	  V = A/\B -> check(A,NA), check(B, NB), NV = NB/\NA ;
 	  V = A\/B -> check(A,NA), check(B, NB), NV = NB\/NA ;
-	  V fd_in A..B, var(V) -> check(A,NA), check(B, NB), NV fd_in NB..NA ;
+	  V in A..B, var(V) -> check(A,NA), check(B, NB), NV in NB..NA ;
 	  arith(V, _) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ;
 	  constraint(V) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ).
 

@@ -287,14 +287,14 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 %%    - matrix(Dims), same as  matrix(Dims, [])
 %%
 %%    - ListOfLists,
-hhhh%%
+%%
 %%    - matrix(Dims) of Type
 %%
 %%    - matrix(Dims) of Number
 %%
 %%    - matrix(Dims) of Goal
 %%
-%%    - matrix(Dims) of Offset^Goal
+ %%    - matrix(Dims) of Offset^Goal
 %%
 %%    - matrix(Dims) of call(Goal)
 %%
@@ -410,9 +410,6 @@ indexed `C`-style from  `0..( _Max_-1)`, or can be given
 as  an interval ` _Base_.. _Limit_`. In the latter case,
 matrices of integers and of floating-point numbers should have the same
     _Base_ on every dimension.
-
-
-
 */
 
 

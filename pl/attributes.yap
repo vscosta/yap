@@ -258,7 +258,7 @@ dot_list((A,B)) --> !, dot_list(A), dot_list(B).
 dot_list(A)	--> [A].
 */
 
-delete_attributes(Term) :-
+prolog:delete_attributes(Term) :-
 	term_attvars(Term, Vs),
 	delete_attributes_(Vs).
 

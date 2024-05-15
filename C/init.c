@@ -736,24 +736,28 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
     cl->usc.ClLine = Yap_source_line_no();
     p_code = cl->ClCode;
     pe->CodeOfPred = p_code;
-    if (!(flags & SafePredFlag)) {
+    if (flags & SafePredFlag) {
+    p_code->opc = Yap_opcode(_execute_cpred);
+    p_code->y_u.Osbpp.bmap = NULL;
+    p_code->y_u.Osbpp.s = -Signed(RealEnvSize);
+    p_code->y_u.Osbpp.p = p_code->y_u.Osbpp.p0 = pe;
+    p_code = NEXTOP(p_code, Osbpp);
+  } else {
       p_code->opc = Yap_opcode(_allocate);
       p_code = NEXTOP(p_code, e);
-    }
     p_code->opc = Yap_opcode(_call_cpred);
     p_code->y_u.Osbpp.bmap = NULL;
     p_code->y_u.Osbpp.s = -Signed(RealEnvSize);
     p_code->y_u.Osbpp.p = p_code->y_u.Osbpp.p0 = pe;
     p_code = NEXTOP(p_code, Osbpp);
-    if (!(flags & SafePredFlag)) {
       p_code->opc = Yap_opcode(_deallocate);
       p_code->y_u.p.p = pe;
       p_code = NEXTOP(p_code, p);
-    }
     p_code->opc = Yap_opcode(_procceed);
     p_code->y_u.p.p = pe;
     p_code = NEXTOP(p_code, p);
-    p_code->opc = Yap_opcode(_Ystop);
+}
+p_code->opc = Yap_opcode(_Ystop);
     p_code->y_u.l.l = cl->ClCode;
     pe->OpcodeOfPred = pe->CodeOfPred->opc;
   } else {

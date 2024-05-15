@@ -8,9 +8,11 @@
 /**
   @defgroup YAPMeta  Meta-Calls with Modules
  @ingroup YAPModules
+ @brief Meta-calls and the module system
  @{
+*/
 
-
+/*
   @pred meta_predicate(G1 , Gj , Gn) is directive
 
 Declares that this predicate manipulates references to predicates.

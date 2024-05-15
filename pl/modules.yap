@@ -18,11 +18,17 @@
 
 /**
 @file modules.yap
+@brief main module predicates.
+*/
 
-  @addtogroup ModuleBuiltins
+
+/**
+  @defgroup ModBuiltins Prolog predicates and directives to use modules
+  @ingroup YAPModules
+   @brief Utilities to manipulate the module system
   @{
 
-  */
+*/
 :- system_module_( '$_modules', [abolish_module/1,
 				add_import_module/3,
 				current_module/1,
@@ -552,8 +558,7 @@ export_list(Module, List) :-
     (C == y -> true; C == n).
 
 /**
-  @pred set_base_module( +Expor
-tingModule ) is det
+  @pred set_base_module( +ExportingModule ) is det
   @brief All
 predicates exported from _ExportingModule_ are automatically available to the
 other source modules.
@@ -823,5 +828,3 @@ module_state.
 %% @}
 
 
-
-">>>>>>>>>>>>>>>>>>>>>>>>>>>>>

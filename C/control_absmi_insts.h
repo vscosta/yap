@@ -398,7 +398,11 @@
        setregs();
       if (pt0==NULL)
 	 goto restart_procceed;
-	ENV_YREG=ENV;   
+      //yyENV_YREG=ENV;
+      if (B<(choiceptr)ENV_YREG) {
+	ENV_YREG=(CELL*)B;
+	      WRITEBACK_Y_AS_ENV();
+      }
         CACHE_A1();
         BEGD(d0);
         d0 = (CELL)B;
