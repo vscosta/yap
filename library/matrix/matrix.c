@@ -30,7 +30,7 @@
 #endif
 
 /**
- * @addtogroup YapMatrix
+ * @addtogroup YAPMatrix
  * @{
  */
 
@@ -1321,6 +1321,15 @@ static YAP_Bool matrix_arg_to_offset(void) {
   return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(off));
 }
 
+/** @pred matrix_offset_to_arg(+ _Matrix_,- _Offset_,+ _Position_)
+
+
+
+Given a position  _Position _ for matrix  _Matrix_ return the
+corresponding numerical  _Offset_ from the beginning of the matrix.
+
+
+*/
 static YAP_Bool matrix_offset_to_arg(void) {
   M mat;
   YAP_Term argno;
@@ -2052,6 +2061,15 @@ static void matrix_double_zdiv_data(double *nmat, int siz, double mat1[],
   }
 }
 
+/** @pred matrix_op(+ _Matrix1_,+ _Matrix2_,+ _Op_,- _Result_)
+
+
+
+ _Result_ is the result of applying  _Op_ to matrix  _Matrix1_
+and  _Matrix2_. Currently, only addition (`+`) is supported.
+
+
+*/
 static YAP_Bool matrix_op(void) {
   M mat1, mat2, nmat;
   YAP_Term top = YAP_ARG3;
@@ -2460,8 +2478,15 @@ static YAP_Bool matrix_op_to_all(void) {
   return YAP_Unify(YAP_ARG4, YAP_ARG1);
 }
 
-/* given a matrix M and a set of dims, build a new reordered matrix to follow
-   the new order
+/** @pred matrix_shuffle(XF+ _Matrix_,+ _NewOrder_,- _Shuffle_)
+
+
+
+Shuffle the dimensions of matrix  _Matrix_ according to
+ _NewOrder_. The list  _NewOrder_ must have all the dimensions of
+ _Matrix_, starting from 0.
+
+
 */
 static YAP_Bool matrix_transpose(void) {
   intptr_t ndims, i, *dims, *dimsn;
@@ -2540,8 +2565,14 @@ static YAP_Bool matrix_transpose(void) {
   return YAP_Unify(YAP_ARG3, tf);
 }
 
-/* given a matrix M and a set of dims, fold one of the dimensions of the
-   matrix on one of the elements
+/** @pred matrix_select(+ _Matrix_,+ _Dimension_,+ _Index_,- _New_)
+
+
+
+Select from  _Matrix_ the elements who have  _Index_ at
+ _Dimension_.
+
+
 */
 static YAP_Bool matrix_select(void) {
   intptr_t ndims, i, j, newdims, prdim, leftarg, *dims, indx[MAX_DIMS];
@@ -2640,7 +2671,10 @@ static YAP_Bool matrix_select(void) {
   return YAP_Unify(YAP_ARG4, tf);
 }
 
-/* given a matrix M and a set of N-1 dims, get the first dimension
+/** @pred matrix_column(+ _Matrix_,+ _Column_,- _NewMatrix)_
+
+Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_.  _Column_ must have one less dimension than the original matrix.
+
  */
 static YAP_Bool matrix_column(void) {
   intptr_t size, i, ndims, newdims[1];
@@ -3335,8 +3369,8 @@ X_API void init_matrix(void) {
   YAP_UserCPredicate("matrix_short_type", matrix_short_type, 2);
   YAP_UserCPredicate("matrix_arg_to_offset", matrix_arg_to_offset, 3);
   YAP_UserCPredicate("matrix_offset_to_arg", matrix_offset_to_arg, 3);
-  YAP_UserCPredicate("matrix_sum", matrix_sum, 2);
-  YAP_UserCPredicate("matrix_shuffle", matrix_transpose, 3);
+  YAP_UserCPredicate("matrix_sum", matrix_sum, 2); 
+ YAP_UserCPredicate("matrix_shuffle", matrix_transpose, 3);
   YAP_UserCPredicate("matrix_expand", matrix_expand, 3);
   YAP_UserCPredicate("matrix_select", matrix_select, 4);
   YAP_UserCPredicate("matrix_column", matrix_column, 3);

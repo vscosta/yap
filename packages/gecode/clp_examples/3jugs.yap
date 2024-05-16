@@ -20,11 +20,11 @@
 :- use_module(library(gecode/clpfd)).
 
 main :-
-    gecode_clpfd:init_gecode(Space, Me),
+    gecode_clpfd:init_gecode(Space, new),
     
     problem(Z, X, InFlow, OutFlow),
       term_variables(Z+X+InFlow+OutFlow,Vs),
- gecode_clpfd:close_gecode(Space, Vs, Me),
+ gecode_clpfd:close_gecode(Space, Vs, new),
     out(Z, X, InFlow, OutFlow).
 
 '..'(A,B,V) :-

@@ -122,7 +122,7 @@ reified implication
 As an example. consider finding out the people who wanted to sit
 next to a friend and that are are actually sitting together:
 
-```{.prolog}
+```
 preference_satisfied(X-Y, B) :-
     abs(X - Y) #= 1 #<==> B.
 ```
@@ -392,35 +392,31 @@ fd_sum( L, Op, V) :-
 	sum( L, Op, V).
 ( ( A #<==> VBool )) :-
 	get_home(Space-Map),
-	check(A, NA),
 	check(VBool, NVBool),
 	Bool := boolvar(Space),
 	m( NVBool, Bool, 0, 1, Map),
 	Space += reify(Bool, 'RM_EQV', R),
-	post(NA, Space-Map, R).
+	post(A, Space-Map, R).
 ( A #==> VBool) :-
 	get_home(Space-Map),
-	check(A, NA),
 	check(VBool, NVBool),
 	Bool := boolvar(Space),
 	m( NVBool, Bool, 0, 1, Map),
 	Space += reify(Bool, 'RM_IMP', R),
-	post(NA, Space-Map, R).
+	post(A, Space-Map, R).
 ( A #<== VBool) :-
 	get_home(Space-Map),
-	check(A, NA),
 	check(VBool, NVBool),
 	Bool := boolvar(Space),
 	m( NVBool, Bool, 0, 1, Map),
 	Space += reify(Bool, 'RM_PMI', R),
-	post(NA, Space-Map, R).
+	post(A, Space-Map, R).
 '#\\'(A) :-
 	get_home(Space-Map),
-	check(A, NA),
 	B := boolvar(Space),
 	Space += reify(B, 'RM_EQV', R),
 	Space += rel(B, 'BOT_EQV', 0),
-	post(NA, Space-Map, R).
+	post(A, Space-Map, R).
 ( A1 #\/ A2 ) :-
 	get_home(Space-Map),
 	check(A1, NA1),
@@ -469,6 +465,11 @@ boolvars( Xs ) :-
 /** @pred all_different( _Vs_    )
   Verifies whether all elements of a list are different.
 */
+abs( Xs, V ) :-
+	get_home(Env),
+	check(Xs, NXs),
+	check(V, NV),
+	post( rel( abs(NXs), (#=), NV ), Env, _ ).
 all_different( Xs ) :-
 	get_home(Env),
 	check(Xs, NXs),
@@ -591,21 +592,23 @@ extensional_constraint( Tuples, TupleSet) :-
 dfa( S0, Transitions, Finals, DFA) :-
 	DFA := dfa( S0, Transitions, Finals ).
 
-check(V, NV) :-
+check(V, V).
+/*
 	( attvar(V) -> V = NV ;
 	  var(V) -> V = NV ;
 	  number(V) -> V = NV ;
 	  is_list(V) -> maplist(check, V, NV) ;
 	  V = sum(_,_) -> V = NV ;
-	  V = '[]'(Indx, Mat) -> NV <== '[]'(Indx, Mat) ;
+	  V = '[]'(Indx, Mat) -> NV = '[]'(Indx, Mat) ;
 	  V = '$matrix'(_, _, _, _, C) -> C =.. [_|L], maplist(check, L, NV)  ;
-	  V = A+B -> check(A,NA), check(B, NB), NV = NB+NA ;
-	  V = A-B -> check(A,NA), check(B, NB), NV = NB-NA ;
-	  V = A/\B -> check(A,NA), check(B, NB), NV = NB/\NA ;
-	  V = A\/B -> check(A,NA), check(B, NB), NV = NB\/NA ;
-	  V in A..B, var(V) -> check(A,NA), check(B, NB), NV in NB..NA ;
-	  arith(V, _) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ;
-	  constraint(V) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ).
+	  V = A+B -> check(A,NA), check(B, NB), NV #= NB+NA ;
+	  V = A-B -> check(A,NA), check(B, NB), NV #= NB-NA ;
+	  V = A/\B -> check(A,NA), check(B, NB), NV #= NB/\NA ;
+	  V = A\/B -> check(A,NA), check(B, NB), NV #= NB\/NA ;
+	  V  = (Z in A..B) -> check(A,NA), check(B, NB), check(Z,NZ), NV = (NZ in NA..NB) ;
+	  arith(V, _) -> V =.. [C|L], maplist(check, L, NL), IV =.. [C|NL], IV #= NV ;
+	  constraint(V) -> V =.. [C|L], maplist(check, L, NL), IV =.. [C|NL], IV #= NV ).
+*/
 
 post( ( A #= B), Env, Reify) :-
 	post( rel( A, (#=), B), Env, Reify).
@@ -753,7 +756,7 @@ post( rel(A1-A2, Op, B), Space-Map, Reify):-
 post( rel(A1-A2, Op, B), Space-Map, Reify):-
     (  B = _ + _ ; B = _-_), !,
 	linearize(A1-A2, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
-	linearize(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
+    linearize(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->
 	    ( checklist(is_one, CAs) ->
@@ -769,9 +772,10 @@ post( rel(A1-A2, Op, B), Space-Map, Reify):-
 
 post( rel(A, Op, B), Space-Map, Reify):-
 	arith(A, Name),
-	A =.. [_Op,A1],
-	is_list(A1), !,
-	( _Op = min -> true ; _Op = max  ),
+	A =.. [Op,A1],
+	is_list(A1),
+	( Op == min -> true ; Op == max -> true ; Op == abs ),
+    !,
 	maplist(equality_l( Space-Map),  A1, NA1),
 	maplist(in_c_l( Space-Map), NA1, VA1),
 	equality(B, B1,  Space-Map),
@@ -780,10 +784,9 @@ post( rel(A, Op, B), Space-Map, Reify):-
 post( rel(A, Op, B), Space-Map, Reify):-
 	arith(A, Name),
 	A =.. [_Op,A1],
+	( _Opu = min -> true ; _Op = max -> true; _Op = abs ),
 	!,
-	
-	%( _Opu = min -> true ; _Op = max  ),
-	equality(A1, NA1,  Space-Map),
+    equality(A1, NA1,  Space-Map),
 	in_c(NA1, VA1,  Space-Map),
 	equality(B, B1,  Space-Map),
 	out_c(Name, VA1, B1,  Op, Space-Map, Reify).
@@ -1258,7 +1261,6 @@ new_arith( xor, V1, V2, NV, Space-Map) :-
 	Space += rel(X1, 'BOT_XOR', X2, NX).
 
 
-
 min_times(Min1,Min2,Max1,Max2,Min) :-
 	Min is min(Min1*Min2, min(Min1*Max2, min(Max1*Min2, Max1*Max2))).
 
@@ -1313,10 +1315,10 @@ user:term_expansion( ( H :- B), (H :- (gecode_clpfd:init_gecode(Space, Me), NB, 
 
 init_gecode(Space, old) :-
 	nb_current(gecode_space, Space), nonvar(Space), !.
-init_gecode(Space-Map, new) :-
+init_gecode(Space-[], new) :-
 	Space := space,
 	b_setval(gecode_done, false),
-	b_setval(gecode_space, Space-Map).
+	b_setval(gecode_space, Space-[]).
 
 close_gecode(_Space, _Vs, old) :- !.
 close_gecode(Space-Map, Vs0, new) :-
@@ -1404,11 +1406,12 @@ ll(Map, X, Y) :-
 	l(X, Y, Map).
 
 l(V, IV, A, B, _) :-
-	get_attr(V, gecode_clpfd, v(IV, A, B, V)).
+	get_attr(V, gecode_clpfd, v(IV, A, B)).
 
 var2(V,V) :- var(V), !.
 
 /*
+
 l(_NV, _OV, _, _, Vs) :-
 	var(Vs), !,
 	fail.
