@@ -18,6 +18,21 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file sysbits.c
+ * @brief  Operating System Interface
+ *
+ */
+
+/**
+ * @defgroup YAPOSVaria Operating System Interface
+ * @ingroup InputOutput
+ * @brief Operating Systems Interface Code.
+ * @{
+ */
+
+
+
 #include "sysbits.h"
 #include "cwalk.h"
 
@@ -104,7 +119,6 @@ bool Yap_Exists(const char *f) {
   return false;
 #endif
 }
-
 static int dir_separator(int ch) {
 #ifdef MAC
   return (ch == ':');
@@ -257,14 +271,32 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
   return Yap_COMMONSDIR && Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(Yap_COMMONSDIR)));
 }
 
+/**
+ * @pred libraries_directories(Dirs) }
+ *
+ * unify Dirs with the paths where YAP search for system libraries
+ *
+ */
 static Int libraries_directories(USES_REGS1) {
   return initSysPath(ARG1, ARG2, false, false);
 }
 
+/**
+ * @pred system_library(Dir) }
+ *
+ * unify Dir with the path for the main library.
+ *
+ */
 static Int system_library(USES_REGS1) {
   return initSysPath(ARG1, MkVarTerm(), false, true);
 }
 
+/**
+ * @pred commons_library(Dir) }
+ *
+ * unify Dir with the path for the commons library.
+ *
+ */
 static Int commons_library(USES_REGS1) {
   return initSysPath(MkVarTerm(), ARG1, true, false);
 }
@@ -745,6 +777,9 @@ static Int p_host_type(USES_REGS1) {
   return (Yap_unify(out, ARG1));
 }
 
+/** @pred $yap_home(YapRoot)
+
+ */
 static Int p_yap_home(USES_REGS1) {
   Term out;
 
@@ -1017,7 +1052,12 @@ char *Yap_RegistryGetString(char *name) {
 
 #endif
 
- 
+/**
+ * sleep(Time)
+ *
+ * stop the process for Time seconds
+ *
+ */
 static Int p_sleep(USES_REGS1) {
   Term ts = Deref(ARG1);
 #if defined(__MINGW32__) || _MSC_VER
@@ -1129,3 +1169,4 @@ void Yap_InitSysPreds(void) {
   Yap_InitCPred("mtrace", 1, p_mtrace, SyncPredFlag);
 }
    
+/// @}

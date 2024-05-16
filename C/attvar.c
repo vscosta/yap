@@ -13,10 +13,17 @@
  *									 *
  *************************************************************************/
 
-#
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
+
+/**
+ * @file attvar.c
+ * @brief Attributed Variables C-code
+ *
+ */
+
 
 #include "Yap.h"
 
@@ -28,11 +35,10 @@ static char SccsId[] = "%W% %G%";
 #include "YapSignals.h"
 
 /**
-    @defgroup AttributedVariables_Builtins Low-level support for Attributed
+   @defgroup AttributedVariables_Builtins Low-level support for Attributed
    Variables
-
-     @brief Implementation of Attribute Declarations
-    @ingroup AttributedVariables
+   @ingroup AttributedVariables
+   @brief Implementation of Attribute Declarations
     @{
 */
 

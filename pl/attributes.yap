@@ -17,7 +17,7 @@
 /**
   @file attributes.yap
 
-  @addtogroup New_Style_Attribute_Declarations
+  @addtogroup HPAtts
 
   @{
 
@@ -158,6 +158,11 @@ unify_attributed_variable_(V,V). % :-
 %    '$wake_up_done'.
 
 
+/**
+  * @pred attr_unify_hook(Att0, Binding)
+  *
+  * Module specific hook predicate called after binding an attributed variable.
+*/
 do_hook_attributes([], _) :- !.
 do_hook_attributes(Att0, Binding) :-
     Att0=att(Mod,Att,Atts),
@@ -270,7 +275,6 @@ delete_attributes_([V|Vs]) :-
 
 
 /** @pred call_residue(: _G_, _L_)
-v
 
 
 Call goal  _G_. If subgoals of  _G_ are still blocked, return

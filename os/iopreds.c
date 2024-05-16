@@ -33,8 +33,9 @@ static char SccsId[] = "%W% %G%";
  *for yap refering to Input/Output.
  */
 
-/** defgroup StreamOps Stream Operations
-
+/** 
+ * @defgroup StreamOps Stream Operations
+    @ingroup InputOutput
     @brief Main operations on streams.
 @{
     YAP uses streams to perform Input/Output. Streams are
