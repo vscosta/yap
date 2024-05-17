@@ -103,3 +103,13 @@ configure_file(yap-interface.cc.cmake glucose-interface.cc)
 # set_target_properties(GLUCOSE4 PROPERTIES CXX_STANDARD 11)
 # target_include_directories(GLUCOSE4 PRIVATE glucose-4/parallel)
 # target_include_directories(GLUCOSE4 PRIVATE glucose-4)
+
+
+	install(TARGETS MINISAT GLUCOSE
+          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+          RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} 
+
+    )
+
+  INSTALL(FILES satsolver.pl DESTINATION ${YAP_INSTALL_DATADIR})
