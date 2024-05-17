@@ -784,4 +784,4 @@ void Yap_InitModules(void) {
   LOCAL_SourceModule = PROLOG_MODULE;
 }
 
-// @}
+/// @}
