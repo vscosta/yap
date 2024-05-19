@@ -7,7 +7,7 @@ main :-
 	I is N*100,
 	statistics( runtime, _ ),
 	once( queens(I, _Queens) ),
-	statistics( runtime, [DT|_] ),
+    statistics( runtime, [DT|_] ),
 %	findall(Queens, queens(I, Queens), Solutions ),
 %	length( Solutions, N),
 	format('~d took ~w msec to find first solution.~n', [I, DT]),
@@ -15,6 +15,7 @@ main :-
 main.
 
 queens(N, Queens) :-
+    init_gecode(Space, Me),
 	length(Queens, N),
 	Queens ins 1..N,
 	all_distinct(Queens),
@@ -22,7 +23,8 @@ queens(N, Queens) :-
 	foldl(dec, Queens, Dec, 0, _), % [0, -1, -2, ... ]
 	all_distinct(Inc,Queens),
 	all_distinct(Dec,Queens),
-	labeling([], Queens).
+	labeling([], Queens),
+    close_gecode(Space, [Queens], Me).
 
 inc(_, I0, I0, I) :-
 	I is I0+1.

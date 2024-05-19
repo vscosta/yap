@@ -3,8 +3,6 @@
 @ingroup YapExtensions
 @{
 
-@verbatim
-
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
   arbitrary term is a property for a variable. These properties can be
@@ -28,8 +26,16 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
 
+@}
+*/
 
-## SICStus Style attribute declarations
+/**
+@defgroup SICSAtts SICStus Style attribute declarations
+@ingroup AttributedVariables
+@brief SICStus-Prolog interface to attributed variables (currently unsupported).
+@{
+
+
 
 The YAP library `atts` implements attribute variables in the style of
 SICStus Prolog. Attributed variables work as follows:
@@ -271,7 +277,15 @@ verify_attributes/3 predicates would typically refer to the
 attributes from other known solvers/modules via the module prefix in
 Module:get_atts/2.
 
-## hProlog and SWI-Prolog style Attribute Declarations
+@}
+
+*/
+
+/**
+   @defgroup HPAtts hProlog and SWI-Prolog style Attribute Declarations
+   @ingroup AttributedVariables
+   @brief The hProlog/SWI-Prolog is used in YAP to implement co-routining and several constraint solvers.
+   @{
 
 The following documentation is taken from the SWI-Prolog manual.
 
@@ -337,9 +351,9 @@ The predicate domain/2 fetches (first clause) or assigns
   fail if the intersection is empty (first example), simply assign the
   value if there is only one value in the intersection (second example) or
   assign the intersection as the new domain of the variable (third
-  example). The nonterminal `attribute_goals/3` is used to translate
+  example). The nonterminal attribute_goals/3 is used to translate
   remaining attributes to user-readable goals that, when executed, reinstate
   these attributes.
-@endverbatim
+
 @}
 */

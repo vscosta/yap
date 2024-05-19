@@ -19,9 +19,10 @@
 :- use_module(library(gecode/clpfd)).
 :- use_module(library(maplist)).
 
-main :- ex(Ex, People, Names, _Preferences),
-	photo(Ex, People, Amount ),
-	format( 'Example ~a: ~w~n', [Ex, Amount]),
+main :- 
+	ex(Ex, People, Names, Preferences),
+	photo(Ex, People, Preferences, Amount ),
+	format('Example ~a: ~w~n', [Ex, Amount]),
 	maplist(join, People, Names, PeopleNames),
 	keysort( PeopleNames, SortedPeopleNames),
 	maplist(join, _People, SortedNames, SortedPeopleNames),
@@ -34,11 +35,10 @@ join( Key, El, Key-El ).
 output( Name ) :- format('   ~a~n', [Name]).
 
 % 5 people want to have a photograph together, but they have preferences.
-photo(Ex, People, Amount) :-
-	ex(Ex, People, _, Preferences),
-	length(People, Len),
-	Len0 is Len-1,
-	People ins 0..Len0,
+photo(Ex, People, Preferences, Amount) :-
+    init_gecode(Space, new),
+    length(People, Len),
+	People ins 0..Len,
 	all_distinct(People),
 	% Bools are the satisfied constraints
 	maplist(preference_satisfied, Preferences, Bools),
@@ -47,11 +47,12 @@ photo(Ex, People, Amount) :-
 	sum( Bools ) #= Amount,
 	% add all satisfied constraints
 	maximize(Amount),
-	labeling([], People).
+	labeling([], People),
+	close_gecode(Space, [Amount|People], Me).
 
 %reification, use with care
 preference_satisfied(X-Y, B) :-
- 	abs(Y-X) #= 1 #<==> B.
+ abs(Y-X) #= 1  #<==> B.
 
 ex(s,[Alice,Bob,Carl,Deb,Evan],
    ['Alice','Bob','Carl','Deb','Evan'],

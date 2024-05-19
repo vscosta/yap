@@ -22,7 +22,7 @@ static char SccsId[] = "%W% %G%";
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Thu Nov 19 12:05:14 2015
  *
- * @brief  Character Properties
+ * @brief  Character Types
  *
  *
  */
@@ -30,7 +30,9 @@ static char SccsId[] = "%W% %G%";
 ///{@
 
 /**
- * @addtogroup CharacterCodes
+ * @defgroup CharTypes Character Types
+ * @ingroup InputOutput
+ * @brief Character Types and formats
  * @{
  */
 
@@ -190,6 +192,8 @@ static Int get_default_encoding(USES_REGS1) {
 /**
 @pred encoding(_Stream, Code )
 
+@brief Show or set the encoding from the current stream.
+
 */
 static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   int sno =
@@ -204,7 +208,11 @@ static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
   return TRUE;
 }
 
-
+/**
+   get_char( + Code, -Char)
+   if the number _Code_ represents a valid Unicode point, the atom _Char_ will represent the same
+   unicode point.
+*/
 static int get_char(Term t) {
   CACHE_REGS
   if (IsVarTerm(t = Deref(t))) {
@@ -227,6 +235,12 @@ static int get_char(Term t) {
   return c;
 }
 
+/**
+   @pred get_char( +Char -Code)
+
+   if the  atom _Char_ represents a valid Unicode point, the number _Coder_ will represent the same
+   unicode point.
+*/
 static int get_code(Term t) {
   if (IsVarTerm(t = Deref(t))) {
     Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
@@ -244,6 +258,11 @@ static int get_code(Term t) {
   return ch;
 }
 
+/**
+   @pred get_char_or_code( +CharOrCode, -CodeOrChar)
+
+ convert from char to code or from code to char.
+*/
 static int get_char_or_code(Term t, bool *is_char) {
   CACHE_REGS
   if (!IsAtomTerm(t)) {
@@ -270,6 +289,10 @@ static int get_char_or_code(Term t, bool *is_char) {
   return val;
 }
 
+/** @pred  toupper(?LowC, ?LUpC)
+
+    UpC is the upper case bersion of LowC, or LowC is the lower case version of UpC.
+ */
 static Int toupper2(USES_REGS1) {
   bool is_char = false;
   Term t;
@@ -304,6 +327,10 @@ static Int toupper2(USES_REGS1) {
   return false;
 }
 
+/** @pred  toupper( ?LUpC, ?LowC)
+
+      LowC is the lower case version of UpC., or UpC is the upper case bersion of LowC,
+ */
 static Int tolower2(USES_REGS1) {
   bool is_char = false;
   Term t;
@@ -339,6 +366,10 @@ static Int tolower2(USES_REGS1) {
   return false;
 }
 
+/** @pred  change_type_of_char( ?Code, Value)
+
+    set the type of ASCII code Code to Value (a number defined in YapScanner.h)
+ */
 static Int
     p_change_type_of_char(USES_REGS1) { /* change_type_of_char(+char,+type) */
   Term t1 = Deref(ARG1);
@@ -351,35 +382,60 @@ static Int
   return TRUE;
 }
 
+
+/** @pred  char_type_alnum( Char )
+
+Holds true if Char is a letter of the alphabet or a digit.
+ */
 static Int char_type_alnum(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == UC || k == LC || k == NU;
 }
 
+/** @pred  char_type_alpha( Char )
+
+Holds true if Char is a letter of the alphabet.
+ */
 static Int char_type_alpha(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == UC || k == LC;
 }
 
+/** @pred  char_type_csym( Char )
+
+Holds true if Char is a letter, digit or underscore.
+ */
 static Int char_type_csym(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= UC && k <= NU;
 }
 
+/** @pred  char_type_csymf( Char )
+
+Holds true if Char is an uppercase letter, digit or underscore.
+ */
 static Int char_type_csymf(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= UC && k <= LC;
 }
 
+/** @pred  char_type_ascii( Char )
+
+Holds true if Char belongs to the ASCII code.
+ */
 static Int char_type_ascii(USES_REGS1) {
   int ch = get_char(ARG1);
   return isascii(ch);
 }
 
+/** @pred  char_type_white( Char )
+
+    Holds true if Char is a space or tab character.
+*/
 static Int char_type_white(USES_REGS1) {
   int ch = get_char(ARG1);
   if (ch < 256) {
@@ -390,18 +446,30 @@ static Int char_type_white(USES_REGS1) {
   return ct == UTF8PROC_CATEGORY_ZS;
 }
 
+/** @pred  char_type_cntrl( Char )
+
+    Holds true if Char is an ASCII control character.
+*/
 static Int char_type_cntrl(USES_REGS1) {
   Int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == BG;
 }
 
+/** @pred  char_type_digit( Char )
+
+    Holds true if Char is a character between `'0'` and `'9'`.
+*/
 static Int char_type_digit(USES_REGS1) {
   Int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == NU;
 }
 
+/** @pred  char_type_xdigit( Char )
+
+    Holds true if Char is an hexadecimal digit.
+*/
 static Int char_type_xdigit(USES_REGS1) {
   Int ch = get_char(ARG1);
 #if HAVE_ISWXDIGIT
@@ -413,11 +481,19 @@ static Int char_type_xdigit(USES_REGS1) {
 #endif
 }
 
+/** @pred  char_type_graph( Char )
+
+    Holds true if Char outputs a mark.
+*/
 static Int char_type_graph(USES_REGS1) {
   Int ch = get_char(ARG1);
   return iswgraph(ch);
 }
 
+/** @pred  char_type_lower( Char )
+
+    Holds true if Char is lower case.
+*/
 static Int char_type_lower(USES_REGS1) {
   char_kind_t k;
   int ch = get_char(ARG1);
@@ -429,6 +505,10 @@ static Int char_type_lower(USES_REGS1) {
   return k == LC;
 }
 
+/** @pred  char_type_upper( Char )
+
+    Holds true if Char is upper case.
+*/
 static Int char_type_upper(USES_REGS1) {
   char_kind_t k;
   int ch = get_char(ARG1);
@@ -440,23 +520,40 @@ static Int char_type_upper(USES_REGS1) {
   return k == UC;
 }
 
+/** @pred  char_type_punct( Char )
+
+    Holds true if Char is a punctuation character.
+*/
 static Int char_type_punct(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= QT && k <= BK;
 }
 
+/** @pred  char_type_space( Char )
+
+    Holds true if Char only moves the output.
+*/
 static Int char_type_space(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= QT && k <= BK;
 }
 
+/** @pred  char_type_end_of_file( Char )
+
+    Holds true if Char represents a file that has been completely read..
+*/
 static Int char_type_end_of_file(USES_REGS1) {
   Int ch = get_char(ARG1);
   return ch == WEOF || ch == -1;
 }
 
+/** @pred  char_type_end_of_line( Char )
+
+    Holds true if Char ends a line, say `newline` or `carriage return .
+    
+*/
 static Int char_type_end_of_line(USES_REGS1) {
   Int ch = get_char(ARG1);
   if (ch < 256) {
@@ -466,6 +563,11 @@ static Int char_type_end_of_line(USES_REGS1) {
   return (ct >= UTF8PROC_CATEGORY_ZL && ct <= UTF8PROC_CATEGORY_ZP);
 }
 
+/** @pred  char_type_newline( Char )
+
+    Holds true if Char starts a line, say `newline` .
+    
+*/
 static Int char_type_newline(USES_REGS1) {
   Int ch = get_char(ARG1);
   if (ch < 256) {
@@ -474,76 +576,129 @@ static Int char_type_newline(USES_REGS1) {
   return false;
 }
 
+/** @pred  char_type_period( Char )
+    Holds true if Char closes a sentence, such as `.`, `!`, or `?`.
+    
+*/
 static Int char_type_period(USES_REGS1) {
   Int ch = get_char(ARG1);
   return ch == '.' || ch == '!' || ch == '?';
 }
 
+/** @pred  char_type_quote( Char )
+    Holds true if Char  delimits quoted text.
+    
+*/
 static Int char_type_quote(USES_REGS1) {
   Int ch = get_char(ARG1);
   utf8proc_category_t ct = utf8proc_category(ch);
   return ct == UTF8PROC_CATEGORY_PI || ct == UTF8PROC_CATEGORY_PF;
 }
 
+/** @pred  char_type_paren( Char )
+    Holds true if Char  is a bracket, curly bracket, square bracket, or similar.
+    
+*/
 static Int char_type_paren(USES_REGS1) {
   Int ch = get_char(ARG1);
   utf8proc_category_t ct = utf8proc_category(ch);
   return ct == UTF8PROC_CATEGORY_PS || ct == UTF8PROC_CATEGORY_PE;
 }
 
+/** @pred  char_type_var_start( Char )
+    Holds true if Char  can be used to start a variable.
+    
+*/
 static Int char_type_prolog_var_start(USES_REGS1) {
   Int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == LC || ch == '_';
 }
 
+/** @pred  char_type_prolog_atom_start( Char )
+    Holds true if Char  can be used to start an atom.
+    
+*/
 static Int char_type_prolog_atom_start(USES_REGS1) {
   Int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == UC;
 }
 
+/** @pred  char_type_prolog_identifier_continue( Char )
+    Holds true if Char  can be used to extend an atom or variable.
+    
+*/
 static Int char_type_prolog_identifier_continue(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= UC && k <= NU;
 }
 
+/** @pred  char_type_prolog_prolog_symbol( Char )
+    Holds true if Char  can be used as a symbol.
+    
+*/
 static Int char_type_prolog_prolog_symbol(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == SL || k == SY;
 }
 
+/** @pred  code_type_alnum( Code )
+
+Holds true if Code is a letter of the alphabet or a digit.
+ */
 static Int code_type_alnum(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == UC || k == LC || k == NU;
 }
 
+/** @pred  code_type_alpha( Code )
+
+Holds true if Code is a letter of the alphabet.
+ */
 static Int code_type_alpha(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == UC || k == LC;
 }
 
+/** @pred  code_type_csym( Code )
+
+Holds true if Code is a letter, digit or underscore.
+ */
 static Int code_type_csym(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= UC && k <= NU;
 }
 
+/** @pred  code_type_csymf( Code )
+
+Holds true if Code is an uppercase letter, digit or underscore.
+ */
 static Int code_type_csymf(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= UC && k <= LC;
 }
 
+
+/** @pred  code_type_ascii( Code )
+
+Holds true if Code belongs to the ASCII code.
+ */
 static Int code_type_ascii(USES_REGS1) {
   int ch = get_code(ARG1);
   return isascii(ch);
 }
 
+/** @pred  code_type_white( Code )
+
+    Holds true if Code is a space or tab character.
+*/
 static Int code_type_white(USES_REGS1) {
   int ch = get_code(ARG1);
   if (ch < 256) {
@@ -554,18 +709,30 @@ static Int code_type_white(USES_REGS1) {
   return ct == UTF8PROC_CATEGORY_ZS;
 }
 
+/** @pred  code_type_cntrl( Code )
+
+    Holds true if Code is an ASCII control character.
+*/
 static Int code_type_cntrl(USES_REGS1) {
   Int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == BG;
 }
 
+/** @pred  code_type_digit( Code )
+
+    Holds true if Code is a character between `'0'` and `'9'`.
+*/
 static Int code_type_digit(USES_REGS1) {
   Int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == NU;
 }
 
+/** @pred  code_type_xdigit( Code )
+
+    Holds true if Code is an hexadecimal digit.
+*/
 static Int code_type_xdigit(USES_REGS1) {
   Int ch = get_code(ARG1);
 #if HAVE_ISWXDIGIT
@@ -577,25 +744,41 @@ static Int code_type_xdigit(USES_REGS1) {
 #endif
 }
 
+/** @pred  code_type_graph( Code )
+
+    Holds true if Code outputs a mark.
+*/
 static Int code_type_graph(USES_REGS1) {
   Int ch = get_code(ARG1);
   return iswgraph(ch);
 }
 
+/** @pred  code_type_lower( Code )
+
+    Holds true if Code is lower case.
+*/
 static Int code_type_lower(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == LC;
 }
 
+/** @pred  code_type_upper( Code )
+
+    Holds true if Code is upper case.
+*/
 static Int code_type_upper(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == UC;
 }
 
+/** @pred  code_type_punct( Code )
+
+    Holds true if Code is a punctuation codeacter.
+*/
 static Int code_type_punct(USES_REGS1) {
-  int ch = get_char(ARG1);
+  int ch = get_code(ARG1);
   if (ch < 256) {
     char_kind_t k = Yap_chtype[ch];
     return k >= QT && k <= BK;
@@ -603,6 +786,10 @@ static Int code_type_punct(USES_REGS1) {
   return false;
 }
 
+/** @pred  code_type_space( Code )
+
+    Holds true if Code only moves the output.
+*/
 static Int code_type_space(USES_REGS1) {
   int ch = get_code(ARG1);
   if (ch < 256) {
@@ -613,11 +800,20 @@ static Int code_type_space(USES_REGS1) {
   return ct == UTF8PROC_CATEGORY_ZS;
 }
 
+/** @pred  code_type_end_of_file( Code )
+
+    Holds true if Code represents a file that has been completely read..
+*/
 static Int code_type_end_of_file(USES_REGS1) {
   Int ch = get_code(ARG1);
   return ch == WEOF || ch == -1;
 }
 
+/** @pred  code_type_end_of_line( Code )
+
+    Holds true if Code ends a line, say `newline` or `carriage return .
+    
+*/
 static Int code_type_end_of_line(USES_REGS1) {
   Int ch = get_code(ARG1);
   if (ch < 256) {
@@ -627,6 +823,11 @@ static Int code_type_end_of_line(USES_REGS1) {
   return (ct >= UTF8PROC_CATEGORY_ZL && ct <= UTF8PROC_CATEGORY_ZP);
 }
 
+/** @pred  code_type_newline( Code )
+
+    Holds true if Code starts a line, say `newline` .
+    
+*/
 static Int code_type_newline(USES_REGS1) {
   Int ch = get_code(ARG1);
   if (ch < 256) {
@@ -635,41 +836,67 @@ static Int code_type_newline(USES_REGS1) {
   return false;
 }
 
+/** @pred  code_type_period( Code )
+    Holds true if Code closes a sentence, such as `.`, `!`, or `?`.
+    
+*/
 static Int code_type_period(USES_REGS1) {
   Int ch = get_code(ARG1);
   return ch == '.' || ch == '!' || ch == '?';
 }
 
+/** @pred  code_type_quote( Code )
+    Holds true if Code  delimits quoted text.
+    
+*/
 static Int code_type_quote(USES_REGS1) {
   Int ch = get_code(ARG1);
   utf8proc_category_t ct = utf8proc_category(ch);
   return ct == UTF8PROC_CATEGORY_PI || ct == UTF8PROC_CATEGORY_PF;
 }
 
-static Int code_type_paren(USES_REGS1) {
+/** @pred  code_type_paren( Code )
+    Holds true if Code  is a bracket, curly bracket, square bracket, or similar.
+    
+*/static Int code_type_paren(USES_REGS1) {
   Int ch = get_code(ARG1);
   utf8proc_category_t ct = utf8proc_category(ch);
   return ct == UTF8PROC_CATEGORY_PS || ct == UTF8PROC_CATEGORY_PE;
 }
 
+/** @pred  code_type_var_start( Code )
+    Holds true if Code  can be used to start a variable.
+    
+*/
 static Int code_type_prolog_var_start(USES_REGS1) {
   Int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == LC || ch == '_';
 }
 
+/** @pred  code_type_prolog_atom_start( Code )
+    Holds true if Code  can be used to start an atom.
+    
+*/
 static Int code_type_prolog_atom_start(USES_REGS1) {
   Int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k == UC;
 }
 
+/** @pred  code_type_prolog_identifier_continue( Code )
+    Holds true if Code  can be used to extend an atom or variable.
+*/
 static Int code_type_prolog_identifier_continue(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= UC && k <= NU;
 }
 
+/** @pred  code_type_prolog_symbol( Code )
+    Holds true if Code  can be used as a symbol.
+    
+*/
 static Int code_type_prolog_prolog_symbol(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
@@ -688,6 +915,11 @@ int ISOWGetc(int sno) {
   return ch;
 }
 
+/** @pred  force_char_conversion
+
+    Enable the ISO char conversion mechanism.
+    
+*/
 static Int p_force_char_conversion(USES_REGS1) {
   int i;
 
@@ -702,6 +934,11 @@ static Int p_force_char_conversion(USES_REGS1) {
   return (TRUE);
 }
 
+/** @pred  force_char_conversion
+
+    Enable the ISO char conversion mechanism.
+    
+*/
 static Int p_disable_char_conversion(USES_REGS1) {
   int i;
 
@@ -713,6 +950,11 @@ static Int p_disable_char_conversion(USES_REGS1) {
   return (TRUE);
 }
 
+/** @pred  char_conversion(Inp,Out)
+
+    Apply the ISO char conversion mechanism.
+    
+*/
 static Int char_conversion(USES_REGS1) {
   Term t = Deref(ARG1), t1 = Deref(ARG2);
   unsigned char *s0, *s1;
@@ -772,6 +1014,11 @@ static Int char_conversion(USES_REGS1) {
   return (TRUE);
 }
 
+/** @pred  current_char_conversion(Inp,Out)
+
+    Display the current ISO char conversion mechanism.
+    
+*/
 static Int p_current_char_conversion(USES_REGS1) {
   Term t, t1;
   unsigned char *s0, *s1;
@@ -820,7 +1067,11 @@ static Int p_current_char_conversion(USES_REGS1) {
   }
 }
 
-static Int p_all_char_conversions(USES_REGS1) {
+/** @pred  all_char_conersions(List)
+
+    Returns all the current ISO char conversion mechanism.
+    
+*/static Int p_all_char_conversions(USES_REGS1) {
   Term out = TermNil;
   int i;
 

@@ -2,20 +2,11 @@ site_name: YAP Prolog Reference Manual
 site_url: https://www.dcc.fc.up.pt/YAP
 use_directory_urls: false
 theme:
-  name: 'material'
+  name: 'readthedocs'
+  highlightjs: true
+  hljs_languages:
+    - prolog
   logo: 'images/favicon.ico'
-  features:
-    - navigation.instant
-    - navigation.trackbig
-    - navigation.sections
-    - navigation.expand
-    - navigation.tabs
-    - toc.integrate  
-    - header.autohide  
-    - logo: favicon.ico
-    - content.tooltips
-extra_javascript:
-    - javascripts/highlight.min.js
 plugins:
   - search
 markdown_extensions:

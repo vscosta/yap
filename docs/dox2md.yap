@@ -492,13 +492,11 @@ par(U0,Item, codeline(P)) -->
 par(U0,Item,highlight([_|Seq])) -->
     !,
     foldl(par(U0,Item),Seq).
-par(U0,Item, par(_,Par)) -->
+par(U0,_Item, par(_,Par)) -->
     !,
-    par(U0,Item,Par)           /*    foldl(parameteritem(U0),L,S0,SF).
-zxpar(U,Inf
-o, parameterlist([[_|_]|Seq])) -->
-    foldl(par(U),Seq,S0,SF).
-*/
+    foldl(parameteritem(U0),Par).
+par(U,_Info, parameterlist([[_|_]|Seq])) -->
+    foldl(par(U),Seq).
 par(_U,_Info, ref([[refid(`class_t`)|Extra],true])) -->
     !,
     par(_U,_Info, ref([[refid(`class _t`)|_],`T`])).
@@ -644,9 +642,9 @@ one_group(S,Id) :-
     forall(class(Ref,Id),(addsubc(S,Ref)))						     ;
       true
       ),
-			
-    format(S,'~s~n',[Brief]),
-    forall(extrabrief(Id,Extra),format(S,'~s~n',[Extra])),
+    nl(S),			
+    %format(S,'~s~n',[Brief]),
+    %forall(extrabrief(Id,Extra),format(S,'~s~n',[Extra])),
     format(S,'~s~n',[Text]),
     forall(extra(Id,Extra),format(S,'~s~n',[Extra])),
     (predicate(_,Id)
@@ -714,7 +712,7 @@ output_predicate(S,Id) :-
 
 output_class(S,Id) :-
     class(Id,Name,_F,_L,_C,Brief,Text,_),
-    format(S,'### ~s          {#~s}~n~s~n',[Name,Id,Brief]),	
+    format(S,'### ~s          {#~s}~n!!! note ""~n~n    ~s~n',[Name,Id,Brief]),	
 
     format(S,'~n~n~s~n',[Text]).
 

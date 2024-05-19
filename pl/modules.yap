@@ -264,6 +264,7 @@ use_module(F,Is) :-
     functor(G1, N1, K1),
     '$module_produced by'(M,MI,N1,K1).
 % prevent modules within the kernel module...
+
 /** @pred use_module(? _M_,? _F_,+ _L_) 
 
     SICStus directive for loading a module, it can operate in two 

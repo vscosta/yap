@@ -1,3 +1,33 @@
+/*************************************************************************
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *                 
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		sig.c						 *
+ * Last rev:	4/03/88							 *
+ * mods: *
+ * comments:	Signal Processing			 *
+ *									 *
+ *************************************************************************/
+
+/**
+ * @file sig.c
+ * @brief Signal Processing in YAP
+ *
+ */
+
+
+/**
+ * @defgroup YAPOsSignals
+ * @ingroup InputOutput
+ * @brief YAP interface to Unix style signals.
+ * @{
+ */
 
 #include "sysbits.h"
 
@@ -430,6 +460,14 @@ static DWORD WINAPI DoTimerThread(LPVOID targ) {
 #endif
 
 
+/**
+ * @pred alarm(Secs, USecs, OldSecs, OldUSecs)
+ *
+ * If Secs or Msecs are greater than 0, ask the Operating system to interrupt YAP in the next Secs seconds, USsecs nicrosecds. If an alarm was active, Unify the
+ * last two arguments with the time left.
+ *
+ * Time is wall-time, so precision may vary.
+*/
 static Int alarm4(USES_REGS1) {
   Term t = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -532,6 +570,13 @@ static Int alarm4(USES_REGS1) {
 #endif
 }
 
+/**
+ * @pred virtual_alarm(Secs, USecs, OldSecs, OldUSecs)
+ *
+ * If Secs or Msecs are greater than 0, ask the Operating system to interrupt YAP in the next  user-time Secs seconds, USsecs nicrosecds.
+ *
+ * Time is wall-time, so precision may vary.
+*/
 static Int virtual_alarm(USES_REGS1) {
   Term t = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -904,3 +949,5 @@ void Yap_InitSignalPreds(void) {
   CurrentModule = cm;
   Yap_set_fpu_exceptions(TermFalse);
 }
+
+/// @}

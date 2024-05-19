@@ -35,7 +35,7 @@ satSolverLibrary(glucose4,'pl-glucose4'):-!.
 satSolverLibrary(Value,_):-!, throw(settings_error(satSolver_module(Value))).
 
 % find which SAT solver to use 
-:- catch( nb_getval(satSolver_module,Value),
+:- true; catch( nb_getval(satSolver_module,Value),
           error(existence_error(_,_),_),
           Value=glucose ),!,
     % translate value to library name
@@ -47,11 +47,10 @@ satSolverLibrary(Value,_):-!, throw(settings_error(satSolver_module(Value))).
     % load SAT solver
     load_foreign_library(SATsolver,install).
         
+    :- load_foreign_files([],['GLUCOSE'], install). 
+% useSatSolver('MINISAT').
+ useSatSolver('GLUCOSE').
 
-% useSatSolver('pl-crypminisat').
-% useSatSolver('pl-minisat').
-% useSatSolver('pl-glucose').
-% useSatSolver('pl-glucose4').
 
 % load SAT solver
 %:- useSatSolver(SATsolver), load_foreign_library(SATsolver,install).

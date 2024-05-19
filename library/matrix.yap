@@ -110,43 +110,17 @@ is_matrix/1,
 
 /**
 
-This package provides a fast implementation of multi-dimensional
-matwrices of integers and floats. In contrast to dynamic arrays, these
-matrices are multi-dimensional and compact. In contrast to static
-arrays. these arrays are allocated in the stack, and disppear in
-backtracking. Matrices are available by loading the library
+@defgroup YAPMatrix Matrix Operations in YAP.
+@ingroup YAPLibrary
+@brief The YAP Matrix library tries to provide an unified framework for matrcial operations. We support matrices as Prolog terms, as stack  opaque objects, as a `malloc` chunk, or foreign objects.
+@{
+ Matrices are available by loading the library
 `library(matrix)`. They are multimensional objects of type:
-
-  + <tt>terms</tt>: Prolog terms
-
-+ <tt>ints</tt>: bounded integers, represented as an opaque term. The
+ + <tt>terms</tt>: Prolog terms
+ + <tt>ints</tt>: bounded integers, represented as an opaque term. The
 maximum integer depends on hardware, but should be obtained from the
 natural size of the machine.
-
-+ <tt>floats</tt>: floating-point numbers, represented as an opaque term.
-
-
->The matrix library also supports a B-Prolog/ECliPSe inspired `foreach`iterator to iterate over
-elements of a matrix:
-
-+ Copy a vector, element by element.
-
-```
- foreach(I in 0..N1, X[I] <== Y[I])
-```
-
-+ The lower-triangular matrix  _Z_ is the difference between the
-lower-triangular and upper-triangular parts of  _X_.
-
-```
- foreach([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[I,J])
-```
-
-+ Add all elements of a matrix by using  _Sum_ as an accumulator.
-
-```
- foreach([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, Sum)
-```
+ + <tt>floats</tt>: floating-point numbers, represented as an opaque term.
 
     Notice that the library does not support all known matrix operations. Please
 contact the YAP maintainers if you require extra functionality.
@@ -154,105 +128,6 @@ contact the YAP maintainers if you require extra functionality.
 */
 
 
-/** @pred matrix_column(+ _Matrix_,+ _Column_,- _NewMatrix)_
-
-
-
-Select from  _Matrix_ the column matching  _Column_ as new matrix  _NewMatrix_.  _Column_ must have one less dimension than the original matrix.
-
-
-
- */
-
-/** @pred matrix_new_matrix(+ _Type_,+ _Dims_,+ _List_,- _Matrix_)
-
-
-Create a new matrix  _Matrix_ of type  _Type_, which may be one of
-`ints` or `floats`, with dimensions  _Dims_, base _Base_ and
-initialized from list  _List_.
-
-
-*/
-matrix_new_matrix(ints,Dims,Base,Source,O) :-
-    flatten(Source,L),
-    new_ints_matrix(Dims,Base,L,O).
-matrix_new_matrix(floats,Dims,Base,Source,O) :-
-    flatten(Source,L),
-    new_floats_matrix(Dims,Base ,L,O).
-
-
-
-/** @pred matrix_new_matrix(+ _Type_,+ _Dims_,_Base_.- _Matrix_)
-
-
-
-Create a new matrix  _Matrix_ of type  _Type_ and base _Base_, which may be one of
-`ints` or `floats`, and with a list of dimensions  _Dims_.
-The matrix will be initialized to zeros.
-
-```
-?- matrix_new_matrix(ints,[2,3],Matrix).
-
-Matrix = {..}
-```
-Notice that currently YAP will always write a matrix of numbers as `{..}`.
-
-
-*/
-matrix_new_matrix(ints,Dims,Base,O) :-
-    new_ints_matrix(Dims,Base,O).
-matrix_new_matrix(floats,Dims,Base,O) :-
-    new_floats_matrix(Dims,Base,O).
-/** @pred matrix_new_set(? _Dims_,+ _OldMatrix_,+ _Value_,- _NewMatrix_)
-
-
-
-Create a new matrix  _NewMatrix_ of type  _Type_, with dimensions
- _Dims_ and base _Base_. The elements of  _NewMatrix_ are set to  _Value_.
-
-
-*/
-matrix_new_set(ints,Dims,Base,C,O) :-
-    new_ints_matrix_set(Dims,Base,C,O).
-matrix_new_set(floats,Dims,Base,C,O) :-
-    new_floats_matrix_set(Dims,Base,C,O).
-/** @pred matrix_offset_to_arg(+ _Matrix_,- _Offset_,+ _Position_)
-
-
-
-Given a position  _Position _ for matrix  _Matrix_ return the
-corresponding numerical  _Offset_ from the beginning of the matrix.
-
-
-*/
-/** @pred matrix_op(+ _Matrix1_,+ _Matrix2_,+ _Op_,- _Result_)
-
-
-
- _Result_ is the result of applying  _Op_ to matrix  _Matrix1_
-and  _Matrix2_. Currently, only addition (`+`) is supported.
-
-
-*/
-/** @pred matrix_select(+ _Matrix_,+ _Dimension_,+ _Index_,- _New_)
-
-
-
-Select from  _Matrix_ the elements who have  _Index_ at
- _Dimension_.
-
-
-*/
-/** @pred matrix_shuffle(XF+ _Matrix_,+ _NewOrder_,- _Shuffle_)
-
-
-
-Shuffle the dimensions of matrix  _Matrix_ according to
- _NewOrder_. The list  _NewOrder_ must have all the dimensions of
- _Matrix_, starting from 0.
-
-
-*/
 
 :- multifile rhs_opaque/1, array_extension/2.
 
@@ -276,61 +151,6 @@ Shuffle the dimensions of matrix  _Matrix_ according to
 %
 %		   abstract_mat(M) :- is_matrix(M), !.
 
-%% @pred LHS ==> RHS
-%%
-%% Matrix operation
-%%
-%% 1 Initialization:
-%%
-%%    - matrix(Dims,Opts) where Dims and Opts are lists:
-%%
-%%    - matrix(Dims), same as  matrix(Dims, [])
-%%
-%%    - ListOfLists,
-%%
-%%    - matrix(Dims) of Type
-%%
-%%    - matrix(Dims) of Number
-%%
-%%    - matrix(Dims) of Goal
-%%
- %%    - matrix(Dims) of Offset^Goal
-%%
-%%    - matrix(Dims) of call(Goal)
-%%
-%%    - vector(Dim,Opts) same as matrix([Dims], [])
-%%
-%%    - zeros(Dims), same as matrix(Dims, [])
-%%
-%%    - matrix[Dims], same as  matrix(Dims, [])
-%%
-%%    - matrix[Dims] of Def, same as  matrix(Dims) of Def
-%%
-%%    Dimensions may be given as:
-%%    - ListOfNumbers
-%%    - ListOfIntervals
-%%
-%%    Options are:
-%%
-%%    -Liveness may be one local (b), global (nb), or foreign (f).
-%%    defaults:
-%%              local is LHS is unbound
-%%              foreign if is bound to an atom
-%%
-%%    - One can use use old array routines (check static_array/3) for
-%%      offline arrays/
-%%
-%%    1. `Atom <== [1000,1001,1002]`
-%%    1. `Atom <== matrix[1000] of int`
-%%    2. `Atom <== matrix[333] of 0`
-%%
-%% The local matrices allocate on stack:
-%%    1. `Var <== [[1000],[1001],[1002]]`
-%%    1. `Var <== matrix[1000] of term`
-%%    2. `Var <==  matrix[333,2] of 3.1415`
-%%
-%%  YAP also supports foreign matrices.
-
 /** @pred ?_LHS_ <==  ?_RHS_ is semidet
 
 
@@ -341,6 +161,56 @@ left-hand side and to the matrix:
 + if  _LHS_ is part of an integer or floating-point matrix,
 perform non-backtrackable assignment.
 + other unify left-hand side and right-hand size.
+
+@begin{verbatim}
+
+ High Level Interface to Matrix evaluation.
+
+ 1 Initialization:
+
+    - `Mat = matrix(Dims,Opts)` where Dims and Opts are lists:
+
+    - `Mat = matrix(Dims)`, same as  matrix(Dims, [])`
+
+    - `Mat = ListOfLists`
+
+    - `Mat = matrix(Dims) of Type
+
+    - `Mat = matrix(Dims) of Number`
+
+    - `Mat = matrix(Dims) of Goal`
+
+    - `Mat = matrix(Dims) of Offset^Goal`
+
+    - `Mat = matrix(Dims) of call(Goal)` 
+
+    - `Mat = vector(Dim,Opts)` same as `matrix([Dims], [])`
+
+    - `Mat = zeros(Dims)`, same as `matrix(Dims, [])`
+
+    - `Mat = matrix[Dims]`, same as  `matrix(Dims, [])`
+
+    - `Mat = matrix[Dims] of Def, same as `matrix(Dims) of Def`
+
+    Dimensions may be given as:
+    ListOfNumbers.
+
+
+    Options are:
+
+    - One can use use old array routines (check static_array/3) for
+      static storage (ie, heap allocated`)
+
+    1. `mat <== [1000,1001,1002]`
+    1. `vec <== matrix[1000] of int`
+    2. `zeros <== matrix[333] of 0`
+
+ The local matrices allocate on stack:
+    1. `Var <== [[1000],[1001],[1002]]`
+    1. `Var <== matrix[1000] of term`
+    2. `Var <==  matrix[333,2] of 3.1415`
+
+  YAP also supports foreign matrices.
 
 Matrix elements can be accessed through the `matrix_get/2` predicate
 or through an <tt>R</tt>-inspired access notation (that uses the ciao
@@ -410,15 +280,17 @@ indexed `C`-style from  `0..( _Max_-1)`, or can be given
 as  an interval ` _Base_.. _Limit_`. In the latter case,
 matrices of integers and of floating-point numbers should have the same
     _Base_ on every dimension.
+
+@end{verbatim}
 */
 
 
-%%
-%% @pred <==(Inp, Out)
-%%
-%% Dispatcher, with a special cases for matrices as the RH
-%% may depend on the LHS.
-%%
+
+ @pred <==(Inp, Out)
+
+ Dispatcher, with a special cases for matrices as the RH
+ may depend on the LHS.
+
 O <== V :-
     var(V),
     !,
@@ -1371,8 +1243,24 @@ matrix_get( Mat, Pos, El) :-
     matrix_get_range( Mat, Pos, El).
 
 matrix_get_range( Mat, Pos, Els) :-
-	slice(Pos, Keys),
-	maplist( matrix_get_one(Mat), Keys, Els).
+    matrix_dims(Mat,Dims),
+    findall(El, from_slice(Mat,Pos,Dims,El), Els).
+
+from_slice(Mat,Pos,Dims,El) :-
+    fill_indices(Pos,Dims),
+    matrix_get_one(Mat,Pos,El).
+
+fill_indices([],[]).
+fill_indices([I|L],[_|Dims]) :-
+    integer(I),
+    !,
+    fill_indices(L,Dims).
+fill_indices([I|L],[D|Dims]) :-
+    var(I),
+    D0 is D-1,
+    between(0,D0,I),
+    fill_indices(L,Dims).
+
 
 slice([], [[]]).
 slice([[H|T]|Extra], Els) :- !,
@@ -1505,9 +1393,6 @@ inc(I1, I, I1) :-
 
 % base case
 
-
-/** @} */
-
 %%% most often we can avoid meta-calls.
 
 /*
@@ -1584,3 +1469,58 @@ term_to_string(Mod:P, SG),
     append(Args,RecursiveArgs0,RecursiveArgs),
     Recursive =.. [F|RecursiveArgs].
 */
+
+/** @pred matrix_new_matrix(+ _Type_,+ _Dims_,+ _List_,- _Matrix_)
+
+
+Create a new matrix  _Matrix_ of type  _Type_, which may be one of
+`ints` or `floats`, with dimensions  _Dims_, base _Base_ and
+initialized from list  _List_.
+
+
+*/
+matrix_new_matrix(ints,Dims,Base,Source,O) :-
+    flatten(Source,L),
+    new_ints_matrix(Dims,Base,L,O).
+matrix_new_matrix(floats,Dims,Base,Source,O) :-
+    flatten(Source,L),
+    new_floats_matrix(Dims,Base ,L,O).
+
+
+
+/** @pred matrix_new_matrix(+ _Type_,+ _Dims_,_Base_.- _Matrix_)
+
+
+
+Create a new matrix  _Matrix_ of type  _Type_ and base _Base_, which may be one of
+`ints` or `floats`, and with a list of dimensions  _Dims_.
+The matrix will be initialized to zeros.
+
+```
+?- matrix_new_matrix(ints,[2,3],Matrix).
+
+Matrix = {..}
+```
+Notice that currently YAP will always write a matrix of numbers as `{..}`.
+
+
+*/
+matrix_new_matrix(ints,Dims,Base,O) :-
+    new_ints_matrix(Dims,Base,O).
+matrix_new_matrix(floats,Dims,Base,O) :-
+    new_floats_matrix(Dims,Base,O).
+/** @pred matrix_new_set(? _Dims_,+ _OldMatrix_,+ _Value_,- _NewMatrix_)
+
+
+
+Create a new matrix  _NewMatrix_ of type  _Type_, with dimensions
+ _Dims_ and base _Base_. The elements of  _NewMatrix_ are set to  _Value_.
+
+
+*/
+matrix_new_set(ints,Dims,Base,C,O) :-
+    new_ints_matrix_set(Dims,Base,C,O).
+matrix_new_set(floats,Dims,Base,C,O) :-
+    new_floats_matrix_set(Dims,Base,C,O).
+
+%% @}
