@@ -559,24 +559,14 @@ call_compiler(G, Where,_VL, Pos) :-
     ;
     OldLoadVerbose = Verbose
     ), 
-    (
-	Verbose ==  true
-    ->
     H0 is heapused, '$cputime'(T0,_),
     StartMessage = loading,
-    print_message(informational, loading(StartMessage, UserFile))
-    ;
-    true
-    ).
+    print_message(informational, loading(StartMessage, UserFile)).
+
 '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,_) :-
-    (
-	current_prolog_flag(verbose_load, true)
-    ->    
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     EndMsg = consulted,
-    print_message(informational, loaded(EndMsg, File,  InnerModule, T, H))
-    ;
-    true),
+    print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
     set_prolog_flag(verbose_load, OldLoadVerbose).
 
 '$q_do_save_file'(File, UserF, TOpts ) :-
