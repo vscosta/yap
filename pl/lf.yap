@@ -390,7 +390,7 @@
        			  true ;
       SkipUnixHeader = true
     ),
-    '$report'(in, OldLoadVerbose,T0,H0,OuterModule,UserFile,Opts),
+    '$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,UserFile,Opts),
    (
 	'$memberchk'(source_module(M1),Opts)
    ->
@@ -424,7 +424,7 @@
 
    ;
    InnerModule=OldM),
-    '$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,Opts),
+    '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
     working_directory( _, OldD),
        '$exec_initialization_goals'(File),
     !,
@@ -545,7 +545,7 @@ call_compiler(G, Where,_VL, Pos) :-
 '$lf_storefile'(_UserFile, _OuterModule, _Reconsult0, _Reconsult, _TOpts, _Opts) :- 
     !.
 
-'$report'(in, OldLoadVerbose,T0,H0,_,UserFile, Opts) :-
+'$report'(in, OldLoadVerbose,Verbose,T0,H0,_,UserFile, Opts) :-
     current_prolog_flag(verbose_load, OldLoadVerbose),
     (
 	'$memberchk'(silent(Silent), Opts)
@@ -558,16 +558,30 @@ call_compiler(G, Where,_VL, Pos) :-
     set_prolog_flag(verbose_load, Verbose)
     ;
     OldLoadVerbose = Verbose
-    ), 
-    H0 is heapused, '$cputime'(T0,_),
+    ),
+    % required to boot
+    (
+    Verbose == true
+    ->
+    H0	 is heapused, '$cputime'(T0,_),
     StartMessage = loading,
-    print_message(informational, loading(StartMessage, UserFile)).
+    print_message(informational, loading(StartMessage, UserFile))
+    ;
+    true
+    ).
 
-'$report'(out, OldLoadVerbose,T0,H0,InnerModule,File,_) :-
-    H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
+'$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,_) :-
+       % required to boot
+    (
+    Verbose == true
+    ->
+ H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     EndMsg = consulted,
-    print_message(informational, loaded(EndMsg, File,  InnerModule, T, H)),
-    set_prolog_flag(verbose_load, OldLoadVerbose).
+    print_message(informational, loaded(EndMsg, File,  InnerModule, T, H))
+    ;
+    true
+       ),			 
+ set_prolog_flag(verbose_load, OldLoadVerbose).
 
 '$q_do_save_file'(File, UserF, TOpts ) :-
     '$lf_opt'(qcompile, TOpts, QComp),
