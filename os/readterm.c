@@ -1274,10 +1274,6 @@ static Term exit_parser(int sno, yhandle_t y0, yap_error_descriptor_t *new,
   CACHE_REGS
   Yap_CloseHandles(y0);
 
-LOCAL_toktide= tokstart = LOCAL_tokptr;
-    LOCAL_StartLineCount = LOCAL_tokptr->TokLine;
- fe->tokstart = tokstart;
-
   if (old) {
     LOCAL_ActiveError = old;
     if (old->errorNo != YAP_NO_ERROR)
