@@ -1255,7 +1255,7 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 
 ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 #define subs_arity *subs_ptr
-  CACHE_REGS
+                            CACHE_REGS
   CELL *stack_vars;
   int i, vars_arity;
   ans_node_ptr current_ans_node;

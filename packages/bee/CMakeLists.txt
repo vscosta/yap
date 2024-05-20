@@ -104,8 +104,9 @@ glucose-4/utils/System.cc
   )
  add_library( GLUCOSE4
    ${GLUCOSE4_SOURCES}
-        glucose4-interface.cc
+   glucose4-interface.cc
    )
+      target_link_libraries (GLUCOSE4   libYap)
 
  set_target_properties(GLUCOSE4 PROPERTIES COMPILE_FLAGS -DGLUCOSE4=1)
  set_target_properties(GLUCOSE4 PROPERTIES CXX_STANDARD 11)
