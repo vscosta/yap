@@ -204,7 +204,7 @@ The state of  the module system after this error is undefined.
 
 
 **/
-use_module(F) :- load_files(F,[if(not_loaded),must_be_module(true)]).
+use_module(F) :- load_files(F,[if(not_loaded),must_be_module(true),silent(true)]).
 
 
 
@@ -219,7 +219,7 @@ module. It is implemented as if by:
 
 ```
 use_module(Files, Imports) :-
-	load_files(Files, [if(not_loaded),must_be_module(true),imports(Imports)]).
+	load_files(Files, [if(not_loaded),must_be_module(true),imports(Imports),silent(true)]).
 ```
 
 The _Imports_ argument may be use to specify which predicates one
@@ -238,7 +238,7 @@ Unfortunately it is still not possible to change argument order.
 
 **/
 use_module(F,Is) :-
-    load_files(F, [if(not_loaded),must_be_module(true),imports(Is)] ).
+    load_files(F, [if(not_loaded),must_be_module(true),imports(Is),silent(true)] ).
 
 
 '$process_hidden_module'(TNew,M) :-
