@@ -285,11 +285,12 @@ matrices of integers and of floating-point numbers should have the same
 */
 
 
-
+/**
  @pred <==(Inp, Out)
 
  Dispatcher, with a special cases for matrices as the RH
  may depend on the LHS.
+*/
 
 O <== V :-
     var(V),
@@ -312,15 +313,25 @@ N <== Lists :-
     is_list(Ms),
     !,
     matrix_new([M|Ms],N,[]).
+(N <== matrix[H|T] of V) :-
+var(V),
+    !,
+    matrix_new([H|T], N, [type(terms), fill(_)]).
+(N <== matrix[H|T] of terms) :-
+    !,
+    matrix_new([H|T], N, [type(terms), fill(_)]).
 (N <== matrix[H|T] of Type) :-
-    memberchk(Type,[ints,floats,terms]),
+    memberchk(Type,[ints,floats]),
     !,
     matrix_new([H|T], N, [type(Type)]).
 (N <== matrix[H|T] of Num) :-
-    number(Num),
-    memberchk(Type,[ints,floats,terms]),
+    integer(Num),
     !,
-    matrix_new([H|T], N, [type(Type)]).
+    matrix_new([H|T], N, [type(ints), fill(Num)]).
+(N <== matrix[H|T] of Num) :-
+    float(Num),
+    !,
+    matrix_new([H|T], N, [type(floats), fill(Num)]).
 (N<== matrix[H|T]  of Op) :-
 	!,
     matrix_new([H|T], N, [fill(Op)]).
@@ -754,6 +765,9 @@ type(_Opts, fill, Data, floats) :-
 type(_Opts, fill, _, terms).
 
 
+data(_Opts, fill, Who) :-
+    var(Who),
+    !.
 data(Opts, fill, Who) :-
     memberchk(fill(Fill), Opts),
     !,
@@ -1244,11 +1258,8 @@ matrix_get( Mat, Pos, El) :-
 
 matrix_get_range( Mat, Pos, Els) :-
     matrix_dims(Mat,Dims),
-    findall(El, from_slice(Mat,Pos,Dims,El), Els).
-
-from_slice(Mat,Pos,Dims,El) :-
-    fill_indices(Pos,Dims),
-    matrix_get_one(Mat,Pos,El).
+    findall(Pos, fill_indices(Pos,Dims), Indices),
+    maplist(matrix_get_one(Mat), Indices, Els).
 
 fill_indices([],[]).
 fill_indices([I|L],[_|Dims]) :-

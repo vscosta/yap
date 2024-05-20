@@ -25,8 +25,7 @@ set(solver minisat)
 set (Solver Minisat)
 configure_file(yap-interface.cc.cmake minisat-interface.cc)
 
-if(OFF)
-
+if (off)
   set(
     CRYPTOMINISAT_SOURCES
     cryptominisat-2.5.1/Solver/Clause.cpp
@@ -54,7 +53,7 @@ add_library( CRYPTOMINISAT
         cryptominisat-interface.cc
         )
       target_link_libraries (CRYPTOMINISAT   libYap)
-      
+
 # target_include_directories(GLUCOSE4 PRIVATE glucose-4/parallel)
 target_include_directories(CRYPTOMINISAT PRIVATE BEFORE cryptominisat-2.5.1/MTRand)
 target_include_directories(CRYPTOMINISAT PRIVATE BEFORE cryptominisat-2.5.1/mtl)
@@ -94,22 +93,37 @@ set(solver glucose)
 set (Solver Glucose)
 configure_file(yap-interface.cc.cmake glucose-interface.cc)
 
-# add_library( GLUCOSE4
-#   ${GLUCOSE4_SOURCES}
-#   ${PL_SOURCE}
-#   )
+set(
+  GLUCOSE4_SOURCES
+#  glucose-4/core/Main.cc
+glucose-4/core/Solver.cc
+# glucose-4/simp/Main.cc
+glucose-4/simp/SimpSolver.cc
+glucose-4/utils/Options.cc
+glucose-4/utils/System.cc
+  )
+ add_library( GLUCOSE4
+   ${GLUCOSE4_SOURCES}
+        glucose4-interface.cc
+   )
 
-# set_target_properties(GLUCOSE4 PROPERTIES COMPILE_FLAGS -DGLUCOSE4=1)
-# set_target_properties(GLUCOSE4 PROPERTIES CXX_STANDARD 11)
-# target_include_directories(GLUCOSE4 PRIVATE glucose-4/parallel)
-# target_include_directories(GLUCOSE4 PRIVATE glucose-4)
+ set_target_properties(GLUCOSE4 PROPERTIES COMPILE_FLAGS -DGLUCOSE4=1)
+ set_target_properties(GLUCOSE4 PROPERTIES CXX_STANDARD 11)
+ target_include_directories(GLUCOSE4 PRIVATE glucose-4/parallel)
+ target_include_directories(GLUCOSE4 PRIVATE glucose-4)
+ target_include_directories(GLUCOSE4 PRIVATE glucose-4/core)
 
 
-	install(TARGETS MINISAT GLUCOSE
+set_target_properties(GLUCOSE4 PROPERTIES CXX_STANDARD 11)
+set(solver glucose4)
+set (Solver Glucose)
+configure_file(yap-interface.cc.cmake glucose4-interface.cc)
+
+	install(TARGETS MINISAT GLUCOSE4 GLUCOSE
           LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
           RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} 
 
     )
 
-  INSTALL(FILES satsolver.pl DESTINATION ${YAP_INSTALL_DATADIR})
+  INSTALL(FILES satsolver.pl cnf.pl DESTINATION ${YAP_INSTALL_DATADIR})

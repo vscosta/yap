@@ -3,13 +3,23 @@
 
 namespace @Solver@ {
 
-#define val(i) YAP_MkIntTerm((s->model[i] != l_Undef) ? ((s->model[i]==l_True)? i+1:-1*(i+1)):0)
-
 Solver      *s = NULL;
 int         seed=0;
 
 vec<Solver*> cache_slvrs;
 
+
+extern "C" YAP_Term v2t(int i)
+{
+  if (s->model[i] == l_True) {
+    return  YAP_MkIntTerm(1);
+  }
+  if (s->model[i] == l_False) {
+    return  YAP_MkIntTerm(0);
+  }
+
+  return YAP_MkIntTerm(-1);
+}
 
 extern "C" bool @solver@_default_seed()
 {
@@ -31,8 +41,10 @@ extern "C" bool @solver@_new_solver()
         s->setSeed(seed);
     #else
     s->random_seed = seed;
-    #endif
+#endif
+
   }
+  //    s->verbosity=10;
   return true;
 }
 
@@ -82,7 +94,7 @@ fprintf(stderr,"%% Warning: @solver@_cache_pop_solver deleted existing solver !\
 static inline Lit pl2lit(YAP_Term t)
 {
   int pl_lit_int, var;
-  pl_lit_int = YAP_IntOfTerm(YAP_ARG1);
+  pl_lit_int = YAP_IntOfTerm(t);
   var = abs(pl_lit_int)-1;
   while (var >= s->nVars()) s->newVar();
   #if CRYPTOMINISAT
@@ -159,7 +171,7 @@ extern "C" bool @solver@_get_var_assignment()
   i--;
 
   if (i < s->nVars()) {
-    return YAP_Unify(YAP_ARG2,val(i));
+    return YAP_Unify(YAP_ARG2,v2t(i));
   } else {
     return false;
   }
@@ -172,7 +184,7 @@ extern "C" bool @solver@_get_model()
 
     int i=s->nVars();
     while( --i >= 0 ) {
-      l = YAP_MkPairTerm( l, val(i) );
+      l = YAP_MkPairTerm(  v2t(i),l );
     }
 
     return YAP_Unify(YAP_ARG1,l);
@@ -183,14 +195,10 @@ extern "C" bool @solver@_assign_model()
 {
     YAP_Term asgnList = YAP_ARG1;      /* variable for the elements */
 
-	int indx=0;
+    int indx=0;
 	while( YAP_IsPairTerm(asgnList) ) {
 	  YAP_Term asgnVar = YAP_HeadOfTerm(asgnList);
-	  if(s->model[indx]==l_True) 
-	    YAP_Unify(YAP_MkIntTerm(1),asgnVar);
-	  else
-	    YAP_Unify(YAP_MkIntTerm(-1),asgnVar);
-	  indx++;
+	  YAP_Unify(v2t(indx++), asgnVar);
 	  asgnList = YAP_TailOfTerm(asgnList);
 	}
 
@@ -223,18 +231,18 @@ static extension predicates[] =
         //  { "name", arity, function, PL_FA_<flags> },
         //
 
-      { "@solver@_new_solver",         0, @Solver@::@solver@_new_solver,         0 },
-      { "@solver@_delete_solver",      0, @Solver@::@solver@_delete_solver,      0 },
-      { "@solver@_cache_push_solver",  0, @Solver@::@solver@_cache_push_solver,  0 },
-      { "@solver@_cache_pop_solver",   0, @Solver@::@solver@_cache_pop_solver,   0 },
-      { "@solver@_add_clause",         1, @Solver@::@solver@_add_clause,         0 },
-      { "@solver@_solve",              0, @Solver@::@solver@_solve,              0 },
-      { "@solver@_solve_assumptions",  1, @Solver@::@solver@_solve_assumptions,  0 },
-      { "@solver@_get_var_assignment", 2, @Solver@::@solver@_get_var_assignment, 0 },
-      { "@solver@_get_model",          1, @Solver@::@solver@_get_model,          0 },
-      { "@solver@_assign_model",       1, @Solver@::@solver@_assign_model,       0 },
-      { "@solver@_nvars",              1, @Solver@::@solver@_nvars,              0 },
-      { "@solver@_default_seed",       1, @Solver@::@solver@_default_seed,       0 },
+      { "solver_new_solver",         0, @Solver@::@solver@_new_solver,         0 },
+      { "solver_delete_solver",      0, @Solver@::@solver@_delete_solver,      0 },
+      { "solver_cache_push_solver",  0, @Solver@::@solver@_cache_push_solver,  0 },
+      { "solver_cache_pop_solver",   0, @Solver@::@solver@_cache_pop_solver,   0 },
+      { "solver_add_clause",         1, @Solver@::@solver@_add_clause,         0 },
+      { "solver_solve",              0, @Solver@::@solver@_solve,              0 },
+      { "solver_solve_assumptions",  1, @Solver@::@solver@_solve_assumptions,  0 },
+      { "solver_get_var_assignment", 2, @Solver@::@solver@_get_var_assignment, 0 },
+      { "solver_get_model",          1, @Solver@::@solver@_get_model,          0 },
+      { "solver_assign_model",       1, @Solver@::@solver@_assign_model,       0 },
+      { "solver_nvars",              1, @Solver@::@solver@_nvars,              0 },
+      { "solver_default_seed",       1, @Solver@::@solver@_default_seed,       0 },
       { nullptr,                         0, nullptr,                              0 }    // terminating line
     };
 
@@ -243,10 +251,11 @@ extern "C" bool install()
 {
 extension *pt = predicates;
 
-    fprintf(stderr,"%% Yap interface to MiniSAT v2.0.2 ... ");
+    fprintf(stderr,"%% Yap interface to  @Solver@::@solver@ ... ");
 
     while (pt->name) {
         YAP_UserCPredicate(pt->name, pt->f, pt->arity);
+	pt++;
     }
     /* This is the only PL_ call allowed */
     /* before PL_initialise().  It */
