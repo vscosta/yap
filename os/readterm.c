@@ -1245,7 +1245,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
      return  YAP_START_PARSING;
   } else {
     Yap_RaiseException();
-nnppp  } 
+  } 
   return YAP_PARSING_FINISHED;
 }
 
