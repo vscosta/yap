@@ -1729,7 +1729,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	 value.
 
       */
-      if (cptr < (CELL *)gc_B && cptr >= gc_H) {
+      if (cptr < (CELL *)gc_B||
+	  cptr >= gc_H) {
 	goto remove_trash_entry;
       } else if (IsAttVar(cptr)) {
 	/* MABINDING that should be recovered */

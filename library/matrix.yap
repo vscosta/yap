@@ -97,8 +97,6 @@ is_matrix/1,
 	    matrix_expand/3,
 	    matrix_select/4,
 	    matrix_column/3,
-	    foreach/2,
-	    foreach/4,
 	    op(50, yf, []),
             op(50, yf, '()'),
             op(100, xfy, '.'),
@@ -275,6 +273,7 @@ all elements of a matrix or list
     natural exponentiation of a number, matrix or list
 
 
+
 The dimensions can be given as an integer, and the matrix will be
 indexed `C`-style from  `0..( _Max_-1)`, or can be given
 as  an interval ` _Base_.. _Limit_`. In the latter case,
@@ -348,14 +347,20 @@ var(V),
 (N <== zeros(M)) :-
     number(M),
     !,
-    matrix_new([M],N,[]).
+    matrix_new([M],N,[type(ints),fill(0)]).
 (N <== zeros[H|T]) :-
 	!,
-    matrix_new([H|T],N,[]).
-N<== ones[H|T] :-
-	!,
-    matrix_new([H|T], N, [fill(1)]).
+    matrix_new([H|T], N, [type(ints),fill(0)]).
  %   matrix_new(range(M),N,[]), !.
+(N <== ones(M)) :-
+    number(M),
+    !,
+    matrix_new([M],N,[type(ints),fill(1)]).
+(N <== ones[H|T]) :-
+	!,
+    matrix_new([H|T], N, [type(ints),fill(1)]).
+
+
 
 LHS <== RHS :-
     compute(RHS, Val),
@@ -614,6 +619,16 @@ compute(Matrix.lists(), V) :-
     compute(Matrix,MatrixV),
     matrix_to_lists(MatrixV, V).  /**> represent matrix as a list of lists */
 
+compute(Matrix.transpose(), V) :-
+    !,
+    compute(Matrix,MatrixV),
+    matrix_transpose(MatrixV, V).  /**> represent matrix as a list of lists */
+
+compute(Matrix.t(), V) :-
+			        !,
+    compute(Matrix,MatrixV),
+    matrix_transpose(MatrixV, V).  /**> represent matrix as a list of lists */
+
 compute(-B, C) :-
     compute(B, NB),
     (
@@ -765,19 +780,19 @@ type(_Opts, fill, Data, floats) :-
 type(_Opts, fill, _, terms).
 
 
-data(_Opts, fill, Who) :-
-    var(Who),
+data(Opts, copy, Data) :-
+    memberchk(data(Data), Opts),
     !.
 data(Opts, fill, Who) :-
     memberchk(fill(Fill), Opts),
     !,
     filler_data(Fill, Who).
-data(Opts, copy, Data) :-
-    memberchk(data(Data), Opts),
-    !.
 data(_Opts, fill, 0) :-
     !.
 
+filler_data(V, terms) :-
+var(V),	
+    !.
 filler_data(Fill, Fill) :-
     number(Fill),
     !.
@@ -912,115 +927,6 @@ fill(G,L) :-
 run(G,V) :-
     call(user:G,V),
     !.
-
-
-foreach( Domain, Goal) :-
-	strip_module(Goal, M, Locals^NG), !,
-	term_variables(Domain+Locals, LocalVarsL),
-	LocalVars =.. [vs|LocalVarsL],
-	iterate( Domain, [], LocalVars, M:NG, [], [] ),
-	terms:reset_variables( LocalVars ).
-foreach( Domain, Goal ) :-
-	strip_module(Goal, M, NG),
-	term_variables(Domain, LocalVarsL),
-	LocalVars =.. [vs|LocalVarsL],
-	iterate( Domain, [], LocalVars, M:NG, [], [] ),
-	terms:reset_variables( LocalVars ).
-
-foreach( Domain, Goal, Inp, Out) :-
-	strip_module(Goal, M, Locals^NG), !,
-	term_variables(Domain+Locals, LocalVarsL),
-	LocalVars =.. [vs|LocalVarsL],
-	iterate( Domain, [], LocalVars, M:NG, [], [], Inp, Out).
-foreach( Domain, Goal, Inp, Out ) :-
-	strip_module(Goal, M, NG),
-	term_variables(Domain, LocalVarsL),
-	LocalVars =.. [vs|LocalVarsL],
-	iterate( Domain, [], LocalVars, M:NG, [], [], Inp, Out ).
-
-iterate( [], [], LocalVars, Goal, Vs, Bs ) :-
-	terms:freshen_variables(LocalVars),
-	Vs = Bs,
-	MG <== Goal,
-	once( MG ),
-	terms:reset_variables(LocalVars).
-iterate( [], [H|Cont], LocalVars, Goal, Vs, Bs ) :-
-	iterate(H, Cont, LocalVars, Goal, Vs, Bs ).
-iterate( [H|L], [], LocalVars, Goal, Vs, Bs ) :- !,
-	iterate(H, L, LocalVars, Goal, Vs, Bs ).
-iterate( [H|L], Cont, LocalVars, Goal, Vs, Bs ) :- !,
-	append(L, Cont, LCont),
-	iterate(H, LCont, LocalVars, Goal, Vs, Bs ).
-iterate( [] ins _A .. _B, [H|L], LocalVars, Goal, Vs, Bs ) :- !,
-	iterate(H, L, LocalVars, Goal, Vs, Bs ).
-iterate( [] ins _A .. _B, [], LocalVars, Goal, Vs, Bs ) :- !,
-	iterate([], [], LocalVars, Goal, Vs, Bs ).
-iterate( [V|Ps] ins A..B, Cont, LocalVars, Goal, Vs, Bs  ) :-
-	eval(A, Vs, Bs, NA),
-	eval(B, Vs, Bs, NB),
-	( NA > NB ->  true ;
-	  A1 is NA+1,
-	  iterate( Ps ins NA..NB, Cont, LocalVars, Goal, [V|Vs], [NA|Bs] ),
-	  iterate( [V|Ps] ins A1..NB, Cont, LocalVars, Goal, Vs, Bs )
-	).
-iterate( V in A..B, Cont, LocalVars, Goal, Vs, Bs) :-
-	var(V),
-	eval(A, Vs, Bs, NA),
-	eval(B, Vs, Bs, NB),
-	( NA > NB -> true ;
-	  A1 is NA+1,
-	  (Cont = [H|L] ->
-	   iterate( H, L, LocalVars, Goal, [V|Vs], [NA|Bs] )
-	  ;
-	   iterate( [], [], LocalVars, Goal, [V|Vs], [NA|Bs] )
-	  ),
-	  iterate( V in A1..NB, Cont, LocalVars, Goal, Vs, Bs )
-	).
-
-iterate( [], [], LocalVars, Goal, Vs, Bs, Inp, Out ) :-
-	terms:freshen_variables(LocalVars),
-	Vs = Bs,
-	MG <== Goal,
-	once( call(MG, Inp, Out) ),
-	terms:reset_variables(LocalVars).
-iterate( [], [H|Cont], LocalVars, Goal, Vs, Bs, Inp, Out ) :-
-	iterate(H, Cont, LocalVars, Goal, Vs, Bs, Inp, Out ).
-iterate( [H|L], [], LocalVars, Goal, Vs, Bs, Inp, Out ) :- !,
-	iterate(H, L, LocalVars, Goal, Vs, Bs, Inp, Out ).
-iterate( [H|L], Cont, LocalVars, Goal, Vs, Bs, Inp, Out ) :- !,
-	append(L, Cont, LCont),
-	iterate(H, LCont, LocalVars, Goal, Vs, Bs, Inp, Out ).
-iterate( [] ins _A .. _B, [], LocalVars, Goal, Vs, Bs, Inp, Out ) :- !,
-	iterate([], [], LocalVars, Goal, Vs, Bs, Inp, Out ).
-iterate( [] ins _A .. _B, [H|L], LocalVars, Goal, Vs, Bs, Inp, Out ) :- !,
-	iterate(H, L, LocalVars, Goal, Vs, Bs, Inp, Out ).
-iterate( [V|Ps] ins A..B, Cont, LocalVars, Goal, Vs, Bs, Inp, Out  ) :-
-	eval(A, Vs, Bs, NA),
-	eval(B, Vs, Bs, NB),
-	( NA > NB ->  Inp = Out ;
-	  A1 is NA+1,
-	  iterate( Ps ins A..B, Cont, LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid ),
-	  iterate( [V|Ps] ins A1..NB, Cont, LocalVars, Goal, Vs, Bs, Mid, Out )
-	).
-iterate( V in A..B, Cont, LocalVars, Goal, Vs, Bs, Inp, Out) :-
-    var(V),
-    eval(A, Vs, Bs, NA),
-    eval(B, Vs, Bs, NB),
-    ( NA > NB -> Inp = Out ;
-      A1 is NA+1,
-      (Cont = [H|L] ->
-	   iterate( H, L, LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid )
-      ;
-      iterate( [], [], LocalVars, Goal, [V|Vs], [NA|Bs], Inp, Mid )
-	  ),
-      iterate( V in A1..NB, Cont, LocalVars, Goal, Vs, Bs, Mid, Out )
-    ).
-
-
-eval(I, _Vs, _Bs, I) :- integer(I), !.
-eval(I, Vs, Bs, NI) :-
-	copy_term(I+Vs, IA+Bs),
-	NI <== IA.
 
 matrix_seq(A, B, Dims, M) :-
 	ints(A, B, L),
@@ -1231,15 +1137,18 @@ mneg(I1, V) :-
 mult(V,X,Y) :- Y is V*X.
 
 matrix_to_lists( Mat, ToList) :-
-	matrix_dims( Mat, [D|Dims] ),
-	D1 is D-1,
-	foreach( I in 0..D1, matrix_slicer( Dims, Mat, [I|L]-L), ToList, [] ).
+    matrix_dims( Mat, Dims),
+    matrix_to_list(Mat,List),
+    slice_into_sublists(Dims,List,ToList).
 
-matrix_slicer( [_], M, Pos-[_], [O|L0], L0) :- !,
-	O <== '[]'(Pos,M).
-matrix_slicer( [D|Dims], M, Pos-[I|L], [O|L0], L0) :-
-	D1 is D-1,
-	foreach( I in 0..D1 , L^matrix_slicer( Dims, M, Pos-L), O, [] ).
+slice_into_sublists([],[],[]).
+slice_into_sublists([_],List,[List]).
+slice_into_sublists([D,D1|Dims],List,[Hs|Lists]) :-
+    length(H,D),
+    append(H,Rest,List),
+    slice_into_sublists(Dims,Rest,Hs),
+    slice_into_sublists([D1|Dims],List,Lists).
+
 
 /** @pred matrix_get(+ _Matrix_,+ _Position_,- _Elem_)
 

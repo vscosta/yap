@@ -952,8 +952,13 @@ restart_exec:
         goto restart_exec;
       }
     }
-    pe = PredPropByFunc(f, mod);
     arity = ArityOfFunctor(f);
+    if (NameOfFunctor (f) == AtomCall) {
+      if (arity==1)
+	goto restart_exec;
+      return do_execute_n(arity, t,CurrentModule);
+    }
+    pe = PredPropByFunc(f, mod);
     if (arity > MaxTemps)
     {
       return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
@@ -1040,11 +1045,16 @@ static Int execute0(USES_REGS1)
   /*   pe = Yap_interrupt_execute(P PASS_REGS); */
   /*   return pe->OpcodeOfPred != FAILCODE; */
   /* } */
- 
+ start_execute0:
   pe = Yap_get_pred(t, mod, "call");
   if (!pe)
     return false;
   arity = pe->ArityOfPE;
+    if (pe->FunctorOfPred) {
+      if (arity==1)
+	goto start_execute0;
+      return do_execute_n(arity, t,CurrentModule);
+    }
   if (arity)
   {
     if (arity > MaxTemps)

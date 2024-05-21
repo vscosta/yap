@@ -34,7 +34,7 @@ problem(Z, X, InFlow, OutFlow) :-
     N=15,
     M=99,
     d(M, DD ),
-    D <==  DD, % distance
+    D <==  DD.transpose(), % distance
     RHS <== zeros[N], % requirements (right hand statement)
     RHS[0] <== 1,
    N1 is N-1,
@@ -56,7 +56,7 @@ problem(Z, X, InFlow, OutFlow) :-
       matrix_map(oi,RHS,OutFlow,InFlow),
    % solve minimize z;
 % alternative solve statements which may give faster solution
-%solve :: int_search([ x[i,j] | i,j in 1..n], first_fail, indomain_min, com0plete) minimize z;
+%solve :: int_search([ x[i,j] | i,j in 1..n], first_fail, indomain_min, complete) minimize z;
 % solve minimize z;
     minimize(Z),
     labeling( [], X).
