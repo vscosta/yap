@@ -324,12 +324,6 @@ key_statistics(Key, NOfEntries, TotalSize) :-
 	TotalSize is ClSize+IndxSize.
 
 
-%%	time(:Goal)
-%
-%	Time the execution of Goal.  Possible choice-points of Goal are removed.
-%	Based on the SWI-Prolog definition minus reporting the number of inferences,
-%	which YAP does not currently supports
-
 /** @pred  time(: _Goal_) 
 
 
@@ -343,16 +337,9 @@ does not support).
 :- meta_predicate time(0).
 
 time(Goal) :-
-	var(Goal),
-	throw_error(instantiation_error,time(Goal)).
-time(_:Goal) :-
-	var(Goal),
-	throw_error(instantiation_error,time(Goal)).
-time(Goal) :- \+ must_be_callable(Goal), !,
-	throw_error(type_error(callable,Goal),time(Goal)).
-time(Goal) :-
-	statistics(walltime, _),
-	statistics(cputime, _), 
+	 must_be_callable(Goal),
+	statistics(walltime, [_,T0]),
+	statistics(cputime, [_,CT0]), 
 	(   catch(Goal, E, true)
 	->  Result = yes
 	;   Result = no
@@ -363,9 +350,9 @@ time(Goal) :-
 	%% ->  CPU = 'Inf'
 	%% ;   CPU is truncate(Time/Wall*100)
 	%% ),
-	TimeSecs is Time/1000,
-	WallSecs is Wall/1000,
-	format(user_error,'% ~w CPU in ~w seconds wall clock ~n', [TimeSecs, WallSecs]),
+	TimeMiliSecs is Time-T0,
+	WallMiliSecs is Wall-CT0,
+	format(user_error,'% %a in ~d msecs CPU-time and in ~d msecs wall clock time.~n', [TimeMiliSecs, WallMiliSecs]),
 	(   nonvar(E)
 	->  throw(E)
 	;   Result == yes
