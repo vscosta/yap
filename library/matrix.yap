@@ -918,6 +918,20 @@ multiply([X|Xs],P0,P) :-
 fill(V,_) :-
     var(V),
     !.
+fill(terms,_) :-
+    !.
+fill(ints,L) :-
+    !,
+    maplist('='(0),L).
+fill(floats,L) :-
+    !,
+    maplist('='(0.0),L).
+fill(terms,_) :-
+    !.
+fill(N,L) :-
+    number(N),
+    !,
+    maplist('='(N),L).
 fill([H|L],NL) :-
     flatten([H|L],NL),
     !.

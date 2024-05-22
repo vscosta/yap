@@ -33,19 +33,16 @@ queens(N, LQueens, F) :-
 %% %		       formula(F,RF),
 		       ( sat(F)
 		       ->
-		       %% %		       cnf(RF,NF),
-		       %% foldl(inc,LQueens,1,_),
-		       %% satsolver:solver_new_solver,
-		       %% satsolver:maplist(add_clause,F),
-		       %% satsolver:solver_solve,
-		       %% solver_get_model( LBs),
-		       %% satsolver:solver_delete_solver.
-		       %print_queens(LQueens,N).
 		       ( verify(Queens,N) -> writeln(ok);writeln(bad))
 		       ;
 		       writeln(no_solution)
 		       ).
-		       
+
+count(N,M,K,T0) :-
+    Queens <== matrix[N,N] of _,
+    queens(N, _, Queens, F, []),
+    satMulti(F,M,K,T0).
+
 inc(I,I,I1) :- I1 is I+1.
 
 add_clause(F0) :-

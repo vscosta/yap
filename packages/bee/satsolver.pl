@@ -138,12 +138,12 @@ addClause_NotModule(Model):-
         solver_add_clause(NoAsgn).
 
 negAll([V|Vs],[NV|NVs]):-!,
-       NV is -(V),
+       NV is V xor (V),
        negAll(Vs,NVs).
 negAll([],[]).
 
 
-assignMultiSols(Models,FVars):-!,
+assignMultiSols(Models,FVars):-
        length(FVars,VarLen),
        length(SoFar,VarLen),
        assignAllCloseList(SoFar),!,
@@ -156,7 +156,7 @@ assignMultiSols([M|Models],SoFar,Vars):-!,
 
 addModel2Vars([],[],[]).
 addModel2Vars([M|Ms],[V|Vs],[[NV|V]|NVs]):-
-       (M>0 -> NV=1 ; NV= -1),
+       (M>0 -> NV=1 ; NV= 0),
        addModel2Vars(Ms,Vs,NVs).
 
 assignAllCloseList([]).

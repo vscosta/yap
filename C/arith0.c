@@ -190,7 +190,7 @@ eval0(Int fi) {
     }
   case op_cputime:
     {
-      RFLOAT((Float)Yap_cputime()/1000.0);
+      RFLOAT((Float)Yap_cputime()/1000000.0);
     }
   case op_heapused:
     /// - heapused

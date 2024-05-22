@@ -354,7 +354,7 @@ static UInt runtime(USES_REGS1) {
 
 /* $runtime(-SinceInterval,-SinceStart)	 */
 static Int p_runtime(USES_REGS1) {
-  Int now, interval, gc_time, ss_time;
+  uint64_t now, interval, gc_time, ss_time;
   Term tnow, tinterval;
 
   Yap_cputime_interval(&now, &interval);
@@ -365,25 +365,25 @@ static Int p_runtime(USES_REGS1) {
   interval -= (gc_time - LOCAL_LastGcTime) + (ss_time - LOCAL_LastSSTime);
   LOCAL_LastGcTime = gc_time;
   LOCAL_LastSSTime = ss_time;
-  tnow = MkIntegerTerm(now);
-  tinterval = MkIntegerTerm(interval);
+  tnow = MkIntegerTerm(now/1000000);
+  tinterval = MkIntegerTerm(interval/1000000);
   return (Yap_unify_constant(ARG1, tnow) &&
           Yap_unify_constant(ARG2, tinterval));
 }
 
 /* $cputime(-SinceInterval,-SinceStart)	 */
 static Int p_cputime(USES_REGS1) {
-  Int now, interval;
+  uint64_t now, interval;
   Yap_cputime_interval(&now, &interval);
-  return (Yap_unify_constant(ARG1, MkIntegerTerm(now)) &&
-          Yap_unify_constant(ARG2, MkIntegerTerm(interval)));
+  return (Yap_unify_constant(ARG1, MkIntegerTerm(now/1000000)) &&
+          Yap_unify_constant(ARG2, MkIntegerTerm(interval/1000000)));
 }
 
 static Int p_systime(USES_REGS1) {
-  Int now, interval;
+  uint64_t now, interval;
   Yap_systime_interval(&now, &interval);
-  return (Yap_unify_constant(ARG1, MkIntegerTerm(now)) &&
-          Yap_unify_constant(ARG2, MkIntegerTerm(interval)));
+  return (Yap_unify_constant(ARG1, MkIntegerTerm(now/1000000)) &&
+          Yap_unify_constant(ARG2, MkIntegerTerm(interval/1000000)));
 }
 
 static Int p_walltime(USES_REGS1) {
@@ -391,8 +391,8 @@ static Int p_walltime(USES_REGS1) {
   uint64_t t = Yap_walltime();
   now = t - Yap_StartOfWTimes;
   interval = t - LOCAL_LastWTime;
-  return (Yap_unify_constant(ARG1, MkIntegerTerm(now / 1000)) &&
-          Yap_unify_constant(ARG2, MkIntegerTerm(interval / 1000)));
+  return (Yap_unify_constant(ARG1, MkIntegerTerm(now / 1000000)) &&
+          Yap_unify_constant(ARG2, MkIntegerTerm(interval / 1000000)));
 }
 
 //  static int cnt;
@@ -1141,10 +1141,10 @@ void Yap_show_statistics(void) {
       Unsigned(sizeof(tr_fr_ptr) *
                (Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase))),
       Unsigned(sizeof(tr_fr_ptr) * (Unsigned(TR) - Unsigned(LOCAL_TrailBase))));
-  fprintf(stderr, "Runtime: " UInt_FORMAT "\n", runtime(PASS_REGS1));
-  fprintf(stderr, "Cputime:  " UInt_FORMAT "\n", Yap_cputime());
+  fprintf(stderr, "Runtime: " UInt_FORMAT "\n", runtime(PASS_REGS1)/1000000);
+  fprintf(stderr, "Cputime:  " UInt_FORMAT "\n", Yap_cputime()/1000000);
 
-  fprintf(stderr, "Walltime: %" PRIu64 ".\n", Yap_walltime() / (UInt)1000);
+  fprintf(stderr, "Walltime: %" PRIu64 ".\n", Yap_walltime() / (UInt)1000000);
 }
 
 static Int p_statistics_heap_max(USES_REGS1) {

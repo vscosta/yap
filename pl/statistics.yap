@@ -338,8 +338,8 @@ does not support).
 
 time(Goal) :-
 	 must_be_callable(Goal),
-	statistics(walltime, [_,T0]),
-	statistics(cputime, [_,CT0]), 
+	statistics(cputime, [_,T0]),
+	statistics(walltime, [_,CT0]), 
 	(   catch(Goal, E, true)
 	->  Result = yes
 	;   Result = no
@@ -350,9 +350,9 @@ time(Goal) :-
 	%% ->  CPU = 'Inf'
 	%% ;   CPU is truncate(Time/Wall*100)
 	%% ),
-	TimeMiliSecs is Time-T0,
-	WallMiliSecs is Wall-CT0,
-	format(user_error,'% %a in ~d msecs CPU-time and in ~d msecs wall clock time.~n', [TimeMiliSecs, WallMiliSecs]),
+	TimeMiliSecs is (Time-T0),
+	WallMiliSecs is (Wall-CT0),
+	format(user_error,'% ~a in ~w/~w msecs CPU/Wall clock time.~n', [Result,TimeMiliSecs, WallMiliSecs]),
 	(   nonvar(E)
 	->  throw(E)
 	;   Result == yes

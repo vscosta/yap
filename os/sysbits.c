@@ -14,9 +14,6 @@
  * comments:	very much machine dependent routines			 *
  *									 *
  *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
 
 /**
  * @file sysbits.c

@@ -465,8 +465,8 @@ extern void *Yap_openAssetFile(const char *path);
 extern bool Yap_isAsset(const char *path);
 #endif
 extern const char *Yap_getcwd( char *, size_t);
-extern void Yap_cputime_interval(Int *, Int *);
-extern void Yap_systime_interval(Int *, Int *);
+extern void Yap_cputime_interval(uint64_t *, uint64_t *);
+extern void Yap_systime_interval(uint64_t *, uint64_t *);
 extern void Yap_InitSysbits(int wid);
 extern void Yap_InitSysPreds(void);
 extern void Yap_InitcTime(int);

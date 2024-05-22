@@ -198,7 +198,8 @@ extern "C" bool @solver@_assign_model()
     int indx=0;
 	while( YAP_IsPairTerm(asgnList) ) {
 	  YAP_Term asgnVar = YAP_HeadOfTerm(asgnList);
-	  YAP_Unify(v2t(indx++), asgnVar);
+	  YAP_Unify(v2t(indx), asgnVar);
+	  indx++;
 	  asgnList = YAP_TailOfTerm(asgnList);
 	}
 
