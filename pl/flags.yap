@@ -89,7 +89,7 @@ and `term` (that is, any ground term)
 
    * `access(+_Access_)` with  _Access_ one of `read_only` or `read_write`
 
-   * `keeep(+_Keep_) protect existing flag.
+   * `keep(+_Keep_)`  protect existing flag.
 */
 create_prolog_flag(Name, Value, Options) :-
 	'$flag_domain_from_value'( Value, Type ),

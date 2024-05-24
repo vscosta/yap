@@ -271,7 +271,7 @@ OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLP
 OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_PACKAGES})
 option(WITH_Gecode "interface gecode constraint solver" ${WITH_PACKAGES})
 option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
-option(WITH_BEE    "interface  with lbfgs" ${WITH_PACKAGES})
+option(WITH_SAT    "interface  with sat solvers" ${WITH_PACKAGES})
 option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
 option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_SWIG})
 option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
@@ -842,8 +842,8 @@ if (WITH_LBFGS)
   add_subDIRECTORY(packages/yap-lbfgs)
 endif ()
 
-if (WITH_BEE)
-  add_subDIRECTORY(packages/bee)
+if (WITH_SAT)
+  add_subDIRECTORY(packages/sat)
 endif ()
 
 

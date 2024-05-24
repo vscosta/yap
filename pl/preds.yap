@@ -542,7 +542,8 @@ current_predicate(A,T0) :-
     atom(A)
     ->
     (
-	'$pred_exists'( A, M)
+	'$pred_exists'( A, M),
+	T = A
     ;
     '$functors_for_atom'(A,Ts),
     '$enumerate_functors'(Ts,M,T)

@@ -820,7 +820,7 @@ module_state.
     \+  '$import'(_,Mod,_,P,_,_),
     '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),
-    format(string(Msg),`coul>>d not find a definition for ~q within the module ~a or its imports`,[NE/AE,Mod]),
+    format(string(Msg),`could not find a definition for ~q within the module ~a or its imports`,[NE/AE,Mod]),
     print_message(warning, error(warning(undefined_in_module,Mod:
     NE/AE),[parserReadingCode=true,parserPos=0, parserFile=File,parserLine=Line,errorMsg = Msg,prologConsulting=true ])),
     fail.

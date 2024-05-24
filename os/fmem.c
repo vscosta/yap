@@ -94,7 +94,7 @@ int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
 
   }
   // printf("%d %d %d %s\n", total, len,fg->gap->log,buf);
-  int i = 0, l=0;
+  int i = 0;
   j=0;
   gap_t *padi = fg->gap;
   while (j < total) {
