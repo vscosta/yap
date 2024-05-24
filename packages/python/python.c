@@ -237,7 +237,7 @@ PyThreadState * state =  PyThreadState_Get();
 		     /*PyObject *globals,*/
 			   NULL                    /*PyObject *locals*/
 		     );
-   PyTraceBack_Here(frame);
+ //   PyTraceBack_Here(frame);
 
    //b state->cframe = frame;
  // PyFunctionObject *func = PyFunction_New(py_code, globals);

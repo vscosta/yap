@@ -59,7 +59,7 @@ install(TARGETS YAPmyddas
       RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
       ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR} )
 
-target_link_libraries(YAPmyddas Py4YAP  YAP++ libYap)
+target_link_libraries(YAPmyddas libYap)
 
 set_target_properties(YAPmyddas PROPERTIES
         POSITION_INDEPENDENT_CODE ON
