@@ -227,6 +227,7 @@ left-alignment:
 *Hello          *
 ```
 
+
 Note that we reserve 16 characters for the column.
 
 The following example shows how to do right-alignment:
@@ -305,7 +306,7 @@ format_clean_up(int sno, int sno0, format_info *finfo) {
 
 }
 
-static int format_print_str(int sno, Int size, Int has_size, Term args,
+static int format_print_str(int sno, Int size, bool has_size, Term args,
                             int (*f_putc)(int, wchar_t), format_info *finfo) {
   CACHE_REGS
     Term arghd;
@@ -316,8 +317,14 @@ static int format_print_str(int sno, Int size, Int has_size, Term args,
 
             if ((pt += get_utf8(pt, -1, &ch)) > 0) {
                 f_putc(sno, ch);
-            }
+            }	    
         }
+	if (has_size) {
+	  while (size>0) {
+	    size--;
+	    f_putc(sno, ' ');
+	  }
+	}
     } else if (IsAtomTerm(args)) {
         if (args == TermNil) {
             return true;
@@ -330,6 +337,12 @@ static int format_print_str(int sno, Int size, Int has_size, Term args,
                 f_putc(sno, ch);
             }
         }
+	if (has_size) {
+	  while (size>0) {
+	    size--;
+	    f_putc(sno, ' ');
+	  }
+	}
     } else {
         while (!has_size || size > 0) {
             bool maybe_chars = true, maybe_codes = true;
@@ -338,7 +351,7 @@ static int format_print_str(int sno, Int size, Int has_size, Term args,
                 Yap_ThrowError(INSTANTIATION_ERROR, args, "~s expects a bound argument");
                 return false;
             } else if (args == TermNil) {
-                return TRUE;
+	      break;
             } else if (!IsPairTerm(args)) {
                 format_clean_up(sno, finfo->sno0, finfo);
                 Yap_ThrowError(TYPE_ERROR_TEXT, args, "format expects an atom, string, or list of codes or chars ");
@@ -372,6 +385,13 @@ static int format_print_str(int sno, Int size, Int has_size, Term args,
                 return FALSE;
             }
         }
+	if (has_size) {
+	  while (size>0) {
+	    f_putc(sno, ' ');
+	    size--;
+	  }
+	}
+
     }
     return TRUE;
 }
@@ -476,6 +496,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     Term tail;
     int (*f_putc)(int, wchar_t);
     int sno = sno0;
+    int last_tabline=0;
+    int last_tabcol=0;
     Term fmod = CurrentModule;
     bool alloc_fstr = false;
     LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -483,8 +505,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     format_info *finfo = Malloc(sizeof(format_info));
     // it starts here
     finfo->sno0 = sno0;
-    finfo->gapi = 0;
-    finfo->gap[0].filler = ' ';
     finfo->phys_start = 0;
     finfo->lstart = 0;
     finfo->lvl = l;
@@ -1006,26 +1026,27 @@ switch (ch) {
 			      }
 			}
                         break;
-                        /* padding */
-                        case '|':
-			  if (finfo->gapi==0) {
-			    finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount;
-			    finfo->gap[finfo->gapi].filler = ' ';
-                            finfo->gapi++;
-			  }
-                            sno = fill_pads(sno, sno0, repeats-finfo->phys_start, finfo PASS_REGS);
+
+
+			  /* padding */
+			case '|':
+                        if ( last_tabline== GLOBAL_Stream[sno].linecount)
+			  repeats-=finfo->phys_start;
+			
+			sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
+			  finfo->gapi=0;
+			  last_tabline=GLOBAL_Stream[sno].linecount;
                         break;
                         case '+':
- 			  if (finfo->gapi==0) {
-			    finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount-1;
-			    finfo->gap[finfo->gapi].filler = ' ';
-                            finfo->gapi++;
-			  }
                              sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
-                        break;
+			  finfo->gapi=0;
+			  last_tabline=GLOBAL_Stream[sno].linecount;
+			     break;
                         case 't': {
 			  Yap_flush(sno);
-			  finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount;
+			  finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount-GLOBAL_Stream[sno].linestart;
+                        if ( last_tabline== GLOBAL_Stream[sno].linecount)
+			 finfo->gap[finfo->gapi].log -=finfo->phys_start;
 			    if (has_repeats)
                                 finfo->gap[finfo->gapi].filler = repeats;
                             else

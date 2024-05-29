@@ -1,8 +1,15 @@
-%% The SWI-Prolog interface to SAT solver
+/** @file satsolver.pl
+    @brief Prolog interface to SAT solver
+*/
 
-/*
+/**
+@defgroup SAT
+@ingroup  YAPPackages
+@brief Calling a SAT solver from Prolog
+@{
+
 There are four SAT solver modules available:
-    CryptoMinisat 2.5.1    (cryptominisat)
+    CryptoMinisat     (cryptominisat)
     Minisat 2.0.2          (minisat)
     Glucose 2.2            (glucose)
     Glucose 4.0            (glucose4)
@@ -57,6 +64,11 @@ satSolverLibrary(Value,_):-!, throw(error(domain_error(satSolver_module,Value),s
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Solve CNF                        %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+/**
+ * sat(+CNf)
+ * call a sat solver on the conjunctive normal formula _CNF_
+ *
+ */
 sat(CNF):-
     sat(CNF,Solved,_),!,
    Solved=1.
@@ -366,3 +378,5 @@ bind2index([],N,FN):-!, FN is N - 1.
 
 assign_model([],_).
 assign_model([V|Vs],[N|Ns]) :- ( N<0 -> V= -1 ; V=1), assign_model(Vs,Ns).
+
+%% @}

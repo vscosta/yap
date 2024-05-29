@@ -271,14 +271,16 @@ static Term float_send(char *s, int sign) {
  * @returnppp
  */
 static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st)
-{if(st->status & RepClose_Prolog_f) {
-    Yap_CloseStream(st-GLOBAL_Stream);
-    return EOF;
-  }   if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
+{
+  if ((st->status & RepError_Prolog_f) || trueGlobalPrologFlag(ISO_FLAG)) {
       LOCAL_Error_TYPE = SYNTAX_ERROR;
     LOCAL_ErrorMessage=malloc(2048);
-    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text");
-} else 
+    Yap_ThrowError(SYNTAX_ERROR,TermNil,"character encoding error: code so far %d scanned %d",code,ch);
+} else if(st->status & RepClose_Prolog_f) {
+    Yap_CloseStream(st-GLOBAL_Stream);
+    return EOF;
+  }
+    else 
   Yap_Warning("unexpected newline while  reading quoted text");
 
 
@@ -442,6 +444,9 @@ do_switch:
         return  number_encoding_error(ch, 1, st);
       }
     }
+  case '9':
+  case '8':
+    return  number_encoding_error(ch, 1, st);
   case 'x':
     /* hexadecimal character (YAP allows empty hexadecimal  */
     {

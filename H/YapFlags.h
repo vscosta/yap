@@ -19,7 +19,7 @@
  @file YapFlags.h
 
 @{
-@addtogroup YAPFlagsImplementation
+@addtogroup YAPFlags
 @ingroup YAPImplementation
 
 @brief Inquiring and setting YAP state.

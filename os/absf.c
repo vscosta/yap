@@ -41,7 +41,7 @@ static char SccsId[] = "%W% %G%";
  * @addtogroup absf
  *
  * @brief C-code support for dealing with paths
- *
+ * @{
  */
 
 static Term do_glob(const char *spec, bool glob_vs_wordexp);
@@ -1136,3 +1136,5 @@ void Yap_InitAbsfPreds(void) {
   Yap_InitCPred("file_directory_name", 2, file_directory_name, SafePredFlag);
   Yap_InitCPred("is_absolute_file_name", 1, is_absolute_file_name, SafePredFlag);
 }
+
+/// @}

@@ -566,6 +566,7 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 {
 
   Term  t, out;
+
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
     out = MkPairTerm(MkGlobal(t),TermNil);

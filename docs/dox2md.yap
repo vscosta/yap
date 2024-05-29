@@ -634,15 +634,6 @@ one_group(S,Id) :-
     forall(predicate(Ref,Id),(addsubp(S,Ref)))						     ;
       true
       ),
-    (class(_,Id)
-    ->
-    format(S,'## Class~n', []), 
-    format(S,'|Class~20|| Description~40+|~n', []), 
-    format(S,'|~`-t~20||~`-t~40+|~n', []), 
-    forall(class(Ref,Id),(addsubc(S,Ref)))						     ;
-      true
-      ),
-    nl(S),			
     %format(S,'~s~n',[Brief]),
     %forall(extrabrief(Id,Extra),format(S,'~s~n',[Extra])),
     format(S,'~s~n',[Text]),
@@ -655,7 +646,16 @@ one_group(S,Id) :-
       ),
     (class(_,Id)
     ->
-    forall(class(Ref,Id),(output_class(S,Ref)))
+    format(S,'## Class~n', []), 
+    format(S,'|Class~20|| Description~40+|~n', []), 
+    format(S,'|~`-t~20||~`-t~40+|~n', []), 
+    forall(class(Ref,Id),(addsubc(S,Ref)))						     ;
+      true
+      ),
+    nl(S),			
+    (class(_,Id)
+    ->
+        forall(class(Ref,Id),(output_class(S,Ref)))
       ;
       true
       ),

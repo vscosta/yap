@@ -285,9 +285,9 @@ public:
 };
 
 /**
- * @brief If you like being short, use T instead of YapTerm.
+ * @brief If you like being short, use Trm instead of YapTerm.
  */
-class X_API T : public YAPTerm {
+class X_API Trm : public YAPTerm {
  public:
   friend class YAPTerm;
 };

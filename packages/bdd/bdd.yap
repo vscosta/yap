@@ -1,10 +1,13 @@
 /**
  *   @file bdd/bdd.yap
- *   
+ *   @brief BDDs in Prolog
+ */
+
+/**
  *   @defgroup YAP_BDDsPL Binary Decision Diagrams and Friends
- * @ingroup YAP_BDDs
+ * @ingroup BDDs
  * @{
- * 
+ * @toc
  * 
  * This library provides an interface to the BDD package CUDD. It requires
  * CUDD compiled as a dynamic library. In Linux this is available out of
@@ -12,14 +15,9 @@
  * distributions. CUDD is available in the ports OSX package, and in
  * cygwin. To use it, call
  * 
- * ~~~~~
+ * ~~~
  * :-use_module(library(bdd))`.
- * ~~~~~
- * 
- * The following predicates construct a BDD:
- * 
- * \toc
- */
+ * ~~~
 
 
 :- module(bdd, [

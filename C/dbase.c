@@ -31,7 +31,8 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include <stdlib.h>
 
-/// @}
+/// @file dbase.c
+/// @brief Internal Database
 
 
 /**

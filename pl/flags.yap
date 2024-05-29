@@ -14,13 +14,13 @@
 * comments:	controlling YAP						 *
 *									 *
 *************************************************************************/
+
 /**
  * @file flags.yap
  *
- * @addtogroup YAPFlags
- * @ingroup Builtins
- * @{
- * 
+     @addtogroup YAPFlags
+    @ingroup Builtins
+    @{
  */
 
 

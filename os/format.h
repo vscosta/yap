@@ -8,7 +8,7 @@ typedef struct {
   /* character to dump */
   int phys;
   /* position in buffer */
-  int log; /* columnn as wide chsh */
+  int lstart, log; /* columnn as wide chsh */
 } gap_t;
 
 typedef struct format_status {

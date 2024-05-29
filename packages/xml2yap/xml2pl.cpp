@@ -177,8 +177,8 @@ CACHE_REGS
  graph = 0;
     try {
      graph = pltree();
-    } catch( YAPError e) {
-      if (e.getID()==RESOURCE_ERROR_STACK) {
+    } catch( YAPError *e) {
+      if (e->getID()==RESOURCE_ERROR_STACK) {
 	HR = hi;
 	m.reset();
 	LOCAL_ActiveError->errorNo = YAP_NO_ERROR;

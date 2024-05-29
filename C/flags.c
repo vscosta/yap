@@ -21,14 +21,12 @@
 */
 
 /**
-
-    @addtogroup YAPFlagsImplementation
-    @ingroup YAPImplementation
-    @{
-
-@brief Low-level code to support flags.
-
-*/
+ * @defgroup YAPFlags Prolog Flags
+ * @ingroup Builtins
+ * @brief Flags can be used to configure and to query the Prolog engine.
+ * @{
+ * 
+ */
 
 // this is where  we define flags
 
@@ -913,19 +911,6 @@ GetFlagProp(Atom a) { /* look property list of atom a for kind  */
 
   return pp;
 }
-
-/**
- *  @}
- */
-
-/**
- *`@defgroup YAPFlags Setting and Querying YAP flags
- * @ingroup Builtins
- * @{
- *  @brief YAP now supports generic access ad uodating. the following builins provide read-writeeeeeee access to YAP internals/
- */
-
-
 
 static void initFlag(flag_info *f, int fnum, bool global) {
 

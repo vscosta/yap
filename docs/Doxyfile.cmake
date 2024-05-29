@@ -84,6 +84,7 @@ set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/assets/css/solarized
   set(DOXYGEN_TOC_INCLUDE_HEADINGS 5  )
   set(DOXYGEN_AUTOLINK_SUPPORT YES  )
   set(DOXYGEN_ID_STYLE YES)
+  set(DOXYGEN_CASE_SENSE_NAMES NO)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_GENERATE_TREEVIEW NO)
 set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
@@ -109,19 +110,21 @@ doxygen_add_docs(
   	${CMAKE_BINARY_DIR}/INSTALL.md
 	${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/docs/extra
+    ${CMAKE_SOURCE_DIR}/C
     ${CMAKE_SOURCE_DIR}/H
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/CXX
     ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
+    ${CMAKE_SOURCE_DIR}/packages
     ${CMAKE_SOURCE_DIR}/OPTYap
     COMMENT "Generating Xmls"
 )
 
 
 
-Add_custom_target (mkdocs 
+add_custom_target( docs2md
   COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
   COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
   COMMAND ./yap -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main -- xml mkdocs/docs
@@ -136,9 +139,11 @@ COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/README.md mkdocs/docs/index
 DEPENDS dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
    )
 
-    add_custom_target(docs
+    add_custom_target(mkdocs
     COMMAND mkdocs build
-     )
+      WORKING_DIRECTORY mkdocs
+      DEPENDS docs2md
+      ) 
 
     add_custom_target(sphinx
       COMMAND breathe-apidoc -f -o source/dox -p YAP -g class,group ../xml

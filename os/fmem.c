@@ -73,51 +73,45 @@ char *Yap_StrPrefix( const char *buf, size_t n) {
 int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
 // uses directly the buffer in the memory stream.
 {
-  int nfillers, fill_space, lfill_space, nchars, len, j = fg->phys_start;
+  int  fill_space, nchars, len, extra_fill;
   int (*f_putc)(int, int);
    char *buf;
   f_putc = GLOBAL_Stream[sno0].stream_putc;
   fflush(GLOBAL_Stream[sno].file);
-  len = 
-    GLOBAL_Stream[sno].nsize;
   buf = GLOBAL_Stream[sno].nbuf;
+  len = strlen(buf);
   nchars =total-len;
-  if (nchars < 0||fg->gapi==0) {
-    nchars = 0; /* ignore */
-    fg->gapi = 0;
-    nfillers = 0;
-  }
-  if (nchars){
-    nfillers = fg->gapi;
-  fill_space = nchars / nfillers;
-  lfill_space = nchars % nfillers;
-
+  if (nchars <= 0 ||fg->gapi==0) {
+    fill_space=0;
+    extra_fill=0;
+  } else{
+  fill_space = nchars / fg->gapi;
+extra_fill=nchars % fg->gapi;
   }
   // printf("%d %d %d %s\n", total, len,fg->gap->log,buf);
-  int i = 0;
-  j=0;
-  gap_t *padi = fg->gap;
-  while (j < total) {
-    if ( i == padi->log) {
-      int k;
-      for (k = 0; k < fill_space; k++) {
-        f_putc(sno0, padi->filler);
-     		j++;
- }
-      padi++;
-    } else if (i<len) {
-      f_putc(sno0, buf[i++]);
-      j++;
-    } else {
-        f_putc(sno0, padi->filler);
-	j++;
+  int i = 0, k=0;
+
+  for (i = 0;i<len; i++,k++) {
+    if (i==fg->gap[k].log) {
+      int extra  = (extra_fill-->0?1:0),j;
+    for (j = 0; j < fill_space+extra; j++) {
+      f_putc(sno0, fg->gap[k].filler);
     }
-   }
+    k++;
+    }
+    f_putc(sno0, buf[i]); 
+  }
+  if (k <fg->gapi) {
+    int j;
+    for (j = 0; j < fill_space; j++) {
+      f_putc(sno0, fg->gap[k].filler);
+    }
+  }
   Yap_CloseMemoryStream( sno);
   sno = Yap_open_buf_write_stream(-1, LOCAL_encoding);
   fg->lstart = 0;
-  fg->phys_start += total;
   fg->gapi = 0;
+  fg->phys_start = 0;
   return sno;
 }
 

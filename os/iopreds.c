@@ -42,7 +42,8 @@ static char SccsId[] = "%W% %G%";
     non-backtrackable objects loosely based on the Unix library IO
     primitives. They must be open, their properties can be queried or
     modified, and ultimately they need to be closed.
-@}
+
+
 */
 
 #include "Yap.h"
@@ -1598,9 +1599,9 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
       return false;
     }
   }
-  if (st - GLOBAL_Stream < 3) {
+  //  if (st - GLOBAL_Stream < 3) {
     st->status |= RepError_Prolog_f;
-  }
+    //}
 #if MAC
   if (open_mode == AtomWrite) {
     Yap_SetTextFile(RepAtom(AtomOfTerm(file_name))->StrOfAE);
@@ -2145,6 +2146,7 @@ void Yap_InitIOPreds(void) {
   Yap_InitAbsfPreds();
  }
 
+/// @}
 
 
 

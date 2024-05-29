@@ -31,28 +31,30 @@ static char SccsId[] = "%W% %G%";
 
 
 /**
- * @defgroup Aliases Aliases to Stream Names
+ * @defgroup Aliases Aliases: Giving Names to Streams
  * @ingroup InputOutput
  *
  * 
- * This file defines the main operations on aliases, a second name for an open stream. Aliases are always
- * textual constants (atoms).
+ * This file defines the main operations on aliases, an alternative
+ * name for an open stream. Aliases are always textual constants
+ * (atoms). Aliases are often given at open/4, but they may also be
+ * given through set_stream_property/2. They are given back to the
+ * system when the stream is closed.
  *
- * Their first advantage is that they allow cleaning up code, by separating name from operation, eg
+ * Aliases allow cleaning up code, by separating name from operation, eg
  * YAP has a loop stream used to run the main top-level, which can be std0 originally but then
  * changed to a pipe, a file, or a memory region. Other important streams are the user streams. Finally,
  * the debugger uses debugger input and output.
  *
- * P
-redefined stream aliases are:
+ * predefined stream aliases are:
  *  + user: special alias, initially refers to all the three standard streams.
  *  + `user_input: initially refers to the stdandard input stream;
  *  + `user_output: initially refers to the stdandard output stream;
  *  + `user_error: initially refers to the stdandard error stream. Often this is the same device
  *    as `stderr`, just accessed in different ways.
- *  + loop_stream: refers to the stream for the file or object being current consulted
- *  + debugger_input: refers to the stream used to send debugger commands, by default `user_input`.
- *  + debugger_output: refers to the stream used to output debugging, by default `user_error`.
+ *  + `loop_stream`: refers to the stream for the file or object being current consulted
+ *  + `debugger_input`: refers to the stream used to send debugger commands, by default `user_input`.
+ *  + `debugger_output`: refers to the stream used to output debugging, by default `user_error`.
  *    It must always be interactive.
  */
 

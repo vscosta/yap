@@ -25,7 +25,7 @@ static char SccsId[] = "%W% %G%";
  * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *
  */
-/** addtogroup StreamOps
+/** defgroup StreamM Stream Operations
  *
  */
     

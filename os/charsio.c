@@ -35,11 +35,11 @@ static char SccsId[] = "%W% %G%";
  *
  * @{
  * YAP implements most of the ISO-Prolog built-ins. Input/Output may be
- *performed on
- * the current stream or on a specified stream, and it may involve a:
- * + byte
+ * performed on
+ * the current stream or on a specified stream. Depending on whether the stream is text or binary, it may involve a:
  * + character code
  * + character atom
+ * + byte
  *
  * Old-style operations, like get0/2 are still implemented.
  *
@@ -284,7 +284,6 @@ code with  _C_.
 static Int get_code(USES_REGS1) { /* get0(Stream,-N)                    */
   int sno = Yap_CheckTextReadStream(ARG1, "get_code");
   // Int status;
-  Int out;
 
   if (sno < 0)
     return (FALSE);

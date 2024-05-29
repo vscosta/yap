@@ -297,8 +297,7 @@ typedef enum stream_f {
     Popen_Stream_f = 0x080000,         /**< popen open, pipes mosylyn */
     User_Stream_f = 0x100000,          /**< usually user_ipiy  */
     HAS_BOM_f = 0x200000,              /**< media for streamhas a BOM mar. */
-    RepError_Prolog_f =
-    0x400000,              /**< handle representation error as Prolog terms */
+    RepError_Prolog_f = 0x400000,      /**< handle representation error as Prolog terms */
     RepError_Xml_f = 0x800000, /**< handle representation error as XML objects */
     DoNotCloseOnAbort_Stream_f =
     0x1000000, /**< do not close the stream after an abort event */

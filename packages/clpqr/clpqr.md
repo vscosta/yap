@@ -1,5 +1,6 @@
-Constraint Logic Programming over Rationals and Reals  {#clpqr}
-=====================================================
+# Constraint Logic Programming over Rationals and Reals  {#CLPQR}
+@defgroup CLPQR
+@ingroup YAPPackages
 
 YAP now uses the CLP(R) package developed by <em>Leslie De Koninck</em>,
 K.U. Leuven as part of a thesis with supervisor Bart Demoen and daily
@@ -22,12 +23,12 @@ explicitely before using it:
 :- use_module(library(clpr)).
 ```
 
-###  Solver Predicates {#CLPQR_Solver_Predicates}
+##  Solver Predicates {#CLPQR_Solver_Predicates}
 
 The following predicates are provided to work with constraints:
 
 
-### Syntax of the predicate arguments {#CLPQR_Syntax}
+## Syntax of the predicate arguments {#CLPQR_Syntax}
 
 
 The arguments of the predicates defined in the subsection above are
@@ -68,10 +69,10 @@ result in an exception.
 ```
 
 
-###  Use of unification {#CLPQR_Unification}
+##  Use of unification {#CLPQR_Unification}
 
 Instead of using the `{}/1` predicate, you can also use the standard
-unification mechanism to store constraints. The following code samples
+Unification mechanism to store constraints. The following code samples
 are equivalent:
 
 + Unification with a variable
@@ -91,7 +92,7 @@ X = 5.0
 ```
 
 
-####  Non-Linear Constraints {#CLPQR_NonhYlinear_Constraints}
+##  Non-Linear Constraints {#CLPQR_NonhYlinear_Constraints}
 
 
 In this version, non-linear constraints do not get solved until certain

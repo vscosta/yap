@@ -1,8 +1,9 @@
 /**
     @defgroup CUDD CUDD Interface
-@ingroup BDDs
+@ingroup YAPPackages
 
    @brief Interface to the CUDD Library
+   @{
    CUDD represents a BDD as a tree of DdNode structures. Each tree has a manager
 DdManager and a list of booleaan variables, also represented as DdNode
 structures. Mapping from an Prolog tree to a ground BDD involves the following
