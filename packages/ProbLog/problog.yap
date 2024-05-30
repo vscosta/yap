@@ -35,7 +35,7 @@
 % You are always permitted to make arrangements wholly outside of this
 % license directly with the Copyright Holder of a given Package. If the
 % terms of this license do not permit the full use that you propose to
-% make of the Package, you should contact the Copyright Holder and seek
+7% make of the Package, you should contact the Copyright Holder and seek
 % a different licensing arrangement.  Definitions
 %
 % "Copyright Holder" means the individual(s) or organization(s) named in
@@ -206,6 +206,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+%% @file problog.yap
+%% @brief ProbLog-I main file.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ProbLog inference
 %
@@ -227,11 +230,12 @@
 /**
 
 @defgroup YAP_ProbLog1 The Leuven ProbLog1 System
-@ingroup YAP_packages
+
+@{
 
 @brief This document is intended as a user guide for the users of ProbLog. ProbLog is a probabilistic Prolog, a probabilistic logic programming language, which is integrated in YAP-Prolog.
 
-## Installing ProbLog
+@addtogroup InstallingProbLog
 
 ### Requirements
 
@@ -256,6 +260,8 @@ You can also use the CUDD interface package in YAP. You will need to
 
 Last, when you configure YAP you need to add the options --with-cidd --enable-bddlib. Binary distributed versions already have the interface.
 
+@}
+
 ## Running ProbLog
 
 
@@ -267,11 +273,11 @@ To use ProbLog, the ProbLog module has to be loaded at the top of your Prolog pr
 
 Similarly, to compile the ProbLog learning module, use:
 ```
-:- use_module(library(problog_learning)).
+:- use_module(library(problog_learning_lbfgs)).
 ```
 or
 ```
-:- use_module(library(problog_learning_lbdd)).
+:- use_module(library(problog_learning_lbfgs)).
 ```
 
 ## Encoding Probabilistic Facts
@@ -300,7 +306,6 @@ In the description of the arguments of functors the following notation will be u
 + a preceding minus sign will denote an "output argument"
 + an argument with no preceding symbol can be used in both ways
 
-@{
 
 /**
  * @pred problog_max(+G, -Prob, -FactsUsed)
@@ -350,6 +355,18 @@ This predicate returns the lower bound of the probability of achieving the goal 
 @defgroup YAP_ProbLogParameterLearning ProbLog Parameter Learning Predicates
 @ingroup YAP_ProbLog1
 @{
+
+Instead of probabilities every fact has a t( ) prefix. The t stands for
+tunable and indicate that ProbLog should learn the probability. The
+number between the parentheses indicates the ground truth probability.
+It is ignored by the learning algorithm and if you do not know the
+ground truth, you can write t(_). The ground truth is used after
+learning to estimate the distance of the learned model parameters to the
+ground truth model parameters. For example:
+
+> t(0.5)::heads(1).
+
+
 */
 
 /**
@@ -387,9 +404,8 @@ Starts the learning algorithm. The learning will stop after N iterations or if t
 %% @}
 
 
-/** @defgroup YAP_ProbLogMiscellaneous ProbLog Miscellaneous Predicates
-@ingroup YAP_ProbLog1
-@{
+/** @addtogroup EncodingProbs@
+{
 
 
 Both the learning and the inference module have various parameters, or flags, that can be adjusted by the user.

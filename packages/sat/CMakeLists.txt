@@ -86,6 +86,7 @@ set(
   GLUCOSE4_SOURCES
   #  glucose-4.2.1/core/Main.cc
 glucose-4.2.1/core/Solver.cc
+glucose-4.2.1/core/lcm.cc
 # glucose-4.2.1/simp/Main.cc
 glucose-4.2.1/simp/SimpSolver.cc
 glucose-4.2.1/utils/Options.cc

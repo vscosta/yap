@@ -508,6 +508,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     finfo->phys_start = 0;
     finfo->lstart = 0;
     finfo->lvl = l;
+    finfo->gapi = 0;
     finfo->old_handler = GLOBAL_Stream[sno].u.mem_string.error_handler;
     finfo->old_pos = 0;
 	/* set up an error handler */
@@ -1030,24 +1031,31 @@ switch (ch) {
 
 			  /* padding */
 			case '|':
-                        if ( last_tabline== GLOBAL_Stream[sno].linecount)
+			  if (has_repeats) {
+       if ( last_tabline== GLOBAL_Stream[sno].linecount)
 			  repeats-=finfo->phys_start;
-			
+			  } else {
+                                repeats = 0;
+			  }
 			sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
-			  finfo->gapi=0;
+			  finfo->phys_start = GLOBAL_Stream[sno].charcount
+			    -GLOBAL_Stream[sno].linestart;
+			    finfo->gapi=0;
 			  last_tabline=GLOBAL_Stream[sno].linecount;
                         break;
                         case '+':
-                             sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
+                                 if (!has_repeats)
+                                repeats = 8;
+                        sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
+			  finfo->phys_start = GLOBAL_Stream[sno].charcount
+			    -GLOBAL_Stream[sno].linestart;
 			  finfo->gapi=0;
 			  last_tabline=GLOBAL_Stream[sno].linecount;
 			     break;
                         case 't': {
 			  Yap_flush(sno);
-			  finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount-GLOBAL_Stream[sno].linestart;
-                        if ( last_tabline== GLOBAL_Stream[sno].linecount)
-			 finfo->gap[finfo->gapi].log -=finfo->phys_start;
-			    if (has_repeats)
+			  finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount;
+                   	if (has_repeats)
                                 finfo->gap[finfo->gapi].filler = repeats;
                             else
                                 finfo->gap[finfo->gapi].filler = ' ';

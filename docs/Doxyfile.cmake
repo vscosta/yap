@@ -45,6 +45,8 @@ set( DOXYGEN_EXCLUDE
     ${CMAKE_SOURCE_DIR}/swi/console
     ${CMAKE_SOURCE_DIR}/include/cudd
      ${CMAKE_SOURCE_DIR}/C/absmi.c
+     ${CMAKE_SOURCE_DIR}/packages/jpl
+     ${CMAKE_SOURCE_DIR}/packages/jpl
      ${CMAKE_SOURCE_DIR}/include/SWI-Prolog.h
      ${CMAKE_SOURCE_DIR}/C/absmi_insts.i)
 
