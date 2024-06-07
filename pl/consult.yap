@@ -398,20 +398,18 @@ initialization(_G,_OPT).
 	'$skip_unix_header'(Stream).
 '$skip_unix_header'(_).
 
-
 /**
 @pred source_file(?FileName)
 
-_FileName_ is the absolute and canonical path for a loaded source file
+SWI-compatible predicate. _FileName_ is the absolute and canonical path for a loaded source file
 */ 
 source_file(FileName) :-
 	'$source_file'(FileName, __).
 
 /**
-@pred source_file(?Pred,?FileName)
+@pred source_file(:Pred,?File	)
 
-_FileName_ is the absolute and canonical path source  for the source file that defines _Pred_.
-
+SWI-compatible predicate. True if the predicate specified by  _Pred_ was loaded from file  _File_, where  _File_ is an absolute path name (see absolute_file_name/2).
 */ 
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
@@ -422,7 +420,7 @@ source_file(Mod:Pred, FileName) :-
 '$owned_by'(T, Mod, FileName) :-
 	functor(T, Name, Arity),
 	setof(FileName, Ref^recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), Ref), L),
-	member(FileName, L).
+	lists:member(FileName, L).
 '$owned_by'(T, Mod, FileName) :-
 	'$owner_file'(T, Mod, FileName).
 
@@ -472,26 +470,23 @@ source_file_property( F, load_context(M,OldF:Line,Opts)) :-
   Full name for the file currently being read in, which may be consulted,
   reconsulted, or included
 
-  + `stream`  (prolog_load_context/2 option)
+2  + `stream`  (prolog_load_context/2 option)
 
   Stream currently being read in.
 
-  + `pterm_position`  (prolog_load_context/2 option)
+  + `term_position`  (prolog_load_context/2 option)
 
   Stream position at the stream currently being read in. For SWI
   compatibility, it is a term of the form
   '$stream_position'(0,Line,0,0).
-*/
-/** 
-  @pred source_file(? _File_)  (prolog_load_context/2 option)
 
-  SWI-compatible predicate. True if  _File_ is a loaded Prolog source file.
-*/
-/**
-  @pred source_file(? _ModuleAndPred_ ,? _File_)  (prolog_load_context/2 option)
+   + `term`   (prolog_load_context/2 option)
 
-  SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see absolute_file_name/2).
+   The term being processed, if any.
 
+   + `variable_names`   (prolog_load_context/2 option)
+
+   The names of the variables in the term being processed, if any.
 */
 prolog_load_context(directory, DirName) :-
         ( source_location(F, _)
@@ -514,17 +509,24 @@ prolog_load_context(module, X) :-
         '__NB_getval__'('$consulting_file', _, fail),
         current_source_module(Y,Y),
         Y = X.
-prolog_load_context(file, F0) :-
-    ( source_location(F0, _) /*,
-                                   '$input_context'(Context),
-                                   '$top_file'(Context, F0, F) */
-          ->
-          true
-        ;
-          F0 = user_input
-        ).
+prolog_load_context(file, Term ) :-
+    b_getval('$current_clause', T),
+    nonvar(T),
+    T = [_,_,Term|_].
 prolog_load_context(stream, Stream) :-
     stream_property(Stream, alias(loop_stream) ).
+prolog_load_context(term, Term ) :-
+    b_getval('$current_clause', T),
+    nonvar(T),
+    T = [Term|_].
+prolog_load_context(term_position, Term ) :-
+    b_getval('$current_clause', T),
+    nonvar(T),
+    T = [_,_,_,Term].
+prolog_load_context(variable_names, Term ) :-
+    b_getval('$current_clause', T),
+    nonvar(T),
+    T = [_,Term|_].
 
 
 % if the file exports a module, then we can
@@ -627,7 +629,14 @@ unload_file(user_input) :-
     '$unload_file'(user_input).
 unload_file(F) :-
     absolute_file_name(F,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File),
+    unload_file_(File).
+
+
+unload_file_(File) :-
+     recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),_),
+     !,
     '$unload_file'(File).
+unload_file_(_).
 
 '$unload_file'(File) :-
     current_predicate(N,M:P),
@@ -671,7 +680,7 @@ unload_file(F) :-
 
 '$require'(_Ps, _M).
 
-'$store_clause'('$source_location'(File, _Line):Clause, File) :-
+'$store_clause'('$source_location'(File, _Line,_,_),Clause, File) :-
 	assert_static(Clause).
 
 %% @}
