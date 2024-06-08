@@ -103,6 +103,9 @@ int Yap_popChar(int sno)
   StreamDesc *s = GLOBAL_Stream + sno;
   
   
+        s->charcount = s->ocharcount ;
+	  s->linecount =s->olinecount;
+	  s->linestart = s->olinestart;
     if (s->status & Past_Eof_Stream_f ) {
       s->status &= ~Past_Eof_Stream_f;
     if (s->file)
@@ -121,6 +124,9 @@ int Yap_peekChar(int sno) {
         Int lpos = s->linestart;
 
 	ch = s->stream_getc(sno);
+        s->ocharcount = s->charcount ;
+	s->olinecount =s->linecount;
+	  s->olinestart = s->linestart;
         s->charcount = pos;
         s->linecount = line;
        s->linestart = lpos;
@@ -140,12 +146,15 @@ int Yap_peekWide(int sno) {
         Int lpos = s->linestart;
 
 	ch = s->stream_wgetc(sno);
-        s->charcount = pos;
+         s->ocharcount = s->charcount ;
+	s->olinecount =s->linecount;
+	  s->olinestart = s->linestart;
+       s->charcount = pos;
         s->linecount = line;
        s->linestart = lpos;
                  s->buf.on = true;
             s->buf.ch = ch;
-            s->stream_wgetc = Yap_popChar;
+	    s->stream_wgetc_for_read =  s->stream_wgetc = Yap_popChar;
             s->stream_getc =  Yap_popChar;
         //  Yap_SetCurInpPos(sno, pos);
 
@@ -364,12 +373,12 @@ static Int getchar_1(USES_REGS1) { /* get0(Stream,-N)                    */
 
 
   // status = GLOBAL_Stream[sno].status;
-  ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     Yap_ThrowError(PERMISSION_ERROR_INPUT_BINARY_STREAM, TermUserIn,
               "while getting code");
     return false;
   }
+  ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   bool rc = Yap_unify_constant(ARG1, MkCharTerm(ch));
   if (!rc) {
     must_be_char(ARG1);
@@ -531,16 +540,9 @@ static Int put_char_1(USES_REGS1) { /* '$put'(,N)                      */
   Term t2;
   int ch;
 
-  if (IsVarTerm(t2 = Deref(ARG1))) {
-    Yap_ThrowError(INSTANTIATION_ERROR, t2, "put_char/1");
-    return FALSE;
-  } else if (!IsAtomTerm(t2)) {
-    Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "put_char/1");
-    return FALSE;
-  } else if ((ch = CharOfAtom(AtomOfTerm(t2))) < -1) {
-    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2, "put_char/1");
-    return FALSE;
-  }
+  t2 = Deref(ARG1);
+  must_be_char(t2);
+  ch = CharOfAtom(AtomOfTerm(t2));
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return (FALSE);
@@ -562,16 +564,10 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
   int ch;
   int sno;
 
-  if (IsVarTerm(t2 = Deref(ARG2))) {
-    Yap_ThrowError(INSTANTIATION_ERROR, t2, "put_char/1");
-    return FALSE;
-  } else if (!IsAtomTerm(t2)) {
-    Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "put_char/1");
-    return FALSE;
-  } else if ((ch = CharOfAtom(AtomOfTerm(t2))) < -1) {
-    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2, "put_char/1");
-    return FALSE;
-  }
+  t2 = Deref(ARG2);
+  must_be_char(t2);
+  ch = CharOfAtom(AtomOfTerm(t2));
+  
   sno = Yap_CheckTextStream(ARG1, Output_Stream_f, "put/2");
   if (sno < 0)
     return false;
@@ -579,7 +575,7 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
     Yap_ThrowError(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return false;
   }
-  GLOBAL_Stream[sno].stream_wputc(sno, (int)IntegerOfTerm(Deref(ARG2)));
+  GLOBAL_Stream[sno].stream_wputc(sno, ch);
   /*
    * if (!(GLOBAL_Stream[sno].status & Null_Stream_f))
    * yap_fflush(GLOBAL_Stream[sno].file);
@@ -1012,13 +1008,13 @@ static Int peek_char_1(USES_REGS1) {
   Int ch;
 
   if ((ch = Yap_peekWide(sno)) < 0) {
-    return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
+    return Yap_unify_constant(ARG1, MkAtomTerm(AtomEof));
     // return false;
   }
   int off = put_utf8(sinp, ch);
   sinp[off] = '\0';
-  bool rc = Yap_unify_constant(ARG2, MkIntTerm(ch));
-  if (!rc) must_be_char(ARG2);
+  bool rc = Yap_unify_constant(ARG1, MkIntTerm(ch));
+  if (!rc) must_be_char(ARG1);
   return rc;
 }
 
@@ -1089,4 +1085,3 @@ void Yap_InitCharsio(void) {
 }
 
 /// @}
-

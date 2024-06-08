@@ -412,6 +412,7 @@ static Int working_directory(USES_REGS1) {
     pop_text_stack(l);
     return true;
   }
+  //  Yap_DebugPlWriteln(t2);
   Int rc = Yap_ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
     pop_text_stack(l);
   return rc;

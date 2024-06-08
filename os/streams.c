@@ -933,7 +933,7 @@ static bool do_set_stream(int sno,
        GLOBAL_Stream[sno].status |= Reset_Eof_Stream_f;
         } else if (t2 == TermEOfCode) {
           GLOBAL_Stream[sno].status &= ~Reset_Eof_Stream_f;
-          GLOBAL_Stream[sno].status |= ~Repeat_Eof_Stream_f;
+          GLOBAL_Stream[sno].status |= Repeat_Eof_Stream_f;
         } else {
           LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
           LOCAL_ErrorMessage = "in set_stream/2:eof_action";

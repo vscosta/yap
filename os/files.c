@@ -256,7 +256,7 @@ static Int access_file(USES_REGS1) {
   Term tmode = Deref(ARG2);
   char *ares;
   Atom atmode;
-
+  //ap_DebugPlWriteln(tname);
   if (IsVarTerm(tmode)) {
     Yap_Error(INSTANTIATION_ERROR, tmode, "access_file/2");
     return FALSE;

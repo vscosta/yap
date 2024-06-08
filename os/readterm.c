@@ -974,28 +974,36 @@ static Term scan_to_list(TokEntry * t)
   CACHE_REGS
     Term v_vprefix, v_vnames, v_pos, vs=0;
 
-  if (fe->t && fe->vprefix)
-    v_vprefix = get_variables(fe, tokstart);
-  else
-    v_vprefix = 0L;
-  if (fe->t && fe->np)
+  if (fe->t) {
+    if (fe->vprefix)
+      v_vprefix = get_variables(fe, tokstart);
+    else
+      v_vprefix = 0L;
     v_vnames = get_varnames(fe, tokstart);
-  else
-    v_vnames = 0L;
-vs = fe->scanner.stored_scan;
-  if (fe->t && fe->tp)
-    v_pos = get_stream_position(fe, tokstart);
-  else
-    v_pos = 0L;
+    vs = fe->scanner.stored_scan;
+    v_pos =get_stream_position(fe, tokstart);
+      Term t,state = MkPairTerm(
+        fe->t,
+        MkPairTerm(v_vnames,
+                   MkPairTerm(StreamName(sno),
+                              MkPairTerm(v_pos, TermNil))));
+    Yap_SetBacktrackableGlobalVal(AtomCurrentClause,(t=MkVarTerm()));
+    YapBind(VarOfTerm(t),state);
+    //    Yap_DebugPlWriteln(state);
+  } else {
+    v_pos = 0;
+    v_vnames = 0;
+  }
    Yap_clean_tokenizer();
 
   // trail must be ok by now.]
   if (fe->t) {
-    return (!v_vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
-      (!fe->scanner.store_comments || Yap_unify(fe->scanner.tcomms, fe->scanner.store_comments)) &&
-           (!v_vnames || Yap_unify(v_vnames, fe->np)) &&
-      (! vs ||   Yap_unify(vs, fe->scan)) &&
-           (!v_pos || Yap_unify(v_pos, fe->tp)) ;
+    return (!fe->vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
+      (!fe->scanner.store_comments
+       || Yap_unify(fe->scanner.tcomms, fe->scanner.store_comments)) &&
+      (!fe->np || Yap_unify(v_vnames, fe->np)) &&
+      (!fe->scan ||   Yap_unify(vs, fe->scan)) &&
+      (!fe->tp || Yap_unify(v_pos, fe->tp)) ;
   }
   return true;
 }
