@@ -1658,12 +1658,12 @@ bool must_be_code__(const char *file, const char *function, int lineno,
     return false;
   }
   if (!IsIntegerTerm(t)) {
-    Yap_ThrowError__(file, function, lineno, TYPE_ERROR_IN_CHARACTER, t, "is atom");
+    Yap_ThrowError__(file, function, lineno, TYPE_ERROR_INTEGER, t, "is atom");
     return false;
   }
   Int i = IntegerOfTerm(t);
   if (i < -1 || i > CHARCODE_MAX) { 
-  Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, t, NULL);
+    Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER, t, NULL);
       return false;
   }
   return true;

@@ -387,39 +387,43 @@ static Int nb_set_shared_val(USES_REGS1) {
     return TRUE;
 }
 
-static Int p_b_setval(USES_REGS1) {
-    Term t = Deref(ARG1);
+bool Yap_SetBacktrackableGlobalVal(Atom atkey, Term val USES_REGS)
+{
     GlobalEntry *ge;
-
-    if (IsVarTerm(t)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, t, "b_setval");
-        return (TermNil);
-    } else if (!IsAtomTerm(t)) {
-        Yap_ThrowError(TYPE_ERROR_ATOM, t, "b_setval");
-        return (FALSE);
-    }
-    ge = GetGlobalEntry(AtomOfTerm(t) PASS_REGS);
+    ge = GetGlobalEntry(atkey PASS_REGS);
     WRITE_LOCK(ge->GRWLock);
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     /* the evil deed is to be done now */
     {
         /* but first make sure we are doing on a global object, or a constant!
          */
-        Term t = Deref(ARG2);
-        if (IsVarTerm(t) && VarOfTerm(t) > HR && VarOfTerm(t) < LCL0) {
-            Term tn = MkVarTerm();
-            Bind_Local(VarOfTerm(t), tn);
-            t = tn;
-        }
-        MaBind(&ge->global, t);
+      if (IsVarTerm(val) && VarOfTerm(val) > HR && VarOfTerm(val) < LCL0) {
+	Term tn = MkVarTerm();
+	Bind_Local(VarOfTerm(val), tn);
+	val = tn;
+      }
+      MaBind(&ge->global, val);
     }
     WRITE_UNLOCK(ge->GRWLock);
-    return TRUE;
+    return true;
 #else
     WRITE_UNLOCK(ge->GRWLock);
     Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t, "update_array");
     return FALSE;
 #endif
+}
+
+/**
+ * b_setval(+Key, ?Val)
+ *
+ * Associate the term _Val_ with the atom _Key_. This association is
+ * undone by backtracking, or by doing a new b_setval/2. You can use
+ * b_getval to access the term.
+ */
+static Int p_b_setval(USES_REGS1) {
+    Term t = Deref(ARG1);
+    must_be_atom(t);
+    return Yap_SetBacktrackableGlobalVal(AtomOfTerm(t), Deref(ARG2) PASS_REGS);
 }
 
 static int undefined_global(USES_REGS1) {
