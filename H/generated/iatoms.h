@@ -84,6 +84,7 @@
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurly = Yap_LookupAtom("{}"); TermCurly = MkAtomTerm(AtomCurly);
   AtomCurrentChoicePoint = Yap_LookupAtom("current_choice_point"); TermCurrentChoicePoint = MkAtomTerm(AtomCurrentChoicePoint);
+  AtomCurrentClause = Yap_FullLookupAtom("$current_clause"); TermCurrentClause = MkAtomTerm(AtomCurrentClause);
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = Yap_LookupAtom("!"); TermCut = MkAtomTerm(AtomCut);
   AtomCutAt = Yap_LookupAtom("cut_at"); TermCutAt = MkAtomTerm(AtomCutAt);

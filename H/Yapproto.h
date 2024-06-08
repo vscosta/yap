@@ -214,8 +214,16 @@ extern int Yap_SWIHandleError(const char *, ...);
 extern void Yap_InitErrorPreds(void);
 extern bool Yap_callable(Term t);
 
+extern bool must_be_atom__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_code__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_char__(const char *file, const char *function, int lineno,Term t USES_REGS );
+extern bool must_be_list__(const char *file, const char *function, int lineno,Term t USES_REGS );
+#define must_be_atom(t ) must_be_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_char(t ) must_be_char__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_code(t ) must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_list(t ) must_be_list__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+
+
  
 
 /* eval.c */
@@ -255,6 +263,7 @@ extern CELL *Yap_GetFromArena(Term *arenap, size_t cells, size_t ncells);
 extern void Yap_InitGlobals(void);
 extern Term Yap_SaveTerm(Term);
 extern Term Yap_SetGlobalVal(Atom, Term);
+extern bool Yap_SetBacktrackableGlobalVal(Atom, Term USES_REGS);
 extern Term Yap_GetGlobal(Atom);
 extern  Int Yap_DeleteGlobal(Atom);
 extern void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs);

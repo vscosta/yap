@@ -84,6 +84,7 @@
   AtomCsult = AtomAdjust(AtomCsult); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurly = AtomAdjust(AtomCurly); TermCurly = MkAtomTerm(AtomCurly);
   AtomCurrentChoicePoint = AtomAdjust(AtomCurrentChoicePoint); TermCurrentChoicePoint = MkAtomTerm(AtomCurrentChoicePoint);
+  AtomCurrentClause = AtomAdjust(AtomCurrentClause); TermCurrentClause = MkAtomTerm(AtomCurrentClause);
   AtomCurrentModule = AtomAdjust(AtomCurrentModule); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = AtomAdjust(AtomCut); TermCut = MkAtomTerm(AtomCut);
   AtomCutAt = AtomAdjust(AtomCutAt); TermCutAt = MkAtomTerm(AtomCutAt);

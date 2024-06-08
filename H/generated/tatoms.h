@@ -84,6 +84,7 @@ X_API EXTERNAL Atom AtomCryptAtoms; X_API EXTERNAL Term TermCryptAtoms;
 X_API EXTERNAL Atom AtomCsult; X_API EXTERNAL Term TermCsult;
 X_API EXTERNAL Atom AtomCurly; X_API EXTERNAL Term TermCurly;
 X_API EXTERNAL Atom AtomCurrentChoicePoint; X_API EXTERNAL Term TermCurrentChoicePoint;
+X_API EXTERNAL Atom AtomCurrentClause; X_API EXTERNAL Term TermCurrentClause;
 X_API EXTERNAL Atom AtomCurrentModule; X_API EXTERNAL Term TermCurrentModule;
 X_API EXTERNAL Atom AtomCut; X_API EXTERNAL Term TermCut;
 X_API EXTERNAL Atom AtomCutAt; X_API EXTERNAL Term TermCutAt;

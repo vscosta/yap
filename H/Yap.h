@@ -433,8 +433,6 @@ typedef volatile int lockvar;
   
 #include "YapError.h"
 
-#define must_be_char(t ) must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
-#define must_be_code(t ) must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 INLINE_ONLY Term must_be_integer(Term t) {
   t = Deref(t);
   if (IsVarTerm(t)) Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
