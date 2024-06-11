@@ -1,6 +1,10 @@
 find_package (Python3 COMPONENTS Interpreter Development NumPy)
 
-if(WITH_Python3 AND Python3_Found AND Python3_Development_FOUND AND Python3_NumPy_FOUND)
+if(WITH_Python3 AND Python3_FOUND AND Python3_Development_FOUND)
+set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c  pypreds.c pyio.c
+)
+set (PYTHON_HEADERS pyya4p.h)
+set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 include_directories( BEFORE ${Python3_INCLUDE_DIRS}
   ${CMAKE_BINARY_DIR}

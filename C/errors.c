@@ -1431,8 +1431,13 @@ static Int drop_exception(USES_REGS1) {
     } else if (LOCAL_Error_TYPE == USER_DEFINED_ERROR ) {
       rc = Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1) &&
 	Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
-      if (rc && IsVarTerm(ArgOfTerm(2,ARG1))) {
+      if (rc) {
+      Term t1 = Deref(ARG1);
+      if (IsApplTerm(t1) &&
+	  ArityOfFunctor(FunctorOfTerm(t1))==2&&
+			 IsVarTerm(ArgOfTerm(2,t1))) {
 	Yap_unify(ArgOfTerm(2,ARG1), ARG2);
+      }
       }
     } else {
       tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));

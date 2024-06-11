@@ -38,13 +38,13 @@ class Engine( YAPEngine ):
         if not args:
             args = EngineArgs(**kwargs)
             args.setEmbedded(True)
-            args.setPrologGoal("load_files(library(yapi),[source_module(user)])")
         if self_contained:
             yap_lib_path = dirname(__file__)
             args.setYapShareDir(join(yap_lib_path, "prolog"))
             args.setYapPLDIR(yap_lib_path)
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
+        self.load_library( "yapi",m="user")
 
     def run(self, g, m=None, release=False):
         if m:

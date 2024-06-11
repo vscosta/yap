@@ -950,11 +950,6 @@ ENDIF (WITH_CPLINT)
 IF (WITH_DOXYGEN)
   include (../docs/Doxyfile)
 endif()
-if (WITH_MINISAT)
-
-  add_subDIRECTORY(packages/swi-minisat2)
-
-endif()
 
 if (WITH_CLPQR)
 
