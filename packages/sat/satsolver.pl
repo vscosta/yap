@@ -32,10 +32,10 @@ For example:
                         satMulti/4,
                         satMaxUnary/4,  satMaxUnary/2,
                         satMinUnary/4,  satMinUnary/2,
-                        satMinBinary/4, satMinBinary/2, %%% Binary is MSB first
+                        satMinBinary/4, satMinBinary/2 %%% Binary is MSB first
                        ]).
 
-:- create_prolog_flag(sat_solver, cryptominisat, [type(atom), access(read_write), keep(true)]).
+:- create_prolog_flag(sat_solver, glucose4, [type(atom), access(read_write), keep(true)]).
 
 satSolverLibrary(minisat,'MINISAT'):-!.
 satSolverLibrary(glucose,'GLUCOSE'):-!.
@@ -76,8 +76,8 @@ sat(CNF):-
 sat([],1,0.0):-!.
 sat([[]],1,0.0):-!.
 sat(F,Solved,Time):-
-        statistics(cputime,[_|StartTime]),
-term_variables(F,FVars),
+        statistics(cputime,[_,StartTime]),
+	term_variables(F,FVars),
         solver_new_solver,
       %  solver_add_clause([1]), % true
         (addCnf2Solver(F,FVars) ->
@@ -92,7 +92,7 @@ term_variables(F,FVars),
             Solved=0
         ),
         solver_delete_solver,
-        statistics(cputime,[_|EndTime]),!,
+        statistics(cputime,[_,EndTime]),!,
         Time is EndTime-StartTime.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -346,7 +346,7 @@ keepLiterals(KeepLiterals):-
      retractall(satsolver:keptLiterals(_)),
      asserta(satsolver:keptLiterals(KeepLiterals)),!.
 
-:- if(useSatSolver(cryptominisat)).
+:- if(prolog_flag(sat_solver,cryptominisat)).
 add_cnf_clauses([Cl|Cls]):-!,
      (Cl=[x|RCl] ->
         to_solver(RCl,SolverCl),

@@ -61,7 +61,7 @@
     Yap_ThrowError(DOMAIN_ERROR_FORMAT_OUTPUT, inp, NULL);
     return 0L;
 }
-
+ 
 char *Yap_StrPrefix( const char *buf, size_t n) {
     char *b = malloc(n);
     strncpy(b, buf, n - 1);
@@ -81,37 +81,48 @@ int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   buf = GLOBAL_Stream[sno].nbuf;
   len = strlen(buf);
   nchars =total-len;
-  if (nchars <= 0 ||fg->gapi==0) {
+  if (nchars <= 0) {
+    int i;
     fill_space=0;
     extra_fill=0;
-  } else{
-  fill_space = nchars / fg->gapi;
-extra_fill=nchars % fg->gapi;
+   for (i = 0;i<len; i++) {
+   f_putc(sno0, buf[i]); 
   }
+ } else{
+    if (fg->gapi==0) {
+      fg->gapi=1;
+      fg->gap[0].log = 0;
+      fg->gap[0].filler = ' ';
+    }
+  fill_space = nchars / fg->gapi;
+  extra_fill=nchars % fg->gapi;
   // printf("%d %d %d %s\n", total, len,fg->gap->log,buf);
-  int i = 0, k=0;
+  int i = 0, n=0, k=0;
 
   for (i = 0;i<len; i++,k++) {
-    if (i==fg->gap[k].log) {
-      int extra  = (extra_fill-->0?1:0),j;
+    if (n<fg->gapi && i==fg->gap[n].log) {
+      int extra  = (extra_fill>0?1:0),j;
+      if (extra) extra_fill--;
     for (j = 0; j < fill_space+extra; j++) {
-      f_putc(sno0, fg->gap[k].filler);
-    }
+      f_putc(sno0, fg->gap[n].filler);
     k++;
+    }
+    n++;
     }
     f_putc(sno0, buf[i]); 
   }
-  if (k <fg->gapi) {
-    int j;
-    for (j = 0; j < fill_space; j++) {
-      f_putc(sno0, fg->gap[k].filler);
+  if (k <total) {
+    for (; k < total; k++) {
+      f_putc(sno0, fg->gap[n].filler);
     }
+  }
   }
   Yap_CloseMemoryStream( sno);
   sno = Yap_open_buf_write_stream(-1, LOCAL_encoding);
   fg->lstart = 0;
-  fg->gapi = 0;
   fg->phys_start = 0;
+  fg->gapi = 0;
+  memset(fg->gap,0,sizeof(*fg->gap)*fg->gapi);
   return sno;
 }
 
