@@ -849,6 +849,7 @@ static Term get_singletons(FEnv *fe, bool var_only, TokEntry *tokstart) {
 
 
 static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
+  CACHE_REGS
   fe->sp = TermNil;
   Term vn = get_singletons(fe, false, tokstart);
   while (vn && vn != TermNil) {
@@ -987,7 +988,7 @@ static Term scan_to_list(TokEntry * t)
         MkPairTerm(v_vnames,
                    MkPairTerm(StreamName(sno),
                               MkPairTerm(v_pos, TermNil))));
-    Yap_SetBacktrackableGlobalVal(AtomCurrentClause,(t=MkVarTerm()));
+    Yap_SetBacktrackableGlobalVal(AtomCurrentClause,(t=MkVarTerm()) PASS_REGS);
     YapBind(VarOfTerm(t),state);
     //    Yap_DebugPlWriteln(state);
   } else {

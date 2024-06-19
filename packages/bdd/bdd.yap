@@ -18,7 +18,7 @@
  * ~~~
  * :-use_module(library(bdd))`.
  * ~~~
-
+*/
 
 :- module(bdd, [
 	bdd_new/2,
@@ -43,6 +43,19 @@
         tree_to_p_grad/5,
 	bdd_reorder/1,
 	bdd_close/1,
+  term_to_cudd/3,
+  term_to_add/4,
+  cudd_eval/4,
+  add_eval/4,
+  cudd_to_term/5,
+  add_to_term/4,
+  cudd_to_probability_sum_product/4,
+  cudd_size/3,
+  cudd_die/1,
+  cudd_reorder/1,
+  cudd_release_node/2,
+  cudd_print/3,
+  cudd_print/4,
 	mtbdd_close/1]).
 
 :- use_module(library(lists)).
@@ -163,7 +176,7 @@ writeln_list([B|Bindings]) :-
 	writeln_list(Bindings).
 
 /**
- * @pred list_to_cudd(+ _ListOfEquivalences, Manager, )Initial_ 
+ * @pred list_to_cudd(+ _ListOfEquivalences, Manager,)Initial_ 
  */
 list_to_cudd([],_Manager,Cudd,Cudd).
 %:-    writeln('X').

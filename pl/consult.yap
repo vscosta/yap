@@ -520,19 +520,26 @@ prolog_load_context(term, Term ) :-
     nonvar(T),
     T = [Term|_].
 prolog_load_context(term_position, Term ) :-
+    (
     b_getval('$current_clause', T),
-    nonvar(T),
-    T = [_,_,_,Term].
+    nonvar(T) ->
+    T = [_,_,_,Term]
+    ;
+    predicate_property( user_input, position(Term))
+    ).
 prolog_load_context(variable_names, Term ) :-
+    (
     b_getval('$current_clause', T),
-    nonvar(T),
-    T = [_,Term|_].
-
+    nonvar(T)
+    ->
+    T = [_,Term|_]
+    ;
+    Term = []
+    ).
 
 % if the file exports a module, then we can
 % be imported from any module.
 '$file_loaded'(F0, TargetModule, M) :-
-    %format( 'L=~w~n', [(F0)] ),
     (
 	atom_concat(Prefix, '.qly', F0 );
 	Prefix=F0

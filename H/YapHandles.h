@@ -287,13 +287,6 @@ static inline bool Yap_RecoverHandles__(int n, yhandle_t topHandle USES_REGS);
 static inline bool Yap_RecoverHandles__(int n, yhandle_t topHandle USES_REGS) {
   if (topHandle + n < LOCAL_CurHandle)
     return false;
-#ifdef DEBUG
-  if (n > LOCAL_CurHandle) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, 0,
-              "Inconsistent slot state in Yap_RecoverHandles.", 0);
-    return false;
-  }
-#endif
   LOCAL_CurHandle = topHandle;
   return true;
 }

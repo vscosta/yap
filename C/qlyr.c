@@ -473,11 +473,13 @@ static inline PredEntry *PredEntryAdjust(PredEntry *p) {
 
 static inline OPCODE OpcodeAdjust(OPCODE OP) { return LookupOPCODE(OP); }
 
+#ifndef THREADS
 static inline Term ModuleAdjust(Term M) {
   if (!M)
     return M;
   return AtomTermAdjust(M);
 }
+#endif
 
 #define ExternalFunctionAdjust(P) (P)
 #define DBRecordAdjust(P) (P)

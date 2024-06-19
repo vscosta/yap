@@ -956,7 +956,7 @@ restart_exec:
     if (NameOfFunctor (f) == AtomCall) {
       if (arity==1)
 	goto restart_exec;
-      return do_execute_n(arity, t,CurrentModule);
+      return do_execute_n(arity, t,CurrentModule PASS_REGS);
     }
     pe = PredPropByFunc(f, mod);
     if (arity > MaxTemps)
@@ -1053,7 +1053,7 @@ static Int execute0(USES_REGS1)
     if (pe->FunctorOfPred) {
       if (arity==1)
 	goto start_execute0;
-      return do_execute_n(arity, t,CurrentModule);
+      return do_execute_n(arity, t,CurrentModule PASS_REGS);
     }
   if (arity)
   {
@@ -2220,6 +2220,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   /* ensure that LOCAL_top_dep_fr is always valid */
   if (REMOTE_top_dep_fr(myworker_id))
     DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NORM_CP(B);
+else
+    DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NULL;
 #endif
 }
 

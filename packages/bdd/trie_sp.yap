@@ -6,7 +6,7 @@
 		  trie_to_bdd_tree/2,
 	  trie_to_formula/4]).
 
-:- use_module((bdd)).
+:- use_module(library(bdd)).
 :- use_module(library(tries)).
 :- use_module(library(rbtrees)).
 :- dynamic user :debug_problog/0.

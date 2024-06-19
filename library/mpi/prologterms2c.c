@@ -195,7 +195,6 @@ read_term_from_stream(const int fd) {
  */
 char* 
 term2string( const YAP_Term t) {
-   CACHE_REGS
 
  return YAP_WriteDynamicBuffer(t,0,YAP_WRITE_QUOTED|YAP_WRITE_IGNORE_OPS|Number_vars_f);
   }

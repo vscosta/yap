@@ -106,9 +106,6 @@ static assert_control_t get_mode(Term tmode) {
 
 }
 
-void Yap_ResetConsultStack(void) {
-  LOCAL_consult_level-- ;
-}
 
 
 Term Yap_PredicateToIndicator(PredEntry *pe) {
@@ -1129,8 +1126,7 @@ bool Yap_unknown(Term t) {
 
 /* p is already locked */
 static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
-  CACHE_REGS
-  yamop *pt = cp;
+   yamop *pt = cp;
 
 #ifdef TABLING
   if (is_tabled(p)) {
@@ -2008,6 +2004,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
 static void
 warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *msg)
 {
+  CACHE_REGS
     yap_error_descriptor_t *e =LOCAL_ActiveError;
     Yap_MkErrorRecord( e,  __FILE__, __FUNCTION__, __LINE__, warning_id,
 		       Yap_PredicateIndicator(t, CurrentModule), TermNil, msg);
@@ -2015,7 +2012,7 @@ warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *m
     ts[0] = terr;
     ts[1] = culprit;
     ts[2] =  Yap_PredicateIndicator(t, CurrentModule);
-    e->prologConsulting = LOCAL_consult_level > 0;
+    e->prologConsulting =  LOCAL_consult_level > 0;
     e->parserReadingCode = true;
     e->parserLine = Yap_source_line_no();
     e->parserLinePos = 0;
@@ -2181,6 +2178,7 @@ we should have:
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
 void Yap_init_consult(int mode, const char *filenam) {
+  CACHE_REGS
   LOCAL_consult_level++;
   LOCAL_LastAssertedPred = NULL;
 }
@@ -3368,8 +3366,8 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yhandle_t yt
   rtn = MkDBRefTerm((DBRef)cl);
 #if MULTIPLE_STACKS
   TRAIL_CLREF(cl); /* So that fail will erase it */
-  INC_CLREF_COUNT(cl);#
-else
+  INC_CLREF_COUNT(cl);
+#else
   if (!(cl->ClFlags & InUseMask)) {
     cl->ClFlags |= InUseMask;
     TRAIL_CLREF(cl); /* So that fail will erase it */
@@ -4412,6 +4410,7 @@ static Int predicate_flags(
 
 
 struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {
+  CACHE_REGS
   if (pe->PredFlags & LogUpdatePredFlag)
     return pe;
   if ( (pe->PredFlags  & SystemPredFlags ||

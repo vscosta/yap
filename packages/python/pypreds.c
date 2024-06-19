@@ -709,7 +709,7 @@ static foreign_t python_to_rhs(term_t inp, term_t t) {
 
 #if THREADS
 // static PyThreadState *_saveP = NULL;
-static foreign_t _threaded = true;
+//static foreign_t _threaded = true;
 #endif
 
 /*

@@ -458,7 +458,7 @@ extern bool Yap_SetErrorStream( Term sd );
 /* sysbits.c */
 extern size_t Yap_InitPageSize(void);
 extern bool Yap_set_fpu_exceptions(Term);
-extern UInt Yap_cputime(void);
+extern uint64_t Yap_cputime(void);
 extern uint64_t Yap_walltime(void);
 extern int Yap_dir_separator(int);
 extern int Yap_volume_header(char *);

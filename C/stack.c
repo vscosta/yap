@@ -186,7 +186,8 @@ static bool write_goal(FILE *f, PredEntry *pe, ClausePointer cl,  char env_s, ch
    CACHE_REGS
      indicator_t info;
    int line;
-   if (!GetPredInfo(pe,&info)) {
+   if (!GetPredInfo(pe,&info  PASS_REGS
+)) {
      return false;
    }
    if (pe==NULL) {
@@ -824,7 +825,8 @@ identifying the corresponding clause.
  */
 PredEntry * Yap_PredForCode(yamop *codeptr, find_pred_type hint,
 
-	    ClausePointer*c) {
+			    ClausePointer*c) {
+  CACHE_REGS
     gc_entry_info_t info;
 
     if (codeptr) {
@@ -876,8 +878,7 @@ PredEntry * Yap_PredForCode(yamop *codeptr, find_pred_type where_from) {
 
 
 PredEntry *Yap_PredEntryForCode(choiceptr ap, yamop *codeptr, find_pred_type where_from) {
-    CACHE_REGS
-      ClausePointer out;
+  ClausePointer out;
       if (where_from == FIND_PRED_FROM_CP){ 
         PredEntry *pp = Yap_PredForChoicePt(ap);
         if (cl_code_in_pred(pp, ap->cp_ap).pe) {
@@ -1635,7 +1636,6 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
 
 
 static bool outputep(FILE *f, bool ignore_sys, yamop *my_cp, CELL *ep, int depth) {
-    CACHE_REGS
       PredEntry *pe = (((yamop *)((CODEADDR)(my_cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p0);
     if (pe && !pe->ModuleOfPred) {
       fprintf(f, "...\n");
@@ -1646,7 +1646,6 @@ static bool outputep(FILE *f, bool ignore_sys, yamop *my_cp, CELL *ep, int depth
 }
 
       static bool outputcp(FILE *f, bool ignore_sys, choiceptr cp, int depth) {
-     CACHE_REGS
     choiceptr b_ptr = cp;
     PredEntry *pe = Yap_PredForChoicePt(b_ptr);
     if (pe && !pe->ModuleOfPred) {
@@ -1835,8 +1834,7 @@ bool DumpStack(USES_REGS1) {
  *
  */
  bool Yap_output_bug_location(FILE *f,choiceptr ap, struct yami *yap_pc, int where_from, const char*why) {
-    CACHE_REGS
-    Atom pred_name;
+   Atom pred_name;
     UInt pred_arity;
     Term pred_module;
     PredEntry *pred;

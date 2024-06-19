@@ -427,6 +427,7 @@ static Int fetch_index_from_args(Term t) {
     if (IsAtomTerm(t)) {
       unsigned char *fptr = RepAtom(AtomOfTerm(t))->UStrOfAE;
       int ch;
+      CACHE_REGS
       fptr += get_utf8(fptr, -1, &ch);
       if (fptr[0] == '\0') {
 	return ch;
@@ -497,7 +498,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     int (*f_putc)(int, wchar_t);
     int sno = sno0;
     int last_tabline=0;
-    int last_tabcol=0;
     Term fmod = CurrentModule;
     bool alloc_fstr = false;
     LOCAL_Error_TYPE = YAP_NO_ERROR;
