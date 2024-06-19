@@ -274,7 +274,7 @@ mpi_init(void){
 #if USE_THREADS
   int thread_level;
   char ** my_argv;
-  int my_argc = YAP_Argv(&my_argv);
+  //int my_argc = YAP_Argv(&my_argv);
   //  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
 #else
   MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
@@ -465,7 +465,6 @@ static YAP_Bool mpi_send(void) {
  *  mpi_recv(?Source,?Tag,-Data).
  */
 static YAP_Bool mpi_recv(void) {
-  CACHE_REGS
   YAP_Term t1 = YAP_Deref(YAP_ARG1), t2 = YAP_Deref(YAP_ARG2), t4;
   int tag, orig;
   MPI_Status status;
@@ -532,7 +531,6 @@ static YAP_Bool mpi_recv(void) {
  * mpi_irecv(?Source,?Tag,-Handle).
  */
 static YAP_Bool mpi_irecv(void) {
-  CACHE_REGS
   YAP_Term t1 = YAP_Deref(YAP_ARG1), t2 = YAP_Deref(YAP_ARG2),
            t3 = YAP_Deref(YAP_ARG3);
   int tag, orig;
@@ -890,7 +888,6 @@ static YAP_Bool mpi_stop(void) {
  * Init
  *******************************************************************/
 X_API void init_mpi(void) {
-  CACHE_REGS
   YAP_SetYAPFlag(YAP_MkAtomTerm(YAP_LookupAtom("readline")),
                  YAP_MkAtomTerm(YAP_LookupAtom("false")));
   YAP_UserCPredicate("mpi_init", mpi_init, 0); // mpi_init/0

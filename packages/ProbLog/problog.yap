@@ -35,7 +35,7 @@
 % You are always permitted to make arrangements wholly outside of this
 % license directly with the Copyright Holder of a given Package. If the
 % terms of this license do not permit the full use that you propose to
-7% make of the Package, you should contact the Copyright Holder and seek
+% make of the Package, you should contact the Copyright Holder and seek
 % a different licensing arrangement.  Definitions
 %
 % "Copyright Holder" means the individual(s) or organization(s) named in

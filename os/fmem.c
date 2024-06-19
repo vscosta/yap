@@ -331,6 +331,7 @@ void Yap_MemOps(StreamDesc *st) {
 }
 
 int format_synch(int sno, int sno0, format_info *fg) {
+  CACHE_REGS
   char *s;
  if (sno==sno0)
    return sno;

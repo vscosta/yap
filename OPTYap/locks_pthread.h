@@ -33,6 +33,9 @@ typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
 
 #if __APPLE__
+
+#define PTHREAD_BARRIER_SERIAL_THREAD 1
+
 /* Barrier implementation because Mac OSX doesn't have pthread_barrier.
    It also doesn't have clock_gettime(). So much for POSIX and SUSv2.
    This implementation came from Brent Priddy and was posted on
@@ -45,10 +48,11 @@ typedef struct pthread_barrier {
     int trip_count;
 } pthread_barrier_t;
 
+
 inline static int pthread_barrier_init(pthread_barrier_t *barrier, const pthread_barrierattr_t *attr, unsigned int count)
 {
     if(count == 0) {
-        errno = EINVAL;
+   //     errno = EINVAL;
         return -1;
     }
 

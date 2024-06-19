@@ -217,7 +217,7 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
 
 
 int bad_nl_error(TokEntry *tok, char *TokImage, int quote, struct stream_desc *st) {
-
+CACHE_REGS
     if (st->status & RepClose_Prolog_f) {
       Yap_CloseStream(st-GLOBAL_Stream);
       return EOF;
@@ -272,6 +272,7 @@ static Term float_send(char *s, int sign) {
  */
 static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st)
 {
+  CACHE_REGS
   if ((st->status & RepError_Prolog_f) || trueGlobalPrologFlag(ISO_FLAG)) {
       LOCAL_Error_TYPE = SYNTAX_ERROR;
     LOCAL_ErrorMessage=malloc(2048);

@@ -434,7 +434,6 @@ static UInt update_flags_from_prolog(UInt flags, PredEntry *pe) {
 
 void Yap_InitCPredInModule(const char *Name, arity_t Arity, CPredicate code,
                    pred_flags_t flags, Term mod) {
-  CACHE_REGS
   Atom atom = NIL;
   PredEntry *pe = NULL;
   yamop *p_code;

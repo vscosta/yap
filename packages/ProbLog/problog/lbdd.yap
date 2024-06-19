@@ -18,9 +18,9 @@
 	store_gradient/3]
 ).
 
-:- use_module('../problog').
-:- use_module('flags').
-:- use_module('logger').
+:- use_module(library(problog)).
+:- use_module(library('problog/flags')).
+:- use_module(library('problog/logger')).
 :- use_module(library(matrix)).
 :- use_module(library(lists)).
 :- use_module(library(bdd)).

@@ -56,8 +56,11 @@ class Engine( YAPEngine ):
         self.run(load_files(name, []), m, release)
             
     def load_library(self, name, m=None, release=False):
-        self.run(load_files(library(name), []), m, release)
-            
+        try:
+            self.run(load_files(library(name), []), m, release)
+        except Exception as e:
+            print(f'Error ocurred: {e}')
+         
     def load_text(self, text, m=None, release=False):
         self.run(load_text( text), m, release)
 

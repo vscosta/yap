@@ -1642,7 +1642,7 @@ bool must_be_char__(const char *file, const char *function, int lineno,
   u_char *a=RepAtom(AtomOfTerm(t))->UStrOfAE;
   utf8proc_int32_t  v;
   int off = 0;
-  if(a[0] == '\0' ||(off=__get_utf8(a,1,&v))<=0 || a[off] != '\0') {
+  if(a[0] == '\0' ||(off=__get_utf8(a,1,&v PASS_REGS))<=0 || a[off] != '\0') {
       Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, t, NULL);
       return false;
   }

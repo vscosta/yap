@@ -81,6 +81,7 @@ typedef struct write_globs {
 
 static void badEntry( yap_error_number err, yhandle_t ys, xarg *entry)
 {
+  CACHE_REGS
   Yap_CloseHandles(ys);
   if (IsVarTerm(entry->tvalue)) {
     Yap_ThrowError(INSTANTIATION_ERROR, entry->tvalue, "on parameter %s", NameOfFunctor(FunctorOfTerm(entry->source)));

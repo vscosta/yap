@@ -183,7 +183,7 @@ CACHE_REGS
 	m.reset();
 	LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
 	  CalculateStackGap(PASS_REGS1);
-	if(!Yap_dogc()) {
+	if(!Yap_dogc(PASS_REGS1)) {
 	  return 0 ;
 	}
       }

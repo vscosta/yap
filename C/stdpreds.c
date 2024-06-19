@@ -812,6 +812,7 @@ static Int cont_current_predicate(USES_REGS1) {
         cut_fail();
       pp = RepPredProp(p);
     }
+    p = AbsPredProp(pp);    
     np = followLinkedListOfProps(p->NextOfPE, mod, task);
     Term pmod = pp->ModuleOfPred;
     if (pmod == PROLOG_MODULE)
@@ -825,7 +826,7 @@ static Int cont_current_predicate(USES_REGS1) {
       else
         cut_fail();
     } else {
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(RepPredProp(np));
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm((pp=RepPredProp(np)));
       B->cp_h = HR;
       return b;
     }
@@ -844,7 +845,7 @@ static Int cont_current_predicate(USES_REGS1) {
         p = getPredProp(RepAtom(at)->PropsOfAE, mod, task);
       } else {
         Yap_ThrowError(TYPE_ERROR_CALLABLE, t1, "current_predicate/2");
-        return false;
+	return false;
       }
       if (!p)
         cut_fail();

@@ -55,7 +55,6 @@ const char *Yap_CurrentModuleName(void) {
  * @return a new module structure
  */ /**               */
 static ModEntry *initMod(UInt inherit, AtomEntry *ae) {
-  CACHE_REGS
   ModEntry *n;
 
   n = (ModEntry *)Yap_AllocAtomSpace(sizeof(*n));

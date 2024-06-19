@@ -278,7 +278,7 @@ option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
 option(WITH_Java "Try to use Java (currently Java )" OFF)
 option (WITH_CUDD "BDD CUDD package"  ${WITH_PACKAGES})
 option(WITH_PROBLOG "include Problog-I." ${WITH_CUDD})
-OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_CUDD})
+OPTION(WITH_CPLINT " Enable the cplint probabilistic language" OFF)
 OPTION(WITH_Threads " Enable PoSIX like threads" OFF)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
@@ -481,7 +481,6 @@ if  (NOT CUDD_FOUND)
 endif()
 
 if (CUDD_FOUND)
-           add_subDIRECTORY(packages/cudd)
   add_subDIRECTORY(packages/bdd)
 
 endif()
@@ -940,11 +939,11 @@ IF (WITH_CLPBN)
   add_subDIRECTORY(packages/CLPBN)
 ENDIF (WITH_CLPBN)
 
-IF (WITH_CPLINT)
-   if (CUDD_FOUND)
-add_subDIRECTORY(packages/cplint)
-endif()
-ENDIF (WITH_CPLINT)
+# IF (WITH_CPLINT)
+#    if (CUDD_FOUND)
+# add_subDIRECTORY(packages/cplint)
+# endif()
+# ENDIF (WITH_CPLINT)
 
 
 IF (WITH_DOXYGEN)

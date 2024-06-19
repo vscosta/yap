@@ -436,18 +436,17 @@
  '$end_consult'.
 
 '$loop'(Stream,Status) :-
+    repeat,
    catch(
-(    repeat,
-    ' $loop_'(Stream,Status)
- ),
+    '$loop_'(Stream,Status),
 	 _Error,
 	 error_handler),
   !.
 
-' $loop_'(Stream,_Status) :-
+'$loop_'(Stream,_Status) :-
    at_end_of_stream(Stream),
    !.
-' $loop_'(Stream,Status) :-
+'$loop_'(Stream,Status) :-
 	 enter_compiler(Stream,Status) .
 
 enter_compiler(Stream,Status) :-
@@ -763,7 +762,10 @@ compile_clauses(Commands) :-
  
 
 compile_clause(Command) :-
-    call_compiler(Command, reconsult,[],0),
+    prolog_load_context(term_position, Pos),
+    prolog_load_context(variable_names, Vs),
+    writeln(Vs=Pos),
+    call_compiler(Command, reconsult,Vs,Pos),
     fail.
 compile_clause(_Command).
 
