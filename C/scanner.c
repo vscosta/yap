@@ -216,8 +216,11 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
 }
 
 
-int bad_nl_error(TokEntry *tok, char *TokImage, int quote, struct stream_desc *st) {
-CACHE_REGS
+int bad_nl_error(int quote, const char *TokImage, struct stream_desc *st) {
+  CACHE_REGS
+    if (trueGlobalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG) && ! trueGlobalPrologFlag(ISO_FLAG)) {
+      return 10;
+    }
     if (st->status & RepClose_Prolog_f) {
       Yap_CloseStream(st-GLOBAL_Stream);
       return EOF;
@@ -281,10 +284,6 @@ static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st
     Yap_CloseStream(st-GLOBAL_Stream);
     return EOF;
   }
-    else 
-  Yap_Warning("unexpected newline while  reading quoted text");
-
-
 return ch;
 
 }
@@ -341,9 +340,10 @@ do_switch:
     ch = getchr(st);
     if (ch == '\\')
       goto do_switch;
+    ch = bad_nl_error(ch,NULL, st);
     return ch;
   case 'n':
-    return '\n';
+    return 10;
   case 'r':
     return '\r';
   case 's': /* space */
@@ -1097,7 +1097,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
       while (true) {
         if (ch == 10 && !(Yap_GetModuleEntry(CurrentModule)->flags & M_MULTILINE)) {
-	  ch = bad_nl_error(t, TokImage, quote, st);           /* in ISO a new linea terminates a string */
+	  ch = bad_nl_error( quote, TokImage,  st);           /* in ISO a new linea terminates a string */
 	}
 	if (ch == EOFCHAR) {
 	  *charp = '\0';
@@ -1124,7 +1124,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         } else if (ch == '\\'  &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
           ch = read_escaped_char(st);
-	}
+	  if (LOCAL_ActiveError->errorNo)
+	    goto ldefault;
+  	}
 	
         add_ch_to_buff(ch);
 	ch = getchrq(st);
