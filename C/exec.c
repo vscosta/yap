@@ -1,4 +1,4 @@
- /*************************************************************************
+/*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -2220,7 +2220,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   /* ensure that LOCAL_top_dep_fr is always valid */
   if (REMOTE_top_dep_fr(myworker_id))
     DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NORM_CP(B);
-else
+  else if (REMOTE_top_dep_fr(myworker_id))
     DepFr_cons_cp(REMOTE_top_dep_fr(myworker_id)) = NULL;
 #endif
 }

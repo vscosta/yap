@@ -278,7 +278,7 @@ option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
 option(WITH_Java "Try to use Java (currently Java )" OFF)
 option (WITH_CUDD "BDD CUDD package"  ${WITH_PACKAGES})
 option(WITH_PROBLOG "include Problog-I." ${WITH_CUDD})
-OPTION(WITH_CPLINT " Enable the cplint probabilistic language" OFF)
+OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_CUDD})
 OPTION(WITH_Threads " Enable PoSIX like threads" OFF)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
@@ -425,15 +425,15 @@ if ($ENV{CONDA_BUILD}x STREQUAL "1x" )
   set(YAP_IS_MOVABLE 1)
 
 endif()
-if (WITH_Threads)
+set(WITH_Threads 1)
   include(Threads)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS THREADS=1 USE_PTHREAD_LOCKING=1)
 SET(MAX_THREADS 1024)
 SET(MAX_WORKERS 1)
-else()
-  set(MAX_THREADS 1)
-  set(MAX_WORKERS 1)
-endif()
+#else()
+#  set(MAX_THREADS 1)
+#  set(MAX_WORKERS 1)
+#endif()
 
 ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
 
@@ -492,11 +492,6 @@ set(pl_library "" CACHE INTERNAL "prolog library files")
 set(pl_os_library "" CACHE INTERNAL "prolog os files")
 set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
 
-if (THREADS)
-   set(WITH_Threads On)
-   elseif(WITH_Threads)
-set(THREADS On)
-endif()
 
 
 #MPI STUFF
@@ -939,11 +934,11 @@ IF (WITH_CLPBN)
   add_subDIRECTORY(packages/CLPBN)
 ENDIF (WITH_CLPBN)
 
-# IF (WITH_CPLINT)
-#    if (CUDD_FOUND)
-# add_subDIRECTORY(packages/cplint)
-# endif()
-# ENDIF (WITH_CPLINT)
+IF (WITH_CPLINT)
+   if (CUDD_FOUND)
+#add_subDIRECTORY(packages/cplint)
+endif()
+ENDIF (WITH_CPLINT)
 
 
 IF (WITH_DOXYGEN)
