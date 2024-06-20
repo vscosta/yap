@@ -241,15 +241,16 @@ ins([ t(comment(A,Doc),L,0,_Sz)|Ts] ,L0,_P0,Lvl) -->
     {sub_string(A,S,1,RSz,`\n`),
      RSz > 0,
      !,
-     sub_string(A,Sz,RSz,0,Rest),
+     sub_string(A,_Sz,RSz,0,Rest),
 DL is L-L0,
      tt(comment,V)
     },
     [DL,0,S,V,Doc],
-    ins([ t(comment(Rest,Doc),L,0,RSz)|Ts],L,0,Lvl).ns([ t(comment(_A,Doc),L,0,Sz)|Ts] ,L0,_,Lvl) -->
+    ins([ t(comment(Rest,Doc),L,0,RSz)|Ts],L,0,Lvl).
+ins([ t(comment(_A,Doc),L,0,Sz)|Ts] ,L0,_,Lvl) -->
     !,
     {
- DL is L-L0,
+     DL is L-L0,
      tt(comment,V)
     },
     [DL,0,Sz,V,Doc],
@@ -320,12 +321,8 @@ ins( [t(error,_,_,_Sz)|Ts] ,L,P,Lvl) -->
     !,
   {indent(L,Lvl,Ts)},
     ins(Ts,L,P,Lvl).
-ins( [H|Ts] ,L,P,Lvl
-   ) -->
-<<<<<<< HEAD
+ins( [H|Ts] ,L,P,Lvl) -->
     {writeln(fail+H)},
-=======
->>>>>>> 5fd3a5306f63b73db3d631c3593d7642087098ec
     {indent(L,Lvl,Ts)},
     ins(Ts,L,P,Lvl).
 
@@ -388,7 +385,6 @@ operator((';')).
 check_doc(S,D) :-
     string_chars(S,Ats),
     (
-<<<<<<< HEAD
 	Ats = ['/','*','*',C|_],
 	char_type_space(C)
     ;
@@ -401,17 +397,6 @@ check_doc(S,D) :-
 	Ats = ['%','%','<',C|_],
 	char_type_space(C)
     ),
-=======
-      Ats = ['/','*','*',C|_]
-    ;
-	Ats = ['/','*','*','>',C|_]
-    ;
-	Ats = ['%','%',C|_]
-    ;
-	Ats = ['%','%','<',C|_]
-    ),
-	char_type_space(C),
->>>>>>> 5fd3a5306f63b73db3d631c3593d7642087098ec
     !,
     modifier(documentation,D).
 check_doc(_,0).

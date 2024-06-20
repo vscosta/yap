@@ -1417,7 +1417,6 @@ print_message_(Severity, Term) :-
     build_message( Term, Lines0, Linesf),
     ignore(    	user:message_hook(Term, Severity, Lines) ),
     prefix_( Severity, Prefix_ ),
-%    writeln(print_message_lines(user_error, Prefix_, Lines)),
     print_message_lines(user_error, Prefix_, Lines),
     !.
 print_message_(_Severity, _Term) :-

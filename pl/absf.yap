@@ -194,6 +194,10 @@ clean_name(N0,_OPts,NF) :-
 '$path2atom'(A,A) :-
     atom(A),
     !.
+'$path2atom'(S,A) :-
+    string(S),
+    !,
+    atom_string(A,S).
 
 '$path2atom'(As,A) :-
     '$cat_file_name'(As,L,[]),
@@ -207,6 +211,11 @@ clean_name(N0,_OPts,NF) :-
 '$cat_file_name'(File, NFs, Fs) :-
     atom(File),
     !,
+    NFs = [File|Fs].
+'$cat_file_name'(SFile, NFs, Fs) :-
+    string(SFile),
+    !,
+    atom_string(File,SFile),
     NFs = [File|Fs].
 
 '$suffix'(F,_Opts,Ext,F) :-
