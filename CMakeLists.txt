@@ -425,15 +425,16 @@ if ($ENV{CONDA_BUILD}x STREQUAL "1x" )
   set(YAP_IS_MOVABLE 1)
 
 endif()
-set(WITH_Threads 1)
+
+if(WITH_Threads)
   include(Threads)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS THREADS=1 USE_PTHREAD_LOCKING=1)
 SET(MAX_THREADS 1024)
 SET(MAX_WORKERS 1)
-#else()
-#  set(MAX_THREADS 1)
-#  set(MAX_WORKERS 1)
-#endif()
+else()
+  set(MAX_THREADS 1)
+  set(MAX_WORKERS 1)
+endif()
 
 ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
 
