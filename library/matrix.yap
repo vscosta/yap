@@ -1372,7 +1372,7 @@ user:inline(matrix_map(P,A,B),
 %%% most often we can avoid meta-calls.
 user:inline(foldl_matrix(P,A,V0,VF),
     (matrix:matrix_size(A,Size), MainCall)):-
-   writeln(ok), callable(P),
+    callable(P),
     	  aux_pred(`foldl`,P,
 		[[0,Size,A,V0,VF], % plugin call
 		 [I0,Size,A,V0,VF], % head

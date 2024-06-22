@@ -304,7 +304,7 @@ static Int read_stream_to_terms(USES_REGS1) {
   while (!(GLOBAL_Stream[sno].status & Past_Eof_Stream_f)) {
     r = Yap_read_term(sno, opts, 2);
       ;
-      Yap_DebugPlWriteln(r);
+      //      Yap_DebugPlWriteln(r);
     // just ignore failure
       t = Deref(Yap_GetFromHandle(hdl));
     if (Deref(r) == TermEOfCode) {
@@ -319,7 +319,7 @@ static Int read_stream_to_terms(USES_REGS1) {
       Term h = HeadOfTerm(t);
 	if (!Yap_unify(h,r))
 	    return false;
-          Yap_DebugPlWriteln(t);
+	//          Yap_DebugPlWriteln(t);
   Yap_PutInHandle(hdl,TailOfTerm(t));
     }
   }

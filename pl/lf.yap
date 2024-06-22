@@ -764,7 +764,6 @@ compile_clauses(Commands) :-
 compile_clause(Command) :-
     prolog_load_context(term_position, Pos),
     prolog_load_context(variable_names, Vs),
-    writeln(Vs=Pos),
     call_compiler(Command, reconsult,Vs,Pos),
     fail.
 compile_clause(_Command).

@@ -697,7 +697,7 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
 
 %        
 % last.first
-'$ports_to_port'(P, _) :- writeln(P), fail. 
+%'$ports_to_port'(P, _) :- writeln(P), fail. 
 '$ports_to_port'([answer,exit], exit).
 '$ports_to_port'([answer,answer], exit).
 '$ports_to_port'([call], call).

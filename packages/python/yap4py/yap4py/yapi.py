@@ -44,25 +44,13 @@ class Engine( YAPEngine ):
             args.setYapPLDIR(yap_lib_path)
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
-        self.load_library( "yapi",m="user")
+        self.load_library( "yapi")
 
     def run(self, g, m=None, release=False):
         if m:
             self.mgoal(g, m, release)
         else:
             self.goal(g, release)
-
-    def load_files(self, name, m=None, release=False):
-        self.run(load_files(name, []), m, release)
-            
-    def load_library(self, name, m=None, release=False):
-        try:
-            self.run(load_files(library(name), []), m, release)
-        except Exception as e:
-            print(f'Error ocurred: {e}')
-         
-    def load_text(self, text, m=None, release=False):
-        self.run(load_text( text), m, release)
 
     def set_prolog_flag(self, name, v):
         self.run(set_prolog_flag(name, v), None, False)

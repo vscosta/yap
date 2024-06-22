@@ -271,7 +271,7 @@ static Int write_term3(USES_REGS1) {
 
 /** @pred  write(+ _S_, _T_) is iso
 
-vWrites term  _T_ to stream  _S_ instead of to the current output
+Writes term  _T_ to stream  _S_ instead of to the current output
 stream. Singletons variables are written as underscores.
 
 

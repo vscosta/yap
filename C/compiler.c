@@ -2427,7 +2427,6 @@ static void clear_bvarray(int var, CELL *bvarray
       return;
   int max = 8 * sizeof(CELL);
   CELL nbit;
-  int var0 = var;
 
   /* get to the array position */
   while (var >= max) {

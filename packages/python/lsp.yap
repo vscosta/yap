@@ -18,8 +18,8 @@
 
 :- use_module(library(scanner)).
 
-:- python_import(lsprotocol.types as t).
-:- python_import(server).
+%:- python_import(lsprotocol.types as t).
+%:- python_import(pygls.server).
 
 
 name2symbol(File,UL0,U,Mod:N0/Ar0):-
@@ -74,12 +74,16 @@ user:pred_def(Ob,URI,Line,Ch) :-
 	).
 
 user:pred_def(Ob, Name) :-
-    pred_code(Ob,Name).
-
-name2symbol(N,t(F,L,0)) :-
-    writeln(N),
+    strip_module(Name,Mod,N),
     current_predicate(N,Mod:G),
-    writeln(G),
+    predicate_property(Mod:G,file(F) ),
+    predicate_property(Mod:G,line_count(L)),
+    L1 is L+1,
+Ob := Ob.append(t(F,L1,0)).
+
+name2symbol(Name,t(F,L1,0)) :-
+    strip_module(Name,Mod,N),
+    current_predicate(N,Mod:G),
     functor(G,N,_Ar),
     predicate_property(Mod:G,file(F) ),
     predicate_property(Mod:G,line_count(L)),
@@ -146,25 +150,23 @@ user:validate_text(Self,URI,S) :-
     atom_string(File, SFile),
     open(string(S),read,Stream,[alias(File)]),
     set_stream(Stream,file_name(File)),
-    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)), R),
+    asserta((user:portray_message(Sev,Msg) :-
+		 q_msg(Sev, Msg)), R),
     load_files(File,[ stream(Stream), if(true),def_use_map(true)]),
     findall(T,(recorded(msg,T,R),erase(R)),Ts),
     erase(R),
     Self.errors := Ts.
 
-
-
 q_msg(Sev, error(Err,Inf)) :-
     Err =.. [_F|As],
-    yap_error_descriptor(Inf, Desc),
     (
-	yap_query_exception(parserLine, Desc, LN)
+	exception_property(parserLine, Inf, LN)
     ->
     true
     ;
     LN = 0),
     (
-	yap_query_exception(parserPos, Desc, Pos)
+	exception_property(parserPos, Inf, Pos)
 	->
 	true
     ;
@@ -224,3 +226,5 @@ highlight_and_convert_stream(Self,Stream) :-
 %:= print(LTsf).
       Self.data := LTsf
     ).
+
+:- writeln(ok).

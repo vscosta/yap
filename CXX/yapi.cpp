@@ -1081,12 +1081,12 @@ void Yap_displayWithJava(int c) {
 #endif
 
 void YAPEngine::doInit(YAP_file_type_t BootMode, YAPEngineArgs *engineArgs) {
-        CACHE_REGS
 
   if (GLOBAL_Initialised)
     return;
   GLOBAL_Initialised = true;
   YAP_Init(engineArgs);
+        CACHE_REGS
 // yerror = throw YAPError( SOURCE(), );
 CurrentModule = LOCAL_SourceModule = TermUser;
 #if YAP_PYTHON
