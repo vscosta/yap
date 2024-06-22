@@ -23,6 +23,7 @@
 #ifndef YAPIE_HH
 #define YAPIE_HH
 
+#include "Regs.h"
 class X_API YAPPPredicate;
 
 
@@ -37,9 +38,15 @@ public:
   /// wraps the default error descriptor
   YAPError() {
     CACHE_REGS
-      info = LOCAL_ActiveError;
-    if (!info)
+#if THREADS
+      if (!Yap_local[0] ||
+	  !Yap_local[worker_id])
+	return;
+#endif
+    if (!LOCAL_ActiveError)
       LOCAL_ActiveError = info = (yap_error_descriptor_t *)calloc( sizeof( yap_error_descriptor_t ), 1);
+    else
+      info = LOCAL_ActiveError;
     //  if (info->errorNo != YAP_NO_ERROR) {};
     //std::cerr << "Error detected" << info->errorNo << "\n";
   }

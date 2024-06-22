@@ -8,8 +8,6 @@
  *
 */
 
-:- module(yap_hacks).
-
 /**
   * @addtogroup Hacks 
   * @{
@@ -35,8 +33,10 @@
 	      stack_dump/1,
 	      virtual_alarm/3,
               fully_strip_module/3,
-	      yap_query_exception/3,
-	      yap_error_descriptor/2,
+	      exception_property/3,
+  yap_error_descriptor/2,
+  ctrace/1,
+  fully_strip_module/3,
 	      context_variables/1
 				%		      cut_at/1,
 				%		      cut_by/1,
