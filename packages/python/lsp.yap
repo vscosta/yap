@@ -152,9 +152,12 @@ user:validate_text(Self,URI,S) :-
     set_stream(Stream,file_name(File)),
     asserta((user:portray_message(Sev,Msg) :-
 		 q_msg(Sev, Msg)), R),
-    load_files(File,[ stream(Stream), if(true),def_use_map(true)]),
-    findall(T,(recorded(msg,T,R),erase(R)),Ts),
+    ignore(load_files(File,[ stream(Stream), if(true),def_use_map(true)])),
+    writeln(ovvk)
+    findall(TERR,(recorded(msg,TERR,_Ri)),Ts),
+    eraseall(msg),
     erase(R),
+writeln(Ts),
     Self.errors := Ts.
 
 q_msg(Sev, error(Err,Inf)) :-
@@ -172,7 +175,16 @@ q_msg(Sev, error(Err,Inf)) :-
     ;
     Pos =0 ),
     q_msgs(As,Sev,S),
-    recordz(msg,t(S,LN,Pos),_).
+    writeln(t(S,LN,Pos)),
+    recordz(mesg,t(S,LN,Pos),_),
+    fail.
+
+	term_expansion((:- module(M,Ops)),(:- module(M,Ops))).
+	term_expansion((:- module(M,Ops)),(:- module(M,Ops))).
+	term_expansion((:- module(M,Ops)),(:- module(M,Ops))).
+
+
+
 
 
 q_msgs([], N,S) :-

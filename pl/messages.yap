@@ -32,7 +32,7 @@
 	      % print_message_lines/3,
 	      % print_message/2,
 	      % print_warning/1
-	  []).
+	  [query_exception/3]).
 
 /**
 
