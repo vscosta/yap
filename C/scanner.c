@@ -927,6 +927,10 @@ const char *Yap_tokText(void *tokptre) {
 // mark that we reached EOF,
 // next  token will be end_of_file)
 static void mark_eof(struct stream_desc *st) {
+  st->buf.on = true;
+  st->buf.ch = EOF;
+  st->stream_wgetc_for_read =  st->stream_wgetc = Yap_popChar;
+  st->stream_getc =  Yap_popChar;
   st->status |= Push_Eof_Stream_f;
 }
 
@@ -963,7 +967,6 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   Yap_setCurrentSourceLocation(st);
   LOCAL_SourceFileLineno = LOCAL_StartLineCount = 0;
   LOCAL_StartLinePos = 0;
-
   do {
     int quote, isvar;
     unsigned char *charp, *mp;
@@ -1406,17 +1409,17 @@ t->Tok = Ord(kind = Name_tok);
       if (LOCAL_ActiveError->errorNo)
 	goto ldefault;
       mark_eof(st);
-      if (!l)
-	l = t;
-      else
-	p->TokNext=t;
+      if (!l) {
+      t->Tok = Ord(kind = Name_tok);
+      t->TokInfo = TermEof;
+      t->TokNext = NULL;
+      return t;
+      }
+      p->TokNext=t;
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
       t->TokNext = NULL;
       p = t;
-      // EOF is not in the term.
-    if (st->file && feof(st->file))
-      clearerr(st->file);
       break;
     default: {
       ldefault:
