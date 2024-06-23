@@ -794,7 +794,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
 #endif
 			)) {
 
-   return out;
+   return TermEof;
 
   }
   if (throw_error) {
@@ -1405,24 +1405,27 @@ t->Tok = Ord(kind = Name_tok);
     do_eof:
       if (LOCAL_ActiveError->errorNo)
 	goto ldefault;
-							 mark_eof(st);
-							 if (!l)
-							   l = t;
-							 else
-							   p->TokNext=t;
-							 t->Tok = Ord(kind = eot_tok);
-							 t->TokInfo = TermEof;
-							 t->TokNext = NULL;
-							 p = t;
-							 break;
-						       default: {
-						       ldefault:
-							 kind = Error_tok;
-							 char err[1024];
-							 snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
-								  ch, ch, chtype(ch));
-							 t->Tok = Ord(kind = eot_tok);
-							 t->TokInfo = MkIntTerm(0);
+      mark_eof(st);
+      if (!l)
+	l = t;
+      else
+	p->TokNext=t;
+      t->Tok = Ord(kind = eot_tok);
+      t->TokInfo = TermEof;
+      t->TokNext = NULL;
+      p = t;
+      // EOF is not in the term.
+    if (st->file && feof(st->file))
+      clearerr(st->file);
+      break;
+    default: {
+      ldefault:
+      kind = Error_tok;
+      char err[1024];
+      snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
+	       ch, ch, chtype(ch));
+      t->Tok = Ord(kind = eot_tok);
+      t->TokInfo = MkIntTerm(0);
     }
     }
     if (LOCAL_ErrorMessage) {

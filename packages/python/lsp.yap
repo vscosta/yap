@@ -140,8 +140,8 @@ user:validate_uri(Self,URI) :-
 
 
 validate_file( Self,File) :-
-    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)), Ref),
-    load_files(File,[ if(true),def_use_map(true)]),
+    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)), Ref), 
+   load_files(File,[ if(true),def_use_map(true)]),
     erase(Ref),
     forall(retract(msg(T)),Self.errors.append(T)).
 
@@ -152,49 +152,45 @@ user:validate_text(Self,URI,S) :-
     set_stream(Stream,file_name(File)),
     asserta((user:portray_message(Sev,Msg) :-
 		 q_msg(Sev, Msg)), R),
-    ignore(load_files(File,[ stream(Stream), if(true),def_use_map(true)])),
-    writeln(ovvk)
+   catch(load_files(File,[ stream(Stream), if(true),dry_run(true)]),E,writeln(E)),
     findall(TERR,(recorded(msg,TERR,_Ri)),Ts),
     eraseall(msg),
     erase(R),
-writeln(Ts),
     Self.errors := Ts.
 
 q_msg(Sev, error(Err,Inf)) :-
-    Err =.. [_F|As],
     (
-	exception_property(parserLine, Inf, LN)
+	exception_property(`parserLine` , Inf, LN)
     ->
     true
     ;
     LN = 0),
     (
-	exception_property(parserPos, Inf, Pos)
+	exception_property(`parserLinePos`, Inf, Pos)
 	->
 	true
     ;
     Pos =0 ),
-    q_msgs(As,Sev,S),
+(
+	fail,exception_property(`ErrorMsg`, Inf, ErrorMsg)
+	->
+	true
+    ;
+ErrorMsg = ``
+    ),
+Err =..LErr,
+    q_msgs(LErr,ErrorMsg,Sev,S),
     writeln(t(S,LN,Pos)),
-    recordz(mesg,t(S,LN,Pos),_),
+    recordz(msg,t(S,LN,Pos),_),
     fail.
 
-	term_expansion((:- module(M,Ops)),(:- module(M,Ops))).
-	term_expansion((:- module(M,Ops)),(:- module(M,Ops))).
-	term_expansion((:- module(M,Ops)),(:- module(M,Ops))).
 
-
-
-
-
-q_msgs([], N,S) :-
-    format(string(S ),'~s.',[N]).
-q_msgs([A1], N, S) :-
-    format(string(S),'~s: ~w.',[N,A1]).
-q_msgs([A1,A2], N, S) :-
-    format(string(S),'~s: ~w ~w.',[N,A1,A2]).
-q_msgs([A1,A2,A3], N, S) :-
-    format(string(S),'~s: ~w ~w ~w.',[N,A1,A2,A3]).
+q_msgs([A1], Extra, N,S) :-
+    format(string(S),'~s: ~w.~n~s',[N,A1,Extra]).
+q_msgs([A1,A2], Extra, N,S) :-
+    format(string(S),'~s: ~w ~w.~n~s',[N,A1,A2,Extra]).
+q_msgs([A1,A2,A3], Extra, N,S) :-
+    format(string(S),'~s: ~w ~w ~w.~n~s',[N,A1,A2,A3,Extra]).
 
 
 add_file(Self, D, File) :-

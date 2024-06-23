@@ -1368,8 +1368,9 @@ query_exception(K0,[H|L],V) :-
     (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
     !,
     '$in'(K0=V,[H|L]).
-query_exception(M,K,V) :-
-    '$query_exception'(M,K,V).
+query_exception(K,exception(M) ,V) :-
+    !,
+    '$query_exception'(K,M,V).
 
 
 

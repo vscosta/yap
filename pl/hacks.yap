@@ -67,7 +67,7 @@ yap_hacks:context_variables(Vs) :-
  * Term describes an exception as a set of mappings: unify val with the value for key Key, or fil if the key is not in Tern,
  */
 yap_hacks:exception_property(Q,E,V) :-
-    query_exception(Q,E,V).
+    '$messages':query_exception(Q,E,V).
 
 /**
  * @pred yap_error_descriptor(+Term,-List).
@@ -78,7 +78,7 @@ yap_hacks:exception_property(Q,E,V) :-
  * _List_ shpi;d be unbound, as YAP does not fuarantee an irder for the resulting _List_.
  */
 yap_hacks:yap_error_descriptor(Inf,Des) :-
-    error_descriptor(Inf,Des).
+   '$messages': error_descriptor(Inf,Des).
 
 
 

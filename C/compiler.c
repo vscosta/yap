@@ -2439,7 +2439,7 @@ static void clear_bvarray(int var, CELL *bvarray
   if (*bvarray & nbit) {
     /* someone had already marked this variable: complain */
       // LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-    fprintf(stderr,"compiler internal error: variable %d initialized twice",var0);
+    // fprintf(stderr,"compiler internal error: variable %d initialized twice",var0);
     // save_machine_regs();
     //yy siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   } else

@@ -175,7 +175,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
     if (i->k && i->k[0] != '\0')                                               \
       return MkAtomTerm(Yap_LookupAtom(i->k));                                 \
     else                                                                       \
-      return TermNil;                                                    \
+      return TermEmptyAtom;                                                    \
   }
 
 #define query_key_t(k, ks, q, i)                                               \

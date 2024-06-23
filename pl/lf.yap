@@ -25,7 +25,7 @@
   * @addtogroup YAPReadFiles
   * @{
   */
-%
+
 % SWI options
 % autoloa(true,false)
 % derived_from(File) -> make
@@ -69,7 +69,7 @@
 '$lf_option'(consult, 11, reconsult).
 '$lf_option'(stream, 12, _).
 '$lf_option'(register, 13, true).
-'$lf_option'('$files', 14, _).
+'$lf_option'(dry_run, 14, _).
 '$lf_option'('$call', 15, _).
 '$lf_option'('$use_module', 16, _).
 '$lf_option'('consulted_at', 17, _).
@@ -80,7 +80,7 @@
 '$lf_option'(redefine_module, 22, Warn) :-
 	( var(Warn) ->	current_prolog_flag( redefine_warnings, Redefine ), Redefine = Warn ; true ).
 '$lf_option'(reexport, 23, false).
-'$lf_option'(def_use_map, 24, false).
+'$lf_option'(build_def_map, 24, false).
 % '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
 '$lf_option'(modified, 26, true).
@@ -180,10 +180,14 @@
 	( Val == false -> true ;
 	    Val == true -> true ;
 	    throw_error(domain_error(unimplemented_option,skip_unix_header(Val)),Call) ).
-'$process_lf_opt'(def_use_map, Val, Call)  :-
+'$process_lf_opt'(build_def_map, Val, Call)  :-
 	( Val == false -> true ;
 	    Val == true -> true ;
-	    throw_error(domain_error(unimplemented_option,def_use_map(Val)),Call) ).
+	    throw_error(domain_error(unimplemented_option,build_def_map(Val)),Call) ).
+'$process_lf_opt'(dry_run, Val, Call)  :-
+	( Val == false -> true ;
+	    Val == true -> true ;
+	    throw_error(domain_error(unimplemented_option,build_def_map(Val)),Call) ).
 '$process_lf_opt'(compilation_mode, Val, Call) :-
     ( Val == source -> true ;
       Val == compact -> true ;
@@ -406,14 +410,18 @@
    current_source_module(_M0,M1),
 
    (
-       '$memberchk'(def_use_map(true),Opts)
+       '$memberchk'(build_def_map(true),Opts)
    ->
     retractall(scanner:use(_,_F,_MI,_F0,_Mod,File,_S0,_E0,_S1,_E1)),
     retractall(scanner:def(_,_,_,File,_,_,_,_)),
     retractall(scanner:dec(_Dom,_F,_M,File,_B,_E,_BT,_FiET)),
    '$def_use_loop'(Stream,File,Reconsult)
-;
-   '$loop'(Stream,Reconsult)
+; 
+       '$memberchk'(dry_run(true),Opts)
+   ->
+   '$dry_loop'(Stream,Reconsult)
+; 
+  '$loop'(Stream,Reconsult)
  
    ),
    ( LC == 0 -> prompt(_,'   |: ') ; true),
@@ -434,6 +442,35 @@
        '$exec_initialization_goals'(File),
     !,
  '$end_consult'.
+
+'$dry_loop'(Stream,_Status) :-
+    repeat,
+  (
+   at_end_of_stream(Stream)
+->
+!
+;
+   prompt1(': '), prompt(_,'     '),
+    Options = [syntax_errors(dec10)],
+    read_clause(Stream, Clause, Options),
+    writeln(Clause),
+(
+	Clause == end_of_file
+    ->
+
+    !
+    ;
+    '$conditional_compilation_skip'(Clause)
+    ->
+    fail
+    ;
+        Clause = (:- G1),
+        monvar(G1),
+        G1=op(A,B,C),
+        op(A,B,C),
+        fail
+   )
+    ).
 
 '$loop'(Stream,Status) :-
     repeat,
