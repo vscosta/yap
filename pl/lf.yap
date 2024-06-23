@@ -453,7 +453,6 @@
    prompt1(': '), prompt(_,'     '),
     Options = [syntax_errors(dec10)],
     read_clause(Stream, Clause, Options),
-    writeln(Clause),
 (
 	Clause == end_of_file
     ->
