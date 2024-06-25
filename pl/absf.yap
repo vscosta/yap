@@ -77,8 +77,12 @@ validate_absf(_File, TrueFile, LOpts, LOpts, TrueFile) :-
 	must_be_list(LOpts).
 validate_absf(_File, LOpts, TrueFile, LOpts, TrueFile ).
 	
-enter_absf( File, LOpts, Opts, State ) :- !,
-    ( var(File) -> instantiation_error(File) ; true),
+enter_absf( File, LOpts, Opts, State ) :-
+    !,
+    (
+    var(File)
+    ->
+    instantiation_error(File) ; true),
     absf_trace('input: ~w',File),
     absf_trace_component('     ', LOpts),
     abs_file_parameters(LOpts,Opts),
@@ -348,11 +352,17 @@ remove_from_path(New) :- check_path(New,Path),
 
  			recorded('$path',Path,R), erase(R).
 
-check_path(At,SAt) :- atom(At), !, atom_codes(At,S), check_path(S,SAt).
+check_path(At,SAt) :-
+    atom(At),
+    !,
+    atom_codes(At,S),
+    check_path(S,SAt).
 check_path([],[]).
 check_path([Ch],[Ch]) :- '$dir_separator'(Ch), !.
 check_path([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
-check_path([N|S],[N|SN]) :- integer(N), check_path(S,SN).
+check_path([N|S],[N|SN]) :-
+    integer(N),
+    check_path(S,SN).
 
 
 /**

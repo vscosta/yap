@@ -1,8 +1,14 @@
 /// Thread Local Variables. This file now follows C syntax.
-#include "Yap.h"
-#include "YapHeap.h"
 // Macro support
 #ifndef LOCAL
+
+#if THREADS
+#define LOCAL(A, B) A B
+#define LOCAL_INIT(A, B, C)                                                      A B                                                                           B = C
+#define LOCAL_ARRAY(A, B, C) A B[C]
+#define LOCAL_ARRAY_ARRAY(A, B, C,D) A B[C][D]
+#define LOCAL_INIT(A, B, C, D) A B[C][D]
+#define LOCAL_INITF(A, B, C)                                              #else
 #define LOCAL(A, B) A B
 #define LOCAL_INIT(A, B, C)                                                      A B                                                                           B = C
 #define LOCAL_ARRAY(A, B, C) A B[C]

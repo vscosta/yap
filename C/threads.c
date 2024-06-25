@@ -8,7 +8,7 @@
  *									 *
  **************************************************************************
  *									 *
- * File:		stdpreds.c						 *
+ * File:		threads.c						 *
  * Last rev:								 *
  * mods:									 *
  * comments:	threads							 *
@@ -341,7 +341,7 @@ kill_thread_engine (int wid, int always_die)
   if (REMOTE_ThreadHandle(wid).last_timep)
     free(REMOTE_ThreadHandle(wid).last_timep);
   if (REMOTE_ThreadHandle(wid).texit) {
-    Yap_FreeCodeSpace((ADDR)REMOTE_ThreadHandle(wid).texit);
+    REMOTE_ThreadHandle(wid).texit = 0;
   }
   /* FreeCodeSpace requires LOCAL requires yaam_regs */
   free(REMOTE_ThreadHandle(wid).default_yaam_regs);
