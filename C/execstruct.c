@@ -35,9 +35,8 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
  * remove choice points created since a call to top-goal.
  *
  */
-static void prune_inner_computation(choiceptr parent)
+static void prune_inner_computation(choiceptr parent USES_REGS)
 {
-  CACHE_REGS
   /* code */
   choiceptr cut_pt;
   yamop *oP = P, *oCP = CP;
@@ -58,6 +57,30 @@ static void prune_inner_computation(choiceptr parent)
   CP = oCP;
   ENV = LCL0 - oENV;
   B = parent;
+}
+
+ bool Yap_exists(Term t, bool succeed USES_REGS)
+{
+  yamop *oP = P, *oCP = CP;
+  Int oENV = LCL0 - ENV;
+  Int oYENV = LCL0 - YENV;
+  Int oB = LCL0 - (CELL *)B;
+  SET_ASP(YENV,EnvSizeInCells);
+  {
+    bool rc = Yap_RunTopGoal(t, succeed);
+
+    // We'll pass it through
+    P = oP;
+    CP = oCP;
+    ENV = LCL0 - oENV;
+    YENV = LCL0 - oYENV;
+    choiceptr nb = (choiceptr)(LCL0 - oB);
+    if (nb > B)
+    {
+      B = nb;
+    }
+  return rc ||succeed;
+    } 
 }
 
 static bool set_watch(Int Bv, Term task)
@@ -86,6 +109,7 @@ static bool watch_cut(Term ext)
   Term cleanup = ArgOfTerm(3, task);
   Term e = 0;
   bool active = ArgOfTerm(5, task) == TermTrue;
+
   bool ex_mode = false;
     {
       return true;
@@ -203,7 +227,7 @@ static bool watch_retry(Term d0 )
 static Int setup_call_catcher_cleanup(USES_REGS1)
 {
   Term Setup = Deref(ARG1);
-  choiceptr B0 = B;
+  Int B0 = LCL0-(CELL *)B;
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
@@ -219,14 +243,14 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
     }
   if (!rc)
     {
-      Yap_fail_all(B0 PASS_REGS);
+      Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
       // We'll pass it throughs
 
       return false;
     }
   else
     {
-      prune_inner_computation(B0);
+      prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
     }
   P = oP;
   CP = oCP;
@@ -433,6 +457,8 @@ static Int do_term_expansion(USES_REGS1)
   return complete_ge(
 		     false , omod, oP, sl, creeping);
 }
+
+
 
 void Yap_InitExecStruct(void)
 {
