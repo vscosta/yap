@@ -33,9 +33,7 @@ static char     SccsId[] = "%W% %G%";
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#if HAVE_STRING_H
 #include <string.h>
-#endif
 #if HAVE_SYS_SYSCALL_H
 #include <sys/syscall.h>
 #endif
@@ -128,12 +126,16 @@ static bool
 mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
 {
   pthread_mutex_t *mutexp;
-  pthread_cond_t *condp;
+  pthread_cond_t *emptyp, *fillp;
   struct idb_queue *msgsp;
 
   memset(mboxp, 0, sizeof(mbox_t));
-  condp = & mboxp->cond;
-  pthread_cond_init(condp, NULL);
+  mboxp->max =INT_MAX;
+  
+  emptyp = & mboxp->empty;
+  pthread_cond_init(emptyp, NULL);
+  fillp = & mboxp->fill;
+  pthread_cond_init(fillp, NULL);
   mutexp = & mboxp->mutex;
   pthread_mutex_init(mutexp, NULL);
   msgsp = & mboxp->msgs;
@@ -150,18 +152,20 @@ static bool
 mboxDestroy( mbox_t *mboxp USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-  pthread_cond_t *condp = &mboxp->cond;
+  pthread_cond_t *emptyp = &mboxp->empty;
+  pthread_cond_t *fillp = &mboxp->fill;
   struct idb_queue *msgsp = &mboxp->msgs;
   mboxp->open = false;
   if (mboxp->nclients == 0 ) {
-    pthread_cond_destroy(condp);
+    pthread_cond_destroy(emptyp);
+    pthread_cond_destroy(fillp);
     pthread_mutex_destroy(mutexp);
     Yap_destroy_tqueue(msgsp PASS_REGS);
     // at this point, there is nothing left to unlock!
     return true;
   } else {
     /* we have clients in the mailbox, try to wake them up one by one */
-    pthread_cond_broadcast(condp);
+    pthread_cond_broadcast(emptyp);
     pthread_mutex_unlock(mutexp);
     return true;
   }
@@ -171,18 +175,22 @@ static bool
 mboxSend( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-  pthread_cond_t *condp = &mboxp->cond;
+  pthread_cond_t *fillp = &mboxp->fill;
+  pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
 
   if (!mboxp->open) {
     // oops, dead mailbox
+ pthread_mutex_unlock(mutexp);
     return false;
   }
+  if (mboxp->nmsgs == mboxp->max)
+    pthread_cond_wait(emptyp,mutexp);
   Yap_enqueue_tqueue(msgsp, t PASS_REGS);
   // printf("+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
   mboxp->nmsgs++;
-  pthread_cond_broadcast(condp);
-  pthread_mutex_unlock(mutexp);
+     pthread_cond_signal(fillp);
+ pthread_mutex_unlock(mutexp);
   return true;
 }
 
@@ -190,42 +198,38 @@ static bool
 mboxReceive( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-  pthread_cond_t *condp = &mboxp->cond;
+  pthread_cond_t *emptyp = &mboxp->empty;
+  pthread_cond_t *fillp = &mboxp->fill;
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc; 
 
-
-      pthread_mutex_lock(mutexp);
   if (!mboxp->open){
-    return false; 	// don't try to read if someone else already closed down...
-  }  mboxp->nclients++;
-  do {
-    rc = mboxp->nmsgs && Yap_dequeue_tqueue(msgsp, t, false,  true PASS_REGS);
-    if (rc) {
-      mboxp->nclients--;
-      mboxp->nmsgs--;
-      //printf("-   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
-      //	Yap_do_low_level_trace=1;
       pthread_mutex_unlock(mutexp);
-      return true;
-    } else if (!mboxp->open) {
+    return false; 	// don't try to read if someone else already closed down...
+  }
+  mboxp->nclients++;
+  while(  (!mboxp->nmsgs && !(rc=Yap_dequeue_tqueue(msgsp, t, false,  true PASS_REGS))) ) 
+    {if ( !mboxp->open) {
       //printf("o   (%d)\n", worker_id);
       mboxp->nclients--;
+      pthread_mutex_unlock(mutexp);
       if (!mboxp->nclients) {// release
-	pthread_cond_destroy(condp);
+	pthread_cond_destroy(fillp);
+	pthread_cond_destroy(emptyp);
 	pthread_mutex_destroy(mutexp);
 	Yap_destroy_tqueue(msgsp PASS_REGS);
-	// at this point, there is nothing left to unlock!
-      } else {
-	pthread_cond_broadcast(condp);
-	pthread_mutex_unlock(mutexp);
-      }
+      } 
       return false;
-    } else {
-      pthread_cond_wait(condp, mutexp);
+      }
+      pthread_cond_wait(fillp, mutexp);
     }
-  } while (!rc);
-  return rc;
+  
+  
+  mboxp->nmsgs--;
+  
+      pthread_cond_broadcast(emptyp);
+      pthread_mutex_unlock(mutexp);
+      return rc;
 }
 
 static bool

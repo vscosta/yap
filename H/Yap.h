@@ -640,9 +640,10 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
 typedef struct thread_mbox {
   Term name;
   pthread_mutex_t mutex;
-  pthread_cond_t cond;
+  pthread_cond_t empty;
+  pthread_cond_t fill;
   struct idb_queue msgs;
-  int nmsgs, nclients; // if nclients < 0 mailbox has been closed.
+  int nmsgs, nclients,max; // if nclients < 0 mailbox has been closed.
   bool open;
   struct thread_mbox *next;
 } mbox_t;

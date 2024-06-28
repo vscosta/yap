@@ -1141,12 +1141,12 @@ static void InitThreadHandle(int wid) {
   {
     mbox_t *mboxp = &REMOTE_ThreadHandle(wid).mbox_handle;
     pthread_mutex_t *mutexp;
-    pthread_cond_t *condp;
+    pthread_cond_t *emptyp;
     struct idb_queue *msgsp;
 
     mboxp->name = MkIntTerm(0);
-    condp = &mboxp->cond;
-    pthread_cond_init(condp, NULL);
+    emptyp = &mboxp->empty;
+    pthread_cond_init(emptyp, NULL);
     mutexp = &mboxp->mutex;
     pthread_mutex_init(mutexp, NULL);
     msgsp = &mboxp->msgs;
