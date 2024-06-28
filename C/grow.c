@@ -478,6 +478,7 @@ fix_tabling_info( USES_REGS1 )
   struct subgoal_frame *sg;
 
   df = LOCAL_top_dep_fr;
+  if (df) {
   while (df) {
     if (DepFr_backchain_cp(df))
       DepFr_backchain_cp(df) = ChoicePtrAdjust(DepFr_backchain_cp(df));
@@ -492,6 +493,7 @@ fix_tabling_info( USES_REGS1 )
     if (SgFr_gen_cp(sg))
       SgFr_gen_cp(sg) = GeneratorChoicePtrAdjust(SgFr_gen_cp(sg));
     sg = SgFr_next(sg);
+  }
   }
 }
 #endif /* TABLING */

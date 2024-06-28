@@ -194,10 +194,11 @@ mboxReceive( mbox_t *mboxp, Term t USES_REGS )
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc; 
 
+
+      pthread_mutex_lock(mutexp);
   if (!mboxp->open){
     return false; 	// don't try to read if someone else already closed down...
-  }
-  mboxp->nclients++;
+  }  mboxp->nclients++;
   do {
     rc = mboxp->nmsgs && Yap_dequeue_tqueue(msgsp, t, false,  true PASS_REGS);
     if (rc) {
@@ -1120,71 +1121,35 @@ p_unlock_mutex( USES_REGS1 )
 static Int
 p_with_mutex( USES_REGS1 )
 {
-  yap_error_descriptor_t * excep;
-  Int rc = FALSE;
+  SWIMutex *mut;
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
-  PredEntry *pe;
-  Term tm = CurrentModule;
-  Term tg = Deref(ARG2);
-  SWIMutex *mut = MutexOfTerm( ARG1 );
+  bool rc;
+  Term t1 = Deref(ARG1);
+  if (IsVarTerm(t1)) 
+    {
+      mut = NewMutex();
+    }
+  else
+    {
+         mut= MutexOfTerm( ARG1 );
 
+    }
+  
   if (!mut || !LockMutex(mut PASS_REGS)) {
     return FALSE;
   }
-
-  tg = Yap_StripModule(tg, &tm);
-  if (IsVarTerm(tg)) {
-    Yap_Error(INSTANTIATION_ERROR, ARG2, "with_mutex/2");
-    goto end;
-  } else if (IsApplTerm(tg)) {
-    register Functor f = FunctorOfTerm(tg);
-    register CELL *pt;
-    size_t i, arity;
-
-    f = FunctorOfTerm(tg);
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-      goto end;
-    }
-    arity = ArityOfFunctor(f);
-    if (arity > MaxTemps) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-      goto end;
-    }
-    pe = RepPredProp(PredPropByFunc(f, tm));
-    pt = RepAppl(tg)+1;
-    for (i= 0; i < arity; i++ )
-      XREGS[i+1] = pt[i];
-  } else if (IsAtomTerm(tg)) {
-    pe = RepPredProp(PredPropByAtom(AtomOfTerm(tg), tm));
-  } else if (IsPairTerm(tg)) {
-    register CELL *pt;
-    Functor f;
-
-    f = FunctorDot;
-    pe = RepPredProp(PredPropByFunc(f, tm));
-    pt = RepPair(tg);
-    XREGS[1] = pt[0];
-    XREGS[2] = pt[1];
-  } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-    goto end;
-  }
-  if (
-      pe->OpcodeOfPred != FAIL_OPCODE &&
-      Yap_execute_pred(pe, NULL, true PASS_REGS) ) {
-    rc = TRUE;
-  }
- end:
-  excep = Yap_GetException();
+  rc= Yap_exists(Deref(ARG2), true PASS_REGS);
   if ( !UnLockMutex(mut PASS_REGS) ) {
-    return FALSE;
+    return false;;
   }
-  if (creeping) {
+    if (Yap_HasException(PASS_REGS1))
+    {
+      Yap_JumpToEnv();
+      return false;
+    }
+ if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
-  } else if ( excep != 0) {
-    return Yap_JumpToEnv();
-  }
+ }
   return rc;
 }
 
@@ -1738,72 +1703,20 @@ p_new_mutex(void)
  static Int
  p_with_mutex( USES_REGS1 )
  {
-   Int mut;
-   Term t1 = Deref(ARG1), excep;
-   Int rc = FALSE;
-   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
-   PredEntry *pe;
-   Term tm = CurrentModule;
-   Term tg = Deref(ARG2);
+  Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
+  bool rc;
 
-   if (IsVarTerm(t1)) {
-       p_new_mutex( PASS_REGS1 );
-   }
-   t1 = Deref(ARG1);
-   mut = IntOfTerm(t1);
-   tg = Yap_StripModule(tg, &tm);
-   if (IsVarTerm(tg)) {
-      Yap_Error(INSTANTIATION_ERROR, ARG2, "with_mutex/2");
-      goto end;
-   } else if (IsApplTerm(tg)) {
-     register Functor f = FunctorOfTerm(tg);
-     register CELL *pt;
-     size_t i, arity;
-
-    f = FunctorOfTerm(tg);
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-      goto end;
+   rc = Yap_exists(ARG2);
+    if (Yap_HasException(PASS_REGS1))
+    {
+      Yap_JumpToEnv();
+      return false;
     }
-    arity = ArityOfFunctor(f);
-    if (arity > MaxTemps) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-      goto end;
-    }
-    pe = RepPredProp(PredPropByFunc(f, tm));
-    pt = RepAppl(tg)+1;
-    for (i= 0; i < arity; i++ )
-      XREGS[i+1] = pt[i];
-  } else if (IsAtomTerm(tg)) {
-    pe = RepPredProp(PredPropByAtom(AtomOfTerm(tg), tm));
-  } else if (IsPairTerm(tg)) {
-    register CELL *pt;
-    Functor f;
-
-    f = FunctorDot;
-    pe = RepPredProp(PredPropByFunc(f, tm));
-    pt = RepPair(tg);
-    XREGS[1] = pt[0];
-    XREGS[2] = pt[1];
-  } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-    goto end;
-  }
-  if (
-      pe->OpcodeOfPred != FAIL_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS) ) {
-    rc = TRUE;
-  }
- end:
-  ARG1 = MkIntegerTerm(mut);
-  excep = MkAddressTerm(Yap_GetException());
-  if (creeping) {
+ if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
-  } else if ( excep != 0) {
-    return Yap_JumpToEnv();
   }
-  return rc;
-}
+ return rc;
+ }
 
 void 
 Yap_InitFirstWorkerThreadHandle(void)
@@ -1824,6 +1737,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag);
   Yap_InitCPred("$thread_unlock", 1, p_thread_unlock, SafePredFlag);
 #if DEBUG_LOCKS||DEBUG_PE_LOCKS
+
   Yap_InitCPred("debug_locks", 0, p_debug_locks, SafePredFlag);
   Yap_InitCPred("nodebug_locks", 0, p_nodebug_locks, SafePredFlag);
 #endif

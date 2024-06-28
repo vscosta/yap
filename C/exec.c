@@ -1007,30 +1007,6 @@ static Int execute_in_mod(USES_REGS1)
 }
 
 
- bool Yap_exists(Term t, bool succeed USES_REGS)
-{
-  yamop *oP = P, *oCP = CP;
-  Int oENV = LCL0 - ENV;
-  Int oYENV = LCL0 - YENV;
-  Int oB = LCL0 - (CELL *)B;
-  SET_ASP(YENV,EnvSizeInCells);
-  {
-    bool rc = Yap_RunTopGoal(t, succeed);
-
-    // We'll pass it through
-    P = oP;
-    CP = oCP;
-    ENV = LCL0 - oENV;
-    YENV = LCL0 - oYENV;
-    choiceptr nb = (choiceptr)(LCL0 - oB);
-    if (nb > B)
-    {
-      B = nb;
-    }
-  return rc ||succeed;
-    } 
-}
-
 extern void *Yap_blob_info(Term t);
 
 

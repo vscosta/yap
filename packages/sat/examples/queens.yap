@@ -17,14 +17,27 @@ X=8 V X=7 v X=6 ..
 
 
 main :-
-    between(8,1000000,I), write(I), time(queens(I,_,_)), fail.
+    between(8,1000000,I), write(I), queens(I,L),
+    foldl2(out(I),L,0,_,L,Out),
+    writeln(Out).
 main.
+
+out(N,-H,I,I1,L,L) :-
+    !,
+    I1 is (I+1) mod N.
+out(N,H,I,I1,[H-I],L,L) :-
+    !,
+    I1 is (I+1) mod N.
+
+queens(N, LQueens) :-
+    time(queens(N,LQueens,_)).
+
 
 queens(N, LQueens, F) :-
     Queens <== matrix[N,N] of _,
     LQueens <== Queens.list(),
 		       queens(N, _, Queens, F, []),
-		       %% length(F,NF),
+		       %length(F,NF),
 %% 		       length(LQueens,NQ),
 %% 		       tell(o),
 %% 		       format('p cnf ~d ~d~n',[NQ,NF]),
@@ -165,8 +178,8 @@ verify(Mat,N) :-
     sort(RDs,SRDi), length(SRDi,N).
 
 set_bit(M,Els,[X-Y|Els],[X,Y]) :-
-	V <== M[X,Y],
-	V=1,
+    V <== M[X,Y],
+	V>0,
 	!.
 set_bit(_,Els,Els,_).
 
