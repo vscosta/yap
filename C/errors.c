@@ -1436,7 +1436,7 @@ static Int drop_exception(USES_REGS1) {
       if (IsApplTerm(t1) &&
 	  ArityOfFunctor(FunctorOfTerm(t1))==2&&
 			 IsVarTerm(ArgOfTerm(2,t1))) {
-	Yap_unify(ArgOfTerm(2,ARG1), ARG2);
+	Yap_unify(ArgOfTerm(2,t1), ARG2);
       }
       }
     } else {
