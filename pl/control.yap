@@ -708,26 +708,29 @@ call_in_module(M:G) :-
  */
 call_nth(Goal_0, Nth) :-
    (
-   nonvar(Nth)
+     nonvar(Nth)
+       ->
+       Nth \== 0,
+       \+arg(Nth,+ 1,2), % produces all expected errors
+       State = count(0,_), % note the extra argument which remains a variable
+       call(Goal_0),
+       arg(1, State, C1),
+       C2 is C1+1,
+       (
+       Nth == C2
    ->
-   Nth \== 0,
-   \+arg(Nth,+ 1,2), % produces all expected errors
-   State = count(0,_), % note the extra argument which remains a variable
-   Goal_0,
-   arg(1, State, C1),
-   C2 is C1+1,
-   (  Nth == C2
-   -> !
-   ;  nb_setarg(1, State, C2),
-      fail
+ !
+   ;
+  nb_setarg(1, State, C2),
+	 fail
    )
    ;
-   State = count(0,_), % note the extra argument which remains a variable
-   Goal_0,
-   arg(1, State, C1),
-   C2 is C1+1,
-   nb_setarg(1, State, C2),
-   Nth = C2
+       State = count(0,_), % note the extra argument which remains a variable
+       Goal_0,
+       arg(1, State, C1),
+       C2 is C1+1,
+       nb_setarg(1, State, C2),
+       Nth = C2
    ).
 
  

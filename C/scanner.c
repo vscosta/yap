@@ -307,9 +307,9 @@ Term read_int_overflow(const char *s, Int base, Int val, int sign) {
 #endif
 }
 
-static wchar_t read_escaped_char( struct stream_desc *st) {
+static wchar_t read_escaped_char( bool *got_charp, struct stream_desc *st) {
   int ch;
-
+  *got_charp=true;
 
 /* escape sequence */
 do_switch:
@@ -336,14 +336,11 @@ do_switch:
     return '\x1B'; /* <ESC>, a.k.a. \e */
   case 'f':
     return '\f';
-  case '\n':
-    ch = getchr(st);
-    if (ch == '\\')
-      goto do_switch;
-    ch = bad_nl_error(ch,NULL, st);
-    return ch;
   case 'n':
-    return 10;
+       return 10;
+  case '\n':
+    *got_charp=false;
+    return 0;
   case 'r':
     return '\r';
   case 's': /* space */
@@ -526,7 +523,11 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
 	
       if (ch == '\\' &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
-        ascii = read_escaped_char(st);
+	bool got_char;
+        ascii = read_escaped_char(&got_char, st);
+	if (!got_char) {
+	  bad_nl_error('\\',sp,st);
+	}
 	if (ascii == EOF) return TermNil;
       }
       *chp = getchr(st);
@@ -1126,7 +1127,12 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  }
         } else if (ch == '\\'  &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
-          ch = read_escaped_char(st);
+	  bool got_char;
+          ch = read_escaped_char(&got_char,st);
+	  if (!got_char) {
+	ch = getchrq(st);
+	continue;
+	  }
 	  if (LOCAL_ActiveError->errorNo)
 	    goto ldefault;
   	}

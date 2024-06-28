@@ -17,14 +17,9 @@
 
 
 
-#ifdef SCCS
-static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
-#endif
-
 #include "absmi.h"
 
 #include "amidefs.h"
-
 #include "attvar.h"
 #include "cut_c.h"
 #include "yapio.h"
@@ -66,6 +61,8 @@ static void prune_inner_computation(choiceptr parent USES_REGS)
   Int oYENV = LCL0 - YENV;
   Int oB = LCL0 - (CELL *)B;
   SET_ASP(YENV,EnvSizeInCells);
+  t=Deref(t);
+  Yap_must_be_callable(t,CurrentModule);
   {
     bool rc = Yap_RunTopGoal(t, succeed);
 
@@ -268,13 +265,23 @@ static Int tag_cleanup(USES_REGS1)
 
 static Int cleanup_on_exit(USES_REGS1)
 {
-  choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1)));
+ Int B0 = LCL0-(CELL *)B;
+  yamop *oP = P, *oCP = CP;
+  Int oENV = LCL0 - ENV;
+  Int oYENV = LCL0 - YENV;
+  bool rc;
   Term task = Deref(ARG2);
   Term cleanup = ArgOfTerm(3, task);
   Term complete = IsNonVarTerm(ArgOfTerm(4, task));
   if (!Yap_dispatch_interrupts( PASS_REGS1 ))
     return false;
 
+  yap_error_descriptor_t *old, *new=NULL;
+  if (Yap_PeekException()) {
+      old = LOCAL_ActiveError;
+      LOCAL_ActiveError = new = malloc(sizeof( yap_error_descriptor_t ));
+      Yap_ResetException(new);
+  }
 
 
   while (B && (
@@ -288,7 +295,7 @@ static Int cleanup_on_exit(USES_REGS1)
     }
   CELL *catcher_pt = deref_ptr(RepAppl(Deref(task)) + 2);
   CELL *complete_pt = deref_ptr(RepAppl(Deref(task)) + 4);
-  if (B < B0)
+  if (B < (choiceptr)(LCL0- B0))
     {
       // non-deterministic
       set_watch(LCL0 - (CELL *)B, task);
@@ -299,13 +306,38 @@ static Int cleanup_on_exit(USES_REGS1)
       catcher_pt[0] = TermExit;
       complete_pt[0] = TermExit;
     }
-  Yap_exists(cleanup, true PASS_REGS);
+ if (Yap_HasException(PASS_REGS1))
+    {
+      Yap_JumpToEnv();
+      return false;
+    }
+ rc = Yap_RunTopGoal(cleanup, true);
+ if (new) {
+   free(new);
+    LOCAL_ActiveError = old;
+    LOCAL_PrologMode  |=   InErrorMode;
+ }
   if (Yap_HasException(PASS_REGS1))
     {
       Yap_JumpToEnv();
       return false;
     }
-  return true;
+  if (!rc)
+    {
+      Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
+      // We'll pass it throughs
+
+      return true;
+    }
+  else
+    {
+      prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
+    }
+  P = oP;
+  CP = oCP;
+  ENV = LCL0 - oENV;
+  YENV = LCL0 - oYENV;
+ return true;
 }
 
 static bool complete_ge(bool out, Term omod, yamop *oP, yhandle_t sl, bool creeping)

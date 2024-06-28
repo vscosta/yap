@@ -48,7 +48,6 @@ should be used with care.
  
 */
 
-
 #include "Yap.h"
 
 #include "Yatom.h"
@@ -417,14 +416,16 @@ static Int nb_setarg(USES_REGS1) {
         arity = ArityOfFunctor(FunctorOfTerm(dest));
     }
     if (pos < 1 || pos > arity)
-        return FALSE;
+        return false;
     COPY(ARG3);
 
     to = Deref(ARG3);
+    if (!IsPrimitiveTerm(to)) {
     to = CopyTermToArena(Deref(ARG3), FALSE, TRUE, NULL, &LOCAL_GlobalArena, NULL
                          PASS_REGS);
     if (to == 0L)
-        return FALSE;
+      return false;
+    }
 
     dest = Deref(ARG2);
     if (IsPairTerm(dest)) {
