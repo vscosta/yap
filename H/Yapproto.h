@@ -27,8 +27,6 @@ define noreturn  _Noreturn
 #define noreturn
 #endif
 
-#include "Yap.h"
-
 /* absmi.c */
 extern Int Yap_absmi(int);
 extern  int Yap_absmiEND(void);

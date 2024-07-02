@@ -129,6 +129,7 @@ X_API EXTERNAL Atom AtomDoubleSlash; X_API EXTERNAL Term TermDoubleSlash;
 X_API EXTERNAL Atom AtomDynamic; X_API EXTERNAL Term TermDynamic;
 X_API EXTERNAL Atom AtomE; X_API EXTERNAL Term TermE;
 X_API EXTERNAL Atom AtomEOFBeforeEOT; X_API EXTERNAL Term TermEOFBeforeEOT;
+X_API EXTERNAL Atom AtomEOfAction; X_API EXTERNAL Term TermEOfAction;
 X_API EXTERNAL Atom AtomEOfCode; X_API EXTERNAL Term TermEOfCode;
 X_API EXTERNAL Atom AtomEQ; X_API EXTERNAL Term TermEQ;
 X_API EXTERNAL Atom AtomEmptyAtom; X_API EXTERNAL Term TermEmptyAtom;

@@ -1773,6 +1773,8 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
   }
   if (IsAtomTerm(t))
   {
+    if (t==TermTrue)
+      return true;
     Atom a = AtomOfTerm(t);
     pt = NULL;
     pe = Yap_GetPredPropByAtom(a, tmod);

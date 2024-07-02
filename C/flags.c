@@ -1001,8 +1001,10 @@ static Int cont_yap_flag(USES_REGS1) {
   } else {
     Yap_unify(tflag,
               MkAtomTerm(Yap_LookupAtom(local_flags_setup[i - gmax].name)));
-    if (i == gmax + lmax - 1)
+    if (i == gmax + lmax - 1) {
       do_cut(0);
+        return false;
+    }
   }
   Term flag = getYapFlag(tflag);
   CurrentModule = modt;

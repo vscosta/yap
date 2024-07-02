@@ -231,7 +231,8 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
     Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
     '$tag_cleanup'(CP0, Task0),
-    '$execute0'( Goal ),
+    strip_module(Goal,M,G),
+    '$execute0'( M:G ),
     '$cleanup_on_exit'(CP0, TaskF).
 
 
@@ -242,10 +243,10 @@ This is similar to call_cleanup/1 but with an additional
 
 */
 call_cleanup(Goal, Cleanup) :-
-	gated_call( true , Goal, Catcher, cleanup_handler(Catcher,open(_),Cleanup)).
+	gated_call( true , Goal, Catcher, prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
 call_cleanup(Goal, Catcher, Cleanup) :-
-	gated_call( true , Goal, Catcher , cleanup_handler(Catcher,open(_),Cleanup)).
+	gated_call( true , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
 /** @pred setup_call_cleanup(: _Setup_,: _Goal_, : _CleanUpGoal_)
 
@@ -266,18 +267,16 @@ finally undone by _Cleanup_.
 */
 
 setup_call_cleanup(Setup,Goal, Cleanup) :-
-	gated_call( Setup , Goal, Catcher , cleanup_handler(Catcher,open(_),Cleanup)).
+	gated_call( Setup , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
 
 
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
-	gated_call( Setup , Goal, Catcher , cleanup_handler(Catcher,open(_),Cleanup)).
+	gated_call( Setup , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
-cleanup_handler(Catcher,Open,Cleanup) :-
+
+prolog:cleanup_handler(Catcher,_Open,Cleanup) :-
 	'$is_catcher'(Catcher),
-	Open=open(Visited),
-	var(Visited),
-	nb_setarg(1,Open,visited),
 	ignore(Cleanup).
 
 '$is_catcher'(exit).

@@ -56,6 +56,8 @@ restart:
   }
 }
 
+
+
 INLINE_ONLY Term Derefap(CELL *b, CELL **ptp) {
   Term a = *b;
 restart:

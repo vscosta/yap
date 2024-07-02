@@ -98,19 +98,22 @@ void Yap_RestartYap(int flag) {
 }
 
 #define set_key_b(k, ks, q, i, t)                                              \
-  if (strcmp(ks, q) == 0) {                                                    \
+if (strcmp(ks, q) == 0) {						\
+   if (IsVarTerm(t)) { Yap_ThrowError(INSTANTIATION_ERROR,t,"should be a boolean");}; \
     i->k = (t == TermTrue ? true : false);                                     \
     return t == TermTrue || t == TermFalse;                                             \
   }
 
 #define set_key_i(k, ks, q, i, t)                                              \
   if (strcmp(ks, q) == 0) {                                                    \
+    if (IsVarTerm(t)) { Yap_ThrowError(INSTANTIATION_ERROR,t,"should be a boolean");}; \
     i->k = IsIntegerTerm(t) ? IntegerOfTerm(t) : 0;                            \
     return IsIntegerTerm(t);                                                   \
   }
 
 #define set_key_s(k, ks, q, i, t)                                              \
   if (strcmp(ks, q) == 0) {                                                    \
+    if (IsVarTerm(t)) { Yap_ThrowError(INSTANTIATION_ERROR,t,"should be a text");}; \
     const char *s = IsAtomTerm(t) ? RepAtom(AtomOfTerm(t))->StrOfAE            \
 : IsStringTerm(t) ? StringOfTerm(t) : NULL;  \
      if (s && s[0]) {                                                           \
@@ -1414,11 +1417,7 @@ static Int set_exception(USES_REGS1) {
     return false;
   yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
   Term t3 = Deref(ARG3);
-  if (IsVarTerm(t3)) {
-    return false;
-  } else {
     return setErr(query, y, t3);
-  }
 }
 
 static Int drop_exception(USES_REGS1) {
