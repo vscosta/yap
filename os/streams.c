@@ -29,15 +29,11 @@ static char SccsId[] = "%W% %G%";
  *
  */
     
-#include "Yap.h"
 #if HAVE_FCNTL_H
 /* for O_BINARY and O_TEXT in WIN32 */
 #include <fcntl.h>
 #endif
-#include "YapEval.h"
-#include "YapHeap.h"
-#include "YapText.h"
-#include "Yatom.h"
+#include "Yap.h"
 #include "yapio.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
@@ -451,14 +447,17 @@ static bool
 found_eof(int sno,
           Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags =
-      GLOBAL_Stream[sno].status & (Past_Eof_Stream_f );
+      GLOBAL_Stream[sno].status;
   if (!IsVarTerm(t2) && !(isatom(t2))) {
-    return FALSE;
+     Yap_ThrowError(TYPE_ERROR_ATOM,t2,"found_eof");
+     return false;
   }
-  if (GLOBAL_Stream[sno].file && feof(GLOBAL_Stream[sno].file))
-     return Yap_unify(t2, MkAtomTerm(AtomAt));
+  if (flags & Reset_Eof_Stream_f)
+   return Yap_unify(t2, MkAtomTerm(AtomAltNot));
   if (flags & Past_Eof_Stream_f)
    return Yap_unify(t2, MkAtomTerm(AtomPast));
+  if (GLOBAL_Stream[sno].file && feof(GLOBAL_Stream[sno].file))
+     return Yap_unify(t2, MkAtomTerm(AtomAt));
   return Yap_unify(t2, MkAtomTerm(AtomAltNot));
 }
 
@@ -466,12 +465,13 @@ static bool stream_mode(int sno, Term t2 USES_REGS) {
   /* '$set_output'(+Stream,-ErrorMessage)  */
   stream_flags_t flags = GLOBAL_Stream[sno].status;
   if (!IsVarTerm(t2) && !(isatom(t2))) {
-    return false;
+     Yap_ThrowError(TYPE_ERROR_ATOM,t2,"stream_mode");
+     return false;
   }
   if (flags & Input_Stream_f)
     return Yap_unify(t2, TermRead);
   if (flags & Append_Stream_f)
-    return Yap_unify(t2, TermWrite);
+    return Yap_unify(t2, TermAppend );
   if (flags & Output_Stream_f)
     return Yap_unify(t2, TermWrite);
   return false;
@@ -701,7 +701,7 @@ static bool do_stream_property(int sno,
         break;
       case STREAM_PROPERTY_END:
       default:
-	Yap_ThrowError(DOMAIN_ERROR_STREAM_PROPERTY_OPTION, ARG1, "bad option to stream_property/2" );
+	Yap_ThrowError(DOMAIN_ERROR_STREAM, ARG1, "bad option to stream_property/2" );
         rc = false;
         break;
       }
@@ -721,7 +721,7 @@ static xarg *generate_property(int sno, Term t2,
     Yap_unify(t2, Yap_MkNewApplTerm(f, 1));
   }
   return Yap_ArgListToVector(t2, stream_property_defs, STREAM_PROPERTY_END,
-                             NULL,DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
+                             NULL,DOMAIN_ERROR_STREAM_PROPERTY);
 }
 
 static Int cont_stream_property(USES_REGS1) { /* current_stream */
@@ -741,12 +741,12 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     // otherwise, just drop through
   } else {
     args = Yap_ArgListToVector(t2, stream_property_defs, STREAM_PROPERTY_END,NULL,
-                               DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
+                               DOMAIN_ERROR_STREAM_PROPERTY);
   }
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)
-        LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY_OPTION;
+        LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY;
       Yap_ThrowError(LOCAL_Error_TYPE, t2, NULL);
       return false;
     }
@@ -828,11 +828,11 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
     args = Yap_ArgListToVector(Deref(ARG2), stream_property_defs,
                                STREAM_PROPERTY_END,
 			       NULL,
-                               DOMAIN_ERROR_STREAM_PROPERTY_OPTION);
+                               DOMAIN_ERROR_STREAM_PROPERTY);
     if (args == NULL) {
       if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
         if (LOCAL_Error_TYPE == DOMAIN_ERROR_FLAG_VALUE)
-          LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY_OPTION;
+          LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY;
         Yap_Error(LOCAL_Error_TYPE, ARG2, NULL);
         return false;
       }

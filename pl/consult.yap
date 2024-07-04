@@ -558,7 +558,7 @@ prolog_load_context(variable_names, Term ) :-
 	 true
     ;
     % loaded from the same module, but does not define a module.
-    '$source_file_scope'(F, NM),
+    '$source_file'(F, NM), % that does not define a module
     NM==TargetModule
     ).
 
@@ -579,8 +579,7 @@ prolog_load_context(variable_names, Term ) :-
 	 Reconsult0 \== consult,
 	 Reconsult0 \== not_loaded,
 	 Reconsult0 \== changed,
-	 retractall('$source_file'(F, _)),
-	 retractall('$source_file_scope'(F, _)),
+%	 retractall('$source_file'(F, _)),
 	 fail
 	;
 	 var(Reconsult0)
@@ -934,6 +933,8 @@ prolog_library(File) :-
 
 :- multifile user:dot_qualified_goal/1.
 
+
+y
 :- dynamic '$source_file'/2, '$source_file_scope'/2.
 /**
 

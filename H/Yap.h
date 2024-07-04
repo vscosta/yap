@@ -180,6 +180,8 @@
 /* funcions that return  a generic pointer */
 typedef void *(*fptr_t)(void);
 
+#include "YapDefs.h"
+
 /*************************************************************************************************
                               main exports in YapInterface.h
 *************************************************************************************************/
@@ -189,8 +191,6 @@ extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DL
         *Yap_BOOTFILE, *Yap_INCLUDEDIR;
 
 /* Basic exports */
-
-#include "YapDefs.h"
 
 #include "Atoms.h"
 

@@ -1371,7 +1371,8 @@ query_exception(K0,[H|L],V) :-
 query_exception(K,exception(M) ,V) :-
     !,
     '$query_exception'(K,M,V).
-
+query_exception(K,M ,V) :-
+    throw(error(type_error(exception,M),query_exception(K,M ,V))).
 
 
 print_message_(Severity, Msg) :-

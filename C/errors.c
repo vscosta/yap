@@ -98,19 +98,22 @@ void Yap_RestartYap(int flag) {
 }
 
 #define set_key_b(k, ks, q, i, t)                                              \
-  if (strcmp(ks, q) == 0) {                                                    \
+if (strcmp(ks, q) == 0) {						\
+   if (IsVarTerm(t)) { Yap_ThrowError(INSTANTIATION_ERROR,t,"should be a boolean");}; \
     i->k = (t == TermTrue ? true : false);                                     \
     return t == TermTrue || t == TermFalse;                                             \
   }
 
 #define set_key_i(k, ks, q, i, t)                                              \
   if (strcmp(ks, q) == 0) {                                                    \
+    if (IsVarTerm(t)) { Yap_ThrowError(INSTANTIATION_ERROR,t,"should be a boolean");}; \
     i->k = IsIntegerTerm(t) ? IntegerOfTerm(t) : 0;                            \
     return IsIntegerTerm(t);                                                   \
   }
 
 #define set_key_s(k, ks, q, i, t)                                              \
   if (strcmp(ks, q) == 0) {                                                    \
+    if (IsVarTerm(t)) { Yap_ThrowError(INSTANTIATION_ERROR,t,"should be a text");}; \
     const char *s = IsAtomTerm(t) ? RepAtom(AtomOfTerm(t))->StrOfAE            \
 : IsStringTerm(t) ? StringOfTerm(t) : NULL;  \
      if (s && s[0]) {                                                           \
@@ -727,7 +730,14 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   va_end(ap);
   pop_text_stack(1);
   Yap_Error__(true, file, function, lineno, type, where, tmp, NULL);
-  Yap_ThrowExistingError();
+  if (LOCAL_ActiveError->errorUserTerm ) {
+      LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(LOCAL_ActiveError->errorUserTerm);
+  } else {
+    LOCAL_ActiveError->culprit = NULL;
+
+    LOCAL_PrologMode = UserMode;
+  }
+  Yap_RestartYap(5);
 }
 
 /// complete delayed error.
@@ -1132,18 +1142,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
   }
-  Yap_JumpToEnv();
   //  reset_error_description();
   pop_text_stack(LOCAL_MallocDepth + 1);
-  if (throw ) {
-    if (LOCAL_ActiveError->errorUserTerm )
-      LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(LOCAL_ActiveError->errorUserTerm);
-    Yap_RaiseException();
-  } else {
-    LOCAL_ActiveError->culprit = NULL;
-
-    LOCAL_PrologMode = UserMode;
-  }
   return P;
 }
 
@@ -1414,11 +1414,7 @@ static Int set_exception(USES_REGS1) {
     return false;
   yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
   Term t3 = Deref(ARG3);
-  if (IsVarTerm(t3)) {
-    return false;
-  } else {
     return setErr(query, y, t3);
-  }
 }
 
 static Int drop_exception(USES_REGS1) {

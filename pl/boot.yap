@@ -159,8 +159,6 @@ initialize_prolog :-
 :- ['utils.yap',
     'flags.yap'].
 
-%:- start_low_level_trace.
-
 :- [
     % lists is often used.
    	 '../os/yio.yap',

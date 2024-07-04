@@ -2235,8 +2235,10 @@ static bool JumpToEnv(USES_REGS1) {
 	   IsVarTerm(Deref(B->cp_a5))) {
 	return true;
       }
-				     //	Yap_RestartYap(5);	return false;
-      //}
+//      if (B->cp_ap == EXITCODE) {
+//	Yap_RestartYap(5);
+//	return false;
+  //   }
       if (B->cp_b)
 	B=B->cp_b;
       else break;

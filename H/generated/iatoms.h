@@ -129,6 +129,7 @@
   AtomDynamic = Yap_FullLookupAtom("dynamic"); TermDynamic = MkAtomTerm(AtomDynamic);
   AtomE = Yap_LookupAtom("e"); TermE = MkAtomTerm(AtomE);
   AtomEOFBeforeEOT = Yap_LookupAtom("end_of_file_found_before_end_of_term"); TermEOFBeforeEOT = MkAtomTerm(AtomEOFBeforeEOT);
+  AtomEOfAction = Yap_LookupAtom("eof_action"); TermEOfAction = MkAtomTerm(AtomEOfAction);
   AtomEOfCode = Yap_LookupAtom("eof_code"); TermEOfCode = MkAtomTerm(AtomEOfCode);
   AtomEQ = Yap_LookupAtom("="); TermEQ = MkAtomTerm(AtomEQ);
   AtomEmptyAtom = Yap_LookupAtom(""); TermEmptyAtom = MkAtomTerm(AtomEmptyAtom);

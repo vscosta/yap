@@ -68,7 +68,8 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
-  if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || ip == TRUSTFAILCODE) {
+  if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || ip == TRUSTFAILCODE
+      || ip == EXITCODE) {
     op = Yap_op_from_opcode(P->opc);
     i->env = ENV; // YENV should be tracking ENV
     i->p = ip;
@@ -773,7 +774,7 @@ static bool EnterCreepMode(Term t, Term mod USES_REGS)
     ARG1 = t;
     if (!Yap_locked_growheap(FALSE, 0, NULL))
     {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil,
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil,
                 "YAP failed to grow heap at meta-call");
     }
     if (!Yap_has_a_signal())
@@ -927,7 +928,7 @@ static Int execute_clause(USES_REGS1)
 restart_exec:
   if (IsVarTerm(t))
   {
-    Yap_Error(INSTANTIATION_ERROR, ARG3, "call/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, ARG3, "call/1");
     return FALSE;
   }
   else if (IsAtomTerm(t))
@@ -1134,12 +1135,12 @@ static Int execute_nonstop(USES_REGS1)
   }
   else if (!IsAtomTerm(mod))
   {
-    Yap_Error(TYPE_ERROR_ATOM, ARG2, "call/1");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, ARG2, "call/1");
     return FALSE;
   }
   if (IsVarTerm(t))
   {
-    Yap_Error(INSTANTIATION_ERROR, ARG1, "call/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, ARG1, "call/1");
     return FALSE;
   }
   else if (IsAtomTerm(t))
@@ -1180,7 +1181,7 @@ static Int execute_nonstop(USES_REGS1)
   }
   else
   {
-    Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, "call/1");
     return FALSE;
   }
   /*	N = arity; */
@@ -1311,7 +1312,7 @@ static Int execute_depth_limit(USES_REGS1)
   Term d = Deref(ARG2);
   if (IsVarTerm(d))
   {
-    Yap_Error(INSTANTIATION_ERROR, d, "depth_bound_call/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, d, "depth_bound_call/2");
     return false;
   }
   else if (!IsIntegerTerm(d))
@@ -1322,7 +1323,7 @@ static Int execute_depth_limit(USES_REGS1)
     }
     else
     {
-      Yap_Error(TYPE_ERROR_INTEGER, d, "depth_bound_call/2");
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, d, "depth_bound_call/2");
       return false;
    }
   }
@@ -1340,38 +1341,22 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   int lval, out;
 
    Int OldBorder = LOCAL_CBorder;
-  LOCAL_CBorder = LCL0 - (CELL *)B;
-  sigjmp_buf signew, *sigold = LOCAL_RestartEnv;
-  if (!sigold)
-    LOCAL_TopRestartEnv = sigold;
-  LOCAL_RestartEnv = &signew;
-  volatile int top_stream =  Yap_FirstFreeStreamD();
-      /* otherwise, SetDBForThrow will fail entering critical mode */
-      /* find out where to cut to */
-      /* siglongjmp resets the TR hardware register */
-      /* TR and B are crucial, they might have been changed, or pnot */
-      restore_TR();
-      restore_B();
-      /* H is not so important, because we're gonna backtrack */
-      restore_H();
-      /* set stack */
-      ASP = (CELL *)PROTECT_FROZEN_B(B);
-      /* forget any signals active, we're reborne */
-      LOCAL_PrologMode |= UserMode;
-      LOCAL_PrologMode &= ~(BootMode | CCallMode | UnifyMode | UserCCallMode);
-    YENV[E_CB] = Unsigned(B);
-    if (Yap_get_signal(YAP_FAIL_SIGNAL))
-      P = FAILCODE;
-    if (!Yap_has_a_signal()) {
-    } else {
+   LOCAL_CBorder = LCL0 - (CELL *)B;
+   B->cp_ap=EXITCODE;
+   sigjmp_buf signew, *signewp = &signew, *sigoldp = LOCAL_RestartEnv;
+  if (!sigoldp)
+    LOCAL_TopRestartEnv = sigoldp;
+  LOCAL_RestartEnv = signewp;
       CalculateStackGap(PASS_REGS1);
-    }
-   lval = sigsetjmp(signew, 0);
+    lval = sigsetjmp(signew, 0);
+bool done=false;
+    while(!done) {
     switch (lval)
     {
     case 0:
     { /* restart */
       out = Yap_absmi(0);
+      done=true;
     }
     break;
     case 1:
@@ -1415,24 +1400,31 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
     { /* saved state */
       LOCAL_CBorder = OldBorder;
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      LOCAL_RestartEnv = sigold;
+      LOCAL_RestartEnv = sigoldp;
       return false;
     }
     case 5:
+      Yap_JumpToEnv();
+      if (LCL0-(CELL*)B >= LOCAL_CBorder) {
+	Yap_RestartYap(6);
+      }
     case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
 
       out = false;
-    Yap_CloseTemporaryStreams(top_stream);
-     }
+//    Yap_CloseTemporaryStreams(top_stream);
+      lval=0;
+      continue;
+    }
+    }
     }
     LOCAL_CBorder = OldBorder;
-    LOCAL_RestartEnv = sigold;
+    LOCAL_RestartEnv = sigoldp;
+
     //if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
     //   Yap_RestartYap(6);
     LOCAL_PrologMode &= ~(AbortMode|InErrorMode);
-
     return out;
 
     }
@@ -1444,6 +1436,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
        confused */
   //  Yap_ResetException(worker_id);
   //  sl = Yap_InitSlot(t);
+  volatile Int start = LCL0-ASP;
   YENV = ASP;
   YENV[E_CP] = (CELL)YESCODE;
   YENV[E_CB] = (CELL)B;
@@ -1490,7 +1483,6 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, bool t
   Int out = false;
   Yap_PrepGoal(arity, pt, B PASS_REGS);
   P = (yamop *)CodeAdr;
-  while (true) {
   CACHE_A1();
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
@@ -1501,12 +1493,8 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, bool t
       continue;
     } else
 #endif
-      if (!out && B->cp_ap != NOCODE) {
-      continue;
-    }
-    
-  break;
-  }
+
+  
       CalculateStackGap(PASS_REGS1);
 
   //  if (out) {
@@ -1534,7 +1522,7 @@ void Yap_fail_all(choiceptr bb USES_REGS)
   saved_p = P;
   saved_cp = CP;
   /* prune away choicepoints */
-  while (B->cp_b && B->cp_b != bb && B->cp_ap != NOCODE)
+  while (B->cp_b && B->cp_b != bb && B->cp_ap != EXITCODE)
   {
     B = B->cp_b;
 #ifdef YAPOR
@@ -1673,7 +1661,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   }
   else
   {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "emulator crashed");
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "emulator crashed");
     rc = false;
   }
 
@@ -1703,7 +1691,7 @@ bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex)
 
     if (IsBlobFunctor(f))
     {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, t, "call/1");
       return false;
     }
     /* I cannot use the standard macro here because
@@ -1714,7 +1702,7 @@ bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex)
   }
   else
   {
-    Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, "call/1");
     return false;
   }
   ppe = RepPredProp(pe);
@@ -1760,7 +1748,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
   t = Yap_YapStripModule(t, &tmod);
   if (IsVarTerm(t))
   {
-    Yap_Error(INSTANTIATION_ERROR, t, "call/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "call/1");
     LOCAL_PrologMode &= ~TopGoalMode;
     return (FALSE);
   }
@@ -1773,6 +1761,8 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
   }
   if (IsAtomTerm(t))
   {
+    if (t==TermTrue)
+      return true;
     Atom a = AtomOfTerm(t);
     pt = NULL;
     pe = Yap_GetPredPropByAtom(a, tmod);
@@ -1784,7 +1774,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
 
     if (IsBlobFunctor(f))
     {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, t, "call/1");
       LOCAL_PrologMode &= ~TopGoalMode;
       return (FALSE);
     }
@@ -1823,7 +1813,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
 #if !USE_SYSTEM_MALLOC
   if (LOCAL_TrailTop - HeapTop < 2048)
   {
-    Yap_Error(RESOURCE_ERROR_TRAIL, TermNil,
+    Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil,
               "unable to boot because of too little Trail space");
   }
 #endif
@@ -1859,7 +1849,7 @@ static Int restore_regs(USES_REGS1)
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
  {
-    Yap_Error(INSTANTIATION_ERROR, t, "support for coroutining");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "support for coroutining");
     return (FALSE);
   }
   if (t == TermFail) {
@@ -1878,7 +1868,7 @@ bool Yap_restore_regs(Term t USES_REGS)
   t = Deref(t);
   if (IsVarTerm(t))
   {
-    Yap_Error(INSTANTIATION_ERROR, t, "support for coroutining");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "support for coroutining");
     return false;
   }
   if (IsAtomTerm(t))
@@ -1905,7 +1895,7 @@ static Int restore_regs2(USES_REGS1)
 
   if (IsVarTerm(t))
   {
-    Yap_Error(INSTANTIATION_ERROR, t, "support for coroutining");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "support for coroutining");
     return (FALSE);
   }
   d0 = Deref(ARG2);
@@ -1915,7 +1905,7 @@ static Int restore_regs2(USES_REGS1)
   }
   if (IsVarTerm(d0))
   {
-    Yap_Error(INSTANTIATION_ERROR, d0, "support for coroutining");
+    Yap_ThrowError(INSTANTIATION_ERROR, d0, "support for coroutining");
     return (FALSE);
   }
   if (!IsIntegerTerm(d0))

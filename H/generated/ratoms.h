@@ -129,6 +129,7 @@
   AtomDynamic = AtomAdjust(AtomDynamic); TermDynamic = MkAtomTerm(AtomDynamic);
   AtomE = AtomAdjust(AtomE); TermE = MkAtomTerm(AtomE);
   AtomEOFBeforeEOT = AtomAdjust(AtomEOFBeforeEOT); TermEOFBeforeEOT = MkAtomTerm(AtomEOFBeforeEOT);
+  AtomEOfAction = AtomAdjust(AtomEOfAction); TermEOfAction = MkAtomTerm(AtomEOfAction);
   AtomEOfCode = AtomAdjust(AtomEOfCode); TermEOfCode = MkAtomTerm(AtomEOfCode);
   AtomEQ = AtomAdjust(AtomEQ); TermEQ = MkAtomTerm(AtomEQ);
   AtomEmptyAtom = AtomAdjust(AtomEmptyAtom); TermEmptyAtom = MkAtomTerm(AtomEmptyAtom);

@@ -1792,7 +1792,8 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
     else if (B->cp_ap == FAILCODE)
       B = B->cp_b;
     else {
-      if (B->cp_ap == NOCODE)
+    if (B->cp_ap == NOCODE ||
+	B->cp_ap == EXITCODE)
         B = B->cp_b;
       break;
     }
@@ -1992,7 +1993,7 @@ X_API bool YAP_ShutdownGoal(int backtrack) {
     choiceptr cut_pt;
 
     cut_pt = B;
-    while (cut_pt->cp_ap != NOCODE) {
+    while (cut_pt->cp_ap != EXITCODE) {
       /* make sure we prune C-choicepoints */
       if (POP_CHOICE_POINT(cut_pt->cp_b)) {
         POP_EXECUTE();

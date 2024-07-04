@@ -102,17 +102,14 @@ int Yap_popChar(int sno)
 
   StreamDesc *s = GLOBAL_Stream + sno;
   
-  
         s->charcount = s->ocharcount ;
 	  s->linecount =s->olinecount;
 	  s->linestart = s->olinestart;
-    if (s->status & Past_Eof_Stream_f ) {
-      s->status &= ~Past_Eof_Stream_f;
-    if (s->file)
-      clearerr(s->file);
-    }
     s->buf.on = false;
-Yap_DefaultStreamOps(s);
+    Yap_DefaultStreamOps(s);
+    if ( s->buf.ch == EOF) {
+      Yap_EOF_Stream(s);
+    } 
 return s->buf.ch;
 }
 
@@ -132,6 +129,8 @@ int Yap_peekChar(int sno) {
        s->linestart = lpos;
                  s->buf.on = true;
             s->buf.ch = ch;
+	    if (ch==EOF)
+	      s->status |= Push_Eof_Stream_f;
             s->stream_wgetc = Yap_popChar;
             s->stream_getc =  Yap_popChar;
         //  Yap_SetCurInpPos(sno, pos);
@@ -139,7 +138,7 @@ int Yap_peekChar(int sno) {
 }
 
 int Yap_peekWide(int sno) {
-    StreamDesc *s = GLOBAL_Stream + sno;
+     StreamDesc *s = GLOBAL_Stream + sno;
     int ch;
    Int pos = s->charcount;
         Int line = s->linecount;
@@ -154,6 +153,8 @@ int Yap_peekWide(int sno) {
        s->linestart = lpos;
                  s->buf.on = true;
             s->buf.ch = ch;
+	    if (ch==EOF)
+	      s->status |= Push_Eof_Stream_f;
 	    s->stream_wgetc_for_read =  s->stream_wgetc = Yap_popChar;
             s->stream_getc =  Yap_popChar;
         //  Yap_SetCurInpPos(sno, pos);
@@ -163,7 +164,7 @@ int Yap_peekWide(int sno) {
 
 int Yap_peek(int sno) { return GLOBAL_Stream[sno].stream_wpeek(sno); }
 
-static int dopeek_byte(int sno) { return GLOBAL_Stream[sno].stream_peek(sno); }
+ static int dopeek_byte(int sno) { return GLOBAL_Stream[sno].stream_peek(sno); }
 
 bool store_code(int ch, Term t USES_REGS) {
   Term t2 = Deref(t);
@@ -192,11 +193,16 @@ static Int at_end_of_stream(USES_REGS1) { /* at_end_of_stream */
   Int out;
 
   if (sno < 0)
-    return (FALSE);
+    return false;
+  if ( GLOBAL_Stream[sno].status & Reset_Eof_Stream_f)
+       return false;
   out = GLOBAL_Stream[sno].status & Past_Eof_Stream_f;
   if (!out) {
     if (GLOBAL_Stream[sno].file)
-      return feof(GLOBAL_Stream[sno].file);
+      out = feof(GLOBAL_Stream[sno].file);
+  }
+  if (!out) {
+    return Yap_peekWide(sno)==EOF;
   }
   return out;
 }
@@ -217,7 +223,10 @@ static Int at_end_of_stream_0(USES_REGS1) { /* at_end_of_stream */
   out = GLOBAL_Stream[sno].status & Past_Eof_Stream_f;
   if (!out) {
     if (GLOBAL_Stream[sno].file)
-      return feof(GLOBAL_Stream[sno].file);
+      out = feof(GLOBAL_Stream[sno].file);
+  }
+  if (!out) {
+    return Yap_peekWide(sno)==EOF;
   }
   return out;
 }
@@ -879,11 +888,7 @@ static Int peek_code(USES_REGS1) { /* at_end_of_stream */
 
   if (sno < 0)
     return FALSE;
-  if ((ch = Yap_peekWide(sno)) < 0) {
-#ifdef PEEK_EOF
-    return false;
-#endif
-  }
+  ch = Yap_peekWide(sno);
   bool rc = Yap_unify_constant(ARG2, MkIntTerm(ch));
   if (!rc) must_be_code(ARG2);
   return rc;
@@ -932,18 +937,14 @@ static Int peek_byte(USES_REGS1) { /* at_end_of_stream */
     Yap_ThrowError(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
-  if ((ch = dopeek_byte(sno)) < 0) {
-#ifdef PEEK_EOF
-    return false;
-#endif
-  }
+  ch = dopeek_byte(sno);
   return (Yap_unify_constant(ARG2, MkIntTerm(ch)));
 }
 
 /** @pred  peek_byte( - _C_) is iso
 
 
-If  _C_ is unbound, or is a character code, and _Stream_ is a
+   If  _C_ is unbound, or is a character code, and _Stream_ is a
 binary stream, read the next byte from the current stream and unify its
 code with  _C_, while leaving the current stream position unaltered.
 */
@@ -958,11 +959,7 @@ static Int peek_byte_1(USES_REGS1) { /* at_end_of_stream */
     Yap_ThrowError(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
     return (FALSE);
   }
-  if ((ch = dopeek_byte(sno)) < 0) {
-#ifdef PEEK_EOF
-    return false;
-#endif
-  }
+  ch = dopeek_byte(sno);
   return (Yap_unify_constant(ARG1, MkIntTerm(ch)));
 }
 
@@ -990,7 +987,7 @@ static Int peek_char(USES_REGS1) {
     return false;
   }
   sinp[off] = '\0';
-  bool rc = Yap_unify_constant(ARG2, MkIntTerm(ch));
+  bool rc = Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
   if (!rc) must_be_char(ARG2);
   return rc;
 }
@@ -1013,7 +1010,7 @@ static Int peek_char_1(USES_REGS1) {
   }
   int off = put_utf8(sinp, ch);
   sinp[off] = '\0';
-  bool rc = Yap_unify_constant(ARG1, MkIntTerm(ch));
+  bool rc = Yap_unify_constant(ARG1, MkAtomTerm(Yap_ULookupAtom(sinp)));
   if (!rc) must_be_char(ARG1);
   return rc;
 }

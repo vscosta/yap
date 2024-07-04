@@ -19,8 +19,7 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/**260-1A
- A
+/**
  * @file   iopreds.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 00:45:56 2016
@@ -490,6 +489,9 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
     //    fprintf(stderr,"here I am\n");
   }
 #endif /* HAVE_SETBUF */
+  if (s->status & Tty_Stream_f) {
+    s->status |= Reset_Eof_Stream_f;
+  }
 }
 
 void Yap_InitStdStream(int sno, unsigned int flags, FILE *file, VFS_t *vfsp) {
@@ -1418,7 +1420,7 @@ return false;
                     }
                     st->nbuf = pop_output_text_stack(j, buf);
                     Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
-                    sno = Yap_open_buf_read_stream(st, buf, st->nsize=(strlen(buf) + 1), &LOCAL_encoding,
+                    sno = Yap_open_buf_read_stream(st, buf, st->nsize=strlen(buf) , &LOCAL_encoding,
             	                                           MEM_BUF_MALLOC, nat,
                                                    MkAtomTerm(NameOfFunctor(f)));
                     pop_text_stack(j);
@@ -1584,6 +1586,25 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
 	Yap_ThrowError(INSTANTIATION_ERROR,Yap_MkNewApplTerm(Yap_MkFunctor(AtomAlias,1),1),NULL);
       }
       script = (args[OPEN_SCRIPT].tvalue == TermTrue);
+    }
+
+    if (args[OPEN_EOF_ACTION].used) {
+      if (IsVarTerm(args[OPEN_EOF_ACTION].tvalue)) {
+	Yap_ThrowError(INSTANTIATION_ERROR,Yap_MkNewApplTerm(Yap_MkFunctor(AtomEOfAction,1),1),NULL);
+      }
+    if (!IsAtomTerm(args[OPEN_EOF_ACTION].tvalue)) {
+      Yap_ThrowError(DOMAIN_ERROR_STREAM_OPTION,Yap_MkApplTerm(Yap_MkFunctor(AtomEOfAction,1),1,&args[OPEN_EOF_ACTION].tvalue),NULL);
+    }
+   Term t =args[OPEN_EOF_ACTION].tvalue;
+   if (t== TermEOfCode) {
+             GLOBAL_Stream[sno].status &= ~Reset_Eof_Stream_f; 
+ GLOBAL_Stream[sno].status |= Repeat_Eof_Stream_f;
+   } else if (t== TermReset) {
+               GLOBAL_Stream[sno].status &= ~(Repeat_Eof_Stream_f);
+     GLOBAL_Stream[sno].status |= Reset_Eof_Stream_f;
+   } else if (t == TermError) {
+          GLOBAL_Stream[sno].status &= ~(Reset_Eof_Stream_f|Repeat_Eof_Stream_f);
+ }
     }
 
   if (args[OPEN_ALIAS].used) {
