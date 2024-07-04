@@ -162,7 +162,7 @@ static bool watch_cut(Term ext)
     LOCAL_ActiveError = old;
     LOCAL_PrologMode  |=   InErrorMode;
   }
-   if ( Yap_PeekException(PASS_REGS1)) {
+   if ( Yap_PeekException()) {
      B= (choiceptr)(LCL0-B0);
       Yap_JumpToEnv();
 
@@ -190,9 +190,6 @@ static bool watch_retry(Term d0 )
     Term task = TailOfTerm(d0),
     *taskp = RepAppl(task);
 Int B0 = LCL0-(CELL *)B;
-  yamop *oP = P, *oCP = CP;
-  Int oENV = LCL0 - ENV;
-  Int oYENV = LCL0 - YENV;
     Term cleanup = ArgOfTerm(3, task);
 bool box = ArgOfTerm(1, task) == TermTrue;
   CELL port = Deref(ArgOfTerm(2,task));
@@ -209,7 +206,7 @@ bool box = ArgOfTerm(1, task) == TermTrue;
   bool ex_mode = false;
 
   // just do the simplest
-  if ((ex_mode = Yap_HasException(PASS_REGS1)))
+  if ((ex_mode = Yap_PeekException()))
     {
     e = MkAddressTerm(LOCAL_ActiveError);
       if (active)
@@ -231,16 +228,11 @@ bool box = ArgOfTerm(1, task) == TermTrue;
       t = TermFail;
       complete_pt[0] = t;
     }
-  else if (box)
+  else 
     {
       t = TermRedo;
     }
-  else
-    {
-           t = TermFail;
-      complete_pt[0] = t;
-    }
-  }
+   }
     Yap_RunTopGoal(cleanup, true);
    //if ( (choiceptr)(LCL0-B0)  B)
    B  = (choiceptr)(LCL0-B0);
@@ -253,17 +245,10 @@ bool box = ArgOfTerm(1, task) == TermTrue;
     free(new);
     LOCAL_ActiveError = old;
     LOCAL_PrologMode  |=   InErrorMode;
-      Yap_JumpToEnv();
+  } else   if ( Yap_PeekException()) {
+      Yap_RestartYap(5);
     return false;
   }
-   if ( Yap_PeekException(PASS_REGS1)) {
-      Yap_JumpToEnv();
-    return false;
-  }
- P = oP;
-  CP = oCP;
-  ENV = LCL0 - oENV;
-  YENV = LCL0 - oYENV;
   return true ;
 }
 
@@ -366,11 +351,16 @@ Term cleanup = ArgOfTerm(3, task);
     {
       prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
     }
-  if (Yap_PeekException(PASS_REGS1))
-    {
-      Yap_JumpToEnv();
-      return false;
-    }
+  if (new) {
+    free(new);
+    LOCAL_ActiveError = old;
+    LOCAL_PrologMode  |=   InErrorMode;
+      Yap_RestartYap(5);
+    return false;
+  } else   if ( Yap_PeekException()) {
+      Yap_RestartYap(5);
+    return false;
+  }
       if(IsVarTerm(complete_pt[0]))
     {
       

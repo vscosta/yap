@@ -961,6 +961,16 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   p = NULL; /* Just to make lint happy */
   ch = getchr(st);
   while (chtype(ch) == BS) {
+    if (ch == EOF) {
+    TokEntry *tokptr = Malloc(sizeof(TokEntry));
+  tokptr->TokNext = NULL;
+  tokptr->TokLine = 1;
+  tokptr->TokLinePos =0;
+  tokptr->TokOffset = 0;
+  tokptr->Tok = Ord(eot_tok);		\
+  tokptr->TokInfo = TermEof;
+    return l = p = tokptr;
+    }
     och = ch;
     ch = getchr(st);
   }

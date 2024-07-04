@@ -935,7 +935,7 @@ static Term scan_to_list(TokEntry * t)
 
  static bool complete_processing(FEnv *fe, int sno, TokEntry *tokstart) {
   CACHE_REGS
-    Term v1, v2, v3, vs =  0;
+    Term v1=0, v2=0, v3=0, vs =  0;
 
   if (fe->t0 && fe->t && !(Yap_unify(fe->t, fe->t0)))
     return false;
@@ -1119,6 +1119,8 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
     return YAP_SCANNING_ERROR;
   if (fe->scan)
     fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
+  else
+    fe->scanner.stored_scan = NULL;
  if (1||fe->scanner.store_comments) {
  while (LOCAL_tokptr && LOCAL_tokptr->Tok == Ord(Comment_tok)) {
     LOCAL_tokptr=LOCAL_tokptr->TokNext;

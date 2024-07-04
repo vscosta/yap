@@ -131,13 +131,16 @@ inline static Atom SearchInInvisible(const unsigned char *atom) {
     return (AbsAtom(chain));
 }
 
+  static int iv=0;
+
+
 static inline Atom SearchAtom(const unsigned char *p, Atom a) {
   AtomEntry *ae;
   const char *ps = (const char *)p;
-
   /* search atom in chain */
   while (a != NIL) {
     ae = RepAtom(a);
+    //    printf("%d: %s %d %s %d\n",iv++,ps, strlen(ps), ae->StrOfAE, strlen(ae->StrOfAE));
     if (strcmp(ae->StrOfAE, ps) == 0) {
       return (a);
     }
@@ -156,7 +159,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   size_t sz = AtomHashTableSize;
   /* compute hash */
   p = atom;
-
+  //printf("(%d)--> %s\n",iv++,atom);
   if (atom==NULL) return NULL;
   if (atom[0]==0) return AtomEmptyAtom;
     hash = HashFunction(p);
@@ -165,7 +168,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   READ_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
   /* search atom in chain */
-  na = SearchAtom(atom, a);
+  na = SearchAtom(atom,a);
   if (na != NIL) {
     READ_UNLOCK(HashChain[hash].AERWLock);
     return (na);
@@ -178,6 +181,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   if (a != HashChain[hash].Entry) {
     a = HashChain[hash].Entry;
     na = SearchAtom(atom, a);
+    
     if (na != NIL) {
       WRITE_UNLOCK(HashChain[hash].AERWLock);
       return na;
@@ -186,20 +190,16 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
 #endif
   /* add new atom to start of chain */
   sz = strlen((const char *)atom);
-  size_t asz = (sizeof *ae) + ( sz+1);
-  ae = malloc(asz);
+  size_t asz = (sizeof *ae)+ALIGN_SIZE( sz+2,sizeof(CELL));
+  ae = calloc(asz, 1);
   if (ae == NULL) {
     WRITE_UNLOCK(HashChain[hash].AERWLock);
     return NIL;
   }
-  // enable fast hashing by making sure that
-  // the last cell is fully initialized.
-  CELL *aec = (CELL*)ae;
-  aec[asz/(YAP_ALIGN+1)-1] = 0;
   NOfAtoms++;
   na = AbsAtom(ae);
   ae->PropsOfAE = NIL;
-  strcpy(ae->StrOfAE, (const char *)atom);
+  memmove(ae->StrOfAE, (const char *)atom, sz+1);
 
   ae->NextOfAE = a;
   HashChain[hash].Entry = na;
