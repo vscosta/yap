@@ -631,7 +631,6 @@ typedef struct idb_queue {
 
 void Yap_init_tqueue(db_queue *dbq);
 void Yap_destroy_tqueue(db_queue *dbq USES_REGS);
-bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS);
 bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
                         bool release USES_REGS);
 
@@ -641,7 +640,7 @@ typedef struct thread_mbox {
   Term name;
   pthread_mutex_t mutex;
   pthread_cond_t empty;
-  pthread_cond_t fill;
+  pthread_cond_t full;
   struct idb_queue msgs;
   int nmsgs, nclients,max; // if nclients < 0 mailbox has been closed.
   bool open;

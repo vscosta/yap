@@ -8,7 +8,7 @@
  *									 *
  **************************************************************************
  *									 *
- * File:		threads.c						 *
+ * e:		threads.c						 *
  * Last rev:								 *
  * mods:									 *
  * comments:	threads							 *
@@ -126,7 +126,7 @@ static bool
 mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
 {
   pthread_mutex_t *mutexp;
-  pthread_cond_t *emptyp, *fillp;
+  pthread_cond_t *emptyp, *fullpp;
   struct idb_queue *msgsp;
 
   memset(mboxp, 0, sizeof(mbox_t));
@@ -134,8 +134,8 @@ mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
   
   emptyp = & mboxp->empty;
   pthread_cond_init(emptyp, NULL);
-  fillp = & mboxp->fill;
-  pthread_cond_init(fillp, NULL);
+  fullpp = & mboxp->full;
+  pthread_cond_init(fullpp, NULL);
   mutexp = & mboxp->mutex;
   pthread_mutex_init(mutexp, NULL);
   msgsp = & mboxp->msgs;
@@ -153,12 +153,12 @@ mboxDestroy( mbox_t *mboxp USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
   pthread_cond_t *emptyp = &mboxp->empty;
-  pthread_cond_t *fillp = &mboxp->fill;
+  pthread_cond_t *fullpp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
   mboxp->open = false;
   if (mboxp->nclients == 0 ) {
     pthread_cond_destroy(emptyp);
-    pthread_cond_destroy(fillp);
+    pthread_cond_destroy(fullpp);
     pthread_mutex_destroy(mutexp);
     Yap_destroy_tqueue(msgsp PASS_REGS);
     // at this point, there is nothing left to unlock!
@@ -175,7 +175,7 @@ static bool
 mboxSend( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-  pthread_cond_t *fillp = &mboxp->fill;
+  pthread_cond_t *fullp = &mboxp->full;
   pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
 
@@ -185,11 +185,11 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
     return false;
   }
   if (mboxp->nmsgs == mboxp->max)
-    pthread_cond_wait(emptyp,mutexp);
+    pthread_cond_wait(fullp,mutexp);
   Yap_enqueue_tqueue(msgsp, t PASS_REGS);
-  // printf("+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
+  fprintf(stderr,"+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
   mboxp->nmsgs++;
-     pthread_cond_signal(fillp);
+     pthread_cond_signal(emptyp);
  pthread_mutex_unlock(mutexp);
   return true;
 }
@@ -199,36 +199,37 @@ mboxReceive( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
   pthread_cond_t *emptyp = &mboxp->empty;
-  pthread_cond_t *fillp = &mboxp->fill;
+  pthread_cond_t *fullp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc; 
 
   if (!mboxp->open){
       pthread_mutex_unlock(mutexp);
-    return false; 	// don't try to read if someone else already closed down...
+    return false; 	// don't try to read if someone else already closed dopxu[xuxuwn...
   }
   mboxp->nclients++;
-  while(  (!mboxp->nmsgs && !(rc=Yap_dequeue_tqueue(msgsp, t, false,  true PASS_REGS))) ) 
+  while(  (!mboxp->nmsgs||(rc=Yap_dequeue_tqueue(msgsp, t, false,  true PASS_REGS))) ) 
     {if ( !mboxp->open) {
-      //printf("o   (%d)\n", worker_id);
-      mboxp->nclients--;
+      /* //printf("o   (%d)\n", worker_id); */
+      /* mboxp->nclients--; */
+      /* pthread_mutex_unlock(mutexp); */
+      /* if (!mboxp->nclients) {// release */
+      /* 	pthread_cond_destroy(full); */
+      /* 	pthread_cond_destroy(emptyp); */
+      /* 	pthread_mutex_destroy(mutexp); */
+      /* 	Yap_destroy_tqueue(msgsp PASS_REGS); */
+	//      } 
       pthread_mutex_unlock(mutexp);
-      if (!mboxp->nclients) {// release
-	pthread_cond_destroy(fillp);
-	pthread_cond_destroy(emptyp);
-	pthread_mutex_destroy(mutexp);
-	Yap_destroy_tqueue(msgsp PASS_REGS);
-      } 
       return false;
       }
-      pthread_cond_wait(fillp, mutexp);
+      pthread_cond_wait(emptyp,mutexp);
     }
   
   
   mboxp->nmsgs--;
   
       pthread_cond_broadcast(emptyp);
-      pthread_mutex_unlock(mutexp);
+      pthread_mutex_unlock(fullp);
       return rc;
 }
 
