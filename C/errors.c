@@ -730,7 +730,14 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   va_end(ap);
   pop_text_stack(1);
   Yap_Error__(true, file, function, lineno, type, where, tmp, NULL);
-  Yap_ThrowExistingError();
+  if (LOCAL_ActiveError->errorUserTerm ) {
+      LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(LOCAL_ActiveError->errorUserTerm);
+  } else {
+    LOCAL_ActiveError->culprit = NULL;
+
+    LOCAL_PrologMode = UserMode;
+  }
+  Yap_RestartYap(5);
 }
 
 /// complete delayed error.
@@ -1135,18 +1142,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
   }
-  Yap_JumpToEnv();
   //  reset_error_description();
   pop_text_stack(LOCAL_MallocDepth + 1);
-  if (throw ) {
-    if (LOCAL_ActiveError->errorUserTerm )
-      LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(LOCAL_ActiveError->errorUserTerm);
-    Yap_RaiseException();
-  } else {
-    LOCAL_ActiveError->culprit = NULL;
-
-    LOCAL_PrologMode = UserMode;
-  }
   return P;
 }
 

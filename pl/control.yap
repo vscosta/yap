@@ -275,7 +275,8 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	gated_call( Setup , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
 
-prolog:cleanup_handler(Catcher,_Open,Cleanup) :-
+    prolog:cleanup_handler(Catcher,_Open,Cleanup) :-
+%	writeln(Catcher),
 	'$is_catcher'(Catcher),
 	ignore(Cleanup).
 

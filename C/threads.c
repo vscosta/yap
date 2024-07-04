@@ -1710,7 +1710,7 @@ p_new_mutex(void)
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   bool rc;
 
-   rc = Yap_exists(ARG2);
+  rc = Yap_exists(ARG2, true  PASS_REGS);
     if (Yap_HasException(PASS_REGS1))
     {
       Yap_JumpToEnv();
