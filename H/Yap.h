@@ -629,9 +629,10 @@ typedef struct idb_queue {
   QueueEntry *FirstInQueue, *LastInQueue;
 } db_queue;
 
-void Yap_init_tqueue(db_queue *dbq);
-void Yap_destroy_tqueue(db_queue *dbq USES_REGS);
-bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
+extern void Yap_init_tqueue(db_queue *dbq);
+extern void Yap_destroy_tqueue(db_queue *dbq USES_REGS);
+extern bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS);
+extern bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
                         bool release USES_REGS);
 
 #ifdef THREADS

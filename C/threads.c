@@ -187,7 +187,7 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   if (mboxp->nmsgs == mboxp->max)
     pthread_cond_wait(fullp,mutexp);
   Yap_enqueue_tqueue(msgsp, t PASS_REGS);
-  fprintf(stderr,"+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
+  // fprintf(stderr,"+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
   mboxp->nmsgs++;
      pthread_cond_signal(emptyp);
  pthread_mutex_unlock(mutexp);
@@ -229,7 +229,7 @@ mboxReceive( mbox_t *mboxp, Term t USES_REGS )
   mboxp->nmsgs--;
   
       pthread_cond_broadcast(emptyp);
-      pthread_mutex_unlock(fullp);
+      pthread_mutex_unlock(mutexp);
       return rc;
 }
 

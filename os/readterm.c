@@ -1120,7 +1120,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
   if (fe->scan)
     fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
   else
-    fe->scanner.stored_scan = NULL;
+    fe->scanner.stored_scan = TermNil;
  if (1||fe->scanner.store_comments) {
  while (LOCAL_tokptr && LOCAL_tokptr->Tok == Ord(Comment_tok)) {
     LOCAL_tokptr=LOCAL_tokptr->TokNext;

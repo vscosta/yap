@@ -228,9 +228,10 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     '$gated_call'( true , Goal, Catcher, Cleanup)  .
 
 '$gated_call'( All , Goal, Catcher, Cleanup) :-
-    TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
-    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
+    Task0 = bottom( All, Catcher, Cleanup, Tag, true, CP0),
     '$tag_cleanup'(CP0, Task0),
+    TaskF = top( All, Catcher, Cleanup, Tag, false, CP0),
+
     strip_module(Goal,M,G),
     '$execute0'( M:G ),
     '$cleanup_on_exit'(CP0, TaskF).
@@ -275,9 +276,9 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	gated_call( Setup , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
 
-    prolog:cleanup_handler(Catcher,_Open,Cleanup) :-
-%	writeln(Catcher),
-	'$is_catcher'(Catcher),
+prolog:cleanup_handler(Catcher,_Open,Cleanup) :-
+    writeln(Catcher),
+    '$is_catcher'(Catcher),
 	ignore(Cleanup).
 
 '$is_catcher'(exit).
