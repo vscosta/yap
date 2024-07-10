@@ -36,7 +36,6 @@
 #endif
 #endif
 
-
 #include <wchar.h>
 
 #include "YapDefs.h"
@@ -99,8 +98,27 @@ typedef struct ExtraAtomEntryStruct {
 #endif
 } ExtraAtomEntry;
 
-#define UStrOfAE rep.uUStrOfAE
-#define StrOfAE rep.uStrOfAE
+
+#ifdef USE_OFFSETS
+
+INLINE_ONLY Atom AbsAtom(AtomEntry *p) {
+  return (Atom)(Addr(p) - AtomBase);
+}
+
+INLINE_ONLY AtomEntry *RepAtom(Atom a) {
+  return (AtomEntry *) (AtomBase + Unsigned (a);
+}
+
+#else
+
+INLINE_ONLY Atom AbsAtom(AtomEntry *p) { return (Atom)(p); }
+
+INLINE_ONLY AtomEntry *RepAtom(Atom a) {
+  return (AtomEntry *)(a);
+}
+
+#endif
+
 
 /* Props and Atoms are stored in chains, ending with a NIL */
 #ifdef USE_OFFSETS

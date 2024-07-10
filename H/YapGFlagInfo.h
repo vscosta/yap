@@ -598,6 +598,8 @@ YAP_FLAG(PROMPT_ALTERNATIVES_ON_FLAG, "prompt_alternatives_on", true,
 YAP_FLAG(QUASI_QUOTATIONS_FLAG, "quasi_quotations", true, booleanFlag,  
                  "true", NULL),
 
+  YAP_FLAG(RANDOM_NUMBER_GENERATOR_FLAG, "random_number_generate", true, Yap_israndgen,   "random"  , NULL),
+
 
 YAP_FLAG(READLINE_FLAG, "readline", true, booleanFlag, "false",
              Yap_InitReadline),

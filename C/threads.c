@@ -186,8 +186,9 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   }
   if (mboxp->nmsgs == mboxp->max)
     pthread_cond_wait(fullp,mutexp);
-  Yap_enqueue_tqueue(msgsp, t PASS_REGS);
-  // fprintf(stderr,"+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
+  //Yap_DebugPlWriteln(t);
+  Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
+  fprintf(stderr,"+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
   mboxp->nmsgs++;
      pthread_cond_signal(emptyp);
  pthread_mutex_unlock(mutexp);
@@ -195,50 +196,35 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
 }
 
 static bool
-mboxReceive( mbox_t *mboxp, Term t USES_REGS )
+mboxReceive( mbox_t *mboxp, Term *t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
   pthread_cond_t *emptyp = &mboxp->empty;
-  pthread_cond_t *fullp = &mboxp->full;
+  // pthread_cond_t *fullp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc; 
-
   if (!mboxp->open){
       pthread_mutex_unlock(mutexp);
     return false; 	// don't try to read if someone else already closed dopxu[xuxuwn...
   }
-  mboxp->nclients++;
-  while(  (!mboxp->nmsgs||(rc=Yap_dequeue_tqueue(msgsp, t, false,  true PASS_REGS))) ) 
-    {if ( !mboxp->open) {
-      /* //printf("o   (%d)\n", worker_id); */
-      /* mboxp->nclients--; */
-      /* pthread_mutex_unlock(mutexp); */
-      /* if (!mboxp->nclients) {// release */
-      /* 	pthread_cond_destroy(full); */
-      /* 	pthread_cond_destroy(emptyp); */
-      /* 	pthread_mutex_destroy(mutexp); */
-      /* 	Yap_destroy_tqueue(msgsp PASS_REGS); */
-	//      } 
-      pthread_mutex_unlock(mutexp);
-      return false;
+    rc=Yap_dequeue_tqueue(msgsp, t, false, true PASS_REGS);
+      // Yap_DebugPlWriteln(t);
+      if (rc) {
+	mboxp->nmsgs--;
+	pthread_mutex_unlock(mutexp);
+      } else {
+	pthread_cond_wait(emptyp, mutexp);
       }
-      pthread_cond_wait(emptyp,mutexp);
-    }
-  
-  
-  mboxp->nmsgs--;
-  
-      pthread_cond_broadcast(emptyp);
-      pthread_mutex_unlock(mutexp);
-      return rc;
+  return rc;
 }
+  
 
 static bool
 mboxPeek( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
   struct idb_queue *msgsp = &mboxp->msgs;
-  bool rc = Yap_dequeue_tqueue(msgsp, t, false,  false PASS_REGS);
+  bool rc = Yap_dequeue_tqueue(msgsp, &t, false,  false PASS_REGS);
   pthread_mutex_unlock(mutexp);
   return rc;
 }
@@ -813,6 +799,19 @@ p_thread_exit( USES_REGS1 )
   return TRUE;
 }
 
+  /** @pred thread_setconcurrency(+ _Old_, - _New_) 
+
+
+      Determine the concurrency of the process, which is defined as the
+      maximum number of concurrently active threads. `Active` here means
+      they are using CPU time. This option is provided if the
+      thread-implementation provides
+      `pthread_setconcurrency()`. Solaris is a typical example of this
+      family. On other systems this predicate unifies  _Old_ to 0 (zero)
+      and succeeds silently.
+
+
+  */
 static Int
 p_thread_set_concurrency( USES_REGS1 )
 {
@@ -1337,10 +1336,11 @@ p_mbox_destroy( USES_REGS1 )
  {
    Term namet = Deref(ARG1);
     mbox_t* mboxp = getMbox(namet) ;
-
     if (!mboxp)
        return FALSE;
-   return mboxReceive(mboxp, Deref(ARG2) PASS_REGS);
+    Term t = 0;
+    return mboxReceive(mboxp, &t PASS_REGS) &&
+      Yap_unify(ARG2,t);
  }
 
 
@@ -1349,7 +1349,6 @@ p_mbox_destroy( USES_REGS1 )
  {
    Term namet = Deref(ARG1);
     mbox_t* mboxp = getMbox(namet) ;
-
     if (!mboxp)
        return FALSE;
    return mboxPeek(mboxp, Deref(ARG2) PASS_REGS);
@@ -1582,19 +1581,6 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_detached", 2, p_thread_detached2, 0);
   Yap_InitCPred("$thread_exit", 0, p_thread_exit, 0);
   Yap_InitCPred("thread_setconcurrency", 2, p_thread_set_concurrency, 0);
-  /** @pred thread_setconcurrency(+ _Old_, - _New_) 
-
-
-      Determine the concurrency of the process, which is defined as the
-      maximum number of concurrently active threads. `Active` here means
-      they are using CPU time. This option is provided if the
-      thread-implementation provides
-      `pthread_setconcurrency()`. Solaris is a typical example of this
-      family. On other systems this predicate unifies  _Old_ to 0 (zero)
-      and succeeds silently.
-
-
-  */
   Yap_InitCPred("$valid_thread", 1, p_valid_thread, 0);
   Yap_InitCPred("mutex_create", 1, p_new_mutex, SafePredFlag);
   Yap_InitCPred("mutex_destroy", 1, p_destroy_mutex, SafePredFlag);

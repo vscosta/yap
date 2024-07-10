@@ -28,20 +28,20 @@
 static bool deterministic(Int BRef)
 {
   CACHE_REGS
-  choiceptr cutB = B;
-choiceptr target = (choiceptr)(LCL0-BRef);
-do
-  {
-    if (cutB >= target)
-      return  true;
-    yamop *altp = cutB->cp_ap;
-    if (altp==FAILCODE || altp == TRUSTFAILCODE || altp == NOCODE || altp == EXITCODE)
-      cutB = cutB->cp_b;
-    else
-      return false;
-    if (!cutB)
-      return true;
-  } while (true);
+    choiceptr cutB = B;
+  choiceptr target = (choiceptr)(LCL0-BRef);
+  do
+    {
+      if (cutB >= target)
+	return  true;
+      yamop *altp = cutB->cp_ap;
+      if (altp==FAILCODE || altp == TRUSTFAILCODE || altp == NOCODE || altp == EXITCODE)
+	cutB = cutB->cp_b;
+      else
+	return false;
+      if (!cutB)
+	return true;
+    } while (true);
 }
     
     
@@ -58,13 +58,15 @@ static void prune_inner_computation(choiceptr parent USES_REGS)
   Int oENV = LCL0 - ENV;
 
   cut_pt = B;
+  if (B==parent)
+    return;
   while (cut_pt->cp_b && cut_pt->cp_b < parent)
-  {
-    cut_pt = cut_pt->cp_b;
-  }
+    {
 #ifdef YAPOR
-  CUT_prune_to(cut_pt);
+      CUT_prune_to(cut_pt);
 #endif
+      cut_pt = cut_pt->cp_b;
+    }
   B = cut_pt;
   Yap_TrimTrail();
   LOCAL_AllowRestart = FALSE;
@@ -74,7 +76,7 @@ static void prune_inner_computation(choiceptr parent USES_REGS)
   B = parent;
 }
 
- bool Yap_exists(Term t, bool succeed USES_REGS)
+bool Yap_exists(Term t, bool succeed USES_REGS)
 {
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
@@ -93,11 +95,42 @@ static void prune_inner_computation(choiceptr parent USES_REGS)
     YENV = LCL0 - oYENV;
     choiceptr nb = (choiceptr)(LCL0 - oB);
     if (nb > B)
+      {
+	B = nb;
+      }
+    return rc ||succeed;
+  }
+}
+
+static bool gate(Term t USES_REGS)
+{
+  yamop *oP = P, *oCP = CP;
+  Int oENV = LCL0 - ENV;
+  Int oYENV = LCL0 - YENV;
+  Int oB = LCL0 - (CELL *)B;
+  SET_ASP(YENV,EnvSizeInCells);
+  t=Deref(t);
+  Yap_must_be_callable(t,CurrentModule);
+  yap_error_descriptor_t *old=NULL;
+  bool rc = Yap_RunTopGoal(t, true);
+  if (old)
+    LOCAL_ActiveError=old;
+  if (rc) {
+    LOCAL_PrologMode |= ErrorHandlingMode;
+    prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
+    LOCAL_PrologMode &= ErrorHandlingMode;
+  }
+  // We'll pass it through
+  P = oP;
+  CP = oCP;
+  ENV = LCL0 - oENV;
+  YENV = LCL0 - oYENV;
+  choiceptr nb = (choiceptr)(LCL0 - oB);
+  if (nb > B)
     {
       B = nb;
     }
-  return rc ||succeed;
-    } 
+  return rc;
 }
 
 static bool set_watch(Int Bv, Term task)
@@ -122,7 +155,6 @@ static bool watch_cut(Term ext)
   CACHE_REGS
     // called after backtracking..
     //
- Int B0 = LCL0-(CELL *)B;
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
@@ -130,19 +162,20 @@ static bool watch_cut(Term ext)
   Term cleanup = ArgOfTerm(3, task);
   Term e = 0;
   bool active = ArgOfTerm(5, task) == TermTrue;
-  yap_error_descriptor_t *old, *new = NULL;
   bool ex_mode;
   CELL port = Deref(ArgOfTerm(2,task));
   CELL *port_pt = VarOfTerm(port);
   CELL completion             = Deref(ArgOfTerm(4,task));
   CELL *completion_pt = VarOfTerm(completion);
-   bool det = deterministic(IntOfTerm(ArgOfTerm(6,task)));
+  bool det = deterministic(IntOfTerm(ArgOfTerm(6,task)));
   if (IsNonVarTerm(completion))
     return true;
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {
       Term t;
-    e = MkAddressTerm(LOCAL_ActiveError);
+      if (LOCAL_PrologMode & ErrorHandlingMode)
+	return true;
+      e = MkAddressTerm(LOCAL_ActiveError);
       if (active)
 	{
 	  t = Yap_MkApplTerm(FunctorException, 1, &e);
@@ -153,47 +186,21 @@ static bool watch_cut(Term ext)
 	}
       port_pt[0] = t;
       completion_pt[0] = TermException;
-
-  old = LOCAL_ActiveError;
-      LOCAL_ActiveError = new = malloc(sizeof( yap_error_descriptor_t ));
-      Yap_ResetException(new);
-     }
+    }
   else if (det)
     {
       completion_pt[0] = port_pt[0] = TermCut;
     }
-  bool rc = Yap_RunTopGoal(cleanup, true);
-
-  if (!rc)
-    {
-      Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
-      // We'll pass it throughs
-
-    }
-  else
-    {
-      prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
-    }
-  if (Yap_RaiseException())
-    {
-      return false;
-    }
-   if (ex_mode) {
-    free(new);
-    LOCAL_ActiveError = old;
-    LOCAL_PrologMode  |=   InErrorMode;
-  }
-   if ( Yap_PeekException()) {
-     B= (choiceptr)(LCL0-B0);
-      Yap_JumpToEnv();
-
-    return false;
-  }
- P = oP;
+  gate(cleanup PASS_REGS);
+  P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
   YENV = LCL0 - oYENV;
-   return true;
+  if ( Yap_PeekException()) {
+    Yap_JumpToEnv();
+    return false;
+  }
+  return true;
 }
 
 /**
@@ -207,22 +214,20 @@ static bool watch_retry(Term d0 )
 {
   CACHE_REGS
     Term task = TailOfTerm(d0);
-Int B0 = LCL0-(CELL *)B;
-   yamop *oP = P, *oCP = CP;
+  yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
 
   CELL port = Deref(ArgOfTerm(2,task));
   CELL *port_pt = VarOfTerm(port);
-    Term cleanup = ArgOfTerm(3, task);
+  Term cleanup = ArgOfTerm(3, task);
   CELL complete             = Deref(ArgOfTerm(4,task));
   CELL *complete_pt = VarOfTerm(Deref(complete));
   bool bottom = ArgOfTerm(5, task) == TermTrue;
   Int BRef = IntOfTerm(ArgOfTerm(6, task));
   bool det = deterministic(BRef);
-  yap_error_descriptor_t *new=NULL, *old=NULL;
   Term e;
-  if (!IsVarTerm(*complete_pt))
+  if (IsNonVarTerm(complete))
     return true;
   bool ex_mode = false;
   //  choiceptr Bl = B;
@@ -230,9 +235,9 @@ Int B0 = LCL0-(CELL *)B;
   // just do the simplest
   if ((ex_mode = Yap_PeekException()))
     {
-    e = MkAddressTerm(LOCAL_ActiveError);
-     old = LOCAL_ActiveError;
-     new = malloc(sizeof( yap_error_descriptor_t ));
+      if (LOCAL_PrologMode & ErrorHandlingMode)
+	return true;
+      e = MkAddressTerm(LOCAL_ActiveError);
       if (bottom)
 	{
 	  port_pt[0] = Yap_MkApplTerm(FunctorException, 1, &e);
@@ -241,8 +246,6 @@ Int B0 = LCL0-(CELL *)B;
 	{
 	  port_pt[0] = Yap_MkApplTerm(FunctorExternalException, 1, &e);
 	}
-     LOCAL_ActiveError = new;
-     Yap_ResetException(new);
       complete_pt[0] = TermException;
     }
   else
@@ -253,45 +256,26 @@ Int B0 = LCL0-(CELL *)B;
 	  complete_pt[0] = TermFail;
 	}
       else 
-     {
-      YapBind( port_pt, TermRedo );
-	  complete_pt[0] = TermFail;
-     }
+	{
+	  YapBind( port_pt, TermRedo );
+	}
     }
- bool rc =   Yap_RunTopGoal(cleanup, true);
-if (!rc)
-    {
-      Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
-      // We'll pass it throughs
-
-    }
-  else
-    {
-      prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
-    }
-   //if ( (choiceptr)(LCL0-B0)  B)
-  // Yap_PutException(e);
-  if (new) {
-    if (old)
-    free(new);
-    LOCAL_ActiveError = old;
-    LOCAL_PrologMode  |=   InErrorMode;
-  }
-  if ( Yap_PeekException()) {
-      Yap_RestartYap(5);
-    return false;
-  }
+  gate(cleanup PASS_REGS);
   P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
   YENV = LCL0 - oYENV;
+  if ( Yap_PeekException()) {
+    Yap_JumpToEnv();
+    return false;
+  }
   return true ;
 }
 
 /**
  * First call to non deterministic predicate. Just leaves a choice-point
  * hanging about for the future.
-v *
+ v *
  * @param  USES_REGS1    [env for threaded execution]
  * @return               [always succeed]
  */
@@ -322,7 +306,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
   B=(choiceptr)(LCL0-B0);
   if (Yap_PeekException())
     {
-      Yap_RestartYap(5);
+      Yap_JumpToEnv();
       return false;
     }
   P = oP;
@@ -341,14 +325,7 @@ static Int tag_cleanup(USES_REGS1)
 
 static Int cleanup_on_exit(USES_REGS1)
 {
-    yamop *alt_pt;
-  choiceptr cutB=B;
-  Int oENV = LCL0 - ENV;
-  Int oYENV = LCL0 - YENV;
-  yamop *oP=P, *oCP=CP;
-  bool rc;
   Term task = Deref(ARG2);
-  Int B0 = LCL0-(CELL *)B;
   CELL port = ArgOfTerm(2,task);
   CELL *port_pt   =IsVarTerm(port) ? VarOfTerm(port) : NULL;
   Term cleanup = ArgOfTerm(3, task);
@@ -371,44 +348,20 @@ static Int cleanup_on_exit(USES_REGS1)
       port_pt[0] = TermExit;
       complete_pt[0] = TermExit;
     }
-  yap_error_descriptor_t *old, *new=NULL;
-  if (Yap_PeekException()) {
-    old = LOCAL_ActiveError;
-    LOCAL_ActiveError = new = calloc(1,sizeof( yap_error_descriptor_t ));
-    Yap_ResetException(new);
-  }
-  rc = Yap_RunTopGoal(cleanup, true);
+  gate(cleanup PASS_REGS);
   if(       port_pt[0]==TermAnswer) {
     RESET_VARIABLE(port_pt);
-  }
-  if (!rc)
-    {
-      Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
-      // We'll pass it through
-    }
-  else
-    {
-      prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
-    }
-  if (new) {
-    free(new);
-    LOCAL_ActiveError = old;
-    LOCAL_PrologMode  |=   InErrorMode;
-    Yap_RestartYap(5);
-    return false;
-  } else   if ( Yap_PeekException()) {
-    Yap_RestartYap(5);
-    return false;
-  }
-  if(IsVarTerm(complete_pt[0]))
-    {
+    if(IsVarTerm(complete_pt[0]))
+      {
       
-      set_watch(LCL0 - (CELL *)B, task);
+	set_watch(LCL0 - (CELL *)B, task);
+      }
+  }
+  if (Yap_PeekException())
+    {
+      Yap_JumpToEnv();
+      return false;
     }
-  P = oP;
-  CP = oCP;
-  ENV = LCL0 - oENV;
-  YENV = LCL0 - oYENV;
   return true;
 }
 
@@ -436,10 +389,10 @@ static Int _user_expand_goal(USES_REGS1)
   Term cmod = CurrentModule;
   Term g = Deref(ARG1);
   yamop * oP = P;
-   if (IsVarTerm(g))
+  if (IsVarTerm(g))
     return false;
-   yhandle_t h1 = Yap_InitSlot(MkGlobal(g)),
-     h2 = Yap_InitSlot(MkGlobal(ARG2));
+  yhandle_t h1 = Yap_InitSlot(MkGlobal(g)),
+    h2 = Yap_InitSlot(MkGlobal(ARG2));
   /* CurMod:goal_expansion(A,B) */
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE  &&
@@ -449,9 +402,9 @@ static Int _user_expand_goal(USES_REGS1)
       return complete_ge( true, cmod,oP, sl, creeping);
     }
   if (Yap_HasException(PASS_REGS1)){ // if (throw) {
-      //  Yap_JumpToEnv();
+    //  Yap_JumpToEnv();
     Yap_ResetException(NULL);
-   return complete_ge( false, cmod,oP, sl, creeping);
+    return complete_ge( false, cmod,oP, sl, creeping);
   }
 
   /* user:goal_expansion(A,B) */
@@ -466,9 +419,9 @@ static Int _user_expand_goal(USES_REGS1)
       return complete_ge( true, cmod,oP, sl, creeping);
     }
   if (Yap_HasException(PASS_REGS1))  { // if (throw) {
-      //  Yap_JumpToEnv();
+    //  Yap_JumpToEnv();
     Yap_ResetException(NULL);
-      return complete_ge( false, cmod,oP, sl, creeping);
+    return complete_ge( false, cmod,oP, sl, creeping);
   }
   /* user:goal_expansion(A,CurMod,B) */
   ARG1 = Yap_GetFromSlot(h1);
@@ -483,9 +436,9 @@ static Int _user_expand_goal(USES_REGS1)
       return complete_ge( true, cmod,oP, sl, creeping);
     }
   if (Yap_HasException(PASS_REGS1)){ // if (throw) {
-      //  Yap_JumpToEnv();
+    //  Yap_JumpToEnv();
     Yap_ResetException(NULL);
-      return complete_ge( false, cmod,oP, sl, creeping);
+    return complete_ge( false, cmod,oP, sl, creeping);
   }
 
   ARG1 = Yap_GetFromSlot(h1);
@@ -499,7 +452,7 @@ static Int _user_expand_goal(USES_REGS1)
       return complete_ge( true, cmod,oP, sl, creeping);
     }
   if (Yap_HasException(PASS_REGS1)){ // if (throw) {
-      //  Yap_JumpToEnv();
+    //  Yap_JumpToEnv();
     Yap_ResetException(NULL);
   }
   return  complete_ge(false, cmod,oP, sl, creeping);
@@ -571,7 +524,7 @@ void Yap_InitExecStruct(void)
   catcher_ops.cut_handler = watch_cut;
   catcher_ops.fail_handler = watch_retry;
   setup_call_catcher_cleanup_tag = YAP_NewOpaqueType(&catcher_ops);
-   Yap_InitCPred("$do_user_expansion", 2, _user_expand_goal, 0);
+  Yap_InitCPred("$do_user_expansion", 2, _user_expand_goal, 0);
   Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, 0);
   Yap_InitCPred("$tag_cleanup", 2, tag_cleanup, 0);
   Yap_InitCPred("$setup_call_catcher_cleanup", 1, setup_call_catcher_cleanup,

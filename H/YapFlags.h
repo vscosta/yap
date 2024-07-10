@@ -57,7 +57,7 @@
 
 static inline Term nat(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
+    Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
               "bound");
     return TermZERO;
   }
@@ -65,24 +65,24 @@ static inline Term nat(Term inp) {
     Int i = IntOfTerm(inp);
     if (i >= 0)
       return inp;
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, inp,
+    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, inp,
               "set_prolog_flag: value must be %s", ">= 0");
     return TermZERO;
   }
-  Yap_Error(TYPE_ERROR_INTEGER, inp, "set_prolog_flag: value must be %s",
+  Yap_ThrowError(TYPE_ERROR_INTEGER, inp, "set_prolog_flag: value must be %s",
             "integer");
   return TermZERO;
 }
 
 static inline Term at2n(Term inp) {
-  Yap_Error(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
+  Yap_ThrowError(PERMISSION_ERROR_READ_ONLY_FLAG, inp, "set_prolog_flag %s",
             "flag is read-only");
   return TermZERO;
 }
 
 static inline Term isfloat(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
+    Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag: value must be %s",
               "integer");
 
     return TermZERO;
@@ -90,7 +90,7 @@ static inline Term isfloat(Term inp) {
   if (IsFloatTerm(inp)) {
     return inp;
   }
-  Yap_Error(TYPE_ERROR_FLOAT, inp, "set_prolog_flag: value must be %s",
+  Yap_ThrowError(TYPE_ERROR_FLOAT, inp, "set_prolog_flag: value must be %s",
             "floating-point");
   return TermZERO;
 }
@@ -108,7 +108,7 @@ static inline Term list_filler(Term inp) {
   if (IsVarTerm(inp) || IsPairTerm(inp) || inp == TermNil)
     return inp;
 
-  Yap_Error(TYPE_ERROR_LIST, inp, "set_prolog_flag in {codes,string}");
+  Yap_ThrowError(TYPE_ERROR_LIST, inp, "set_prolog_flag in {codes,string}");
 
   return TermZERO;
 }
@@ -118,7 +118,7 @@ static inline Term list_filler(Term inp) {
 static inline Term isatom(Term inp) {
   //CACHE_REGS
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+    Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
     return TermZERO;
   }
@@ -127,19 +127,19 @@ static inline Term isatom(Term inp) {
   }
   if (IsAtomTerm(inp))
     return inp;
-  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+  Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
   return TermZERO;
 }
 
 static inline Term isadress(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+    Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
     return TermZERO;
   }
   if (IsAddressTerm(inp))
     return inp;
-  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+  Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
   return TermZERO;
 }
 

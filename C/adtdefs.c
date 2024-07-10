@@ -131,7 +131,6 @@ inline static Atom SearchInInvisible(const unsigned char *atom) {
     return (AbsAtom(chain));
 }
 
-  static int iv=0;
 
 
 static inline Atom SearchAtom(const unsigned char *p, Atom a) {

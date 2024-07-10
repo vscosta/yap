@@ -156,6 +156,7 @@ extern void Yap_ConsoleSocketOps(StreamDesc *st);
 extern bool Yap_ReadlineOps(StreamDesc *st);
 extern void Yap_ConsoleOps(StreamDesc *s);
 
+extern Term Yap_israndgen(Term inp);
 extern void Yap_InitRandomPreds(void);
 extern void Yap_InitSignalPreds(void);
 extern void Yap_InitTimePreds(void);

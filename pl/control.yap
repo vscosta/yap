@@ -277,9 +277,8 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 
 
 prolog:cleanup_handler(Catcher,_Open,Cleanup) :-
-    writeln(Catcher),
     '$is_catcher'(Catcher),
-	ignore(Cleanup).
+    ignore(Cleanup).
 
 '$is_catcher'(exit).
 '$is_catcher'(fail).

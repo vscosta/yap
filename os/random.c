@@ -28,6 +28,7 @@
 #define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
 #endif
 #endif
+
 #if HAVE_ERRNO_H
 #include <errno.h>
 #endif
@@ -40,77 +41,311 @@
 #include <time.h>
 #endif
 
-unsigned int current_seed;
+// INLINE_ONLY  Term isatom( Term inp );
+typedef    double drandom_t(void);
+typedef     uint64_t lrandom_t(void);
+typedef     long int slrandom_t(void);
+typedef     int64_t mrandom_t(void);
+typedef      uint64_t random_range_t(uint64_t);
+typedef      void srandom_t(unsigned int);
 
-extern int rand(void);
+
+  typedef struct rdesc_t {
+    const char *s;
+    uintptr_t max;
+    drandom_t *drandom_;
+    lrandom_t *lrandom_;
+    mrandom_t *mrandom_;
+    random_range_t *random_range_;
+    srandom_t* srandom_;
+    bool available;
+  } rdesc_t;
+
+#if HAVE_SRAND48
+
+
+static uint64_t mylrand48(void)
+{
+  return lrand48 ();
+}
+static  void mysrand48(unsigned int seed)
+{
+   srand48 (seed);
+}
+
+static uint64_t rand48_range(uint64_t range)
+{
+  return (lrand48 () *range)/  ((1<<30)-1) /* 2**31-1 */;
+}
+#else
+#define rand48_range NULL
+#define mylrand48 NULL
+#define mysrand48 NULL
+#endif
+
+#if HAVE_RANDOM
+static double drandom(void)
+{
+  return ((double) random ()) / 0x7fffffffL; /* 2**31-1 */;
+}
+
+static uint64_t myrandom(void)
+{
+  return  random ();
+}
+
+static uint64_t random_range(uint64_t range)
+{
+  return (random () *range)/  0x7fffffffL; /* 2**31-1 */;
+}
+
+ static int64_t mrandom(void)
+{
+  return random () - (1<<30); /* -2**30-2**30-1 */
+}
+
+#else
+#define drandom NULL
+#define myrandom NULL
+#define random_range NULL
+#endif
+
+#if HAVE_RAND
+static double drand(void)
+{
+  return (((double) rand ()) / RAND_MAX /* 2**31-1 */);
+}
+
+static uint64_t myrand(void)
+{
+  return  rand ();
+}
+
+
+static int64_t mrand(void)
+{
+  return rand () - (RAND_MAX/2); /* 2**31-1 */
+}
+
+static uint64_t rand_range(uint64_t range)
+{
+  return (random () *range)/  RAND_MAX; /* 2**31-1 */;
+}
+
+#else
+#define drand NULL
+  #define rand_range NULL
+#endif
+
+#if HAVE_ARC4RANDOM
+static double darc4random(void)
+{
+  return ((double) arc4random ()) /( (1<<30)-1);
+}
+
+static uint64_t larc4random(void)
+{
+  return  arc4random ();
+}
+
+static uint64_t larc4random_uniform(uint64_t range)
+{
+  return  arc4random_uniform (range);
+}
+
+
+static int64_t marc4random(void)
+{
+  return arc4random()- (1<<29);
+}
+
+static void sarc4random(unsigned int seed)
+{
+  Yap_ThrowError(DOMAIN_ERROR_SEED_NOT_AVAILABLE, MkIntTerm(seed), "arc4random");
+}
+#else
+#define arc4random NULL
+#define larc4random_uniform NULL
+#define darc4random NULL
+#define larc4random NULL
+#define marc4random NULL
+#define sarc4random NULL
+#endif
+
+struct rdesc_t *rdef;
+
+static  struct rdesc_t names[] =  
+  {
+    { "random",
+    (1<<30)-1,
+    drandom,
+    myrandom,
+    mrandom,
+    random_range,
+    srandom,
+#if HAVE_RANDOM
+    true
+#else
+      false
+#endif
+  },
+  { "rand48",
+    (((uint64_t)1)<<46)-1,
+     drand48,
+      mylrand48,
+      mrand48,
+      rand48_range,
+      mysrand48,
+#if HAVE_SRAND48
+      true
+#else
+      false
+#endif
+    },
+  { "rand",
+    RAND_MAX,
+    drand,
+    myrand,
+    mrand,
+    rand_range,
+    srand,
+#if HAVE_RAND
+    true
+#else
+      false
+#endif
+  },
+  { "arc4random",
+    (1<<30)<-1,
+    darc4random,
+    larc4random,
+    marc4random,
+    larc4random_uniform,
+    sarc4random,
+ #if HAVE_ARC4RANDOM
+    true
+#else
+      false
+#endif
+  },
+    { NULL,
+    0,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+      false
+  }
+  } ;
+
+
+  typedef struct rand_generator_t {
+    Term tname;
+    bool available;
+} rg_t;
+
+  static struct rand_generator_t *rg;
+  
+static void init_rand_generator(void) {
+  size_t sz = sizeof(names)/(sizeof(struct  rand_generator_t));
+  struct rand_generator_t *r = rg = malloc(sz*sizeof(struct rand_generator_t));
+  int i;
+  for (i=0;names[i].s != NULL;i++) {
+    r[i].tname=MkAtomTerm(Yap_LookupAtom(names[i].s));
+    r[i].available=names[i].available;
+  }
+  r[i].tname=0;
+  rdef = names;
+}
+ 
+ Term Yap_israndgen(Term inp) {
+  //CACHE_REGS
+  const char *s;
+  if (IsVarTerm(inp)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+              "value must be bound");
+    return TermZERO;
+  }
+  if (IsStringTerm(inp)) {
+    s = StringOfTerm(inp);
+    inp = MkAtomTerm(Yap_LookupAtom(s));
+  } else if (IsAtomTerm(inp)) {
+    s = StrOfAtomTerm(inp);
+  } else {
+    Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+  return TermZERO;
+  }
+  while (rg->tname) {
+    if (inp != rg->tname && rg->available) {
+        GLOBAL_Flags[RANDOM_NUMBER_GENERATOR_FLAG].at = inp;
+	rdef = names+inp;
+	return inp;
+    }
+    else {
+    Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+    return false;
+    }
+  }
+  Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+  return false;
+}
+
+
+static unsigned int current_seed;
 
 /**
-   @groupdef YAPRandom Interface to the OS number generators.
+   @groupdef YAPRandom Interface to the OS number rg.
    @ingroup InputOutput
 `   
    @{
 
-Older versios of YAP supported random number access through the expression `X is random`. This newer code supports:
+Older versios of YAP supported random number access through the
+expression `X is random`. Inspired by SWI-Prolog, the newer code
+supports:
 
  - initialization;
- - random numbers as integers (signed or absolute) or as floating points.
+ - random numbers as integers (signed or absolute) or as floating points;
+ - cryptographic quality random numbers
 
- By default YAP uses rand48, a pseudo-random number generator that uses linear congruence and 48-bit integers.
+ By default YAP uses `random`, the pseudo-random number generator. Use the prolog flag `random_number_generator` if you prefer `random` or `rand`.
+ Use `arc4random` for higher quality random numbers, that do not have a seed. 
+
    
 
 */
 
 
+
 double
-Yap_random (void)
-{
-#if HAVE_DRAND48
-  return drand48();
-#elif HAVE_RANDOM
-  /*  extern long random (); */
-  return (((double) random ()) / 0x7fffffffL /* 2**31-1 */);
-#elif HAVE_RAND
-  return (((double) (rand ()) / RAND_MAX));
-#else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
-            "random not available in this configuration");
-  return (0.0);
-#endif
+Yap_random (void) {
+  return rdef->drandom_();
 }
 
 
 UInt
 Yap_unsigned_integer_random (void)
-{
-#if HAVE_DRAND48
-  return lrand48();
-#elif HAVE_RANDOM
-  /*  extern long random (); */
-  return random();
-#elif HAVE_RAND
-  return rand () / RAND_MAX;
-#else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
-            "random not available in this configuration");
-  return (0.0);
-#endif
+{ 
+return rdef->lrandom_();
 }
+
 
 Int
 Yap_signed_integer_random (void)
 {
-#if HAVE_DRAND48
-  return lrand48();
-#elif HAVE_RANDOM
-  /*  extern long random (); */
-  return random()-(1<<30);
-#elif HAVE_RAND
-  return rand () - RAND_MAX/2;
-#else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
-            "random not available in this configuration");
-  return (0.0);
-#endif
+return rdef->mrandom_();
+
+}
+
+static  Int
+Yap_integer_in_range (uint64_t min, uint64_t max)
+{ 
+  return min+rdef->random_range_(max-min);
+}
+  
+static  Int
+Yap_double_in_range (double min, double max)
+{  
+  return min+rdef->drandom_()*(max-min);
 }
 
 #if HAVE_RANDOM
@@ -236,6 +471,28 @@ static Int URandom(USES_REGS1)
 }
 
 
+/**
+   @pred random(+_Min_,+_Max_,-_R_)
+
+Unify the third argument with an pseudo-random number in the interval `[Min-Max[`. If both _Min_ and _Max_ are integers, _R_ will also be an integer, otherwise _R will be a floating point number. 
+ */
+static Int random3(USES_REGS1)
+{
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2), t3;
+  if (IsIntegerTerm(t1) && IsIntegerTerm(t2)) {
+    t3 = MkIntegerTerm(Yap_integer_in_range(IntegerOfTerm(t1),IntegerOfTerm(t2))
+		       );
+  } else {
+    double d1,d2;
+    if (IsIntegerTerm(t1)) d1=IntegerOfTerm(t1); else d1=FloatOfTerm(t1);
+    if (IsIntegerTerm(t2)) d2=IntegerOfTerm(t2); else d2=FloatOfTerm(t2);
+    t3 = MkFloatTerm(Yap_double_in_range(d1,d2));
+  }
+    return Yap_unify(ARG3, t3);
+}
+
+
 
 /**
    @pred signed_random(-_Integer_)
@@ -260,7 +517,7 @@ Yap_InitRandom (void)
   current_seed = (unsigned int) time (NULL);
 #if HAVE_SRAND48
   srand48 (current_seed);
-#elif HAVE_SRANDOM
+#elif HAVE_RANDOM
   srandom (current_seed);
 #elif HAVE_SRAND
   srand (current_seed);
@@ -272,12 +529,14 @@ Yap_InitRandomPreds (void)
 {
   Yap_InitCPred ("srandom", 1, Srandom, SafePredFlag);
   Yap_InitCPred ("random", 1, Random, SafePredFlag);
+  Yap_InitCPred ("random", 3, random3, SafePredFlag);
   Yap_InitCPred ("signed_random", 1, URandom, SafePredFlag);
 #if HAVE_RANDOM
   Yap_InitCPred ("init_random_state", 3, p_init_random_state, SafePredFlag);
   Yap_InitCPred ("set_random_state", 2, p_set_random_state, SafePredFlag);
   Yap_InitCPred ("release_random_state", 1, p_release_random_state, SafePredFlag);
 #endif
+  init_rand_generator();
 }
 
 /// @}

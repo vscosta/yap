@@ -1429,8 +1429,10 @@ static Int drop_exception(USES_REGS1) {
 	Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
       if (rc) {
       Term t1 = Deref(ARG1);
-      if (IsApplTerm(t1) &&
-	  ArityOfFunctor(FunctorOfTerm(t1))==2&&
+      Functor f;
+      if (IsApplTerm(t1) && (f=FunctorOfTerm(t1)) &&
+	  !IsExtensionFunctor(f) &&
+	  ArityOfFunctor(f)==2&&
 			 IsVarTerm(ArgOfTerm(2,t1))) {
 	Yap_unify(ArgOfTerm(2,t1), ARG2);
       }
