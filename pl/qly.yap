@@ -453,7 +453,7 @@ qload_module(Mod) :-
 
 % detect an multi_file that is local to the module.
 '$fetch_multi_file_module'(Mod, '$defined'(Name,Arity,Mod)) :-
-    '$current_predicate'(Name,Mod,Goal,_),
+    current_predicate(Name,Mod:Goal),
     '$is_multifile'(Goal,Mod),
     functor(Goal,Name,Arity).
 

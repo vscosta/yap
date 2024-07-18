@@ -242,7 +242,7 @@
 %%
 %% actual interface to file-loading machinery
 '$load_files'(_V0, _M0, _O, _Call) :-
-    prolog_flag(compiler_skip,true),
+    current_prolog_flag(compiler_skip,true),
     !.
 '$load_files'(V0, M0, O, Call) :-
     '$yap_strip_module'(M0:V0, M, V),
@@ -464,7 +464,7 @@
     fail
     ;
         Clause = (:- G1),
-        monvar(G1),
+        nonvar(G1),
         G1=op(A,B,C),
         op(A,B,C),
         fail
@@ -479,9 +479,6 @@
 	 error_handler),
   !.
 
-'$loop_'(Stream,_Status) :-
-   at_end_of_stream(Stream),
-   !.
 '$loop_'(Stream,Status) :-
 	 enter_compiler(Stream,Status) .
 

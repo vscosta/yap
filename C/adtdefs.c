@@ -198,7 +198,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   NOfAtoms++;
   na = AbsAtom(ae);
   ae->PropsOfAE = NIL;
-  memmove(ae->StrOfAE, (const char *)atom, sz+1);
+  strcpy(ae->StrOfAE, (const char *)atom);
 
   ae->NextOfAE = a;
   HashChain[hash].Entry = na;

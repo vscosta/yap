@@ -205,10 +205,6 @@ initialize_prolog :-
 :- 	['arrays.yap'].
 %:- start_low_level_trace.
 
-:- multifile user:portray_message/2.
-
-:- dynamic user:portray_message/2.
-
 /**
 
 @}
@@ -348,6 +344,10 @@ as directives.
 
 
 :- multifile swi:swi_predicate_table/4.
+
+
+
+:- multifile user:portray_message/2.
 
 :- multifile user:message_hook/3.
 

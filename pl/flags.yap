@@ -37,6 +37,35 @@
         yap_flag/3],
 		  []).
 
+/* yap_flag( ?Key, ? CurrentValue, ?NewValue)
+ *
+ * Atomically read and set a flag _Key_. It is useful to temporarily set a flag, eg:
+ * ~~~~
+ * main :-
+ *      yap_flag(key,DefaultValue,TemporaryValue),
+ *      code,
+ *      yap_flag(key, _, DefaultValue),
+ *  ~~~
+ *
+ * The predicate is very similar to current_prolog_flag/3. We suggest using yap_flag/3 only for yap specific flags.
+ */
+yap_flag(K,O,N) :-
+    current_prolog_flag(K,O),
+    yap_flag(K,N).
+
+
+/** @pred prolog_flag(? _Flag_,- _OldValue_,+ _NewValue_)
+
+    Obtain the value for a YAP Prolog flag and then set it to a new
+    value. Equivalent to first calling current_prolog_flag/2 with the
+    second argument  _OldValue_ unbound and then calling
+    set_prolog_flag/2 with the third argument  _NewValue_.
+
+
+*/
+prolog_flag(K,O,N) :-
+    current_prolog_flag(K,O),
+    yap_flag(K,N).
 
 '$adjust_language'(cprolog) :-
 %	'$switch_log_upd'(0),

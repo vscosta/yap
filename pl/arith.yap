@@ -78,7 +78,7 @@ expand_exprs(Old,New) :-
 	(New == on ->
 			B = true ;
 			B = false ),
-	yap_flag(optimise,B).
+	current_prolog_flag(optimise,B).
 
 '$set_arith_expan'(on) :- prolog_flag(optimise,true).
 '$set_arith_expan'(off) :- prolog_flag(optimise,false).

@@ -363,8 +363,7 @@ abolish_module(Mod) :-
     retractall('$import'(Mod,_,_,_,_,_)),
     fail.
 abolish_module(Mod) :-
-    '$current_predicate'(Na,Mod,S,_),
-    functor(S, Na, Ar),
+    module_predicated(Mod,Na,Ar,_),
     abolish(Mod:Na/Ar),
     fail.
 
@@ -795,13 +794,11 @@ module_state.
 
 '$check_module_exports'([],_,_Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
-    functor(G,N,A),
-    '$current_predicate'(A,Mod,G,_),
+    current_predicate(Mod:N/A),
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
-    functor(G,N,A),
-    '$current_predicate'(A,prolog,G,_),
+    current_predicate(prolog:N/A),
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
@@ -814,9 +811,10 @@ module_state.
     '$check_module_exports'(Exports,File,Mod).
 
 '$check_module_undefineds'(File,Mod) :-
-    '$current_predicate'(_,Mod,P,undefined),
+    module_predicate(Mod,N,A,undefined),
+    functor(P,N,A),
     \+ '$is_proxy_predicate'(P, Mod),
-    \+  '$current_predicate'(_,prolog,P,_),
+    \+  current_predicate(prolog:N/A),
     \+  '$import'(_,Mod,_,P,_,_),
     '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),

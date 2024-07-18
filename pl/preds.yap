@@ -415,7 +415,8 @@ true
            ),
     (var(P) %
     ->
-	'$current_predicate'(_Na,M,P,_)
+      module_predicate(M,A,Ar,_),
+      functor(A,Ar,P)
     ;
     true
     ),
@@ -533,32 +534,18 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
     '$yap_strip_module'(T0, M, T),
-    (var(A) -> true ; atom(A)),
-    ( var(M) -> '$all_current_modules'(M) ; true ),
+    (var(M) -> '$all_current_modules'(M);  must_be_atom(M)),
     (nonvar(T) ->
-	 functor(T, A, _),
-	 '$pred_exists'( T, M)
+	functor(T,A,Ar),
+        functor_predicate(M,A,Ar,_)
+    ;atom(A) ->
+    atom_functor(A,Ar),
+    functor(T,A,Ar),
+    functor_predicate(M,A,Ar,_)
     ;
-    atom(A)
-    ->
-    (
-	'$pred_exists'( A, M),
-	T = A
-    ;
-    '$functors_for_atom'(A,Ts),
-    '$enumerate_functors'(Ts,M,T)
-    )
-    ;	 
-    '$current_predicate'(A,M, T, user),
-    M \= prolog
+    module_predicate(M,A,Ar,_),
+    functor(T,A,Ar)
     ).
-
-'$enumerate_functors'([T|_Ts],M,T):-	 
-	 '$pred_exists'( T, M).
-'$enumerate_functors'([_T|Ts],M,T) :-
-    '$enumerate_functors'(Ts,M,T).
-
-
 
 :- meta_predicate system_predicate(:), system_predicate(?,:).
 
@@ -567,61 +554,27 @@ current_predicate(A,T0) :-
 
 Defines the relation:  indicator _P_ refers to a currently defined system predicate.
 */
-system_predicate(P0) :-
-    may_bind_to_type(predicate_indicator,P0),
-	'$yap_strip_module'(P0, _, P),
+system_predicate(T0) :-
+    '$yap_strip_module'(T0, M, T),
     (
-      var(P)
-    ->
-      P = A/Arity,
-     '$current_predicate'(A, prolog, T, _system),
-     functor(T, A, Arity)
-     ;
-      ground(P), P = A/Arity
-    ->
-     functor(T, A, Arity),
-     '$current_predicate'(A, prolog, T, _system)
-    ;
-      ground(P), P = A//Arity2
-    ->
-     Arity is Arity2+2,
-     functor(T, A, Arity),
-     '$current_predicate'(A, prolog, T, _system)
-     ;
-     P = A/Arity
-    ->
-     '$current_predicate'(A, prolog, T, _system),
-     functor(T, A, Arity)
-    ;
-     P = A//Arity2
-    ->
-     '$current_predicate'(A, prolog, T, _system),
-     functor(T, A, Arity),
-     Arity >= 2,
-     Arity2 is Arity-2
-    ;
-    throw_error(type_error(predicate_indicator,P),
-                system_predicate(P0))
-    ).
-
-/** @pred  system_predicate( ?A, ?P )
-
-  Succeeds if _A_ is the name of the system predicate _P_. It can be
-  used to test or  to enumerate all system predicates.
-*/
-
-system_predicate(A, P0) :-
-    may_bind_to_type(atom,A),
-    may_bind_to_type(callable,P0),
-    '$yap_strip_module'(P0, M, P),
+      var(M) -> '$all_current_modules'(M);  must_be_atom(M)
+    ),
     (
-	nonvar(P)
-    ->
-     '$current_predicate'(A, M, P, system),
-     '$is_system_predicate'( P,  M)
-    ;
-     '$current_predicate'(A, M, P, system)
-    ).
+      var(T) ->
+	module_predicate(A,Ar,_,system)
+	;
+    T = A//Ar, nonvar(A) ->
+    atom_functor(A,Ar),
+    functor_predicate(M,A,Ar0,system), Ar is Ar0+2;
+    T = A/Ar, nonvar(A) -> atom_functor(A,Ar),
+    functor_predicate(M,A,Ar,system);
+    T = A//Ar ->
+    module_predicate(M,A,Ar0,system), Ar is Ar0+2;
+    T = A/Ar -> atom_functor(A,Ar),
+    module_predicate(M,A,Ar,system);
+    throw_error(type_error(predicate_indicator,T0),
+                system_predicate(T))
+  ).
 
 
 /**
@@ -632,45 +585,24 @@ system_predicate(A, P0) :-
   where the atom _Mod_ is the module of the predicate,
  _Na_ is the name of the predicate, and  _Ar_ its arity.
 */
-current_predicate(F0) :-
-    may_bind_to_type(predicate_indicator,F0),
-    '$yap_strip_module'(F0, M, F),
-    '$current_indicator_predicate'( F, M ).
-
-'$current_indicator_predicate'( A/N, M ) :-
-	!,
-	(
-	 ground(A/N)
-	->
-	 functor(S, A, N),
-	 current_predicate(A, M:S)
-	;
-	 current_predicate(A, M:S),
-	 functor(S, A, N)
-	 ).
-'$current_indicator_predicate'( A//N, M ) :-
-	(
-	 ground(A)
-	->
-	 atom(A), integer(N),
-	 N2 is N+2,
-	 functor(S, A, N2),
-	 current_predicate(A, M:S)
-	;
-	 current_predicate(A, M:S),
-	 functor(S, A, N2),
-	 N is N2-2
-	).
-
-/** @pred  current_key(? _A_,? _K_)
-
-
-Defines the relation:  _K_ is a currently defined database key whose
-name is the atom  _A_. It can be used to generate all the keys for
-  the internal data-base.
-*/
-current_key(A,K) :-
-	'$current_predicate'(A,idb,K,user).
+current_predicate(T0) :-
+    '$yap_strip_module'(T0, M, T),
+   ( var(M) -> '$all_current_modules'(M);  must_be_atom(M)),
+    (
+      var(T) -> T=A/Ar,  module_predicate(M,A,Ar,_);
+    T = A//Ar, nonvar(A) ->
+    atom_functor(A,Ar),
+    functor_predicate(M,A,Ar0,_), Ar is Ar0+2;
+    T = A/Ar, nonvar(A) -> atom_functor(A,Ar),
+    functor_predicate(M,A,Ar,_);
+    T = A//Ar ->
+    module_predicate(M,A,Ar0,_), Ar is Ar0+2;
+    T = A/Ar -> atom_functor(A,Ar),
+    module_predicate(M,A,Ar,_)
+    ;
+    error(type_error(predicate_indicator,T),
+                system_predicate(T))
+).
 
 % do nothing for now.
 '$noprofile'(_, _).
@@ -692,7 +624,7 @@ assert/1 into normal static predicates. This call tells the
 Prolog environment the definition will not change anymore and further
 calls to assert/1 or retract/1 on the named predicates
 raise a permission error. This predicate is designed to deal with parts
-of the program that is generated at runtime but does not change during
+ the program that is generated at runtime but does not change during
 the remainder of the program execution.
  */
 compile_predicates(Ps) :-

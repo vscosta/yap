@@ -2019,7 +2019,7 @@ warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *m
     e->parserFile = Yap_source_file_name()->StrOfAE;
     sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
     sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc),TermWarning);
     memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
 }
 

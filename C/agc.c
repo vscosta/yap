@@ -479,7 +479,7 @@ return;
 #if  defined(YAPOR) || defined(THREADS)
   return;
 #endif
-  
+  return;  
   if (Yap_GetValue(AtomGcTrace) != TermNil)
     gc_trace = true;
 

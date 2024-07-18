@@ -45,6 +45,7 @@
 
 #include "Yap.h"
 
+#include "YapDefs.h"
 #include "YapEval.h"
 
 #include "YapHeap.h"
@@ -727,7 +728,7 @@ if (has_overflow) {
 /** This routine is used when we need to parse a string into a number. */
 Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   CACHE_REGS
-  Term out;
+  Term  out;
   int sign = 1;
   int ch;
   char *ptr;
@@ -801,7 +802,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   if (throw_error) {
   Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
   }
-  return TermNil; 
+  return out; 
 }
 
 #define CHECK_SPACE()                                                          \
@@ -961,6 +962,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   p = NULL; /* Just to make lint happy */
   ch = getchr(st);
   while (chtype(ch) == BS) {
+    och = ch;
+    ch = getchr(st);
+  }
     if (ch == EOF) {
     TokEntry *tokptr = Malloc(sizeof(TokEntry));
   tokptr->TokNext = NULL;
@@ -971,13 +975,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   tokptr->TokInfo = TermEof;
     return l = p = tokptr;
     }
-    och = ch;
-    ch = getchr(st);
-  }
   params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
-  LOCAL_SourceFileLineno = LOCAL_StartLineCount = 0;
-  LOCAL_StartLinePos = 0;
   do {
     int quote, isvar;
     unsigned char *charp, *mp;

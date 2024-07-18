@@ -257,10 +257,11 @@ static bool watch_retry(Term d0 )
 	}
       else 
 	{
-	  YapBind( port_pt, TermRedo );
+	   port_pt[0] = TermRedo ;
 	}
     }
   gate(cleanup PASS_REGS);
+  RESET_VARIABLE(port_pt);
   P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
@@ -350,7 +351,6 @@ static Int cleanup_on_exit(USES_REGS1)
     }
   gate(cleanup PASS_REGS);
   if(       port_pt[0]==TermAnswer) {
-    RESET_VARIABLE(port_pt);
     if(IsVarTerm(complete_pt[0]))
       {
       

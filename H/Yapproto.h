@@ -203,7 +203,7 @@ extern Term Yap_MkErrorTerm(struct s_yap_error_descriptor *t);
 extern noreturn void Yap_RestartYap(int);
 extern noreturn void Yap_exit(int);
 extern bool Yap_Warning(const char *s, ...);
-extern bool Yap_PrintWarning(Term t);
+extern bool Yap_PrintWarning(Term t, Term level);
 extern bool Yap_HandleError__(const char *file, const char *function, int lineno,
                        const char *s, ...);
 #define Yap_HandleError(...)                                                   \
@@ -423,7 +423,8 @@ extern Term Yap_SortList(Term t USES_REGS);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
-extern char *Yap_dump_stack(void);
+extern char *Yap_dump_stack(FILE *f);
+extern bool DumpActiveGoals(FILE *f, bool ignore_top USES_REGS);
 extern void Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize);
 extern Term Yap_Cps(choiceptr cp);
 extern Term Yap_choicepoint_info(choiceptr cp, bool full );

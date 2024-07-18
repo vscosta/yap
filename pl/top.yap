@@ -125,7 +125,7 @@ expand_term( Term, UExpanded,  Expanded) :-
     !,
     fail.
 '$continue_with_command'(top,Names,_,G,_) :-
-    prolog_flag(prompt_alternatives_on, OPT),
+    current_prolog_flag(prompt_alternatives_on, OPT),
     (
 	query_to_answer(G,Names,Port,GVs,LGs)
     *->
@@ -204,7 +204,7 @@ AVs = [],
 '$query'([],_Vs,_Port) :-
     !.
 '$query'(G,_Vs,Port) :-
-    prolog_flag(debug,true),
+    current_prolog_flag(debug,true),
     '$get_debugger_state'(trace,on),
     '$get_debugger_state'(creep,Creep),
     Creep \= zip,
@@ -287,7 +287,7 @@ true
 
 % enable creeping
 '$enable_debugging':-
-    prolog_flag(debug, false), !.
+    current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
     '$get_debugger_state'(trace,on),
     !,
@@ -476,7 +476,7 @@ log_event( String, Args ) :-
      ;
     LD =  L 
      ),
-    yap_flag(toplevel_prompt, P),
+    current_prolog_flag(toplevel_prompt, P),
     L = [P],
     atomic_concat(LF, PF),
     prompt1(PF),
@@ -506,7 +506,7 @@ log_event( String, Args ) :-
 '$goal'(G, Names, _Pos) :-
     expand_term(G, EC, _ExpandedClause),
     !,
-     prolog_flag(prompt_alternatives_on, OPT),
+     current_prolog_flag(prompt_alternatives_on, OPT),
      (
        query_to_answer(EC,Names,Port,GVs,LGs)
     *->

@@ -119,11 +119,6 @@ modules defining clauses for it too.
 */
 :- multifile user:message_hook/3.
 
-
-:- multifile user:portray_message/2.
-
-:- dynamic user:portray_message/2.
-
 /** @pred  message_to_string(+ _Term_, - _String_)
 
 
@@ -974,7 +969,7 @@ write_query_answer( _Vs, GVs0 , LGs0 ) -->
 	purge_dontcares(SVGs,IVs),
 	prep_answer_var_by_var(IVs, GVs, VNames, AllBindings, LTs),
 	list2conj_(AllBindings, Goals),
-	yap_flag(toplevel_print_options, Opts)
+	current_prolog_flag(toplevel_print_options, Opts)
     },
     !,
     ['~N~W'-  [Goals,[conjunction(true),variable_names(VNames)|Opts]],
@@ -1390,6 +1385,9 @@ print_message_(Severity, Msg) :-
     Severity = silent
     ),
     !.
+print_message_(Severity, Msg) :-
+    user:portray_message(Severity, Msg),
+    !.
 print_message_(Level, _Msg) :-
     current_prolog_flag(compiling, true),
     current_prolog_flag(verbose_load, false),
@@ -1400,9 +1398,6 @@ print_message_(Level, _Msg) :-
     current_prolog_flag(verbose, silent),
     Level \= error,
     Level \= warning,
-    !.
-print_message_(Severity, Msg) :-
-    user:portray_message(Severity, Msg),
     !.
 print_message_(_, _Msg) :-
     % first step at hook processing
@@ -1436,7 +1431,6 @@ prolog:print_message(_Severity, _Msg).
 %% @pred print_warning( +Msg )
 %%
 prolog:print_warning( Msg) :-
-%    writeln(print_message_(Severity, Msg)),
 	print_message_(warning, Msg),
 	fail.
 prolog:print_warning(_Msg).

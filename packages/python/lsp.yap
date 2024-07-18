@@ -73,21 +73,24 @@ user:pred_def(Ob,URI,Line,Ch) :-
 	  Ob.items := Ps
 	).
 
-user:pred_def(Ob, Name) :-
-    strip_module(Name,Mod,N),
-    current_predicate(N,Mod:G),
+user:pred_def(Ob, S) :-
+    atom_string( Name, S),
+    current_module( Mod),
+    current_predicate(Mod:Name/Ar),
     predicate_property(Mod:G,file(F) ),
     predicate_property(Mod:G,line_count(L)),
-    L1 is L+1,
-Ob := Ob.append(t(F,L1,0)).
+    writeln(user_error,(F+L)),
+    string_atom( SMod, Mod),
+    Ob.defs.append(t(F,L,0,SMod,Ar)),
+    fail.
+user:pred_def(_Ob, _Name).
 
 name2symbol(Name,t(F,L1,0)) :-
     strip_module(Name,Mod,N),
     current_predicate(N,Mod:G),
     functor(G,N,_Ar),
     predicate_property(Mod:G,file(F) ),
-    predicate_property(Mod:G,line_count(L)),
-    L1 is L+1.
+    predicate_property(Mod:G,line_count(L)).
 
 get_ref(N/A,M,Ref) :-
 	scanner:use(predicate,N/A,M,_N0/_A0,_M0,File,L0-C0,LF-CF,LL0-LC0,LLF-LCF),
@@ -115,9 +118,9 @@ user:pred_refs(Ob,URI,Line,Ch) :-
 	).
 
 
-    user:complete(Line,Pos,Obj) :-
-	completions(Line,Pos,L),
-	Obj.items := L.
+user:complete(Self,Line,Pos) :-
+	completions(Line,Pos,FCs),
+	( var(Self)-> Self = FCs ; Self.items := FCs ).
 
     user:add_dir(Self,URI):-
 	string_concat(`file://`, FS, URI),
@@ -138,51 +141,88 @@ user:validate_uri(Self,URI) :-
     absolute_file_name(File,Path,[file_type(prolog)]),
     validate_file(Self,Path).
 
+:- dynamic lsp_on/0.
 
 validate_file( Self,File) :-
-    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)), Ref), 
+   assert(lsp_on),
    load_files(File,[ if(true),def_use_map(true)]),
-    erase(Ref),
-    forall(retract(msg(T)),Self.errors.append(T)).
+   forall(retract(msg(T)),Self.errors.append(T)),
+   retract(lsp_on).
 
 user:validate_text(Self,URI,S) :-
-   string_concat(`file://`,SFile,URI),
+    assert(lsp_on),
+    string_concat(`file://`,SFile,URI),
     atom_string(File, SFile),
     open(string(S),read,Stream,[alias(File)]),
     set_stream(Stream,file_name(File)),
-    asserta((user:portray_message(Sev,Msg) :-
-		 q_msg(Sev, Msg)), R),
-   catch(load_files(File,[ stream(Stream), if(true),dry_run(true)]),E,writeln(E)),
-    findall(TERR,(recorded(msg,TERR,_Ri)),Ts),
+    catch(load_files(File,[ stream(Stream), if(true),dry_run(true)]),E,writeln(user_error,E)),
+    findall(TERR,recorded(msg,TERR,_Ri),Ts),
     eraseall(msg),
-    erase(R),
-    Self.errors := Ts.
+    retractall(lsp_on),
+    (var(Self) -> Self=Ts;Self.errors := Ts),
+    !.
 
+user:portray_message(A,B):-
+    writeln(user_error,file=A:B),
+    lsp_on,
+    q_msg(A,B).
+
+q_msg(_warning, error( style_check(singletons,[VName,Line,Column,_F0],_P), _Exc)) :-
+    lsp_on,
+    !,
+    string_length(VName, Size),
+    format(string(S),'~s is a singleton variable',[VName]),
+   recordz(msg,t(`warning`,`singletons`,`singleton variable warning`,S,Line,Size,Column),_).
 q_msg(Sev, error(Err,Inf)) :-
+    lsp_on,
     (
-	exception_property(`parserLine` , Inf, LN)
+      exception_property(`parserLine` , Inf, LN0)
     ->
-    true
+	  LN is max(LN0,0)
     ;
-    LN = 0),
+    LN = 1),
     (
-	exception_property(`parserLinePos`, Inf, Pos)
+	exception_property(`errorNo` , Inf, ErrN)
+    ->
+	  true
+    ;
+    ErrN = -1),
+    (
+      exception_property(`errorAsText` , Inf, ErrA )
+    ->
+	  atom_string(ErrA,ErrT)
+    ;
+    ErrT = `unknown` ),
+    (
+	exception_property(`parserLinePos`, Inf, Pos0)
 	->
-	true
+	Pos is max(Pos0,0)
     ;
     Pos =0 ),
+    
+    (
+	exception_property(`parserSize` , Inf, Size0)
+    ->
+	  Size is max(Size0,0)
+    ;
+    Size = 0),
 (
-	fail,exception_property(`ErrorMsg`, Inf, ErrorMsg)
+fail,	exception_property(`ErrorMsg`, Inf, ErrorMsg)
 	->
 	true
     ;
-ErrorMsg = ``
+	  ErrorMsg = `ugh`
     ),
-Err =..LErr,
+writeln(user_error,Pos),
+    ( Sev == error
+  ->
+      Sv = `error` 
+  ;
+Sv = `warning`
+),
+    Err =..LErr,
     q_msgs(LErr,ErrorMsg,Sev,S),
-    writeln(t(S,LN,Pos)),
-    recordz(msg,t(S,LN,Pos),_),
-    fail.
+    recordz(msg,t(Sv,ErrN,`ErrT`,S,LN,Size,Pos),_).
 
 
 q_msgs([A1], Extra, N,S) :-
