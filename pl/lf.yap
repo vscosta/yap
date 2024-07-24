@@ -372,8 +372,8 @@
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
     file_directory_name(File, Dir),
-    working_directory(OldD, Dir),
-     !,
+    working_directory(OldD,OldD),
+    !,
     prompt1(': '), prompt(_,'     '),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
@@ -387,12 +387,7 @@
     ),
     unload_file(File),
     '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts),
-   ( Reconsult \== consult ->
-	'$start_reconsulting'(File),
-	'$start_consult'(Reconsult,File,Stream,LC)
-   ;
-	'$start_consult'(Reconsult,File,Stream,LC)
-   ),
+   	'$start_consult'(Reconsult,File,Dir,Stream,LC),
     (
      '$memberchk'(skip_unix_header(SkipUnixHeader), Opts)
       ->
@@ -409,7 +404,7 @@
    ),
    current_source_module(_M0,M1),
 
-   (
+  (
        '$memberchk'(build_def_map(true),Opts)
    ->
     retractall(scanner:use(_,_F,_MI,_F0,_Mod,File,_S0,_E0,_S1,_E1)),
@@ -438,10 +433,9 @@
    ;
    InnerModule=OldM),
     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
-    working_directory( _, OldD),
+ '$end_consult'(OldD),
        '$exec_initialization_goals'(File),
-    !,
- '$end_consult'.
+    !.
 
 '$dry_loop'(Stream,_Status) :-
     repeat,
@@ -637,10 +631,6 @@ call_compiler(G, Where,_VL, Pos) :-
 '$q_do_save_file'(_File, _, _TOpts ).
 
 
-'$start_reconsulting'(F) :-
-	recorda('$reconsulted','$',_),
-	recorda('$reconsulting',F,_).
-
 
 /**
   @pred include(+ _F_) is directive
@@ -679,7 +669,7 @@ include(Fs) :-
 
 '$stream_and_dir'(user,user_input,Dir,user_input) :-
 	!,
-        working_directory(Dir, Dir).
+        working_directory(_Dir, Dir).
 '$stream_and_dir'(user_input,user_input,Dir,user_input) :-
 	!,
         working_directory(_Dir, Dir).

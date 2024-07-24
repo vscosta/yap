@@ -38,6 +38,7 @@
 :- dynamic user:prolog_file_type/2.
 
 
+% :- set_prolog_flag( verbose_file_search, true ).
 
 
 absf_trace(Msg, Args ) :-

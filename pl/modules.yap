@@ -481,19 +481,16 @@ export_list(Module, List) :-
     \+ '$import'(_,MHost,_,GHost,_,_),
     asserta('$import'(MDonor,MHost,GDonor,GHost,NHost,K)),
     %writeln((MHost:GHost :- MDonor:GDonor)),
-    current_prolog_flag(source, YFlag),
-    set_prolog_flag(source, false),
+    '$mk_proxy_predicate'(GHost,MHost),
    ('$is_metapredicate'(GDonor,MDonor) ->
      	 recorded('$m' , meta_predicate(MDonor,GDonor),_),
 	 '$tag_module'(Args,MHost, NVars, NModVars),
     ModGDonor=..[NDonor|NModVars],
     ModGHost=..[NHost|NVars],
-	    asserta_static((MHost:ModGHost :- MDonor:ModGDonor))
+	    assertz_static((MHost:ModGHost :- MDonor:ModGDonor))
 	    ;
-    asserta_static((MHost:GHost :- MDonor:GDonor))
+    assertz_static((MHost:GHost :- MDonor:GDonor))
     ),
-    set_prolog_flag(source, YFlag),
-    '$mk_proxy_predicate'(GHost,MHost),
     fail.
 
 '$tag_module'([], _, [], []).
@@ -742,9 +739,10 @@ unload_module(Mod) :-
      '$module'( _, Mod, _, Exports),
     '$memberchk'( op(X, _Y, Op), Exports ),
     op(X, 0, Mod:Op),
-fai.
+     fail.
 unload_module(Mod) :-
-    current_predicate(Mod:P),
+    module_predicate(Mod,N,A,_),
+    functor(P,N,A),
     abolish(Mod:P),
     fail.
 unload_module(Mod) :-
@@ -794,11 +792,11 @@ module_state.
 
 '$check_module_exports'([],_,_Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
-    current_predicate(Mod:N/A),
+     functor_predicate(Mod,N,A,_),
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
-    current_predicate(prolog:N/A),
+    functor_predicate(prolog,N,A,_),
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
@@ -814,7 +812,7 @@ module_state.
     module_predicate(Mod,N,A,undefined),
     functor(P,N,A),
     \+ '$is_proxy_predicate'(P, Mod),
-    \+  current_predicate(prolog:N/A),
+    \+ functor_predicate(prolog,N,A,_),
     \+  '$import'(_,Mod,_,P,_,_),
     '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),

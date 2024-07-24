@@ -104,6 +104,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_SOCKET
 #include <winsock2.h>
 #endif
+
 #include <windows.h>
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
@@ -881,7 +882,7 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
      e->parserSize = strlen(RepAtom(AtomOfTerm(myv))->StrOfAE);
      e->parserFile = fil;
      }
-   Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc),TermWarning);
+a   Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc),TermWarning);
         vn = TailOfTerm(vn);
 }
 }

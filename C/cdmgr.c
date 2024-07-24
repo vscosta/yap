@@ -2068,7 +2068,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
 
     if (p->cs.p_code.NOfClauses == 0) {
       if (trueGlobalPrologFlag(SOURCE_FLAG) &&
-	!(p->PredFlags & LogUpdatePredFlag)) {
+	  !(p->PredFlags & (LogUpdatePredFlag|ProxyPredFlag)))	{
 	p->PredFlags |= SourcePredFlag;
       }
     if( mode == ASSERTA || mode == ASSERTZ) {
@@ -2177,8 +2177,9 @@ we should have:
 
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
-void Yap_init_consult(int mode, const char *filenam) {
+void Yap_init_consult(int mode, const char *filenam, const char *dirname) {
   CACHE_REGS
+  Yap_ChDir(dirname);
   LOCAL_consult_level++;
   LOCAL_LastAssertedPred = NULL;
 }
@@ -2186,15 +2187,17 @@ void Yap_init_consult(int mode, const char *filenam) {
 static Int startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   Term t, aliast = Deref(ARG2);
   assert_control_t mode = get_mode(Deref(ARG1));
-  Yap_init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
+  Yap_init_consult(mode,
+		   RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE,
+		   RepAtom(AtomOfTerm(Deref(ARG3)))->StrOfAE);
   t = MkIntTerm(LOCAL_consult_level);
   if (aliast !=  TermLoopStream) {
-    int sno = Yap_CheckStream(ARG3,Input_Stream_f  |
+    int sno = Yap_CheckStream(ARG4,Input_Stream_f  |
 						Socket_Stream_f,
 			  "compile/1");
     Yap_AddAlias(AtomLoopStream,sno);
   }
-  return (Yap_unify_constant(ARG4, t));
+  return (Yap_unify_constant(ARG5, t));
 }
 
 
@@ -2216,6 +2219,9 @@ static Int p_showconslultlev(USES_REGS1) {
 }
 
 static void end_consult(USES_REGS1) {
+  char *dir = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+  Yap_ChDir(dir);
+  
  if (LOCAL_consult_level > 0)
       LOCAL_consult_level--;
     LOCAL_LastAssertedPred = NULL;
@@ -2803,7 +2809,7 @@ static Int is_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
 static Int mk_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   PredEntry *pe;
 
-  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_meta");
+  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false,"$is_meta");
   if (EndOfPAEntr(pe))
     
     return FALSE;
@@ -4452,10 +4458,10 @@ static Int clause_to_components(USES_REGS1)
 
 void Yap_InitCdMgr(void) {
 
-  Yap_InitCPred("$start_consult", 4, startconsult,
+  Yap_InitCPred("$start_consult", 5, startconsult,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);
-  Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$end_consult", 1, p_endconsult, SafePredFlag | SyncPredFlag);
   /* gc() may happen during compilation, hence these predicates are
         now unsafe */
   Yap_InitCPred("$predicate_flags", 4, predicate_flags, SyncPredFlag);

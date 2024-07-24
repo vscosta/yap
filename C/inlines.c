@@ -1013,10 +1013,10 @@ p_cut_by( USES_REGS1 )
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
 #ifdef YAPOR
-    CUT_prune_to(pt0);
+    CUT_prune_to(pt0->cp_b);
 #endif /* YAPOR */
   /* find where to cut to */
-    while (pt0 > B) {
+    while (pt0 > B->cp_b) {
     /* Wow, we're gonna cut!!! */
 #ifdef TABLING
     abolish_incomplete_subgoals(B);

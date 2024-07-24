@@ -80,9 +80,9 @@ expand_exprs(Old,New) :-
 			B = false ),
 	current_prolog_flag(optimise,B).
 
-'$set_arith_expan'(on) :- prolog_flag(optimise,true).
-'$set_arith_expan'(off) :- prolog_flag(optimise,false).
-
+'$set_arith_expan'(on) :- set_prolog_flag(optimise,true).
+'$set_arith_expan'(off) :- set_prolog_flag(optimise,false).
+ 
 /**  @pred   compile_expressions
 
 After a call to this predicate, arithmetical expressions will be compiled.
@@ -123,7 +123,7 @@ do_not_compile_expressions :-
 '$c_built_in'(IN, _M, (?- _H), IN) :-
     !.
 '$c_built_in'(IN, M, H, OUT) :-
-    prolog_flag(optimise,true), !,
+    current_prolog_flag(optimise,true), !,
     '$do_c_built_in'(IN, M, H, OUT).
 '$c_built_in'(IN, _, _H, IN).
  

@@ -77,9 +77,7 @@ and therefore he should try to avoid them whenever possible.
         '$unknown_warning'/1]).
 
 :- use_system_module( '$_boot', ['$check_head_and_body'/4,
-        '$check_if_reconsulted'/2,
-        '$head_and_body'/3,
-        '$inform_as_reconsulted'/2]).
+        '$head_and_body'/2]).
 
 :- use_system_module( '$_errors', [throw_error/2]).
 
@@ -335,7 +333,7 @@ abolish(X0) :-
 '$abolishs'(_, _).
 
 /**  @pred stash_predicate(+ _Pred_)
-Make predicate  _Pred_ invisible to new code, and to `	current_predicate/2`,
+Make predicate  _Pred_ invisible to new code, and to current_predicate/2,
 `listing`, and friends. New predicates with the same name and
 functor can be declared.
  **/
@@ -411,12 +409,12 @@ predicate_property(Pred,Prop) :-
     ->
 	'$all_current_modules'(M)
        ;
-true
-           ),
+      true
+    ),
     (var(P) %
     ->
-      module_predicate(M,A,Ar,_),
-      functor(A,Ar,P)
+      module_predicate(M,N,Ar,_),
+      functor(P,N,Ar)
     ;
     true
     ),
@@ -425,16 +423,14 @@ true
     ->
 	'$predicate_property'(P,prolog,Prop)
     ;
-	'$is_proxy_predicate'(P,M),
+      '$is_proxy_predicate'(P,M)
+      ->
 	'$import_chain'(M,P,M0,P0),
-	'$pred_exists'(P0,M0)
-    ->
-	(
-	    Prop = imported_from(M0)
+	'$pred_exists'(P0,M0),
+      (Prop = imported_from(M0)
 	;
 	'$predicate_property'(P0,M0,Prop)
-
-	)
+      )
     ;
     '$predicate_property'(P,M,Prop)
     ).
@@ -464,8 +460,8 @@ true
      Type == mega_procedure -> Prop=mega
      
      )
-    )
-.
+    ).
+
 '$predicate_property'(P,M,file(File)) :-
     \+ '$is_multifile'(P, M),
     M\=prolog,
@@ -537,13 +533,13 @@ current_predicate(A,T0) :-
     (var(M) -> '$all_current_modules'(M);  must_be_atom(M)),
     (nonvar(T) ->
 	functor(T,A,Ar),
-        functor_predicate(M,A,Ar,_)
+        functor_predicate(M,A,Ar,user)
     ;atom(A) ->
     atom_functor(A,Ar),
     functor(T,A,Ar),
-    functor_predicate(M,A,Ar,_)
+    functor_predicate(M,A,Ar,user)
     ;
-    module_predicate(M,A,Ar,_),
+    module_predicate(M,A,Ar,user),
     functor(T,A,Ar)
     ).
 
@@ -555,26 +551,49 @@ current_predicate(A,T0) :-
 Defines the relation:  indicator _P_ refers to a currently defined system predicate.
 */
 system_predicate(T0) :-
-    '$yap_strip_module'(T0, M, T),
-    (
-      var(M) -> '$all_current_modules'(M);  must_be_atom(M)
+    '$yap_strip_module'(T0, M, T),    
+    (      var(M) -> '$all_current_modules'(M);  must_be_atom(M)
     ),
     (
-      var(T) ->
-	module_predicate(A,Ar,_,system)
+      var(T) -> module_predicate(_,A,Ar,system)
 	;
-    T = A//Ar, nonvar(A) ->
-    atom_functor(A,Ar),
-    functor_predicate(M,A,Ar0,system), Ar is Ar0+2;
-    T = A/Ar, nonvar(A) -> atom_functor(A,Ar),
-    functor_predicate(M,A,Ar,system);
-    T = A//Ar ->
-    module_predicate(M,A,Ar0,system), Ar is Ar0+2;
-    T = A/Ar -> atom_functor(A,Ar),
-    module_predicate(M,A,Ar,system);
-    throw_error(type_error(predicate_indicator,T0),
+	T = A//Ar, nonvar(A) ->
+	atom_functor(A,Ar),
+	functor_predicate(M,A,Ar0,system),
+	Ar is Ar0+2
+    ;
+    T = A/Ar, nonvar(A) -> 
+	atom_functor(A,Ar),
+	functor_predicate(M,A,Ar,system);
+	throw_error(type_error(predicate_indicator,T),
                 system_predicate(T))
-  ).
+    ).
+
+
+
+/** @pred  system_predicate( ?A, ?P )
+
+  Succeeds if _A_ is the name of the system predicate _P_. It can be
+  used to test or  to enumerate all system predicates.
+*/
+
+system_predicate(A, P0) :-
+    may_bind_to_type(atom,A),
+    may_bind_to_type(callable,P0),
+    '$yap_strip_module'(P0, M, P),
+
+    (
+	nonvar(P)
+	  ->
+	  functor(P,N,A),
+	  functor_predicate(M,N,A,system)
+    ;
+    (      var(M) -> '$all_current_modules'(M);  must_be_atom(M)),
+    module_predicate(A, Na, Ar, system),
+	  functor(P,Na,Ar)
+    ).
+
+    
 
 
 /**
@@ -587,22 +606,30 @@ system_predicate(T0) :-
 */
 current_predicate(T0) :-
     '$yap_strip_module'(T0, M, T),
-   ( var(M) -> '$all_current_modules'(M);  must_be_atom(M)),
     (
-      var(T) -> T=A/Ar,  module_predicate(M,A,Ar,_);
-    T = A//Ar, nonvar(A) ->
-    atom_functor(A,Ar),
-    functor_predicate(M,A,Ar0,_), Ar is Ar0+2;
+      var(M) -> '$all_current_modules'(M)
+	;
+	must_be_atom(M)
+    ),
+    (
+	T=A/Ar, var(A) ->
+	module_predicate(M,A,Ar,user)
+    ;
+    T = A//Ar, var(A) ->
+  	module_predicate(M,A,Ar0,user),
+     Ar is Ar0+2
+;
     T = A/Ar, nonvar(A) -> atom_functor(A,Ar),
-    functor_predicate(M,A,Ar,_);
-    T = A//Ar ->
-    module_predicate(M,A,Ar0,_), Ar is Ar0+2;
-    T = A/Ar -> atom_functor(A,Ar),
-    module_predicate(M,A,Ar,_)
+    functor_predicate(M,A,Ar,user)
+
+    ;
+    T = A//Ar, nonvar(A) -> atom_functor(A,Ar),
+	  functor_predicate(M,A,Ar0,user),
+	  Ar is Ar0-2
     ;
     error(type_error(predicate_indicator,T),
-                system_predicate(T))
-).
+               current_predicate(T))
+   ).
 
 % do nothing for now.
 '$noprofile'(_, _).

@@ -168,24 +168,6 @@ expand_term( Term, UExpanded,  Expanded) :-
 '$init_as_dynamic'( reconsult ) :-
     '__NB_getval__'('$assert_all',on,fail).
 
-'$check_if_reconsulted'(N,A) :-
-    once(recorded('$reconsulted',N/A,_)),
-    recorded('$reconsulted',X,_),
-    ( X = N/A , !;
-      X = '$', !, fail;
-      fail
-    ).
-
-'$inform_as_reconsulted'(N,A) :-
-    recorda('$reconsulted',N/A,_).
-
-'$clear_reconsulting' :-
-    recorded('$reconsulted',X,Ref),
-    erase(Ref),
-    X == '$',
-    !,
-    ( recorded('$reconsulting',_,R) -> erase(R) ).
-
 '$prompt_alternatives_on'(determinism).
 
 /* Execute a query */

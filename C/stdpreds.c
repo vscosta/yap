@@ -652,7 +652,7 @@ static bool valid_prop(Prop p,
   PredEntry *pe = RepPredProp(p);
   if (task == TermUndefined)
       return pe->PredFlags & UndefPredFlag;
-  if ((pe->PredFlags & HiddenPredFlag) || (pe->OpcodeOfPred == UNDEF_OPCODE)) {
+  if ((pe->PredFlags & HiddenPredFlag)) {
     return false;
   }
   if (task == TermSystem || task == TermProlog) {
@@ -661,7 +661,7 @@ static bool valid_prop(Prop p,
   if (task == TermUser) {
     return !Yap_isSystemModule(pe->ModuleOfPred);
   }
-  return false;
+  return true;
 }
 
 static Int continue_functor_predicate(USES_REGS1)
@@ -672,15 +672,19 @@ static Int continue_functor_predicate(USES_REGS1)
     Atom name = AtomOfTerm(Deref(ARG2));
     arity_t Arity = IntegerOfTerm(Deref(ARG3));;
     if (!p) {
-      p = Yap_MkFunctor(name,Arity)->PropsOfFE;
-    }
+      if (Arity==0) {
+	p=RepAtom(AtomOfTerm(Deref(ARG2)))->PropsOfAE;
     while (p) {
-	if( IsPredProperty(p->KindOfPE)&& valid_prop((p),task)) {
-	  
+	if( IsPredProperty(p->KindOfPE)&&
+	    valid_prop((p),task)) {
 	  break;
 	}
 	p = p->NextOfPE;
     }
+      } else {
+      p = Yap_MkFunctor(name,Arity)->PropsOfFE;
+      }
+    } 
     if (!p) {
         /* try Prolog Module */
         cut_fail();
@@ -714,22 +718,26 @@ static Int continue_functor_predicate(USES_REGS1)
 */
 static Int functor_predicate(USES_REGS1)
 { 
-  Term t1 = Deref(ARG2),
-  t2 = Deref(ARG3);
-  must_be_atom(t1);
-  //must_be_arity(t2);
-  Term t3    = Deref(ARG1);
-  if (IsVarTerm(t3)) {
+  Term t2 = Deref(ARG2),
+  t3 = Deref(ARG3);
+  must_be_atom(t2);
+  must_be_arity(t3);
+  Term t1    = Deref(ARG1);
+  if (IsVarTerm(t1)) {
     EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
     return continue_functor_predicate();
   } else {
-    must_be_atom(t3);
-    arity_t Arity = IntegerOfTerm(t2);
+    Term task = Deref(ARG4);
+    must_be_atom(t1);
+    arity_t Arity = IntegerOfTerm(t3);
     bool rc;
+    PredEntry *np;
     if (Arity == 0) {
-      rc = Yap_get_pred(t1, t3, NULL) != NULL;
+      np = Yap_get_pred(t2, t1, NULL);
+      rc = np!= NULL&& valid_prop(AbsPredProp(np),task);
     } else {
-      rc = Yap_get_pred(Yap_MkNewApplTerm(Yap_MkFunctor(AtomOfTerm(t1),Arity), Arity),t3,NULL) != NULL;
+      np = Yap_get_pred(Yap_MkNewApplTerm(Yap_MkFunctor(AtomOfTerm(t2),Arity), Arity),t1,NULL);
+      rc = np != NULL&& valid_prop(AbsPredProp(np),task);
     }
     if (rc) {
       cut_succeed();
@@ -771,6 +779,7 @@ static Int continue_atom_functor(USES_REGS1)
     while (np != NIL) {       
       if ((found0==TermFalse && IsPredProperty(np->KindOfPE)) ||
 	  np->KindOfPE == FunctorProperty) {
+	found0 = TermTrue;
 	break;
       }
       np=np->NextOfPE;
@@ -797,8 +806,8 @@ static Int continue_atom_functor(USES_REGS1)
 static Int atom_functor(USES_REGS1)
 {
   must_be_atom(ARG1);
-  if (!IsVarTerm(ARG2)) {
-    //must_be_arity(ARG2);
+  if (!IsVarTerm(Deref(ARG2))) {
+    must_be_arity(Deref(ARG2));
     cut_succeed();
   }
   EXTRA_CBACK_ARG(2, 1) = MkAddressTerm(NULL);

@@ -369,12 +369,13 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- dynamic user:exception/3.
 
-:- yap_flag(user:unknown,error).
-
 :- module(user).
+
 
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- set_value('$user_module',user), '$protect'.
 
 %% @}
+ 
+

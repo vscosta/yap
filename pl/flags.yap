@@ -65,7 +65,7 @@ yap_flag(K,O,N) :-
 */
 prolog_flag(K,O,N) :-
     current_prolog_flag(K,O),
-    yap_flag(K,N).
+    set_prolog_flag(K,N).
 
 '$adjust_language'(cprolog) :-
 %	'$switch_log_upd'(0),

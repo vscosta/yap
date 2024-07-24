@@ -229,7 +229,7 @@ qend_program :-
 
 % there is some ordering between flags.
 '$x_yap_flag'(language, V) :-
-	yap_flag(language, V).
+	current_prolog_flag(language, V).
 '$x_yap_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
@@ -245,7 +245,7 @@ qend_program :-
 	X \= user_output,
 	X \= user_error,
 	X \= verbose_load,
-	yap_flag(X, V),
+	current_prolog_flag(X, V),
 	fail.
 
 qsave_file(F0) :-
@@ -453,7 +453,8 @@ qload_module(Mod) :-
 
 % detect an multi_file that is local to the module.
 '$fetch_multi_file_module'(Mod, '$defined'(Name,Arity,Mod)) :-
-    current_predicate(Name,Mod:Goal),
+    module_predicate(Mod,Name,Ar,_),
+    functor(Goal,Name,Ar),
     '$is_multifile'(Goal,Mod),
     functor(Goal,Name,Arity).
 

@@ -143,7 +143,7 @@ file_search_path(swi, Home) :-
 file_search_path(yap, Home) :-
         current_prolog_flag(home, Home).
 file_search_path(system, Dir) :-
-  prolog_flag(host_type, Dir).
+  current_prolog_flag(host_type, Dir).
 file_search_path(foreign, Dir) :-
   foreign_directory(Dir).
 file_search_path(executable, Dir) :-

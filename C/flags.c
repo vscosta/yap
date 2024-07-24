@@ -1026,6 +1026,8 @@ static Int yap_flag2(USES_REGS1) {
 }
 
 static Int cont_current_prolog_flag(USES_REGS1) {
+  Term modt = CurrentModule;
+  Term tflag = Yap_StripModule(ARG1, &CurrentModule);
   int i = IntOfTerm(EXTRA_CBACK_ARG(2, 1));
   while (i < GLOBAL_flagCount + LOCAL_flagCount) {
     int gmax = GLOBAL_flagCount;
@@ -1033,18 +1035,21 @@ static Int cont_current_prolog_flag(USES_REGS1) {
     Term flag, f;
 
     if (i >= gmax + lmax) {
+      CurrentModule=modt;
       cut_fail();
     } else if (i >= gmax) {
-      Yap_unify(ARG1, (f = MkAtomTerm(
+      Yap_unify(tflag, (f = MkAtomTerm(
 				      Yap_LookupAtom(local_flags_setup[i - gmax].name))));
     } else {
-      Yap_unify(ARG1,
+      Yap_unify(tflag,
                 (f = MkAtomTerm(Yap_LookupAtom(global_flags_setup[i].name))));
     }
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(++i);
     flag = getYapFlag(f);
+    CurrentModule = modt;
     return Yap_unify(flag, ARG2);
   }
+    CurrentModule = modt;
   cut_fail();
 }
 
@@ -1062,23 +1067,24 @@ static Int  current_prolog_flag(USES_REGS1) {
   FlagEntry *fv;
   flag_term *tarr;
 
+  Term modt = CurrentModule;
+  tflag = Yap_StripModule(tflag, &CurrentModule);
   if (IsVarTerm(tflag)) {
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);
     return cont_yap_flag(PASS_REGS1);
   }
+  do_cut(0);
   if (IsStringTerm(tflag)) {
     tflag=   MkAtomTerm(Yap_LookupAtom(StringOfTerm(tflag)));
   }
   if (!IsAtomTerm(tflag)) {
     Yap_ThrowError(TYPE_ERROR_ATOM, tflag, "current_prolog_flag/3");
-  do_cut(0);
-    return (FALSE);
+    return false;
   }
   fv = GetFlagProp(AtomOfTerm(tflag));
+  CurrentModule = modt;
   if (!fv) {
-    // should itself depend on a flag
-  do_cut(0);
-    return FALSE;
+        return false;
   }
   if (fv->global)
     tarr = GLOBAL_Flags;
@@ -1087,7 +1093,6 @@ static Int  current_prolog_flag(USES_REGS1) {
   tout = tarr[fv->FlagOfVE].at;
   if (tout == TermZERO) {
     //    Yap_DebugPlWriteln(tflag);
-  do_cut(0);
     return false;
   }
   if (!IsAtomicTerm(tout)) {
@@ -1097,13 +1102,11 @@ static Int  current_prolog_flag(USES_REGS1) {
 	if (!Yap_dogc(PASS_REGS1)) {
 	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  //UNLOCK(ap->PELock);
-  do_cut(0);
 	  return false;
 	}
     }
   }
-  do_cut(0);
-  return (Yap_unify(ARG2, tout));
+ return Yap_unify(ARG2, tout);
 }
 
 

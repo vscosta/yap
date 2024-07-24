@@ -168,7 +168,7 @@ dynamics(M,P) :-
 		  predicate_property(M:P,dynamic),
 		  \+predicate_property(M:P,imported_from(_)).
 dynamics(idb,P) :-
-    current_key(_,P).
+    current_key(P).
 
 display_preds([]).
 display_preds([p(Sz,M:P,Cls,CSz,ISz)|_]) :-

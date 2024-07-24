@@ -1618,6 +1618,28 @@ static Int is_atom1(USES_REGS1) {
   return is_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
 
+bool must_be_arity__(const char *file, const char *function, int lineno,
+                    Term t USES_REGS) {
+  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  if (IsVarTerm(t)) {
+    Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, "is atom");
+    return false;
+  }
+  if (!IsIntegerTerm(t)) {
+    Yap_ThrowError__(file, function, lineno, TYPE_ERROR_INTEGER, t, "is atom");
+    return false;
+  }
+  Int i = IntegerOfTerm(t);
+  if (i < 0) { 
+    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, NULL);
+      return false;
+  }
+  return true;
+}
+static Int must_be_arity1(USES_REGS1) {
+  Term t = Deref(ARG1);
+  return must_be_arity__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
+}
 bool must_be_atom__(const char *file, const char *function, int lineno,
                     Term t USES_REGS) {
   // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
@@ -2032,6 +2054,7 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("is_list", 1, is_list1, TestPredFlag);
   Yap_InitCPred("is_nonvar", 1, is_nonvar1, TestPredFlag);
 
+  Yap_InitCPred("must_be_arity", 1, must_be_arity1, TestPredFlag);
   Yap_InitCPred("must_be_atom", 1, must_be_atom1, TestPredFlag);
   Yap_InitCPred("must_be_boolean", 1, must_be_boolean1, TestPredFlag);
   Yap_InitCPred("must_be_bound", 1, must_be_bound1, TestPredFlag);

@@ -79,31 +79,34 @@ mode and the existing spy-points, when the debugger is on.
    '$do_u_spy'(S, F0, N0, T0, M0).
 '$u_spy'(A,S,M) :- atom(A), !,
     '$u_spy_name'(A,S,M).
-'$u_spy'(P,spy,M) :- !,
+'$u_spy'(P,spy,M) :-
+    !,
     throw_error(type_error(predicate_indicator,P),spy(M:P)).
 '$u_spy'(P,nospy,M) :-
     throw_error(type_error(predicate_indicator,P),nospy(M:P)).
 
 '$u_spy_name'(A0,Command,M0) :-
     strip_module(M0:A0,M,A),
-    (
-	(
-	current_predicate(A,M:SF),
-	    functor(SF,A,N),
-	   M = MF
-    ;
-    '$import'(M1,M,S1,S,_N,_K),
-	   functor(S,A,N),
-	   '$imported_predicate'(M1:S1,MF:SF)
-	)
-    *->
-	'$may_set_spy_point'(MF:SF),
-	'$do_u_spy'(Command,A,N,SF,MF),
+ 	(
+      '$spy_gen'(M,A,S,At,N)
+	*->
+	'$may_set_spy_point'(M:S),
+	'$do_u_spy'(Command,At/N,N,S,M),
 	fail
     ;
     Error =..[S,M:A],
     print_message(warning,no_match(Error))
     ).
+
+'$spy_gen'(M,A,S,At,N) :-
+     atom(A),
+!,
+	current_predicate(A,M:S),
+functor(S,At,N).
+
+'$spy_gen'(M,At/N,S,At,N) :-
+    current_predicate(At,M:S),
+    functor(S,At,N).
 
  %
  % protect against evil arguments.
