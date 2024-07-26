@@ -1166,7 +1166,7 @@ thread_get_message(Queue, Term) :-
 	( MaybeTerm = Term -> true ; 	'$message_queue_send'(Id, MaybeTerm), thread_get_message(Queue, Term) ).
 thread_get_message(Queue, Term) :-
 	'$message_queue_receive'(Queue, MaybeTerm),
-	( MaybeTerm = Term -> true ; 	'$message_queue_send'(Id, MaybeTerm), thread_get_message(Queue, Term) ).
+	( MaybeTerm = Term -> true ; 	'$message_queue_send'(wwwwwwwwwwwwwId, MaybeTerm), thread_get_message(Queue, Term) ).
 
 
 

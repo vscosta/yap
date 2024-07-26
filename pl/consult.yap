@@ -414,7 +414,7 @@ SWI-compatible predicate. True if the predicate specified by  _Pred_ was loaded 
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
 	Mod \= prolog,
-	'$current_predicate'(_,Mod,Pred,all),
+	current_predicate(_,Mod:Pred),
 	'$owned_by'(Pred, Mod, FileName).
 
 '$owned_by'(T, Mod, FileName) :-
@@ -924,7 +924,7 @@ QEnd of cond  itional compilation.
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 prolog_library(File) :-
-    current_prolog_flag(verbose,Old,false),
+    yap_flag(verbose_load,Old,false),
     ensure_loaded(library(File)),
     set_prolog_flag(verbose_load,Old).
 
@@ -934,7 +934,7 @@ prolog_library(File) :-
 :- multifile user:dot_qualified_goal/1.
 
 
-y
+
 :- dynamic '$source_file'/2, '$source_file_scope'/2.
 /**
 

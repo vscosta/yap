@@ -65,7 +65,6 @@ static bool dollar_to_lc(Term inp);
 static bool setSignals(Term inp);
 
 static void newFlag(Term fl, Term val);
-static Int current_prolog_flag(USES_REGS1);
 static Int set_prolog_flag(USES_REGS1);
 
 #include "YapEval.h"
@@ -112,7 +111,7 @@ static Term mkplus(Term val)
 Term booleanFlag(Term inp) {
   CACHE_REGS
     if (IsStringTerm(inp)) {
-        inp = MkStringTerm(StringOfTerm(inp));
+        inp =  MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
     }
     if (inp == TermTrue || inp == TermOn)
         return TermTrue;
@@ -373,7 +372,7 @@ static flag_info global_flags_setup[] = {
 static Term indexer(Term inp) {
   CACHE_REGS
     if (IsStringTerm(inp)) {
-      inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+      inp = MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
     }
   if (inp == TermOff || inp == TermSingle || inp == TermCompact ||
       inp == TermMulti || inp == TermOn || inp == TermMax)
@@ -426,7 +425,7 @@ static Term isaccess(Term inp) {
       return inp;
 
   if (IsStringTerm(inp)) {
-    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+    inp = MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
   }
   if (IsAtomTerm(inp)) {
     Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, mkplus(inp),
@@ -502,7 +501,7 @@ static Term flagscope(Term inp) {
       return inp;
 
   if (IsStringTerm(inp)) {
-    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+    inp =MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp))); 
   }
   if (IsAtomTerm(inp)) {
     Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, mkplus(inp),
@@ -520,7 +519,7 @@ static bool mkprompt(Term inp) {
       return Yap_unify(inp, MkAtomTerm(Yap_LookupAtom(LOCAL_Prompt)));
     }
   if (IsStringTerm(inp)) {
-    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+    inp =MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
   }
   if (!IsAtomTerm(inp)) {
     Yap_ThrowError(TYPE_ERROR_ATOM, mkplus(inp), "set_prolog_flag");
@@ -687,7 +686,7 @@ static bool string( Term inp ) {
       do {
 	Term hd = HeadOfTerm(inp);
 	if (IsStringTerm(hd)) {
-	  hd = MkStringTerm(RepAtom(AtomOfTerm(hd))->StrOfAE);
+	  hd =  MkAtomTerm(Yap_LookupAtom(StringOfTerm(tflag)));
 	}
 	if (!IsAtomTerm(hd)) {
 	  Yap_ThrowError(TYPE_ERROR_TEXT, inp0, "set_prolog_flag in \"...\"");
@@ -728,7 +727,7 @@ static bool string( Term inp ) {
     Term hd = HeadOfTerm(inp);
     do {
       if (IsStringTerm(hd)) {
-	hd = MkStringTerm(RepAtom(AtomOfTerm(hd))->StrOfAE);
+	hd = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tflag)));
       }
 
       if (!IsAtomTerm(hd)) {
@@ -757,7 +756,7 @@ static Term list_option(Term inp) {
       Term hd = HeadOfTerm(inp);
       inp = TailOfTerm(inp);
       if (IsStringTerm(hd)) {
-	hd = MkStringTerm(RepAtom(AtomOfTerm(hd))->StrOfAE);
+	hd =  MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
       }
       if (IsAtomTerm(hd)) {
         continue;
@@ -780,7 +779,7 @@ static Term list_option(Term inp) {
     return TermZERO;
   } else /* lone option */ {
     if (IsStringTerm(inp)) {
-      inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+      inp =   MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
     }
     if (IsAtomTerm(inp)) {
       return inp;
@@ -972,6 +971,7 @@ static Term sys_pid(Term inp) {
 }
 
 
+
 static Int cont_yap_flag(USES_REGS1) {
   int i = IntOfTerm(EXTRA_CBACK_ARG(2, 1));
   int gmax = GLOBAL_flagCount;
@@ -1013,71 +1013,6 @@ static Int cont_yap_flag(USES_REGS1) {
   return Yap_unify(flag, ARG2);
 }
 
-/* yap_flag( ?Key, ? CurrentValue, ?NewValue)
- *
- * Atomically read and set a flag _Key_. It is useful to temporarily set a flag, eg:
- * ~~~~
- * main :-
- *      yap_flag(key,DefaultValue,TemporaryValue),
- *      code,
- *      yap_flag(key, _, DefaultValue),
- *  ~~~
- *
- * The predicate is very similar to current_prolog_flag/3. We suggest using yap_flag/3 only for yap specific flags.
- */
-static Int yap_flag(USES_REGS1) {
-  Term tflag = Deref(ARG1);
-  Term val = Deref(ARG2);
-  if (IsVarTerm(tflag)) {
-    EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);
-    return cont_yap_flag(PASS_REGS1);
-  }
-  Term modt = CurrentModule;
-   do_cut(0);
- tflag = Yap_StripModule(tflag, &CurrentModule);
-  if (!IsAtomTerm(tflag)) {
-    CurrentModule=modt;
-    return false;
-  }
-  if (IsVarTerm(val)) {
-    Term flag = getYapFlag(tflag);
-
-    CurrentModule=modt;
-    if (flag == 0)
-      return false;
-    return Yap_unify(flag, val);
-  } else {
-    Yap_set_flag(tflag, val);
-  }
-  return true;
-}
-
-static Int cont_prolog_flag(USES_REGS1) {
-  int i = IntOfTerm(EXTRA_CBACK_ARG(3, 1));
-  while (i < GLOBAL_flagCount + LOCAL_flagCount) {
-    int gmax = GLOBAL_flagCount;
-    int lmax = LOCAL_flagCount;
-    Term flag, f;
-
-    if (i >= gmax + lmax) {
-      cut_fail();
-    } else if (i >= gmax) {
-      Yap_unify(ARG1, (f = MkAtomTerm(
-				      Yap_LookupAtom(local_flags_setup[i - gmax].name))));
-    } else {
-      Yap_unify(ARG1,
-                (f = MkAtomTerm(Yap_LookupAtom(global_flags_setup[i].name))));
-    }
-    EXTRA_CBACK_ARG(3, 1) = MkIntTerm(++i);
-    flag = getYapFlag(f);
-    if (!Yap_unify(flag, ARG2))
-      return false;
-    return Yap_set_flag(f, Deref(ARG3));
-  }
-  cut_fail();
-}
-
-
 
 /* @pred yap_flag( ?Key, ? Value)
  *
@@ -1086,34 +1021,13 @@ static Int cont_prolog_flag(USES_REGS1) {
  *
  */
 static Int yap_flag2(USES_REGS1) {
-  return yap_flag(PASS_REGS1);
-}
-
-/** @pred prolog_flag(? _Flag_,- _OldValue_,+ _NewValue_)
-
-    Obtain the value for a YAP Prolog flag and then set it to a new
-    value. Equivalent to first calling current_prolog_flag/2 with the
-    second argument  _OldValue_ unbound and then calling
-    set_prolog_flag/2 with the third argument  _NewValue_.
-
-
-*/
-static Int prolog_flag(USES_REGS1) {
-  if (IsVarTerm(Deref(ARG1))) {
-    EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
-    return cont_prolog_flag(PASS_REGS1);
-  }
-  do_cut(0);
-  if (IsVarTerm(Deref(ARG3))) {
-    Term flag = getYapFlag(Deref(ARG1));
-    if (flag == 0)
-      return false;
-    return Yap_unify(flag, ARG2);
-  }
-  return Yap_set_flag(Deref(ARG1), Deref(ARG3));
+  EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);
+  return cont_yap_flag(PASS_REGS1);
 }
 
 static Int cont_current_prolog_flag(USES_REGS1) {
+  Term modt = CurrentModule;
+  Term tflag = Yap_StripModule(ARG1, &CurrentModule);
   int i = IntOfTerm(EXTRA_CBACK_ARG(2, 1));
   while (i < GLOBAL_flagCount + LOCAL_flagCount) {
     int gmax = GLOBAL_flagCount;
@@ -1121,37 +1035,24 @@ static Int cont_current_prolog_flag(USES_REGS1) {
     Term flag, f;
 
     if (i >= gmax + lmax) {
+      CurrentModule=modt;
       cut_fail();
     } else if (i >= gmax) {
-      Yap_unify(ARG1, (f = MkAtomTerm(
+      Yap_unify(tflag, (f = MkAtomTerm(
 				      Yap_LookupAtom(local_flags_setup[i - gmax].name))));
     } else {
-      Yap_unify(ARG1,
+      Yap_unify(tflag,
                 (f = MkAtomTerm(Yap_LookupAtom(global_flags_setup[i].name))));
     }
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(++i);
     flag = getYapFlag(f);
+    CurrentModule = modt;
     return Yap_unify(flag, ARG2);
   }
+    CurrentModule = modt;
   cut_fail();
 }
 
-/** @pred current_prolog_flag(? _Flag_,- _Value_, +_New_) is iso
-
-    Obtain the value for a YAP Prolog flag, and then set the flag to the _New_ value.
-
-*/
-static Int current_prolog_flag(USES_REGS1) {
-  if (IsVarTerm(Deref(ARG1))) {
-    EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
-    return cont_current_prolog_flag(PASS_REGS1);
-  }
-  do_cut(0);
-  Term flag = getYapFlag(Deref(ARG1));
-  if (flag == 0)
-    return false;
-  return Yap_unify(flag, ARG2);
-}
 
 /** @pred current_prolog_flag(? _Flag_,- _Value_) is iso
 
@@ -1160,29 +1061,30 @@ static Int current_prolog_flag(USES_REGS1) {
     returned second argument with  _Value_.
 
 */
-static Int current_prolog_flag2(USES_REGS1) {
+static Int  current_prolog_flag(USES_REGS1) {
   Term tflag = Deref(ARG1);
   Term tout = 0;
   FlagEntry *fv;
   flag_term *tarr;
 
+  Term modt = CurrentModule;
+  tflag = Yap_StripModule(tflag, &CurrentModule);
   if (IsVarTerm(tflag)) {
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);
     return cont_yap_flag(PASS_REGS1);
   }
+  do_cut(0);
   if (IsStringTerm(tflag)) {
-    tflag = MkStringTerm(RepAtom(AtomOfTerm(tflag))->StrOfAE);
+    tflag=   MkAtomTerm(Yap_LookupAtom(StringOfTerm(tflag)));
   }
   if (!IsAtomTerm(tflag)) {
     Yap_ThrowError(TYPE_ERROR_ATOM, tflag, "current_prolog_flag/3");
-  do_cut(0);
-    return (FALSE);
+    return false;
   }
   fv = GetFlagProp(AtomOfTerm(tflag));
+  CurrentModule = modt;
   if (!fv) {
-    // should itself depend on a flag
-  do_cut(0);
-    return FALSE;
+        return false;
   }
   if (fv->global)
     tarr = GLOBAL_Flags;
@@ -1191,34 +1093,20 @@ static Int current_prolog_flag2(USES_REGS1) {
   tout = tarr[fv->FlagOfVE].at;
   if (tout == TermZERO) {
     //    Yap_DebugPlWriteln(tflag);
-  do_cut(0);
     return false;
   }
   if (!IsAtomicTerm(tout)) {
     while ((tout = Yap_FetchTermFromDB(tarr[fv->FlagOfVE].DBT)) == 0) {
       /* oops, we are in trouble, not enough stack space */
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
-	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growglobal(NULL)) {
-	  Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
-			 LOCAL_ErrorMessage);
-	  //UNLOCK(ap->PELock);
-  do_cut(0);
-	  return false;
-	}
-      } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_dogc(PASS_REGS1)) {
 	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  //UNLOCK(ap->PELock);
-  do_cut(0);
 	  return false;
 	}
-      }
     }
   }
-  do_cut(0);
-  return (Yap_unify(ARG2, tout));
+ return Yap_unify(ARG2, tout);
 }
 
 
@@ -1235,7 +1123,7 @@ bool Yap_set_flag(Term tflag, Term t2) {
     return (FALSE);
   }
   if (IsStringTerm(tflag)) {
-    tflag = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tflag)));
+    tflag =  MkAtomTerm(Yap_LookupAtom(StringOfTerm(tflag)));
   }
   if (!IsAtomTerm(tflag)) {
         CurrentModule=modt;
@@ -1927,16 +1815,10 @@ void Yap_InitFlags(bool bootstrap) {
   pop_text_stack(lvl);
   if (!bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag,
-                      cont_yap_flag, 0);
+                      cont_current_prolog_flag, 0);
     TR = tr0;
-    Yap_InitCPredBack("prolog_flag", 3, 1, prolog_flag, cont_yap_flag,
-                      0);
-    Yap_InitCPredBack("yap_flag", 3, 1, yap_flag, cont_yap_flag, 0);
     Yap_InitCPredBack("yap_flag", 2, 1, yap_flag2, cont_yap_flag, 0);
-    Yap_InitCPredBack("prolog_flag", 2, 1, current_prolog_flag2,
-                      cont_current_prolog_flag, 0);
-    Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag2,
-                      cont_current_prolog_flag, 0);
+    Yap_InitCPredBack("prolog_flag", 2, 1, yap_flag2, cont_yap_flag, 0);
     Yap_InitCPred("set_prolog_flag", 2, set_prolog_flag, SyncPredFlag);
     Yap_InitCPred("$create_prolog_flag", 3, do_create_prolog_flag,
                   SyncPredFlag);

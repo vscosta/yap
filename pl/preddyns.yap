@@ -161,7 +161,6 @@ assert(Clause, Ref) :-
      true
     ;
      (X/\8)=:=0 ->
-     '$inform_as_reconsulted'(N,A),
      '$remove_all_d_clauses'(H,Mod)
     ;
      true

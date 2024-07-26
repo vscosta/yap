@@ -61,6 +61,7 @@ add(Error, Self) :-
     Dict0 = (end=[]),
     (atom(Culprit), Culprit \= [] -> Label=Culprit;Label='Syntax Error'),
     foldl(add2dict, [label=Label|I], Dict0,  Dict),
+    writeln(user_error,Dict),
     Self.errors := Self.errors+[{Dict}],
     !.
 add(E, _Self) :-

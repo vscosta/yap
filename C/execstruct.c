@@ -163,12 +163,10 @@ static bool watch_cut(Term ext)
   Term e = 0;
   bool active = ArgOfTerm(5, task) == TermTrue;
   bool ex_mode;
-  CELL port = Deref(ArgOfTerm(2,task));
-  CELL *port_pt = VarOfTerm(port);
-  CELL completion             = Deref(ArgOfTerm(4,task));
-  CELL *completion_pt = VarOfTerm(completion);
+ CELL *port_pt = deref_ptr(RepAppl(task)+2);
+  CELL *completion_pt = deref_ptr(RepAppl(task)+4);
   bool det = deterministic(IntOfTerm(ArgOfTerm(6,task)));
-  if (IsNonVarTerm(completion))
+  if (IsNonVarTerm(completion_pt[0]))
     return true;
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {
@@ -217,13 +215,10 @@ static bool watch_retry(Term d0 )
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
-
-  CELL port = Deref(ArgOfTerm(2,task));
-  CELL *port_pt = VarOfTerm(port);
+ CELL *port_pt = deref_ptr(RepAppl(task)+2);
+  CELL *completion_pt = deref_ptr(RepAppl(task)+4);
   Term cleanup = ArgOfTerm(3, task);
-  CELL complete             = Deref(ArgOfTerm(4,task));
-  CELL *complete_pt = VarOfTerm(Deref(complete));
-  bool bottom = ArgOfTerm(5, task) == TermTrue;
+ bool bottom = ArgOfTerm(5, task) == TermTrue;
   Int BRef = IntOfTerm(ArgOfTerm(6, task));
   bool det = deterministic(BRef);
   Term e;
@@ -246,21 +241,22 @@ static bool watch_retry(Term d0 )
 	{
 	  port_pt[0] = Yap_MkApplTerm(FunctorExternalException, 1, &e);
 	}
-      complete_pt[0] = TermException;
+      completion_pt[0] = TermException;
     }
   else
     {
       if (det)
 	{
 	  port_pt[0] = TermFail;
-	  complete_pt[0] = TermFail;
+	  completion_pt[0] = TermFail;
 	}
       else 
 	{
-	  YapBind( port_pt, TermRedo );
+	   port_pt[0] = TermRedo ;
 	}
     }
   gate(cleanup PASS_REGS);
+  RESET_VARIABLE(port_pt);
   P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
@@ -326,11 +322,9 @@ static Int tag_cleanup(USES_REGS1)
 static Int cleanup_on_exit(USES_REGS1)
 {
   Term task = Deref(ARG2);
-  CELL port = ArgOfTerm(2,task);
-  CELL *port_pt   =IsVarTerm(port) ? VarOfTerm(port) : NULL;
-  Term cleanup = ArgOfTerm(3, task);
-  CELL complete             = ArgOfTerm(4,task);
-  CELL *complete_pt = IsVarTerm(complete) ? VarOfTerm(complete) : NULL;
+ CELL *port_pt = deref_ptr(RepAppl(task)+2);
+  CELL *completion_pt = deref_ptr(RepAppl(task)+4);
+   Term cleanup = ArgOfTerm(3, task);
   Int BEntry = IntegerOfTerm(ArgOfTerm(6,task));
   if (!Yap_dispatch_interrupts( PASS_REGS1 ))
     return false;
@@ -346,12 +340,11 @@ static Int cleanup_on_exit(USES_REGS1)
   else
     {
       port_pt[0] = TermExit;
-      complete_pt[0] = TermExit;
+      completion_pt[0] = TermExit;
     }
   gate(cleanup PASS_REGS);
   if(       port_pt[0]==TermAnswer) {
-    RESET_VARIABLE(port_pt);
-    if(IsVarTerm(complete_pt[0]))
+    if(IsVarTerm(completion_pt[0]))
       {
       
 	set_watch(LCL0 - (CELL *)B, task);

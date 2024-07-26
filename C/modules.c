@@ -259,6 +259,8 @@ Term Yap_Module_Name(PredEntry *ap) {
 }
 
 bool Yap_isSystemModule(Term a) {
+  if (a==PROLOG_MODULE)
+    return  true;
   ModEntry *me = Yap_GetModuleEntry(a);
   return me != NULL && me->flags & M_SYSTEM;
 }

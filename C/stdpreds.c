@@ -15,6 +15,7 @@
 *	 *
 *									 *
 *************************************************************************/
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -75,8 +76,6 @@ Int p_halt(USES_REGS1);
 #else
 static Int p_halt(USES_REGS1);
 #endif
-static Int current_predicate(USES_REGS1);
-static Int cont_current_predicate(USES_REGS1);
 static OpEntry *NextOp(Prop CACHE_TYPE);
 static Int init_current_op(USES_REGS1);
 static Int cont_current_op(USES_REGS1);
@@ -397,6 +396,17 @@ static Int p_walltime(USES_REGS1) {
 
 //  static int cnt;
 
+  /** @pred  _T_ =..  _L_ is iso
+
+
+  The list  _L_ is built with the functor and arguments of the term
+  _T_. If  _T_ is instantiated to a variable, then  _L_ must be
+  instantiated either to a list whose head is an atom, or to a list
+  consisting of just a number.
+
+
+  */
+
 static Int p_univ(USES_REGS1) { /* A =.. L			 */
   unsigned int arity;
   register Term tin;
@@ -632,15 +642,17 @@ static Int
   return TRUE;
 }
 
-static bool valid_prop(Prop p, Term mod,
+static bool valid_prop(Prop p, 
 		       Term task) {
-  PredEntry *pe = RepPredProp(p);
-  if ((mod == PROLOG_MODULE || IsAtomTerm(mod)) &&
-      mod != pe->ModuleOfPred)
+  if (p==NIL)
     return false;
+  if (IsVarTerm(task)) {
+    return true;
+  }
+  PredEntry *pe = RepPredProp(p);
   if (task == TermUndefined)
       return pe->PredFlags & UndefPredFlag;
-  if ((pe->PredFlags & HiddenPredFlag) || (pe->OpcodeOfPred == UNDEF_OPCODE)) {
+  if ((pe->PredFlags & HiddenPredFlag)) {
     return false;
   }
   if (task == TermSystem || task == TermProlog) {
@@ -649,271 +661,190 @@ static bool valid_prop(Prop p, Term mod,
   if (task == TermUser) {
     return !Yap_isSystemModule(pe->ModuleOfPred);
   }
-  if (IsVarTerm(task)) {
-    return true;
-  }
-  return false;
+  return true;
 }
 
-static PropEntry *followLinkedListOfProps(PropEntry *p, Term mod, Term task) {
-  while (p) {
-    if (p->KindOfPE == PEProp && valid_prop(p, mod, task)) {
-      // found our baby..
-      return p;
-    }
-    p = p->NextOfPE;
-  }
-  return NIL;
-}
-
-static PropEntry *getPredProp(PropEntry *p, Term mod, Term task) {
-  if (p == NIL)
-    return NIL;
-  while (p != NIL) {
-    if (p->KindOfPE == PEProp && valid_prop(p, mod, task)) {
-      return p;
-    } else if (p->KindOfPE == FunctorProperty) {
-      // first search remainder of functor list
-      Prop pf;
-      if ((pf = followLinkedListOfProps(RepFunctorProp(p)->PropsOfFE, mod, task))) {
-        return pf;
-      }
-    }
-    p = p->NextOfPE;
-  }
-  return NIL;
-}
-
-static PropEntry *nextPredForAtom(PropEntry *p, Term mod, Term task) {
-  PredEntry *pe;
-  if (p == NIL)
-    return NIL;
-  pe = RepPredProp(p);
-  if (pe->ArityOfPE == 0 ||
-      (pe->PredFlags & (NumberDBPredFlag | AtomDBPredFlag))) {
-    // if atom prop, search atom list
-    return followLinkedListOfProps(p->NextOfPE, mod, task);
-  } else {
-     FunctorEntry *f = pe->FunctorOfPred;
-    // first search remainder of functor list
-    PropEntry *pf;
-    if (mod!=PROLOG_MODULE && IsVarTerm(mod) && (pf = followLinkedListOfProps(p->NextOfPE, mod, task))) {
-      return pf;
-    }
-
-    // if that fails, follow the functor
-    return getPredProp(f->NextOfPE, mod, task);
-  }
-}
-
-static Prop initFunctorSearch(Term t3, Term mod, Term task) {
-  if (IsAtomTerm(t3)) {
-    Atom at = AtomOfTerm(t3);
-    // access the entry at key address.
-    return followLinkedListOfProps(RepAtom(at)->PropsOfAE, mod, task);
-  } else if (IsIntTerm(t3)) {
-    if (IsNonVarTerm(mod) && mod != IDB_MODULE) {
-      Yap_ThrowError(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
-      return NULL;
-    } else {
-      Prop p;
-      // access the entry at key address.
-      // a single property (this will be deterministic
-      p = AbsPredProp(Yap_FindLUIntKey(IntOfTerm(t3)));
-      if (valid_prop(p, mod, task))
-        return p;
-    }
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
-    return NULL;
-  } else {
-    Functor f;
-    if (IsPairTerm(t3)) {
-      f = FunctorDot;
-    } else {
-      f = FunctorOfTerm(t3);
-      if (IsExtensionFunctor(f)) {
-        Yap_ThrowError(TYPE_ERROR_CALLABLE, t3, "current_predicate/2");
-        return NULL;
-      }
-    }
-    return followLinkedListOfProps(f->PropsOfFE, mod, task);
-  }
-}
-
-static PredEntry *firstModulePred(PredEntry *npp, Term task) {
-  if (!npp)
-    return NULL;
-  do {
-    npp = npp->NextPredOfModule;
-  } while (npp && !valid_prop(AbsPredProp(npp), npp->ModuleOfPred, task));
-  return npp;
-}
-
-static PredEntry *firstModulesPred(PredEntry *npp, ModEntry *m, Term task) {
-  do {
-    while (npp && !valid_prop(AbsPredProp(npp),npp->ModuleOfPred, task))
-      npp = npp->NextPredOfModule;
-    if (npp)
-      return npp;
-    m = m->NextME;
-    if (m) {
-      npp = m->PredForME;
-    } else
-      return NULL;
-  } while (npp || m);
-  return npp;
-}
-
-static Int cont_current_predicate(USES_REGS1) {
-  UInt Arity=0;
-  Term name =  0, task=0;
-  Term t1 = ARG1, mod = Deref(ARG2), t3 = Deref(ARG3);
-  bool rc, will_cut = false;
-  Functor f;
-  PredEntry *pp;
-  t1 = Yap_YapStripModule(t1, &mod);
-  t3 = Yap_YapStripModule(t3, &mod); 
- task = Deref(ARG4);
-
- if (mod == TermProlog)
-   mod = PROLOG_MODULE;
-  pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
-  if (IsNonVarTerm(t3)) {
-    PropEntry *np, *p;
-
-    if (IsNonVarTerm(mod)) {
-      // module and functor known, should be easy
-      if (IsAtomTerm(t3)) {
-        if ((p = Yap_GetPredPropByAtom(AtomOfTerm(t3), mod)) &&
-            valid_prop(p, mod, task)) {
-          cut_succeed();
-        } else {
-          cut_fail();
-        }
-      } else {
-        if ((p = Yap_GetPredPropByFunc(FunctorOfTerm(t3), mod)) &&
-            valid_prop(p, mod,task)) {
-          cut_succeed();
-        } else {
-          cut_fail();
-        }
-      }
-    }
-
-    // t3 is a functor, or compound term,
-    // just follow the functor chain
-    p = AbsPredProp(pp);
-    if (!p) {
-      // initial search, tracks down what is the first call with
-      // that name, functor..
-      p = initFunctorSearch(t3, mod, task);
-      // now, we can do lookahead.
-      if (p == NIL)
-        cut_fail();
-      pp = RepPredProp(p);
-    }
-    p = AbsPredProp(pp);    
-    np = followLinkedListOfProps(p->NextOfPE, mod, task);
-    Term pmod = pp->ModuleOfPred;
-    if (pmod == PROLOG_MODULE)
-      pmod = TermProlog;
-    if (mod == PROLOG_MODULE)
-      mod = TermProlog;
-    bool b = Yap_unify(pmod, mod);
-    if (!np) {
-      if (b)
-        cut_succeed();
-      else
-        cut_fail();
-    } else {
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm((pp=RepPredProp(np)));
-      B->cp_h = HR;
-      return b;
-    }
-  } else if (IsNonVarTerm(t1)) {
-    PropEntry *np, *p;
-    // run over the same atom any predicate defined for that atom
-    // may be fair bait, depends on whether we know the m`odule.
-    if (!pp) {
-      // initialization time
-      if (IsIntTerm(t1)) {
-        // or this or nothing....
-        p = AbsPredProp(Yap_FindLUIntKey(IntOfTerm(t3)));
-      } else if (IsAtomTerm(t1)) {
-        // should be the usual situation.
-        Atom at = AtomOfTerm(t1);
-        p = getPredProp(RepAtom(at)->PropsOfAE, mod, task);
-      } else {
-        Yap_ThrowError(TYPE_ERROR_CALLABLE, t1, "current_predicate/2");
-	return false;
-      }
-      if (!p)
-        cut_fail();
-      pp = RepPredProp(p);
-    }
-    // now, we can do lookahead.
-    np = nextPredForAtom(p,mod, task);
-    if (!np)
-      will_cut = true;
-    else {
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(RepPredProp(np));
-      B->cp_h = HR;
-    }
-  } else if (mod == PROLOG_MODULE ||
-	     IsNonVarTerm(mod)) {
+static Int continue_functor_predicate(USES_REGS1)
+{
     // operating within the same module.
-    PredEntry *npp;
+    Term task = Deref(ARG4); 
+    Prop p =AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
+    Atom name = AtomOfTerm(Deref(ARG2));
+    arity_t Arity = IntegerOfTerm(Deref(ARG3));;
+    if (!p) {
+      if (Arity==0) {
+	p=RepAtom(AtomOfTerm(Deref(ARG2)))->PropsOfAE;
+    while (p) {
+	if( IsPredProperty(p->KindOfPE)&&
+	    valid_prop((p),task)) {
+	  break;
+	}
+	p = p->NextOfPE;
+    }
+      } else {
+      p = Yap_MkFunctor(name,Arity)->PropsOfFE;
+      }
+    } 
+    if (!p) {
+        /* try Prolog Module */
+        cut_fail();
+    }
+    Prop np = p->NextOfPE;
+    while (np) {
+      if( IsPredProperty(np->KindOfPE)&& valid_prop((np),task)) {
+	break;
+      }
 
+      np = np->NextOfPE;
+    }
+     Term mod = RepPredProp( p)->ModuleOfPred;
+     if (mod == PROLOG_MODULE)
+       mod = TermProlog;
+     Yap_unify(ARG1,mod);
+     if (!np) {
+       cut_succeed();
+     } else {
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(np);
+     }
+     return true;
+    }
+
+
+
+/**
+ * functor_predicate(Mod, +Name, +Arity, Task)
+ *
+ * Enumerate all predicates for Mod.
+*/
+static Int functor_predicate(USES_REGS1)
+{ 
+  Term t2 = Deref(ARG2),
+  t3 = Deref(ARG3);
+  must_be_atom(t2);
+  must_be_arity(t3);
+  Term t1    = Deref(ARG1);
+  if (IsVarTerm(t1)) {
+    EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
+    return continue_functor_predicate();
+  } else {
+    Term task = Deref(ARG4);
+    must_be_atom(t1);
+    arity_t Arity = IntegerOfTerm(t3);
+    bool rc;
+    PredEntry *np;
+    if (Arity == 0) {
+      np = Yap_get_pred(t2, t1, NULL);
+      rc = np!= NULL&& valid_prop(AbsPredProp(np),task);
+    } else {
+      np = Yap_get_pred(Yap_MkNewApplTerm(Yap_MkFunctor(AtomOfTerm(t2),Arity), Arity),t1,NULL);
+      rc = np != NULL&& valid_prop(AbsPredProp(np),task);
+    }
+    if (rc) {
+      cut_succeed();
+    } else {
+      cut_fail();
+    }
+  }
+}
+
+/** @pred name_functor(Name,Arity)
+    Succeeds if Name is an atom and `Name(...)` with arity _N_ exists in the */
+static Int continue_atom_functor(USES_REGS1)
+{
+    // find functors 
+  Prop p;
+  arity_t Arity;
+  Term found0 = EXTRA_CBACK_ARG(2,2);
+  p = AddressOfTerm(EXTRA_CBACK_ARG(2, 1));
+  if (!p) {
+    Term t1 = Deref(ARG1);
+    Atom at = AtomOfTerm(t1);
+    p = RepAtom(at)->PropsOfAE;
+  }
+    while (p != NIL) {       
+      if (found0==TermFalse && IsPredProperty(p->KindOfPE)) {
+	Arity = 0;
+	found0 = TermTrue;
+	break;
+      } else if (p->KindOfPE == FunctorProperty) {
+	Arity = RepFunctorProp(p)->ArityOfFE;	
+	break;
+      }
+      p=p->NextOfPE;
+    }
+    if (p == NIL) {
+      cut_fail();
+    }
+    Prop np=p->NextOfPE;
+    while (np != NIL) {       
+      if ((found0==TermFalse && IsPredProperty(np->KindOfPE)) ||
+	  np->KindOfPE == FunctorProperty) {
+	found0 = TermTrue;
+	break;
+      }
+      np=np->NextOfPE;
+    }
+    bool rc = Yap_unify(ARG2, MkIntTerm(Arity));
+    if (np) {
+      EXTRA_CBACK_ARG(2, 1) = MkAddressTerm(np);
+      EXTRA_CBACK_ARG(2, 2) = found0;
+      return rc;
+    } else {
+      if (rc)
+      cut_succeed();
+      else
+	cut_fail();
+    }
+}
+
+
+/**
+ * atom_functor(Name, Arity)
+ *
+ * Enumerate all predicate functors for Mod.
+*/
+static Int atom_functor(USES_REGS1)
+{
+  must_be_atom(ARG1);
+  if (!IsVarTerm(Deref(ARG2))) {
+    must_be_arity(Deref(ARG2));
+    cut_succeed();
+  }
+  EXTRA_CBACK_ARG(2, 1) = MkAddressTerm(NULL);
+  EXTRA_CBACK_ARG(2, 2) = TermFalse;
+  return continue_atom_functor(PASS_REGS1);
+}
+
+static Int continue_module_predicate(USES_REGS1)
+{
+    // operating within the same module.
+  PredEntry *npp, *pp;
+    Term task = Deref(ARG4), mod=Deref(ARG1);
+    
+    pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
     if (!pp) {
       if (mod && !IsAtomTerm(mod)) {
         Yap_ThrowError(TYPE_ERROR_ATOM, mod, "module name");
       }
       ModEntry *m = Yap_GetModuleEntry(mod);
       pp = m->PredForME;
-      while (pp && !valid_prop(AbsPredProp(pp), mod, task)) {
-        pp = pp->NextPredOfModule;
-      }
-      if (!pp) {
+    }
+    while (pp && !valid_prop((Prop)pp, task)) {
+      pp = pp->NextPredOfModule;
+    }
+    if (!pp) {
         /* try Prolog Module */
         cut_fail();
-      }
     }
-    npp = firstModulePred(pp, task);
-
-    if (!npp) {
-      will_cut = true;
+    npp = pp->NextPredOfModule;
+while (npp && !valid_prop((Prop)(npp), task)) {
+      npp = npp->NextPredOfModule;
     }
+ Term name;
+ arity_t Arity;
     // just try next one
-    else {
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
-      B->cp_h = HR;
-    }
-  } else {
-    // operating across all modules.
-    PredEntry *npp = pp;
-    ModEntry *me;
-
-    if (!pp) {
-      pp = firstModulesPred(CurrentModules->PredForME, CurrentModules, task);
-    }
-    if (!pp)
-      cut_fail();
-    if (pp->ModuleOfPred == PROLOG_MODULE)
-      me = Yap_GetModuleEntry(TermProlog);
-    else
-      me = Yap_GetModuleEntry(pp->ModuleOfPred);
-    npp = firstModulesPred(pp->NextPredOfModule, me, task);
-    if (!npp)
-      will_cut = true;
-    // just try next module.
-    else {
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
-      B->cp_h = HR;
-    }
-  }
-
   if (pp->ModuleOfPred != IDB_MODULE) {
-    f = pp->FunctorOfPred;
+    Functor f = pp->FunctorOfPred;
     Arity = pp->ArityOfPE;
     if (Arity)
       name = MkAtomTerm(NameOfFunctor(f));
@@ -924,36 +855,36 @@ static Int cont_current_predicate(USES_REGS1) {
       name = MkIntegerTerm(pp->src.IndxId);
       Arity = 0;
     } else if (pp->PredFlags & AtomDBPredFlag) {
-      f = pp->FunctorOfPred;
+      Functor f = pp->FunctorOfPred;
       name = MkAtomTerm((Atom)f);
       Arity = 0;
     } else {
-      f = pp->FunctorOfPred;
+     Functor  f = pp->FunctorOfPred;
       name = MkAtomTerm(NameOfFunctor(f));
       Arity = ArityOfFunctor(pp->FunctorOfPred);
     }
   }
-  if (Arity) {
-    rc = Yap_unify(ARG3, Yap_MkNewApplTerm(f, Arity));
-  } else {
-    rc = Yap_unify(ARG3, name);
-  }
-  rc = rc && (IsAtomTerm(mod) || Yap_unify(ARG2, ModToTerm(pp->ModuleOfPred))) &&
-       Yap_unify(ARG1, name);
-  if (will_cut) {
-    if (rc)
+  Yap_unify(name, ARG2) ;
+	 Yap_unify(MkIntTerm(Arity), ARG3);
+    if (npp) {
+      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
+      return true;
+    } else {
       cut_succeed();
-    cut_fail();
-  }
-  return rc;
+    }
 }
 
-static Int current_predicate(USES_REGS1) {
+
+/**
+ * module_predicate(+Mod, Name, Arity, Task)
+ *
+ * Enumerate all predicates for Mod.
+*/
+static Int module_predicate(USES_REGS1)
+{
   EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
-  // ensure deref access to choice-point fields.
-  return cont_current_predicate(PASS_REGS1);
+  return continue_module_predicate();
 }
-
 
 static Int functors_for_atom(USES_REGS1) {
   Atom at = AtomOfTerm(Deref(ARG1));
@@ -1001,7 +932,7 @@ int Yap_IsOpMaxPrio(Atom at) {
 
 static Int unify_op(OpEntry *op USES_REGS) {
   Term tmod = op->OpModule;
-
+  
   if (tmod == PROLOG_MODULE)
     tmod = TermProlog;
   return Yap_unify_constant(ARG2, tmod) &&
@@ -1426,10 +1357,9 @@ static Int exit_undefp(USES_REGS1) {
 }
 
 #ifdef DEBUG
-extern void DumpActiveGoals(void);
 
 static Int p_dump_active_goals(USES_REGS1) {
-  DumpActiveGoals();
+  DumpActiveGoals(stderr,true PASS_REGS);
   return (TRUE);
 }
 #endif
@@ -1471,12 +1401,14 @@ static Int p_break(USES_REGS1) {
 }
 
 void Yap_InitBackCPreds(void) {
-  Yap_InitCPredBack("$current_predicate", 4, 1, current_predicate,
-                    cont_current_predicate, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$current_op", 5, 1, init_current_op, cont_current_op,
                     SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("$current_atom_op", 5, 1, init_current_atom_op,
                     cont_current_atom_op, SafePredFlag | SyncPredFlag);
+  Yap_InitCPredBack("module_predicate", 4, 1, module_predicate,continue_module_predicate, SafePredFlag );
+  Yap_InitCPredBack("atom_functor", 2, 2, atom_functor,continue_atom_functor, SafePredFlag );
+  Yap_InitCPredBack("functor_predicate", 4, 1, functor_predicate,continue_functor_predicate, SafePredFlag );
+
 #ifdef BEAM
   Yap_InitCPredBack("eam", 1, 0, start_eam, cont_eam, SafePredFlag);
 #endif
@@ -1507,16 +1439,6 @@ void Yap_InitCPreds(void) {
   /* general purpose */
   Yap_InitCPred("opdec", 4, opdec, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("=..", 2, p_univ, 0);
-  /** @pred  _T_ =..  _L_ is iso
-
-
-  The list  _L_ is built with the functor and arguments of the term
-  _T_. If  _T_ is instantiated to a variable, then  _L_ must be
-  instantiated either to a list whose head is an atom, or to a list
-  consisting of just a number.
-
-
-  */
   Yap_InitCPred("$statistics_trail_max", 1, p_statistics_trail_max,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$statistics_heap_max", 1, p_statistics_heap_max,

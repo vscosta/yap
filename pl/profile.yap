@@ -128,7 +128,7 @@ profile_data(P, Parm, Data) :-
 
 '$profile_data_for_var'(Name/Arity, Parm, Data, M) :-
 	functor(P,Name,Arity),
-	'$current_predicate'(Name,M,P,_),
+	current_predicate(M:Name/Arity),
 	\+ '$hidden'(Name), % don't show hidden predicates.
 	'$profile_info'(M, P, Stats),
 	'$profile_say'(Stats, Parm, Data).
@@ -138,7 +138,7 @@ profile_data(P, Parm, Data) :-
 
 profile_reset :-
 	current_module(M),
-	'$current_predicate'(_Na,M,P,_),
+	current_predicate(_Na,M:P),
 	'$profile_reset'(M, P),
 	fail.
 profile_reset.

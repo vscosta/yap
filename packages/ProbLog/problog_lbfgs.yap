@@ -222,9 +222,10 @@
 :- reexport(library(python)).
 xsetting(alg,lbfgs).
 xsetting(induce,problog).
-:- else.
-:- dynamic user:fold/1.
 :-endif.
+:- dynamic user:fold/1.
+
+
 
 % load our own modules
 
@@ -778,7 +779,7 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
 	     EV <== 0.0,
 		      run_queries(X,Slope,ExCount,LLL,PV,EV),
 		      LF <== LLL.sum(),
-    forall(user:example(QueryID,_,_P0,_),query_ex_gradient(QueryID,X,Slope,EV,Grad)),.
+    forall(user:example(QueryID,_,_P0,_),query_ex_gradient(QueryID,X,Slope,EV,Grad)).
 
 
 run_queries(X,Slope,ExCount,LLL,PV,EV)  :-

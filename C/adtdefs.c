@@ -198,7 +198,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   NOfAtoms++;
   na = AbsAtom(ae);
   ae->PropsOfAE = NIL;
-  memmove(ae->StrOfAE, (const char *)atom, sz+1);
+  strcpy(ae->StrOfAE, (const char *)atom);
 
   ae->NextOfAE = a;
   HashChain[hash].Entry = na;
@@ -603,14 +603,11 @@ lookup atom in atom table */
     UInt new_size = PredHashTableSize + PredHashIncrement;
     PredEntry **oldp = PredHash;
     PredEntry **np =
-      (PredEntry **)Yap_AllocAtomSpace(sizeof(PredEntry **) * new_size);
+      calloc(sizeof(PredEntry **),new_size);
     UInt i;
 
     if (!np) {
       return FALSE;
-    }
-    for (i = 0; i < new_size; i++) {
-      np[i] = NULL;
     }
     for (i = 0; i < PredHashTableSize; i++) {
       PredEntry *p = PredHash[i];

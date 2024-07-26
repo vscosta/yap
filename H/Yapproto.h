@@ -142,7 +142,7 @@ extern void Yap_InitCdMgr(void);
 extern struct pred_entry *Yap_PredFromClause(Term t USES_REGS);
 extern bool Yap_discontiguous(struct pred_entry *ap, Term mode USES_REGS);
 extern bool Yap_multiple(struct pred_entry *ap, Term mode USES_REGS);
-extern void Yap_init_consult(int, const char *);
+extern void Yap_init_consult(int, const char *, const char *);
 extern void Yap_end_consult(void);
 extern void Yap_Abolish(struct pred_entry *);
 extern void Yap_BuildMegaClause(struct pred_entry *);
@@ -203,7 +203,7 @@ extern Term Yap_MkErrorTerm(struct s_yap_error_descriptor *t);
 extern noreturn void Yap_RestartYap(int);
 extern noreturn void Yap_exit(int);
 extern bool Yap_Warning(const char *s, ...);
-extern bool Yap_PrintWarning(Term t);
+extern bool Yap_PrintWarning(Term t, Term level);
 extern bool Yap_HandleError__(const char *file, const char *function, int lineno,
                        const char *s, ...);
 #define Yap_HandleError(...)                                                   \
@@ -212,10 +212,12 @@ extern int Yap_SWIHandleError(const char *, ...);
 extern void Yap_InitErrorPreds(void);
 extern bool Yap_callable(Term t);
 
+extern bool must_be_arity__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_atom__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_code__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_char__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_list__(const char *file, const char *function, int lineno,Term t USES_REGS );
+#define must_be_arity(t ) must_be_arity__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 #define must_be_atom(t ) must_be_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 #define must_be_char(t ) must_be_char__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 #define must_be_code(t ) must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
@@ -423,7 +425,8 @@ extern Term Yap_SortList(Term t USES_REGS);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
-extern char *Yap_dump_stack(void);
+extern char *Yap_dump_stack(FILE *f);
+extern bool DumpActiveGoals(FILE *f, bool ignore_top USES_REGS);
 extern void Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize);
 extern Term Yap_Cps(choiceptr cp);
 extern Term Yap_choicepoint_info(choiceptr cp, bool full );

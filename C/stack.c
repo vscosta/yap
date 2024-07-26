@@ -1700,19 +1700,20 @@ bool DumpActiveGoals(FILE *f, bool ignore_top USES_REGS) {
     return true;
 }            
 
-char * Yap_dump_stack(void) {
+char * Yap_dump_stack(FILE *f) {
     CACHE_REGS
-      FILE*f;
     size_t nsize;
     char *nbuf;
-      #if HAVE_OPEN_MEMSTREAM
-f = open_memstream(&nbuf, &nsize);
-  #else
- nbuf = malloc(32*K);
- nsize = 32*k;
- file = fmemopen((void *)nbuf, nsize, "w+");
-  #endif
-
+    if (!f)
+      {      
+#if HAVE_OPEN_MEMSTREAM
+      f = open_memstream(&nbuf, &nsize);
+#else
+    nbuf = malloc(32*K);
+    nsize = 32*k;
+    f = fmemopen((void *)nbuf, nsize, "w+");
+#endif
+      }
   Yap_output_bug_location(f, B, P, FIND_PRED_FROM_ANYWHERE, "caller:");
  Yap_output_bug_location(f, B, CP, FIND_PRED_FROM_ENV, "continuation:");
  Yap_output_bug_location(f, B, B->cp_ap, FIND_PRED_FROM_CP, "choice point:");
