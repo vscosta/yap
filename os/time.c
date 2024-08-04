@@ -71,14 +71,14 @@
 //
 //#else
 /* since the point YAP was started */
-static struct timeval StartOfTimes;
+uint64_t StartOfTimes;
 
 /* since last call to runtime */
-static struct timeval last_time;
+uint64_t last_time;
 
 /* same for system time */
-static struct timeval last_time_sys;
-static struct timeval StartOfTimes_sys;
+uint64_t last_time_sys;
+uint64_t StartOfTimes_sys;
 
 void Yap_InitTime(int wid) {
   struct rusage rusage;
@@ -107,10 +107,8 @@ void Yap_InitTime(int wid) {
 //          rusage.ru_stime.tv_usec;
 //#else
   getrusage(RUSAGE_SELF, &rusage);
-  last_time.tv_sec = StartOfTimes.tv_sec = rusage.ru_utime.tv_sec;
-  last_time.tv_usec = StartOfTimes.tv_usec = rusage.ru_utime.tv_usec;
-  last_time_sys.tv_sec = StartOfTimes_sys.tv_sec = rusage.ru_stime.tv_sec;
-  last_time_sys.tv_usec = StartOfTimes_sys.tv_usec = rusage.ru_stime.tv_usec;
+  last_time = StartOfTimes = timevalnanos(rusage.ru_utime);
+  last_time_sys = StartOfTimes_sys = timevalnanos(rusage.ru_stime);
 //#endif
 }
 
@@ -118,27 +116,26 @@ uint64_t Yap_cputime(void) {
   struct rusage rusage;
 
   getrusage(RUSAGE_SELF, &rusage);
-  return timevalnanos(rusage.ru_utime) - timevalnanos(StartOfTimes);
+  return timevalnanos(rusage.ru_utime) - (StartOfTimes);
 }
 
 void Yap_cputime_interval(uint64_t *now, uint64_t *interval) {
   struct rusage rusage;
 
   getrusage(RUSAGE_SELF, &rusage);
-  *now = timevalnanos(rusage.ru_utime) - timevalnanos(StartOfTimes);
-  *interval = timevalnanos(rusage.ru_utime) - timevalnanos(last_time);
-  last_time_sys.tv_sec  = rusage.ru_stime.tv_sec;
-  last_time_sys.tv_usec = rusage.ru_stime.tv_usec;
+  uint64_t clock = timevalnanos(rusage.ru_utime);
+  *now =clock  - (StartOfTimes);
+  *interval = clock - last_time;
+  last_time = clock;
 }
 
 void Yap_systime_interval(uint64_t *now, uint64_t *interval) {
   struct rusage rusage;
 
   getrusage(RUSAGE_SELF, &rusage);
-  *now = timevalnanos(rusage.ru_stime) - timevalnanos(StartOfTimes_sys);
-  *interval = timevalnanos(rusage.ru_stime) - timevalnanos(last_time_sys);
-  last_time.tv_sec  = rusage.ru_utime.tv_sec;
-  last_time.tv_usec = rusage.ru_utime.tv_usec;
+  *now = timevalnanos(rusage.ru_stime) - (StartOfTimes_sys);
+  *interval = timevalnanos(rusage.ru_stime) -(last_time_sys);
+  last_time_sys =timevalnanos(rusage.ru_stime) ;
  }
 
 #elif defined(_WIN32)
