@@ -4,7 +4,8 @@
  */
 
 :- module(lsp, [
-	      validate_file/2
+	      validate_file/2,
+highlight_file/2
   ]).
 
 
@@ -118,8 +119,8 @@ user:pred_refs(Ob,URI,Line,Ch) :-
 	).
 
 
-user:complete(Self,Line,Pos) :-
-	completions(Line,Pos,FCs),
+user:complete(Self,Prefix,_Pos) :-
+	completions(Prefix,_,FCs),
 	( var(Self)-> Self = FCs ; Self.items := FCs ).
 
     user:add_dir(Self,URI):-
@@ -167,15 +168,8 @@ user:portray_message(A,B):-
     lsp_on,
     q_msg(A,B).
 
-q_msg(_warning, error( style_check(singletons,[VName,Line,Column,_F0],_P), _Exc)) :-
-    lsp_on,
-    !,
-    string_length(VName, Size),
-    format(string(S),'~s is a singleton variable',[VName]),
-   recordz(msg,t(`warning`,`singletons`,`singleton variable warning`,S,Line,Size,Column),_).
-q_msg(Sev, error(Err,Inf)) :-
-    lsp_on,
-    (
+q_info(Exc, LN, Pos, Size, ErrN, ErrT) :-
+   (
       exception_property(`parserLine` , Inf, LN0)
     ->
 	  LN is max(LN0,0)
@@ -207,7 +201,7 @@ q_msg(Sev, error(Err,Inf)) :-
     ;
     Size = 0),
 (
-fail,	exception_property(`ErrorMsg`, Inf, ErrorMsg)
+	exception_property(`ErrorMsg`, Inf, ErrorMsg)
 	->
 	true
     ;
@@ -222,7 +216,17 @@ Sv = `warning`
 ),
     Err =..LErr,
     q_msgs(LErr,ErrorMsg,Sev,S),
-    recordz(msg,t(Sv,ErrN,`ErrT`,S,LN,Size,Pos),_).
+
+q_msg(_warning, error( style_check(singletons(singletons,[VName,LN,Pos|_Culprit],_), Exc)) :-
+    lsp_on,
+    !,
+atom_length(VName,Size),
+    format(string(S),'~a is a singleton variable',[VName]),
+   recordz(msg,t(`warning`,0,` `,S,LN,Size,Pos),_).
+q_msg(Sev, error(Err,Inf)) :-
+q_info(Exc, LN, Pos, Size, ErrN, ErrT),
+    lsp_on,
+     recordz(msg,t(Sv,ErrN,ErrT,S,LN,Size,Pos),_).
 
 
 q_msgs([A1], Extra, N,S) :-
@@ -266,6 +270,7 @@ user:highlight_text(Text,Self):-
 highlight_and_convert_stream(Self,Stream) :-
     scan_stream(Stream,Ts),
     close(Stream),
+    writeln(Ts),
     symbols(Ts,LTsf),
     (var(Self)
     ->
