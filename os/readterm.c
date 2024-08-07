@@ -369,20 +369,13 @@ static Int scan_stream(USES_REGS1) {
   st = GLOBAL_Stream+inp_stream;
   Term end = TermNil;
   LOCAL_tokptr = NULL;
+  while (true) {
   LOCAL_ErrorMessage = NULL;
     if (st->status & (Past_Eof_Stream_f)) {
       post_process_eof(st);
-    TokEntry *tokptr = Malloc(sizeof(TokEntry));
-  tokptr->TokNext = NULL;
-  tokptr->TokLine = 1;
-  tokptr->TokLinePos =0;
-  tokptr->TokOffset = 0;
-  tokptr->Tok = Ord(eot_tok);		\
-  tokptr->TokInfo = TermEof;
-    return TermNil;
- return TermEof;
-      }
-   TokEntry * t = 
+      break;
+    }
+      TokEntry * t = 
       Yap_tokenizer(GLOBAL_Stream + inp_stream, &params);
     while (t) {
       if (t->TokSize==0) {
@@ -393,18 +386,17 @@ static Int scan_stream(USES_REGS1) {
       if (tout == TermNil) {
 	tout = tt;
 	end = TailOfTerm(tout);
-	break;
       } else {
 	*VarOfTerm(end) = tt;
 	end = TailOfTerm(tt);
       }
       t = t->TokNext;
     }
+  Yap_clean_tokenizer();
+  }
   if (end != TermNil)
     *VarOfTerm(end) = TermNil;
-  if (tout == 0)
-    return false;
-  Yap_clean_tokenizer();
+
   LOCAL_tokptr = NULL;
   
   return Yap_unify(ARG2, tout);
@@ -882,7 +874,7 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
      e->parserSize = strlen(RepAtom(AtomOfTerm(myv))->StrOfAE);
      e->parserFile = fil;
      }
-a   Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc),TermWarning);
+   Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc),TermWarning);
         vn = TailOfTerm(vn);
 }
 }

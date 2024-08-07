@@ -333,7 +333,7 @@ true
     ('$call'(A, CP, G0, M);
      '$call'(B, CP, G0, M)).
 '$call'(G, _CP, _G0, M) :-
-call(M:G).
+    call(M:G).
 
 /* General purpose predicates				*/
 
