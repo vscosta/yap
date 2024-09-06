@@ -149,9 +149,9 @@
 
 :- style_check(all).
 
-:- yap_flag(unknown, error).
+:- set_prolog_flag(unknown, error).
 
-:- yap_flag(write_strings, on).
+:- set_prolog_flag(write_strings, on).
 
 :- use_module(library(readutil),
 	      [read_line_to_codes/2]).

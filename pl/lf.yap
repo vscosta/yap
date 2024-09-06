@@ -290,7 +290,7 @@
     (
      '$memberchk'(autoload(Autoload), Opts)
       ->
-       			  set_prolog_flag(autoload,Autoload) ;
+       set_prolog_flag(autoload,Autoload) ;
        			   true), 
    ( '$memberchk'(expand(Expand),Opts) -> true ; Expand = true ),
     (
@@ -539,7 +539,7 @@ call_compiler((:-G),Status,VL,Pos) :-
     (
         NO = (:- G1)
     ->
-    must_be_callable(G1),
+    must_be_callable(NM:G1),
     '$process_directive'(G1, Status , NM, VL, Pos)
     ;
     '$goal'(G1,VL,Pos)).

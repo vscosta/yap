@@ -550,5 +550,4 @@ completions: [
 	"write_term"
 	"writeln"
 	"writeq"
-	"yap_flag"
 ]

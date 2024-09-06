@@ -185,7 +185,7 @@ tables such as hash tables that select according to value,   _Index Switch Size_
 
 Number of garbage collections, amount of space recovered in kbytes, and
 total time spent doing garbage collection in milliseconds. More detailed
-information is available using `yap_flag(gc_trace,verbose)`.
+information is available using `set_prolog_flag(gc_trace,verbose)`.
 
 + global_stack 
 
@@ -236,7 +236,7 @@ garbage collection and stack shifting.
 
 Number of times YAP had to
 expand the heap, the stacks, or the trail. More detailed information is
-available using `yap_flag(gc_trace,verbose)`.
+available using `set_prolog_flag(gc_trace,verbose)`.
 
 + static_code 
 

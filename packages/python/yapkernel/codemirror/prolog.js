@@ -1142,8 +1142,7 @@ var builtins = {
 "write_depth" : "prolog",
 "write_term" : "prolog",
 "writeln" : "prolog",
-"writeq" : "prolog",
-"yap_flag" : "prolog"
+    "writeq" : "prolog"
 };
 
 /*******************************

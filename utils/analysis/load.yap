@@ -247,16 +247,6 @@ directive(set_prolog_flag(Fl,V), F, M) :-
         prolog_flag(Fl, O,  V),
         asserta( undo( set_prolog_flag(Fl, O), F, M)),
         set_prolog_flag(Fl, V).
-directive(yap_flag(Fl,V), F, M) :-
-    !,
-        prolog_flag(Fl, O,  V),
-        asserta( undo( set_prolog_flag(Fl, O), F, M)),
-        set_prolog_flag(Fl, V).
-directive(yap_flag(Fl,O,V), F, M) :-
-    !,
-        prolog_flag(Fl, O,  V),
-        asserta( undo( set_prolog_flag(Fl, O), F, M)),
-        set_prolog_flag(Fl, V).
 directive(op(X,Y,O), _F, M) :-
     !,
         op( X, Y, M:O).

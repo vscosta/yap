@@ -1594,9 +1594,12 @@ static void traverse_and_print(TrNode node, int *arity, char *str,
   return;
 }
 
+static YAP_Term *mstack_vars_base;
+static size_t svsize=2000;
+
 static YAP_Term trie_to_list(TrNode node) {
   YAP_Term tail = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
-
+  mstack_vars_base=calloc(svsize,sizeof(YAP_Term));
 #define CONSUME_NODE_LIST                                                      \
   do {                                                                         \
     /* add node result to list */                                              \
@@ -1633,8 +1636,14 @@ static YAP_Term trie_to_list_node(TrNode node) {
     return trie_to_list_create_two(YAP_IsIntTerm(t) ? "int" : "atom", node, t);
   } else if (YAP_IsVarTerm(t)) {
     int index = TrieVarIndex(t);
-    YAP_Term index_term = YAP_MkIntTerm((YAP_Int)index);
-    return trie_to_list_create_two("var", node, index_term);
+      if (mstack_vars_base[index]) {
+        t = mstack_vars_base[index];
+      } else {
+        t = YAP_MkVarTerm();
+        mstack_vars_base[index] = t;
+      }
+      //     YAP_Term index_term = YAP_MkIntTerm((YAP_Int)index);
+    return trie_to_list_create_two("var", node, t);
   } else if (YAP_IsPairTerm(t)) {
     if (t == FloatInitTag) {
       node = TrNode_child(node); /* consume FloatInitTag */

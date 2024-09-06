@@ -131,6 +131,16 @@ create_prolog_flag(Name, Value, Options) :-
 '$flag_domain_from_value'(Value, atom) :- atom(Value), !.
 '$flag_domain_from_value'(_, term).
 
+/* @pred yap_flag( ?Key, ? Value)
+ *
+ * Deprecated! If _Value_ is bound, set the flag _Key_; if unbound unify _Value_ with it's value. Consider using prolog_flag/2 and
+ * set_prolog_flag/2.
+ *
+ */
+yap_flag(Flag,Val) :-
+    ( nonvar(Val) -> set_prolog_flag(Flag,Val) ; current_prolog_flag(Flag,Val)).
+
+
 /**
 @}
 */

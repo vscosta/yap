@@ -126,11 +126,11 @@ allowing for variables in the list.
 
 :- style_check(all).
 
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
-:- yap_flag(open_expands_filename,false).
+:- set_prolog_flag(open_expands_filename,false).
 
-:- yap_flag(autoload,true).
+:- set_prolog_flag(autoload,true).
 
 :- set_prolog_flag(user_flags,silent).
 

@@ -5304,7 +5304,7 @@ static Int p_resize_int_keys(USES_REGS1) {
     return Yap_unify(ARG1, MkIntegerTerm((Int)INT_KEYS_SIZE));
   }
   if (!IsIntegerTerm(t1)) {
-    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_db_int_keys,T)");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "set_prolog_flag(resize_db_int_keys,T)");
     return FALSE;
   }
   return resize_int_keys(IntegerOfTerm(t1));
@@ -5435,7 +5435,7 @@ void Yap_InitBackDB(void) {
       NEXTOP(RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomRecordedP, 3), 0))
                  ->cs.p_code.FirstClause,
              OtapFs);
-  Yap_InitCPredBack("$current_immediate_key", 2, 4, init_current_key,
+  Yap_InitCPredBack("current_key", 2, 4, init_current_key,
                     cont_current_key, SyncPredFlag);
 }
 

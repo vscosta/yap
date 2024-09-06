@@ -483,6 +483,6 @@ repository:
        |unix|unknown|unload_file|unload_module|unnumbervars|update_array|update_mutable
        |use_module|use_system_module|user_defined_directive|var|version|volatile
        |wake_choice_point|when|with_mutex|with_output_to|working_directory|write_canonical
-       |write_depth|write_term|writeln|writeq|write|yap_flag)(\()
+       |write_depth|write_term|writeln|writeq|write)(\()
 
 

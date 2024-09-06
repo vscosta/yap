@@ -240,7 +240,7 @@
 		    print_dnf/1]).
 
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 :- op( 550, yfx, :: ).
 
@@ -522,7 +522,7 @@ init_aproblog_trie :-
 % to call an aProbLog goal, patch all subgoals with the user's module context
 % (as logical part is there, but labeled part in aproblog)
 aproblog_call(Goal) :-
-	yap_flag(typein_module,Module),
+	current_prolog_flag(typein_module,Module),
 %%% if user provides init_db, call this before proving goal
 	(current_predicate(_,Module:init_db) -> call(Module:init_db); true),
 	put_module(Goal,Module,ModGoal),

@@ -2,9 +2,8 @@
 
 
 :- style_check(all).
-
-:- yap_flag( write_strings, on).
-:- yap_flag( gc_trace, verbose ).
+:- set_prolog_flag( write_strings, on).
+:- set_prolog_flag( gc_trace, verbose ).
 
 :- use_module(library(readutil)).
 :- use_module(library(lineutils)).
@@ -21,8 +20,8 @@
 
 :- style_check(all).
 
-%:- yap_flag( double_quotes, string ).
-%:- yap_flag( dollar_as_lower_case, on ).
+%:- set_prolog_flag( double_quotes, string ).
+%:- set_prolog_flag( dollar_as_lower_case, on ).
 
 :- dynamic
     node/4,

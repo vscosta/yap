@@ -10,7 +10,7 @@ Copyright (c) 2011, Fabrizio Riguzzi and Nicola di Mauro
 %:- set_prolog_flag(debug,on).
 :- set_prolog_flag(discontiguous_warnings,on).
 :- set_prolog_flag(single_var_warnings,on).
-%:-yap_flag(gc_trace,very_verbose).
+%:-set_prolog_flag(gc_trace,very_verbose).
 %:- source.
 :- use_module(inference_ib,
   [build_network/5,

@@ -10,7 +10,7 @@
 	       term_to_dict/4
  	   ]).
 
-:- yap_flag(verbose_load, false).
+:- set_prolog_flag(verbose_load, false).
 
 :- use_module(library(python)).
 

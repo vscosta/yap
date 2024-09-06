@@ -1413,7 +1413,7 @@ original term, and _Var_ is the variable's representation in
 YAP.
 
 + syntax_errors(+_Val_)
-Control action to be taken after syntax errors. See yap_flag/2
+Control action to be taken after syntax errors. See set_prolog_flag/2
 for detailed information.
 
 + variable_names(-_Names_)

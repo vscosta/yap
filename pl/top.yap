@@ -469,12 +469,12 @@ log_event( String, Args ) :-
 
 '$goal'((:-G),VL,Pos) :-
    !,			% allow user expansion
+    must_be_callable(G),
     expand_term((:- G), O, _ExpandedClause),
     '$yap_strip_module'(O, NM, NO),
     (
 	NO = (:- G1)
     ->
-    must_be_callable(G1),
     '$process_directive'(G1, top , NM, VL, Pos)
     ;
     '$goal'(NO,VL,Pos)

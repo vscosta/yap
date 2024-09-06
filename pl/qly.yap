@@ -136,7 +136,7 @@ qend_program :-
 	qsave_program('startup.yss'),
 	halt(0).
 '$save_program_status'(Flags, G) :-
-    findall(F-V, '$x_yap_flag'(F,V),L),
+    findall(F-V, '$x_current_prolog_flag'(F,V),L),
     recordz('$program_state',L,_),
   '$cvt_qsave_flags'(Flags, G),
     fail.
@@ -228,12 +228,12 @@ qend_program :-
     throw_error(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
-'$x_yap_flag'(language, V) :-
+'$x_sprolog_flag'(language, V) :-
 	current_prolog_flag(language, V).
-'$x_yap_flag'(M:P, V) :-
+'$x_current_prolog_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
-'$x_yap_flag'(X, V) :-
+'$x_current_prolog_flag'(X, V) :-
 	prolog_flag_property(X, [access(read_write)]),
 	atom(X),
 	X \= gc_margin, % different machines will have different needs,
@@ -631,6 +631,7 @@ qload_file( F0 ) :-
 '$ql_process_directives'( FilePl ) :-
     user:'$file_property'( directive( MG, _Mode,  VL, Pos  ) ),
     '$set_source'( FilePl, Pos ),
+    must_be_callable(MG),
     '$yap_strip_module'(MG, M, G),
     '$process_directive'(G, reconsult, M, VL, Pos),
     fail.

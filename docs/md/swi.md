@@ -86,12 +86,12 @@ Last, by default YAP enables character escapes in strings. You can
 disable the special interpretation for the escape character by using:
 
 ```
-:- yap_flag(character_escapes,off).
+:- set_prolog_flag(character_escapes,off).
 ```
 or by using:
 
 ```
-:- yap_flag(language,cprolog).
+:- set_prolog_flag(language,cprolog).
 ```
 
 

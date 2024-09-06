@@ -11,7 +11,7 @@
 :- use_module(utility).
 
 % :- source.
-% :- yap_flag(single_var_warnings, on).
+% :- set_prolog_flag(single_var_warnings, on).
 
 
 

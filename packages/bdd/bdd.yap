@@ -409,7 +409,7 @@ bdd_print(add(M,Top, Vars, _), File, Names) :-
         absolute_file_name(File, AFile, []),
 	cudd_print(M, Top, AFile, Ss).
 
-fetch_name([S=V1|_], V2, SN) :- V1 ==  V2, !,
+fetch_name([S-V1|_], V2, SN) :- V1 ==  V2, !,
 	( atom(S) -> SN = S ; format(atom(SN), '~w', [S]) ).
 fetch_name([_|Y], V, S) :- !,
 	fetch_name(Y, V, S).

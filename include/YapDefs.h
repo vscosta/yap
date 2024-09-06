@@ -322,7 +322,7 @@ typedef uint64_t stream_flags_t;
 typedef enum {
   YAPC_ENABLE_GC, /* enable or disable garbage collection */
   YAPC_ENABLE_AGC /* enable or disable atom garbage collection */
-} yap_flag_gc_t;
+} prolog_flag_gc_t;
 
 typedef enum yap_enum_reset_t {
   YAP_EXEC_ABSMI = 0,

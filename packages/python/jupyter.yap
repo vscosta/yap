@@ -4,7 +4,7 @@
   * @brief JUpyter support.
   */
 
-%:- yap_flag(gc_trace,verbose).
+%:- set_prolog_flag(gc_trace,verbose).
 
 :- module( jupyter,
            [
