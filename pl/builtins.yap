@@ -194,30 +194,6 @@ arguments.
 
 
 
-/** @pred    0:Condition *-> 0:Action  is iso
-
-This construct implements the so-called <em>soft-cut</em>. The control is
-defined as follows:
-  + If  _Condition_ succeeds at least once, the
-semantics is the same as ( _Condition_,  _Action_).
-
-  + If
- _Condition_ does not succeed, the semantics is that of (\\+
- _Condition_,  _Else_).
-
- In other words, if  _Condition_
-succeeds at least once, simply behave as the conjunction of
- _Condition_ and  _Action_, otherwise execute  _Else_.
-
-The construct  _A *-> B_, i.e. without an  _Else_ branch, is
-translated as the normal conjunction  _A_,  _B_.
-
-
-*/
-'*->'(X,Y) :-
-	(X, Y).
-
-
 /** @pred  ! is iso
 
 

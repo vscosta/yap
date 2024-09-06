@@ -3109,7 +3109,7 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	CELL *pt1 = VarOfTerm(d1);
 	if (pt0 >= HBREG || pt1 >= HBREG) {
 	  /* one of the variables has been found before */
-	  if (VarOfTerm(d0)+1 == VarOfTerm(d1)) continue;
+	  if (pt0==pt1) continue;
 	  goto fail;
 	} else {
 	  /* two new occurrences of the same variable */

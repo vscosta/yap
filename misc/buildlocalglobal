@@ -12,7 +12,7 @@
 
 :- dynamic globals/1.
 
-:- yap_flag(write_strings,on).
+:- set_prolog_flag(write_strings,on).
 
 :- style_check(all).
 

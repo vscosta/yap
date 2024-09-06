@@ -147,6 +147,52 @@ notrace(G) :-
 	'$debug_restart'( State ),
 	fail
     ).
+/** @pred  (G *-> H)
+
+Call goal  _H_ once per each solution of goal  _G_.
+
+The built-in `*->3` is usually called from within a disjunction. It
+performs similar to `->/3`, with the difference that it will backtrack
+over the test goal. Consider the following small data-base:
+
+```{.prolog}
+a(1).        b(a).          c(x).
+a(2).        b(b).          c(y).
+```
+
+Execution of an *->/3 query will proceed as follows:
+
+```{.prolog}
+   ?- (a(X)->b(Y);c(Z)).
+
+X = 1,
+Y = a ? ;
+
+X = 1,
+Y = b ? ;
+
+X = 2,
+Y = a ? ;
+
+X = 2,
+Y = b ? ;
+
+no
+```
+
+The system will backtrack over the two solutions for `a/1` and the
+two solutions for `b/1`, generating four solutions.
+
+Cuts are allowed inside the first goal  _G_, but they will only prune
+over  _G_.
+
+If you want  _G_ to be deterministic you should use if-then-else, as
+it is both more efficient and more portable.
+
+*/
+(X *-> Y ) :-
+  X, Y.
+
 
 /** @pred  if(? _G_,? _H_,? _I_)
 

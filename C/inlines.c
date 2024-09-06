@@ -1016,17 +1016,23 @@ p_cut_by( USES_REGS1 )
     CUT_prune_to(pt0->cp_b);
 #endif /* YAPOR */
   /* find where to cut to */
-    while (pt0 > B->cp_b) {
+    choiceptr b =B, ob=NULL;
+    if (pt0<=b)
+      return true;
+    while (pt0 > b) {
     /* Wow, we're gonna cut!!! */
 #ifdef TABLING
     abolish_incomplete_subgoals(B);
 #endif /* TABLING */
     //B = pt0;
-      B = B->cp_b;
+    ob = b;
+      b = b->cp_b;
     }
+    B=ob;
   
-    HB = B->cp_h;
+    HB = b->cp_h;
     Yap_TrimTrail();
+    B=ob->cp_b;
     ENDCHO(pt0);
   return(TRUE);
 
@@ -1040,7 +1046,7 @@ p_cut_by( USES_REGS1 )
 }
 
 static Int
-p_cut_upto( USES_REGS1 )
+p_cut_at( USES_REGS1 )
 {
   BEGD(d0);
   d0 = ARG1;
@@ -1051,47 +1057,49 @@ p_cut_upto( USES_REGS1 )
 #else
   if (!IsIntTerm(d0)) {
 #endif
-    return(FALSE);
+    return false;
   }
   BEGCHO(pt0);
-  BEGCHO(oB);
 #if YAPOR_SBA
   pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
-#ifdef YAPOR
-    CUT_prune_to(pt0);
-#endif /* YAPOR */
-  /* find where to cut to */
-    oB = NULL;
-    while (pt0 > B){
-      oB = B;
-      B = B->cp_b;
-    }
-    if (oB) {
-      B = oB;
+  if (pt0==B) {
     /* Wow, we're gonna cut!!! */
 #ifdef TABLING
     abolish_incomplete_subgoals(B);
 #endif /* TABLING */
     //B = pt0;
-    }
-    
+#ifdef YAPOR
+    CUT_prune_to(pt0);
+#endif /* YAPOR */
     HB = B->cp_h;
     Yap_TrimTrail();
-    ENDCHO(pt0);
-  return(TRUE);
-
+    B=B->cp_b;
+    return true;
+  }
+  /* find where to cut to */
+  choiceptr b = B, ob = NULL;
+  while (pt0 > b && pt0 && B) {
+    ob = b ;
+    b = b->cp_b;
+  }
+  if (pt0<b)
+    return true;
+  b->cp_b = pt0->cp_b;
+  pt0->cp_ap = TRUSTFAILCODE;
+  return true;
+  ENDCHO(pt0);
+  
   BEGP(pt0);
   deref_body(d0, pt0, cutby_x_unk, cutby_x_nvar);
   /* never cut to a variable */
   /* Abort */
   return(FALSE);
-  ENDP(oB);
   ENDP(pt0);
   ENDD(d0);
-}
+  }
 
 static Int
 p_erroneous_call( USES_REGS1 )
@@ -1253,29 +1261,29 @@ cont_genarg( USES_REGS1 )
  void
    Yap_InitInlines(void)
  {
-   Yap_InitCPred("cut_by", 1, p_cut_by, SafePredFlag);
+      Yap_InitCPred("cut_by", 1, p_cut_by, SafePredFlag);
    Yap_InitCPred("cut_to", 1, p_cut_by, SafePredFlag);
-   Yap_InitCPred("cut_upto", 1, p_cut_upto,SafePredFlag);
-   Yap_InitAsmPred("_cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
+   Yap_InitCPred("cut_at", 1, p_cut_at,SafePredFlag);
+   //Yap_InitAsmPred("cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
    Yap_InitAsmPred("current_choice_point", 1, _save_by, current_choice_point, SafePredFlag);
    Yap_InitCPred("parent_choice_point", 1, parent_choice_point, SafePredFlag);
-   Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
-   Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
-   Yap_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);
-   Yap_InitAsmPred("nonvar", 1, _nonvar, p_nonvar, SafePredFlag);
-   Yap_InitAsmPred("number", 1, _number, p_number, SafePredFlag);
-   Yap_InitAsmPred("var", 1, _var, p_var, SafePredFlag);
-   Yap_InitAsmPred("db_reference", 1, _db_ref, p_db_ref, SafePredFlag);
-   Yap_InitAsmPred("primitive", 1, _primitive, p_primitive, SafePredFlag);
-   Yap_InitAsmPred("compound", 1, _compound, p_compound, SafePredFlag);
-   Yap_InitAsmPred("float", 1, _float, p_float, SafePredFlag);
+   Yap_InitAsmPred("atom", 1, _atom, p_atom, TestPredFlag|SafePredFlag);
+   Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, TestPredFlag|SafePredFlag);
+   Yap_InitAsmPred("integer", 1, _integer, p_integer, TestPredFlag|SafePredFlag);
+   Yap_InitAsmPred("nonvar", 1, _nonvar, p_nonvar, TestPredFlag|SafePredFlag);
+   Yap_InitAsmPred("number", 1, _number, p_number, TestPredFlag|SafePredFlag);
+   Yap_InitAsmPred("var", 1, _var, p_var, TestPredFlag|SafePredFlag);
+   Yap_InitAsmPred("db_reference", 1, _db_ref, p_db_ref, TestPredFlag|SafePredFlag);
+   Yap_InitAsmPred("primitive", 1, _primitive, p_primitive, TestPredFlag|SafePredFlag);
+   Yap_InitAsmPred("compound", 1, _compound, p_compound, TestPredFlag|SafePredFlag);
+   Yap_InitAsmPred("float", 1, _float, p_float, TestPredFlag|SafePredFlag);
    Yap_InitAsmPred("=", 2, _equal, p_equal, SafePredFlag);
 #if INLINE_BIG_COMPARISONS
-   Yap_InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag|TestPredFlag);
-   Yap_InitAsmPred("==", 2, _eq, p_eq, SafePredFlag|TestPredFlag);
+   Yap_InitAsmPred("\\=", 2, _dif, p_dif, TestPredFlag|SafePredFlag|TestPredFlag);
+   Yap_InitAsmPred("==", 2, _eq, p_eq, TestPredFlag|SafePredFlag|TestPredFlag);
 #else
-   Yap_InitCPred("\\=", 2, p_dif, SafePredFlag);
-   Yap_InitCPred("==", 2, p_eq, SafePredFlag);
+   Yap_InitCPred("\\=", 2, p_dif, TestPredFlag|SafePredFlag);
+   Yap_InitCPred("==", 2, p_eq, TestPredFlag|SafePredFlag);
 #endif
    Yap_InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
      Yap_InitCPred("functor", 3, p_functor, 0);

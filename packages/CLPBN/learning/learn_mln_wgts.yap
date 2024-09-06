@@ -29,7 +29,7 @@
 
 :- use_module(library(lbfgs)).
 
-:-  yap_flag(tabling_mode,local).
+:-  set_prolog_flag(tabling_mode,local).
 
 :- dynamic diff/4, lit/1, i/2.
 

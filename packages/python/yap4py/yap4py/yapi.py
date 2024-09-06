@@ -9,7 +9,7 @@ try:
 except Exception as e:
     print(e)
     sys.exit(0)
-from yap4py.systuples import python_query, python_show_query, show_answer, v0, compile, yap_flag
+from yap4py.systuples import python_query, python_show_query, show_answer, v0, compile, set_prolog_flag
 from yap4py.queries import TopQuery, Query
 from os.path import join, dirname
 

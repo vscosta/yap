@@ -122,7 +122,7 @@ static void init_globals(YAP_init_args *yap_init) {
     Yap_PutValue(AtomConsultOnBoot,
 		 MkAtomTerm(Yap_LookupAtom(yap_init->PrologRCFile)));
     /*
-      This must be done again after restore, as yap_flags
+      This must be done again after restore, as prolog_flags
       has been overwritten ....
     */
     setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG,

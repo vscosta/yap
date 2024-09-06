@@ -364,7 +364,8 @@ var(V),
 
 LHS <== RHS :-
     compute(RHS, Val),
-    set__(LHS,Val).
+    set__(LHS,Val),
+    !.
 
 ( LHS[Off|Offs] +== 1 ) :-
     maplist(compute,[Off|Offs],[EOff|EOffs]),

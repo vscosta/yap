@@ -90,7 +90,7 @@ trie_to_cudd(Trie, MapList, BDD) :-
 	 numbervars(Formula, 1, _),
 	 term_to_atom(Formula, Name),
 	 atom_concat(Name, '.dot', F),
-	 bdd_print(Formula, F)
+	 bdd_print(BDD, F, MapList)
     ;
     true
     ).

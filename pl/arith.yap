@@ -71,7 +71,7 @@ This predicate is useful when debugging, to ensure execution close to the origin
 
 */
 expand_exprs(Old,New) :-
-    yap_flag(optimise,BO),
+    current_prolog_flag(optimise,BO),
 	(BO == true ->
 			Old = on ;
 			Old = off ),

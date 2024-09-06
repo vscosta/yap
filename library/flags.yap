@@ -242,7 +242,7 @@
 :- use_module(library(lists), [append/3, memberchk/2, member/2]).
 
 :- style_check(all).
-:- yap_flag(unknown, error).
+:- set_prolog_flag(unknown, error).
 
 :- dynamic(['$defined_flag$'/7, '$store_flag_value$'/2]).
 :- meta_predicate(flag_define(+, +, +, ?, ?, ?, :)).

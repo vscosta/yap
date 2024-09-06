@@ -204,7 +204,7 @@
 		       reset_completion/0]).
 
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 % load library modules
 :- use_module(library(lists),[member/2,append/3,reverse/2]).

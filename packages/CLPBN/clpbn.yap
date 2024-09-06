@@ -29,7 +29,7 @@
 
 :- ensure_loaded(library(maplist)).
 
-:- set_yap_flag(arithmetic_exceptions,false).
+:- set_prolog_flag(arithmetic_exceptions,false).
 
 :- attribute key/1, dist/2, evidence/1.
 

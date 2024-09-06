@@ -801,7 +801,7 @@ The possible values for this flag are any number greater than zero.
                     above/2]).
 
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 % general yap modules
 :- reexport(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4,sum_list/2,max_list/2,remove_duplicates/2,flatten/2]).
@@ -1507,6 +1507,9 @@ problog_predicate(Name, Arity, ProblogName,Mod) :-
 % non-ground probabilistic facts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+:- multifile user:ad_intern/3.
+
 :- multifile(user:problog_user_ground/1).
 user:problog_user_ground(Goal) :-
   ground(Goal).
@@ -2122,7 +2125,7 @@ prune_check(Proof, Trie) :-
 % to call a ProbLog goal, patch all subgoals with the user's module context
 % (as logical part is there, but probabilistic part in problog)
 problog_call(Goal) :-
-	yap_flag(typein_module, Module),
+	current_prolog_flag(typein_module, Module),
 %%% if user provides init_db, call this before proving goal
 	(current_predicate(_,Module:init_db) -> call(Module:init_db); true),
 	put_module(Goal,Module,ModGoal),

@@ -118,9 +118,9 @@ Older versions of YAP would call this procedure  at every meta-call.
 %
 % moved this to init_gc in sgc.c to separate the alpha
 %
-% :- yap_flag(gc,on).
+% :- set_prolog_flag(gc,on).
 %
-% :- yap_flag(gc_trace,verbose`
+% :- set_prolog_flag(gc_trace,verbose)
 
 :- multifile
 	prolog:comment_hook/3.

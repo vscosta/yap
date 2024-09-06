@@ -214,7 +214,7 @@
 :- use_module(flags).
 
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 :- discontiguous user:(<--)/2, problog:(<--)/2.
 :- discontiguous user:myclause/1, problog:myclause/1. % notation of ADs in LFI-ProbLog

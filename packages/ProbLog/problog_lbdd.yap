@@ -54,7 +54,7 @@ close_low_tree(CUDD,MapList):-
      problog_var_set(sld_time, SLD_Time),
     nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
     (user:debug_problog ->
-	 format("~nProofs for query ~w:~n", []),
+	 format("~nProofs for query ~w:~n", [Trie_Completed_Proofs]),
    trie_print(Trie_Completed_Proofs),
 	 writeln('  **********')
     ;

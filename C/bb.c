@@ -423,7 +423,7 @@ p_resize_bb_int_keys( USES_REGS1 )
     return(Yap_unify(ARG1,MkIntegerTerm((Int)INT_BB_KEYS_SIZE)));
   }
   if (!IsIntegerTerm(t1)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_bb_int_keys,T)");
+    Yap_Error(TYPE_ERROR_INTEGER, t1, "set_prolog_flag(resize_bb_int_keys,T)");
     return(FALSE);
   }
   return(resize_bb_int_keys(IntegerOfTerm(t1)));

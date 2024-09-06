@@ -924,7 +924,8 @@ QEnd of cond  itional compilation.
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 prolog_library(File) :-
-    yap_flag(verbose_load,Old,false),
+    current_prolog_flag(verbose_load,Old),
+    set_prolog_flag(verbose_load,false),
     ensure_loaded(library(File)),
     set_prolog_flag(verbose_load,Old).
 

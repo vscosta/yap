@@ -24,7 +24,7 @@ marg.T
 
 :- ensure_loaded(library(matlab)).
 
-:- yap_flag(write_strings, on).
+:- set_prolog_flag(write_strings, on).
 
 % syntactic sugar for matlab_call.
 :- op(800,yfx,<--).

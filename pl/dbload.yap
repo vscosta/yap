@@ -113,7 +113,7 @@ get_module(T,M,T,M).
 
 
 load_facts :-
-	!, % yap_flag(exo_compilation, on), !.
+	!, % set_prolog_flag(exo_compilation, on), !.
 	load_exofacts.
 load_facts :-
 	retract(dbloading(Na,Arity,M,T,NaAr,_)),

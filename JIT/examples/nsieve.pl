@@ -19,7 +19,7 @@
 % Modified to run with YAP by Glendon Holst
 % ----------------------------------------------------------------------
 
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 :- initialization(main).
 

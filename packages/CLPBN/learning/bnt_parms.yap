@@ -2,7 +2,7 @@
 % Learn parameters using the BNT toolkit
 %
 
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 :- style_check(all).
 

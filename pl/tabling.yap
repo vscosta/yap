@@ -167,7 +167,7 @@ were found. Somewhat less efficient but creates less choice-points.
 
 The default tabling mode for a new tabled predicate is `batched`
 and `exec_answers`. To set the tabling mode for all predicates at
-once you can use the yap_flag/2 predicate as described next.
+once you can use the set_prolog_flag/2 predicate as described next.
  
 */
 :- meta_predicate 

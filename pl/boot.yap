@@ -142,7 +142,7 @@ initialize_prolog :-
 
 
 %:- set_prolog_flag(verbose_file_search, true ).
-%:- yap_flag(write_strings,on).
+%:- set_prolog_flag(write_strings,on).
 :- c_compile( 'preds.yap' ).
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
@@ -307,9 +307,9 @@ mksys(op(A,B,C)) :-
 %
 % moved this to init_gc in gc.c to separate the alpha
 %
-% :- yap_flag(gc,on).
+% :- set_prolog_flag(gc,on).
 
-% :- yap_flag(gc_trace,verbose).
+% :- set_prolog_flag(gc_trace,verbose).
 
 :- multifile
 	prolog:comment_hook/3.

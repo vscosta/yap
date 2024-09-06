@@ -11,7 +11,7 @@
 */
 
 :- source.
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 :- style_check(all).
 
 :- module(b_hash, [   b_hash_new/1,

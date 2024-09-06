@@ -885,7 +885,7 @@ trace_error(Event,_,_,_,_,_) :-
     skip( debugger_input, 10),
     fail.
 '$action'('C',_,_,_,_,_) :-
-    yap_flag(system_options, Opts),
+    current_prolog_flag(system_options, Opts),
     '$memberchk'( call_tracer, Opts),
     !,			% <'Depth
     skip( debugger_input, 10),

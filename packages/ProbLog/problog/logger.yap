@@ -222,7 +222,7 @@
 :- use_module(library(system),[datime/1,mktime/2]).
 :- use_module(library(lists),[append/3,member/2]).
 
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 :- style_check(single_var).
 :- initialization((
 	bb_put(logger:logger_filename,'out.dat'),

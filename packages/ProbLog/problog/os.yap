@@ -220,7 +220,7 @@
 % load library modules
 :- use_module(library(system), [exec/3, file_exists/1,wait/2,  md5/3]).
 :- use_module(library(lists), [memberchk/2]).
-:- yap_flag(arithmetic_exceptions, false).
+:- set_prolog_flag(arithmetic_exceptions, false).
 
 % load our own modules
 :- use_module(gflags, _, [flag_get/2]).

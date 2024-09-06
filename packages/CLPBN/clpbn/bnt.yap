@@ -49,7 +49,7 @@
 :- use_module(library(ordsets),
 		[ord_insert/3]).
 
-:- yap_flag(write_strings,on).
+:- set_prolog_flag(write_strings,on).
 
 % syntactic sugar for matlab_call.
 :- op(800,yfx,<--).

@@ -460,7 +460,7 @@ prolog_file_name(File, PrologFileName) :-
 
    */
 fileerrors :-
-    yap_flag(file_errors, _, error).
+    set_prolog_flag(file_error, error).
 
 
   /**
@@ -473,7 +473,7 @@ fileerrors :-
 
    */
 nofileerrors :-
-    yap_flag(file_errors, _, fail).
+    set_prolog_flag(file_errors, fail).
 
 
 %% @}

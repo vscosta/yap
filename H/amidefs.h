@@ -1074,6 +1074,14 @@ struct pred_entry *EnvPreg(yamop *p)
 {
   return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p0);
 }
+/* trail manipulation */
+
+INLINE_ONLY tr_fr_ptr PUSH_TR(Term d1, Term frozen, tr_fr_ptr pt0, tr_fr_ptr pt1) {
+  pt0--;
+  TrailTerm(pt0) = d1;
+  TrailVal(pt0) = frozen;
+  return pt0;
+}
 
 /* access to instructions */
 

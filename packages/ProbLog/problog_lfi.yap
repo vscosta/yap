@@ -217,7 +217,7 @@
 
 % switch on all the checks to reduce bug searching time
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 % load modules from the YAP library
 :- use_module(library(lists),[member/2,nth1/3,sum_list/2,min_list/2,max_list/2]).

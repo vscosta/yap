@@ -213,8 +213,7 @@
 
 :- op( 551, yfx, <=> ).
 
-:- style_check(all).
-:- yap_flag(unknown,error).
+:- style_check(all). :- set_prolog_flag(unknown,error).
 
 %========================================================================
 %=

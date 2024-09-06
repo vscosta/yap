@@ -27,7 +27,7 @@ typedef struct table_entry {
   Atom pred_atom;
   int pred_arity;
   short pred_flags;
-  short execution_mode;  /* combines yap_flags with pred_flags */
+  short execution_mode;  /* combines prolog_flags with pred_flags */
 #ifdef MODE_DIRECTED_TABLING
   int* mode_directed_array;
 #endif /* MODE_DIRECTED_TABLING */

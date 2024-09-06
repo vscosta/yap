@@ -668,7 +668,7 @@ inline static yamop *a_vr(op_numbers opcodex, op_numbers opcodey, yamop *code_p,
         GONEXT(yx);
         return code_p;
       }
-    } else if (opcodey == _get_y_var) {
+    } else if (opcodey == _get_y_var && false) {
       struct PSEUDO *ncpc = cpc->nextInst;
       if (ncpc->op == get_var_op &&
           ((Ventry *)ncpc->rnd1)->KindOfVE == PermVar) {

@@ -972,59 +972,6 @@ static Term sys_pid(Term inp) {
 
 
 
-static Int cont_yap_flag(USES_REGS1) {
-  int i = IntOfTerm(EXTRA_CBACK_ARG(2, 1));
-  int gmax = GLOBAL_flagCount;
-  int lmax = LOCAL_flagCount;
-  Term tflag = Deref(ARG1);
-  EXTRA_CBACK_ARG(2, 1) = MkIntTerm(i + 1);
-
-  Term modt = CurrentModule;
-  tflag = Yap_StripModule(tflag, &CurrentModule);
-  if (i < gmax) {
-    Term lab = MkAtomTerm(Yap_LookupAtom(global_flags_setup[i].name));
-    Term val = Deref(ARG2);
-
-    Yap_unify(tflag,lab);
-    if (IsVarTerm(val)) {
-       Term oval = getYapFlag(lab);
-      CurrentModule = modt;
-      if (oval == 0)
-	return false;
-      return Yap_unify(oval, val);
-    } else {
-      bool rc= Yap_set_flag(tflag, val);
-      CurrentModule = modt;
-      return rc;
-    }
-    return false;
-  } else {
-    Yap_unify(tflag,
-              MkAtomTerm(Yap_LookupAtom(local_flags_setup[i - gmax].name)));
-    if (i == gmax + lmax - 1) {
-      do_cut(0);
-        return false;
-    }
-  }
-  Term flag = getYapFlag(tflag);
-  CurrentModule = modt;
-  if (!flag)
-    return false;
-  return Yap_unify(flag, ARG2);
-}
-
-
-/* @pred yap_flag( ?Key, ? Value)
- *
- * If _Value_ is bound, set the flag _Key_; if unbound unify _Value_ with it's value. Consider using get_prolog_flag/2 and
- * set_prolog_flag/2.
- *
- */
-static Int yap_flag2(USES_REGS1) {
-  EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);
-  return cont_yap_flag(PASS_REGS1);
-}
-
 static Int cont_current_prolog_flag(USES_REGS1) {
   Term modt = CurrentModule;
   Term tflag = Yap_StripModule(ARG1, &CurrentModule);
@@ -1071,7 +1018,7 @@ static Int  current_prolog_flag(USES_REGS1) {
   tflag = Yap_StripModule(tflag, &CurrentModule);
   if (IsVarTerm(tflag)) {
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);
-    return cont_yap_flag(PASS_REGS1);
+    return cont_current_prolog_flag(PASS_REGS1);
   }
   do_cut(0);
   if (IsStringTerm(tflag)) {
@@ -1817,8 +1764,6 @@ void Yap_InitFlags(bool bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag,
                       cont_current_prolog_flag, 0);
     TR = tr0;
-    Yap_InitCPredBack("yap_flag", 2, 1, yap_flag2, cont_yap_flag, 0);
-    Yap_InitCPredBack("prolog_flag", 2, 1, yap_flag2, cont_yap_flag, 0);
     Yap_InitCPred("set_prolog_flag", 2, set_prolog_flag, SyncPredFlag);
     Yap_InitCPred("$create_prolog_flag", 3, do_create_prolog_flag,
                   SyncPredFlag);

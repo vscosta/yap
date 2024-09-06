@@ -548,7 +548,7 @@ eval1(Int fi, Term t USES_REGS)
       out = atan(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atan(%f)", dbl);
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "atanh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -561,7 +561,7 @@ eval1(Int fi, Term t USES_REGS)
       out = asinh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t, "asinh(%f)", dbl);
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asinh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -574,11 +574,13 @@ eval1(Int fi, Term t USES_REGS)
       out = acosh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t, "acosh(%f)", dbl);
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "acosh(%f)", dbl);
+	return false;
       }
 #endif
       RFLOAT(out);
     }
+    
   case op_atanh:
     {
       Float dbl, out;
@@ -587,7 +589,7 @@ eval1(Int fi, Term t USES_REGS)
       out = atanh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "atanh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -646,7 +648,7 @@ eval1(Int fi, Term t USES_REGS)
       }
 #if HAVE_ISNAN
       if (isnan(dbl)) {
-	Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "integer(%f)", dbl);
       }
 #endif
 #if HAVE_ISINF
@@ -670,13 +672,12 @@ eval1(Int fi, Term t USES_REGS)
       }
 #if HAVE_ISNAN
       if (isnan(dbl)) {
-	Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "integer(%f)", dbl);
       }
 #endif
 #if HAVE_ISINF
       if (isinf(dbl)) {
-	Yap_ThrowError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
-(%f)",dbl);
+	Yap_ThrowError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer(%f)",dbl);
       }
 #endif
       RBIG_FL(ceil(dbl));
@@ -696,13 +697,12 @@ eval1(Int fi, Term t USES_REGS)
       }
 #if HAVE_ISNAN
       if (isnan(dbl)) {
-	Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "integer(%f)", dbl);
       }
 #endif
 #if HAVE_ISINF
       if (isinf(dbl)) {
-	Yap_ThrowError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
-(%f)",dbl);
+	Yap_ThrowError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer(%f)",dbl);
       }
 #endif
       RBIG_FL(my_rint(dbl));
@@ -719,7 +719,7 @@ eval1(Int fi, Term t USES_REGS)
 #if HAVE_ISNAN
 	if (isnan(dbl)) {
 	  if (isoLanguageFlag()) {
-	    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	    Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "integer(%f)", dbl);
 	  } else
 	    RBIG_FL(dbl);
 	}
@@ -876,7 +876,7 @@ eval1(Int fi, Term t USES_REGS)
     case big_int_et:
       return Yap_gmp_mul_float_big(Yap_random(), t);
     }
-  }
+    }
   /// end of switch
   return false;
 }
@@ -1038,7 +1038,8 @@ Yap_InitUnaryExps(void)
   Yap_InitCPred("$current_evaluable_property1", 2, current_evaluable_property_1, SafePredFlag);
   Yap_InitCPred("$is_evaluable_property1", 1, is_evaluable_property_1, SafePredFlag);
 
-  Yap_InitCPred("$unary_op_as_integer", 2, p_unary_op_as_integer, TestPredFlag|SafePredFlag);}
+  Yap_InitCPred("$unary_op_as_integer", 2, p_unary_op_as_integer, TestPredFlag|SafePredFlag);
+}
 
 /* This routine is called from Restore to make sure we have the same arithmetic operators */
 int
