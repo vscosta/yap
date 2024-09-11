@@ -42,66 +42,76 @@
 #endif
 
 // INLINE_ONLY  Term isatom( Term inp );
-typedef    double drandom_t(void);
-typedef     uint64_t lrandom_t(void);
-typedef     long int slrandom_t(void);
-typedef     int64_t mrandom_t(void);
-typedef      uint64_t random_range_t(uint64_t);
+typedef    double drandom_t(void); /// returns a doublr
+typedef     UInt lrandom_t(void); /// returns a positive number()
+typedef     Int mrandom_t(void);
+typedef      UInt random_range_t(unsigned int);
 typedef      void srandom_t(unsigned int);
 
 
   typedef struct rdesc_t {
     const char *s;
-    uintptr_t max;
+    UInt max;
     drandom_t *drandom_;
     lrandom_t *lrandom_;
     mrandom_t *mrandom_;
     random_range_t *random_range_;
-    srandom_t* srandom_;
+    srandom_t* qsrandom_;
     bool available;
   } rdesc_t;
 
 #if HAVE_SRAND48
 
 
-static uint64_t mylrand48(void)
+static UInt mylrand48(void)
 {
   return lrand48 ();
 }
+
+static Int
+mymrand48(void)
+{
+  return mrand48 ();
+}
+
 static  void mysrand48(unsigned int seed)
 {
    srand48 (seed);
 }
 
-static uint64_t rand48_range(uint64_t range)
+static UInt rand48_range(unsigned int range)
 {
   return (lrand48 () *range)/  ((1<<30)-1) /* 2**31-1 */;
 }
 #else
 #define rand48_range NULL
 #define mylrand48 NULL
+#define  myrand48 NULL
 #define mysrand48 NULL
 #endif
 
 #if HAVE_RANDOM
-static double drandom(void)
+static double   drandom(void)
 {
   return ((double) random ()) / 0x7fffffffL; /* 2**31-1 */;
 }
 
-static uint64_t myrandom(void)
-{
-  return  random ();
-}
+              static UInt myrandom(void)
 
-static uint64_t random_range(uint64_t range)
+	      {
+		return  random ();
+	      }
+
+              static Int mymrandom(void)
+
+	      {
+		return  random ();
+	      }
+
+static UInt
+random_range(unsigned int range)
 {
   return (random () *range)/  0x7fffffffL; /* 2**31-1 */;
-}
-
- static int64_t mrandom(void)
-{
-  return random () - (1<<30); /* -2**30-2**30-1 */
 }
 
 #else
@@ -116,18 +126,18 @@ static double drand(void)
   return (((double) rand ()) / RAND_MAX /* 2**31-1 */);
 }
 
-static uint64_t myrand(void)
+static UInt myrand(void)
 {
   return  rand ();
 }
 
 
-static int64_t mrand(void)
-{
+static Int mrand(void)
+{      
   return rand () - (RAND_MAX/2); /* 2**31-1 */
 }
 
-static uint64_t rand_range(uint64_t range)
+static UInt rand_range(unsigned int range)
 {
   return (random () *range)/  RAND_MAX; /* 2**31-1 */;
 }
@@ -143,18 +153,18 @@ static double darc4random(void)
   return ((double) arc4random ()) /( (1<<30)-1);
 }
 
-static uint64_t larc4random(void)
+static UInt larc4random(void)
 {
   return  arc4random ();
 }
 
-static uint64_t larc4random_uniform(uint64_t range)
+static UInt larc4random_uniform(unsigned int range)
 {
   return  arc4random_uniform (range);
 }
 
 
-static int64_t marc4random(void)
+static Int marc4random(void)
 {
   return arc4random()- (1<<29);
 }
@@ -180,7 +190,7 @@ static  struct rdesc_t names[] =
     (1<<30)-1,
     drandom,
     myrandom,
-    mrandom,
+    mymrandom,
     random_range,
     srandom,
 #if HAVE_RANDOM
@@ -193,10 +203,11 @@ static  struct rdesc_t names[] =
     (((uint64_t)1)<<46)-1,
      drand48,
       mylrand48,
-      mrand48,
+      mymrand48,
       rand48_range,
       mysrand48,
-#if HAVE_SRAND48
+      #if HAVE_SRAND48
+
       true
 #else
       false
@@ -216,11 +227,11 @@ static  struct rdesc_t names[] =
 #endif
   },
   { "arc4random",
-    (1<<30)<-1,
+    (1<<30)-1,
     darc4random,
     larc4random,
     marc4random,
-    larc4random_uniform,
+   larc4random_uniform,
     sarc4random,
  #if HAVE_ARC4RANDOM
     true
