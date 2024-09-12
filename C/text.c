@@ -389,7 +389,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 										inp->val.t, YAP_WRITE_HANDLE_CYCLES|YAP_WRITE_QUOTED | Number_vars_f));
       }
     }
-  if ((inp->val.t == TermNil) && inp->type & YAP_STRING_PREFER_LIST )
+    if ((inp->val.t == TermNil) && (inp->type & YAP_STRING_PREFER_LIST ))
   {
     char *out = Malloc(4);
       memset(out, 0, 4);
@@ -437,8 +437,8 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       POPRET( out );
     }
   } else if (IsPairOrNilTerm(inp->val.t)) {
-    if (((inp->type & (YAP_STRING_CODES | YAP_STRING_ATOMS)) ==
-         (YAP_STRING_CODES | YAP_STRING_ATOMS))) {
+    if (((inp->type &  YAP_STRING_CODES ) ||
+	 inp->type &YAP_STRING_ATOMS)) {
       // Yap_DebugPlWriteln(inp->val.t);
      char * out = (char *)Yap_ListToBuffer(NULL, inp->val.t, inp PASS_REGS);
       POPRET( out );
