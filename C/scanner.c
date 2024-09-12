@@ -796,7 +796,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
 #endif
 			)) {
 
-   return TermEof;
+   return out;
 
   }
   if (throw_error) {
