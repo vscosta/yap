@@ -180,7 +180,7 @@ restart:
     PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
     return ap;
   } else {
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, pname);
   }
   return NULL;
 }
@@ -215,7 +215,7 @@ PredEntry *Yap_new_pred(Term t, Term tmod, bool mkLU, const char *pname) {
     if (tmod == IDB_MODULE) {
       rc = Yap_FindLUIntKey(IntegerOfTerm(t));
     }
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, pname);
 
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);

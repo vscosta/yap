@@ -299,19 +299,21 @@ abolish(X0) :-
 	throw_error(type_error(atom,M), Msg).
 
 '$old_abolish'(V,M) :- var(V), !,
-	( true -> % current_prolog_flag(language, sicstus) ->
+         % current_prolog_flag(language, sicstus) ->
 	    throw_error(instantiation_error,abolish(M:V))
-	;
-	    '$abolish_all_old'(M)
-	).
+	%;
+	%    '$abolish_all_old'(M)
+	%)
+	.
 '$old_abolish'(N/A, M) :- !,
 	'$abolish'(N, A, M).
 '$old_abolish'(A,M) :- atom(A), !,
-	( current_prolog_flag(language, iso) ->
+	%( current_prolog_flag(language, iso) ->
 	  throw_error(type_error(predicate_indicator,A),abolish(M:A))
-	;
-	    '$abolish_all_atoms_old'(A,M)
-	).
+	%;
+	%    '$abolish_all_atoms_old'(A,M)
+	%)
+	.
 '$old_abolish'([], _) :- !.
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
 '$old_abolish'(T, M) :-

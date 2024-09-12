@@ -3625,13 +3625,13 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   } else {
     head = my_clause, body = MkAtomTerm(AtomTrue);
   }
+    head = Yap_YapStripModule(head, &mod);
   if (IsVarTerm(head) || IsPairTerm(head) || IsIntTerm(head) ||
       IsFloatTerm(head) || IsRefTerm(head)) {
     Yap_ThrowError(TYPE_ERROR_CALLABLE, head,
                    "clause head should be atom or compound term");
     return (0);
   }
-    head = Yap_YapStripModule(head, &mod);
     if (IsAtomTerm(head)) {
       Atom ap = AtomOfTerm(head);
       cglobs.cint.CurrentPred = RepPredProp(PredPropByAtom(ap, mod));

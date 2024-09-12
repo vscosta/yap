@@ -1027,6 +1027,12 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 	   t == TermProlog)) {
 	where = ArgOfTerm(2,where);
       }
+      if(IsApplTerm(where) &&
+	 FunctorOfTerm(where) ==FunctorSlash &&
+	 ArgOfTerm(2,where)  == MkIntTerm(0) &&
+	 !IsAtomTerm((t=ArgOfTerm(1,where)))) {
+	where = t;
+      } 
     }
     break;
   case USER_DEFINED_EVENT:    
