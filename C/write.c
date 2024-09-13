@@ -603,7 +603,7 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
     return;
   s = RepAtom(atom)->StrOfAE;
   us = RepAtom(atom)->UStrOfAE;
-  if (atom == AtomEmptyAtom) {
+  if (atom == AtomEmpty) {
     if (Quote_illegal) {
       wrputc('\'', stream);
       wrputc('\'', stream);

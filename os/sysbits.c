@@ -408,7 +408,7 @@ static Int working_directory(USES_REGS1) {
   if (!IsAtomTerm(t2)) {
     Yap_ThrowError(TYPE_ERROR_ATOM, t2, "working_directory");
   }
-  if (t2 == TermEmptyAtom || t2 == TermDot) {
+  if (t2 == TermEmpty || t2 == TermDot) {
     pop_text_stack(l);
     return true;
   }

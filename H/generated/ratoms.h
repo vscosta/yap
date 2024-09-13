@@ -132,7 +132,7 @@
   AtomEOfAction = AtomAdjust(AtomEOfAction); TermEOfAction = MkAtomTerm(AtomEOfAction);
   AtomEOfCode = AtomAdjust(AtomEOfCode); TermEOfCode = MkAtomTerm(AtomEOfCode);
   AtomEQ = AtomAdjust(AtomEQ); TermEQ = MkAtomTerm(AtomEQ);
-  AtomEmptyAtom = AtomAdjust(AtomEmptyAtom); TermEmptyAtom = MkAtomTerm(AtomEmptyAtom);
+  AtomEmpty = AtomAdjust(AtomEmpty); TermEmpty = MkAtomTerm(AtomEmpty);
   AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets); TermEmptyBrackets = MkAtomTerm(AtomEmptyBrackets);
   AtomEmptySquareBrackets = AtomAdjust(AtomEmptySquareBrackets); TermEmptySquareBrackets = MkAtomTerm(AtomEmptySquareBrackets);
   AtomEncoding = AtomAdjust(AtomEncoding); TermEncoding = MkAtomTerm(AtomEncoding);
@@ -347,6 +347,8 @@
   AtomRDiv = AtomAdjust(AtomRDiv); TermRDiv = MkAtomTerm(AtomRDiv);
   AtomRTree = AtomAdjust(AtomRTree); TermRTree = MkAtomTerm(AtomRTree);
   AtomRadix = AtomAdjust(AtomRadix); TermRadix = MkAtomTerm(AtomRadix);
+  AtomRand = AtomAdjust(AtomRand); TermRand = MkAtomTerm(AtomRand);
+  AtomRand48 = AtomAdjust(AtomRand48); TermRand48 = MkAtomTerm(AtomRand48);
   AtomRandom = AtomAdjust(AtomRandom); TermRandom = MkAtomTerm(AtomRandom);
   AtomRange = AtomAdjust(AtomRange); TermRange = MkAtomTerm(AtomRange);
   AtomRead = AtomAdjust(AtomRead); TermRead = MkAtomTerm(AtomRead);

@@ -1642,7 +1642,7 @@ Atom Yap_source_file_name(void) {
   CACHE_REGS
       int sno;  
   if (!GLOBAL_Stream)
-    return AtomEmptyAtom;
+    return AtomEmpty;
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);
@@ -1656,7 +1656,7 @@ Atom Yap_source_file_name(void) {
   if (LOCAL_consult_level == 0) {
     return GLOBAL_Stream[0].name;
   } else {
-    return AtomEmptyAtom;
+    return AtomEmpty;
   }
 
 }

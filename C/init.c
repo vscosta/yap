@@ -1047,9 +1047,9 @@ static void InitAtoms(void) {
   Yap_ReleaseAtom(AtomFoundVar);
   AtomFreeTerm = Yap_LookupAtom("?");
   Yap_ReleaseAtom(AtomFreeTerm);
-  AtomEmptyAtom = Yap_LookupAtom("?");
-  Yap_ReleaseAtom(AtomEmptyAtom);
-  RepAtom(AtomEmptyAtom)->StrOfAE[0] = '\0';
+  AtomEmpty = Yap_LookupAtom("?");
+  Yap_ReleaseAtom(AtomEmpty);
+  RepAtom(AtomEmpty)->StrOfAE[0] = '\0';
   AtomNil = Yap_LookupAtom("[]");
   AtomDot = Yap_LookupAtom(".");
 #endif
