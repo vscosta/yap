@@ -1027,11 +1027,13 @@ p_cut_by( USES_REGS1 )
     //B = pt0;
     ob = b;
       b = b->cp_b;
-    }
+ 
+   }
     B=ob;
   
     HB = b->cp_h;
     Yap_TrimTrail();
+    //
     B=ob->cp_b;
     ENDCHO(pt0);
   return(TRUE);
@@ -1079,7 +1081,7 @@ p_cut_at( USES_REGS1 )
     B=B->cp_b;
     return true;
   }
-  /* find where to cut to */
+    /* find where to cut to */
   choiceptr b = B, ob = NULL;
   while (pt0 > b && pt0 && B) {
     ob = b ;
@@ -1087,7 +1089,8 @@ p_cut_at( USES_REGS1 )
   }
   if (pt0<b)
     return true;
-  b->cp_b = pt0->cp_b;
+    if (ob)
+    ob->cp_b = pt0->cp_b;
   pt0->cp_ap = TRUSTFAILCODE;
   return true;
   ENDCHO(pt0);

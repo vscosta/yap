@@ -77,6 +77,9 @@ OPCODE		UNDEF_OPCODE		MkOp _undef_p
 OPCODE		RETRY_USERC_OPCODE	MkOp _retry_userc
 OPCODE		CALL_OPCODE		MkOp _call
 OPCODE		FCALL_OPCODE		MkOp _fcall
+OPCODE		YSTOP_OPCODE		MkOp _Ystop
+OPCODE		NSTOP_OPCODE		MkOp _Nstop
+OPCODE		TRUST_FAIL_OPCODE	MkOp _trust_fail
 
 /* atom tables */
 UInt		NOfAtoms		void void

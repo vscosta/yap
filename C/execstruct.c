@@ -108,7 +108,7 @@ static bool gate(Term t USES_REGS)
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
   Int oB = LCL0 - (CELL *)B;
-  SET_ASP(YENV,EnvSizeInCells);
+  //  SET_ASP(YENV,EnvSizeInCells);
   t=Deref(t);
   Yap_must_be_callable(t,CurrentModule);
   yap_error_descriptor_t *old=NULL;
@@ -184,6 +184,7 @@ static bool watch_cut(Term ext)
 	}
       port_pt[0] = t;
       completion_pt[0] = TermException;
+  CP = FAILCODE;
     }
   else if (det)
     {
@@ -222,6 +223,7 @@ static bool watch_retry(Term d0 )
   Int BRef = IntOfTerm(ArgOfTerm(6, task));
   bool det = deterministic(BRef);
   Term e;
+  CP = FAILCODE;
   if (IsNonVarTerm(complete))
     return true;
   bool ex_mode = false;

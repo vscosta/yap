@@ -787,7 +787,11 @@ static ClausePointer code_in_pred(PredEntry *pp,
 
         ClausePointer out;
   /* check if the codeptr comes from the indexing code */
-    if (pp->PredFlags & (CPredFlag | AsmPredFlag | UserCPredFlag)) {
+	if (codeptr->opc == TRUSTFAILCODE->opc) {
+	  out.pe =  PredFail;
+	  return out;
+	}
+	if (pp->PredFlags & (CPredFlag | AsmPredFlag | UserCPredFlag)) {
         StaticClause *cl = ClauseCodeToStaticClause(pp->CodeOfPred);
         if (IN_BLOCK(codeptr, (CODEADDR) cl, cl->ClSize)) {
 	  out.sc=cl;
@@ -1813,14 +1817,8 @@ char * Yap_dump_stack(FILE *f) {
     fputs("%% \n%%  -------------------------------------\n%%\n", f);
     fprintf( f, "%% Program Position: %s\n\n", Yap_errorName(errno));
     */
-	fflush(f);
-    size_t sz = ftell(f);
-    nbuf[sz]='\0';
-    char * obuf = malloc(sz+1);
-    strncpy(obuf, nbuf, sz);
     fclose(f);
-    free(nbuf);
-    return obuf;
+    return nbuf;
 }
 
 

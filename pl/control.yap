@@ -324,7 +324,7 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 
 prolog:cleanup_handler(Catcher,_Open,Cleanup) :-
     '$is_catcher'(Catcher),
-    ignore(Cleanup).
+    (Cleanup->true;true).
 
 '$is_catcher'(exit).
 '$is_catcher'(fail).
@@ -359,8 +359,11 @@ catch(MG,E,G) :-
 
 '$catch'(MG,_E,_G,Marker,Done) :-
     '$marker'(Marker),
+    current_choice_point(CP0),
     '$execute0'(MG),
-    Done = true.
+    Done = true,
+    current_choice_point(CP),
+    (CP == CP0 -> !;true).
 
 '$catch'(_MG,E,G,_,_) :-    
     '$drop_exception'(E0,Info),

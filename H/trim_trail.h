@@ -1,24 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #ifdef FROZEN_STACKS
 {
   tr_fr_ptr pt0, pt1, pbase, ptop;
@@ -63,27 +42,7 @@
         pt1--;
         continue;
       } else if ((*pt & (LogUpdMask | IndexMask)) == (LogUpdMask | IndexMask)) {
-        LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
-        int erase;
-#if defined(THREADS) || defined(YAPOR)
-        PredEntry *ap = cl->ClPred;
-#endif
-
-        LOCK(ap->PELock);
-        DEC_CLREF_COUNT(cl);
-        cl->ClFlags &= ~InUseMask;
-        erase = (cl->ClFlags & (ErasedMask | DirtyMask)) && !(cl->ClRefCount);
-        if (erase) {
-          /* at this point, we are the only ones accessing the clause,
-             hence we don't need to have a lock it */
-          if (cl->ClFlags & ErasedMask)
-            Yap_ErLogUpdIndex(cl);
-          else
-            Yap_CleanUpIndex(cl);
-        }
-        UNLOCK(ap->PELock);
-	RESET_VARIABLE(&TrailTerm(pt0));
-	RESET_VARIABLE(&TrailVal(pt0));
+       
 	pt0--;
       } else {
         TrailTerm(pt0) = d1;

@@ -68,7 +68,7 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
-  if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || ip == TRUSTFAILCODE
+  if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || op == _trust_fail
       || ip == EXITCODE) {
     op = Yap_op_from_opcode(P->opc);
     i->env = ENV; // YENV should be tracking ENV
@@ -1437,7 +1437,8 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
   //  Yap_ResetException(worker_id);
   //  sl = Yap_InitSlot(t);
   YENV = ASP;
-  YENV[E_CP] = (CELL)YESCODE;
+  YENV[E_CP] = (CELL)CP;
+  
   YENV[E_CB] = (CELL)B;
   YENV[E_E] = (CELL)ENV;
 #ifdef TABLING
@@ -1472,6 +1473,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
 #endif /* DEPTH_LIMIT */
   YENV = ASP = (CELL *)B;
   YENV[E_CB] = (CELL)B;
+  YENV[E_CP] = (CELL)CP;
   HB = HR;
   CP = YESCODE;
 }
@@ -2171,7 +2173,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   PREG_ADDR = NULL;
 #endif
   cut_c_initialize(myworker_id);
-  Yap_PrepGoal(0, NULL, NULL PASS_REGS);
+  Yap_PrepGoal(0, NULL, B PASS_REGS);
 #ifdef FROZEN_STACKS
   H_FZ = HR;
 #ifdef YAPOR_SBA
