@@ -539,6 +539,7 @@ void
 Yap_InitRandomPreds (void)
 {
   Yap_InitCPred ("srandom", 1, Srandom, SafePredFlag);
+  Yap_InitCPredInModule ("random", 1, Random, SafePredFlag, MkAtomTerm(Yap_LookupAtom("random")));
   Yap_InitCPred ("random", 1, Random, SafePredFlag);
   Yap_InitCPred ("random", 3, random3, SafePredFlag);
   Yap_InitCPred ("signed_random", 1, URandom, SafePredFlag);
