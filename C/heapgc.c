@@ -446,6 +446,7 @@ push_registers(Int num_regs, void PUSH__(Term, Term *), yamop *nextop USES_REGS)
 al = al->NextAE;
   }
   while (gl) {
+    fprintf(stderr,"%s:",gl->AtomOfGE->StrOfAE);Yap_DebugPlWriteln(gl->global);
     Term t = gl->global;
     if (!IsUnboundVar(&gl->global) &&
 	!IsAtomTerm(t) &&
@@ -3461,14 +3462,13 @@ previous = NULL;
     }
 }
 #ifdef DEBUG
-  if (0 != found_marked)
     fprintf(stderr,"%% Downward (%lu): %lu total against %lu found\n",
 	    (unsigned long int)LOCAL_GcCalls,
 	    (unsigned long int)LOCAL_total_marked,
 	    (unsigned long int)(LOCAL_total_marked-found_marked));
 #endif
 
-  HR = dest;		/* reset H */
+  HR = dest	;	/* reset H */
   HB = B->cp_h;
 #ifdef TABLING
   if (B_FZ == (choiceptr)LCL0)
@@ -3476,7 +3476,7 @@ previous = NULL;
   else
     H_FZ = B_FZ->cp_h;
 #endif /* TABLING */
-
+   
 }
 
 #ifdef HYBRID_SCHEME
@@ -3925,6 +3925,8 @@ do_gc( gc_entry_info_t volatile *info USES_REGS)
   }
  /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n", IntegerOfTerm(Yap_ReadTimedVa1r(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
   LOCAL_OldTR = old_TR = TR;
+  m_time = Yap_cputime();
+  gc_time = m_time-time_start;
   push_registers(predarity, count,nextop PASS_REGS);
   /* make sure we clean bits after a reset */
   marking_phase(old_TR, info PASS_REGS);
@@ -3934,8 +3936,22 @@ do_gc( gc_entry_info_t volatile *info USES_REGS)
 
   /*   }} */
 
-  m_time = Yap_cputime();
-  gc_time = m_time-time_start;
+  time_start = m_time;
+  compaction_phase(old_TR, info PASS_REGS);
+  pop_registers(predarity, old_TR, nextop PASS_REGS);
+  //fprintf(stderr, "++++++++++++++++++++\n          ");
+  TR = old_TR;
+/*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
+  {
+    //Term t = MkVarTerm();
+    //    Yap_UpdateTimedVar(LOCAL_GcGeneration, t);
+  }
+  //  Yap_UpdateTimedVar(LOCAL_GcPhase, MkIntegerTerm(LOCAL_GcCurrentPhase));
+c_time = Yap_cputime();
+  if (gc_verbose) {
+    fprintf(stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
+  }
+
   heap_cells = HR-H0;
     if (heap_cells > 1000000)
       effectiveness = 100-heap_cells/(tot0/100);
@@ -3959,21 +3975,6 @@ do_gc( gc_entry_info_t volatile *info USES_REGS)
       fprintf(stderr,"%%  %ld choicepoints\n", num_bs);
     }
 #endif
-  }
-  time_start = m_time;
-  compaction_phase(old_TR, info PASS_REGS);
-  pop_registers(predarity, old_TR, nextop PASS_REGS);
-  //fprintf(stderr, "++++++++++++++++++++\n          ");
-  TR = old_TR;
-/*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
-  {
-    //Term t = MkVarTerm();
-    //    Yap_UpdateTimedVar(LOCAL_GcGeneration, t);
-  }
-  //  Yap_UpdateTimedVar(LOCAL_GcPhase, MkIntegerTerm(LOCAL_GcCurrentPhase));
-c_time = Yap_cputime();
-  if (gc_verbose) {
-    fprintf(stderr, "%%   Compress: took %g sec\n", (double)(c_time-time_start)/1000);
   }
   gc_time += (c_time-time_start);
   LOCAL_TotGcTime += gc_time;
