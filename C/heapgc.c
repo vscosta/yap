@@ -3762,10 +3762,6 @@ sweep_choicepoints(B, is_gc_very_verbose(PASS_REGS1) PASS_REGS);
       fprintf(stderr,"%% Oops on LOCAL_iptop-H (%ld) vs %ld\n", (unsigned long int)(LOCAL_iptop-(CELL_PTR *)HR), LOCAL_total_marked);
     */
 #endif
-#if DEBUG
-    int effectiveness = 100-(((HR-H0))*100)/(HR-H0);
-    fprintf(stderr,"%% using pointers (%d)\n", effectiveness);
-#endif
     if (CurrentH0) {
       H0 = CurrentH0;
       LOCAL_HGEN = H0;
@@ -3788,6 +3784,10 @@ sweep_choicepoints(B, is_gc_very_verbose(PASS_REGS1) PASS_REGS);
 #endif
       compact_heap( PASS_REGS1 );
     }
+#if DEBUG
+    int effectiveness = 100-(((HR-H0))*100)/(HR-H0);
+    fprintf(stderr,"%% using pointers (%d)\n", effectiveness);
+#endif
   if (CurrentH0) {
     H0 = CurrentH0;
 #ifdef TABLING

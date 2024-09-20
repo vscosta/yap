@@ -527,7 +527,7 @@ bool Yap_IsAbsolutePath(const char *p0, bool expand) {
 #if _WIN32 || __MINGW32__
     nrc = !PathIsRelative(p);
 #else
-    nrc = (p[0] == '/');
+    nrc = (p && p[0] == '/');
 #endif
     return nrc;
 }

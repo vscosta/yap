@@ -224,6 +224,7 @@ typedef struct compiler_struct_struct {
   Int *Uses;
   Term *Contents;
   int needs_env;
+  bool has_blobs;
   CIntermediates cint;
 } compiler_struct;
 
@@ -736,6 +737,7 @@ restart:
     return;
     }
     if (IsFloatTerm(t)) {
+	cglobs->has_blobs = true;
         if (level == 0)
           Yap_emit((cglobs->onhead ? get_float_op : put_float_op), t, argno,
                    &cglobs->cint);
@@ -747,6 +749,7 @@ restart:
 	return;
       }
     if (IsLongIntTerm(t)) {
+	cglobs->has_blobs = true;
         if (level == 0)
           Yap_emit((cglobs->onhead ? get_longint_op : put_longint_op), t, argno,
                    &cglobs->cint);
@@ -768,6 +771,7 @@ restart:
         CELL *dest;
 
         /* use a special list to store the blobs */
+	cglobs->has_blobs = true;
         cglobs->cint.cpc = cglobs->cint.icpc;
         /*      if (IsFloatTerm(t)) {
                 Yap_emit(align_float_op, Zero, Zero, &cglobs->cint);
@@ -801,6 +805,7 @@ restart:
          floats, long ints, bignums, bitmaps.... */
         CELL l1 = ++cglobs->labelno;
         CELL *src = RepAppl(t);
+	cglobs->has_blobs = true;
         PInstr *ocpc = cglobs->cint.cpc, *OCodeStart = cglobs->cint.CodeStart;
         Int sz =
             2 * sizeof(CELL) + sizeof(Functor) + sizeof(MP_INT) +
@@ -3578,7 +3583,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   HB = HR;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   /* initialize variables for code generation                              */
-
+  cglobs.has_blobs = false;
   cglobs.cint.CodeStart = cglobs.cint.cpc = NULL;
   cglobs.cint.BlobsStart = cglobs.cint.icpc = NULL;
   cglobs.cint.dbterml = NULL;
@@ -3732,6 +3737,9 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   if (GLOBAL_Option['f' - 96])
     Yap_ShowCode(&cglobs.cint);
 #endif
+  if (cglobs.cint.CurrentPred->PredFlags & LogUpdatePredFlag) {
+    cglobs.is_a_fact = cglobs.is_a_fact && cglobs.has_blobs;
+  }
 
 #ifdef BEAM
   {
@@ -3742,7 +3750,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   }
 #endif
 
-  /* phase 3: assemble code                                                */
+  /* phase 3: assemble code */
   acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred,
                        (cglobs.is_a_fact && !cglobs.hasdbrefs &&
                         !(cglobs.cint.CurrentPred->PredFlags & TabledPredFlag)),

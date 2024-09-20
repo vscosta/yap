@@ -434,7 +434,7 @@
    InnerModule=OldM),
     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
  '$end_consult'(OldD),
-       '$exec_initialization_goals'(File),
+ '$exec_initialization_goals'(File),
     !.
 
 '$dry_loop'(Stream,_Status) :-

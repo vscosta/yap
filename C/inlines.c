@@ -937,7 +937,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
       return(FALSE);
     }
     while (HR+d1 > ASP - StackGap( PASS_REGS1 )) {
-      if (!Yap_dogc(PASS_REGS1)) {
+      if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS)) {
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return false;
       }
@@ -1026,7 +1026,7 @@ p_cut_by( USES_REGS1 )
 #endif /* TABLING */
     //B = pt0;
     ob = b;
-      b = b->cp_b;
+    b = b->cp_b;
  
    }
     B=ob;

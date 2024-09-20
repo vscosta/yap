@@ -1137,14 +1137,14 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
   p->cs.p_code.TrueCodeOfPred = pt;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = cp;
   p->OpcodeOfPred = pt->opc;
+    p->CodeOfPred = pt;
 #if defined(YAPOR) || defined(THREADS)
   if (p->PredFlags & LogUpdatePredFlag &&
       !(p->PredFlags & ThreadLocalPredFlag) && p->ModuleOfPred != IDB_MODULE) {
     p->OpcodeOfPred = LOCKPRED_OPCODE;
-    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   } else
 #endif
-    p->CodeOfPred = pt;
   p->cs.p_code.NOfClauses = 1;
   if (!(p->PredFlags & MultiFileFlag)) {
     p->src.OwnerFile = Yap_source_file_name();
