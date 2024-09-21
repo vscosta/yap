@@ -37,13 +37,32 @@
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1 );
 
           } else {
-          pt0--;
+       TrailTerm(pt0) = d1;
+        TrailVal(pt0) = TrailVal(pt1);
+            pt0--;
         }
         pt1--;
         continue;
       } else if ((*pt & (LogUpdMask | IndexMask)) == (LogUpdMask | IndexMask)) {
-       
-	pt0--;
+        LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt);
+        int erase;
+#if defined(THREADS) || defined(YAPOR)
+        PredEntry *ap = cl->ClPred;
+#endif
+
+        LOCK(ap->PELock);
+        DEC_CLREF_COUNT(cl);
+        cl->ClFlags &= ~InUseMask;
+        erase = (cl->ClFlags & (ErasedMask | DirtyMask)) && !(cl->ClRefCount);
+        if (erase) {
+          /* at this point, we are the only ones accessing the clause,
+             hence we don't need to have a lock it */
+          if (cl->ClFlags & ErasedMask)
+            Yap_ErLogUpdIndex(cl);
+          else
+            Yap_CleanUpIndex(cl);
+        }
+        UNLOCK(ap->PELock);
       } else {
         TrailTerm(pt0) = d1;
         TrailVal(pt0) = TrailVal(pt1);
@@ -55,10 +74,8 @@
         /* deterministic binding to multi-assignment variable */
 	RESET_VARIABLE(&TrailTerm(pt0));
 	RESET_VARIABLE(&TrailVal(pt0));
-	pt0--;
 	RESET_VARIABLE(&TrailVal(pt0));
    	RESET_VARIABLE(&TrailTerm(pt0));
-	pt0--;
 	pt1 -= 2;
       } else {
         TrailVal(pt0) = TrailVal(pt1);

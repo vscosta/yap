@@ -3710,7 +3710,7 @@ static DBTerm *fetch_clause_space(Term *tp, UInt size,
   /* This stuff should be just about fetching the space from the data-base,
      unfortunately we have to do all sorts of error handling :-( */
   HR = (CELL *)cip->freep;
-  while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size, osizep)) == NULL) {
+   while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size, osizep)) == NULL) {
 
     HR = h0;
     switch (LOCAL_Error_TYPE) {

@@ -237,12 +237,13 @@ the graphs library is implemented on top of the red-black trees library, and som
 Unfortunately it is still not possible to change argument order.
 
 **/
-use_module(User,Is) :-
-    strip_module(User,M,user),
+use_module(User, I) :-
+    strip_module(User,HostM,user),
     !,
-    '$set_source_module'(M0, M),
-    load_files([],[source_module(user),	imports(Is),silent(true)] ),
-    '$set_source_module'(_, M0).
+    user \= HostM,
+    '$m_normalize'(I,HostM,NI),
+    forall(member(D,NI),'$do_import'(D, user, HostM)).
+
 use_module(F,Is) :-
     load_files(F, [if(not_loaded),must_be_module(true),imports(Is),silent(true)] ).
 
@@ -748,8 +749,7 @@ unload_module(Mod) :-
      fail.
 unload_module(Mod) :-
     module_predicate(Mod,N,A,_),
-    functor(P,N,A),
-    abolish(Mod:P),
+    abolish(Mod:N/A),
     fail.
 unload_module(Mod) :-
     retractall('$import'(Mod,_M,_G0,_G,_N,_K)),

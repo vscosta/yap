@@ -142,8 +142,8 @@
 	throw_error(domain_error(implemented_option,Opt),Call).
 
 '$process_lf_opt'(autoload, Val, Call) :-
-	( Val == false -> true ;
-	    Val == true -> true ;
+	( %Val == false -> true ;
+	  %  Val == true -> true ;
 	    throw_error(domain_error(unimplemented_option,autoload(Val)),Call) ).
 '$process_lf_opt'('consulted_at',V,_) :-
     (var(V) ->  '$show_stream_position'(loop_stream,V) ; true ).
@@ -286,12 +286,13 @@
 
 '$load_files_'(File, M, Opts, Call) :-
 %   writeln(+M:File),
-   current_prolog_flag(autoload,OldAutoload),
+/*   current_prolog_flag(autoload,OldAutoload),
     (
      '$memberchk'(autoload(Autoload), Opts)
       ->
        set_prolog_flag(autoload,Autoload) ;
        			   true), 
+*/
    ( '$memberchk'(expand(Expand),Opts) -> true ; Expand = true ),
     (
 	absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]) 
@@ -312,7 +313,7 @@
     open(Y, read, Stream, [])
     ),
     '$load_file__'(Type,File,Stream,Y, M, Opts, Call),
-    set_prolog_flag(autoload,OldAutoload),
+%    set_prolog_flag(autoload,OldAutoload),
     close(Stream).
 
 '$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-

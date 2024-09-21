@@ -1228,7 +1228,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
             Yap_emit(safe_call_op, (CELL)p0, Zero, &cglobs->cint);
             Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
             Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
-	    cglobs->tmpreg = 0;
+	    //	    cglobs->tmpreg = 0;
             return;
           }
         }
@@ -1468,7 +1468,7 @@ static void c_functor(Term Goal, Term mod, compiler_struct *cglobs) {
     Yap_emit(safe_call_op, (CELL)p0, Zero, &cglobs->cint);
     Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
     Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
-    cglobs->tmpreg = 0;
+    //    cglobs->tmpreg = 0;
   }
 }
 
@@ -1606,7 +1606,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
           Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
           Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
           Yap_emit(procceed_op, Zero, Zero, &cglobs->cint); 
-	    cglobs->tmpreg = 0;
+	  //	    cglobs->tmpreg = 0;
 	}
       } else {
         Yap_emit_3ops(cut_op, Zero, Zero, Zero, &cglobs->cint);
@@ -1615,7 +1615,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
         //xadjust_current_commits(cglobs);
       }
-      cglobs->tmpreg = 0;
+      //   cglobs->tmpreg = 0;
 	    return;
     }
 #ifndef YAPOR
@@ -1648,7 +1648,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       Yap_emit(pushpop_or_op, Zero, Zero, &cglobs->cint);
       Yap_emit_3ops(orelse_op, l1, Zero, Zero, &cglobs->cint);
       Yap_emit(label_op, l2, Zero, &cglobs->cint);
-      cglobs->tmpreg = 0;
+      // cglobs->tmpreg = 0;
       if (cglobs->onlast) {
 #ifdef TABLING
         if (is_tabled(cglobs->cint.CurrentPred)) {

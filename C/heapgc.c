@@ -446,7 +446,6 @@ push_registers(Int num_regs, void PUSH__(Term, Term *), yamop *nextop USES_REGS)
 al = al->NextAE;
   }
   while (gl) {
-    fprintf(stderr,"%s:",gl->AtomOfGE->StrOfAE);Yap_DebugPlWriteln(gl->global);
     Term t = gl->global;
     if (!IsUnboundVar(&gl->global) &&
 	!IsAtomTerm(t) &&

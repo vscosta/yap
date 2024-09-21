@@ -287,6 +287,10 @@ phrase_([], _, S0, S) :-
 phrase_(P, M, S0, S) :-
     call(M:P, S0, S).
 
+prolog:':'(P, M, S0, S) :-
+    call(M:P, S0, S).
+
+
 prolog:!(S, S).
 
 prolog:true(S, S).

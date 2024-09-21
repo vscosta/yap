@@ -1727,7 +1727,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       LOCAL_Error_Size = (UInt)(extra_size + sizeof(ppt0));
       LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-      LOCAL_Error_TYPE = oerr;
       return NULL;
     }
     ntp0 = ppt0->Contents;
@@ -1828,7 +1827,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
                        &vars_found, dbg);
         if (ntp == NULL) {
           Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-          LOCAL_Error_TYPE = oerr;
           return NULL;
         }
       }
@@ -1855,7 +1853,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
         LOCAL_Error_Size = (UInt)DBLength(CodeAbs);
         LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
       if ((InFlag & MkIfNot) &&
@@ -1879,7 +1876,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
         LOCAL_Error_Size = (UInt)DBLength(CodeAbs);
         LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
       flag |= DBWithRefs;
