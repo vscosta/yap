@@ -510,11 +510,14 @@ par(_U,_Info, basecompoundref([[refid(R)|_],Name])) -->
       deref(R,DR) },
     !,
     mcstr([`[`,Name,`](`,DR,`#)`]).
-par(_U,_Info, derivedcompoundref([[refid(R)|_],Name])) -->
+par(_U,_Info, basecompoundref([[refid(R)|_],Name])) -->
     { string(Name),
       deref(R,DR) },
     !,
     mcstr([`[`,Name,`](`,DR,`#)`]).
+par(_U,_Info, derivedcompoundref([_,Name])) -->
+    { string(Name) },
+!.
  par(_U,_Info, derivedcompoundref([[refid(R)|_],true])) -->
     { deref(R,DR) },
     !,
@@ -629,9 +632,11 @@ one_group(S,Id) :-
     (predicate(_,Id)
     ->
     format(S,'## Predicates~n~n', []), 
-    format(S,'|Predicate~20|| Description~40+|~n', []), 
-    format(S,'|~`-t~20||~`-t~40+|~n', []), 
-    forall(predicate(Ref,Id),(addsubp(S,Ref)))						     ;
+    format(S,'|Predicate~t~20||Description~t|~40|~n', []), 
+    format(S,'|:---~t~20||:---~t~40||~n', []), 
+    forall(predicate(Ref,Id),(addsubp(S,Ref))),
+    format(S,'~n~n',[])
+						     ;
       true
       ),
     %format(S,'~s~n',[Brief]),
@@ -647,8 +652,8 @@ one_group(S,Id) :-
     (class(_,Id)
     ->
     format(S,'## Class~n', []), 
-    format(S,'|Class~20|| Description~40+|~n', []), 
-    format(S,'|~`-t~20||~`-t~40+|~n', []), 
+    format(S,'|Class~t~20||Description~t|~40|~n', []), 
+    format(S,'|:---~t~20||:---~t~40||~n', []), 
     forall(class(Ref,Id),(addsubc(S,Ref)))						     ;
       true
       ),

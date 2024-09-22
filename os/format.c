@@ -497,7 +497,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     Term tail;
     int (*f_putc)(int, wchar_t);
     int sno = sno0;
-    int last_tabline=0;
+    int last_tabline=1;
     Term fmod = CurrentModule;
     bool alloc_fstr = false;
     LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -1006,6 +1006,7 @@ switch (ch) {
                                 repeats = 1;
                         while (repeats--) {
                             f_putc(sno, (int) '\n');
+			    last_tabline++;
                         }
                         sno = format_synch(sno, sno0, finfo);
                         break;
@@ -1014,16 +1015,18 @@ switch (ch) {
                                 repeats = 1;
                         if (GLOBAL_Stream[sno].linestart !=
 			   GLOBAL_Stream[sno].charcount ) {
-                            f_putc(sno, '\n');
+			  last_tabline++;
+			  f_putc(sno, '\n');
                             sno = format_synch(sno, sno0, finfo);
                         }
                         if (repeats > 1) {
                             Int i;
                             for (i = 1; i < repeats; i++)
 			      {
+				last_tabline++;
 				f_putc(sno, '\n');
                        
-                        sno = format_synch(sno, sno0, finfo);
+				sno = format_synch(sno, sno0, finfo);
 			      }
 			}
                         break;
@@ -1031,17 +1034,10 @@ switch (ch) {
 
 			  /* padding */
 			case '|':
-			  if (has_repeats) {
-       if ( last_tabline== GLOBAL_Stream[sno].linecount)
-			  repeats-=finfo->phys_start;
-			  } else {
-                                repeats = 0;
-			  }
 			sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
 			  finfo->phys_start = GLOBAL_Stream[sno].charcount
 			    -GLOBAL_Stream[sno].linestart;
 			    finfo->gapi=0;
-			  last_tabline=GLOBAL_Stream[sno].linecount;
                         break;
                         case '+':
                                  if (!has_repeats)

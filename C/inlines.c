@@ -1089,7 +1089,7 @@ p_cut_at( USES_REGS1 )
   }
   if (pt0<b)
     return true;
-    if (ob)
+if (ob)
     ob->cp_b = pt0->cp_b;
   pt0->cp_ap = TRUSTFAILCODE;
   return true;

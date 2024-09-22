@@ -79,7 +79,7 @@ int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   f_putc = GLOBAL_Stream[sno0].stream_putc;
   fflush(GLOBAL_Stream[sno].file);
   buf = GLOBAL_Stream[sno].nbuf;
-  len = strlen(buf);
+  len = strlen(buf)+1;
   nchars =total-len;
   if (nchars <= 0) {
     int i;
