@@ -79,7 +79,7 @@ int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   f_putc = GLOBAL_Stream[sno0].stream_putc;
   fflush(GLOBAL_Stream[sno].file);
   buf = GLOBAL_Stream[sno].nbuf;
-  len = strlen(buf)+1;
+  len = strlen(buf);
   nchars =total-len;
   if (nchars <= 0) {
     int i;
@@ -94,6 +94,7 @@ int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
       fg->gap[0].log = 0;
       fg->gap[0].filler = ' ';
     }
+
   fill_space = nchars / fg->gapi;
   extra_fill=nchars % fg->gapi;
   // printf("%d %d %d %s\n", total, len,fg->gap->log,buf);
@@ -110,7 +111,7 @@ int fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
     n++;
     }
     f_putc(sno0, buf[i]); 
-  }
+}
   if (k <total) {
     for (; k < total; k++) {
       f_putc(sno0, fg->gap[n].filler);

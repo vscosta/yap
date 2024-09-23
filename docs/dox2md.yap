@@ -220,8 +220,8 @@ top_par(U0,Info,C)-->
  {writeln(C)} ,
     par(U0,Info,C).
 par(U0,Info,sectiondef([[kind(`var`)|_]|Paras])) -->
-!,
-      {
+    !,
+    {
     foldl(var_member(U0,Info),Paras, ``, Desc),
 arg(1,Info,Id),
     assert_static(extra(Id,Desc))
@@ -266,6 +266,10 @@ par(_U0,Info,innergroup([[refid(Ref)],Name])) -->
     { arg(1, Info, Parent) },
     !,
 	 extra_task(`group`,Ref,Parent,Name).
+par(_U0,_Info,ref([[refid(`struct_f`),kindref(`compound`)],false])) -->
+    !.
+par(_U0,_Info,basecompoundref([[_|_],_])) -->
+    !.
 par(_U0,Info,innerclass([[refid(Ref),_],Name])) -->
     {  sub_string(Ref,0,_,_,`predicate`) },
        !,
@@ -497,7 +501,7 @@ par(U0,_Item, par(_,Par)) -->
     foldl(parameteritem(U0),Par).
 par(U,_Info, parameterlist([[_|_]|Seq])) -->
     foldl(par(U),Seq).
-par(_U,_Info, ref([[refid(`class_t`)|Extra],true])) -->
+par(_U,_Info, ref([[refid(`class_t`)|_Extra],true])) -->
     !,
     par(_U,_Info, ref([[refid(`class _t`)|_],`T`])).
 par(_U,_Info, ref([[refid(R)|_],Name])) -->
@@ -629,11 +633,12 @@ one_group(S,Id) :-
     ;
       true
     ),
-    (predicate(_,Id)
+   ( atom_concat(_,'group___predicates__on___text.md',File)->stop_low_level_trace;true),
+(predicate(_,Id)
     ->
     format(S,'## Predicates~n~n', []), 
-    format(S,'|Predicate~t~20||Description~t|~40|~n', []), 
-    format(S,'|:---~t~20||:---~t~40||~n', []), 
+    format(S,'|Predicate~t|~20|Description~t|~40|~n', []), 
+    format(S,'|:---|:---~|~n', []), 
     forall(predicate(Ref,Id),(addsubp(S,Ref))),
     format(S,'~n~n',[])
 						     ;
@@ -651,16 +656,20 @@ one_group(S,Id) :-
       ),
     (class(_,Id)
     ->
-    format(S,'## Class~n', []), 
+    format(S,'## Classes~n', []), 
     format(S,'|Class~t~20||Description~t|~40|~n', []), 
-    format(S,'|:---~t~20||:---~t~40||~n', []), 
-    forall(class(Ref,Id),(addsubc(S,Ref)))						     ;
+    format(S,'|:---~t~20||:---~t|~40|~n', []), 
+    forall(class(Ref,Id),(addsubc(S,Ref))),
+format(S,'~n~n',[])
+						     ;
       true
       ),
     nl(S),			
     (class(_,Id)
     ->
-        forall(class(Ref,Id),(output_class(S,Ref)))
+        forall(class(Ref,Id),(output_class(S,Ref))),
+forall(extra(Id,Desc), format(S,Desc,[])),
+nl(S)
       ;
       true
       ),
@@ -712,7 +721,6 @@ strip_late_blanks(Brief,Brief).
 output_predicate(S,Id) :-
     predicate(Id,Name,_F,_L,_C,Brief,Text,_),
     format(S,'### ~s          {#~s}~n~s~n',[Name,Id,Brief]),	
-
     format(S,'~n~n~s~n',[Text]).
 
 output_class(S,Id) :-
@@ -721,10 +729,12 @@ output_class(S,Id) :-
 
     format(S,'~n~n~s~n',[Text]).
 
-var_member(U0,_Info,memberdef([[kind(`variable`),id(Id)|_],type(_),definition(_),argsstring(_),
+var_member(U0,_Info,memberdef([[kind(`variable`),id(Id)|_],type(_),definition(Def),argsstring(_),
     name([[],Name])|Text])) -->
-    mcstr([`### `,Name,`      {#`,Id,`}\n`]),
+!,
+    mcstr([`### `,Name,`: `, Def,`                    {#`,Id, `}n`]),
     foldl(par(U0,[]),Text).
+var_member(_,_,_) --> [].
 
 footer(_S,_,_,_).
 

@@ -3461,6 +3461,7 @@ previous = NULL;
     }
 }
 #ifdef DEBUG
+  if(LOCAL_total_marked!=(LOCAL_total_marked-found_marked))
     fprintf(stderr,"%% Downward (%lu): %lu total against %lu found\n",
 	    (unsigned long int)LOCAL_GcCalls,
 	    (unsigned long int)LOCAL_total_marked,
@@ -3631,16 +3632,12 @@ icompact_heap( USES_REGS1 )
     }
   }
 #ifdef DEBUG
-  if (H0+LOCAL_total_marked != dest)
-    fprintf(stderr,"%% Downward (%lu): %p total against %p found\n",
-	    (unsigned long int)LOCAL_GcCalls,
-	    H0+LOCAL_total_marked,
-	    dest);
-  if (LOCAL_total_marked != found_marked)
+  if (LOCAL_total_marked != found_marked) {
     fprintf(stderr,"%% Downward (%lu): %lu total against %lu found\n",
 	    (unsigned long int)LOCAL_GcCalls,
 	    (unsigned long int)LOCAL_total_marked,
 	    (unsigned long int)found_marked);
+  }
 #endif
 
   HR = dest;		/* reset H */
@@ -3785,7 +3782,9 @@ sweep_choicepoints(B, is_gc_very_verbose(PASS_REGS1) PASS_REGS);
     }
 #if DEBUG
     int effectiveness = 100-(((HR-H0))*100)/(HR-H0);
-    fprintf(stderr,"%% using pointers (%d)\n", effectiveness);
+    if (is_gc_very_verbose(PASS_REGS1)) {
+      fprintf(stderr,"%% using pointers (%d)\n", effectiveness);
+    } 
 #endif
   if (CurrentH0) {
     H0 = CurrentH0;
