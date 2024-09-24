@@ -229,7 +229,17 @@ par(U0,Info,sectiondef([[kind(`var`)|_]|Paras])) -->
     foldl(var_member(U0,Info),Paras, ``, Desc),
     assert_static(v(Id,Desc))
       }.
+par(U0,Info,sectiondef([[kind(`friend`)|_]|Paras])) -->
+    !,
+    {
+    arg(1,Info,Id),
+    foldl(var_member(U0,Info),Paras, ``, Desc),
+    assert_static(v(Id,Desc))
+      }.
 par(U0,Info,sectiondef([[kind(`func`)|_Opts]|Paras])) -->
+    !,
+	foldl(function_member(U0,Info),Paras).
+par(U0,Info,sectiondef([[kind(`public-func`)|_Opts]|Paras])) -->
     !,
 	foldl(function_member(U0,Info),Paras).
 par(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) -->
@@ -278,7 +288,7 @@ par(_U0,Info,innergroup([[refid(Ref)],Name])) -->
     { arg(1, Info, Parent) },
     !,
 	 extra_task(`group`,Ref,Parent,Name).
-par(_U0,_Info,ref([[refid(`struct_f`),kindref(`compound`)],false ])) -->
+par(_U0,_Info,ref([[refid(`structF`),kindref(`compound`)],false ])) -->
     !.
 par(_U0,_Info,basecompoundref([[_|_],_])) -->
     !.
@@ -308,7 +318,7 @@ par(U0,Info,
     {foldl(par(U0,[]),Paras,``,Desc)},
       {
 (var(D0)->D0=Desc;arg(1,Info,Id),
-	assert_static(extrabrief(Id,Desc)))
+	assert_static(extrbrief(Id,Desc)))
       }.
 par(U0,[],
 	detaileddescription([[]|Paras])) -->
@@ -522,9 +532,6 @@ par(U0,_Item, par(_,Par)) -->
     foldl(parameteritem(U0),Par).
 par(U,_Info, parameterlist([[_|_]|Seq])) -->
     foldl(par(U),Seq).
-par(_U,_Info, ref([[refid(`class_t`)|_Extra],true])) -->
-    !,
-    par(_U,_Info, ref([[refid(`class _t`)|_],`T`])).
 par(_U,_Info, ref([[refid(R)|_],Name])) -->
     { string(Name),
       deref(R,DR) },
@@ -671,7 +678,7 @@ process_group(S,Id,File,Line,Column,Text) :-
         forall(f(Id,Extra),format(S,'~s~n',[Extra])),
     forall(predicate(Ref,Id),(output_predicate(S,Ref))),
    nl(S),
-   footer(S,File,Line,Column).
+    footer(S,File,Line,Column).
 process_group(S,GId,File,Line,Column,Text) :-
    once(class(_,GId)),
    !,
@@ -750,19 +757,22 @@ strip_late_blanks(Brief,Brieffer) :-
 strip_late_blanks(Brief,Brief).
 
 
-var_member(U0,Info,memberdef([[kind(`variable`),id(Id)|_],type(_),definition([[],Def]),argsstring(_),
-    name([[],Name])|Text])) -->
+var_member(U0,Info,memberdef([[kind(`variable`),id(Id)|_]|Text])) -->
+{ member(definition([[],Def]), Text),
+member(name([[],Name]), Text),
 !,
-    { format(string(St),`1. [~s](~s): ~s~n`,[Name,Id,Def]) },
+format(string(St),`1. [~s](~s): ~s~n`,[Name,Id,Def]) },
 cstr(St),
     foldl(par(U0,Info),Text).
 var_member(_,_,_) --> [].
 
-function_member(U0,Info,memberdef([[kind(`function`),id(MyId)|_],type(_),definition([[],Def]),argsstring([[],As]),
-				    name([[],Name])|Text])) -->
+function_member(U0,Info,memberdef([[kind(`function`),id(MyId)|_]|Text])) -->
     !,
     {
-      format(string(St),`1. [~s](~s): ~s~s ~n`,[Name,MyId,Def,As]) ,
+member(definition([[],Def]), Text),
+member(name([[],Name]), Text),
+member(argsstring([[],As]), Text),
+!,      format(string(St),`1. [~s](~s): ~s~s ~n`,[Name,MyId,Def,As]) ,
     foldl(par(U0,Info),Text,St,Desc),
 	arg(1,Info,Id),
 	assert_static(f(Id,Desc))
