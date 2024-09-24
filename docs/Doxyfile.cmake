@@ -58,6 +58,9 @@ set( DOXYGEN_EXCLUDE
      ${CMAKE_SOURCE_DIR}/H/Tags_24*
      ${CMAKE_SOURCE_DIR}/C/Tags_32*
     */_CPack_Packages/*
+    o
+    packages/python
+    packages/sat/*-*/*
     )
 
   set( DOXYGEN_REPEAT_BRIEF NO)

@@ -3,12 +3,12 @@
 :- use_module(library(system)).
 :- use_module(library(xml2yap)).
 
-%:- dynamic group/8, predicate/8, extra/2, pred/8, pred/3, show/0.
+%:- dynamic group/8, predicate/8, pred/8, pred/3, show/0.
 
-:- multifile extra/2, extrabrief/2.
+:- multifile extrabrief/2.
 :- dynamic group/2, predicate/2, class/2.
 
-
+f(``,``).
 main :-
     unix(argv([Input,_Output])),
     atom_concat(Input,'/index.xml',Index),
@@ -20,6 +20,7 @@ xml(XMLTasks) :-
     sort(Tasks0,Tasks),
     !,
     maplist(fetch,Tasks),
+    listing(extra),
     merge_nodes.
 
 add_task(Kind, A,B,C) -->
@@ -156,17 +157,18 @@ fetch(group(Ref,Name)) :-
     !,
     functor(Descriptor,group,8),
     fill(Descriptor,Ref,Name).
-/*
 fetch(enum(Ref,Name)) :-
+    !,
     functor(Descriptor,enum,8),
      fill(Descriptor,Ref,Name ).
 fetch(struct(Ref,Name)) :-
+    !,
     functor(Descriptor,struct,8),
      fill(Descriptor,Ref,Name).
 fetch(union(Ref,Name)) :-
+    !,
     functor(Descriptor,union,8),
     fill(Descriptor,Ref,Name).
-*/
 fetch(_).
 
 fill(Descriptor,Ref,Name) :-
@@ -178,7 +180,7 @@ fill(Descriptor,Ref,Name) :-
     arg(1,Descriptor,Ref),
     arg(2,Descriptor,Name),
         ( var(Name) ->Text = Ref ; true ),	
-    once(foldl(par(0,Descriptor),Info,``,Text0)),
+    once(foldl(top_par(0,Descriptor),Info,``,Text0)),
     arg(6,Descriptor,Brief),
     ( var(Brief) -> Brief = `` ; true ),
     arg(7,Descriptor,Text),
@@ -207,27 +209,36 @@ compacttail([V|Vs]) -->
     
 
 cstr(A,S0,SF) :-
-    string_concat(S0,A, SF).
+   catch( string_concat(S0,A, SF),_,(atomic_concat(S0,A,SA),atom_string(SA,SF))).
 
 mcstr(A,S0,SF) :-
-    string_concat([S0|A], SF).
+    catch( string_concat([S0|A], SF),_,(atomic_concat([S0|A],SA),atom_string(SA,SF))).
 
 rpar(U,Ts) -->
-    foldl(par(U),Ts),
+    foldl(top_par(U),Ts),
          cstr(`\n`).
 
-top_par(U0,Info,C)--> 
- {writeln(C)} ,
-    par(U0,Info,C).
+top_par(U0,Info,C) -->
+%    {writeln(C)},
+    par(U0,Info,C), !.
+top_par(_U0,_Info,C) -->
+    writeln(failed:C).
+
 par(U0,Info,sectiondef([[kind(`var`)|_]|Paras])) -->
     !,
     {
     foldl(var_member(U0,Info),Paras, ``, Desc),
-arg(1,Info,Id),
-    assert_static(extra(Id,Desc))
+    arg(1,Info,Id),
+    assert_static(v(Id,Desc))
       }.
-par(_U0,_Info,sectiondef([[kind(`func`)|_]|_])) -->
+par(U0,Info,sectiondef([[kind(`func`)|_]|_Paras])) -->
     !.
+    /*
+    {
+    foldl(function_member(U0,Info),Paras, ``, Desc),
+    arg(1,Info,Id),
+    assert_static(f(Id,Desc))
+      }.*/
 par(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) -->
     !.
 par(_U0,_Info,sectiondef([[kind(`def`)|_]|_])) -->
@@ -266,7 +277,7 @@ par(_U0,Info,innergroup([[refid(Ref)],Name])) -->
     { arg(1, Info, Parent) },
     !,
 	 extra_task(`group`,Ref,Parent,Name).
-par(_U0,_Info,ref([[refid(`struct_f`),kindref(`compound`)],false])) -->
+par(_U0,_Info,ref([[refid(`struct_f`),kindref(`compound`)],`false` ])) -->
     !.
 par(_U0,_Info,basecompoundref([[_|_],_])) -->
     !.
@@ -296,7 +307,7 @@ par(U0,Info,
     {foldl(par(U0,[]),Paras,``,Desc)},
       {
 (var(D0)->D0=Desc;arg(1,Info,Id),
-	assert_static(extrabrief(Id,Desc)))
+string_atom(Desc,A),	assert_static(extrabrief(Id,A)))
       }.
 par(U0,[],
 	detaileddescription([[]|Paras])) -->
@@ -307,8 +318,10 @@ par(U0,Info,detaileddescription([[]|Paras]))-->
     {
       arg(7,Info, D0),
       foldl(par(U0,[]),Paras,``,Desc),
-      (var(D0)->D0=Desc;arg(1,Info,Id),
-	assert_static(extra(Id,Desc)))
+      (var(D0)->D0=Desc;
+arg(1,Info,Id),
+string_atom(Desc,A),
+	assert_static(extra(Id,A)))
       }.
 par(_U0,[],location(_)) -->
     !.
@@ -331,10 +344,6 @@ par(_,_GT,listofallmembers([[]|_L])) -->
 par(_,_GT,templateparamlist([[]|_L])) -->
     !.
 par(_,_GT,includes(_)) --> !.
-par(_,_,memberdef([[kind(`variable`)|_Seq]|_]))-->
-    !.
-par(_,_,memberdef([[kind(`function`)|_Seq]|_]))-->
-    !.
 par(U0,Info,memberdef([_|Seq]))-->
     !,
     { U is U0+4 },
@@ -610,13 +619,13 @@ is_parent(P) :-
 grp(Id,Name) :-
     group(Id,Name,_File,_Line,_Column,_Brief,_Text,_Title).
     
-merge_nodes :-    
+merge_nodes :-
     unix(argv([_Input,Output])),
     grp(Id,_Name),
     ( stream_property(S0,alias(group)) -> close(S0) ; true ),
     atomic_concat([Output,'/',Id,'.md'],F),
     open(F,write,S,[alias(group)]),
-%    writeln(F),
+    writeln(F),
     (one_group(S,Id) -> true ; writeln(Id)),
     close(S),
     fail.
@@ -633,7 +642,6 @@ one_group(S,Id) :-
     ;
       true
     ),
-   ( atom_concat(_,'group___predicates__on___text.md',File)->stop_low_level_trace;true),
 (predicate(_,Id)
     ->
     format(S,'## Predicates~n~n', []), 
@@ -654,21 +662,16 @@ one_group(S,Id) :-
       ;
       true
       ),
-    (class(_,Id)
-    ->
-    format(S,'## Classes~n', []), 
+    format(S,'## Members~n', []), 
     format(S,'|Class~t~20||Description~t|~40|~n', []), 
     format(S,'|:---~t~20||:---~t|~40|~n', []), 
     forall(class(Ref,Id),(addsubc(S,Ref))),
-format(S,'~n~n',[])
-						     ;
-      true
-      ),
-    nl(S),			
-    (class(_,Id)
+format(S,'~n~n',[]),
+   (class(_,Id)
     ->
-        forall(class(Ref,Id),(output_class(S,Ref))),
-forall(extra(Id,Desc), format(S,Desc,[])),
+     forall(v(Id,Extra) ,  format(S,'~s~n',[Extra])),
+     forall(f(Ref,Extra) ,  format(S,'~s~n',[Extra])),
+       forall(class(Ref,Id),output_class(S,Ref)),
 nl(S)
       ;
       true
@@ -729,12 +732,21 @@ output_class(S,Id) :-
 
     format(S,'~n~n~s~n',[Text]).
 
-var_member(U0,_Info,memberdef([[kind(`variable`),id(Id)|_],type(_),definition(Def),argsstring(_),
+var_member(U0,_Info,memberdef([[kind(`variable`),id(Id)|_],type(_),definition([[],Def]),argsstring(_),
     name([[],Name])|Text])) -->
 !,
-    mcstr([`### `,Name,`: `, Def,`                    {#`,Id, `}n`]),
+    { format(string(St),`1. [~s](~s): ~s~n`,[Name,Id,Def]) },
+cstr(St),
     foldl(par(U0,[]),Text).
 var_member(_,_,_) --> [].
+
+function_member(U0,_Info,memberdef([[kind(`function`),id(Id)|_],type(_),definition([[],Def]),argsstring(_),
+    name([[],Name])|Text])) -->
+!,
+    { format(string(St),`1. [~s](~s): ~s~n`,[Name,Id,Def]) },
+cstr(St),
+    foldl(par(U0,[]),Text).
+function_member(_,_,_) --> [].
 
 footer(_S,_,_,_).
 
