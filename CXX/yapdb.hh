@@ -70,8 +70,6 @@ protected:
   PredEntry *ap;
 
   /// auxiliary routine to find a predicate in the current module.
-
-  /// auxiliary routine to find a predicate in the current module.
   PredEntry *getPred(Term &t, Term &tm, CELL *&outp);
 
   PredEntry *asPred() { return ap; };
