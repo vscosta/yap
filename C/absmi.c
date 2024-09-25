@@ -191,9 +191,9 @@ static arity_t live_regs( yamop *pco, PredEntry *pe) {
 }
 #endif
 
-#if USE_THREADED_CODE && (defined(ANALYST) || defined(DEBUG))
+#if USE_THREADED_CODE
 
-char *Yap_op_names[] = {
+const char *Yap_op_names[] = {
 #define OPCODE(OP, TYPE) #OP
 #include "YapOpcodes.h"
 #undef OPCODE

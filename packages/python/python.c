@@ -228,15 +228,15 @@ CACHE_REGS
  if (builtins)
    PyDict_SetItemString(globals, "__builtins__", builtins);
     PyDict_SetItemString(globals, "sys",(py_Sys));
-       PyCodeObject *py_code =PyCode_NewEmpty("x", "f", 1);
-    PyFrameObject *frame = 0;
-PyThreadState * state =  PyThreadState_Get();
- frame = PyFrame_New(state,
-        py_code,             /*PyCodeObject *code,*/
-		     globals,
-		     /*PyObject *globals,*/
-			   NULL                    /*PyObject *locals*/
-		     );
+    PyCodeObject *py_code =PyCode_NewEmpty("x", "f", 1);
+    PyThreadState * state =  PyThreadState_Get();
+    /* PyFrameObject *frame = 0; */
+    /* frame = PyFrame_New(state, */
+    /* 			py_code,             /\*PyCodeObject *code,*\/ */
+    /* 		     globals, */
+    /* 		     /\*PyObject *globals,*\/ */
+    /* 			   NULL                    /\*PyObject *locals*\/ */
+    /* 		     ); */
  //   PyTraceBack_Here(frame);
 
    //b state->cframe = frame;

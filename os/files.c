@@ -412,11 +412,14 @@ static Int make_directory(USES_REGS1) {
   Term t = Deref(ARG1);
   const char *fd0;
   
-  if (IsAtomTerm(t))
-  fd0 = RepAtom(AtomOfTerm(t))->StrOfAE;
-  else if (IsStringTerm(t))
+  if (IsAtomTerm(t)) {
+    fd0 = RepAtom(AtomOfTerm(t))->StrOfAE;
+  } else if (IsStringTerm(t)) {
       fd0 = StringOfTerm(t);
-      
+  } else {
+    Yap_ThrowError(TYPE_ERROR_ATOM, t, "make_directory/2");
+    return false;
+  }
    fd0 =   Yap_AbsoluteFile(fd0, true);
   struct cwk_segment segment;
   if (!cwk_path_get_first_segment(fd0, &segment)) {

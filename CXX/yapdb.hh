@@ -47,7 +47,7 @@ class YAPModule;
  */
 class X_API YAPModule :  public YAPAtomTerm {
   friend class YAPPredicate;
-  ModEntry m;
+  //  ModEntry m;
 public:
   //> create or fetch the YAPModule whose name is contained in a `C`term;
   YAPModule(YAP_Term t) : YAPAtomTerm(t){};

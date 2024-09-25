@@ -788,19 +788,31 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   }
   pop_text_stack(lvl);
  
-  if (ch == EOFCHAR || (ch ==  '.' && 
 #if HAVE_ISWSPACE
-			(iswspace(ch = getchr(inp)) || ch == EOFCHAR)
+  while(iswspace(ch) || ch == EOFCHAR) {
+    ch = getchr(inp);
+  }
 #else
-			(isspace(ch = getchr(inp)) || ch == EOFCHAR)
+  while(iswpace(ch) || ch == EOFCHAR) {
+    ch = getchr(inp);
+  }
 #endif
-			)) {
-
-   return out;
-
+  if (ch=='.') {
+ #if HAVE_ISWSPACE
+  while(iswspace(ch) || ch == EOFCHAR) {
+    ch = getchr(inp);
+  }
+#else
+  while(iswpace(ch) || ch == EOFCHAR) {
+    ch = getchr(inp);
+  }
+#endif
+  }
+  if (ch == EOFCHAR) {
+    return out;
   }
   if (throw_error) {
-  Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
+    Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
   }
   return out; 
 }

@@ -2590,7 +2590,7 @@ static  Term gpred(PredEntry *pe)
    if (pe->cs.p_code.NOfClauses == 0)
      	return  TermUndefinedProcedure;
     //    if (pe->PredFlags & NoTracePredFlag)
-	return  TermStaticProcedure;
+   return  TermStaticProcedure;
 	//    return TermStaticProcedure;
 
 
