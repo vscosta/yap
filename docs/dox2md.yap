@@ -178,7 +178,7 @@ fill(Descriptor,Ref,Name) :-
     arg(1,Descriptor,Ref),
     arg(2,Descriptor,Name),
         ( var(Name) ->Text = Ref ; true ),	
-    once(foldl(top_par(0,Descriptor),Info,``,Text0)),
+    once(foldl(par(0,Descriptor),Info,``,Text0)),
     arg(6,Descriptor,Brief),
     ( var(Brief) -> Brief = `` ; true ),
     arg(7,Descriptor,Text),
@@ -213,15 +213,16 @@ mcstr(A,S0,SF) :-
     catch( string_concat([S0|A], SF),_,(atomic_concat([S0|A],SA),atom_string(SA,SF))).
 
 rpar(U,Ts) -->
-    foldl(top_par(U),Ts),
+    foldl(par(U,[]),Ts),
          cstr(`\n`).
 
-top_par(U0,Info,C) -->
+top_par(U0,_Info,C) -->
 %    {writeln(C)},
-    par(U0,Info,C), !.
+    par(U0,[],C), !.
 top_par(_U0,_Info,C) -->
     { writeln(failed:C) }.
 
+par(_,_,[]) --> !.
 par(U0,Info,sectiondef([[kind(`var`)|_]|Paras])) -->
     !,
     {
@@ -233,15 +234,21 @@ par(U0,Info,sectiondef([[kind(`friend`)|_]|Paras])) -->
     !,
     {
     arg(1,Info,Id),
-    foldl(var_member(U0,Info),Paras, ``, Desc),
+    foldl(friend_member(U0,Info),Paras, `\n## Friends:\n`, Desc),
     assert_static(v(Id,Desc))
       }.
 par(U0,Info,sectiondef([[kind(`func`)|_Opts]|Paras])) -->
-    !,
-	foldl(function_member(U0,Info),Paras).
+    !,{
+arg(1,Info,Id),
+	foldl(function_member(U0,Info),Paras, `\n## Functions:\n`, Desc),
+    assert_static(f(Id,Desc))
+      }.
 par(U0,Info,sectiondef([[kind(`public-func`)|_Opts]|Paras])) -->
-    !,
-	foldl(function_member(U0,Info),Paras).
+    !,{
+arg(1,Info,Id),
+	foldl(function_member(U0,Info),Paras, `\n## Public Functions:\n`, Desc),
+    assert_static(f(Id,Desc))
+      }.
 par(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) -->
     !.
 par(_U0,_Info,sectiondef([[kind(`def`)|_]|_])) -->
@@ -651,7 +658,7 @@ merge_nodes :-
 
 one_group(S,Id) :-
     group(Id,_Name,File,Line,Column,Brief,Text,Title),
- format(S,'# ~s~n~n~s~n',[Title,Brief]),
+ format(S,'# ~s\n\n~s~n',[Title,Brief]),
  forall(extrabrief(Id,Extra),format(S,'~s~n',[Extra])),
  subgroups(S,Id),
     process_group(S,Id,File,Line,Column,Text).
@@ -688,7 +695,7 @@ process_group(S,GId,File,Line,Column,Text) :-
     forall(class(Ref,GId),(addsubc(S,Ref))),
     format(S,'~n~n',[]),
      format(S,'~s~n',[Text]),
-  forall(v(GId,Extra) ,  format(S,'~s~n',[Extra])),
+   forall(v(GId,Extra) ,  format(S,'~s~n',[Extra])),
    forall(f(GId,Extra) ,  format(S,'~s~n',[Extra])),
    forall(class(Ref,GId),output_class(S,Ref)),
    nl(S),
@@ -722,9 +729,8 @@ addsubp(S,Id) :-
     format(S,'|*[~s](#~s)*      |    ~s|~n',[Name,Id,Brieffer]).
 
 addsubc(S,Id) :-
-    class(Id,Name,_File,_Line,_Column,Brief,_Text,_Title),
-    strip_late_blanks(Brief,Brieffer),
-    format(S,'|*[~s](#~s)*      |    ~s|~n',[Name,Id,Brieffer]).
+    class(Id,_Name,_File,_Line,_Column,_Brief,_Text,_Title),
+    output_class(S,Id).
     		 	 
 output_predicate(S,Id) :-
     predicate(Id,Name,_F,_L,_C,Brief,Text,_),
@@ -734,9 +740,12 @@ output_predicate(S,Id) :-
 
 output_class(S,Id) :-
     class(Id,Name,_F,_L,_C,Brief,Text,_),
-    format(S,'### ~s          {#~s}~n!!! note ""~n~n    ~s~n',[Name,Id,Brief]),	
+    strip_late_blanks(Brief,Brieffer),
+    format(S,'### ~s          {#~s}~n!!! note ""~n~n    ~s~n',[Name,Id,Brieffer]),	
     format(S,'~n~n~s~n',[Text]),
-   forall(extra(Id,Extra) ,  format(S,'~s~n',[Extra])).
+   forall(extra(Id,Extra) ,  format(S,'~s~n',[Extra])),
+  forall(v(Id,Extra) ,  format(S,'~s~n',[Extra])),
+   forall(f(Id,Extra) ,  format(S,'~s~n',[Extra])).
 
   
 strip_late_blanks(Brief,Brieffer) :-
@@ -757,26 +766,42 @@ strip_late_blanks(Brief,Brieffer) :-
 strip_late_blanks(Brief,Brief).
 
 
-var_member(U0,Info,memberdef([[kind(`variable`),id(Id)|_]|Text])) -->
+var_member(U0,_Info,memberdef([[kind(Kind),id(MyId)|_]|Text])) -->
 { member(definition([[],Def]), Text),
-member(name([[],Name]), Text),
+%member(name([[],Name]), Text),
 !,
-format(string(St),`1. [~s](~s): ~s~n`,[Name,Id,Def]) },
+      format(string(St),`#### ~s [~s](~s)`,[Kind,Def,MyId])
+},
 cstr(St),
-    foldl(par(U0,Info),Text).
-var_member(_,_,_) --> [].
+add_comments(U0,Text).
 
-function_member(U0,Info,memberdef([[kind(`function`),id(MyId)|_]|Text])) -->
-    !,
+add_comments(U,Text) -->
+    {
+member(briefdescription([[]|Brief]),Text),
+member(detaileddescription([[]|Detailed]),Text)
+},
+    rpar(U,Brief),
+    rpar(U,Detailed).
+
+
+friend_member(U0,_Info,memberdef([[kind(Kind),id(MyId)|_]|Text])) -->
+{ member(definition([[],Def]), Text),
+!,
+      format(string(St),`#### ~s [~s](~s) `,[Kind,Def,MyId])
+},
+cstr(St),
+add_comments(U0,Text).
+
+function_member(U0,_Info,memberdef([[kind(`function`),id(MyId)|_]|Text])) -->
     {
 member(definition([[],Def]), Text),
-member(name([[],Name]), Text),
 member(argsstring([[],As]), Text),
-!,      format(string(St),`1. [~s](~s): ~s~s ~n`,[Name,MyId,Def,As]) ,
-    foldl(par(U0,Info),Text,St,Desc),
-	arg(1,Info,Id),
-	assert_static(f(Id,Desc))
-    }.
+!,
+      format(string(St),`#### [~s~s](~s) `,[Def,As,MyId])
+},
+cstr(St),
+add_comments(U0,Text).
+    
 
 footer(_S,_,_,_).
 
