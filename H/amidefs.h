@@ -127,7 +127,7 @@ typedef enum {
 
 /* use similar trick for keeping instruction names */
 #if defined(ANALYST) || defined(DEBUG)
-extern char *Yap_op_names[_std_top + 1];
+extern const char *Yap_op_names[_std_top + 1];
 #endif
 
 typedef enum {

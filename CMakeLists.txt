@@ -565,7 +565,7 @@ set(ALIGN_LONGS 1)
 #ensure best access to slots in environments
 set(MSHIFTOFFS 1)
 
-set(C_COMPILER "Clang" )
+set(C_COMPILER "GCC" )
 
 if (${C_COMPILER} MATCHES "GNU")
   set(HAVE_GCC 1)
