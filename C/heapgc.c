@@ -1893,8 +1893,8 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
     yamop *rtp = gc_B->cp_ap;
 
     if (very_verbose) {
-    if (gc_B->cp_ap)
-      fprintf(stderr,"B %ld->%ld %s ", LCL0-(CELL*)gc_B, LCL0-(CELL*)(gc_B->cp_b), Yap_op_names[Yap_op_from_opcode(gc_B->cp_ap->opc)]) ;
+      if (gc_B->cp_ap)
+	fprintf(stderr,"B %ld->%ld %s ", LCL0-(CELL*)gc_B, LCL0-(CELL*)(gc_B->cp_b), Yap_op_names[Yap_op_from_opcode(gc_B->cp_ap->opc)]) ;
     else
       fprintf(stderr,"B %ld->%ld ",  LCL0-(CELL*)gc_B, LCL0-(CELL*)(gc_B->cp_b));
     }
@@ -2773,7 +2773,7 @@ sweep_environments(CELL_PTR gc_ENV,yamop *pc, size_t size,   bool very_verbose, 
 	fprintf(stderr,"sweep env %ld-(%ld) %s", LCL0-gc_ENV
 		, size-EnvSizeInCells, Yap_op_names[op]);
 #else
-	fprintf(stderr,"%ld-(%ld) %ld", LCL0-gc_ENV, size-EnvSizeInCells, (int)op);
+	fprintf(stderr,"%ld-(%zu) %u", LCL0-gc_ENV, size-EnvSizeInCells, op);
 #endif
  if (op == _Nstop || op == _Ystop)
    fprintf( stderr," !!!!\n" );

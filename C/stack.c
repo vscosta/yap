@@ -894,7 +894,7 @@ PredEntry *Yap_PredEntryForCode(choiceptr ap, yamop *codeptr, find_pred_type whe
             return pp;
         }
     }
-    ModEntry *me;
+    ModEntry *me = CurrentModules;
     while (me) {
         PredEntry *pp = me->PredForME;
 

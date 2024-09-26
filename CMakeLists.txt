@@ -565,7 +565,7 @@ set(ALIGN_LONGS 1)
 #ensure best access to slots in environments
 set(MSHIFTOFFS 1)
 
-set(C_COMPILER CMAKE_C_COMPILER_ID)
+set(C_COMPILER "Clang" )
 
 if (${C_COMPILER} MATCHES "GNU")
   set(HAVE_GCC 1)
@@ -574,6 +574,7 @@ endif ()
 # compatible compilers
 if (${C_COMPILER} MATCHES "Clang")
   set(HAVE_GCC 1)
+  set(HAVE_CLANG 1)
 endif ()
 
 if (${C_COMPILER} MATCHES "Intel")
