@@ -14,15 +14,15 @@ high-performance Prolog compiler developed at Universidade do Porto.
 
 - [CALLING_YAP](CALLING_YAP.md)
 
-- [YAP to Prolog](group___builtins.md).
+- [YAP to Prolog](group__Builtins.md).
 
-- [The YAP Library](group___y_a_p_library.md).
+- [The YAP Library](group__YAPLibrary.md).
 
-- [Programming in YAP](group___y_a_p_programming.md).
+- [Programming in YAP](group__YAPProgramming.md).
 
-- [YAP Supported Extensions to Prolog](group___yap_extensions.md).
+- [YAP Supported Extensions to Prolog](group__YapExtensions.md).
 
-- [YAP Packages](group___y_a_p_packages.md).
+- [YAP Packages](group__YAPPackages.md).
 
-- [YAP Foreign Interfaces](group___y_a_p_a_p_i.md).
+- [YAP Foreign Interfaces](group__YAPAPI.md).
 

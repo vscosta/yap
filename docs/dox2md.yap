@@ -770,7 +770,7 @@ var_member(U0,_Info,memberdef([[kind(Kind),id(MyId)|_]|Text])) -->
 { member(definition([[],Def]), Text),
 %member(name([[],Name]), Text),
 !,
-      format(string(St),`#### ~s [~s](~s)`,[Kind,Def,MyId])
+      format(string(St),`#### ~s [~s]               #~s.`,[Kind,Def,MyId])
 },
 cstr(St),
 add_comments(U0,Text).
@@ -787,7 +787,7 @@ member(detaileddescription([[]|Detailed]),Text)
 friend_member(U0,_Info,memberdef([[kind(Kind),id(MyId)|_]|Text])) -->
 { member(definition([[],Def]), Text),
 !,
-      format(string(St),`#### ~s [~s](~s) `,[Kind,Def,MyId])
+      format(string(St),`#### ~s ~s        #~s~n`,[Kind,Def,MyId])
 },
 cstr(St),
 add_comments(U0,Text).
@@ -797,7 +797,7 @@ function_member(U0,_Info,memberdef([[kind(`function`),id(MyId)|_]|Text])) -->
 member(definition([[],Def]), Text),
 member(argsstring([[],As]), Text),
 !,
-      format(string(St),`#### [~s~s](~s) `,[Def,As,MyId])
+      format(string(St),`#### [~s~s]           #~s~n`,[Def,As,MyId])
 },
 cstr(St),
 add_comments(U0,Text).

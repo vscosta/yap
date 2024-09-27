@@ -152,23 +152,23 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
     return st0;
   }
   if (!IsPairTerm(t)) {
-    Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
+    Yap_ThrowError(TYPE_ERROR_LIST, t0, "scanning list of codes");
     return NULL;
   }
   bool codes = IsIntegerTerm(HeadOfTerm(t));
   if (get_codes != codes && fixed) {
     if (codes) {
-      Yap_ThrowError(TYPE_ERROR_INTEGER, HeadOfTerm(t),
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t0,
                      "scanning list of codes");
     } else {
-      Yap_ThrowError(TYPE_ERROR_ATOM, HeadOfTerm(t), "scanning list of atoms");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t0, "scanning list of atoms");
     }
   }
   if (codes) {
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
       if (IsVarTerm(hd)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, hd, "scanning list of codes");
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, "scanning list of codes");
         return NULL;
       }
       if (!IsIntegerTerm(hd)) {
@@ -177,7 +177,7 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
       }
       Int code = IntegerOfTerm(hd);
       if (code < 0) {
-        Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER_CODE, hd,
+        Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER_CODE, t0,
                        "scanning list of character codes, found %d", code);
         return NULL;
       }else if (code == 0) {
@@ -187,11 +187,11 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
     }
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, t, "scanning list of codes");
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, "scanning list of codes");
         return NULL;
       }
       if (!IsPairTerm(t) && t != TermNil) {
-        Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
+        Yap_ThrowError(TYPE_ERROR_LIST, t0, "scanning list of codes");
         return NULL;
       }
     }
@@ -199,7 +199,7 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
       if (IsVarTerm(hd)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, hd, "scanning list of codes");
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, "scanning list of codes");
         return NULL;
       }
       if (!IsAtomTerm(hd)) {
@@ -220,11 +220,11 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
       }
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, t, "scanning list of codes");
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, "scanning list of codes");
         return NULL;
       }
       if (!IsPairTerm(t) && t != TermNil) {
-        Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
+        Yap_ThrowError(TYPE_ERROR_LIST, t0, "scanning list of codes");
         return NULL;
       }
     }
@@ -232,7 +232,7 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
 
   if (!IsVarTerm(t)) {
     if (t != TermNil) {
-      Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
+      Yap_ThrowError(TYPE_ERROR_LIST, t0, "scanning list of codes");
       return NULL;
     }
   }
