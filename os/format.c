@@ -1205,18 +1205,14 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
 	    const char *s =Yap_MemExportStreamPtr( output_stream);
 	    Term tout = MkAtomTerm(Yap_LookupAtom(s));
 	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
+	    Yap_CloseStream(output_stream);
 	  }else if ( f == FunctorString1) {
 	    const char *s =Yap_MemExportStreamPtr( output_stream);
 	    Term tout = MkStringTerm((s));
 	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
-
+	    Yap_CloseStream(output_stream);
 	  } 
 	}
-#if 0
-   f == FunctorCodes1 ||
-         f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
-  output_stream = Yap_open_buf_write_stream(-1, LOCAL_encoding);
-#endif
         Yap_CloseHandles(hl);
         return out;
     }

@@ -347,8 +347,6 @@
     '$file_unchanged'(File, HostM, DonorM), !,
     '$import_module'(DonorM, HostM,File, Opts).
 '$lf'(_, _, _UserFile,_File,Stream, _ContextModule, _Call, _Opts, _TOpts) :-
-    '$show_consult_level'(LC),
-    LC > 0,
     stream_property(Stream, alias(loop_stream)),
     !.
 '$lf'(_, qly, _UserFile,File,Stream, OuterModule, _Call, _Opts, TOpts) :-
@@ -547,26 +545,20 @@ call_compiler(G, Where,_VL, Pos) :-
 '$lf_storefile'(_UserFile, _OuterModule, _Reconsult0, _Reconsult, _TOpts, _Opts) :- 
     !.
 
-'$lf_verbosity'( _OldLoadVerbose, Opts,Verbose ) :-
-    '$memberchk'(silent(Silent),Opts),
-    !,
-    (
-	Silent == off
-    ->
-    Verbose = true
-    ;
-    	Silent == false
-    ->
-    Verbose = true
-    ;
-    Verbose = false
-    ).
-'$lf_verbosity'( OldLoadVerbose, _Opts, OldLoadVerbose ).
-
-'$report'(in,OldLoadVerbose, Verbose ,T0,H0,_,UserFile, Opts) :-
+'$report'(in, OldLoadVerbose,Verbose,T0,H0,_,UserFile, Opts) :-
     current_prolog_flag(verbose_load, OldLoadVerbose),
-    '$lf_verbosity'( OldLoadVerbose, Opts,Verbose ),
-    set_prolog_flag(verbose_load, Verbose),
+    (
+	'$memberchk'(silent(Silent), Opts)
+    ->
+    ( Silent == true -> Verbose = false;
+      Silent == false -> Verbose = true;
+      Silent == on -> Verbose = false;
+      Silent == off -> Verbose = true
+    ),
+    set_prolog_flag(verbose_load, Verbose)
+    ;
+    OldLoadVerbose = Verbose
+    ),
     % required to boot
     (
     Verbose == true

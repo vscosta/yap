@@ -1,4 +1,5 @@
-
+/// @file yapi.cpp
+/// @brief C++ interface support
 #include "yapi.hh"
 
 extern "C" {

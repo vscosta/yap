@@ -19,11 +19,11 @@ nav:
    - Home: index.md
    - INSTALL: INSTALL.md
    - run: CALLING_YAP.md
-   - Core Built-ins: group___builtins.md
-   - Programming: group___y_a_p_programming.md
-   - Extensions: group___yap_extensions.md
-   - Library: group___y_a_p_library.md
-   - packages: group___y_a_p_packages.md
-   - Foreign Language Interface : group___y_a_p_a_p_i.md
+   - Core Built-ins: group__Builtins.md
+   - Programming: group__YAPProgramming.md
+   - Extensions: group__YapExtensions.md
+   - Library: group__YAPLibrary.md
+   - packages: group__YAPPackages.md
+   - Foreign Language Interface : group__YAPAPI.md
 
 

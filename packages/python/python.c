@@ -219,7 +219,6 @@ CACHE_REGS
     if (!Py_IsInitialized()) {
     Yap_CloseReadline();
     Py_InitializeEx(0);
-    Yap_InitReadline(TermTrue);
     }
     //  PyGILState_Ensure();
   py_Sys =  PyDict_GetItemString (PySys_GetObject("modules"),"sys");
@@ -229,15 +228,15 @@ CACHE_REGS
    PyDict_SetItemString(globals, "__builtins__", builtins);
     PyDict_SetItemString(globals, "sys",(py_Sys));
        PyCodeObject *py_code =PyCode_NewEmpty("x", "f", 1);
-    PyFrameObject *frame = 0;
-PyThreadState * state =  PyThreadState_Get();
- frame = PyFrame_New(state,
-        py_code,             /*PyCodeObject *code,*/
-		     globals,
+       //    PyFrameObject *frame = 0;
+       //PyThreadState * state =  PyThreadState_Get();
+// frame = PyFrame_New(state,
+//        py_code,             /*PyCodeObject *code,*/
+//		     globals,
 		     /*PyObject *globals,*/
-			   NULL                    /*PyObject *locals*/
-		     );
-   PyTraceBack_Here(frame);
+//			   NULL                    /*PyObject *locals*/
+//		     );
+//   PyTraceBack_Here(frame);
 
    //b state->cframe = frame;
  // PyFunctionObject *func = PyFunction_New(py_code, globals);
