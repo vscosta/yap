@@ -785,18 +785,26 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
     return true;
   }
 
-  if (out->type & (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG)) {
+  if ((out->type &(YAP_STRING_INT |
+			 YAP_STRING_FLOAT |
+		   YAP_STRING_BIG))!=0) {
     if ((out->val.t = write_number(
-             inp, out PASS_REGS)) !=TermNil) {
+				   inp, out PASS_REGS)) !=0&&
+	(out->val.t != TermNil)) {
       // Yap_DebugPlWriteln(out->val.t);
 
       return true;
-    }
+    } else {
 
-    if (!(out->type & YAP_STRING_ATOM))
-      {
+      if (!(out->type & (YAP_STRING_ATOM |
+			 YAP_STRING_STRING |
+			YAP_STRING_CODES))) {
 	return false;
       }
+      Yap_ResetException(NULL);
+
+      
+  }
   }
   if (out->type & (YAP_STRING_ATOM)) {
 

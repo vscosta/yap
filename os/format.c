@@ -330,7 +330,7 @@ static int format_print_str(int sno, Int size, bool has_size, Term args,
             return true;
         }
         const unsigned char *pt = RepAtom(AtomOfTerm(args))->UStrOfAE;
-        while (*pt && (!has_size || size > 0)) {
+        while ((has_size || size > 0) && *pt)  {
             utf8proc_int32_t ch;
 
             if ((pt += get_utf8(pt, -1, &ch)) > 0) {

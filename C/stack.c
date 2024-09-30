@@ -1742,10 +1742,10 @@ char * Yap_dump_stack(FILE *f) {
     /* check if handled */
     // if (handled_exception(PASS_REGS1))
     //  return;
-    fprintf( f, "%% Stacks: Global-->                 <-- Local | Trail -->\n" );
-    //    fprintf( f, "%% %p--%p-->      <---%p--%p--%p\n" , H0, HR, ASP, LCL0, TR); 
-    fprintf( f, "%% %luKB-->                              <--  %luKB | %luKB\n",
-	     (unsigned long int) (sizeof(CELL) * (HR - H0)) / 1024,
+	fprintf( f, "%% Stacks:\n%% --> %-15s                        %14s <-- | --> Trail\n","Global","Local"  );
+    //    fprintf( f, "%% --> %p--%p         %p--%p <-- -->-%p\n" , H0, HR, ASP, LCL0, TR); 
+    fprintf( f, "%% --> %lu%-20s                          %2luKB <-- | --> %luKB\n",
+	     (unsigned long int) (sizeof(CELL) * (HR - H0)) / 1024,"KB",
 	     (unsigned long int) (sizeof(CELL) * (LCL0 - ASP)) / 1024,
 	     (unsigned long int) ((ADDR) TR - LOCAL_TrailBase) / 1024);
     if (HR > ASP || HR > LCL0) {

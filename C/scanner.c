@@ -808,7 +808,9 @@ if (ch == EOFCHAR) {
     }
   }
     }
+  if (throw_error)
     Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
+  return 0;
 }
 
 #define CHECK_SPACE()                                                          \

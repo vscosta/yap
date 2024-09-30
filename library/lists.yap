@@ -623,8 +623,7 @@ numlist_(L, U, [L|Ns]) :-
 
 
 Succeeds if  _Set3_ unifies with the intersection of  _Set1_ and
- _Set2_.  _Set1_ and  _Set2_ are lists without duplicates. They
-need not be ordered.
+ _Set2_.  _Set1_ and  _Set2_ are lists without duplicates. Theyneed not be ordered.
 
 The code was copied from SWI-Prolog's list library.
 

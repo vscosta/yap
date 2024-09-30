@@ -787,15 +787,17 @@ member(detaileddescription([[]|Detailed]),Text)
 friend_member(U0,_Info,memberdef([[kind(Kind),id(MyId)|_]|Text])) -->
 { member(definition([[],Def]), Text),
 !,
-      format(string(St),`#### ~s ~s        #~s~n`,[Kind,Def,MyId])
 },
-cstr(St),
+{
+fetch(
 add_comments(U0,Text).
 
 function_member(U0,_Info,memberdef([[kind(`function`),id(MyId)|_]|Text])) -->
     {
 member(definition([[],Def]), Text),
 member(argsstring([[],As]), Text),
+format(string(Decl),'~s~s',[Def,As],
+U is U0+1.
 !,
       format(string(St),`#### [~s~s]           #~s~n`,[Def,As,MyId])
 },

@@ -320,7 +320,7 @@ restart_aux:
       return Yap_unify(at, ARG1);
     }
   }
-  if (!LOCAL_Error_TYPE) {
+  if (LOCAL_Error_TYPE) {
     Yap_ThrowError(LOCAL_Error_TYPE,ARG1,"atom/2");
     t1 = Deref(ARG1);
     t2 = Deref(ARG2);
