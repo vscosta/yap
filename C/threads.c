@@ -8,7 +8,7 @@
  *									 *
  **************************************************************************
  *									 *
- * File:		stdpreds.c						 *
+ * e:		threads.c						 *
  * Last rev:								 *
  * mods:									 *
  * comments:	threads							 *
@@ -33,9 +33,7 @@ static char     SccsId[] = "%W% %G%";
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#if HAVE_STRING_H
 #include <string.h>
-#endif
 #if HAVE_SYS_SYSCALL_H
 #include <sys/syscall.h>
 #endif
@@ -128,12 +126,16 @@ static bool
 mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
 {
   pthread_mutex_t *mutexp;
-  pthread_cond_t *condp;
+  pthread_cond_t *emptyp, *fullpp;
   struct idb_queue *msgsp;
 
   memset(mboxp, 0, sizeof(mbox_t));
-  condp = & mboxp->cond;
-  pthread_cond_init(condp, NULL);
+  mboxp->max =INT_MAX;
+  
+  emptyp = & mboxp->empty;
+  pthread_cond_init(emptyp, NULL);
+  fullpp = & mboxp->full;
+  pthread_cond_init(fullpp, NULL);
   mutexp = & mboxp->mutex;
   pthread_mutex_init(mutexp, NULL);
   msgsp = & mboxp->msgs;
@@ -150,18 +152,20 @@ static bool
 mboxDestroy( mbox_t *mboxp USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-  pthread_cond_t *condp = &mboxp->cond;
+  pthread_cond_t *emptyp = &mboxp->empty;
+  pthread_cond_t *fullpp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
   mboxp->open = false;
   if (mboxp->nclients == 0 ) {
-    pthread_cond_destroy(condp);
+    pthread_cond_destroy(emptyp);
+    pthread_cond_destroy(fullpp);
     pthread_mutex_destroy(mutexp);
     Yap_destroy_tqueue(msgsp PASS_REGS);
     // at this point, there is nothing left to unlock!
     return true;
   } else {
     /* we have clients in the mailbox, try to wake them up one by one */
-    pthread_cond_broadcast(condp);
+    pthread_cond_broadcast(emptyp);
     pthread_mutex_unlock(mutexp);
     return true;
   }
@@ -171,68 +175,56 @@ static bool
 mboxSend( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-  pthread_cond_t *condp = &mboxp->cond;
+  pthread_cond_t *fullp = &mboxp->full;
+  pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
 
   if (!mboxp->open) {
     // oops, dead mailbox
+ pthread_mutex_unlock(mutexp);
     return false;
   }
-  Yap_enqueue_tqueue(msgsp, t PASS_REGS);
-  // printf("+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
+  if (mboxp->nmsgs == mboxp->max)
+    pthread_cond_wait(fullp,mutexp);
+  //Yap_DebugPlWriteln(t);
+  Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
+  fprintf(stderr,"+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
   mboxp->nmsgs++;
-  pthread_cond_broadcast(condp);
-  pthread_mutex_unlock(mutexp);
+     pthread_cond_signal(emptyp);
+ pthread_mutex_unlock(mutexp);
   return true;
 }
 
 static bool
-mboxReceive( mbox_t *mboxp, Term t USES_REGS )
+mboxReceive( mbox_t *mboxp, Term *t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-  pthread_cond_t *condp = &mboxp->cond;
+  pthread_cond_t *emptyp = &mboxp->empty;
+  // pthread_cond_t *fullp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc; 
-
   if (!mboxp->open){
-    return false; 	// don't try to read if someone else already closed down...
-  }
-  mboxp->nclients++;
-  do {
-    rc = mboxp->nmsgs && Yap_dequeue_tqueue(msgsp, t, false,  true PASS_REGS);
-    if (rc) {
-      mboxp->nclients--;
-      mboxp->nmsgs--;
-      //printf("-   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
-      //	Yap_do_low_level_trace=1;
       pthread_mutex_unlock(mutexp);
-      return true;
-    } else if (!mboxp->open) {
-      //printf("o   (%d)\n", worker_id);
-      mboxp->nclients--;
-      if (!mboxp->nclients) {// release
-	pthread_cond_destroy(condp);
-	pthread_mutex_destroy(mutexp);
-	Yap_destroy_tqueue(msgsp PASS_REGS);
-	// at this point, there is nothing left to unlock!
-      } else {
-	pthread_cond_broadcast(condp);
+    return false; 	// don't try to read if someone else already closed dopxu[xuxuwn...
+  }
+    rc=Yap_dequeue_tqueue(msgsp, t, false, true PASS_REGS);
+      // Yap_DebugPlWriteln(t);
+      if (rc) {
+	mboxp->nmsgs--;
 	pthread_mutex_unlock(mutexp);
+      } else {
+	pthread_cond_wait(emptyp, mutexp);
       }
-      return false;
-    } else {
-      pthread_cond_wait(condp, mutexp);
-    }
-  } while (!rc);
   return rc;
 }
+  
 
 static bool
 mboxPeek( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
   struct idb_queue *msgsp = &mboxp->msgs;
-  bool rc = Yap_dequeue_tqueue(msgsp, t, false,  false PASS_REGS);
+  bool rc = Yap_dequeue_tqueue(msgsp, &t, false,  false PASS_REGS);
   pthread_mutex_unlock(mutexp);
   return rc;
 }
@@ -341,7 +333,7 @@ kill_thread_engine (int wid, int always_die)
   if (REMOTE_ThreadHandle(wid).last_timep)
     free(REMOTE_ThreadHandle(wid).last_timep);
   if (REMOTE_ThreadHandle(wid).texit) {
-    Yap_FreeCodeSpace((ADDR)REMOTE_ThreadHandle(wid).texit);
+    REMOTE_ThreadHandle(wid).texit = 0;
   }
   /* FreeCodeSpace requires LOCAL requires yaam_regs */
   free(REMOTE_ThreadHandle(wid).default_yaam_regs);
@@ -807,6 +799,19 @@ p_thread_exit( USES_REGS1 )
   return TRUE;
 }
 
+  /** @pred thread_setconcurrency(+ _Old_, - _New_) 
+
+
+      Determine the concurrency of the process, which is defined as the
+      maximum number of concurrently active threads. `Active` here means
+      they are using CPU time. This option is provided if the
+      thread-implementation provides
+      `pthread_setconcurrency()`. Solaris is a typical example of this
+      family. On other systems this predicate unifies  _Old_ to 0 (zero)
+      and succeeds silently.
+
+
+  */
 static Int
 p_thread_set_concurrency( USES_REGS1 )
 {
@@ -1120,71 +1125,35 @@ p_unlock_mutex( USES_REGS1 )
 static Int
 p_with_mutex( USES_REGS1 )
 {
-  yap_error_descriptor_t * excep;
-  Int rc = FALSE;
+  SWIMutex *mut;
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
-  PredEntry *pe;
-  Term tm = CurrentModule;
-  Term tg = Deref(ARG2);
-  SWIMutex *mut = MutexOfTerm( ARG1 );
+  bool rc;
+  Term t1 = Deref(ARG1);
+  if (IsVarTerm(t1)) 
+    {
+      mut = NewMutex();
+    }
+  else
+    {
+         mut= MutexOfTerm( ARG1 );
 
+    }
+  
   if (!mut || !LockMutex(mut PASS_REGS)) {
     return FALSE;
   }
-
-  tg = Yap_StripModule(tg, &tm);
-  if (IsVarTerm(tg)) {
-    Yap_Error(INSTANTIATION_ERROR, ARG2, "with_mutex/2");
-    goto end;
-  } else if (IsApplTerm(tg)) {
-    register Functor f = FunctorOfTerm(tg);
-    register CELL *pt;
-    size_t i, arity;
-
-    f = FunctorOfTerm(tg);
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-      goto end;
-    }
-    arity = ArityOfFunctor(f);
-    if (arity > MaxTemps) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-      goto end;
-    }
-    pe = RepPredProp(PredPropByFunc(f, tm));
-    pt = RepAppl(tg)+1;
-    for (i= 0; i < arity; i++ )
-      XREGS[i+1] = pt[i];
-  } else if (IsAtomTerm(tg)) {
-    pe = RepPredProp(PredPropByAtom(AtomOfTerm(tg), tm));
-  } else if (IsPairTerm(tg)) {
-    register CELL *pt;
-    Functor f;
-
-    f = FunctorDot;
-    pe = RepPredProp(PredPropByFunc(f, tm));
-    pt = RepPair(tg);
-    XREGS[1] = pt[0];
-    XREGS[2] = pt[1];
-  } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-    goto end;
-  }
-  if (
-      pe->OpcodeOfPred != FAIL_OPCODE &&
-      Yap_execute_pred(pe, NULL, true PASS_REGS) ) {
-    rc = TRUE;
-  }
- end:
-  excep = Yap_GetException();
+  rc= Yap_exists(Deref(ARG2), true PASS_REGS);
   if ( !UnLockMutex(mut PASS_REGS) ) {
-    return FALSE;
+    return false;;
   }
-  if (creeping) {
+    if (Yap_HasException(PASS_REGS1))
+    {
+      Yap_JumpToEnv();
+      return false;
+    }
+ if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
-  } else if ( excep != 0) {
-    return Yap_JumpToEnv();
-  }
+ }
   return rc;
 }
 
@@ -1367,10 +1336,11 @@ p_mbox_destroy( USES_REGS1 )
  {
    Term namet = Deref(ARG1);
     mbox_t* mboxp = getMbox(namet) ;
-
     if (!mboxp)
        return FALSE;
-   return mboxReceive(mboxp, Deref(ARG2) PASS_REGS);
+    Term t = 0;
+    return mboxReceive(mboxp, &t PASS_REGS) &&
+      Yap_unify(ARG2,t);
  }
 
 
@@ -1379,7 +1349,6 @@ p_mbox_destroy( USES_REGS1 )
  {
    Term namet = Deref(ARG1);
     mbox_t* mboxp = getMbox(namet) ;
-
     if (!mboxp)
        return FALSE;
    return mboxPeek(mboxp, Deref(ARG2) PASS_REGS);
@@ -1612,19 +1581,6 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_detached", 2, p_thread_detached2, 0);
   Yap_InitCPred("$thread_exit", 0, p_thread_exit, 0);
   Yap_InitCPred("thread_setconcurrency", 2, p_thread_set_concurrency, 0);
-  /** @pred thread_setconcurrency(+ _Old_, - _New_) 
-
-
-      Determine the concurrency of the process, which is defined as the
-      maximum number of concurrently active threads. `Active` here means
-      they are using CPU time. This option is provided if the
-      thread-implementation provides
-      `pthread_setconcurrency()`. Solaris is a typical example of this
-      family. On other systems this predicate unifies  _Old_ to 0 (zero)
-      and succeeds silently.
-
-
-  */
   Yap_InitCPred("$valid_thread", 1, p_valid_thread, 0);
   Yap_InitCPred("mutex_create", 1, p_new_mutex, SafePredFlag);
   Yap_InitCPred("mutex_destroy", 1, p_destroy_mutex, SafePredFlag);
@@ -1738,72 +1694,20 @@ p_new_mutex(void)
  static Int
  p_with_mutex( USES_REGS1 )
  {
-   Int mut;
-   Term t1 = Deref(ARG1), excep;
-   Int rc = FALSE;
-   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
-   PredEntry *pe;
-   Term tm = CurrentModule;
-   Term tg = Deref(ARG2);
+  Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
+  bool rc;
 
-   if (IsVarTerm(t1)) {
-       p_new_mutex( PASS_REGS1 );
-   }
-   t1 = Deref(ARG1);
-   mut = IntOfTerm(t1);
-   tg = Yap_StripModule(tg, &tm);
-   if (IsVarTerm(tg)) {
-      Yap_Error(INSTANTIATION_ERROR, ARG2, "with_mutex/2");
-      goto end;
-   } else if (IsApplTerm(tg)) {
-     register Functor f = FunctorOfTerm(tg);
-     register CELL *pt;
-     size_t i, arity;
-
-    f = FunctorOfTerm(tg);
-    if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-      goto end;
+  rc = Yap_exists(ARG2, true  PASS_REGS);
+    if (Yap_HasException(PASS_REGS1))
+    {
+      Yap_JumpToEnv();
+      return false;
     }
-    arity = ArityOfFunctor(f);
-    if (arity > MaxTemps) {
-      Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-      goto end;
-    }
-    pe = RepPredProp(PredPropByFunc(f, tm));
-    pt = RepAppl(tg)+1;
-    for (i= 0; i < arity; i++ )
-      XREGS[i+1] = pt[i];
-  } else if (IsAtomTerm(tg)) {
-    pe = RepPredProp(PredPropByAtom(AtomOfTerm(tg), tm));
-  } else if (IsPairTerm(tg)) {
-    register CELL *pt;
-    Functor f;
-
-    f = FunctorDot;
-    pe = RepPredProp(PredPropByFunc(f, tm));
-    pt = RepPair(tg);
-    XREGS[1] = pt[0];
-    XREGS[2] = pt[1];
-  } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, tg, "with_mutex/2");
-    goto end;
-  }
-  if (
-      pe->OpcodeOfPred != FAIL_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS) ) {
-    rc = TRUE;
-  }
- end:
-  ARG1 = MkIntegerTerm(mut);
-  excep = MkAddressTerm(Yap_GetException());
-  if (creeping) {
+ if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
-  } else if ( excep != 0) {
-    return Yap_JumpToEnv();
   }
-  return rc;
-}
+ return rc;
+ }
 
 void 
 Yap_InitFirstWorkerThreadHandle(void)
@@ -1824,6 +1728,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_runtime", 1, p_thread_runtime, SafePredFlag);
   Yap_InitCPred("$thread_unlock", 1, p_thread_unlock, SafePredFlag);
 #if DEBUG_LOCKS||DEBUG_PE_LOCKS
+
   Yap_InitCPred("debug_locks", 0, p_debug_locks, SafePredFlag);
   Yap_InitCPred("nodebug_locks", 0, p_nodebug_locks, SafePredFlag);
 #endif

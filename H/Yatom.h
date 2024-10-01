@@ -24,34 +24,6 @@
 
 #include "Atoms.h"
 
-#ifdef USE_OFFSETS
-
-INLINE_ONLY Atom AbsAtom(AtomEntry *p);
-
-INLINE_ONLY Atom AbsAtom(AtomEntry *p) {
-  return (Atom)(Addr(p) - AtomBase);xp
-}
-
-INLINE_ONLY AtomEntry *RepAtom(Atom a);
-
-INLINE_ONLY AtomEntry *RepAtom(Atom a) {
-  return (AtomEntry *) (AtomBase + Unsigned (a);
-}
-
-#else
-
-INLINE_ONLY Atom AbsAtom(AtomEntry *p);
-
-INLINE_ONLY Atom AbsAtom(AtomEntry *p) { return (Atom)(p); }
-
-INLINE_ONLY AtomEntry *RepAtom(Atom a);
-
-INLINE_ONLY AtomEntry *RepAtom(Atom a) {
-  return (AtomEntry *)(a);
-}
-
-#endif
-
 #if USE_OFFSETS_IN_PROPS
 
 INLINE_ONLY Prop AbsProp(PropEntry *p);
@@ -1573,6 +1545,20 @@ INLINE_ONLY const char *AtomTermName(Term t);
 INLINE_ONLY const char *AtomTermName(Term t) {
   return RepAtom(AtomOfTerm(t))->rep.uStrOfAE;
 }
+
+INLINE_ONLY const char *StrOfAtom(Atom a) {
+    return RepAtom((a))->StrOfAE;
+}
+
+INLINE_ONLY unsigned const char *UStrOfAtom(Atom a) {
+    return RepAtom((a))->UStrOfAE;
+}
+
+INLINE_ONLY const unsigned char *UStrOfAtomTerm(Term a) {
+    return RepAtom(AtomOfTerm(a))->UStrOfAE;
+}
+
+
 
 extern bool Yap_RestartException(yap_error_descriptor_t *  i);
 extern bool Yap_ResetException(yap_error_descriptor_t *i);

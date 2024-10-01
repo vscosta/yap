@@ -77,9 +77,7 @@ and therefore he should try to avoid them whenever possible.
         '$unknown_warning'/1]).
 
 :- use_system_module( '$_boot', ['$check_head_and_body'/4,
-        '$check_if_reconsulted'/2,
-        '$head_and_body'/3,
-        '$inform_as_reconsulted'/2]).
+        '$head_and_body'/2]).
 
 :- use_system_module( '$_errors', [throw_error/2]).
 
@@ -301,19 +299,21 @@ abolish(X0) :-
 	throw_error(type_error(atom,M), Msg).
 
 '$old_abolish'(V,M) :- var(V), !,
-	( true -> % current_prolog_flag(language, sicstus) ->
+         % current_prolog_flag(language, sicstus) ->
 	    throw_error(instantiation_error,abolish(M:V))
-	;
-	    '$abolish_all_old'(M)
-	).
+	%;
+	%    '$abolish_all_old'(M)
+	%)
+	.
 '$old_abolish'(N/A, M) :- !,
 	'$abolish'(N, A, M).
 '$old_abolish'(A,M) :- atom(A), !,
-	( current_prolog_flag(language, iso) ->
+	%( current_prolog_flag(language, iso) ->
 	  throw_error(type_error(predicate_indicator,A),abolish(M:A))
-	;
-	    '$abolish_all_atoms_old'(A,M)
-	).
+	%;
+	%    '$abolish_all_atoms_old'(A,M)
+	%)
+	.
 '$old_abolish'([], _) :- !.
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
 '$old_abolish'(T, M) :-
@@ -335,7 +335,7 @@ abolish(X0) :-
 '$abolishs'(_, _).
 
 /**  @pred stash_predicate(+ _Pred_)
-Make predicate  _Pred_ invisible to new code, and to `	current_predicate/2`,
+Make predicate  _Pred_ invisible to new code, and to current_predicate/2,
 `listing`, and friends. New predicates with the same name and
 functor can be declared.
  **/
@@ -411,11 +411,12 @@ predicate_property(Pred,Prop) :-
     ->
 	'$all_current_modules'(M)
        ;
-true
-           ),
+      true
+    ),
     (var(P) %
     ->
-	'$current_predicate'(_Na,M,P,_)
+      module_predicate(M,N,Ar,_),
+      functor(P,N,Ar)
     ;
     true
     ),
@@ -424,16 +425,14 @@ true
     ->
 	'$predicate_property'(P,prolog,Prop)
     ;
-	'$is_proxy_predicate'(P,M),
+      '$is_proxy_predicate'(P,M)
+      ->
 	'$import_chain'(M,P,M0,P0),
-	'$pred_exists'(P0,M0)
-    ->
-	(
-	    Prop = imported_from(M0)
+	'$pred_exists'(P0,M0),
+      (Prop = imported_from(M0)
 	;
 	'$predicate_property'(P0,M0,Prop)
-
-	)
+      )
     ;
     '$predicate_property'(P,M,Prop)
     ).
@@ -463,8 +462,8 @@ true
      Type == mega_procedure -> Prop=mega
      
      )
-    )
-.
+    ).
+
 '$predicate_property'(P,M,file(File)) :-
     \+ '$is_multifile'(P, M),
     M\=prolog,
@@ -533,31 +532,18 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
     '$yap_strip_module'(T0, M, T),
-    (var(A) -> true ; atom(A)),
-    ( var(M) -> '$all_current_modules'(M) ; true ),
+    (var(M) -> '$all_current_modules'(M);  must_be_atom(M)),
     (nonvar(T) ->
-	 functor(T, A, _),
-	 '$pred_exists'( T, M)
+	functor(T,A,Ar),
+        functor_predicate(M,A,Ar,user)
+    ;atom(A) ->
+    atom_functor(A,Ar),
+    functor(T,A,Ar),
+    functor_predicate(M,A,Ar,user)
     ;
-    atom(A)
-    ->
-    (
-	'$pred_exists'( A, M)
-    ;
-    '$functors_for_atom'(A,Ts),
-    '$enumerate_functors'(Ts,M,T)
-    )
-    ;	 
-    '$current_predicate'(A,M, T, user),
-    M \= prolog
+    module_predicate(M,A,Ar,user),
+    functor(T,A,Ar)
     ).
-
-'$enumerate_functors'([T|_Ts],M,T):-	 
-	 '$pred_exists'( T, M).
-'$enumerate_functors'([_T|Ts],M,T) :-
-    '$enumerate_functors'(Ts,M,T).
-
-
 
 :- meta_predicate system_predicate(:), system_predicate(?,:).
 
@@ -566,42 +552,26 @@ current_predicate(A,T0) :-
 
 Defines the relation:  indicator _P_ refers to a currently defined system predicate.
 */
-system_predicate(P0) :-
-    may_bind_to_type(predicate_indicator,P0),
-	'$yap_strip_module'(P0, _, P),
+system_predicate(T0) :-
+    '$yap_strip_module'(T0, M, T),    
+    (      var(M) -> '$all_current_modules'(M);  must_be_atom(M)
+    ),
     (
-      var(P)
-    ->
-      P = A/Arity,
-     '$current_predicate'(A, prolog, T, _system),
-     functor(T, A, Arity)
-     ;
-      ground(P), P = A/Arity
-    ->
-     functor(T, A, Arity),
-     '$current_predicate'(A, prolog, T, _system)
+      var(T) -> module_predicate(_,A,Ar,system)
+	;
+	T = A//Ar, nonvar(A) ->
+	atom_functor(A,Ar),
+	functor_predicate(M,A,Ar0,system),
+	Ar is Ar0+2
     ;
-      ground(P), P = A//Arity2
-    ->
-     Arity is Arity2+2,
-     functor(T, A, Arity),
-     '$current_predicate'(A, prolog, T, _system)
-     ;
-     P = A/Arity
-    ->
-     '$current_predicate'(A, prolog, T, _system),
-     functor(T, A, Arity)
-    ;
-     P = A//Arity2
-    ->
-     '$current_predicate'(A, prolog, T, _system),
-     functor(T, A, Arity),
-     Arity >= 2,
-     Arity2 is Arity-2
-    ;
-    throw_error(type_error(predicate_indicator,P),
-                system_predicate(P0))
+    T = A/Ar, nonvar(A) -> 
+	atom_functor(A,Ar),
+	functor_predicate(M,A,Ar,system);
+	throw_error(type_error(predicate_indicator,T),
+                system_predicate(T))
     ).
+
+
 
 /** @pred  system_predicate( ?A, ?P )
 
@@ -613,14 +583,19 @@ system_predicate(A, P0) :-
     may_bind_to_type(atom,A),
     may_bind_to_type(callable,P0),
     '$yap_strip_module'(P0, M, P),
+
     (
 	nonvar(P)
-    ->
-     '$current_predicate'(A, M, P, system),
-     '$is_system_predicate'( P,  M)
+	  ->
+	  functor(P,N,A),
+	  functor_predicate(M,N,A,system)
     ;
-     '$current_predicate'(A, M, P, system)
+    (      var(M) -> '$all_current_modules'(M);  must_be_atom(M)),
+    module_predicate(A, Na, Ar, system),
+	  functor(P,Na,Ar)
     ).
+
+    
 
 
 /**
@@ -631,45 +606,32 @@ system_predicate(A, P0) :-
   where the atom _Mod_ is the module of the predicate,
  _Na_ is the name of the predicate, and  _Ar_ its arity.
 */
-current_predicate(F0) :-
-    may_bind_to_type(predicate_indicator,F0),
-    '$yap_strip_module'(F0, M, F),
-    '$current_indicator_predicate'( F, M ).
-
-'$current_indicator_predicate'( A/N, M ) :-
-	!,
-	(
-	 ground(A/N)
-	->
-	 functor(S, A, N),
-	 current_predicate(A, M:S)
+current_predicate(T0) :-
+    '$yap_strip_module'(T0, M, T),
+    (
+      var(M) -> '$all_current_modules'(M)
 	;
-	 current_predicate(A, M:S),
-	 functor(S, A, N)
-	 ).
-'$current_indicator_predicate'( A//N, M ) :-
-	(
-	 ground(A)
-	->
-	 atom(A), integer(N),
-	 N2 is N+2,
-	 functor(S, A, N2),
-	 current_predicate(A, M:S)
-	;
-	 current_predicate(A, M:S),
-	 functor(S, A, N2),
-	 N is N2-2
-	).
+	must_be_atom(M)
+    ),
+    (
+	T=A/Ar, var(A) ->
+	module_predicate(M,A,Ar,user)
+    ;
+    T = A//Ar, var(A) ->
+  	module_predicate(M,A,Ar0,user),
+     Ar is Ar0+2
+;
+    T = A/Ar, nonvar(A) -> atom_functor(A,Ar),
+    functor_predicate(M,A,Ar,user)
 
-/** @pred  current_key(? _A_,? _K_)
-
-
-Defines the relation:  _K_ is a currently defined database key whose
-name is the atom  _A_. It can be used to generate all the keys for
-  the internal data-base.
-*/
-current_key(A,K) :-
-	'$current_predicate'(A,idb,K,user).
+    ;
+    T = A//Ar, nonvar(A) -> atom_functor(A,Ar),
+	  functor_predicate(M,A,Ar0,user),
+	  Ar is Ar0-2
+    ;
+    error(type_error(predicate_indicator,T),
+               current_predicate(T))
+   ).
 
 % do nothing for now.
 '$noprofile'(_, _).
@@ -691,7 +653,7 @@ assert/1 into normal static predicates. This call tells the
 Prolog environment the definition will not change anymore and further
 calls to assert/1 or retract/1 on the named predicates
 raise a permission error. This predicate is designed to deal with parts
-of the program that is generated at runtime but does not change during
+ the program that is generated at runtime but does not change during
 the remainder of the program execution.
  */
 compile_predicates(Ps) :-

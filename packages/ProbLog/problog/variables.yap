@@ -233,7 +233,7 @@
                       problog_var_timer_timeout/1,
                       problog_var_time_out/4]).
 
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 :- style_check(single_var).
 
 problog_var_set(Variable, Value):-

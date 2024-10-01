@@ -364,7 +364,8 @@ var(V),
 
 LHS <== RHS :-
     compute(RHS, Val),
-    set__(LHS,Val).
+    set__(LHS,Val),
+    !.
 
 ( LHS[Off|Offs] +== 1 ) :-
     maplist(compute,[Off|Offs],[EOff|EOffs]),
@@ -918,6 +919,20 @@ multiply([X|Xs],P0,P) :-
 fill(V,_) :-
     var(V),
     !.
+fill(terms,_) :-
+    !.
+fill(ints,L) :-
+    !,
+    maplist('='(0),L).
+fill(floats,L) :-
+    !,
+    maplist('='(0.0),L).
+fill(terms,_) :-
+    !.
+fill(N,L) :-
+    number(N),
+    !,
+    maplist('='(N),L).
 fill([H|L],NL) :-
     flatten([H|L],NL),
     !.
@@ -1358,7 +1373,7 @@ user:inline(matrix_map(P,A,B),
 %%% most often we can avoid meta-calls.
 user:inline(foldl_matrix(P,A,V0,VF),
     (matrix:matrix_size(A,Size), MainCall)):-
-   writeln(ok), callable(P),
+    callable(P),
     	  aux_pred(`foldl`,P,
 		[[0,Size,A,V0,VF], % plugin call
 		 [I0,Size,A,V0,VF], % head

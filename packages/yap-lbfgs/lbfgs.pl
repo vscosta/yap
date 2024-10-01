@@ -33,7 +33,7 @@
 		 lbfgs_parameters/0]).
 
 % switch on all the checks to reduce bug searching time
-% :- yap_flag(unknown,error).
+% :- set_prolog_flag(unknown,error).
 % :- style_check(single_var).
 
 /**

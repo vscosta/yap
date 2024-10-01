@@ -27,7 +27,7 @@ dynamic. What YAP does when trying to execute undefined predicates can
 be specified in three different ways:
 
 
-+ By setting an YAP flag, through the yap_flag/2 or
++ By setting an YAP flag, through the set_prolog_flag/2 or
 set_prolog_flag/2 built-ins. This solution generalizes the
 ISO standard by allowing module-specific behavior.
 + By using the unknown/2 built-in (this deprecated solution is
@@ -112,7 +112,8 @@ The unknown predicate, informs about what the user wants to be done
 */
 
 unknown(P, NP) :-
-    yap_flag( unknown, P, NP ).
+    current_prolog_flag( unknown, P ),
+    set_prolog_flag( unknown, NP ).
 
 /**
 @}

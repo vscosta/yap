@@ -31,7 +31,8 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include <stdlib.h>
 
-/// @}
+/// @file dbase.c
+/// @brief Internal Database
 
 
 /**
@@ -1726,7 +1727,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       LOCAL_Error_Size = (UInt)(extra_size + sizeof(ppt0));
       LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
       Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-      LOCAL_Error_TYPE = oerr;
       return NULL;
     }
     ntp0 = ppt0->Contents;
@@ -1827,7 +1827,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
                        &vars_found, dbg);
         if (ntp == NULL) {
           Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-          LOCAL_Error_TYPE = oerr;
           return NULL;
         }
       }
@@ -1854,7 +1853,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
         LOCAL_Error_Size = (UInt)DBLength(CodeAbs);
         LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
       if ((InFlag & MkIfNot) &&
@@ -1878,7 +1876,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
         LOCAL_Error_Size = (UInt)DBLength(CodeAbs);
         LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
       flag |= DBWithRefs;
@@ -5048,7 +5045,7 @@ bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
   return true;
 }
 
-bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
+bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
                         bool release USES_REGS) {
   Term TDB;
   CELL *oldH = HR;
@@ -5057,15 +5054,15 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
   while (cur_instance) {
     HR = oldH;
     HB = LCL0;
+    TR = oldTR;
     while ((TDB = GetDBTerm(cur_instance->DBT, false PASS_REGS)) == 0L) {
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_growglobal(NULL)) {
-          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
-                    LOCAL_ErrorMessage);
-          return false;
+        while (oldTR < TR) {
+          CELL d1 = TrailTerm(TR - 1);
+          TR--;
+          /* normal variable */
+          RESET_VARIABLE(d1);
         }
-      } else {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_dogc(PASS_REGS1)) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
@@ -5075,17 +5072,24 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
       oldTR = TR;
       oldH = HR;
     }
-    if (Yap_unify(t, TDB)) {
-      if (release) {
-        if (cur_instance == father_key->FirstInQueue) {
-          father_key->FirstInQueue = cur_instance->next;
-        }
-        if (cur_instance == father_key->LastInQueue) {
-          father_key->LastInQueue = prev;
-        }
-        if (prev) {
-          prev->next = cur_instance->next;
-        }
+    bool rc;
+    if (*t==0) {
+      *t = TDB;
+      rc = true;
+    } else {
+      rc = Yap_unify(*t, TDB);
+    }
+    if (rc) {
+	if (release) {
+	  if (cur_instance == father_key->FirstInQueue) {
+	    father_key->FirstInQueue = cur_instance->next;
+	  }
+	  if (cur_instance == father_key->LastInQueue) {
+	    father_key->LastInQueue = prev;
+	  }
+	  if (prev) {
+	    prev->next = cur_instance->next;
+	  }
         /* release space for cur_instance */
         keepdbrefs(cur_instance->DBT PASS_REGS);
         ErasePendingRefs(cur_instance->DBT PASS_REGS);
@@ -5184,7 +5188,7 @@ static Int p_dequeue(USES_REGS1) {
       FreeDBSpace((char *)father_key);
       return false;
     }
-    rc = Yap_dequeue_tqueue(father_key, ARG2, true, true PASS_REGS);
+    rc = Yap_dequeue_tqueue(father_key, &ARG2, true, true PASS_REGS);
     WRITE_UNLOCK(father_key->QRWLock);
     return rc;
   }
@@ -5208,7 +5212,7 @@ static Int p_dequeue_unlocked(USES_REGS1) {
       FreeDBSpace((char *)father_key);
       return FALSE;
     }
-    return Yap_dequeue_tqueue(father_key, ARG2, true, true PASS_REGS);
+    return Yap_dequeue_tqueue(father_key, &ARG2, true, true PASS_REGS);
   }
 }
 
@@ -5230,7 +5234,7 @@ static Int p_peek_queue(USES_REGS1) {
       FreeDBSpace((char *)father_key);
       return FALSE;
     }
-    if (!Yap_dequeue_tqueue(father_key, ARG2, true, false PASS_REGS))
+    if (!Yap_dequeue_tqueue(father_key, &ARG2, true, false PASS_REGS))
       return FALSE;
     if (cur_instance == father_key->LastInQueue)
       father_key->FirstInQueue = father_key->LastInQueue = NULL;
@@ -5296,7 +5300,7 @@ static Int p_resize_int_keys(USES_REGS1) {
     return Yap_unify(ARG1, MkIntegerTerm((Int)INT_KEYS_SIZE));
   }
   if (!IsIntegerTerm(t1)) {
-    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "yap_flag(resize_db_int_keys,T)");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "set_prolog_flag(resize_db_int_keys,T)");
     return FALSE;
   }
   return resize_int_keys(IntegerOfTerm(t1));
@@ -5427,7 +5431,7 @@ void Yap_InitBackDB(void) {
       NEXTOP(RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomRecordedP, 3), 0))
                  ->cs.p_code.FirstClause,
              OtapFs);
-  Yap_InitCPredBack("$current_immediate_key", 2, 4, init_current_key,
+  Yap_InitCPredBack("current_key", 2, 4, init_current_key,
                     cont_current_key, SyncPredFlag);
 }
 

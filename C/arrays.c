@@ -1312,8 +1312,8 @@ static Int resize_static_array(USES_REGS1) {
     return (FALSE);
   } else  if (IsIntegerTerm((nti=ti))) {
       size = IntegerOfTerm(nti);
-      	  size *= dims[ndims-1];
-
+      size *= dims[ndims-1];
+      dims[0] = size;
 } else {
         while (IsPairTerm(nti)) {
 	  size_t i = IntegerOfTerm(HeadOfTerm(nti));

@@ -293,7 +293,7 @@
  *   UPDATE: compilation flags -DTABLING_BATCHED_SCHEDULING and
  *-DTABLING_LOCAL_SCHEDULING removed. To support tabling use -DTABLING in the
  *Makefile or --enable-tabling in configure.
- *   NEW: yap_flag(tabling_mode,MODE) changes the tabling execution mode of all
+ *   NEW: set_problog_flag(tabling_mode,MODE) changes the tabling execution mode of all
  *tabled predicates to MODE (batched, local or default).
  *   NEW: tabling_mode(PRED,MODE) changes the default tabling execution mode of
  *predicate PRED to MODE (batched or local).

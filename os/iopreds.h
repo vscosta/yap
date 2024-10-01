@@ -138,8 +138,6 @@ extern bool UnixIOError__(const char *, const char *, int, int, io_kind_t, Term,
 extern int GetFreeStreamD(void);
 extern Term Yap_MkStream(int n);
 
-extern bool Yap_PrintWarning(Term twarning);
-
 extern void Yap_WriteAtom(struct stream_desc *s, Atom atom);
 extern bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS);
 extern Term Yap_scan_num(struct stream_desc *, bool throw_on);
@@ -156,6 +154,7 @@ extern void Yap_ConsoleSocketOps(StreamDesc *st);
 extern bool Yap_ReadlineOps(StreamDesc *st);
 extern void Yap_ConsoleOps(StreamDesc *s);
 
+extern Term Yap_israndgen(Term inp);
 extern void Yap_InitRandomPreds(void);
 extern void Yap_InitSignalPreds(void);
 extern void Yap_InitTimePreds(void);

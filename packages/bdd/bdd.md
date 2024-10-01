@@ -1,5 +1,8 @@
-Boolean Decision Making in YAP 			{#BDDs}
-==============================
+@file bdd.md
+
+@defgroup BDDs Boolean Decision Making in YAP
+@ingroup YAPPackages
+@brief low-level support for using BDDs from BDDs
 
 This is an experimental interface to BDD libraries. It is not as
 sophisticated as simplecudd, but it should be fun to play around with bdds.
@@ -15,5 +18,3 @@ In ubuntu, you may want to install the fedora rpm, or just download the package 
  and compile it.
 
 
- + @ref BDDsPL
- + @ref CUDD

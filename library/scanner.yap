@@ -1,4 +1,7 @@
-
+/**
+  * @file scanner.yap
+  * @brief Access to the YAP builtin scanner
+*/
 
 :- module(scanner, [
 	      preprocess_tokens/2,
@@ -54,7 +57,7 @@ add_def_use(Clause,File,Toks) :-
 
 
 sync([],[])--> [].
-sync(T,NT,L,LF) :- L=[H|_], writeln(H),fail .
+%sync(T,T,L,L) :- L=[H|_], writeln(H),fail .
 sync(T,NT) -->
     [t(comment(_),_,_,_)],
     !,

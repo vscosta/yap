@@ -218,7 +218,7 @@
 
 % switch on all the checks to reduce bug searching time
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 % load modules from the YAP library
 :- use_module(library(lists), [member/2,max_list/2, min_list/2, sum_list/2]).
@@ -227,12 +227,13 @@
 
 % load our own modules
 :- reexport(problog).
-:- reexport('problog/logger').
-:- reexport('problog/flags').
-:- use_module('problog/os').
-:- use_module('problog/print_learning').
-:- use_module('problog/utils_lbdd').
-:- use_module('problog/utils_learning', [
+
+:- reexport(library('problog/logger')).
+:- reexport(library('problog/flags')).
+:- use_module(library('problog/os')).
+:- use_module(library('problog/print_learning')).
+:- use_module(library('problog/utils_lbdd')).
+:- use_module(library('problog/utils_learning', [
 			   empty_output_directory/0,
 			   create_known_values_file_name/2,
 			   create_bdd_file_name/3,
@@ -240,9 +241,9 @@
 			   create_test_predictions_file_name/2,
 			   create_training_predictions_file_name/2]).
 
-:- use_module('problog/utils').
-:- use_module('problog/tabling').
-:- use_module('problog/lbdd').
+:- use_module(library('problog/utils')).
+:- use_module(library('problog/tabling')).
+:- use_module(library('problog/lbdd')). 
 
 % used to indicate the state of the system
 :- dynamic(values_correct/0).

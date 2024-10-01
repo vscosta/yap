@@ -253,6 +253,7 @@ HandleSIGSEGV(int sig, void *sipv, void *uap) {
   sure = TRUE;
 #endif
   SearchForTrailFault(ptr, sure);
+  
 }
 #endif /* SIGSEGV */
 

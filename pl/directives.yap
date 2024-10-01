@@ -223,8 +223,8 @@ prolog_flag(compiler_top_level, scanner:scanner_loop)
     load_files(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true),'consulted_at'(Loc)]).
 '$exec_directive'(reexport(F,Spec), _, M, _, Loc) :-
     load_files(M:F, [if(not_loaded), silent(true), imports(Spec), reexport(true),must_be_module(true),'consulted_at'(Loc)]).
-'$exec_directive'(use_module(F, Is), _, M, _, Loc) :-
-	load_files(M:F, [if(not_loaded),must_be_module(true),imports(Is),'consulted_at'(Loc)] ).
+'$exec_directive'(use_module(F, Is), _, M, _, _Loc) :-
+	use_module(M:F, Is ).
 '$exec_directive'(use_module(Mod,F,Is), _,M, _, _Loc) :-
     use_module(Mod,M:F,Is).
 '$exec_directive'(block(BlockSpec), _, _, _, _) :-

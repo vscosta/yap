@@ -1,5 +1,5 @@
 
-:- initialization(yap_flag(tabling_mode, load_answers)).
+:- initialization(set_prolog_flag(tabling_mode, load_answers)).
 % Required to activate rational term support within the table space.
 
 /*

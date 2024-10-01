@@ -224,6 +224,7 @@ typedef struct compiler_struct_struct {
   Int *Uses;
   Term *Contents;
   int needs_env;
+  bool has_blobs;
   CIntermediates cint;
 } compiler_struct;
 
@@ -736,6 +737,7 @@ restart:
     return;
     }
     if (IsFloatTerm(t)) {
+	cglobs->has_blobs = true;
         if (level == 0)
           Yap_emit((cglobs->onhead ? get_float_op : put_float_op), t, argno,
                    &cglobs->cint);
@@ -747,6 +749,7 @@ restart:
 	return;
       }
     if (IsLongIntTerm(t)) {
+	cglobs->has_blobs = true;
         if (level == 0)
           Yap_emit((cglobs->onhead ? get_longint_op : put_longint_op), t, argno,
                    &cglobs->cint);
@@ -768,6 +771,7 @@ restart:
         CELL *dest;
 
         /* use a special list to store the blobs */
+	cglobs->has_blobs = true;
         cglobs->cint.cpc = cglobs->cint.icpc;
         /*      if (IsFloatTerm(t)) {
                 Yap_emit(align_float_op, Zero, Zero, &cglobs->cint);
@@ -801,6 +805,7 @@ restart:
          floats, long ints, bignums, bitmaps.... */
         CELL l1 = ++cglobs->labelno;
         CELL *src = RepAppl(t);
+	cglobs->has_blobs = true;
         PInstr *ocpc = cglobs->cint.cpc, *OCodeStart = cglobs->cint.CodeStart;
         Int sz =
             2 * sizeof(CELL) + sizeof(Functor) + sizeof(MP_INT) +
@@ -1223,6 +1228,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
             Yap_emit(safe_call_op, (CELL)p0, Zero, &cglobs->cint);
             Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
             Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
+	    //	    cglobs->tmpreg = 0;
             return;
           }
         }
@@ -1462,6 +1468,7 @@ static void c_functor(Term Goal, Term mod, compiler_struct *cglobs) {
     Yap_emit(safe_call_op, (CELL)p0, Zero, &cglobs->cint);
     Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
     Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
+    //    cglobs->tmpreg = 0;
   }
 }
 
@@ -1598,8 +1605,9 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
           /* needs to adjust previous commits */
           Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
           Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
-          Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
-        }
+          Yap_emit(procceed_op, Zero, Zero, &cglobs->cint); 
+	  //	    cglobs->tmpreg = 0;
+	}
       } else {
         Yap_emit_3ops(cut_op, Zero, Zero, Zero, &cglobs->cint);
         /* needs to adjust previous commits */
@@ -1607,7 +1615,8 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
         Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
         //xadjust_current_commits(cglobs);
       }
-      return;
+      //   cglobs->tmpreg = 0;
+	    return;
     }
 #ifndef YAPOR
     else if (atom == AtomRepeat) {
@@ -1639,6 +1648,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
       Yap_emit(pushpop_or_op, Zero, Zero, &cglobs->cint);
       Yap_emit_3ops(orelse_op, l1, Zero, Zero, &cglobs->cint);
       Yap_emit(label_op, l2, Zero, &cglobs->cint);
+      // cglobs->tmpreg = 0;
       if (cglobs->onlast) {
 #ifdef TABLING
         if (is_tabled(cglobs->cint.CurrentPred)) {
@@ -2427,7 +2437,6 @@ static void clear_bvarray(int var, CELL *bvarray
       return;
   int max = 8 * sizeof(CELL);
   CELL nbit;
-  int var0 = var;
 
   /* get to the array position */
   while (var >= max) {
@@ -2440,7 +2449,7 @@ static void clear_bvarray(int var, CELL *bvarray
   if (*bvarray & nbit) {
     /* someone had already marked this variable: complain */
       // LOCAL_Error_TYPE = SYSTEM_ERROR_COMPILER;
-    fprintf(stderr,"compiler internal error: variable %d initialized twice",var0);
+    // fprintf(stderr,"compiler internal error: variable %d initialized twice",var0);
     // save_machine_regs();
     //yy siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   } else
@@ -3574,7 +3583,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   HB = HR;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   /* initialize variables for code generation                              */
-
+  cglobs.has_blobs = false;
   cglobs.cint.CodeStart = cglobs.cint.cpc = NULL;
   cglobs.cint.BlobsStart = cglobs.cint.icpc = NULL;
   cglobs.cint.dbterml = NULL;
@@ -3621,13 +3630,13 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   } else {
     head = my_clause, body = MkAtomTerm(AtomTrue);
   }
+    head = Yap_YapStripModule(head, &mod);
   if (IsVarTerm(head) || IsPairTerm(head) || IsIntTerm(head) ||
       IsFloatTerm(head) || IsRefTerm(head)) {
     Yap_ThrowError(TYPE_ERROR_CALLABLE, head,
                    "clause head should be atom or compound term");
     return (0);
   }
-    head = Yap_YapStripModule(head, &mod);
     if (IsAtomTerm(head)) {
       Atom ap = AtomOfTerm(head);
       cglobs.cint.CurrentPred = RepPredProp(PredPropByAtom(ap, mod));
@@ -3728,6 +3737,9 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   if (GLOBAL_Option['f' - 96])
     Yap_ShowCode(&cglobs.cint);
 #endif
+  if (cglobs.cint.CurrentPred->PredFlags & LogUpdatePredFlag) {
+    cglobs.is_a_fact = cglobs.is_a_fact && cglobs.has_blobs;
+  }
 
 #ifdef BEAM
   {
@@ -3738,7 +3750,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   }
 #endif
 
-  /* phase 3: assemble code                                                */
+  /* phase 3: assemble code */
   acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred,
                        (cglobs.is_a_fact && !cglobs.hasdbrefs &&
                         !(cglobs.cint.CurrentPred->PredFlags & TabledPredFlag)),

@@ -106,9 +106,6 @@ static assert_control_t get_mode(Term tmode) {
 
 }
 
-void Yap_ResetConsultStack(void) {
-  LOCAL_consult_level-- ;
-}
 
 
 Term Yap_PredicateToIndicator(PredEntry *pe) {
@@ -183,7 +180,7 @@ restart:
     PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
     return ap;
   } else {
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, pname);
   }
   return NULL;
 }
@@ -218,7 +215,7 @@ PredEntry *Yap_new_pred(Term t, Term tmod, bool mkLU, const char *pname) {
     if (tmod == IDB_MODULE) {
       rc = Yap_FindLUIntKey(IntegerOfTerm(t));
     }
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, pname);
 
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
@@ -1129,8 +1126,7 @@ bool Yap_unknown(Term t) {
 
 /* p is already locked */
 static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
-  CACHE_REGS
-  yamop *pt = cp;
+   yamop *pt = cp;
 
 #ifdef TABLING
   if (is_tabled(p)) {
@@ -1141,14 +1137,14 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
   p->cs.p_code.TrueCodeOfPred = pt;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = cp;
   p->OpcodeOfPred = pt->opc;
+    p->CodeOfPred = pt;
 #if defined(YAPOR) || defined(THREADS)
   if (p->PredFlags & LogUpdatePredFlag &&
       !(p->PredFlags & ThreadLocalPredFlag) && p->ModuleOfPred != IDB_MODULE) {
     p->OpcodeOfPred = LOCKPRED_OPCODE;
-    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   } else
 #endif
-    p->CodeOfPred = pt;
   p->cs.p_code.NOfClauses = 1;
   if (!(p->PredFlags & MultiFileFlag)) {
     p->src.OwnerFile = Yap_source_file_name();
@@ -1646,7 +1642,7 @@ Atom Yap_source_file_name(void) {
   CACHE_REGS
       int sno;  
   if (!GLOBAL_Stream)
-    return AtomEmptyAtom;
+    return AtomEmpty;
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);
@@ -1660,7 +1656,7 @@ Atom Yap_source_file_name(void) {
   if (LOCAL_consult_level == 0) {
     return GLOBAL_Stream[0].name;
   } else {
-    return AtomEmptyAtom;
+    return AtomEmpty;
   }
 
 }
@@ -2008,6 +2004,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
 static void
 warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *msg)
 {
+  CACHE_REGS
     yap_error_descriptor_t *e =LOCAL_ActiveError;
     Yap_MkErrorRecord( e,  __FILE__, __FUNCTION__, __LINE__, warning_id,
 		       Yap_PredicateIndicator(t, CurrentModule), TermNil, msg);
@@ -2015,14 +2012,14 @@ warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *m
     ts[0] = terr;
     ts[1] = culprit;
     ts[2] =  Yap_PredicateIndicator(t, CurrentModule);
-    e->prologConsulting = LOCAL_consult_level > 0;
+    e->prologConsulting =  LOCAL_consult_level > 0;
     e->parserReadingCode = true;
     e->parserLine = Yap_source_line_no();
     e->parserLinePos = 0;
     e->parserFile = Yap_source_file_name()->StrOfAE;
     sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
     sc[1] = MkSysError(e);
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc));
+    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc),TermWarning);
     memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
 }
 
@@ -2071,7 +2068,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
 
     if (p->cs.p_code.NOfClauses == 0) {
       if (trueGlobalPrologFlag(SOURCE_FLAG) &&
-	!(p->PredFlags & LogUpdatePredFlag)) {
+	  !(p->PredFlags & (LogUpdatePredFlag|ProxyPredFlag)))	{
 	p->PredFlags |= SourcePredFlag;
       }
     if( mode == ASSERTA || mode == ASSERTZ) {
@@ -2180,7 +2177,9 @@ we should have:
 
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
-void Yap_init_consult(int mode, const char *filenam) {
+void Yap_init_consult(int mode, const char *filenam, const char *dirname) {
+  CACHE_REGS
+  Yap_ChDir(dirname);
   LOCAL_consult_level++;
   LOCAL_LastAssertedPred = NULL;
 }
@@ -2188,15 +2187,17 @@ void Yap_init_consult(int mode, const char *filenam) {
 static Int startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   Term t, aliast = Deref(ARG2);
   assert_control_t mode = get_mode(Deref(ARG1));
-  Yap_init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
+  Yap_init_consult(mode,
+		   RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE,
+		   RepAtom(AtomOfTerm(Deref(ARG3)))->StrOfAE);
   t = MkIntTerm(LOCAL_consult_level);
   if (aliast !=  TermLoopStream) {
-    int sno = Yap_CheckStream(ARG3,Input_Stream_f  |
+    int sno = Yap_CheckStream(ARG4,Input_Stream_f  |
 						Socket_Stream_f,
 			  "compile/1");
     Yap_AddAlias(AtomLoopStream,sno);
   }
-  return (Yap_unify_constant(ARG4, t));
+  return (Yap_unify_constant(ARG5, t));
 }
 
 
@@ -2218,6 +2219,9 @@ static Int p_showconslultlev(USES_REGS1) {
 }
 
 static void end_consult(USES_REGS1) {
+  char *dir = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+  Yap_ChDir(dir);
+  
  if (LOCAL_consult_level > 0)
       LOCAL_consult_level--;
     LOCAL_LastAssertedPred = NULL;
@@ -2586,7 +2590,7 @@ static  Term gpred(PredEntry *pe)
    if (pe->cs.p_code.NOfClauses == 0)
      	return  TermUndefinedProcedure;
     //    if (pe->PredFlags & NoTracePredFlag)
-	return  TermStaticProcedure;
+   return  TermStaticProcedure;
 	//    return TermStaticProcedure;
 
 
@@ -2805,7 +2809,7 @@ static Int is_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
 static Int mk_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   PredEntry *pe;
 
-  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_meta");
+  pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false,"$is_meta");
   if (EndOfPAEntr(pe))
     
     return FALSE;
@@ -3368,8 +3372,8 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yhandle_t yt
   rtn = MkDBRefTerm((DBRef)cl);
 #if MULTIPLE_STACKS
   TRAIL_CLREF(cl); /* So that fail will erase it */
-  INC_CLREF_COUNT(cl);#
-else
+  INC_CLREF_COUNT(cl);
+#else
   if (!(cl->ClFlags & InUseMask)) {
     cl->ClFlags |= InUseMask;
     TRAIL_CLREF(cl); /* So that fail will erase it */
@@ -4412,6 +4416,7 @@ static Int predicate_flags(
 
 
 struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {
+  CACHE_REGS
   if (pe->PredFlags & LogUpdatePredFlag)
     return pe;
   if ( (pe->PredFlags  & SystemPredFlags ||
@@ -4453,10 +4458,10 @@ static Int clause_to_components(USES_REGS1)
 
 void Yap_InitCdMgr(void) {
 
-  Yap_InitCPred("$start_consult", 4, startconsult,
+  Yap_InitCPred("$start_consult", 5, startconsult,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);
-  Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$end_consult", 1, p_endconsult, SafePredFlag | SyncPredFlag);
   /* gc() may happen during compilation, hence these predicates are
         now unsafe */
   Yap_InitCPred("$predicate_flags", 4, predicate_flags, SyncPredFlag);

@@ -46,7 +46,7 @@ static YAP_Bool check_regexp(void) {
   char *buf, *sbuf;
   regex_t reg;
   int out;
-  int yap_flags = YAP_IntOfTerm(YAP_ARG5);
+  int prolog_flags = YAP_IntOfTerm(YAP_ARG5);
   int regcomp_flags = REG_NOSUB | REG_EXTENDED;
 
   if ((buf = (char *)YAP_AllocSpaceFromYap(buflen)) == NULL) {
@@ -58,7 +58,7 @@ static YAP_Bool check_regexp(void) {
     YAP_FreeSpaceFromYap(buf);
     return (FALSE);
   }
-  if (yap_flags & 1)
+  if (prolog_flags & 1)
     regcomp_flags |= REG_ICASE;
   /* cool, now I have my string in the buffer, let's have some fun */
   if (yap_regcomp(&reg, buf, regcomp_flags) != 0)
@@ -95,7 +95,7 @@ static YAP_Bool regexp(void) {
   size_t nmatch;
   regmatch_t *pmatch;
   long int tout;
-  int yap_flags = YAP_IntOfTerm(YAP_ARG5);
+  int prolog_flags = YAP_IntOfTerm(YAP_ARG5);
   int regcomp_flags = REG_EXTENDED;
 
   if ((buf = (char *)YAP_AllocSpaceFromYap(buflen)) == NULL) {
@@ -107,7 +107,7 @@ static YAP_Bool regexp(void) {
     YAP_FreeSpaceFromYap(buf);
     return (FALSE);
   }
-  if (yap_flags & 1)
+  if (prolog_flags & 1)
     regcomp_flags |= REG_ICASE;
   /* cool, now I have my string in the buffer, let's have some fun */
   if (yap_regcomp(&reg, buf, regcomp_flags) != 0) {
@@ -146,7 +146,7 @@ static YAP_Bool regexp(void) {
       YAP_Term t = TNil;
 
       if (pmatch[i].rm_so != -1) {
-        if (yap_flags & 2) {
+        if (prolog_flags & 2) {
           YAP_Term to[2];
           to[0] = YAP_MkIntTerm(pmatch[i].rm_so);
           to[1] = YAP_MkIntTerm(pmatch[i].rm_eo);

@@ -470,6 +470,10 @@ trace_goal((A|B), M, Ctx, GN0, CP) :- !,
      trace_goal(B, M, Ctx, GN0, CP)).
 trace_goal(true, _M, _Ctx, _GN, _CP) :- !.
 trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
+predicate_property(M:G, imported_from(M0)),
+!,
+trace_goal(G,M0, Ctx, GoalNumberN, CP0).
+trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
     '$id_goal'(GoalNumberN),
     '$predicate_type'(G,M,T),
     handle_port([call],GoalNumberN,G,M,Ctx,CP0, Deterministic),
@@ -519,7 +523,7 @@ true,
        handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  Deterministic) %
 
     ).
-trace_goal_(static_procedure,GoalNumber, G,M, Ctx,_CP, Deterministic) :-
+trace_goal_(static_procedure, G,M, Ctx,GoalNumber,_CP, Deterministic) :-
 	'$id_goal'(GoalNumber),
 	current_choice_point(CP),
 	'$number_of_clauses'(G,M,N),
@@ -536,7 +540,7 @@ true,
     '$creep_run_refs'(
 	handle_port([call,Port0], GoalNumber, G, M ,Ctx, CP,  Deterministic),
 	% source mode
-	M:G,Ref, CP,
+	'$execute_clause'(G,M,Ref, CP),
 	Port,
 	handle_port([Port,Port0], GoalNumber, G, M, Ctx, CP,  Deterministic)
     ).
@@ -665,7 +669,7 @@ handle_priv_port(Port, GoalNumber, G, M, Ctx, CP,  Deterministic) :-
 
 
 handle_port(_Ports, _GoalNumber, _G, _M, _Ctx, _CP,  _Info) :-
-    prolog_flag(debug,false),
+    current_prolog_flag(debug,false),
     !.
 handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
     '$stop_creeping'(_),
@@ -697,7 +701,7 @@ handle_port(Ports, GoalNumber, G, M, Ctx, CP,  Info) :-
 
 %        
 % last.first
-'$ports_to_port'(P, _) :- writeln(P), fail. 
+%'$ports_to_port'(P, _) :- writeln(P), fail. 
 '$ports_to_port'([answer,exit], exit).
 '$ports_to_port'([answer,answer], exit).
 '$ports_to_port'([call], call).
@@ -858,7 +862,7 @@ trace_error(Event,_,_,_,_,_) :-
     '$debugger_write'(debugger_output,GW).
 
 '$debugger_write'(Stream, G) :-
-    prolog_flag( debugger_print_options, OUT ), !,
+    current_prolog_flag( debugger_print_options, OUT ), !,
     write_term(Stream, G, OUT).
 '$debugger_write'(Stream, G) :-
     writeq(Stream, G).
@@ -881,7 +885,7 @@ trace_error(Event,_,_,_,_,_) :-
     skip( debugger_input, 10),
     fail.
 '$action'('C',_,_,_,_,_) :-
-    yap_flag(system_options, Opts),
+    current_prolog_flag(system_options, Opts),
     '$memberchk'( call_tracer, Opts),
     !,			% <'Depth
     skip( debugger_input, 10),

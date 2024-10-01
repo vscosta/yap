@@ -211,7 +211,7 @@
 		      intervals_encode/2]).
 
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 :- use_module(library(lists), [member/2, reverse/2, select/3]).
 

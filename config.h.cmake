@@ -245,6 +245,11 @@ function. */
 #cmakedefine HAVE_ASSERT_H ${HAVE_ASSERT_H}
 #endif
 
+/* Define to 1 if you have the `arc4random' function. */
+#ifndef HAVE_ARC4RANDOM
+#cmakedefine HAVE_ARC4RANDOM ${HAVE_ARC4RANDOM}
+#endif
+
 /* Define to 1 if you have the `asinh' function. */
 #ifndef HAVE_ASINH
 #cmakedefine HAVE_ASINH ${HAVE_ASINH}
@@ -1300,6 +1305,11 @@ signal. */
 /* Define to 1 if you have the `srandom' function. */
 #ifndef HAVE_SRANDOM
 #cmakedefine HAVE_SRANDOM ${HAVE_SRANDOM}
+#endif
+
+/* Define to 1 if you have the `srand48' function. */
+#ifndef HAVE_SRAND48
+#cmakedefine HAVE_SRAND48 ${HAVE_SRAND48}
 #endif
 
 /* Define to 1 if the system has the type `ssize_t'. */

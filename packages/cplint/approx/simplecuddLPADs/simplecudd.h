@@ -191,10 +191,10 @@ variable=value
 */
 
 #include "config.h"
-#include "cudd/dddmp.h"
-#include "cudd/cudd.h"
-#include "cudd/dddmpInt.h"
-#include "cudd/cuddInt.h"
+#include "dddmp.h"
+#include "cudd.h"
+//#include "cudd/dddmpInt.h"
+#include "cuddInt.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

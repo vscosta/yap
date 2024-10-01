@@ -147,6 +147,52 @@ notrace(G) :-
 	'$debug_restart'( State ),
 	fail
     ).
+/** @pred  (G *-> H)
+
+Call goal  _H_ once per each solution of goal  _G_.
+
+The built-in `*->3` is usually called from within a disjunction. It
+performs similar to `->/3`, with the difference that it will backtrack
+over the test goal. Consider the following small data-base:
+
+```{.prolog}
+a(1).        b(a).          c(x).
+a(2).        b(b).          c(y).
+```
+
+Execution of an *->/3 query will proceed as follows:
+
+```{.prolog}
+   ?- (a(X)->b(Y);c(Z)).
+
+X = 1,
+Y = a ? ;
+
+X = 1,
+Y = b ? ;
+
+X = 2,
+Y = a ? ;
+
+X = 2,
+Y = b ? ;
+
+no
+```
+
+The system will backtrack over the two solutions for `a/1` and the
+two solutions for `b/1`, generating four solutions.
+
+Cuts are allowed inside the first goal  _G_, but they will only prune
+over  _G_.
+
+If you want  _G_ to be deterministic you should use if-then-else, as
+it is both more efficient and more portable.
+
+*/
+(X *-> Y ) :-
+  X, Y.
+
 
 /** @pred  if(? _G_,? _H_,? _I_)
 
@@ -228,10 +274,12 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     '$gated_call'( true , Goal, Catcher, Cleanup)  .
 
 '$gated_call'( All , Goal, Catcher, Cleanup) :-
-    TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
-    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
+    Task0 = bottom( All, Catcher, Cleanup, Tag, true, CP0),
     '$tag_cleanup'(CP0, Task0),
-    '$execute0'( Goal ),
+    TaskF = top( All, Catcher, Cleanup, Tag, false, CP0),
+
+    strip_module(Goal,M,G),
+    '$execute0'( M:G ),
     '$cleanup_on_exit'(CP0, TaskF).
 
 
@@ -242,10 +290,10 @@ This is similar to call_cleanup/1 but with an additional
 
 */
 call_cleanup(Goal, Cleanup) :-
-	gated_call( true , Goal, Catcher, cleanup_handler(Catcher,open(_),Cleanup)).
+	gated_call( true , Goal, Catcher, prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
 call_cleanup(Goal, Catcher, Cleanup) :-
-	gated_call( true , Goal, Catcher , cleanup_handler(Catcher,open(_),Cleanup)).
+	gated_call( true , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
 /** @pred setup_call_cleanup(: _Setup_,: _Goal_, : _CleanUpGoal_)
 
@@ -266,19 +314,17 @@ finally undone by _Cleanup_.
 */
 
 setup_call_cleanup(Setup,Goal, Cleanup) :-
-	gated_call( Setup , Goal, Catcher , cleanup_handler(Catcher,open(_),Cleanup)).
+	gated_call( Setup , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
 
 
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
-	gated_call( Setup , Goal, Catcher , cleanup_handler(Catcher,open(_),Cleanup)).
+	gated_call( Setup , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
 
-cleanup_handler(Catcher,Open,Cleanup) :-
-	'$is_catcher'(Catcher),
-	Open=open(Visited),
-	var(Visited),
-	nb_setarg(1,Open,visited),
-	ignore(Cleanup).
+
+prolog:cleanup_handler(Catcher,_Open,Cleanup) :-
+    '$is_catcher'(Catcher),
+    (Cleanup->true;true).
 
 '$is_catcher'(exit).
 '$is_catcher'(fail).
@@ -313,8 +359,11 @@ catch(MG,E,G) :-
 
 '$catch'(MG,_E,_G,Marker,Done) :-
     '$marker'(Marker),
+    current_choice_point(CP0),
     '$execute0'(MG),
-    Done = true.
+    Done = true,
+    current_choice_point(CP),
+    (CP == CP0 -> !;true).
 
 '$catch'(_MG,E,G,_,_) :-    
     '$drop_exception'(E0,Info),
@@ -445,22 +494,22 @@ grow_stack(X) :- '$grow_stack'(X).
 
 
 The goal `gc` enables garbage collection. The same as
-`yap_flag(gc,on)`.
+`current_prolog_flag(gc,on)`.
 
 
 */
 gc :-
-	yap_flag(gc,true).
+	current_prolog_flag(gc,true).
 /** @pred  nogc
 
 
 The goal `nogc` disables garbage collection. The same as
-`yap_flag(gc,false)`.
+`current_prolog_flag(gc,false)`.
 
 
 */
 nogc :-
-	yap_flag(gc,false).
+	current_prolog_flag(gc,false).
 
 
 /** @pred  garbage_collect_atoms
@@ -708,26 +757,29 @@ call_in_module(M:G) :-
  */
 call_nth(Goal_0, Nth) :-
    (
-   nonvar(Nth)
+     nonvar(Nth)
+       ->
+       Nth \== 0,
+       \+arg(Nth,+ 1,2), % produces all expected errors
+       State = count(0,_), % note the extra argument which remains a variable
+       call(Goal_0),
+       arg(1, State, C1),
+       C2 is C1+1,
+       (
+       Nth == C2
    ->
-   Nth \== 0,
-   \+arg(Nth,+ 1,2), % produces all expected errors
-   State = count(0,_), % note the extra argument which remains a variable
-   Goal_0,
-   arg(1, State, C1),
-   C2 is C1+1,
-   (  Nth == C2
-   -> !
-   ;  nb_setarg(1, State, C2),
-      fail
+ !
+   ;
+  nb_setarg(1, State, C2),
+	 fail
    )
    ;
-   State = count(0,_), % note the extra argument which remains a variable
-   Goal_0,
-   arg(1, State, C1),
-   C2 is C1+1,
-   nb_setarg(1, State, C2),
-   Nth = C2
+       State = count(0,_), % note the extra argument which remains a variable
+       Goal_0,
+       arg(1, State, C1),
+       C2 is C1+1,
+       nb_setarg(1, State, C2),
+       Nth = C2
    ).
 
  

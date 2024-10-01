@@ -24,7 +24,7 @@
 
 #define YAP_ERROR NIL
 
-#define MaxStreams 64
+#define MaxStreams 256
 
 #define EXPAND_FILENAME 0x000080
 

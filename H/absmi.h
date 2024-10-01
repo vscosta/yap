@@ -105,7 +105,6 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 #define TR_IN_MEM 1
 #endif /* sparc_ */
 
-
 #if defined(__arm__) || defined(__thumb__) || defined(mips) ||                 \
     defined(__mips64) || defined(__arch64__)
 
@@ -176,6 +175,11 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
  *                                                                    *
  **********************************************************************/
 #include <stdio.h>
+#endif
+
+
+#if USE_THREADED_CODE
+extern const char *Yap_op_names[];
 #endif
 
 #if PUSH_REGS

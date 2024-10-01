@@ -2133,6 +2133,9 @@ if (i<0) {
           Yap_AsmError(TYPE_ERROR_COMPOUND, AbsAppl(pt0));
           FAIL();
         }
+	if (i==0 ||i > ArityOfFunctor((Functor)d1)) {
+	  FAIL();
+	}
         XREG(PREG->y_u.xxx.x) = pt0[i];
         PREG = NEXTOP(PREG, xxx);
         GONext();
@@ -2141,9 +2144,6 @@ if (i<0) {
         BEGP(pt0);
         pt0 = RepPair(d1);
         if (i != 1 && i != 2) {
-          if ((Int)i < 0) {
-              Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(i)                                                                                                                 );
-          }
           FAIL();
         }
         XREG(PREG->y_u.xxx.x) = pt0[i - 1];
@@ -2207,7 +2207,7 @@ if (i<0) {
           Yap_AsmError(TYPE_ERROR_COMPOUND,XREG(PREG->y_u.xxn.xi));
           FAIL();
         }
-        if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
+        if ((Int)d0 == 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
           /* don't complain here for Prolog compatibility
              if ((Int)d0 <= 0) {
              saveregs();
@@ -2302,6 +2302,9 @@ arg_y_arg1_nvar:
           Yap_AsmError(TYPE_ERROR_COMPOUND,XREG(PREG->y_u.yxx.x2));
           FAIL();
         }
+	if (i==0 ||i > ArityOfFunctor((Functor)d1)) {
+	  FAIL();
+	}
         BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxx.y;
         PREG = NEXTOP(PREG, yxx);
@@ -2379,6 +2382,9 @@ arg_y_arg1_nvar:
         }
          BEGP(pt1);
         pt1 = YREG + PREG->y_u.yxn.y;
+	if ( d0 > ArityOfFunctor((Functor)d1)) {
+	  FAIL();
+	}
         PREG = NEXTOP(PREG, yxn);
         INITIALIZE_PERMVAR(pt1, pt0[d0]);
         ENDP(pt1);
@@ -2700,7 +2706,7 @@ arg_y_arg1_nvar:
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_dogcl(d1 PASS_REGS)) {
+        if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS) ) {
                          setregs();
           Yap_AsmError(RESOURCE_ERROR_STACK, d1);
           JMPNext();
@@ -2804,7 +2810,7 @@ arg_y_arg1_nvar:
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_dogcl(d1 PASS_REGS)) {
+	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS)) {
             setregs();
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
@@ -2920,7 +2926,7 @@ arg_y_arg1_nvar:
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_dogcl(d1 PASS_REGS)) {
+          if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) PASS_REGS) {
             setregs();
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
@@ -3038,7 +3044,7 @@ arg_y_arg1_nvar:
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_dogcl(d1 PASS_REGS)) {
+        if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) PASS_REGS) {
                          setregs();
           Yap_AsmError(RESOURCE_ERROR_STACK, d1);
           JMPNext();
@@ -3421,7 +3427,7 @@ ARG3 = HR[1];
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_dogcl(d1 PASS_REGS)) {
+          if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) PASS_REGS) {
                            setregs();
             Yap_AsmError(INSTANTIATION_ERROR,d1);
           } else {

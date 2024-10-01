@@ -238,6 +238,15 @@ INLINE_ONLY bool IsAtomTerm(Term t) {
   return CHKTAG((t), AtomTag);
 }
 
+
+#define UStrOfAE rep.uUStrOfAE
+#define StrOfAE rep.uStrOfAE
+
+
+INLINE_ONLY const char *StrOfAtomTerm(Term a) {
+    return RepAtom(AtomOfTerm(a))->StrOfAE;
+}
+
 INLINE_ONLY Term MkIntTerm(Int);
 
 INLINE_ONLY Term MkIntTerm(Int n) {

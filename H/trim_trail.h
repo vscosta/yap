@@ -1,24 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #ifdef FROZEN_STACKS
 {
   tr_fr_ptr pt0, pt1, pbase, ptop;
@@ -58,7 +37,9 @@
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1 );
 
           } else {
-          pt0--;
+       TrailTerm(pt0) = d1;
+        TrailVal(pt0) = TrailVal(pt1);
+            pt0--;
         }
         pt1--;
         continue;
@@ -82,9 +63,6 @@
             Yap_CleanUpIndex(cl);
         }
         UNLOCK(ap->PELock);
-	RESET_VARIABLE(&TrailTerm(pt0));
-	RESET_VARIABLE(&TrailVal(pt0));
-	pt0--;
       } else {
         TrailTerm(pt0) = d1;
         TrailVal(pt0) = TrailVal(pt1);
@@ -96,10 +74,8 @@
         /* deterministic binding to multi-assignment variable */
 	RESET_VARIABLE(&TrailTerm(pt0));
 	RESET_VARIABLE(&TrailVal(pt0));
-	pt0--;
 	RESET_VARIABLE(&TrailVal(pt0));
    	RESET_VARIABLE(&TrailTerm(pt0));
-	pt0--;
 	pt1 -= 2;
       } else {
         TrailVal(pt0) = TrailVal(pt1);

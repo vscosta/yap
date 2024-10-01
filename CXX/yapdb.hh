@@ -47,7 +47,7 @@ class YAPModule;
  */
 class X_API YAPModule :  public YAPAtomTerm {
   friend class YAPPredicate;
-  ModEntry m;
+  //  ModEntry m;
 public:
   ///< create or fetch the YAPModule whose name is contained in a `C`term;
   YAPModule(YAP_Term t) : YAPAtomTerm(t){};
@@ -68,7 +68,6 @@ class X_API YAPPredicate {
 
 protected:
   PredEntry *ap;
-
 
   PredEntry *getPred(Term &t, Term &tm, CELL *&outp);  ///< auxiliary routine to find a predicate in the current module.
 

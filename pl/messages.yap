@@ -26,15 +26,13 @@
 */
 
 
-:- system_module('$messages',
-		 [],
-	  [
-	      message//1,
-	      message_to_string/2,
-	      print_message_lines/3,
-	      print_message/2,
-	      print_warning/1
-	  ]).
+:- module('$messages',
+	      % message//1,
+	      % message_to_string/2,
+	      % print_message_lines/3,
+	      % print_message/2,
+	      % print_warning/1
+	  [query_exception/3]).
 
 /**
 
@@ -102,7 +100,7 @@ e
 
 */
 
-:- dynamic  message//1.
+:- dynamic  prolog:message//1.
 :- multifile prolog:message//1.
 
 
@@ -121,11 +119,6 @@ modules defining clauses for it too.
 */
 :- multifile user:message_hook/3.
 
-
-:- multifile user:portray_message/2.
-
-:- dynamic user:portray_message/2.
-
 /** @pred  message_to_string(+ _Term_, - _String_)
 
 
@@ -134,7 +127,7 @@ modules defining clauses for it too.
 
 
  */
-message_to_string(Event, Message) :-
+prolog:message_to_string(Event, Message) :-
     translate_message(Event, Message, []).
 
 
@@ -976,7 +969,7 @@ write_query_answer( _Vs, GVs0 , LGs0 ) -->
 	purge_dontcares(SVGs,IVs),
 	prep_answer_var_by_var(IVs, GVs, VNames, AllBindings, LTs),
 	list2conj_(AllBindings, Goals),
-	yap_flag(toplevel_print_options, Opts)
+	current_prolog_flag(toplevel_print_options, Opts)
     },
     !,
     ['~N~W'-  [Goals,[conjunction(true),variable_names(VNames)|Opts]],
@@ -1299,7 +1292,7 @@ with other commands.
 A new line is started and if the message is not complete
 the  _Prefix_ is printed too.
 */
-print_message_lines(S, Prefix_0, Lines) :-
+prolog:print_message_lines(S, Prefix_0, Lines) :-
     Lines = [begin(_, Key)|Msg],
     (
 	atom(Prefix_0)
@@ -1370,9 +1363,11 @@ query_exception(K0,[H|L],V) :-
     (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
     !,
     '$in'(K0=V,[H|L]).
-query_exception(M,K,V) :-
-    '$query_exception'(M,K,V).
-
+query_exception(K,exception(M) ,V) :-
+    !,
+    '$query_exception'(K,M,V).
+query_exception(K,M ,V) :-
+    throw(error(type_error(exception,M),query_exception(K,M ,V))).
 
 
 print_message_(Severity, Msg) :-
@@ -1390,6 +1385,9 @@ print_message_(Severity, Msg) :-
     Severity = silent
     ),
     !.
+print_message_(Severity, Msg) :-
+    user:portray_message(Severity, Msg),
+    !.
 print_message_(Level, _Msg) :-
     current_prolog_flag(compiling, true),
     current_prolog_flag(verbose_load, false),
@@ -1400,9 +1398,6 @@ print_message_(Level, _Msg) :-
     current_prolog_flag(verbose, silent),
     Level \= error,
     Level \= warning,
-    !.
-print_message_(Severity, Msg) :-
-    user:portray_message(Severity, Msg),
     !.
 print_message_(_, _Msg) :-
     % first step at hook processing
@@ -1417,8 +1412,7 @@ print_message_(Severity, Term) :-
     build_message( Term, Lines0, Linesf),
     ignore(    	user:message_hook(Term, Severity, Lines) ),
     prefix_( Severity, Prefix_ ),
-%    writeln(print_message_lines(user_error, Prefix_, Lines)),
-    print_message_lines(user_error, Prefix_, Lines),
+    prolog:print_message_lines(user_error, Prefix_, Lines),
     !.
 print_message_(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~q~n'  ,[ _Severity, _Term]).
@@ -1427,46 +1421,18 @@ print_message_(_Severity, _Term) :-
 build_message( Term, Lines0, Linesf) :- 
     translate_message( Term,Lines0, Linesf).
 
-print_message(Severity, Msg) :-
+prolog:print_message(Severity, Msg) :-
 %    writeln(print_message_(Severity, Msg)),
 	print_message_(Severity, Msg),
 	fail.
-print_message(_Severity, _Msg).
+prolog:print_message(_Severity, _Msg).
 
 %%
 %% @pred print_warning( +Msg )
 %%
-print_warning( Msg) :-
-%    writeln(print_message_(Severity, Msg)),
+prolog:print_warning( Msg) :-
 	print_message_(warning, Msg),
 	fail.
-print_warning(_Msg).
+prolog:print_warning(_Msg).
 
 /** @} */
-
-/** @addtogroup Hacks
- * @{
- *
- * @pred yap_query_exception(Key, Term, Val).
- *
- * Term describes an exception as a set of mappings: unify val with the value for key Key, or fil if the key is not in Tern,
- */
-exception_property(Q,E,V) :-
-    query_exception(Q,E,V).
-
-/**
- * @pred yap_error_descriptor(+Term,-List).
- *
- * If _Term_ describes an exception, _List_ will be unfied with the
- * fiekds storing error information.
- *
- * _List_ shpi;d be unbound, as YAP does not fuarantee an irder for the resulting _List_.
- */
-yap_error_descriptor(Inf,Des) :-
-    error_descriptor(Inf,Des).
-
-
-/**
-  @} 
-*/
-

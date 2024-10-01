@@ -434,7 +434,6 @@ static UInt update_flags_from_prolog(UInt flags, PredEntry *pe) {
 
 void Yap_InitCPredInModule(const char *Name, arity_t Arity, CPredicate code,
                    pred_flags_t flags, Term mod) {
-  CACHE_REGS
   Atom atom = NIL;
   PredEntry *pe = NULL;
   yamop *p_code;
@@ -1048,9 +1047,9 @@ static void InitAtoms(void) {
   Yap_ReleaseAtom(AtomFoundVar);
   AtomFreeTerm = Yap_LookupAtom("?");
   Yap_ReleaseAtom(AtomFreeTerm);
-  AtomEmptyAtom = Yap_LookupAtom("?");
-  Yap_ReleaseAtom(AtomEmptyAtom);
-  RepAtom(AtomEmptyAtom)->StrOfAE[0] = '\0';
+  AtomEmpty = Yap_LookupAtom("?");
+  Yap_ReleaseAtom(AtomEmpty);
+  RepAtom(AtomEmpty)->StrOfAE[0] = '\0';
   AtomNil = Yap_LookupAtom("[]");
   AtomDot = Yap_LookupAtom(".");
 #endif
@@ -1142,12 +1141,12 @@ static void InitThreadHandle(int wid) {
   {
     mbox_t *mboxp = &REMOTE_ThreadHandle(wid).mbox_handle;
     pthread_mutex_t *mutexp;
-    pthread_cond_t *condp;
+    pthread_cond_t *emptyp;
     struct idb_queue *msgsp;
 
     mboxp->name = MkIntTerm(0);
-    condp = &mboxp->cond;
-    pthread_cond_init(condp, NULL);
+    emptyp = &mboxp->empty;
+    pthread_cond_init(emptyp, NULL);
     mutexp = &mboxp->mutex;
     pthread_mutex_init(mutexp, NULL);
     msgsp = &mboxp->msgs;

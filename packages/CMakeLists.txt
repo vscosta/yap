@@ -1,4 +1,4 @@
-
+xf
 #TODO: change macro_log_feature to check both WITH_{$name} and ${name}_FOUND
 #TODO: improve FindGecode.cmake to be similar to other Find*.cmake
 #CHECK: GECODE

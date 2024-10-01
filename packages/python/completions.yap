@@ -7,11 +7,8 @@
 
 :- module( completions,
 	   [
-	       completions/3,
-	       completions/4
+	       completions/3
 	   ]).
-
-:-	 use_module(library(python)).
 :-	 use_module(library(completer)).
 :-	 use_module(library(maplist)).
 
@@ -31,15 +28,10 @@
 % is stored in the
 % `matches` field of the python object.
 %
-completions(_S, Line, Pos, Self) :-
+completions(Line, Pos, FCs) :-
     sub_string(Line,0,Pos,_,Text),
     completer(Text,Cs),
-    maplist(atom_concat(Text), Cs, FCs),
-    (
-    var(Self)-> Self = FCs ; Self.matches := FCs
-    ).
+    maplist(atom_string, Cs, FCs).
 
-
-completions(Line, Pos, Self) :-
-	completions(_S, Line, Pos, Self).	
+	
 %% @}

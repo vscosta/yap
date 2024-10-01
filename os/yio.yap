@@ -194,7 +194,7 @@ The same as `get0(C)`, but from stream user_input.
 */
 ttyget0(N) :- get0(user_input,N).
 
-									/** @pred  ttyskip(- _C_)
+	   									/** @pred  ttyskip(	- _C_)
 
 
 Like skip/1, but always using stream user_input.
@@ -221,11 +221,10 @@ Outputs a new line to stream user_output.
 */
 ttynl :- nl(user_output).
 
-%! @}
+%% @}
 
-%! @addtogroup StreamM
-%! @ingroup InputOutput
-%!   @{
+%% @addtogroup StreamM
+%%   @{
 
 /** @pred  current_line_number(- _LineNumber_)
 
@@ -307,10 +306,10 @@ split_path_file(File, Path, Name) :-
 	file_directory_name(File, Path),
 	file_base_name(File, Name).
 
-%! @}
+%% @}
 
-%! @addtogroup StreamM
-%!   @{
+%% @addtogroup StreamM
+%%   @{
 
 /** @pred  current_stream( _F_, _M_, _S_)
 
@@ -397,7 +396,13 @@ stream_position_data(Prop, Term, Value) :-
 '$set_encoding'(Enc) :-
     set_stream(loop_stream, encoding(Enc)).
 
-%! @}
+'$codes_to_chars'(String0, String, String0) :- String0 == String, !.
+'$codes_to_chars'(String0, [Code|String], [Char|Chars]) :-
+	atom_codes(Char, [Code]),
+	'$codes_to_chars'(String0, String, Chars).
+
+
+%% @}
 
 /**
  * @defgroup FilesM File and Directory Operations
@@ -405,12 +410,6 @@ stream_position_data(Prop, Term, Value) :-
  * @{
  *
  */
-'$codes_to_chars'(String0, String, String0) :- String0 == String, !.
-'$codes_to_chars'(String0, [Code|String], [Char|Chars]) :-
-	atom_codes(Char, [Code]),
-	'$codes_to_chars'(String0, String, Chars).
-
-
 
 /** @pred  exists(+ _F_)
 
@@ -461,7 +460,7 @@ prolog_file_name(File, PrologFileName) :-
 
    */
 fileerrors :-
-    yap_flag(file_errors, _, error).
+    set_prolog_flag(file_error, error).
 
 
   /**
@@ -474,7 +473,7 @@ fileerrors :-
 
    */
 nofileerrors :-
-    yap_flag(file_errors, _, fail).
+    set_prolog_flag(file_errors, fail).
 
 
 %% @}

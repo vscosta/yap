@@ -41,7 +41,7 @@ static char SccsId[] = "%W% %G%";
  * @addtogroup absf
  *
  * @brief C-code support for dealing with paths
- *
+ * @{
  */
 
 static Term do_glob(const char *spec, bool glob_vs_wordexp);
@@ -204,10 +204,10 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
     HANDLE hFind;
     CELL *dest;
     Term tf;
-    char drive[_MAX_DRIVE];
-    char dir[_MAX_DIR];
-    char fname[_MAX_FNAME];
-    char ext[_MAX_EXT];
+    char drive[_MAX_DRIVE+1];
+    char dir[_MAX_DIR+1];
+    char fname[_MAX_FNAME+1];
+    char ext[_MAX_EXT+1];
 
     _splitpath(spec, drive, dir, fname, ext);
     _makepath(u, drive, dir, fname, ext);
@@ -527,7 +527,7 @@ bool Yap_IsAbsolutePath(const char *p0, bool expand) {
 #if _WIN32 || __MINGW32__
     nrc = !PathIsRelative(p);
 #else
-    nrc = (p[0] == '/');
+    nrc = (p && p[0] == '/');
 #endif
     return nrc;
 }
@@ -1136,3 +1136,5 @@ void Yap_InitAbsfPreds(void) {
   Yap_InitCPred("file_directory_name", 2, file_directory_name, SafePredFlag);
   Yap_InitCPred("is_absolute_file_name", 1, is_absolute_file_name, SafePredFlag);
 }
+
+/// @}

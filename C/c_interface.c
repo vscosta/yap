@@ -1792,7 +1792,8 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
     else if (B->cp_ap == FAILCODE)
       B = B->cp_b;
     else {
-      if (B->cp_ap == NOCODE)
+    if (B->cp_ap == NOCODE ||
+	B->cp_ap == EXITCODE)
         B = B->cp_b;
       break;
     }
@@ -1992,7 +1993,7 @@ X_API bool YAP_ShutdownGoal(int backtrack) {
     choiceptr cut_pt;
 
     cut_pt = B;
-    while (cut_pt->cp_ap != NOCODE) {
+    while (cut_pt->cp_ap != EXITCODE) {
       /* make sure we prune C-choicepoints */
       if (POP_CHOICE_POINT(cut_pt->cp_b)) {
         POP_EXECUTE();
@@ -2076,7 +2077,6 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop, c
   BACKUP_MACHINE_REGS();
   const char *fl = NULL;
   Yap_getcwd(dir,MAX_PATH-1);
-  Yap_init_consult(mode, fname);
   if (mode == YAP_BOOT_MODE) {
     mode = YAP_CONSULT_MODE;
   }
@@ -2092,16 +2092,16 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop, c
     pop_text_stack(lvl);
     return -1;
   }
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "done init_ consult %s ",
-                      fl);
   char *d = Malloc(strlen(fl) + 1);
   strcpy(d, fl);
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "done init_ consult %s ",
+                      fl);
   bool consulted = (mode == YAP_CONSULT_MODE);
   Term tat = MkAtomTerm(Yap_LookupAtom(fl));
   sno = Yap_OpenStream(tat, "r", MkAtomTerm(Yap_LookupAtom(fname)),
                        LOCAL_encoding);
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ", sno);
-  if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
+  if (sno < 0) {
     if (full)
       full[0] = '\0';
     pop_text_stack(lvl);
@@ -2109,7 +2109,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop, c
   }
   LOCAL_PrologMode = UserMode;
   strcpy(full, fl);
-  Yap_init_consult(consulted, full);
+  Yap_init_consult(consulted, full, d);
   RECOVER_MACHINE_REGS();
   pop_text_stack(lvl);
   return sno;

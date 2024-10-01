@@ -214,7 +214,7 @@ element in the association list.
 */
 map_assoc(_,t) :- !.
 map_assoc(P, T) :-
-	yap_flag(typein_module, M0),
+	current_prolog_flag(typein_module, M0),
 	extract_mod(P, M0, M, G),
 	functor(G, Name, 1),
 	rb_map(T, M:Name).
@@ -228,7 +228,7 @@ and such that if  _Key-Val_ is in  _Assoc_, and  _Key-Ans_ is in
 map_assoc(_, t, t) :-
     !.
 map_assoc(P, T, NT) :-
-	yap_flag(typein_module, M0),
+	current_prolog_flag(typein_module, M0),
 	extract_mod(P, M0, M, G),
 	functor(G, Name, 2),
 	rb_map(T, M:Name, NT).

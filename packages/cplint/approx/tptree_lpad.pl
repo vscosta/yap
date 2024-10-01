@@ -261,7 +261,7 @@ variable=value
 	      ]).
 
 :- style_check(all).
-%:- yap_flag(unknown,error).
+%:- set_prolog_flag(unknown,error).
 
 %:- use_module(flags,[problog_flag/2]).
 :- ensure_loaded(library(lists)).

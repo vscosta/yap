@@ -87,13 +87,13 @@ CACHE_REGS
   }{
       switch(node.type()) {
       case pugi::node_null:
-	return TermEmptyAtom;
+	return TermEmpty;
       case pugi::node_document:
 	{
 	std::vector <Term> children;
           for (pugi::xml_node n = node.first_child(); n; n = n.next_sibling()) {
 	    Term t = visitor(n);
-	    if (t!=TermEmptyAtom)
+	    if (t!=TermEmpty)
 	      children.push_back(t);
 	  }
 	  if (children.size())
@@ -149,12 +149,12 @@ CACHE_REGS
       case pugi::node_pi:
       case pugi::node_declaration:
       case pugi::node_doctype:
-	return TermEmptyAtom;
+	return TermEmpty;
 
       }
     // end::code[]
       }
-    return TermEmptyAtom;
+    return TermEmpty;
 };
 
 
@@ -177,13 +177,13 @@ CACHE_REGS
  graph = 0;
     try {
      graph = pltree();
-    } catch( YAPError e) {
-      if (e.getID()==RESOURCE_ERROR_STACK) {
+    } catch( YAPError *e) {
+      if (e->getID()==RESOURCE_ERROR_STACK) {
 	HR = hi;
 	m.reset();
 	LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
 	  CalculateStackGap(PASS_REGS1);
-	if(!Yap_dogc()) {
+	if(!Yap_dogc(PASS_REGS1)) {
 	  return 0 ;
 	}
       }

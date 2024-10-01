@@ -9,7 +9,7 @@ try:
 except Exception as e:
     print(e)
     sys.exit(0)
-from yap4py.systuples import python_query, python_show_query, show_answer, v0, compile, yap_flag
+from yap4py.systuples import python_query, python_show_query, show_answer, v0, compile, set_prolog_flag
 from yap4py.queries import TopQuery, Query
 from os.path import join, dirname
 
@@ -38,28 +38,19 @@ class Engine( YAPEngine ):
         if not args:
             args = EngineArgs(**kwargs)
             args.setEmbedded(True)
-            args.setPrologGoal("load_files(library(yapi),[source_module(user)])")
         if self_contained:
             yap_lib_path = dirname(__file__)
             args.setYapShareDir(join(yap_lib_path, "prolog"))
             args.setYapPLDIR(yap_lib_path)
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
+        self.load_library( "yapi")
 
     def run(self, g, m=None, release=False):
         if m:
             self.mgoal(g, m, release)
         else:
             self.goal(g, release)
-
-    def load_files(self, name, m=None, release=False):
-        self.run(load_files(name, []), m, release)
-            
-    def load_library(self, name, m=None, release=False):
-        self.run(load_files(library(name), []), m, release)
-            
-    def load_text(self, text, m=None, release=False):
-        self.run(load_text( text), m, release)
 
     def set_prolog_flag(self, name, v):
         self.run(set_prolog_flag(name, v), None, False)

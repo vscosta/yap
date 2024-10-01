@@ -44,9 +44,10 @@
     '$modul_decls'( _, ExportingModI, _, Exports),
     member(G, Exports).
   % autoload
+/*
 '$pred_graph_edge'(_ImportingMod:G, ExportingModI:G ) :-  
     recorded('$dialect',swi,_),
-    prolog_flag(autoload, true),
+    set_prolog_flag(autoload, true),
     prolog_flag(unknown, _OldUnk, fail),
     (
 	'$module'( _, autoloader, _, _Exports)
@@ -58,6 +59,7 @@
     true
     ),
     autoload(G, _File, ExportingModI).
+*/
 
 '$pred_path'(V:G, _Visited, _G)  :-
     (var(V);var(G)),

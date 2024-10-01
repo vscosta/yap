@@ -1,4 +1,39 @@
+/*************************************************************************
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *                 
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		sysbits.c *
+ * Last rev:	4/03/88							 *
+ * mods: *
+ * comments:	very much machine dependent routines			 *
+ *									 *
+ *************************************************************************/
 
+/**
+ * @file sysbits.c
+ * @brief  Time Operating System Interface
+ *
+ */
+
+/**
+ * @defgroup YAPOSTime Time System Interface
+ * @ingroup InputOutput
+ * @brief Interface to the Time Operating System functionality.
+ * @{
+ *
+ * These routines provide support for accessing real (watch) time and process execution time (run-time). In order to match routines such as gethrtime() time is stored internally in intervals of nanoseconds.
+ *
+ *
+ */
+
+
+    
 #include "sysbits.h"
 
 #ifdef SIMICS
@@ -16,7 +51,16 @@
 #endif
 #endif
 
+
+#define sec2nanos(T) (((uint64_t)T)*1000000000)
+#define usec2nanos(T) (((uint64_t)T)*1000)
+
+/**
+   In Unix/Linux/OSX use getrusage to obtain user/sys time.
+   in WIN32 use GetProocessTimes */
 #if HAVE_GETRUSAGE
+
+#define timevalnanos(T) sec2nanos(T.tv_sec)+usec2nanos(T.tv_usec) 
 
 //#if THREADS
 //#define StartOfTimes (*(LOCAL_ThreadHandle.start_of_timesp))
@@ -27,17 +71,15 @@
 //
 //#else
 /* since the point YAP was started */
-static struct timeval StartOfTimes;
+uint64_t StartOfTimes;
 
 /* since last call to runtime */
-static struct timeval last_time;
+uint64_t last_time;
 
 /* same for system time */
-static struct timeval last_time_sys;
-static struct timeval StartOfTimes_sys;
-//#endif
+uint64_t last_time_sys;
+uint64_t StartOfTimes_sys;
 
-/* store user time in this variable */
 void Yap_InitTime(int wid) {
   struct rusage rusage;
 
@@ -65,79 +107,43 @@ void Yap_InitTime(int wid) {
 //          rusage.ru_stime.tv_usec;
 //#else
   getrusage(RUSAGE_SELF, &rusage);
-  last_time.tv_sec = StartOfTimes.tv_sec = rusage.ru_utime.tv_sec;
-  last_time.tv_usec = StartOfTimes.tv_usec = rusage.ru_utime.tv_usec;
-  last_time_sys.tv_sec = StartOfTimes_sys.tv_sec = rusage.ru_stime.tv_sec;
-  last_time_sys.tv_usec = StartOfTimes_sys.tv_usec = rusage.ru_stime.tv_usec;
+  last_time = StartOfTimes = timevalnanos(rusage.ru_utime);
+  last_time_sys = StartOfTimes_sys = timevalnanos(rusage.ru_stime);
 //#endif
 }
 
-UInt Yap_cputime(void) {
+uint64_t Yap_cputime(void) {
   struct rusage rusage;
 
   getrusage(RUSAGE_SELF, &rusage);
-  return ((rusage.ru_utime.tv_sec - StartOfTimes.tv_sec)) * 1000 +
-         ((rusage.ru_utime.tv_usec - StartOfTimes.tv_usec) / 1000);
+  return timevalnanos(rusage.ru_utime) - (StartOfTimes);
 }
 
-void Yap_cputime_interval(Int *now, Int *interval) {
+void Yap_cputime_interval(uint64_t *now, uint64_t *interval) {
   struct rusage rusage;
 
   getrusage(RUSAGE_SELF, &rusage);
-  *now = (rusage.ru_utime.tv_sec - StartOfTimes.tv_sec) * 1000 +
-         (rusage.ru_utime.tv_usec - StartOfTimes.tv_usec) / 1000;
-  *interval = (rusage.ru_utime.tv_sec - last_time.tv_sec) * 1000 +
-              (rusage.ru_utime.tv_usec - last_time.tv_usec) / 1000;
-  last_time.tv_usec = rusage.ru_utime.tv_usec;
-  last_time.tv_sec = rusage.ru_utime.tv_sec;
+  uint64_t clock = timevalnanos(rusage.ru_utime);
+  *now =clock  - (StartOfTimes);
+  *interval = clock - last_time;
+  last_time = clock;
 }
 
-void Yap_systime_interval(Int *now, Int *interval) {
+void Yap_systime_interval(uint64_t *now, uint64_t *interval) {
   struct rusage rusage;
 
   getrusage(RUSAGE_SELF, &rusage);
-  *now = (rusage.ru_stime.tv_sec - StartOfTimes_sys.tv_sec) * 1000 +
-         (rusage.ru_stime.tv_usec - StartOfTimes_sys.tv_usec) / 1000;
-  *interval = (rusage.ru_stime.tv_sec - last_time_sys.tv_sec) * 1000 +
-              (rusage.ru_stime.tv_usec - last_time_sys.tv_usec) / 1000;
-  last_time_sys.tv_usec = rusage.ru_stime.tv_usec;
-  last_time_sys.tv_sec = rusage.ru_stime.tv_sec;
-}
+  *now = timevalnanos(rusage.ru_stime) - (StartOfTimes_sys);
+  *interval = timevalnanos(rusage.ru_stime) -(last_time_sys);
+  last_time_sys =timevalnanos(rusage.ru_stime) ;
+ }
 
 #elif defined(_WIN32)
-
-#ifdef __GNUC__
-
-/* This is stolen from the Linux kernel.
-   The problem is that mingw32 does not seem to have acces to div */
-#ifndef do_div
-#define do_div(n, base)                                                        \
-  ({                                                                           \
-    unsigned long __upper, __low, __high, __mod;                               \
-    asm("" : "=a"(__low), "=d"(__high) : "A"(n));                              \
-    __upper = __high;                                                          \
-    if (__high) {                                                              \
-      __upper = __high % (base);                                               \
-      __high = __high / (base);                                                \
-    }                                                                          \
-    asm("divl %2"                                                              \
-        : "=a"(__low), "=d"(__mod)                                             \
-        : "rm"(base), "0"(__low), "1"(__upper));                               \
-    asm("" : "=A"(n) : "a"(__low), "d"(__high));                               \
-    __mod;                                                                     \
-  })
-#endif
-
-#endif
+static unsi filetime2nanos(T) ( 
 
 #include <time.h>
 
-typedef union {
-  FILETIME f;
-  __int64 t;
-}  win64_time_t;
-
-static win64_time_t StartOfTimes, last_time;
+static FILETIME StartOfTimes, last_time;
 
 static win64_time_t StartOfTimes_sys, last_time_sys;
 
@@ -201,7 +207,7 @@ UInt Yap_cputime(void) {
     t = clock();
     return (((t - TimesStartOfTimes) * 1000) / CLOCKS_PER_SEC);
   } else {
-    __int64 t = UserTime.t - StartOfTimes.t;
+    uint64_t t = UserTime.t - StartOfTimes.t;
     return ((Int)(t / 10000));
   }
 }
@@ -463,8 +469,7 @@ void Yap_InitWTime(void) {
   struct timeval tp;
 
   gettimeofday(&tp, NULL);
-  Yap_StartOfWTimes =
-      (uint64_t)tp.tv_sec * 1000000000 + (uint64_t)tp.tv_usec * 1000;
+  Yap_StartOfWTimes = timevalnanos(tp);
 }
 
 /// returns time in nano-secs since the epoch
@@ -472,7 +477,7 @@ uint64_t Yap_walltime(void) {
   struct timeval tp;
 
   gettimeofday(&tp, NULL);
-  return (uint64_t)tp.tv_sec * 1000000000 + (uint64_t)tp.tv_usec * 1000;
+  return  timevalnanos(tp);
 }
 
 #elif defined(_WIN32)

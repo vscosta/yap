@@ -84,6 +84,7 @@
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurly = Yap_LookupAtom("{}"); TermCurly = MkAtomTerm(AtomCurly);
   AtomCurrentChoicePoint = Yap_LookupAtom("current_choice_point"); TermCurrentChoicePoint = MkAtomTerm(AtomCurrentChoicePoint);
+  AtomCurrentClause = Yap_FullLookupAtom("$current_clause"); TermCurrentClause = MkAtomTerm(AtomCurrentClause);
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = Yap_LookupAtom("!"); TermCut = MkAtomTerm(AtomCut);
   AtomCutAt = Yap_LookupAtom("cut_at"); TermCutAt = MkAtomTerm(AtomCutAt);
@@ -128,9 +129,10 @@
   AtomDynamic = Yap_FullLookupAtom("dynamic"); TermDynamic = MkAtomTerm(AtomDynamic);
   AtomE = Yap_LookupAtom("e"); TermE = MkAtomTerm(AtomE);
   AtomEOFBeforeEOT = Yap_LookupAtom("end_of_file_found_before_end_of_term"); TermEOFBeforeEOT = MkAtomTerm(AtomEOFBeforeEOT);
+  AtomEOfAction = Yap_LookupAtom("eof_action"); TermEOfAction = MkAtomTerm(AtomEOfAction);
   AtomEOfCode = Yap_LookupAtom("eof_code"); TermEOfCode = MkAtomTerm(AtomEOfCode);
   AtomEQ = Yap_LookupAtom("="); TermEQ = MkAtomTerm(AtomEQ);
-  AtomEmptyAtom = Yap_LookupAtom(""); TermEmptyAtom = MkAtomTerm(AtomEmptyAtom);
+  AtomEmpty = Yap_LookupAtom(""); TermEmpty = MkAtomTerm(AtomEmpty);
   AtomEmptyBrackets = Yap_LookupAtom("()"); TermEmptyBrackets = MkAtomTerm(AtomEmptyBrackets);
   AtomEmptySquareBrackets = Yap_LookupAtom("[]"); TermEmptySquareBrackets = MkAtomTerm(AtomEmptySquareBrackets);
   AtomEncoding = Yap_LookupAtom("encoding"); TermEncoding = MkAtomTerm(AtomEncoding);
@@ -345,6 +347,8 @@
   AtomRDiv = Yap_LookupAtom("rdiv"); TermRDiv = MkAtomTerm(AtomRDiv);
   AtomRTree = Yap_LookupAtom("rtree"); TermRTree = MkAtomTerm(AtomRTree);
   AtomRadix = Yap_LookupAtom("radix"); TermRadix = MkAtomTerm(AtomRadix);
+  AtomRand = Yap_LookupAtom("rand"); TermRand = MkAtomTerm(AtomRand);
+  AtomRand48 = Yap_LookupAtom("rand48"); TermRand48 = MkAtomTerm(AtomRand48);
   AtomRandom = Yap_LookupAtom("random"); TermRandom = MkAtomTerm(AtomRandom);
   AtomRange = Yap_LookupAtom("range"); TermRange = MkAtomTerm(AtomRange);
   AtomRead = Yap_LookupAtom("read"); TermRead = MkAtomTerm(AtomRead);

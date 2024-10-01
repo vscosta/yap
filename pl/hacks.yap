@@ -22,11 +22,7 @@
 %%
 %% @brief Access and Manipulation of YAD's internals
 
-:- system_module('$yap_hacks',
-		 [],
-		 [ctrace/1,
-		  fully_strip_module/3
-	 ]).
+:- module('$yap_hacks').
 
 /**
   *
@@ -35,35 +31,40 @@
   * @{
   * The _hacks_ predicate collection predicaates
   * provides a 
-  limoted introspection t the eecution stack and of error representation. Most of this functionnality requires to first load the module `library(hacks)`
+  *limited introspection to the execution stack and of error representation.
+ Most of this functionnality requires to first load the module `library(hacks)`
 */
 
 
 /**
- * @pred ctrace(Goal)
- *
- * This predicate is only available if the YAP
- * compile option was set. It generates a
- * step-by-step trace of the execution of _Goal_
- *
- */
-	
-:- meta_predicate(ctrace(0)).
-
-ctrace(G) :-
-    gated_call(start_low_level_trace,
-	       G,
-	       _,
-	       stop_low_level_trace).
-
-/**
- * @pred context_variables(+VarAndNames)
+ * @pred context_variables(-VarAndNames)
  *
  * makes available a list with the variable names of the last interaction.
  *
  */
-context_variables(Vs) :-
+yap_hacks:context_variables(Vs) :-
     b_getval(name_variables, Vs).
+
+/** @pred yap_query_exception(Key, Term, Val).
+ *
+ * Term describes an exception as a set of mappings: unify val with the value for key Key, or fil if the key is not in Tern,
+ */
+yap_hacks:exception_property(Q,E,V) :-
+    '$messages':query_exception(Q,E,V).
+
+/**
+ * @pred yap_error_descriptor(+Term,-List).
+ *
+ * If _Term_ describes an exception, _List_ will be unfied with the
+ * fiekds storing error information.
+ *
+ * _List_ shpi;d be unbound, as YAP does not fuarantee an irder for the resulting _List_.
+ */
+yap_hacks:yap_error_descriptor(Inf,Des) :-
+   '$messages': error_descriptor(Inf,Des).
+
+
+
 
 %% @}
 

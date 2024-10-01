@@ -73,7 +73,7 @@ all that random, so it should be scaled to a smaller range in general.
 The integer  _I_ is in the range 0 .. 2^(w-1) - 1. You can use:
 
 ```
-rannum(X) :- yap_flag(max_integer,MI), rannum(R), X is R/MI.
+rannum(X) :- current_prolog_flag(max_integer,MI), rannum(R), X is R/MI.
 ```
 to obtain a floating point number uniformly distributed between 0 and 1.
 
@@ -115,7 +115,7 @@ the result is in 0 ..  _R_-1.
 %
 %
 wsize(32) :-
-	yap_flag(max_tagged_integer,I), I >> 32 =:= 0, !.
+	current_prolog_flag(max_tagged_integer,I), I >> 32 =:= 0, !.
 wsize(64).
 
 ranstart :- ranstart(8'365). %

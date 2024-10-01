@@ -38,6 +38,7 @@
 :- dynamic user:prolog_file_type/2.
 
 
+% :- set_prolog_flag( verbose_file_search, true ).
 
 
 absf_trace(Msg, Args ) :-
@@ -77,8 +78,12 @@ validate_absf(_File, TrueFile, LOpts, LOpts, TrueFile) :-
 	must_be_list(LOpts).
 validate_absf(_File, LOpts, TrueFile, LOpts, TrueFile ).
 	
-enter_absf( File, LOpts, Opts, State ) :- !,
-    ( var(File) -> instantiation_error(File) ; true),
+enter_absf( File, LOpts, Opts, State ) :-
+    !,
+    (
+    var(File)
+    ->
+    instantiation_error(File) ; true),
     absf_trace('input: ~w',File),
     absf_trace_component('     ', LOpts),
     abs_file_parameters(LOpts,Opts),
@@ -194,6 +199,10 @@ clean_name(N0,_OPts,NF) :-
 '$path2atom'(A,A) :-
     atom(A),
     !.
+'$path2atom'(S,A) :-
+    string(S),
+    !,
+    atom_string(A,S).
 
 '$path2atom'(As,A) :-
     '$cat_file_name'(As,L,[]),
@@ -207,6 +216,11 @@ clean_name(N0,_OPts,NF) :-
 '$cat_file_name'(File, NFs, Fs) :-
     atom(File),
     !,
+    NFs = [File|Fs].
+'$cat_file_name'(SFile, NFs, Fs) :-
+    string(SFile),
+    !,
+    atom_string(File,SFile),
     NFs = [File|Fs].
 
 '$suffix'(F,_Opts,Ext,F) :-
@@ -339,11 +353,17 @@ remove_from_path(New) :- check_path(New,Path),
 
  			recorded('$path',Path,R), erase(R).
 
-check_path(At,SAt) :- atom(At), !, atom_codes(At,S), check_path(S,SAt).
+check_path(At,SAt) :-
+    atom(At),
+    !,
+    atom_codes(At,S),
+    check_path(S,SAt).
 check_path([],[]).
 check_path([Ch],[Ch]) :- '$dir_separator'(Ch), !.
 check_path([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
-check_path([N|S],[N|SN]) :- integer(N), check_path(S,SN).
+check_path([N|S],[N|SN]) :-
+    integer(N),
+    check_path(S,SN).
 
 
 /**

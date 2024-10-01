@@ -566,6 +566,7 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 {
 
   Term  t, out;
+
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
     out = MkPairTerm(MkGlobal(t),TermNil);
@@ -579,7 +580,7 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
     return Yap_unify(out,ARG2);
   }
 
-/** @pred  term_variables(? _Term_, - _Variables_, +_ExternalVars_) is iso
+/** @pred  term_varibales(? _Term_, - _Variables_, +_ExternalVars_) is iso
 
     Unify the difference list between _Variables_ and _ExternaVars_
     with the list of all variables of term _Term_.  The variables

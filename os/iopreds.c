@@ -19,8 +19,7 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/**260-1A
- A
+/**
  * @file   iopreds.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 00:45:56 2016
@@ -42,7 +41,8 @@ static char SccsId[] = "%W% %G%";
     non-backtrackable objects loosely based on the Unix library IO
     primitives. They must be open, their properties can be queried or
     modified, and ultimately they need to be closed.
-@}
+
+
 */
 
 #include "Yap.h"
@@ -489,6 +489,9 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
     //    fprintf(stderr,"here I am\n");
   }
 #endif /* HAVE_SETBUF */
+  if (s->status & Tty_Stream_f) {
+    s->status |= Reset_Eof_Stream_f;
+  }
 }
 
 void Yap_InitStdStream(int sno, unsigned int flags, FILE *file, VFS_t *vfsp) {
@@ -1417,7 +1420,7 @@ return false;
                     }
                     st->nbuf = pop_output_text_stack(j, buf);
                     Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
-                    sno = Yap_open_buf_read_stream(st, buf, st->nsize=(strlen(buf) + 1), &LOCAL_encoding,
+                    sno = Yap_open_buf_read_stream(st, buf, st->nsize=strlen(buf) , &LOCAL_encoding,
             	                                           MEM_BUF_MALLOC, nat,
                                                    MkAtomTerm(NameOfFunctor(f)));
                     pop_text_stack(j);
@@ -1585,6 +1588,25 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
       script = (args[OPEN_SCRIPT].tvalue == TermTrue);
     }
 
+    if (args[OPEN_EOF_ACTION].used) {
+      if (IsVarTerm(args[OPEN_EOF_ACTION].tvalue)) {
+	Yap_ThrowError(INSTANTIATION_ERROR,Yap_MkNewApplTerm(Yap_MkFunctor(AtomEOfAction,1),1),NULL);
+      }
+    if (!IsAtomTerm(args[OPEN_EOF_ACTION].tvalue)) {
+      Yap_ThrowError(DOMAIN_ERROR_STREAM_OPTION,Yap_MkApplTerm(Yap_MkFunctor(AtomEOfAction,1),1,&args[OPEN_EOF_ACTION].tvalue),NULL);
+    }
+   Term t =args[OPEN_EOF_ACTION].tvalue;
+   if (t== TermEOfCode) {
+             GLOBAL_Stream[sno].status &= ~Reset_Eof_Stream_f; 
+ GLOBAL_Stream[sno].status |= Repeat_Eof_Stream_f;
+   } else if (t== TermReset) {
+               GLOBAL_Stream[sno].status &= ~(Repeat_Eof_Stream_f);
+     GLOBAL_Stream[sno].status |= Reset_Eof_Stream_f;
+   } else if (t == TermError) {
+          GLOBAL_Stream[sno].status &= ~(Reset_Eof_Stream_f|Repeat_Eof_Stream_f);
+ }
+    }
+
   if (args[OPEN_ALIAS].used) {
     if (IsVarTerm(args[OPEN_ALIAS].tvalue)) {
       Yap_ThrowError(INSTANTIATION_ERROR,Yap_MkNewApplTerm(Yap_MkFunctor(AtomAlias,1),1),NULL);
@@ -1598,9 +1620,9 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
       return false;
     }
   }
-  if (st - GLOBAL_Stream < 3) {
+  //  if (st - GLOBAL_Stream < 3) {
     st->status |= RepError_Prolog_f;
-  }
+    //}
 #if MAC
   if (open_mode == AtomWrite) {
     Yap_SetTextFile(RepAtom(AtomOfTerm(file_name))->StrOfAE);
@@ -1885,43 +1907,42 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
     Yap_ThrowError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
     return -1;
   }
-  if ((kind& (Output_Stream_f|Append_Stream_f))!=0) {
-    if ( (kind & Input_Stream_f) == 0 &&
-	 (GLOBAL_Stream[sno].status & (Output_Stream_f|Append_Stream_f))==0) {
+  if (GLOBAL_Stream[sno].status & (Output_Stream_f|Append_Stream_f)) {
+    if ((kind& (Output_Stream_f|Append_Stream_f))==0) {
+      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+      return -1;
+    }
+    if ((GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
+      if (kind&Text_Stream_f) {
+	Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
+	return -1;
+      }
+    } else {
+      if (kind & Binary_Stream_f) {
+	Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
+	return -1;
+      }
+    }
+  }else {
+   if ((kind& Input_Stream_f)==0) {
 	Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
 	return -1;
       }
-      if (kind&Binary_Stream_f) {
-	if (!(GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
-	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
-	  return -1;
-	}
-      } else if (kind & Text_Stream_f) {
 	if ((GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
-	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg, msg);
-	  return -1;
+	  if (kind&Text_Stream_f) {
+
+	    Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
+	    return -1;
+	  }
+	} else {
+	  if (kind & Binary_Stream_f) {
+	    Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
+	    return -1;
+	  }
 	}
-      }
-  }
-   if (kind & Input_Stream_f) {
-    if (!(kind & (Output_Stream_f|Append_Stream_f) ) && !(GLOBAL_Stream[sno].status & (Input_Stream_f))) {
-      Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
-	return -1;
-      }
-      if (kind&Binary_Stream_f) {
-	if (!(GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
-	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
-	  return -1;
-	}
-      } else  if (kind & Text_Stream_f)  {
-	if ((GLOBAL_Stream[sno].status & (Binary_Stream_f))) {
-	  Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg, msg);
-	  return -1;
-	}
-      }
-   }
-   return sno;
  }
+     return sno;
+}
 
  
 int Yap_CheckStream__(const char *file, const char *f, int line, Term arg,
@@ -2145,6 +2166,7 @@ void Yap_InitIOPreds(void) {
   Yap_InitAbsfPreds();
  }
 
+/// @}
 
 
 

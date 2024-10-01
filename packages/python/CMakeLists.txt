@@ -1,58 +1,8 @@
-if(WITH_Python3)
-
 find_package (Python3 COMPONENTS Interpreter Development NumPy)
 
-# Python_FOUND
-# System has the Python requested components.
-# Python_Interpreter_FOUND
-# System has the Python interpreter.
-# Python_EXECUTABLE
-# Path to the Python interpreter.
-# Python_INTERPRETER_ID
-# A short string unique to the interpreter. Possible values include:
-# Python
-# ActivePython
-# Anaconda
-# Canopy
-# IronPython
-# Python_STDLIB
-# Standard platform independent installation directory.
-#
-# Information returned by distutils.sysconfig.get_python_lib(plat_specific=False,standard_lib=True).
-#
-# Python_STDARCH
-# Standard platform dependent installation directory.
-#
-# Information returned by distutils.sysconfig.get_python_lib(plat_specific=True,standard_lib=True).
-#
-# Python_SITELIB
-# Third-party platform independent installation directory.
-#
-# Information returned by distutils.sysconfig.get_python_lib(plat_specific=False,standard_lib=False).
-#
-# Python_SITEARCH
-# Third-party platform dependent installation directory.
-#
-# Information returned by distutils.sysconfig.get_python_lib(plat_specific=True,standard_lib=False).
-#
-# Python_Compiler_FOUND System has the Python compiler.
-# Python_COMPILER Path to the Python compiler. Only offered by
-# IronPython.  Python_COMPILER_ID A short string unique to the
-# compiler. Possible values include: IronPython
-# Python_Development_FOUND System has the Python development
-# artifacts.  Python_INCLUDE_DIRS The Python include directories.
-# Python_LIBRARIES The Python libraries.  Python_LIBRARY_DIRS The
-# Python library directories.  Python_RUNTIME_LIBRARY_DIRS The Python
-# runtime library directories.  Python_VERSION Python version.
-# Python_VERSION_MAJOR Python major version.  Python_VERSION_MINOR
-# Python minor version.  Python_VERSION_PATCH Python patch version.
-# Python_NumPy_FOUND System has the NumPy.  Python_NumPy_INCLUDE_DIRS
-# nThe NumPy include directries.  Python_NumPy_VERSION The NumPy
-# version.
-
-#CHECK: PythonLibs, changed to work in WIN32
-if (Python3_Development_FOUND)
-set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c  pypreds.c pyio.c)
+if(WITH_Python3 AND Python3_FOUND AND Python3_Development_FOUND)
+set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c  pypreds.c pyio.c
+)
 set (PYTHON_HEADERS pyya4p.h)
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
@@ -124,5 +74,4 @@ endif()
 add_subdirectory (yap4py)
  # add_subdirectory(packages/python/yapkernel)
     
-endif()
 endif()

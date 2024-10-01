@@ -211,6 +211,7 @@ This predicate actually exports _Module to the _ContextModule_.
  _Imports is what the ContextModule needed.																			
 */
 
+/*
 '$import_module'(DonorM, HostM, F, _Opts) :-
     DonorM ==  HostM,
     !,
@@ -220,8 +221,9 @@ This predicate actually exports _Module to the _ContextModule_.
     true;
 	assert('$source_file_scope'( F, M) )
     ).
+*/
 '$import_module'(DonorM, HostM, File, _Opts) :-
-	'$module'(File, DonorM, _ModExports, _),                                                                 
+	'$module'(File, DonorM, _ModExports, _),                                
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, DonorM], _),
 	'$import_foreign'(File, DonorM, HostM ),
@@ -239,8 +241,6 @@ This predicate actually exports _Module to the _ContextModule_.
     true
     ),
     !.
-
-
 
 /**
 

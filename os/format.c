@@ -227,6 +227,7 @@ left-alignment:
 *Hello          *
 ```
 
+
 Note that we reserve 16 characters for the column.
 
 The following example shows how to do right-alignment:
@@ -305,7 +306,7 @@ format_clean_up(int sno, int sno0, format_info *finfo) {
 
 }
 
-static int format_print_str(int sno, Int size, Int has_size, Term args,
+static int format_print_str(int sno, Int size, bool has_size, Term args,
                             int (*f_putc)(int, wchar_t), format_info *finfo) {
   CACHE_REGS
     Term arghd;
@@ -316,20 +317,32 @@ static int format_print_str(int sno, Int size, Int has_size, Term args,
 
             if ((pt += get_utf8(pt, -1, &ch)) > 0) {
                 f_putc(sno, ch);
-            }
+            }	    
         }
+	if (has_size) {
+	  while (size>0) {
+	    size--;
+	    f_putc(sno, ' ');
+	  }
+	}
     } else if (IsAtomTerm(args)) {
         if (args == TermNil) {
             return true;
         }
         const unsigned char *pt = RepAtom(AtomOfTerm(args))->UStrOfAE;
-        while (*pt && (!has_size || size > 0)) {
+        while ((has_size || size > 0) && *pt)  {
             utf8proc_int32_t ch;
 
             if ((pt += get_utf8(pt, -1, &ch)) > 0) {
                 f_putc(sno, ch);
             }
         }
+	if (has_size) {
+	  while (size>0) {
+	    size--;
+	    f_putc(sno, ' ');
+	  }
+	}
     } else {
         while (!has_size || size > 0) {
             bool maybe_chars = true, maybe_codes = true;
@@ -338,7 +351,7 @@ static int format_print_str(int sno, Int size, Int has_size, Term args,
                 Yap_ThrowError(INSTANTIATION_ERROR, args, "~s expects a bound argument");
                 return false;
             } else if (args == TermNil) {
-                return TRUE;
+	      break;
             } else if (!IsPairTerm(args)) {
                 format_clean_up(sno, finfo->sno0, finfo);
                 Yap_ThrowError(TYPE_ERROR_TEXT, args, "format expects an atom, string, or list of codes or chars ");
@@ -372,6 +385,13 @@ static int format_print_str(int sno, Int size, Int has_size, Term args,
                 return FALSE;
             }
         }
+	if (has_size) {
+	  while (size>0) {
+	    f_putc(sno, ' ');
+	    size--;
+	  }
+	}
+
     }
     return TRUE;
 }
@@ -407,6 +427,7 @@ static Int fetch_index_from_args(Term t) {
     if (IsAtomTerm(t)) {
       unsigned char *fptr = RepAtom(AtomOfTerm(t))->UStrOfAE;
       int ch;
+      CACHE_REGS
       fptr += get_utf8(fptr, -1, &ch);
       if (fptr[0] == '\0') {
 	return ch;
@@ -476,6 +497,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     Term tail;
     int (*f_putc)(int, wchar_t);
     int sno = sno0;
+    int last_tabline=1;
     Term fmod = CurrentModule;
     bool alloc_fstr = false;
     LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -483,11 +505,10 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     format_info *finfo = Malloc(sizeof(format_info));
     // it starts here
     finfo->sno0 = sno0;
-    finfo->gapi = 0;
-    finfo->gap[0].filler = ' ';
     finfo->phys_start = 0;
     finfo->lstart = 0;
     finfo->lvl = l;
+    finfo->gapi = 0;
     finfo->old_handler = GLOBAL_Stream[sno].u.mem_string.error_handler;
     finfo->old_pos = 0;
 	/* set up an error handler */
@@ -985,6 +1006,7 @@ switch (ch) {
                                 repeats = 1;
                         while (repeats--) {
                             f_putc(sno, (int) '\n');
+			    last_tabline++;
                         }
                         sno = format_synch(sno, sno0, finfo);
                         break;
@@ -993,40 +1015,43 @@ switch (ch) {
                                 repeats = 1;
                         if (GLOBAL_Stream[sno].linestart !=
 			   GLOBAL_Stream[sno].charcount ) {
-                            f_putc(sno, '\n');
+			  last_tabline++;
+			  f_putc(sno, '\n');
                             sno = format_synch(sno, sno0, finfo);
                         }
                         if (repeats > 1) {
                             Int i;
                             for (i = 1; i < repeats; i++)
 			      {
+				last_tabline++;
 				f_putc(sno, '\n');
                        
-                        sno = format_synch(sno, sno0, finfo);
+				sno = format_synch(sno, sno0, finfo);
 			      }
 			}
                         break;
-                        /* padding */
-                        case '|':
-			  if (finfo->gapi==0) {
-			    finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount;
-			    finfo->gap[finfo->gapi].filler = ' ';
-                            finfo->gapi++;
-			  }
-                            sno = fill_pads(sno, sno0, repeats-finfo->phys_start, finfo PASS_REGS);
+
+
+			  /* padding */
+			case '|':
+			sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
+			  finfo->phys_start = GLOBAL_Stream[sno].charcount
+			    -GLOBAL_Stream[sno].linestart;
+			    finfo->gapi=0;
                         break;
                         case '+':
- 			  if (finfo->gapi==0) {
-			    finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount-1;
-			    finfo->gap[finfo->gapi].filler = ' ';
-                            finfo->gapi++;
-			  }
-                             sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
-                        break;
+                                 if (!has_repeats)
+                                repeats = 8;
+                        sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
+			  finfo->phys_start = GLOBAL_Stream[sno].charcount
+			    -GLOBAL_Stream[sno].linestart;
+			  finfo->gapi=0;
+			  last_tabline=GLOBAL_Stream[sno].linecount;
+			     break;
                         case 't': {
 			  Yap_flush(sno);
 			  finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount;
-			    if (has_repeats)
+                   	if (has_repeats)
                                 finfo->gap[finfo->gapi].filler = repeats;
                             else
                                 finfo->gap[finfo->gapi].filler = ' ';
@@ -1204,11 +1229,13 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
 	  if (f == FunctorAtom) {
 	    const char *s =Yap_MemExportStreamPtr( output_stream);
 	    Term tout = MkAtomTerm(Yap_LookupAtom(s));
+	  Yap_CloseStream(output_stream);
 	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
 	    Yap_CloseStream(output_stream);
 	  }else if ( f == FunctorString1) {
 	    const char *s =Yap_MemExportStreamPtr( output_stream);
 	    Term tout = MkStringTerm((s));
+	  Yap_CloseStream(output_stream);
 	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
 	    Yap_CloseStream(output_stream);
 	  } 

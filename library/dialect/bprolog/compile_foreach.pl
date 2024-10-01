@@ -8,7 +8,7 @@
     in which the foreach occurs and i is a unique integer.
 */
 
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 :- ensure_loaded(actionrules).
 :- use_module(library(lists)).
 :- op(1200,fy,[delay]).

@@ -237,6 +237,13 @@ the graphs library is implemented on top of the red-black trees library, and som
 Unfortunately it is still not possible to change argument order.
 
 **/
+use_module(User, I) :-
+    strip_module(User,HostM,user),
+    !,
+    user \= HostM,
+    '$m_normalize'(I,HostM,NI),
+    forall(member(D,NI),'$do_import'(D, user, HostM)).
+
 use_module(F,Is) :-
     load_files(F, [if(not_loaded),must_be_module(true),imports(Is)] ).
 
@@ -363,8 +370,7 @@ abolish_module(Mod) :-
     retractall('$import'(Mod,_,_,_,_,_)),
     fail.
 abolish_module(Mod) :-
-    '$current_predicate'(Na,Mod,S,_),
-    functor(S, Na, Ar),
+    module_predicated(Mod,Na,Ar,_),
     abolish(Mod:Na/Ar),
     fail.
 
@@ -482,19 +488,16 @@ export_list(Module, List) :-
     \+ '$import'(_,MHost,_,GHost,_,_),
     asserta('$import'(MDonor,MHost,GDonor,GHost,NHost,K)),
     %writeln((MHost:GHost :- MDonor:GDonor)),
-    current_prolog_flag(source, YFlag),
-    set_prolog_flag(source, false),
+    '$mk_proxy_predicate'(GHost,MHost),
    ('$is_metapredicate'(GDonor,MDonor) ->
      	 recorded('$m' , meta_predicate(MDonor,GDonor),_),
 	 '$tag_module'(Args,MHost, NVars, NModVars),
     ModGDonor=..[NDonor|NModVars],
     ModGHost=..[NHost|NVars],
-	    asserta_static((MHost:ModGHost :- MDonor:ModGDonor))
+	    assertz_static((MHost:ModGHost :- MDonor:ModGDonor))
 	    ;
-    asserta_static((MHost:GHost :- MDonor:GDonor))
+    assertz_static((MHost:GHost :- MDonor:GDonor))
     ),
-    set_prolog_flag(source, YFlag),
-    '$mk_proxy_predicate'(GHost,MHost),
     fail.
 
 '$tag_module'([], _, [], []).
@@ -743,10 +746,10 @@ unload_module(Mod) :-
      '$module'( _, Mod, _, Exports),
     '$memberchk'( op(X, _Y, Op), Exports ),
     op(X, 0, Mod:Op),
-fai.
+     fail.
 unload_module(Mod) :-
-    current_predicate(Mod:P),
-    abolish(Mod:P),
+    module_predicate(Mod,N,A,_),
+    abolish(Mod:N/A),
     fail.
 unload_module(Mod) :-
     retractall('$import'(Mod,_M,_G0,_G,_N,_K)),
@@ -795,13 +798,11 @@ module_state.
 
 '$check_module_exports'([],_,_Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
-    functor(G,N,A),
-    '$current_predicate'(A,Mod,G,_),
+     functor_predicate(Mod,N,A,_),
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
-    functor(G,N,A),
-    '$current_predicate'(A,prolog,G,_),
+    functor_predicate(prolog,N,A,_),
     !,
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
@@ -814,13 +815,14 @@ module_state.
     '$check_module_exports'(Exports,File,Mod).
 
 '$check_module_undefineds'(File,Mod) :-
-    '$current_predicate'(_,Mod,P,undefined),
+    module_predicate(Mod,N,A,undefined),
+    functor(P,N,A),
     \+ '$is_proxy_predicate'(P, Mod),
-    \+  '$current_predicate'(_,prolog,P,_),
+    \+ functor_predicate(prolog,N,A,_),
     \+  '$import'(_,Mod,_,P,_,_),
     '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),
-    format(string(Msg),`coul>>d not find a definition for ~q within the module ~a or its imports`,[NE/AE,Mod]),
+    format(string(Msg),`could not find a definition for ~q within the module ~a or its imports`,[NE/AE,Mod]),
     print_message(warning, error(warning(undefined_in_module,Mod:
     NE/AE),[parserReadingCode=true,parserPos=0, parserFile=File,parserLine=Line,errorMsg = Msg,prologConsulting=true ])),
     fail.

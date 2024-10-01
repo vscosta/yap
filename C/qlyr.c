@@ -107,7 +107,7 @@ static Atom LookupAtom(Atom oat) {
     a = a->next;
   }
   if (((CELL*)oat)[1] == '\0')
-    return AtomEmptyAtom;
+    return AtomEmpty;
   //  __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %p in saved state ",
   //  oat);
   QLYR_ERROR(UNKNOWN_ATOM);
@@ -473,11 +473,15 @@ static inline PredEntry *PredEntryAdjust(PredEntry *p) {
 
 static inline OPCODE OpcodeAdjust(OPCODE OP) { return LookupOPCODE(OP); }
 
-static inline Term ModuleAdjust(Term M) {
+#ifndef THREADS
+/*
+  static inline Term ModuleAdjust(Term M) {
   if (!M)
     return M;
   return AtomTermAdjust(M);
 }
+*/
+#endif
 
 #define ExternalFunctionAdjust(P) (P)
 #define DBRecordAdjust(P) (P)

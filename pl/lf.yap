@@ -19,10 +19,13 @@
  /**
   * @file lf.yap
   * @brief Implementation of load-files
-  * @{
-  * @addtogroup YAPReadFiles
   */
-%
+
+/**
+  * @addtogroup YAPReadFiles
+  * @{
+  */
+
 % SWI options
 % autoloa(true,false)
 % derived_from(File) -> make
@@ -66,7 +69,7 @@
 '$lf_option'(consult, 11, reconsult).
 '$lf_option'(stream, 12, _).
 '$lf_option'(register, 13, true).
-'$lf_option'('$files', 14, _).
+'$lf_option'(dry_run, 14, _).
 '$lf_option'('$call', 15, _).
 '$lf_option'('$use_module', 16, _).
 '$lf_option'('consulted_at', 17, _).
@@ -77,7 +80,7 @@
 '$lf_option'(redefine_module, 22, Warn) :-
 	( var(Warn) ->	current_prolog_flag( redefine_warnings, Redefine ), Redefine = Warn ; true ).
 '$lf_option'(reexport, 23, false).
-'$lf_option'(def_use_map, 24, false).
+'$lf_option'(build_def_map, 24, false).
 % '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
 '$lf_option'(modified, 26, true).
@@ -139,8 +142,8 @@
 	throw_error(domain_error(implemented_option,Opt),Call).
 
 '$process_lf_opt'(autoload, Val, Call) :-
-	( Val == false -> true ;
-	    Val == true -> true ;
+	( %Val == false -> true ;
+	  %  Val == true -> true ;
 	    throw_error(domain_error(unimplemented_option,autoload(Val)),Call) ).
 '$process_lf_opt'('consulted_at',V,_) :-
     (var(V) ->  '$show_stream_position'(loop_stream,V) ; true ).
@@ -177,10 +180,14 @@
 	( Val == false -> true ;
 	    Val == true -> true ;
 	    throw_error(domain_error(unimplemented_option,skip_unix_header(Val)),Call) ).
-'$process_lf_opt'(def_use_map, Val, Call)  :-
+'$process_lf_opt'(build_def_map, Val, Call)  :-
 	( Val == false -> true ;
 	    Val == true -> true ;
-	    throw_error(domain_error(unimplemented_option,def_use_map(Val)),Call) ).
+	    throw_error(domain_error(unimplemented_option,build_def_map(Val)),Call) ).
+'$process_lf_opt'(dry_run, Val, Call)  :-
+	( Val == false -> true ;
+	    Val == true -> true ;
+	    throw_error(domain_error(unimplemented_option,build_def_map(Val)),Call) ).
 '$process_lf_opt'(compilation_mode, Val, Call) :-
     ( Val == source -> true ;
       Val == compact -> true ;
@@ -235,7 +242,7 @@
 %%
 %% actual interface to file-loading machinery
 '$load_files'(_V0, _M0, _O, _Call) :-
-    prolog_flag(compiler_skip,true),
+    current_prolog_flag(compiler_skip,true),
     !.
 '$load_files'(V0, M0, O, Call) :-
     '$yap_strip_module'(M0:V0, M, V),
@@ -279,12 +286,13 @@
 
 '$load_files_'(File, M, Opts, Call) :-
 %   writeln(+M:File),
-   current_prolog_flag(autoload,OldAutoload),
+/*   current_prolog_flag(autoload,OldAutoload),
     (
      '$memberchk'(autoload(Autoload), Opts)
       ->
-       			  set_prolog_flag(autoload,Autoload) ;
+       set_prolog_flag(autoload,Autoload) ;
        			   true), 
+*/
    ( '$memberchk'(expand(Expand),Opts) -> true ; Expand = true ),
     (
 	absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]) 
@@ -305,7 +313,7 @@
     open(Y, read, Stream, [])
     ),
     '$load_file__'(Type,File,Stream,Y, M, Opts, Call),
-    set_prolog_flag(autoload,OldAutoload),
+%    set_prolog_flag(autoload,OldAutoload),
     close(Stream).
 
 '$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
@@ -363,8 +371,8 @@
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
     file_directory_name(File, Dir),
-    working_directory(OldD, Dir),
-     !,
+    working_directory(OldD,OldD),
+    !,
     prompt1(': '), prompt(_,'     '),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
@@ -376,14 +384,9 @@
        			  true ;
       Reconsult0 = reconsult
     ),
-    '$unload_file'(File),
+    unload_file(File),
     '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts),
-   ( Reconsult \== consult ->
-	'$start_reconsulting'(File),
-	'$start_consult'(Reconsult,File,Stream,LC)
-   ;
-	'$start_consult'(Reconsult,File,Stream,LC)
-   ),
+   	'$start_consult'(Reconsult,File,Dir,Stream,LC),
     (
      '$memberchk'(skip_unix_header(SkipUnixHeader), Opts)
       ->
@@ -400,15 +403,19 @@
    ),
    current_source_module(_M0,M1),
 
-   (
-       '$memberchk'(def_use_map(true),Opts)
+  (
+       '$memberchk'(build_def_map(true),Opts)
    ->
     retractall(scanner:use(_,_F,_MI,_F0,_Mod,File,_S0,_E0,_S1,_E1)),
     retractall(scanner:def(_,_,_,File,_,_,_,_)),
     retractall(scanner:dec(_Dom,_F,_M,File,_B,_E,_BT,_FiET)),
    '$def_use_loop'(Stream,File,Reconsult)
-;
-   '$loop'(Stream,Reconsult)
+; 
+       '$memberchk'(dry_run(true),Opts)
+   ->
+   '$dry_loop'(Stream,Reconsult)
+; 
+  '$loop'(Stream,Reconsult)
  
    ),
    ( LC == 0 -> prompt(_,'   |: ') ; true),
@@ -425,24 +432,47 @@
    ;
    InnerModule=OldM),
     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
-    working_directory( _, OldD),
-       '$exec_initialization_goals'(File),
-    !,
- '$end_consult'.
+ '$end_consult'(OldD),
+ '$exec_initialization_goals'(File),
+    !.
+
+'$dry_loop'(Stream,_Status) :-
+    repeat,
+  (
+   at_end_of_stream(Stream)
+->
+!
+;
+   prompt1(': '), prompt(_,'     '),
+    Options = [syntax_errors(dec10)],
+    read_clause(Stream, Clause, Options),
+(
+	Clause == end_of_file
+    ->
+
+    !
+    ;
+    '$conditional_compilation_skip'(Clause)
+    ->
+    fail
+    ;
+        Clause = (:- G1),
+        nonvar(G1),
+        G1=op(A,B,C),
+        op(A,B,C),
+        fail
+   )
+    ).
 
 '$loop'(Stream,Status) :-
+    repeat,
    catch(
-(    repeat,
-    ' $loop_'(Stream,Status)
- ),
+    '$loop_'(Stream,Status),
 	 _Error,
 	 error_handler),
   !.
 
-' $loop_'(Stream,_Status) :-
-   at_end_of_stream(Stream),
-   !.
-' $loop_'(Stream,Status) :-
+'$loop_'(Stream,Status) :-
 	 enter_compiler(Stream,Status) .
 
 enter_compiler(Stream,Status) :-
@@ -508,7 +538,7 @@ call_compiler((:-G),Status,VL,Pos) :-
     (
         NO = (:- G1)
     ->
-    must_be_callable(G1),
+    must_be_callable(NM:G1),
     '$process_directive'(G1, Status , NM, VL, Pos)
     ;
     '$goal'(G1,VL,Pos)).
@@ -594,10 +624,6 @@ call_compiler(G, Where,_VL, Pos) :-
 '$q_do_save_file'(_File, _, _TOpts ).
 
 
-'$start_reconsulting'(F) :-
-	recorda('$reconsulted','$',_),
-	recorda('$reconsulting',F,_).
-
 
 /**
   @pred include(+ _F_) is directive
@@ -636,7 +662,7 @@ include(Fs) :-
 
 '$stream_and_dir'(user,user_input,Dir,user_input) :-
 	!,
-        working_directory(Dir, Dir).
+        working_directory(_Dir, Dir).
 '$stream_and_dir'(user_input,user_input,Dir,user_input) :-
 	!,
         working_directory(_Dir, Dir).
@@ -752,7 +778,9 @@ compile_clauses(Commands) :-
  
 
 compile_clause(Command) :-
-    call_compiler(Command, reconsult,[],0),
+    prolog_load_context(term_position, Pos),
+    prolog_load_context(variable_names, Vs),
+    call_compiler(Command, reconsult,Vs,Pos),
     fail.
 compile_clause(_Command).
 

@@ -41,7 +41,7 @@
 :- use_system_module( '$_errors', [throw_error/2]).
 
 :- use_system_module( '$_preds', ['$clause'/4,
-        '$current_predicate'/4]).
+        current_predicate/2]).
 
 /* listing : Listing clauses in the database
 

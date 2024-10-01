@@ -8,7 +8,7 @@
 %:- module(android,
 %	[text_to_query/2]).
 	
-:- initialization(yap_flag(verbose,_,normal)).
+:- initialization(set_prolog_flag(verbose,normal)).
 
 :- meta_predicate text_to_query( :, '-' ).
 

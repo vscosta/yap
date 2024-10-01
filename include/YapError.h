@@ -253,6 +253,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     uintptr_t parserLastPos;
     uintptr_t parserLastLinePos;
     uintptr_t parserLine;
+    uintptr_t parserSize;
     uintptr_t parserLinePos;
     uintptr_t parserFirstLine;
     uintptr_t parserLastLine;

@@ -295,7 +295,7 @@ This procedure can be used to select the Nth element of _List_
 (yielding _Elem_ and _Rest_), or to insert _Elem_ before the Nth
 (counting from 1) element of _Rest_, when it yields _List_,
 e.g
-```prolog
+```.prolog
 7nth1(3, List, c, [a,b,d,e]) 
 ```
 
@@ -404,14 +404,7 @@ implied.
 Modes `same_length(-,+)` and `same_length(+,-)` generate either list given
 the other; mode `same_length(-,-)` generates two lists of the same length,
 in which case the arguments will be bound to lists of length 0, 1, 2, ...
-
-%   same_length(?List1, ?List2)
-%   is true when List1 and List2 are both lists and have the same number
-%   of elements.  No relation between the values of their elements is
-%   implied.
-%   Modes same_length(-,+) and same_length(+,-) generate either list given
-%   the other; mode same_length(-,-) generates two lists of the same length,
-%   in which case the arguments will be bound to lists of length 0, 1, 2, . */
+*/
 same_length([], []).
 same_length([_|List1], [_|List2]) :-
         same_length(List1, List2).
@@ -422,7 +415,7 @@ same_length([_|List1], [_|List2]) :-
 
 Semi-deterministic selection from a list. Steadfast: defines as
 
-```
+```.prolog
 selectchk(Elem, List, Residue) :-
         select(Elem, List, Rest0), !,
         Rest = Rest0.
@@ -630,8 +623,7 @@ numlist_(L, U, [L|Ns]) :-
 
 
 Succeeds if  _Set3_ unifies with the intersection of  _Set1_ and
- _Set2_.  _Set1_ and  _Set2_ are lists without duplicates. They
-need not be ordered.
+ _Set2_.  _Set1_ and  _Set2_ are lists without duplicates. Theyneed not be ordered.
 
 The code was copied from SWI-Prolog's list library.
 

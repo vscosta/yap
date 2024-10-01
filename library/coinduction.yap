@@ -27,7 +27,7 @@
  *
 */
 
-% :- yap_flag(unknown,error).
+% :- set_prolog_flag(unknown,error).
 % :- style_check(all).
 
 
@@ -88,6 +88,12 @@ regardless of the cycle-length.
 
 %-----------------------------------------------------
 
+/**
+  * coinductive( +Spec )
+  *
+  * declare a predicate or set of predicates to be coinductive (see @ref coinduction).
+  *
+  */
 coinductive(Spec) :-
 	var(Spec),
 	!,

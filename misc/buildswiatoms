@@ -8,7 +8,7 @@
 
 :- initialization(main).
 
-:- yap_flag(write_strings,on).
+:- set_prolog_flag(write_strings,on).
 
 main :-
 	warning(Warning),

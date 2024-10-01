@@ -8,8 +8,6 @@
  *
 */
 
-:- module(yap_hacks).
-
 /**
   * @addtogroup Hacks 
   * @{
@@ -35,8 +33,11 @@
 	      stack_dump/1,
 	      virtual_alarm/3,
               fully_strip_module/3,
-	      yap_query_exception/3,
-	      yap_error_descriptor/2,
+	      exception_property/3,
+  yap_error_descriptor/2,
+  ctrace/1,
+  fully_strip_module/3,
+ctrace/1,
 	      context_variables/1
 				%		      cut_at/1,
 				%		      cut_by/1,
@@ -45,6 +46,22 @@
 				%		      parent_choicepoint/2,
           ]).
 
+/**
+ * @pred ctrace(Goal)
+ *
+ * This predicate is only available if the YAP
+ * compile option was set. It generates a
+ * step-by-step trace of the execution of _Goal_
+ *
+ */
+	
+:- meta_predicate(yap_hacks:ctrace(0)).
+
+yap_hacks:ctrace(G) :-
+    gated_call(start_low_level_trace,
+	       G,
+	       _,
+	       stop_low_level_trace).
 
 
 /**

@@ -222,16 +222,17 @@
 :- reexport(library(python)).
 xsetting(alg,lbfgs).
 xsetting(induce,problog).
-:- else.
-:- dynamic user:fold/1.
 :-endif.
+:- dynamic user:fold/1.
+
+
 
 % load our own modules
 
 % switch on all the checks to reduce bug searching time
 
 :- style_check(all).
-%:- yap_flag(unknown,error).
+%:- set_prolog_flag(unknown,error).
 
 % load modules from the YAP library
 :- use_module(library(lists), [member/2,max_list/2, min_list/2, sum_list/2, reverse/2,sumlist/2]).
@@ -781,7 +782,6 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
     forall(user:example(QueryID,_,_P0,_),query_ex_gradient(QueryID,X,Slope,EV,Grad)).
 
 
-
 run_queries(X,Slope,ExCount,LLL,PV,EV)  :-
     forall(user:example(QueryID,_,P0,_),query_ex(QueryID,P0,X,Slope,ExCount,LLL,PV,EV)).
 
@@ -901,7 +901,6 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_Ev,_L) :-
     format('Bad FX=~4f~n',[FX]),
     lbfgs_progress_done(-1).
 user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
-    writeln(FX),
     problog_flag(sigmoid_slope,Slope),
     save_state(X, Slope, G),
     report(FX,X,Slope, X_Norm,G_Norm,Step,N,Evals,Ls),
@@ -919,7 +918,7 @@ user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     X1 <== X[1], sig2pr(X1,Slope,P1)
     ),
     format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[SI,TI,P0,P1,FX,X_Norm,G_Norm,Step,Ls]),
-%    mse_testset(X,Slope),
+  %  mse_testset(X,Slope),
     format_learning(2,'~n',[]),
     lbfgs_progress_done(0).
 
@@ -955,7 +954,7 @@ init_flags :-
     problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
     problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',false,learning_general).
 
-:- lbfgs:lbfgs_set_parameter(epsilon,0.0001).
+:- lbfgs:lbfgs_set_parameter(epsilon,0.00001).
 
 nooo :-
     problog_define_flag(m, problog_flag_validate_dummy,'The number of corrections to approximate the inverse hessian matrix.',(0,100),lbfgs,lbfgs:lbfgs_set_parameter(m)),

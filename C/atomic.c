@@ -19,7 +19,7 @@
  * @file atomic.c
  *
  *
- * @brief Text Processingx */
+ * @brief Text Processing. */
 
 #define HAS_CACHE_REGS 1
 
@@ -320,7 +320,7 @@ restart_aux:
       return Yap_unify(at, ARG1);
     }
   }
-  if (!LOCAL_Error_TYPE) {
+  if (LOCAL_Error_TYPE) {
     Yap_ThrowError(LOCAL_Error_TYPE,ARG1,"atom/2");
     t1 = Deref(ARG1);
     t2 = Deref(ARG2);
@@ -337,24 +337,24 @@ restart_aux:
  * an atom.
  *
  * Examples:
-~~~~~{.prolog}
+~~~{.prolog}
 string_to_atomic("yap",L).
-~~~~~
+~~~
 will return:
 
-~~~~~{.prolog}
+~~~{.prolog}
 L = yap.
-~~~~~
+~~~
 and
 
-~~~~~{.prolog}
+~~~{.prolog}
 name("3",L).
-~~~~~
+~~~
 will return:
 
-~~~~~{.prolog}
+~~~{.prolog}
 L = 3.
-~~~
+~~~ 
 
  *
  * */
@@ -2288,7 +2288,7 @@ static Int upcase_text_to_chars(USES_REGS1) {
   return false;
 }
 
-/* @pred atom_split(_A_,_Al_._Ar_)
+/** @pred atom_split(_A_,_Al_._Ar_)
 
  split an atom into two sub-atoms */
 static Int atom_split(USES_REGS1) {

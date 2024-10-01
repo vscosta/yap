@@ -192,7 +192,7 @@ init_prolog :-
 '$init_from_saved_state_and_args' :-
 	recorded('$restore_flag', unknown(M:B), R),
 	erase(R),
-	yap_flag(M:unknown,B),
+	set_prolog_flag(M:unknown,B),
 	fail.
 '$init_from_saved_state_and_args' :-
 	'$startup_goals',

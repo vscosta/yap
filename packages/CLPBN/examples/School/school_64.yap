@@ -12,9 +12,9 @@ total_students(1024).
 
 :- style_check(all).
 
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
-:- yap_flag(write_strings,on).
+:- set_prolog_flag(write_strings,on).
 
 :- ensure_loaded('parschema.pfl').
 

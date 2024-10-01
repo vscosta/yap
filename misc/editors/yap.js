@@ -1177,7 +1177,6 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
     "write_term" : "prolog",
     "writeln" : "prolog",
     "writeq" : "prolog",
-    "yap_flag" : "prolog"
   };
 
   /*******************************

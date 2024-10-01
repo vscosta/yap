@@ -258,16 +258,13 @@ RESTORE_TR();
     } else
 #endif /* FROZEN_STACKS */
       if (TrailVal(pt0) == 0) {
-	int b0 = LCL0-(CELL*)B;
 	TR = pt0;
 	RESET_VARIABLE(&TrailTerm(pt0));
 	RESET_VARIABLE(&TrailVal(pt0));
 	Yap_CleanOpaqueVariable(d1);
-	B=(choiceptr)(LCL0-b0);
 	pt0 = TR;
-  PREG = B->cp_ap;
   save_pc();
-  TR = S_TR = B->cp_tr;
+  S_TR = B->cp_tr;
   PREFETCH_OP(PREG);
 	goto failloop;
       } else if (IsAttVar(pt1)) {

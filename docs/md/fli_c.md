@@ -942,7 +942,7 @@ from interrupt handlers.
 
 
 </li>
- <li>`int` YAP_SetYAPFlag(`yap_flag_t flag, int value`) @anchor YAP_SetYAPFlag
+ <li>`int` YAP_SetYAPFlag(`prolog_flag_t flag, int value`) @anchor YAP_SetYAPFlag
 
 
 This function allows setting some YAP flags from `C` .Currently,

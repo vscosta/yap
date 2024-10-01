@@ -12,7 +12,7 @@ Copyright (c) 2011, Fabrizio Riguzzi
 :- set_prolog_flag(single_var_warnings,on).
 :- set_prolog_flag(unknown,fail).
 %:-source.
-%:-yap_flag(gc_trace,very_verbose).
+%:-set_prolog_flag(gc_trace,very_verbose).
 :- use_module(inference,
 [find_deriv_inf1/3]).
 %:-consult(inference).

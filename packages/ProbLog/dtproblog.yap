@@ -286,7 +286,7 @@
   ]).
 
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 % problog-related modules
 

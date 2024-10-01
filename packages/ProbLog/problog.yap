@@ -206,6 +206,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+%% @file problog.yap
+%% @brief ProbLog-I main file.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ProbLog inference
 %
@@ -227,11 +230,12 @@
 /**
 
 @defgroup YAP_ProbLog1 The Leuven ProbLog1 System
-@ingroup YAP_packages
+
+@{
 
 @brief This document is intended as a user guide for the users of ProbLog. ProbLog is a probabilistic Prolog, a probabilistic logic programming language, which is integrated in YAP-Prolog.
 
-## Installing ProbLog
+@addtogroup InstallingProbLog
 
 ### Requirements
 
@@ -256,6 +260,8 @@ You can also use the CUDD interface package in YAP. You will need to
 
 Last, when you configure YAP you need to add the options --with-cidd --enable-bddlib. Binary distributed versions already have the interface.
 
+@}
+
 ## Running ProbLog
 
 
@@ -267,11 +273,11 @@ To use ProbLog, the ProbLog module has to be loaded at the top of your Prolog pr
 
 Similarly, to compile the ProbLog learning module, use:
 ```
-:- use_module(library(problog_learning)).
+:- use_module(library(problog_learning_lbfgs)).
 ```
 or
 ```
-:- use_module(library(problog_learning_lbdd)).
+:- use_module(library(problog_learning_lbfgs)).
 ```
 
 ## Encoding Probabilistic Facts
@@ -300,7 +306,6 @@ In the description of the arguments of functors the following notation will be u
 + a preceding minus sign will denote an "output argument"
 + an argument with no preceding symbol can be used in both ways
 
-@{
 
 /**
  * @pred problog_max(+G, -Prob, -FactsUsed)
@@ -350,6 +355,18 @@ This predicate returns the lower bound of the probability of achieving the goal 
 @defgroup YAP_ProbLogParameterLearning ProbLog Parameter Learning Predicates
 @ingroup YAP_ProbLog1
 @{
+
+Instead of probabilities every fact has a t( ) prefix. The t stands for
+tunable and indicate that ProbLog should learn the probability. The
+number between the parentheses indicates the ground truth probability.
+It is ignored by the learning algorithm and if you do not know the
+ground truth, you can write t(_). The ground truth is used after
+learning to estimate the distance of the learned model parameters to the
+ground truth model parameters. For example:
+
+> t(0.5)::heads(1).
+
+
 */
 
 /**
@@ -387,9 +404,8 @@ Starts the learning algorithm. The learning will stop after N iterations or if t
 %% @}
 
 
-/** @defgroup YAP_ProbLogMiscellaneous ProbLog Miscellaneous Predicates
-@ingroup YAP_ProbLog1
-@{
+/** @addtogroup EncodingProbs@
+{
 
 
 Both the learning and the inference module have various parameters, or flags, that can be adjusted by the user.
@@ -785,7 +801,7 @@ The possible values for this flag are any number greater than zero.
                     above/2]).
 
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 % general yap modules
 :- reexport(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4,sum_list/2,max_list/2,remove_duplicates/2,flatten/2]).
@@ -1491,6 +1507,9 @@ problog_predicate(Name, Arity, ProblogName,Mod) :-
 % non-ground probabilistic facts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+:- multifile user:ad_intern/3.
+
 :- multifile(user:problog_user_ground/1).
 user:problog_user_ground(Goal) :-
   ground(Goal).
@@ -2106,7 +2125,7 @@ prune_check(Proof, Trie) :-
 % to call a ProbLog goal, patch all subgoals with the user's module context
 % (as logical part is there, but probabilistic part in problog)
 problog_call(Goal) :-
-	yap_flag(typein_module, Module),
+	current_prolog_flag(typein_module, Module),
 %%% if user provides init_db, call this before proving goal
 	(current_predicate(_,Module:init_db) -> call(Module:init_db); true),
 	put_module(Goal,Module,ModGoal),

@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.18)
 project(YAP)
 
 set(YAP_MAJOR_VERSION 7)
-set(YAP_MINOR_VERSION 5)
+set(YAP_MINOR_VERSION 6)
 set(YAP_PATCH_VERSION 0)
 
 # Sets the version of CMake required to build the native
@@ -271,7 +271,7 @@ OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLP
 OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_PACKAGES})
 option(WITH_Gecode "interface gecode constraint solver" ${WITH_PACKAGES})
 option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
-option(WITH_BEE    "interface  with lbfgs" ${WITH_PACKAGES})
+option(WITH_SAT    "interface  with sat solvers" ${WITH_PACKAGES})
 option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
 option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_SWIG})
 option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
@@ -425,7 +425,8 @@ if ($ENV{CONDA_BUILD}x STREQUAL "1x" )
   set(YAP_IS_MOVABLE 1)
 
 endif()
-if (WITH_Threads)
+
+if(WITH_Threads)
   include(Threads)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS THREADS=1 USE_PTHREAD_LOCKING=1)
 SET(MAX_THREADS 1024)
@@ -481,7 +482,6 @@ if  (NOT CUDD_FOUND)
 endif()
 
 if (CUDD_FOUND)
-           add_subDIRECTORY(packages/cudd)
   add_subDIRECTORY(packages/bdd)
 
 endif()
@@ -493,11 +493,6 @@ set(pl_library "" CACHE INTERNAL "prolog library files")
 set(pl_os_library "" CACHE INTERNAL "prolog os files")
 set(pl_boot_library "" CACHE INTERNAL "prolog boot files")
 
-if (THREADS)
-   set(WITH_Threads On)
-   elseif(WITH_Threads)
-set(THREADS On)
-endif()
 
 
 #MPI STUFF
@@ -570,7 +565,7 @@ set(ALIGN_LONGS 1)
 #ensure best access to slots in environments
 set(MSHIFTOFFS 1)
 
-set(C_COMPILER CMAKE_C_COMPILER_ID)
+set(C_COMPILER CMAKE_C_COMPILER_ID )
 
 if (${C_COMPILER} MATCHES "GNU")
   set(HAVE_GCC 1)
@@ -579,6 +574,7 @@ endif ()
 # compatible compilers
 if (${C_COMPILER} MATCHES "Clang")
   set(HAVE_GCC 1)
+  set(HAVE_CLANG 1)
 endif ()
 
 if (${C_COMPILER} MATCHES "Intel")
@@ -842,8 +838,8 @@ if (WITH_LBFGS)
   add_subDIRECTORY(packages/yap-lbfgs)
 endif ()
 
-if (WITH_BEE)
-  add_subDIRECTORY(packages/bee)
+if (WITH_SAT)
+  add_subDIRECTORY(packages/sat)
 endif ()
 
 
@@ -942,18 +938,13 @@ ENDIF (WITH_CLPBN)
 
 IF (WITH_CPLINT)
    if (CUDD_FOUND)
-add_subDIRECTORY(packages/cplint)
+#add_subDIRECTORY(packages/cplint)
 endif()
 ENDIF (WITH_CPLINT)
 
 
 IF (WITH_DOXYGEN)
   include (../docs/Doxyfile)
-endif()
-if (WITH_MINISAT)
-
-  add_subDIRECTORY(packages/swi-minisat2)
-
 endif()
 
 if (WITH_CLPQR)

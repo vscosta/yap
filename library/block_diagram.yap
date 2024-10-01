@@ -230,7 +230,7 @@ modules with blocks.  To use it use:
 \* ---------------------------------------------------------------------- */
 
 :- style_check(all).
-:- yap_flag(unknown, error).
+:- set_prolog_flag(unknown, error).
 
 
 :- use_module(library(charsio), [term_to_atom/2]).
@@ -282,7 +282,7 @@ make_diagram(InputFile, OutputFile, Texts, Depth, Ext):-
   assertz(parameter(default_ext('.yap'))).
 
 path_seperator('\\'):-
-   yap_flag(windows, true), !.
+   set_prolog_flag(windows, true), !.
 path_seperator('/').
 
 split_path_file(PathFile, Path, File):-

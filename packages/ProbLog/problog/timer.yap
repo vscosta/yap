@@ -212,7 +212,7 @@
 		 timer_resume/1,   % +ID
 		 timer_elapsed/2,  % +ID, -Duration
 		 timer_reset/1]).  % +ID
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 :- style_check(single_var).
 
 :- dynamic(timer/2).

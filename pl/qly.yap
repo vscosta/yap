@@ -136,7 +136,7 @@ qend_program :-
 	qsave_program('startup.yss'),
 	halt(0).
 '$save_program_status'(Flags, G) :-
-    findall(F-V, '$x_yap_flag'(F,V),L),
+    findall(F-V, '$x_current_prolog_flag'(F,V),L),
     recordz('$program_state',L,_),
   '$cvt_qsave_flags'(Flags, G),
     fail.
@@ -228,12 +228,12 @@ qend_program :-
     throw_error(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
-'$x_yap_flag'(language, V) :-
-	yap_flag(language, V).
-'$x_yap_flag'(M:P, V) :-
+'$x_sprolog_flag'(language, V) :-
+	current_prolog_flag(language, V).
+'$x_current_prolog_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
-'$x_yap_flag'(X, V) :-
+'$x_current_prolog_flag'(X, V) :-
 	prolog_flag_property(X, [access(read_write)]),
 	atom(X),
 	X \= gc_margin, % different machines will have different needs,
@@ -245,7 +245,7 @@ qend_program :-
 	X \= user_output,
 	X \= user_error,
 	X \= verbose_load,
-	yap_flag(X, V),
+	current_prolog_flag(X, V),
 	fail.
 
 qsave_file(F0) :-
@@ -453,7 +453,8 @@ qload_module(Mod) :-
 
 % detect an multi_file that is local to the module.
 '$fetch_multi_file_module'(Mod, '$defined'(Name,Arity,Mod)) :-
-    '$current_predicate'(Name,Mod,Goal,_),
+    module_predicate(Mod,Name,Ar,_),
+    functor(Goal,Name,Ar),
     '$is_multifile'(Goal,Mod),
     functor(Goal,Name,Arity).
 
@@ -630,6 +631,7 @@ qload_file( F0 ) :-
 '$ql_process_directives'( FilePl ) :-
     user:'$file_property'( directive( MG, _Mode,  VL, Pos  ) ),
     '$set_source'( FilePl, Pos ),
+    must_be_callable(MG),
     '$yap_strip_module'(MG, M, G),
     '$process_directive'(G, reconsult, M, VL, Pos),
     fail.

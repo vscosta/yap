@@ -1,5 +1,8 @@
-USING THE GECODE MODULE             {#gecode}
-=======================
+@file gecode.md
+
+@defgroup Gecode USING THE GECODE MODULE
+@ingroup YAPPackages
+
 
 There are two ways to use the gecode interface from YAP. The original approach,
 designed by Denys Duchier, requires loading the library:

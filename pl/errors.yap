@@ -90,7 +90,7 @@ error_handler(_, _) :-
     flush_output(user_output),
     flush_output(user_error),
     fail.
-error_handler(error(event(abort,_I),_C), _Level) :-
+error_handler(_Level, error(event(abort,_I),_C)) :-
     !,
     abort.
 error_handler(Level,error(Spec,Info)) :-

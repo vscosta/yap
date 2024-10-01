@@ -5,7 +5,7 @@
  * @author Theofrastos Mantadelis, Bernd Gutmann, Paulo Moura
  * @date   Tue Nov 17 15:18:02 2015
  * 
- * @brief  Flag Manipulation in Prolog
+ * @brief  User-Level Flag Manipulation in Prolog
  * 
  * 
 */
@@ -230,7 +230,7 @@
                   defined_flag/7]).
 
 /**
-* @defgroup flags Flag Manipulation in Prolog
+* @defgroup YAPLibFlags Flag Manipulation in Prolog
 * @ingroup YAPLibrary
 *
 * Routines to manipulate flags: they allow defining, set,
@@ -242,7 +242,7 @@
 :- use_module(library(lists), [append/3, memberchk/2, member/2]).
 
 :- style_check(all).
-:- yap_flag(unknown, error).
+:- set_prolog_flag(unknown, error).
 
 :- dynamic(['$defined_flag$'/7, '$store_flag_value$'/2]).
 :- meta_predicate(flag_define(+, +, +, ?, ?, ?, :)).
@@ -250,6 +250,19 @@
 :- meta_predicate(validate(+, :, ?, +)).
 :- multifile(flags_type_definition/3).
 
+/**
+  flag_define(+FlagName, +InputOptions)
+
+  define a new flag _FlagName_ with options:
+- `flag_group`: default `general`
+- `flag_type`: default `nonvar`
+- `defaul_value`: default `true`
+- `description`: default the flag name
+- `access`: default `read_write`
+- `handler`: by default call `true`
+
+Other flags may be defined.
+*/
 flag_define(FlagName, InputOptions):-
   strip_module(InputOptions, Module, UserOptions),
   Defaults = [flag_group(general), flag_type(nonvar), default_value(true), description(FlagName), access(read_write), handler(true)],

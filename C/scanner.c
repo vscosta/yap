@@ -45,6 +45,7 @@
 
 #include "Yap.h"
 
+#include "YapDefs.h"
 #include "YapEval.h"
 
 #include "YapHeap.h"
@@ -216,8 +217,11 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
 }
 
 
-int bad_nl_error(TokEntry *tok, char *TokImage, int quote, struct stream_desc *st) {
-
+int bad_nl_error(int quote, const char *TokImage, struct stream_desc *st) {
+  CACHE_REGS
+    if (trueGlobalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG) && ! trueGlobalPrologFlag(ISO_FLAG)) {
+      return 10;
+    }
     if (st->status & RepClose_Prolog_f) {
       Yap_CloseStream(st-GLOBAL_Stream);
       return EOF;
@@ -271,17 +275,16 @@ static Term float_send(char *s, int sign) {
  * @returnppp
  */
 static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st)
-{if(st->status & RepClose_Prolog_f) {
-    Yap_CloseStream(st-GLOBAL_Stream);
-    return EOF;
-  }   if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
+{
+  CACHE_REGS
+  if ((st->status & RepError_Prolog_f) || trueGlobalPrologFlag(ISO_FLAG)) {
       LOCAL_Error_TYPE = SYNTAX_ERROR;
     LOCAL_ErrorMessage=malloc(2048);
-    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text");
-} else 
-  Yap_Warning("unexpected newline while  reading quoted text");
-
-
+    Yap_ThrowError(SYNTAX_ERROR,TermNil,"character encoding error: code so far %d scanned %d",code,ch);
+} else if(st->status & RepClose_Prolog_f) {
+    Yap_CloseStream(st-GLOBAL_Stream);
+    return EOF;
+  }
 return ch;
 
 }
@@ -305,9 +308,9 @@ Term read_int_overflow(const char *s, Int base, Int val, int sign) {
 #endif
 }
 
-static wchar_t read_escaped_char( struct stream_desc *st) {
+static wchar_t read_escaped_char( bool *got_charp, struct stream_desc *st) {
   int ch;
-
+  *got_charp=true;
 
 /* escape sequence */
 do_switch:
@@ -334,13 +337,11 @@ do_switch:
     return '\x1B'; /* <ESC>, a.k.a. \e */
   case 'f':
     return '\f';
-  case '\n':
-    ch = getchr(st);
-    if (ch == '\\')
-      goto do_switch;
-    return ch;
   case 'n':
-    return '\n';
+       return 10;
+  case '\n':
+    *got_charp=false;
+    return 0;
   case 'r':
     return '\r';
   case 's': /* space */
@@ -442,6 +443,9 @@ do_switch:
         return  number_encoding_error(ch, 1, st);
       }
     }
+  case '9':
+  case '8':
+    return  number_encoding_error(ch, 1, st);
   case 'x':
     /* hexadecimal character (YAP allows empty hexadecimal  */
     {
@@ -520,7 +524,11 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
 	
       if (ch == '\\' &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
-        ascii = read_escaped_char(st);
+	bool got_char;
+        ascii = read_escaped_char(&got_char, st);
+	if (!got_char) {
+	  bad_nl_error('\\',sp,st);
+	}
 	if (ascii == EOF) return TermNil;
       }
       *chp = getchr(st);
@@ -720,7 +728,7 @@ if (has_overflow) {
 /** This routine is used when we need to parse a string into a number. */
 Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   CACHE_REGS
-  Term out;
+  Term  out;
   int sign = 1;
   int ch;
   char *ptr;
@@ -780,21 +788,29 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   }
   pop_text_stack(lvl);
  
-  if (ch == EOFCHAR || (ch ==  '.' && 
-#if HAVE_ISWSPACE
-			(iswspace(ch = getchr(inp)) || ch == EOFCHAR)
-#else
-			(isspace(ch = getchr(inp)) || ch == EOFCHAR)
+#if !HAVE_ISWSPACE
+#define iswspace(ch) isspace(ch)
 #endif
-			)) {
-
-   return out;
-
+if (ch == EOFCHAR) {
+    return out;
+}
+ while(iswspace(ch)) {
+    ch = getchr(inp);
+    if (ch == EOFCHAR) {
+    return out;
+   }
   }
-  if (throw_error) {
-  Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
+  if (ch=='.') {
+ while(iswspace(ch)) {
+    ch = getchr(inp);
+    if (ch == EOFCHAR) {
+    return out;
+    }
   }
-  return TermNil; 
+    }
+  if (throw_error)
+    Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
+  return 0;
 }
 
 #define CHECK_SPACE()                                                          \
@@ -921,6 +937,10 @@ const char *Yap_tokText(void *tokptre) {
 // mark that we reached EOF,
 // next  token will be end_of_file)
 static void mark_eof(struct stream_desc *st) {
+  st->buf.on = true;
+  st->buf.ch = EOF;
+  st->stream_wgetc_for_read =  st->stream_wgetc = Yap_popChar;
+  st->stream_getc =  Yap_popChar;
   st->status |= Push_Eof_Stream_f;
 }
 
@@ -953,11 +973,18 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     och = ch;
     ch = getchr(st);
   }
+    if (ch == EOF) {
+    TokEntry *tokptr = Malloc(sizeof(TokEntry));
+  tokptr->TokNext = NULL;
+  tokptr->TokLine = 1;
+  tokptr->TokLinePos =0;
+  tokptr->TokOffset = 0;
+  tokptr->Tok = Ord(eot_tok);		\
+  tokptr->TokInfo = TermEof;
+    return l = p = tokptr;
+    }
   params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
-  LOCAL_SourceFileLineno = LOCAL_StartLineCount = 0;
-  LOCAL_StartLinePos = 0;
-
   do {
     int quote, isvar;
     unsigned char *charp, *mp;
@@ -1091,7 +1118,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
       while (true) {
         if (ch == 10 && !(Yap_GetModuleEntry(CurrentModule)->flags & M_MULTILINE)) {
-	  ch = bad_nl_error(t, TokImage, quote, st);           /* in ISO a new linea terminates a string */
+	  ch = bad_nl_error( quote, TokImage,  st);           /* in ISO a new linea terminates a string */
 	}
 	if (ch == EOFCHAR) {
 	  *charp = '\0';
@@ -1117,8 +1144,15 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  }
         } else if (ch == '\\'  &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
-          ch = read_escaped_char(st);
-	}
+	  bool got_char;
+          ch = read_escaped_char(&got_char,st);
+	  if (!got_char) {
+	ch = getchrq(st);
+	continue;
+	  }
+	  if (LOCAL_ActiveError->errorNo)
+	    goto ldefault;
+  	}
 	
         add_ch_to_buff(ch);
 	ch = getchrq(st);
@@ -1397,24 +1431,27 @@ t->Tok = Ord(kind = Name_tok);
     do_eof:
       if (LOCAL_ActiveError->errorNo)
 	goto ldefault;
-							 mark_eof(st);
-							 if (!l)
-							   l = t;
-							 else
-							   p->TokNext=t;
-							 t->Tok = Ord(kind = eot_tok);
-							 t->TokInfo = TermEof;
-							 t->TokNext = NULL;
-							 p = t;
-							 break;
-						       default: {
-						       ldefault:
-							 kind = Error_tok;
-							 char err[1024];
-							 snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
-								  ch, ch, chtype(ch));
-							 t->Tok = Ord(kind = eot_tok);
-							 t->TokInfo = MkIntTerm(0);
+      mark_eof(st);
+      if (!l) {
+      t->Tok = Ord(kind = Name_tok);
+      t->TokInfo = TermEof;
+      t->TokNext = NULL;
+      return t;
+      }
+      p->TokNext=t;
+      t->Tok = Ord(kind = eot_tok);
+      t->TokInfo = TermEof;
+      t->TokNext = NULL;
+      p = t;
+      break;
+    default: {
+      ldefault:
+      kind = Error_tok;
+      char err[1024];
+      snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
+	       ch, ch, chtype(ch));
+      t->Tok = Ord(kind = eot_tok);
+      t->TokInfo = MkIntTerm(0);
     }
     }
     if (LOCAL_ErrorMessage) {

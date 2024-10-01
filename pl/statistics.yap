@@ -185,7 +185,7 @@ tables such as hash tables that select according to value,   _Index Switch Size_
 
 Number of garbage collections, amount of space recovered in kbytes, and
 total time spent doing garbage collection in milliseconds. More detailed
-information is available using `yap_flag(gc_trace,verbose)`.
+information is available using `set_prolog_flag(gc_trace,verbose)`.
 
 + global_stack 
 
@@ -236,7 +236,7 @@ garbage collection and stack shifting.
 
 Number of times YAP had to
 expand the heap, the stacks, or the trail. More detailed information is
-available using `yap_flag(gc_trace,verbose)`.
+available using `set_prolog_flag(gc_trace,verbose)`.
 
 + static_code 
 
@@ -324,12 +324,6 @@ key_statistics(Key, NOfEntries, TotalSize) :-
 	TotalSize is ClSize+IndxSize.
 
 
-%%	time(:Goal)
-%
-%	Time the execution of Goal.  Possible choice-points of Goal are removed.
-%	Based on the SWI-Prolog definition minus reporting the number of inferences,
-%	which YAP does not currently supports
-
 /** @pred  time(: _Goal_) 
 
 
@@ -343,16 +337,9 @@ does not support).
 :- meta_predicate time(0).
 
 time(Goal) :-
-	var(Goal),
-	throw_error(instantiation_error,time(Goal)).
-time(_:Goal) :-
-	var(Goal),
-	throw_error(instantiation_error,time(Goal)).
-time(Goal) :- \+ must_be_callable(Goal), !,
-	throw_error(type_error(callable,Goal),time(Goal)).
-time(Goal) :-
-	statistics(walltime, _),
-	statistics(cputime, _), 
+	 must_be_callable(Goal),
+	statistics(cputime, [_,T0]),
+	statistics(walltime, [_,CT0]), 
 	(   catch(Goal, E, true)
 	->  Result = yes
 	;   Result = no
@@ -363,9 +350,9 @@ time(Goal) :-
 	%% ->  CPU = 'Inf'
 	%% ;   CPU is truncate(Time/Wall*100)
 	%% ),
-	TimeSecs is Time/1000,
-	WallSecs is Wall/1000,
-	format(user_error,'% ~w CPU in ~w seconds wall clock ~n', [TimeSecs, WallSecs]),
+	TimeMiliSecs is (Time-T0),
+	WallMiliSecs is (Wall-CT0),
+	format(user_error,'% ~a in ~w/~w msecs CPU/Wall clock time.~n', [Result,TimeMiliSecs, WallMiliSecs]),
 	(   nonvar(E)
 	->  throw(E)
 	;   Result == yes

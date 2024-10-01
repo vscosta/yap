@@ -14,9 +14,6 @@
  * comments:	very much machine dependent routines			 *
  *									 *
  *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
 
 /**
  * @file sysbits.c
@@ -411,10 +408,11 @@ static Int working_directory(USES_REGS1) {
   if (!IsAtomTerm(t2)) {
     Yap_ThrowError(TYPE_ERROR_ATOM, t2, "working_directory");
   }
-  if (t2 == TermEmptyAtom || t2 == TermDot) {
+  if (t2 == TermEmpty || t2 == TermDot) {
     pop_text_stack(l);
     return true;
   }
+  //  Yap_DebugPlWriteln(t2);
   Int rc = Yap_ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
     pop_text_stack(l);
   return rc;

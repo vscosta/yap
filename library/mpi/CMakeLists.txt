@@ -94,9 +94,12 @@ add_library(YAPmpi hash.c prologterms2c.c yap_mpi.c)
 
   set_property( TARGET YAPmpi  APPEND PROPERTY LINK_FLAGS  ${MPI_C_LINK_FLAGS})
 
+
 set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  HAVE_MPI_H=1;${MPI_C_COMPILE_DEFINITIONS})
 
 add_compile_options( ${MPI_C_COMPILE_OPTIONS})
+
+add_feature_info(YAPmpi "MPI_C_FOUND" "MPI_C ${MPI_C_VERSION}, at ${MPI_C_LIBRARIES}, ${MPI_C_INCLUDE_DIRS}, and ${MPIEXEC}")
 
   install(TARGETS  YAPmpi
     RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}

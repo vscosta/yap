@@ -1,10 +1,13 @@
 /**
  *   @file bdd/bdd.yap
- *   
+ *   @brief BDDs in Prolog
+ */
+
+/**
  *   @defgroup YAP_BDDsPL Binary Decision Diagrams and Friends
- * @ingroup YAP_BDDs
+ * @ingroup BDDs
  * @{
- * 
+ * @toc
  * 
  * This library provides an interface to the BDD package CUDD. It requires
  * CUDD compiled as a dynamic library. In Linux this is available out of
@@ -12,15 +15,10 @@
  * distributions. CUDD is available in the ports OSX package, and in
  * cygwin. To use it, call
  * 
- * ~~~~~
+ * ~~~
  * :-use_module(library(bdd))`.
- * ~~~~~
- * 
- * The following predicates construct a BDD:
- * 
- * \toc
- */
-
+ * ~~~
+*/
 
 :- module(bdd, [
 	bdd_new/2,
@@ -45,6 +43,19 @@
         tree_to_p_grad/5,
 	bdd_reorder/1,
 	bdd_close/1,
+  term_to_cudd/3,
+  term_to_add/4,
+  cudd_eval/4,
+  add_eval/4,
+  cudd_to_term/5,
+  add_to_term/4,
+  cudd_to_probability_sum_product/4,
+  cudd_size/3,
+  cudd_die/1,
+  cudd_reorder/1,
+  cudd_release_node/2,
+  cudd_print/3,
+  cudd_print/4,
 	mtbdd_close/1]).
 
 :- use_module(library(lists)).
@@ -165,7 +176,7 @@ writeln_list([B|Bindings]) :-
 	writeln_list(Bindings).
 
 /**
- * @pred list_to_cudd(+ _ListOfEquivalences, Manager, )Initial_ 
+ * @pred list_to_cudd(+ _ListOfEquivalences, Manager,)Initial_ 
  */
 list_to_cudd([],_Manager,Cudd,Cudd).
 %:-    writeln('X').
@@ -398,7 +409,7 @@ bdd_print(add(M,Top, Vars, _), File, Names) :-
         absolute_file_name(File, AFile, []),
 	cudd_print(M, Top, AFile, Ss).
 
-fetch_name([S=V1|_], V2, SN) :- V1 ==  V2, !,
+fetch_name([S-V1|_], V2, SN) :- V1 ==  V2, !,
 	( atom(S) -> SN = S ; format(atom(SN), '~w', [S]) ).
 fetch_name([_|Y], V, S) :- !,
 	fetch_name(Y, V, S).

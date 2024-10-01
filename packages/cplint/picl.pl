@@ -6,7 +6,7 @@
 */
 
 :-dynamic rule/4,def_rule/2,setting/2.
-%:-yap_flag(gc_trace,very_verbose).
+%:-set_prolog_flag(gc_trace,very_verbose).
 %:-source.
 :-use_module(library(lists)).
 :-use_module(library(ugraphs)).

@@ -127,7 +127,7 @@ typedef enum {
 
 /* use similar trick for keeping instruction names */
 #if defined(ANALYST) || defined(DEBUG)
-extern char *Yap_op_names[_std_top + 1];
+extern const char *Yap_op_names[_std_top + 1];
 #endif
 
 typedef enum {
@@ -1073,6 +1073,14 @@ static inline
 struct pred_entry *EnvPreg(yamop *p)
 {
   return (((yamop *)((CODEADDR)(p) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p0);
+}
+/* trail manipulation */
+
+INLINE_ONLY tr_fr_ptr PUSH_TR(Term d1, Term frozen, tr_fr_ptr pt0, tr_fr_ptr pt1) {
+  pt0--;
+  TrailTerm(pt0) = d1;
+  TrailVal(pt0) = frozen;
+  return pt0;
 }
 
 /* access to instructions */

@@ -4,7 +4,7 @@
 :- initialization(main).
 
 main :-
-yap_flag(gc_trace,verbose),
+set_prolog_flag(gc_trace,verbose),
     mpi_init,
        mpi_comm_rank(Rank),
        do_comm(Rank),

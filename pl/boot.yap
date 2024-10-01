@@ -142,7 +142,7 @@ initialize_prolog :-
 
 
 %:- set_prolog_flag(verbose_file_search, true ).
-%:- yap_flag(write_strings,on).
+%:- set_prolog_flag(write_strings,on).
 :- c_compile( 'preds.yap' ).
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
@@ -158,8 +158,6 @@ initialize_prolog :-
 
 :- ['utils.yap',
     'flags.yap'].
-
-%:- start_low_level_trace.
 
 :- [
     % lists is often used.
@@ -206,10 +204,6 @@ initialize_prolog :-
 
 :- 	['arrays.yap'].
 %:- start_low_level_trace.
-
-:- multifile user:portray_message/2.
-
-:- dynamic user:portray_message/2.
 
 /**
 
@@ -313,9 +307,9 @@ mksys(op(A,B,C)) :-
 %
 % moved this to init_gc in gc.c to separate the alpha
 %
-% :- yap_flag(gc,on).
+% :- set_prolog_flag(gc,on).
 
-% :- yap_flag(gc_trace,verbose).
+% :- set_prolog_flag(gc_trace,verbose).
 
 :- multifile
 	prolog:comment_hook/3.
@@ -351,6 +345,10 @@ as directives.
 
 :- multifile swi:swi_predicate_table/4.
 
+
+
+:- multifile user:portray_message/2.
+
 :- multifile user:message_hook/3.
 
 :- dynamic user:message_hook/3.
@@ -371,12 +369,13 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- dynamic user:exception/3.
 
-:- yap_flag(user:unknown,error).
-
 :- module(user).
+
 
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- set_value('$user_module',user), '$protect'.
 
 %% @}
+ 
+

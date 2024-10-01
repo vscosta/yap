@@ -180,6 +180,8 @@
 /* funcions that return  a generic pointer */
 typedef void *(*fptr_t)(void);
 
+#include "YapDefs.h"
+
 /*************************************************************************************************
                               main exports in YapInterface.h
 *************************************************************************************************/
@@ -189,8 +191,6 @@ extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DL
         *Yap_BOOTFILE, *Yap_INCLUDEDIR;
 
 /* Basic exports */
-
-#include "YapDefs.h"
 
 #include "Atoms.h"
 
@@ -433,8 +433,6 @@ typedef volatile int lockvar;
   
 #include "YapError.h"
 
-#define must_be_char(t ) must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
-#define must_be_code(t ) must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 INLINE_ONLY Term must_be_integer(Term t) {
   t = Deref(t);
   if (IsVarTerm(t)) Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
@@ -631,10 +629,10 @@ typedef struct idb_queue {
   QueueEntry *FirstInQueue, *LastInQueue;
 } db_queue;
 
-void Yap_init_tqueue(db_queue *dbq);
-void Yap_destroy_tqueue(db_queue *dbq USES_REGS);
-bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS);
-bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
+extern void Yap_init_tqueue(db_queue *dbq);
+extern void Yap_destroy_tqueue(db_queue *dbq USES_REGS);
+extern bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS);
+extern bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
                         bool release USES_REGS);
 
 #ifdef THREADS
@@ -642,9 +640,10 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term t, bool first,
 typedef struct thread_mbox {
   Term name;
   pthread_mutex_t mutex;
-  pthread_cond_t cond;
+  pthread_cond_t empty;
+  pthread_cond_t full;
   struct idb_queue msgs;
-  int nmsgs, nclients; // if nclients < 0 mailbox has been closed.
+  int nmsgs, nclients,max; // if nclients < 0 mailbox has been closed.
   bool open;
   struct thread_mbox *next;
 } mbox_t;

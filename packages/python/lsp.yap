@@ -4,7 +4,8 @@
  */
 
 :- module(lsp, [
-	      validate_file/2
+	      validate_file/2,
+highlight_file/2
   ]).
 
 
@@ -18,8 +19,8 @@
 
 :- use_module(library(scanner)).
 
-:- python_import(lsprotocol.types as t).
-:- python_import(server).
+%:- python_import(lsprotocol.types as t).
+%:- python_import(pygls.server).
 
 
 name2symbol(File,UL0,U,Mod:N0/Ar0):-
@@ -73,17 +74,24 @@ user:pred_def(Ob,URI,Line,Ch) :-
 	  Ob.items := Ps
 	).
 
-user:pred_def(Ob, Name) :-
-    pred_code(Ob,Name).
-
-name2symbol(N,t(F,L,0)) :-
-    writeln(N),
-    current_predicate(N,Mod:G),
-    writeln(G),
-    functor(G,N,_Ar),
+user:pred_def(Ob, S) :-
+    atom_string( Name, S),
+    current_module( Mod),
+    current_predicate(Mod:Name/Ar),
     predicate_property(Mod:G,file(F) ),
     predicate_property(Mod:G,line_count(L)),
-    L1 is L+1.
+    writeln(user_error,(F+L)),
+    string_atom( SMod, Mod),
+    Ob.defs.append(t(F,L,0,SMod,Ar)),
+    fail.
+user:pred_def(_Ob, _Name).
+
+name2symbol(Name,t(F,L1,0)) :-
+    strip_module(Name,Mod,N),
+    current_predicate(N,Mod:G),
+    functor(G,N,_Ar),
+    predicate_property(Mod:G,file(F) ),
+    predicate_property(Mod:G,line_count(L)).
 
 get_ref(N/A,M,Ref) :-
 	scanner:use(predicate,N/A,M,_N0/_A0,_M0,File,L0-C0,LF-CF,LL0-LC0,LLF-LCF),
@@ -111,9 +119,9 @@ user:pred_refs(Ob,URI,Line,Ch) :-
 	).
 
 
-    user:complete(Line,Pos,Obj) :-
-	completions(Line,Pos,L),
-	Obj.items := L.
+user:complete(Self,Prefix,_Pos) :-
+	completions(Prefix,_,FCs),
+	( var(Self)-> Self = FCs ; Self.items := FCs ).
 
     user:add_dir(Self,URI):-
 	string_concat(`file://`, FS, URI),
@@ -134,53 +142,99 @@ user:validate_uri(Self,URI) :-
     absolute_file_name(File,Path,[file_type(prolog)]),
     validate_file(Self,Path).
 
+:- dynamic lsp_on/0.
 
 validate_file( Self,File) :-
-    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)), Ref),
-    load_files(File,[ if(true),def_use_map(true)]),
-    erase(Ref),
-    forall(retract(msg(T)),Self.errors.append(T)).
+   assert(lsp_on),
+   load_files(File,[ if(true),def_use_map(true)]),
+   forall(retract(msg(T)),Self.errors.append(T)),
+   retract(lsp_on).
 
 user:validate_text(Self,URI,S) :-
-   string_concat(`file://`,SFile,URI),
+    assert(lsp_on),
+    string_concat(`file://`,SFile,URI),
     atom_string(File, SFile),
     open(string(S),read,Stream,[alias(File)]),
     set_stream(Stream,file_name(File)),
-    asserta((user:portray_message(Sev,Msg) :- q_msg(Sev, Msg)), R),
-    load_files(File,[ stream(Stream), if(true),def_use_map(true)]),
-    findall(T,(recorded(msg,T,R),erase(R)),Ts),
-    erase(R),
-    Self.errors := Ts.
+    catch(load_files(File,[ stream(Stream), if(true),dry_run(true)]),E,writeln(user_error,E)),
+    findall(TERR,recorded(msg,TERR,_Ri),Ts),
+    eraseall(msg),
+    retractall(lsp_on),
+    (var(Self) -> Self=Ts;Self.errors := Ts),
+    !.
 
+user:portray_message(A,B):-
+    writeln(user_error,file=A:B),
+    lsp_on,
+    q_msg(A,B).
 
-
-q_msg(Sev, error(Err,Inf)) :-
-    Err =.. [_F|As],
-    yap_error_descriptor(Inf, Desc),
-    (
-	yap_query_exception(parserLine, Desc, LN)
+q_info(Exc, LN, Pos, Size, ErrN, ErrT) :-
+   (
+      exception_property(`parserLine` , Inf, LN0)
     ->
-    true
+	  LN is max(LN0,0)
     ;
-    LN = 0),
+    LN = 1),
     (
-	yap_query_exception(parserPos, Desc, Pos)
+	exception_property(`errorNo` , Inf, ErrN)
+    ->
+	  true
+    ;
+    ErrN = -1),
+    (
+      exception_property(`errorAsText` , Inf, ErrA )
+    ->
+	  atom_string(ErrA,ErrT)
+    ;
+    ErrT = `unknown` ),
+    (
+	exception_property(`parserLinePos`, Inf, Pos0)
+	->
+	Pos is max(Pos0,0)
+    ;
+    Pos =0 ),
+    
+    (
+	exception_property(`parserSize` , Inf, Size0)
+    ->
+	  Size is max(Size0,0)
+    ;
+    Size = 0),
+(
+	exception_property(`ErrorMsg`, Inf, ErrorMsg)
 	->
 	true
     ;
-    Pos =0 ),
-    q_msgs(As,Sev,S),
-    recordz(msg,t(S,LN,Pos),_).
+	  ErrorMsg = `ugh`
+    ),
+writeln(user_error,Pos),
+    ( Sev == error
+  ->
+      Sv = `error` 
+  ;
+Sv = `warning`
+),
+    Err =..LErr,
+    q_msgs(LErr,ErrorMsg,Sev,S),
+
+q_msg(_warning, error( style_check(singletons(singletons,[VName,LN,Pos|_Culprit],_), Exc)) :-
+    lsp_on,
+    !,
+atom_length(VName,Size),
+    format(string(S),'~a is a singleton variable',[VName]),
+   recordz(msg,t(`warning`,0,` `,S,LN,Size,Pos),_).
+q_msg(Sev, error(Err,Inf)) :-
+q_info(Exc, LN, Pos, Size, ErrN, ErrT),
+    lsp_on,
+     recordz(msg,t(Sv,ErrN,ErrT,S,LN,Size,Pos),_).
 
 
-q_msgs([], N,S) :-
-    format(string(S ),'~s.',[N]).
-q_msgs([A1], N, S) :-
-    format(string(S),'~s: ~w.',[N,A1]).
-q_msgs([A1,A2], N, S) :-
-    format(string(S),'~s: ~w ~w.',[N,A1,A2]).
-q_msgs([A1,A2,A3], N, S) :-
-    format(string(S),'~s: ~w ~w ~w.',[N,A1,A2,A3]).
+q_msgs([A1], Extra, N,S) :-
+    format(string(S),'~s: ~w.~n~s',[N,A1,Extra]).
+q_msgs([A1,A2], Extra, N,S) :-
+    format(string(S),'~s: ~w ~w.~n~s',[N,A1,A2,Extra]).
+q_msgs([A1,A2,A3], Extra, N,S) :-
+    format(string(S),'~s: ~w ~w ~w.~n~s',[N,A1,A2,A3,Extra]).
 
 
 add_file(Self, D, File) :-
@@ -216,6 +270,7 @@ user:highlight_text(Text,Self):-
 highlight_and_convert_stream(Self,Stream) :-
     scan_stream(Stream,Ts),
     close(Stream),
+    writeln(Ts),
     symbols(Ts,LTsf),
     (var(Self)
     ->
@@ -224,3 +279,5 @@ highlight_and_convert_stream(Self,Stream) :-
 %:= print(LTsf).
       Self.data := LTsf
     ).
+
+:- writeln(ok).

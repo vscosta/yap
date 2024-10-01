@@ -19,15 +19,19 @@ _exported_, that is, visible to other modules.
 
 The main predicates in the module system are:
 
-  * module/2 associates a source file to a module. It has two arguments: the name of the new module, and a list of predicates exported by the module.
+- module/2 associates a source file to a module. It has two arguments: the name of the new module, and a list of predicates exported by the module.
 
-  * use_module/1 and use_module/2 can be used to load a module. They take as first argument the source file for the module. Whereas use_module/1 loads all exported predicates, use_module/2 only takes the ones given by the second argument.
+- use_module/1 and use_module/2 can be used to load a module. They take as first argument the source file for the module. Whereas use_module/1 loads all exported predicates, use_module/2 only takes the ones given by the second argument.
 
-YAP pre-defines a number of modules. Most system predicates belong to
+YAP pre-defines a number of modules.
+
+- Most system predicates belong to
   the module `prolog`. Predicates from the module `prolog` are
-automatically visible to every module.  The `system` module was
+automatically visible to every module.
+- The `system` module was
   introduced for SWI-Prolog compatibility, and in YAP mostly acts as an
-alias to `prolog`. The `user` module is also visible to all other modules.
+alias to `prolog`.
+- The `user` module is also visible to all other modules.
 
 The YAP engine is always associated to a module, the current <em>source
 module</em> or <em>type-in module</em>. By default, all predicates

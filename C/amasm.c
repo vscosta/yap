@@ -668,7 +668,7 @@ inline static yamop *a_vr(op_numbers opcodex, op_numbers opcodey, yamop *code_p,
         GONEXT(yx);
         return code_p;
       }
-    } else if (opcodey == _get_y_var) {
+    } else if (opcodey == _get_y_var && false) {
       struct PSEUDO *ncpc = cpc->nextInst;
       if (ncpc->op == get_var_op &&
           ((Ventry *)ncpc->rnd1)->KindOfVE == PermVar) {
@@ -3710,7 +3710,7 @@ static DBTerm *fetch_clause_space(Term *tp, UInt size,
   /* This stuff should be just about fetching the space from the data-base,
      unfortunately we have to do all sorts of error handling :-( */
   HR = (CELL *)cip->freep;
-  while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size, osizep)) == NULL) {
+   while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size, osizep)) == NULL) {
 
     HR = h0;
     switch (LOCAL_Error_TYPE) {

@@ -22,13 +22,13 @@ setting(bagof,false).
 
 setting(compiling,off).
 
-:-yap_flag(unknown,fail).
+:-set_prolog_flag(unknown,fail).
 
 setting(depth_bound,false).  %if true, it limits the derivation of the example to the value of 'depth'
 setting(depth,2).
 setting(single_var,false). %false:1 variable for every grounding of a rule; true: 1 variable for rule (even if a rule has more groundings),simpler.
 
-:- yap_flag(single_var_warnings, on).
+:- set_prolog_flag(single_var_warnings, on).
 
 
 load(FileIn,C1,R):-

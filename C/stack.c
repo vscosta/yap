@@ -186,7 +186,8 @@ static bool write_goal(FILE *f, PredEntry *pe, ClausePointer cl,  char env_s, ch
    CACHE_REGS
      indicator_t info;
    int line;
-   if (!GetPredInfo(pe,&info)) {
+   if (!GetPredInfo(pe,&info  PASS_REGS
+)) {
      return false;
    }
    if (pe==NULL) {
@@ -786,7 +787,11 @@ static ClausePointer code_in_pred(PredEntry *pp,
 
         ClausePointer out;
   /* check if the codeptr comes from the indexing code */
-    if (pp->PredFlags & (CPredFlag | AsmPredFlag | UserCPredFlag)) {
+	if (codeptr->opc == TRUSTFAILCODE->opc) {
+	  out.pe =  PredFail;
+	  return out;
+	}
+	if (pp->PredFlags & (CPredFlag | AsmPredFlag | UserCPredFlag)) {
         StaticClause *cl = ClauseCodeToStaticClause(pp->CodeOfPred);
         if (IN_BLOCK(codeptr, (CODEADDR) cl, cl->ClSize)) {
 	  out.sc=cl;
@@ -824,7 +829,8 @@ identifying the corresponding clause.
  */
 PredEntry * Yap_PredForCode(yamop *codeptr, find_pred_type hint,
 
-	    ClausePointer*c) {
+			    ClausePointer*c) {
+  CACHE_REGS
     gc_entry_info_t info;
 
     if (codeptr) {
@@ -876,8 +882,7 @@ PredEntry * Yap_PredForCode(yamop *codeptr, find_pred_type where_from) {
 
 
 PredEntry *Yap_PredEntryForCode(choiceptr ap, yamop *codeptr, find_pred_type where_from) {
-    CACHE_REGS
-      ClausePointer out;
+  ClausePointer out;
       if (where_from == FIND_PRED_FROM_CP){ 
         PredEntry *pp = Yap_PredForChoicePt(ap);
         if (cl_code_in_pred(pp, ap->cp_ap).pe) {
@@ -889,7 +894,7 @@ PredEntry *Yap_PredEntryForCode(choiceptr ap, yamop *codeptr, find_pred_type whe
             return pp;
         }
     }
-    ModEntry *me;
+    ModEntry *me = CurrentModules;
     while (me) {
         PredEntry *pp = me->PredForME;
 
@@ -1635,7 +1640,6 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
 
 
 static bool outputep(FILE *f, bool ignore_sys, yamop *my_cp, CELL *ep, int depth) {
-    CACHE_REGS
       PredEntry *pe = (((yamop *)((CODEADDR)(my_cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p0);
     if (pe && !pe->ModuleOfPred) {
       fprintf(f, "...\n");
@@ -1646,7 +1650,6 @@ static bool outputep(FILE *f, bool ignore_sys, yamop *my_cp, CELL *ep, int depth
 }
 
       static bool outputcp(FILE *f, bool ignore_sys, choiceptr cp, int depth) {
-     CACHE_REGS
     choiceptr b_ptr = cp;
     PredEntry *pe = Yap_PredForChoicePt(b_ptr);
     if (pe && !pe->ModuleOfPred) {
@@ -1701,19 +1704,20 @@ bool DumpActiveGoals(FILE *f, bool ignore_top USES_REGS) {
     return true;
 }            
 
-char * Yap_dump_stack(void) {
+char * Yap_dump_stack(FILE *f) {
     CACHE_REGS
-      FILE*f;
     size_t nsize;
     char *nbuf;
-      #if HAVE_OPEN_MEMSTREAM
-f = open_memstream(&nbuf, &nsize);
-  #else
- nbuf = malloc(32*K);
- nsize = 32*k;
- file = fmemopen((void *)nbuf, nsize, "w+");
-  #endif
-
+    if (!f)
+      {      
+#if HAVE_OPEN_MEMSTREAM
+      f = open_memstream(&nbuf, &nsize);
+#else
+    nbuf = malloc(32*K);
+    nsize = 32*k;
+    f = fmemopen((void *)nbuf, nsize, "w+");
+#endif
+      }
   Yap_output_bug_location(f, B, P, FIND_PRED_FROM_ANYWHERE, "caller:");
  Yap_output_bug_location(f, B, CP, FIND_PRED_FROM_ENV, "continuation:");
  Yap_output_bug_location(f, B, B->cp_ap, FIND_PRED_FROM_CP, "choice point:");
@@ -1738,10 +1742,10 @@ f = open_memstream(&nbuf, &nsize);
     /* check if handled */
     // if (handled_exception(PASS_REGS1))
     //  return;
-    fprintf( f, "%% Stacks: Global-->                 <-- Local | Trail -->\n" );
-    //    fprintf( f, "%% %p--%p-->      <---%p--%p--%p\n" , H0, HR, ASP, LCL0, TR); 
-    fprintf( f, "%% %luKB-->                              <--  %luKB | %luKB\n",
-	     (unsigned long int) (sizeof(CELL) * (HR - H0)) / 1024,
+	fprintf( f, "%% Stacks:\n%% --> %-15s                        %14s <-- | --> Trail\n","Global","Local"  );
+    //    fprintf( f, "%% --> %p--%p         %p--%p <-- -->-%p\n" , H0, HR, ASP, LCL0, TR); 
+    fprintf( f, "%% --> %lu%-20s                          %2luKB <-- | --> %luKB\n",
+	     (unsigned long int) (sizeof(CELL) * (HR - H0)) / 1024,"KB",
 	     (unsigned long int) (sizeof(CELL) * (LCL0 - ASP)) / 1024,
 	     (unsigned long int) ((ADDR) TR - LOCAL_TrailBase) / 1024);
     if (HR > ASP || HR > LCL0) {
@@ -1813,14 +1817,8 @@ f = open_memstream(&nbuf, &nsize);
     fputs("%% \n%%  -------------------------------------\n%%\n", f);
     fprintf( f, "%% Program Position: %s\n\n", Yap_errorName(errno));
     */
-	fflush(f);
-    size_t sz = ftell(f);
-    nbuf[sz]='\0';
-    char * obuf = malloc(sz+1);
-    strncpy(obuf, nbuf, sz);
     fclose(f);
-    free(nbuf);
-    return obuf;
+    return nbuf;
 }
 
 
@@ -1835,8 +1833,7 @@ bool DumpStack(USES_REGS1) {
  *
  */
  bool Yap_output_bug_location(FILE *f,choiceptr ap, struct yami *yap_pc, int where_from, const char*why) {
-    CACHE_REGS
-    Atom pred_name;
+   Atom pred_name;
     UInt pred_arity;
     Term pred_module;
     PredEntry *pred;
@@ -2237,8 +2234,10 @@ static bool JumpToEnv(USES_REGS1) {
 	   IsVarTerm(Deref(B->cp_a5))) {
 	return true;
       }
-				     //	Yap_RestartYap(5);	return false;
-      //}
+//      if (B->cp_ap == EXITCODE) {
+//	Yap_RestartYap(5);
+//	return false;
+  //   }
       if (B->cp_b)
 	B=B->cp_b;
       else break;

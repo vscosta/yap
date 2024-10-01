@@ -259,7 +259,7 @@
 
 % switch on all tests to reduce bug searching time
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 
 % this is a test to determine whether YAP provides the needed trie library
 :- initialization(

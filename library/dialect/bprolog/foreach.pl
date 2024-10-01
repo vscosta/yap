@@ -4,7 +4,7 @@
 %   Purpose: an interpreter of foreach/2-10 and list comprehension
 /************************************************************************/
 
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
 :- ensure_loaded(actionrules).
 :- op(560,xfy,[..,to,downto]).
 :- op(700,xfx,[subset,notin,in,@=]).

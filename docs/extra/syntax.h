@@ -249,7 +249,7 @@ Escape sequences were not available in C-Prolog and in original
 versions of YAP up to 4.2.0. Escape sequences can be disabled by using:
 
 ```
-:- yap_flag(character_escapes,false).
+:- set_prolog_flag(character_escapes,false).
 ```
 
 

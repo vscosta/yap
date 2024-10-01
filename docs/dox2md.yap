@@ -209,7 +209,7 @@ compacttail([V|Vs]) -->
     
 
 cstr(A,S0,SF) :-
-    string_concat(S0,A, SF).
+   catch( string_concat(S0,A, SF),_,(atomic_concat(S0,A,SA),atom_string(SA,SF))).
 
 mcstr(A,S0,SF) :-
      string_concat([S0|A], SF).
@@ -327,7 +327,7 @@ par(U0,Info,
     {foldl(par(U0,[]),Paras,``,Desc)},
       {
 (var(D0)->D0=Desc;arg(1,Info,Id),
-	assert_static(extrabrief(Id,Desc)))
+	assert_static(extrbrief(Id,Desc)))
       }.
 par(U0,[],
 	detaileddescription([[]|Paras])) -->

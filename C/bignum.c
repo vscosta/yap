@@ -14,6 +14,21 @@
  * comments:	bignum support through gmp				 *
  *									 *
  *************************************************************************/
+
+/**
+ * @file bignum.c
+ * @brief Support for extensions such as bignums and rational numbers 
+ *
+ */
+ 
+/**
+   @addtogroup arithmetic_predicates
+   @brief predicates that perform arithmetic operations or that check if their
+   arguments are evaluable.
+@{
+*/
+
+
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -459,10 +474,16 @@ static Int p_is_string(USES_REGS1) {
           FunctorOfTerm(t) == FunctorString);
 }
 
+
+/* @pred nb_set_bit(+Bit, +BigNum) 
+ *
+ * Set a bit of a big int (hack).
+ *
+ */
 static Int p_nb_set_bit(USES_REGS1) {
 #ifdef USE_GMP
-  Term t = Deref(ARG1);
-  Term ti = Deref(ARG2);
+  Term t = Deref(ARG2);
+  Term ti = Deref(ARG1) ;
   Int i;
 
   if (!(IsNonVarTerm(t) && IsApplTerm(t) && FunctorOfTerm(t) == FunctorBigInt &&
@@ -485,6 +506,11 @@ static Int p_nb_set_bit(USES_REGS1) {
 #endif
 }
 
+/* @pred has_bignums
+ *
+ * True if YAP supports big numbers.
+ *
+ */
 static Int p_has_bignums(USES_REGS1) {
 #ifdef USE_GMP
   return TRUE;
@@ -493,6 +519,11 @@ static Int p_has_bignums(USES_REGS1) {
 #endif
 }
 
+/* @pred opaque(T)
+ *
+ * True if the term has a non-standard implementation.
+ *
+ */
 static Int p_is_opaque(USES_REGS1) {
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
@@ -509,6 +540,11 @@ static Int p_is_opaque(USES_REGS1) {
   return FALSE;
 }
 
+/* @pred nb_set_bit(+Rational)
+ *
+ * True if the term _Rational_ is a number of  the form a/b where a are b are integers, and b may be 1.
+ *
+ */
 static Int p_is_rational(USES_REGS1) {
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
@@ -606,6 +642,12 @@ bool IS_MATRIX(Term inp) {
 
 }
 
+/* @pred nb_set_bit(+A,+B,?Rational)
+ *
+ * True if the _Rational_ is a normalized representation of a/b where
+ * a are b are integers.
+ *
+ */
 static Int p_rational(USES_REGS1) {
 #ifdef USE_GMP
   Term t = Deref(ARG1);
@@ -658,3 +700,5 @@ void Yap_InitBigNums(void) {
   Yap_InitCPred("fast_get_for_int_vector" ,3,fast_get_for_int_vector,SafePredFlag);
   Yap_InitCPred("fast_set_for_int_vector" ,3,fast_set_for_int_vector,SafePredFlag);
 }
+
+/// @}

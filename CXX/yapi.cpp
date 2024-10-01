@@ -215,6 +215,7 @@ YAPStringTerm::YAPStringTerm(std::string &s) { // build string
 }
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) {
+  CACHE_REGS
   BACKUP_H();
   arity_t arity = ArityOfFunctor(f.f);
   Term o = Yap_MkNewApplTerm(f.f, arity);
@@ -273,6 +274,7 @@ YAPApplTerm::YAPApplTerm(const std::string f, std::vector<YAPTerm> ts) {
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
   BACKUP_H();
+  CACHE_REGS
   arity_t arity = ArityOfFunctor(f.f);
     if (HR + (1+arity)  > ASP - 1024) {
       throw YAPError(__FILE__,__FUNCTION__,__LINE__,RESOURCE_ERROR_STACK,TermNil,"YAPListTerm::YAPListTerm(std::string");
@@ -1080,12 +1082,12 @@ void Yap_displayWithJava(int c) {
 #endif
 
 void YAPEngine::doInit(YAP_file_type_t BootMode, YAPEngineArgs *engineArgs) {
-        CACHE_REGS
 
   if (GLOBAL_Initialised)
     return;
   GLOBAL_Initialised = true;
   YAP_Init(engineArgs);
+        CACHE_REGS
 // yerror = throw YAPError( SOURCE(), );
 CurrentModule = LOCAL_SourceModule = TermUser;
 #if YAP_PYTHON

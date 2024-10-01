@@ -236,7 +236,7 @@
 :- use_module(flags, [problog_define_flag/5, problog_flag/2]).
 
 :- style_check(all).
-:- yap_flag(unknown,error).
+:- set_prolog_flag(unknown,error).
    
 
 :- initialization((
