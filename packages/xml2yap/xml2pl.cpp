@@ -55,7 +55,7 @@ ok = true;
     CACHE_REGS
       if (interpret_strings) {
 	Term t = Yap_StringToNumberTerm(s, NULL,false);
-	if (t!=TermNil) return t;
+	if (t!=0) return t;
 	std::string st=s;
 	if (st=="T" || st== "true"  || st== "yes")
 	return TermTrue;

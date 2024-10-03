@@ -330,7 +330,7 @@ static int format_print_str(int sno, Int size, bool has_size, Term args,
             return true;
         }
         const unsigned char *pt = RepAtom(AtomOfTerm(args))->UStrOfAE;
-        while ((has_size || size > 0) && *pt)  {
+        while (*pt && (!has_size || size > 0) )  {
             utf8proc_int32_t ch;
 
             if ((pt += get_utf8(pt, -1, &ch)) > 0) {
@@ -1229,15 +1229,15 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
 	  if (f == FunctorAtom) {
 	    const char *s =Yap_MemExportStreamPtr( output_stream);
 	    Term tout = MkAtomTerm(Yap_LookupAtom(s));
-	  Yap_CloseStream(output_stream);
 	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
 	    Yap_CloseStream(output_stream);
+	    return out;
 	  }else if ( f == FunctorString1) {
 	    const char *s =Yap_MemExportStreamPtr( output_stream);
 	    Term tout = MkStringTerm((s));
-	  Yap_CloseStream(output_stream);
 	    out = Yap_unify(tout,ArgOfTerm(1,ARG1));
 	    Yap_CloseStream(output_stream);
+	    return out;
 	  } 
 	}
         Yap_CloseHandles(hl);

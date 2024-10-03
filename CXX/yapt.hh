@@ -4,7 +4,6 @@
 
 #ifndef X_API
 #define X_API
-#include "YapTerm.h"
 #endif
 
 /**
@@ -116,7 +115,7 @@ YAPTerm(Term tn) { mk(tn); }; ///< private method to convert from Term (internal
   };
 #endif
 
-  YAPTerm(long int num) { CACHE_REGS mk(MkIntegerTerm(num)); };///< construct a term out of an integer (if you know object type use YAPIntegerTerm)
+  YAPTerm(long int num) { CACHE_REGS mk(MkIntegerTerm(num)); }; ///< construct a term out of an integer (if you know object type use YAPIntegerTerm)
 
   YAPTerm(double num) { CACHE_REGS mk(MkFloatTerm(num)); }; ///< construct a term out of an double (if you know object type use
 
@@ -128,7 +127,7 @@ YAPTerm(Term tn) { mk(tn); }; ///< private method to convert from Term (internal
       nts[i] = ts[i].gt();
     mk(Yap_MkApplTerm(f,arity,nts.data()));
     };
-YAP_tag_t tag();///< extract the tag of a term, after dereferencing.
+YAP_tag_t tag(); ///< extract the tag of a term, after dereferencing.
  
 
 
@@ -141,7 +140,8 @@ YAP_tag_t tag();///< extract the tag of a term, after dereferencing.
   }
   inline Term term() { ///< from YAPTerm to Term (internal YAP representation)
     return Deref(gt());
-
+  }
+  
     YAPTerm arg(int i) {
     BACKUP_MACHINE_REGS();
     Term t0 = gt();
@@ -224,10 +224,10 @@ virtual bool isAppl() { return IsApplTerm(gt()); } ///< is a structured term
   virtual bool isList() { return Yap_IsListTerm(gt()); }     ///< term is a list
 
   
-  /// *Yap_RepStreamFromId(int sno)
-  virtual Term getArg(arity_t i);///< extract the argument i of the term, where i in 1...arityvoid
+  // Yap_RepStreamFromId(int sno)
+  virtual Term getArg(arity_t i); ///< extract the argument i of the term, where i in 1...arityvoid
 
-  virtual inline arity_t arity() {///< extract the arity of the term; variables have arity 0.
+  virtual inline arity_t arity() { ///< extract the arity of the term; variables have arity 0.
     Term t0 = gt();
 
     if (IsApplTerm(t0)) {
@@ -258,7 +258,8 @@ virtual bool isAppl() { return IsApplTerm(gt()); } ///< is a structured term
 
     LOCAL_CurSlot =
       hdl;
-}
+  }
+  
 
   inline yhandle_t handle() { return hdl; };  ///< return a handle to the term
 
@@ -276,6 +277,7 @@ virtual bool isAppl() { return IsApplTerm(gt()); } ///< is a structured term
  */
 class X_API YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
+
 
 public:
   ///< There are very many ways to build one of these terms:
@@ -512,9 +514,9 @@ public:
  
   YAPListTerm(Term t0) { mk(t0); /* else type_error */ } //> Create a list term out of a standard term. Check if a valid operation.
 
-  YAPListTerm(Term ts[], size_t n);///< Create a list term out of an array of terms.
+  YAPListTerm(Term ts[], size_t n); ///< Create a list term out of an array of terms.
 
-  YAPListTerm(std::vector<Term>);///< Create a list term out of a vector of terms.
+  YAPListTerm(std::vector<Term>); ///< Create a list term out of a vector of terms.
 
   YAPListTerm(std::vector<YAPTerm>); ///< Create a list term out of a vector of YAPTerms.
 size_t length() { ///< Return the number of elements in a list term.
@@ -525,7 +527,7 @@ size_t length() { ///< Return the number of elements in a list term.
  
   Term &operator[](size_t n); ///< Extract the nth element.
 
-  Term car();///< Extract the first element of a list.
+  Term car(); ///< Extract the first element of a list.
 
   Term cdr(); ///< Extract the tail elements of a list.
 
@@ -551,9 +553,8 @@ public:
   YAPConjunctiveTerm(const Term ts[], size_t n);  ///< Create a conjunctive term out of an array of terms.
 
   YAPConjunctiveTerm(std::vector<Term>); ///< Create a conjunctive term out of an array of terms.
-    size_t length() { \\\< Return the number of elements in a conjunction
+    size_t length() { ///< Return the number of elements in a conjunction
 	    size_t n=1;
-    Term *tailp;
     Term t1 = gt();
     while (IsApplTerm(t1) && FunctorOfTerm(t1)==FunctorComma) {
       t1 = ArgOfTerm(2,t1);
@@ -565,7 +566,7 @@ public:
  
   Term &operator[](size_t n); ///< Extract the nth element.
   
-  Term car();///< Extract the first element of a listconjunction.
+  Term car(); ///< Extract the first element of a listconjunction.
  
   Term cdr(); ///< Extract the tail elements of a conjunction.
 };
