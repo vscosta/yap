@@ -223,9 +223,9 @@ static bool watch_retry(Term d0 )
   Int BRef = IntOfTerm(ArgOfTerm(6, task));
   bool det = deterministic(BRef);
   Term e;
-  CP = FAILCODE;
-  if (IsNonVarTerm(complete))
+  if (IsNonVarTerm(*completion_pt))
     return true;
+  CP = FAILCODE;
   bool ex_mode = false;
   //  choiceptr Bl = B;
     
@@ -324,7 +324,7 @@ static Int tag_cleanup(USES_REGS1)
 static Int cleanup_on_exit(USES_REGS1)
 {
   Term task = Deref(ARG2);
- CELL *port_pt = deref_ptr(RepAppl(task)+2);
+  CELL *port_pt = deref_ptr(RepAppl(task)+2);
   CELL *completion_pt = deref_ptr(RepAppl(task)+4);
    Term cleanup = ArgOfTerm(3, task);
   Int BEntry = IntegerOfTerm(ArgOfTerm(6,task));

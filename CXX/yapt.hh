@@ -572,7 +572,7 @@ public:
 };
 
 /**
- * @class YAPStringTerm String Term
+ * Represent UTF-8 text as Prolog text,
  */
 class X_API YAPStringTerm : public YAPTerm {
 public:
@@ -582,7 +582,6 @@ public:
 };
 
 /**
- * @class YAPAtomTerm Atom Term
  * Term Representation of an Atom
  */
 class X_API YAPAtomTerm : public YAPTerm {

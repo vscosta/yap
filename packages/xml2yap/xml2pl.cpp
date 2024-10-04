@@ -19,7 +19,7 @@ public:
   bool ok;
   bool strings_to_strings = true;
   bool strings_to_atoms = false;
-  bool interpret_strings = true;
+  bool interpret_strings = false;
 
   
 XML2YAP(Term t)
