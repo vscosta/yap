@@ -185,7 +185,7 @@ fill(Descriptor,Ref,Name) :-
     ignore(foldl(top_par(0,Descriptor),Info,``,Text0)),
     arg(6,Descriptor,Brief),
     ( var(Brief) -> Brief = `` ; true ),
-   assert(extra(Ref,Text0)),
+   assert(extrabrief(Ref,Text0)),
     arg(8,Descriptor,Title),
     ( var(Title) -> Title = Name ; true ),    
     !,
@@ -710,23 +710,21 @@ process_group(S,Id,_File,_Line,_Column,_Text) :-
 process_group(S,Id,File,Line,Column,Text) :-
 %    forall(predicate(Ref,Id),(output_predicate(S,Ref))),
     load_all_text(Id,Text,AllText),
-    format(S,AllText,[]),
+    format(S,'~s',[AllText]),
      nl(S),
     footer(S,File,Line,Column).
 
 process_predicate(S,Id,File,Line,Column,Text) :-
     %format(S,'~s\n',[Brief]),
     load_all_text(Id,Text,AllText),
-    format(S,AllText,[]),
+    format(S,'~s',[AllText]),
     forall(predicate(Ref,Id),(output_predicate(S,Ref))),
    nl(S),
     footer(S,File,Line,Column).
 
 process_class(S,GId,File,Line,Column,Text) :-
     load_all_text(GId,Text,AllText),
-    format(S,AllText,[]),
-    forall(v(GId,Extra) ,  format(S,Extra,[])),
-   forall(f(GId,Extra) ,  format(S,Extra,[])),
+    format(S,'~s',[AllText]),
    nl(S),
    footer(S,File,Line,Column), !.
     
@@ -777,8 +775,8 @@ addsubc(S,Id) :-
 output_predicate(S,Id) :-
     predicate(Id,Name,_F,_L,_C,Brief,Text,_),
     format(S,'### ~s          {#~s}\n~s\n',[Name,Id,Brief]),	
-    format(S,'\n\n~s\n',[Text]),
-    forall(extra(Id,Extra) ,  format(S,Extra,[])).
+    format(S,'\n~s\n',[Text]),
+    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
 
   
 strip_late_blanks(``,``) :-
