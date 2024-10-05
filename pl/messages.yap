@@ -162,16 +162,16 @@ translate_message( arguments([A|As])) -->
 translate_message( ancestors([])) -->
     !,
     [ 'There are no ancestors.' ].
-translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,already)) -->
+translate_message( breakp(bp(debugger,_,M,sF,N),add,already)) -->
     !,
     [ 'There is already a spy point on ~w:~w/~w.' - [M,F,N] ].
-translate_message( breakp(bp(debugger,_,_,M:F/N,_),add,ok)) -->
+translate_message( breakp(bp(debugger,_,M,F,N),add,ok)) -->
     !,
     [ 'Spy point set on ~w:~w/~w.' - [M,F,N] ].
-translate_message( breakp(bp(debugger,_,_,M:F/N,_),remove,last)) -->
+translate_message( breakp(bp(debugger,_,M,F,N),remove,last)) -->
     !,
     [ 'Spy point on ~w:~w/~w removed.' - [M,F,N] ].
-translate_message( breakp(no,breakpoint_for,M:F/N)) -->
+translate_message( breakp(no,breakpoint_for,M,F,N)) -->
     !,
     [ 'There is no spy point on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakpoints([])) -->

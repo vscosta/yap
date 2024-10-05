@@ -88,43 +88,39 @@ mode and the existing spy-points, when the debugger is on.
 '$u_spy_name'(A0,Command,M0) :-
     strip_module(M0:A0,M,A),
  	(
-      '$spy_gen'(M,A,S,At,N)
+      '$spy_gen'(M,A,S,N)
 	*->
 	'$may_set_spy_point'(M:S),
-	'$do_u_spy'(Command,At/N,N,S,M),
+	'$do_u_spy'(Command,A,N,S,M),
 	fail
     ;
     Error =..[S,M:A],
     print_message(warning,no_match(Error))
     ).
 
-'$spy_gen'(M,A,S,At,N) :-
-     atom(A),
-!,
-	current_predicate(A,M:S),
-functor(S,At,N).
-
-'$spy_gen'(M,At/N,S,At,N) :-
-    current_predicate(At,M:S),
-    functor(S,At,N).
+'$spy_gen'(M,A,S,N) :-
+    atom(A),
+    !,
+    current_predicate(A,M:S),
+    functor(S,A,N).
 
  %
  % protect against evil arguments.
  %
-'$do_u_spy'(spy,F,N,T,M) :-
+'$do_u_spy'(spy,A,N,T,M) :-
     recorded('$spy','$spy'(T,M),_),
     !,
-    print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,already)).
+    print_message(informational,breakp(bp(debugger,plain,M,A,N),add,already)).
 '$do_u_spy'(spy,F,N,T,M) :-
     !,
     recorda('$spy','$spy'(T,M),_),
     '$set_spy'(T,M),
-    print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),add,ok)).
+    print_message(informational,breakp(bp(debugger,plain,M,F,N),add,ok)).
 '$do_u_spy'(nospy,F,N,T,M) :-
     recorded('$spy','$spy'(T,M),R), !,
     erase(R),
     '$rm_spy'(T,M),
-    print_message(informational,breakp(bp(debugger,plain,M:T,M:F/N,N),remove,last)).
+    print_message(informational,breakp(bp(debugger,plain,M,F,N),remove,last)).
 '$do_u_spy'(nospy,F,N,_,M) :-
     print_message(informational,breakp(no,breakpoint_for,M:F/N)).
 
