@@ -162,7 +162,7 @@ translate_message( arguments([A|As])) -->
 translate_message( ancestors([])) -->
     !,
     [ 'There are no ancestors.' ].
-translate_message( breakp(bp(debugger,_,M,sF,N),add,already)) -->
+translate_message( breakp(bp(debugger,_,M,F,N),add,already)) -->
     !,
     [ 'There is already a spy point on ~w:~w/~w.' - [M,F,N] ].
 translate_message( breakp(bp(debugger,_,M,F,N),add,ok)) -->

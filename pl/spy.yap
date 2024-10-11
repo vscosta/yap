@@ -14,7 +14,7 @@
           '$init_debugger'/0]).
 
 :- use_system_module( '$_boot', ['$find_goal_definition'/4,
-        '$system_catch'/4]).
+'$system_catch'/4]).
 
 :- use_system_module( '$_errors', ['$Error'/1,
         throw_error/2]).
@@ -90,8 +90,7 @@ mode and the existing spy-points, when the debugger is on.
  	(
       '$spy_gen'(M,A,S,N)
 	*->
-	'$may_set_spy_point'(M:S),
-	'$do_u_spy'(Command,A,N,S,M),
+	'$u_spy'(A/N,Command,M),
 	fail
     ;
     Error =..[S,M:A],
@@ -182,20 +181,15 @@ Enables the Prolof debugging. Notice that tracing is disabled, even if it was ac
 debug :-
     ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
 	 set_prolog_flag(debug,true),
-    '$set_debugger_state'(debug, true),
     '$set_debugger_state'(trace, off),
     '$start_user_code',
     print_message(informational,debug(debug)),
     '$init_debugger'.
 
-'$start_user_code' :-
-    current_prolog_flag(debug, Can),
-    '$set_debugger_state'(debug, Can),
-    '$stop_creeping'(_).
+'$start_user_code'.
 
 nodebug :-
     set_prolog_flag(debug, false),
-    '$set_debugger_state'(debug, false),
     '$set_debugger_state'(trace, off),
     print_message(informational,debug(off)).
 
@@ -214,10 +208,11 @@ Switches on the debugger and enters tracing mode.
 trace :-
     ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
     print_message(informational,debug(trace)),
+    '$init_debugger',
     set_prolog_flag(debug,true),
-    '$set_debugger_state'(debug, true),
     '$set_debugger_state'(trace, on),
-    '$init_debugger'.
+    '$set_debugger_state'(creep, creep).
+
 
 /** @pred notrace
 
@@ -379,17 +374,17 @@ notrace(G) :-
     '$init_debugger_trace'.
 
 '$init_debugger_trace' :-
-    '$get_debugger_state'( trace, on ),
+    '$get_debugger_state'( trace,on),
     !,
-    '$set_debugger_state'( creep,  0, stop, on, true ),
-    '$creep'.
+    '$set_debugger_state'( creep,  0, stop, on, true ).
 '$init_debugger_trace' :-
-    '$set_debugger_state'( zip, 0, stop, off, true ).
+    '$set_debugger_state'( zip,  0, stop, off, true ).
+
 
 %% @pred $enter_debugging(G,Mod,CP,G0,NG)
 %%
 %% Internal predicate called by top-level;
-%% enable creeping on a goal by just switching execution to debugger.
+%% enable c ereeping on a goal by just switching execution to debugger.
 %%
 '$enter_debugging'(G,Mod,_CP,_G0,_NG) :-
     '$creepcalls'(G,Mod),
@@ -398,16 +393,15 @@ notrace(G) :-
 
 '$enter_debugging'(G,Mod,GN) :-
     current_prolog_flag( debug, Deb ),
-    '$set_debugger_state'( debug, Deb ),
     ( Deb = false
     ->
       true
     ;
       '$do_trace'(G,Mod,GN)
-    ->
-      '$creep'
-    ;
-      true
+    %->
+    %  '$creep'
+    %;
+    %x  true
     ).
 
 %%
@@ -417,7 +411,6 @@ notrace(G) :-
 '$exit_debugger'(exit, outer) :-
     !,
     current_prolog_flag( debug, Deb ),
-    '$set_debugger_state'( debug, Deb ),
     '$get_debugger_state'( creep, Creep ),
     ( Deb = false
     ->
@@ -441,7 +434,6 @@ notrace(G) :-
 %%
 /*'$enable_debugging' :-
     current_prolog_flag( debug, Deb ),
-    '$set_debugger_state'( debug, Deb ),
     '$creep'.
 */
 
@@ -476,8 +468,7 @@ notrace(G) :-
     fail.
 
 '$zip_at_port'(_Port,_GoalNo,_) :-
-    current_prolog_flag( debug, true),
-    '$get_debugger_state'( debugging, false),
+    current_prolog_flag( debug, false),
     !.
 '$zip_at_port'(_,_GoalNo,M:T) :-
     '$get_debugger_state'( spy, stop),
@@ -499,12 +490,9 @@ notrace(G) :-
 
 
 '$run_deb'(_Port,Ctx,_GN) :-
-    '$stop_creeping'(_),
     '$continue_debugging'(Ctx).
 
 
-'$exit_goal'(false, _GN) :-
-    '$set_debugger_state'(debug,false).
 '$exit_goal'(true, GN):-
     '$continue_debugging'(GN).
 
@@ -513,16 +501,12 @@ notrace(G) :-
     !.
 '$continue_debugging'(_) :-
     '$get_debugger_state'(trace, on),
-    '$get_debugger_state'(creep,zip),
     '$set_debugger_state'(creep,creep),
     fail.
-'$continue_debugging'(outer) :-
-    '$set_debugger_state'(debug,true),
-    '$creep'.
 '$continue_debugging'(inner).
 
 '$restart_debugging':-
-    '$set_debugger_state'(debug,Debug),
+    current_prolog_flag(debug, Debug),
     '$get_debugger_state'(creep,Creep),
     '$may_creep'(Debug,Creep),
     !,
