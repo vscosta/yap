@@ -28,21 +28,17 @@
 static bool deterministic(Int BRef)
 {
   CACHE_REGS
-    choiceptr cutB = B;
+  choiceptr cutB = B;
   choiceptr target = (choiceptr)(LCL0-BRef);
-  do
-    {
-      if (cutB >= target)
-	return  true;
+  while (cutB &&  cutB->cp_b < target) {
       yamop *altp = cutB->cp_ap;
       if (altp==FAILCODE || altp == TRUSTFAILCODE || altp == NOCODE || altp == EXITCODE)
 	cutB = cutB->cp_b;
       else
-	return false;
-      if (!cutB)
-	return true;
-    } while (true);
-}
+	break;
+  }
+  return cutB == target;
+  }
     
     
 
@@ -112,14 +108,19 @@ static bool gate(Term t USES_REGS)
   t=Deref(t);
   Yap_must_be_callable(t,CurrentModule);
   yap_error_descriptor_t *old=NULL;
+  Term ostate = LOCAL_debugger_state[DEBUG_DEBUG];
+  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
+
   bool rc = Yap_RunTopGoal(t, true);
-  if (old)
-    LOCAL_ActiveError=old;
+  if (old) 
+   LOCAL_ActiveError=old;
   if (rc) {
     LOCAL_PrologMode |= ErrorHandlingMode;
     prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
     LOCAL_PrologMode &= ErrorHandlingMode;
   }
+  LOCAL_debugger_state[DEBUG_DEBUG] = ostate;
+  
   // We'll pass it through
   P = oP;
   CP = oCP;
@@ -165,9 +166,6 @@ static bool watch_cut(Term ext)
   bool ex_mode;
  CELL *port_pt = deref_ptr(RepAppl(task)+2);
   CELL *completion_pt = deref_ptr(RepAppl(task)+4);
-  bool det = deterministic(IntOfTerm(ArgOfTerm(6,task)));
-  if (IsNonVarTerm(completion_pt[0]))
-    return true;
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {
       Term t;
@@ -186,12 +184,13 @@ static bool watch_cut(Term ext)
       completion_pt[0] = TermException;
   CP = FAILCODE;
     }
-  else if (det)
+  else
     {
       completion_pt[0] = port_pt[0] = TermCut;
     }
   gate(cleanup PASS_REGS);
-  P = oP;
+//    RESET_VARIABLE(port_pt);
+    P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
   YENV = LCL0 - oYENV;
@@ -254,11 +253,11 @@ static bool watch_retry(Term d0 )
 	}
       else 
 	{
-	   port_pt[0] = TermRedo ;
+	  YapBind(port_pt, TermRedo) ;
 	}
     }
   gate(cleanup PASS_REGS);
-  RESET_VARIABLE(port_pt);
+  //RESET_VARIABLE(port_pt);
   P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
@@ -266,6 +265,9 @@ static bool watch_retry(Term d0 )
   if ( Yap_PeekException()) {
     Yap_JumpToEnv();
     return false;
+  }
+  if (Yap_may_creep(true)) {
+    return true;
   }
   return true ;
 }
@@ -290,7 +292,6 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
   Yap_DisableInterrupts(worker_id);
   rc = Yap_RunTopGoal(Setup, true);
   Yap_EnableInterrupts(worker_id);
-
   if (!rc)
     {
       Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
@@ -316,6 +317,8 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
 
 static Int tag_cleanup(USES_REGS1)
 {
+
+
   Int iB = LCL0 - (CELL *)B;
   set_watch(iB, Deref(ARG2));
   return Yap_unify(ARG1, MkIntegerTerm(iB));
@@ -330,14 +333,15 @@ static Int cleanup_on_exit(USES_REGS1)
   Int BEntry = IntegerOfTerm(ArgOfTerm(6,task));
   if (!Yap_dispatch_interrupts( PASS_REGS1 ))
     return false;
-  if (IsNonVarTerm(complete))
+  if (IsNonVarTerm(completion_pt[0]))
     {
+
       return true;
     }
   if ( !deterministic(BEntry))
     {
       // non-deterministic
-      YapBind(port_pt, TermAnswer);
+      YapBind(port_pt,  TermAnswer);
     }
   else
     {
@@ -352,11 +356,18 @@ static Int cleanup_on_exit(USES_REGS1)
 	set_watch(LCL0 - (CELL *)B, task);
       }
   }
+  //
+//  RESET_VARIABLE(port_pt);
   if (Yap_PeekException())
     {
       Yap_JumpToEnv();
       return false;
     }
+  if (Yap_may_creep(true)) {
+    return true;
+  }
+
+
   return true;
 }
 

@@ -505,7 +505,7 @@ public:
 };
 
 /**
- * @classYAPListTerm  A list
+ * @class YapListTerm  list
  */
 class X_API YAPListTerm : public YAPTerm {
 public:

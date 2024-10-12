@@ -26,48 +26,43 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "yapio.h"
 
 static Int get_debugger_state(USES_REGS1) {
-  const char *s = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
-  if (!strcmp(s, "creep")) {
-    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP]);
+  Term key = Deref(ARG1);
+  if (key == TermCreep0) {
+    return Yap_unify(ARG1, LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP]);
   }
-  if (!strcmp(s, "goal_number")) {
+  if (key == TermGoalNumber) {
     return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_GOAL_NUMBER]);
   }
-  if (!strcmp(s, "spy")) {
+  if (key == TermSpy0) {
     return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_SPY]);
   }
-  if (!strcmp(s, "trace")) {
+  if (key == TermTrace) {
     return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_TRACE]);
   }
-  if (!strcmp(s, "debug")) {
+  if (key == TermDebug) {
     return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_DEBUG]);
   }
+  Yap_ThrowError(DOMAIN_ERROR_DEBUGGER_KEY,key,NULL);
   return false;
 }
 
 static Int set_debugger_state(USES_REGS1) {
-  const char *s = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
-  if (!strcmp(s, "creep")) {
-    LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = Deref(ARG2);
-    return true;
-  }
-  if (!strcmp(s, "goal_number")) {
+  Term key = Deref(ARG1);
+  if (key == TermCreep0) {
+    LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP];;
+  } else   if (key == TermGoalNumber) {
     LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = Deref(ARG2);
-    return true;
-  }
-  if (!strcmp(s, "spy")) {
-    LOCAL_debugger_state[DEBUG_SPY] = Deref(ARG2);
-    return true;
-  }
-  if (!strcmp(s, "trace")) {
+  } else   if (key == TermSpy0) {
+     LOCAL_debugger_state[DEBUG_SPY] = Deref(ARG2);
+  } else   if (key == TermTrace) {
     LOCAL_debugger_state[DEBUG_TRACE] = Deref(ARG2);
-    return true;
-  }
-  if (!strcmp(s, "debug")) {
+  } else  if (key == TermDebug) {
     LOCAL_debugger_state[DEBUG_DEBUG] = Deref(ARG2);
-    return true;
-  }
-  return false;
+  } else {
+    Yap_ThrowError(DOMAIN_ERROR_DEBUGGER_KEY,key,NULL);
+    return false;
+}
+  return true;
 }
 
 static void init_debugger_state(void) {
@@ -82,45 +77,43 @@ static void init_debugger_state(void) {
 static Int set_debugger_state5(USES_REGS1) {
   Term t1 = Deref(ARG1);
   if (!IsVarTerm(t1)) {
-
     LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = t1;
   }
-  t1 = Deref(ARG2);
-  if (!IsVarTerm(t1)) {
-    LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = t1;
+  {
+    Term t2 = Deref(ARG2);
+    if (!IsVarTerm(t2)) {
+      LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = t2;
+    }
   }
-  t1 = Deref(ARG3);
-  if (!IsVarTerm(t1)) {
-    LOCAL_debugger_state[DEBUG_SPY] = t1;
+  {
+    Term t3 = Deref(ARG3);
+    if (!IsVarTerm(t3)) {
+      LOCAL_debugger_state[DEBUG_SPY] = t3;
+    }
   }
-  t1 = Deref(ARG4);
-  if (!IsVarTerm(t1)) {
-    LOCAL_debugger_state[DEBUG_TRACE] = t1;
+  {
+   Term  t4 = Deref(ARG4);
+    if (!IsVarTerm(t4)) {
+
+    LOCAL_debugger_state[DEBUG_TRACE] = t4;
+    }
   }
-  t1 = Deref(ARG5);
-  if (!IsVarTerm(t1)) {
-    LOCAL_debugger_state[DEBUG_DEBUG] = t1;
+  {
+    Term t5 = Deref(ARG5);
+  if (!IsVarTerm(t5)) {
+    LOCAL_debugger_state[DEBUG_DEBUG] = t5;
   }
   return true;
+  }
 }
 
 static Int get_debugger_state5(USES_REGS1) {
-  Term t1 = Deref(ARG1);
-  if (!Yap_unify(LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP], t1))
-    return false;
-  t1 = Deref(ARG2);
-  if (!Yap_unify(LOCAL_debugger_state[DEBUG_GOAL_NUMBER], t1))
-    return false;
-  t1 = Deref(ARG3);
-  if (!Yap_unify(LOCAL_debugger_state[DEBUG_SPY], t1))
-    return false;
-  t1 = Deref(ARG4);
-  if (!Yap_unify(LOCAL_debugger_state[DEBUG_TRACE], t1))
-    return false;
-  t1 = Deref(ARG5);
-  if (!Yap_unify(LOCAL_debugger_state[DEBUG_DEBUG], t1))
-    return false;
-  return true;
+  return
+Yap_unify(LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP], ARG1) &&
+  Yap_unify(LOCAL_debugger_state[DEBUG_GOAL_NUMBER], ARG2) &&
+  Yap_unify(LOCAL_debugger_state[DEBUG_SPY], ARG3) &&
+  Yap_unify(LOCAL_debugger_state[DEBUG_TRACE], ARG4) &&
+Yap_unify(LOCAL_debugger_state[DEBUG_DEBUG], ARG5);
 }
 
 /******************************************************************
@@ -173,58 +166,58 @@ int Yap_SetNoTrace(char *name, arity_t arity, Term tmod) {
   return TRUE;
 }
 
-static Int p_setspy(USES_REGS1) { /* '$set_spy'(+Fun,+M)	 */
-  Atom at;
-  PredEntry *pred;
-  pred_flags_t fg;
-  Term t, mod;
+/** '$may_set_spy_point(P)
+ * 
+ * may be set as a debugging point,
+*/
+static Int may_set_spy_point(USES_REGS1) { 
+  PredEntry *pe;
+  bool out;
 
-  at = AtomSpy;
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$set_spy_point/2");
+  if (EndOfPAEntr(pe))
+    return false;
+  out =! (pe->PredFlags & AsmPredFlag );
+  return out;
+}
+static Int p_setspy(USES_REGS1) { /* '$set_spy'(+Fun,+M)	 */
+  PredEntry *pe, *pred;
+  pred_flags_t fg;
+  Term t;
+
+  t = Deref(ARG1);
+  pe =
+    Yap_get_pred(t, Deref(ARG2), "$set_spy_point/2");
+  if (EndOfPAEntr(pe))
+    return false;
+  Atom at = AtomSpy;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
   SpyCode = pred;
-  t = Deref(ARG1);
-  mod = Deref(ARG2);
-  if (IsVarTerm(mod) || !IsAtomTerm(mod))
-    return (FALSE);
-  if (IsVarTerm(t))
-    return (FALSE);
-  if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-    pred = RepPredProp(Yap_PredPropByAtomNonThreadLocal(at, mod));
-  } else if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
-    pred = RepPredProp(Yap_PredPropByFunctorNonThreadLocal(fun, mod));
-  } else {
-    return (FALSE);
+  if (pe->PredFlags & (CPredFlag | SafePredFlag)) {
+    UNLOCKPE(35, pe);
+    return false;
   }
-  PELOCK(22, pred);
-restart_spy:
-  if (pred->PredFlags & (CPredFlag | SafePredFlag)) {
-    UNLOCKPE(35, pred);
-    return FALSE;
+  if (pe->OpcodeOfPred == UNDEF_OPCODE || pe->OpcodeOfPred == FAIL_OPCODE) {
+    UNLOCKPE(36, pe);
+    return false;
   }
-  if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    UNLOCKPE(36, pred);
-    return FALSE;
-  }
-  if (pred->OpcodeOfPred == INDEX_OPCODE) {
+  while (pe->OpcodeOfPred == INDEX_OPCODE) {
     int i = 0;
-    for (i = 0; i < pred->ArityOfPE; i++) {
+    for (i = 0; i < pe->ArityOfPE; i++) {
       XREGS[i + 1] = MkVarTerm();
     }
-    Yap_IPred(pred, 0, CP);
-    goto restart_spy;
+    Yap_IPred(pe, 0, CP);
   }
-  fg = pred->PredFlags;
+  fg = pe->PredFlags;
   if (fg & DynamicPredFlag) {
-    pred->OpcodeOfPred = ((yamop *)(pred->CodeOfPred))->opc =
+    pe->OpcodeOfPred = ((yamop *)(pe->CodeOfPred))->opc =
         Yap_opcode(_spy_or_trymark);
   } else {
-    pred->OpcodeOfPred = Yap_opcode(_spy_pred);
-    pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred));
+    pe->OpcodeOfPred = Yap_opcode(_spy_pred);
+    pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred));
   }
-  pred->PredFlags |= SpiedPredFlag;
-  UNLOCKPE(37, pred);
+  pe->PredFlags |= SpiedPredFlag;
+  UNLOCKPE(37, pe);
   return TRUE;
 }
 
@@ -288,31 +281,34 @@ static Int p_rmspy(USES_REGS1) { /* '$rm_spy'(+T,+Mod)	 */
   return (TRUE);
 }
 
-static Int p_creep(USES_REGS1) {
+bool Yap_may_creep(bool creep_on_forward)
+{
   Atom at;
   PredEntry *pred;
-
-  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
-      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
+  if (  LOCAL_DebEvent) {
+    LOCAL_DebEvent = false;
+    if (creep_on_forward) {
+      at = AtomCreep;
+    } else {
+      at = AtomCreep;
+    }
+    pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
+    CreepCode = pred;
+    LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
+    Yap_signal( YAP_CREEP_SIGNAL);
     return true;
-  at = AtomCreep;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
-  CreepCode = pred;
-  Yap_signal( YAP_CREEP_SIGNAL);
-  return TRUE;
+  }
+  LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermZip;
+  return false;
 }
 
-static Int p_creep_fail(USES_REGS1) {
-  Atom at;
-  PredEntry *pred;
-  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
-      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
-    return true;
-  at = AtomCreep;
-  pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
-  CreepCode = pred;
-  Yap_signal(YAP_CREEP_SIGNAL);
-  return FALSE;
+static Int p_creep(USES_REGS1) {
+  LOCAL_DebEvent = true;
+  return true;
+}
+
+static Int creepfail(USES_REGS1) {
+  return true;
 }
 
 static Int stop_creeping(USES_REGS1) {
@@ -338,9 +334,10 @@ void Yap_InitDebugFs(void) {
     init_debugger_state();
     Yap_InitCPred("creep", 0, p_creep, SafePredFlag);
    Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
-  Yap_InitCPred("$creep_fail", 0, p_creep_fail, SafePredFlag);
+  Yap_InitCPred("$creep_fail", 0, creepfail, SafePredFlag);
   Yap_InitCPred("$stop_creeping", 1, stop_creeping,
                 NoTracePredFlag | HiddenPredFlag | SafePredFlag);
+  Yap_InitCPred("$may_set_spy_point",2, may_set_spy_point, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag);
   Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag | SyncPredFlag);
      Yap_InitCPred("$get_debugger_state", 2, get_debugger_state, NoTracePredFlag);

@@ -131,6 +131,9 @@ static Term is_file_type(Term t) {
   int lvl = push_text_stack();
   char *o = Malloc(FILENAME_MAX+1), *wd = Malloc(FILENAME_MAX+1);
   const char *cwd =  Yap_getcwd(wd, FILENAME_MAX);
+  if (!cwd || cwd[0] == '\0') {
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM,TermNil,"could not find working directory");
+  }
  size_t sz = cwk_path_get_absolute(
                                   cwd, path,
                                      o,

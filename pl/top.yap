@@ -189,7 +189,8 @@ AVs = [],
     current_prolog_flag(debug,true),
     '$get_debugger_state'(trace,on),
     !,
-    '$set_debugger_state'(creep,creep),
+        nb_setval(creep,creep),
+    % '$set_debugger_state'(creep,creep),
     current_choice_point(CP0),
     '$spy'(G,top),
     current_choice_point(CPF),
@@ -200,7 +201,8 @@ AVs = [],
     Port = answer
     ).
 '$query'(G,_,Port) :-
-   '$set_debugger_state'(creep,zip),
+    nb_setval(creep,zip),
+    %'$set_debugger_state'(creep,zip),
     catch(
 	gated_call(
 	    true,
@@ -273,9 +275,11 @@ true
 '$enable_debugging' :-
     '$get_debugger_state'(trace,on),
     !,
+    nb_setval(creep,creep),
     '$set_debugger_state'(creep, 0, stop, on, true),
     '$creep'.
 '$enable_debugging' :-
+    nb_setval(creep,zip),
     '$set_debugger_state'(zip, 0, stop, on, true).
 
 '$trace_on' :-

@@ -497,7 +497,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     Term tail;
     int (*f_putc)(int, wchar_t);
     int sno = sno0;
-    int last_tabline=1;
     Term fmod = CurrentModule;
     bool alloc_fstr = false;
     LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -1006,8 +1005,7 @@ switch (ch) {
                                 repeats = 1;
                         while (repeats--) {
                             f_putc(sno, (int) '\n');
-			    last_tabline++;
-                        }
+	                        }
                         sno = format_synch(sno, sno0, finfo);
                         break;
                         case 'N':
@@ -1015,15 +1013,13 @@ switch (ch) {
                                 repeats = 1;
                         if (GLOBAL_Stream[sno].linestart !=
 			   GLOBAL_Stream[sno].charcount ) {
-			  last_tabline++;
-			  f_putc(sno, '\n');
+				  f_putc(sno, '\n');
                             sno = format_synch(sno, sno0, finfo);
                         }
                         if (repeats > 1) {
                             Int i;
                             for (i = 1; i < repeats; i++)
 			      {
-				last_tabline++;
 				f_putc(sno, '\n');
                        
 				sno = format_synch(sno, sno0, finfo);
@@ -1046,7 +1042,6 @@ switch (ch) {
 			  finfo->phys_start = GLOBAL_Stream[sno].charcount
 			    -GLOBAL_Stream[sno].linestart;
 			  finfo->gapi=0;
-			  last_tabline=GLOBAL_Stream[sno].linecount;
 			     break;
                         case 't': {
 			  Yap_flush(sno);

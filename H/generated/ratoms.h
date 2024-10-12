@@ -80,6 +80,7 @@
   AtomCputime = AtomAdjust(AtomCputime); TermCputime = MkAtomTerm(AtomCputime);
   AtomCreate = AtomAdjust(AtomCreate); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = AtomAdjust(AtomCreep); TermCreep = MkAtomTerm(AtomCreep);
+  AtomCreep0 = AtomAdjust(AtomCreep0); TermCreep0 = MkAtomTerm(AtomCreep0);
   AtomCryptAtoms = AtomAdjust(AtomCryptAtoms); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
   AtomCsult = AtomAdjust(AtomCsult); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurly = AtomAdjust(AtomCurly); TermCurly = MkAtomTerm(AtomCurly);
@@ -196,6 +197,8 @@
   AtomGlobalSp = AtomAdjust(AtomGlobalSp); TermGlobalSp = MkAtomTerm(AtomGlobalSp);
   AtomGlobalTrie = AtomAdjust(AtomGlobalTrie); TermGlobalTrie = MkAtomTerm(AtomGlobalTrie);
   AtomGoalExpansion = AtomAdjust(AtomGoalExpansion); TermGoalExpansion = MkAtomTerm(AtomGoalExpansion);
+  AtomGoalExpansion = AtomAdjust(AtomGoalExpansion); TermGoalExpansion = MkAtomTerm(AtomGoalExpansion);
+  AtomGoalNumber = AtomAdjust(AtomGoalNumber); TermGoalNumber = MkAtomTerm(AtomGoalNumber);
   AtomHERE = AtomAdjust(AtomHERE); TermHERE = MkAtomTerm(AtomHERE);
   AtomHandleThrow = AtomAdjust(AtomHandleThrow); TermHandleThrow = MkAtomTerm(AtomHandleThrow);
   AtomHat = AtomAdjust(AtomHat); TermHat = MkAtomTerm(AtomHat);
@@ -412,6 +415,7 @@
   AtomSourceSink = AtomAdjust(AtomSourceSink); TermSourceSink = MkAtomTerm(AtomSourceSink);
   AtomSourcelessProcedure = AtomAdjust(AtomSourcelessProcedure); TermSourcelessProcedure = MkAtomTerm(AtomSourcelessProcedure);
   AtomSpy = AtomAdjust(AtomSpy); TermSpy = MkAtomTerm(AtomSpy);
+  AtomSpy0 = AtomAdjust(AtomSpy0); TermSpy0 = MkAtomTerm(AtomSpy0);
   AtomSqbrackets = AtomAdjust(AtomSqbrackets); TermSqbrackets = MkAtomTerm(AtomSqbrackets);
   AtomStack = AtomAdjust(AtomStack); TermStack = MkAtomTerm(AtomStack);
   AtomStackFree = AtomAdjust(AtomStackFree); TermStackFree = MkAtomTerm(AtomStackFree);

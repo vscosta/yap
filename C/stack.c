@@ -1707,7 +1707,7 @@ bool DumpActiveGoals(FILE *f, bool ignore_top USES_REGS) {
 char * Yap_dump_stack(FILE *f) {
     CACHE_REGS
     size_t nsize;
-    char *nbuf;
+    char *nbuf = NULL;
     if (!f)
       {      
 #if HAVE_OPEN_MEMSTREAM

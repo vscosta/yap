@@ -75,6 +75,7 @@ static void kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 
 #define TRYCODE(G, F, N) ((N) < 5 ? (op_numbers)((int)F + (N)*3) : G)
 
+static void purge_clauses(PredEntry *pred);
 
 typedef enum asserting_flags_enum {
   ASSERTA = 0x1, // asserta(....)
@@ -1549,7 +1550,7 @@ static Int
 bool Yap_multiple(PredEntry *ap, Term mode USES_REGS) {
 
   if ((ap->PredFlags & (MultiFileFlag | LogUpdatePredFlag | DynamicPredFlag)) ||
-      mode != TermReconsult)
+      (mode != TermReconsult &&   mode != TermConsult) )
     return false;
    if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag) ||
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
@@ -2071,12 +2072,16 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
 	  !(p->PredFlags & (LogUpdatePredFlag|ProxyPredFlag)))	{
 	p->PredFlags |= SourcePredFlag;
       }
-    if( mode == ASSERTA || mode == ASSERTZ) {
+      if(
+	 mode == ASSERTA || mode == ASSERTZ) {
       Yap_MkLogPred(p);
     }
     } else {
     multiple =Yap_multiple(p, t1 PASS_REGS);
     if (multiple) {
+      if (t1==TermReconsult) {
+	purge_clauses(p);
+      }
       m_culprit = MkPairTerm(
 			     MkAtomTerm(p->src.OwnerFile),
 			     MkIntTerm(p->src.OwnerLine)
@@ -2153,12 +2158,12 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
      return false;
     }
   }
+  if (multiple) {
+      warn(WARNING_MULTIPLE, t, TermMultiple, m_culprit, "definition in multiple files warning");
+    } else
     if (discontiguous) {
       warn(WARNING_DISCONTIGUOUS, t, TermDiscontiguous, d_culprit, "discontiguous definition in same file warning");
-    }
-    if (multiple) {
-      warn(WARNING_MULTIPLE, t, TermMultiple, m_culprit, "definition in multiple files warning");
-    }
+     }
   return true;
 }
 
@@ -2305,7 +2310,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   return TRUE;
 }
 
-static Int p_sys_export(USES_REGS1) { /* '$set_spy'(+Fun,+M)	 */
+static Int p_sys_export(USES_REGS1) { /* '$sys_export'(+Fun,+M)	 */
   PredEntry *pred;
   Term t, mod;
 
@@ -2713,21 +2718,6 @@ static Int p_is_dynamic(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   if (EndOfPAEntr(pe))
     return FALSE;
   out = (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag));
-  return (out);
-}
-
-/** '$may_set_spy_point(P)
- * 
- * may be set as a debugging point,
-*/
-static Int may_set_spy_point(USES_REGS1) { 
-  PredEntry *pe;
-  bool out;
-
-  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$is_dynamic");
-  if (EndOfPAEntr(pe))
-    return FALSE;
-  out =! (pe->PredFlags & AsmPredFlag );
   return (out);
 }
 
@@ -4563,7 +4553,6 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$fetch_nth_clause", 4, p_nth_instance, SyncPredFlag);
   Yap_InitCPred("$predicate_erased_statistics", 5,
                 predicate_erased_statistics, SyncPredFlag);
-  Yap_InitCPred("$may_set_spy_point",1, may_set_spy_point, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$clause_to_components", 4, clause_to_components,  HiddenPredFlag);
   Yap_InitCPred("$active_predicate", 1, active_pred,  HiddenPredFlag);

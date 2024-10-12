@@ -362,6 +362,7 @@ static Term interrupt_wake_up(Term nextg USES_REGS) {
     Yap_UpdateTimedVar(LOCAL_WokenGoals, td);
   }
   if (creep) {
+    LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
     tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
   }
   if (sig) {
@@ -755,18 +756,23 @@ static void spy_goal(USES_REGS1) {
     SET_ASP(YREG, EnvSizeInCells);
     Yap_IPred(pe, 0, CP);
     /* IPred can generate errors, it thus must get rid of the lock itself */
-    if (P == PredFail->CodeOfPred) {
+    if (P->opc == FAILCODE->opc ||
+	P->opc == TRUSTFAILCODE->opc ||
+	P == NOCODE ||
+	P == EXITCODE) {
 #if defined(YAPOR) || defined(THREADS)
       if (PP && !(PP->PredFlags & LogUpdatePredFlag)) {
         UNLOCKPE(20, pe);
         PP = NULL;
       }
 #endif
-      return;
+       return;
     }
+
   }
+    
   /* first check if we need to increase the counter */
-  if ((pe->PredFlags & CountPredFlag)) {
+  if (pe->PredFlags & CountPredFlag) {
     LOCK(pe->StatisticsForPred->lock);
     pe->StatisticsForPred->NOfEntries++;
     UNLOCK(pe->StatisticsForPred->lock);

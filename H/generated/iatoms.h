@@ -80,6 +80,7 @@
   AtomCputime = Yap_LookupAtom("cputime"); TermCputime = MkAtomTerm(AtomCputime);
   AtomCreate = Yap_LookupAtom("create"); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = Yap_FullLookupAtom("$creep"); TermCreep = MkAtomTerm(AtomCreep);
+  AtomCreep0 = Yap_LookupAtom("creep"); TermCreep0 = MkAtomTerm(AtomCreep0);
   AtomCryptAtoms = Yap_LookupAtom("crypt_atoms"); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
   AtomCurly = Yap_LookupAtom("{}"); TermCurly = MkAtomTerm(AtomCurly);
@@ -196,6 +197,8 @@
   AtomGlobalSp = Yap_LookupAtom("global_sp"); TermGlobalSp = MkAtomTerm(AtomGlobalSp);
   AtomGlobalTrie = Yap_LookupAtom("global_trie"); TermGlobalTrie = MkAtomTerm(AtomGlobalTrie);
   AtomGoalExpansion = Yap_LookupAtom("goal_expansion"); TermGoalExpansion = MkAtomTerm(AtomGoalExpansion);
+  AtomGoalExpansion = Yap_LookupAtom("goal_expansion"); TermGoalExpansion = MkAtomTerm(AtomGoalExpansion);
+  AtomGoalNumber = Yap_LookupAtom("goal_number"); TermGoalNumber = MkAtomTerm(AtomGoalNumber);
   AtomHERE = Yap_LookupAtom("\n   <====HERE====>  \n"); TermHERE = MkAtomTerm(AtomHERE);
   AtomHandleThrow = Yap_FullLookupAtom("$handle_throw"); TermHandleThrow = MkAtomTerm(AtomHandleThrow);
   AtomHat = Yap_LookupAtom("^"); TermHat = MkAtomTerm(AtomHat);
@@ -412,6 +415,7 @@
   AtomSourceSink = Yap_LookupAtom("source_sink"); TermSourceSink = MkAtomTerm(AtomSourceSink);
   AtomSourcelessProcedure = Yap_LookupAtom("sourceless_procedure"); TermSourcelessProcedure = MkAtomTerm(AtomSourcelessProcedure);
   AtomSpy = Yap_FullLookupAtom("$spy"); TermSpy = MkAtomTerm(AtomSpy);
+  AtomSpy0 = Yap_LookupAtom("spy"); TermSpy0 = MkAtomTerm(AtomSpy0);
   AtomSqbrackets = Yap_LookupAtom("[]"); TermSqbrackets = MkAtomTerm(AtomSqbrackets);
   AtomStack = Yap_LookupAtom("stack"); TermStack = MkAtomTerm(AtomStack);
   AtomStackFree = Yap_LookupAtom("stackfree"); TermStackFree = MkAtomTerm(AtomStackFree);

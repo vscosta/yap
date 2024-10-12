@@ -194,6 +194,7 @@ extern void Yap_InitDBPreds(void);
 
 /* debug.c */
 extern void Yap_InitDebugFs(void);
+extern bool Yap_may_creep(bool);
 
 /* errors.c */
 #if DEBUG

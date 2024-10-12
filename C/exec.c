@@ -1124,48 +1124,52 @@ static Int execute_nonstop(USES_REGS1)
 { /* '$execute_nonstop'(Goal,Mod)
                                           */
   Term t = Deref(ARG1);
-  Term mod = CurrentModule;
-  unsigned int arity;
-  Prop pe;
-
-  t = Yap_YapStripModule(t, &mod);
-  if (IsVarTerm(mod))
-  {
-    mod = CurrentModule;
-  }
-  else if (!IsAtomTerm(mod))
-  {
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, ARG2, "call/1");
-    return FALSE;
-  }
-  if (IsVarTerm(t))
-  {
-    Yap_ThrowError(INSTANTIATION_ERROR, ARG1, "call/1");
-    return FALSE;
-  }
-  else if (IsAtomTerm(t))
-  {
-    Atom a = AtomOfTerm(t);
-    pe = PredPropByAtom(a, mod);
-  }
-  else if (IsApplTerm(t))
-  {
+  PredEntry *pe = Yap_get_pred(t, ARG2, "c_exec(G)");
     register Functor f = FunctorOfTerm(t);
-    register unsigned int i;
+    register arity_t arity = pe->ArityOfPE, i;
+
     register CELL *pt;
 
     if (IsExtensionFunctor(f))
       return false;
-    pe = PredPropByFunc(f, mod);
-    arity = ArityOfFunctor(f);
-    if (arity > MaxTemps)
-    {
-      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
-    }
-    /* I cannot use the standard macro here because
+
+     /* I cannot use the standard macro here because
            otherwise I would dereference the argument and
            might skip a svar */
     pt = RepAppl(t) + 1;
+    for (i = 1; i <= arity; ++i)
+    {
+#if YAPOR_SBA
+      Term d0 = *pt++;
+      if (d0 == 0)
+        XREGS[i] = (CELL)(pt - 1);
+      else
+        XREGS[i] = d0;
+#else
+      XREGS[i] = *pt++;
+#endif
+    }
+  
+    return CallPredicate(pe, B,
+                         pe->cs.p_code.TrueCodeOfPred PASS_REGS);
+}
+
+
+static Int creep_clause(USES_REGS1)
+{ /* '$creep_clause'(Goal,Mod,Ref,CP)
+   */
+
+  Term t = Deref(ARG1);
+  PredEntry *pe = Yap_get_pred(t, ARG2, "clause(K, Ref)")
+  ;
+
+ if (IsApplTerm(t))
+  {
+    arity_t i;
+    CELL *pt;
+
+    pt = RepAppl(t) + 1;
+    arity_t arity = pe->ArityOfPE;
     for (i = 1; i <= arity; ++i)
     {
 #if YAPOR_SBA
@@ -1186,36 +1190,19 @@ static Int execute_nonstop(USES_REGS1)
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
-  if (RepPredProp(pe)->PredFlags & SpiedPredFlag)
-  {
-    if (!LOCAL_InterruptsDisabled && Yap_get_signal(YAP_CREEP_SIGNAL))
+    if (pe->PredFlags & LogUpdatePredFlag)
     {
-      Yap_signal(YAP_CREEP_SIGNAL);
-    }
-#if defined(YAPOR) || defined(THREADS)
-    if (RepPredProp(pe)->PredFlags & LogUpdatePredFlag)
-    {
-      PP = RepPredProp(pe);
+      PP = (pe);
       PELOCK(80, PP);
     }
-#endif
-    return CallPredicate(RepPredProp(pe), B,
-                         RepPredProp(pe)->cs.p_code.TrueCodeOfPred PASS_REGS);
+    choiceptr b = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG4)));
+    yamop *pc = AddressOfTerm(Deref(ARG3));
+    return CallPredicate(pe, b, pc PASS_REGS);
 
-    
-  }
-  else
-  {
-    if (Yap_get_signal(YAP_CREEP_SIGNAL) && !LOCAL_InterruptsDisabled &&
-        (!(RepPredProp(pe)->PredFlags & (AsmPredFlag | CPredFlag)) ||
-         RepPredProp(pe)->OpcodeOfPred == Yap_opcode(_call_bfunc_xx)))
-    {
-      Yap_signal(YAP_CREEP_SIGNAL);
-    }
-    return CallPredicate(RepPredProp(pe), B,
-                         RepPredProp(pe)->CodeOfPred PASS_REGS);
-  }
 }
+
+
+
 
 static Int execute_0(USES_REGS1)
 { /* '$execute_0'(Goal)	 */
@@ -2205,6 +2192,7 @@ void Yap_InitExecFs(void)
   CACHE_REGS
 
   InitCommaPreds();
+  Yap_InitCPred("$crep_clause", 4, creep_clause, 0);
   Yap_InitCPred("$execute", 1, execute, 0);
   Yap_InitCPred("$execute0", 1, execute, 0);
   Yap_InitCPred("call", 1, execute, 0);
