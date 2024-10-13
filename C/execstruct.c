@@ -180,13 +180,14 @@ static bool watch_cut(Term ext)
 	{
 	  t = Yap_MkApplTerm(FunctorExternalException, 1, &e);
 	}
-      port_pt[0] = t;
+      MaBind(port_pt, t);
       completion_pt[0] = TermException;
-  CP = FAILCODE;
+          CP = FAILCODE;
     }
   else
     {
-      completion_pt[0] = port_pt[0] = TermCut;
+      completion_pt[0] = TermCut;
+      MaBind(port_pt, TermCut);
     }
   gate(cleanup PASS_REGS);
 //    RESET_VARIABLE(port_pt);
@@ -236,11 +237,11 @@ static bool watch_retry(Term d0 )
       e = MkAddressTerm(LOCAL_ActiveError);
       if (bottom)
 	{
-	  port_pt[0] = Yap_MkApplTerm(FunctorException, 1, &e);
+	  MaBind(port_pt,Yap_MkApplTerm(FunctorException, 1, &e));
 	}
       else
 	{
-	  port_pt[0] = Yap_MkApplTerm(FunctorExternalException, 1, &e);
+	  MaBind(port_pt, Yap_MkApplTerm(FunctorExternalException, 1, &e) );
 	}
       completion_pt[0] = TermException;
     }
@@ -248,12 +249,12 @@ static bool watch_retry(Term d0 )
     {
       if (det)
 	{
-	  port_pt[0] = TermFail;
+	  MaBind(port_pt, TermFail);
 	  completion_pt[0] = TermFail;
 	}
       else 
 	{
-	  YapBind(port_pt, TermRedo) ;
+	  MaBind(port_pt, TermRedo) ;
 	}
     }
   gate(cleanup PASS_REGS);
@@ -321,7 +322,8 @@ static Int tag_cleanup(USES_REGS1)
 
   Int iB = LCL0 - (CELL *)B;
   set_watch(iB, Deref(ARG2));
-  return Yap_unify(ARG1, MkIntegerTerm(iB));
+  Yap_unify(ARG1, MkIntegerTerm(iB));
+  return true;
 }
 
 static Int cleanup_on_exit(USES_REGS1)
@@ -341,11 +343,11 @@ static Int cleanup_on_exit(USES_REGS1)
   if ( !deterministic(BEntry))
     {
       // non-deterministic
-      YapBind(port_pt,  TermAnswer);
+      MaBind(port_pt,  TermAnswer);
     }
   else
     {
-      port_pt[0] = TermExit;
+      MaBind(port_pt, TermExit);
       completion_pt[0] = TermExit;
     }
   gate(cleanup PASS_REGS);

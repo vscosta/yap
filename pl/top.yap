@@ -526,8 +526,7 @@ live__ :-
 % reset alarms when entering top-level.
     alarm(0, 0, _, _),
     '$clean_up_dead_clauses',
-    current_prolog_flag(debug, DebugOK),
-    '$set_debugger_state'(debug, DebugOK),
+    nb_setval(creep,creep),
     get_value('$top_level_goal',GA),
     (
 	GA \= []
