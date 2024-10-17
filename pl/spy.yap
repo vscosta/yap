@@ -431,9 +431,9 @@ notrace(G) :-
     number(TargetGoal),
     (Port == redo
       ->
-      GoalNo >= TargetGoal
-    ;
       GoalNo > TargetGoal
+    ;
+      GoalNo > TargetGoal+1
     ).      
       
 

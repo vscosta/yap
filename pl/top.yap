@@ -548,7 +548,7 @@ live__ :-
     ->
     !
     ;
-    nb_setval('$spy_gn',1),
+    nb_setval('$spy_gn',0),
     % stop at spy-points if debugging is on.
     '$init_debugger_trace',
     catch('$goal'(Goal,Bindings,Pos),_Error,error_handler),
