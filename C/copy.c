@@ -35,6 +35,7 @@
 
 */
 
+
 #include <stdbool.h>
 #define DEB_DOOBIN(d0)                                                         \
 (fprintf(stderr, "+++ %s ", __FUNCTION__), Yap_DebugPlWriteln(d0))
@@ -361,8 +362,12 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 		return stt->err = RESOURCE_ERROR_STACK;
 	      }
 	      *ptf = AbsAppl(HR);
+	      if (f!=FunctorDouble && f!=FunctorLongInt) {
 	      memmove(HR, RepAppl(t), (szop-1) * CellSize);
-	      HR[szop - 1] = CloseExtension(HR);
+		HR[szop - 1] = CloseExtension(HR);
+	      } else {
+	      memmove(HR, RepAppl(t), szop * CellSize);
+	      }
 	      HR+=szop;
                   continue;
                 }
@@ -550,7 +555,9 @@ Term CopyTermToArena(Term t,
 	      CELL *limit =  ArenaLimit(*arenap);
 	      end = base+szop;
 	      memmove(base, RepAppl(t), (szop) * CellSize);
+	      if (f!= FunctorDouble && f!=FunctorLongInt) {
 	      end[ - 1] = CloseExtension(end-szop);
+	      }
 	      Term tf = AbsAppl(base);
 	      *arenap = Yap_MkArena(end, limit);
 	      return tf;

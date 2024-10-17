@@ -162,91 +162,46 @@ SizeOfOpaqueTerm(Term *next, CELL cnext);
 
 INLINE_ONLY Float CpFloatUnaligned(CELL *ptr);
 
+
 #define MkFloatTerm(fl) __MkFloatTerm((fl)PASS_REGS)
 
-INLINE_ONLY Term __MkFloatTerm(Float USES_REGS);
-
-INLINE_ONLY Float FloatOfTerm(Term t);
+#define MASK32B (((CELL)1<<32)-1)
  
-#if SIZEOF_DOUBLE == SIZEOF_INT_P
 
 INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
-  return (Term)((HR[0] = (CELL)FunctorDouble, *(Float *)(HR + 1) = dbl,
-                 HR[2] = CloseExtension(HR), HR += 3, AbsAppl(HR - 3)));
+    union float_words {
+       double val;
+      uint64_t s;
+    } u;
+    u.val = dbl;
+    HR[0] = (CELL)FunctorDouble;
+    HR[1] = ( (u.s & MASK32B)<<8) |NumberTag;
+    HR[2] = ((u.s & (MASK32B<<32))>>8) |NumberTag;
+    HR+=3;
+    return AbsAppl(HR-3);
 }
+
 
 INLINE_ONLY Float FloatOfTerm(Term t) {
-  return (Float)(*(Float *)(RepAppl(t) + 1));
+    union {
+       double val;
+      uint64_t s;
+    } u;
+    CELL* pt = RepAppl(t);
+    u.s = ((pt[1]>>8)&MASK32B)|((pt[2]<<8)&(MASK32B<<32));
+    return u.val;
 }
 
-#define InitUnalignedFloat()
 
-INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
-  return *((Float *)ptr);
-}
 
-#else
 
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-
-#define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR)&0x4)
-
-INLINE_ONLY inline void AlignGlobalForDouble(USES_REGS1);
-
-INLINE_ONLY inline void AlignGlobalForDouble(USES_REGS1) {
-  /* Force Alignment for floats. Note that garbage collector may
-     break the alignment; */
-  if (!DOUBLE_ALIGNED(HR)) {
-    RESET_VARIABLE(HR);
-    HR++;
-  }
-}
-
-#ifdef i386
-INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
-  return *((Float *)(ptr + 1));
-}
-
-#else
-/* first, need to address the alignment problem */
-INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
-  union {
-    Float f;
-    CELL d[2];
-  } u;
-  u.d[0] = ptr[1];
-  u.d[1] = ptr[2];
-  return (u.f);
-}
-
-#endif
-
-INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
-  return (Term)((AlignGlobalForDouble(PASS_REGS1), HR[0] = (CELL)FunctorDouble,
-                 *(Float *)(HR + 1) = dbl, HR[3] = CloseExtension(HR), HR += 4,
-                 AbsAppl(HR - 4)));
-}
-
-INLINE_ONLY Float FloatOfTerm(Term t) {
-  return (Float)((DOUBLE_ALIGNED(RepAppl(t)) ? *(Float *)(RepAppl(t) + 1)
-                                             : CpFloatUnaligned(RepAppl(t))));
-}
-
-/* no alignment problems for 64 bit machines */
-#else
-/* OOPS, YAP only understands Floats that are as large as cells or that
-   take two cells!!! */
-
-OOPS
-
-#endif
 #endif
 
 #ifndef YAP_H
 #include <stddef.h>
 #endif
 
-INLINE_ONLY bool IsFloatTerm(Term);
+INLINE_ONLY bool IsLongIntTerm(Term);
 
 INLINE_ONLY bool IsFloatTerm(Term t) {
   return (int)(IsApplTerm(t) && FunctorOfTerm(t) == FunctorDouble);
@@ -254,25 +209,31 @@ INLINE_ONLY bool IsFloatTerm(Term t) {
 
 /* extern Functor FunctorLongInt; */
 
-#define MkLongIntTerm(i) __MkLongIntTerm((i)PASS_REGS)
 
-INLINE_ONLY Term __MkLongIntTerm(Int USES_REGS);
+#define MkLongIntTerm(fl) __MkLongIntTerm((fl)PASS_REGS)
 
-INLINE_ONLY Term __MkLongIntTerm(Int i USES_REGS) {
-  HR[0] = (CELL)FunctorLongInt;
-  HR[1] = (CELL)(i);
-  HR[2] = CloseExtension(HR);
-  HR += 3;
-  return AbsAppl(HR - 3);
+INLINE_ONLY Term __MkLongIntTerm(Int x  USES_REGS) {
+    union float_words {
+       double val;
+      uint64_t s;
+    } u;
+    u.val = x;
+    HR[0] = (CELL)FunctorLongInt;
+    HR[1] = ( (u.s & MASK32B)<<8) |NumberTag;
+    HR[2] = ((u.s & (MASK32B<<32))>>8) |NumberTag;
+    HR+=3;
+    return AbsAppl(HR-3);
 }
-
-INLINE_ONLY Int LongIntOfTerm(Term t);
 
 INLINE_ONLY Int LongIntOfTerm(Term t) {
-  return (Int)(RepAppl(t)[1]);
+    union {
+       double val;
+      Int s;
+    } u;
+    CELL* pt = RepAppl(t);
+    u.s = ((pt[1]>>8)&MASK32B)|((pt[2]<<8)&(MASK32B<<32));
+    return u.val;
 }
-
-INLINE_ONLY bool IsLongIntTerm(Term);
 
 INLINE_ONLY bool IsLongIntTerm(Term t) {
   return IsApplTerm(t) &&
@@ -384,7 +345,7 @@ INLINE_ONLY bool IsLargeIntTerm(Term t) {
            (FunctorOfTerm(t) >= FunctorLongInt));
 }
 
-INLINE_ONLY UInt Yap_SizeOfExtensiont(Term);
+
 
 /**
  *
@@ -579,4 +540,4 @@ static inline CELL Yap_String_key(Term t) {
 
 #endif // TERMEXT_H_INCLUDED
 
-#endif
+

@@ -1337,6 +1337,11 @@ mark_variable(CELL_PTR current USES_REGS)
 
     if (next < H0 || next > HR) POP_CONTINUATION();
     if (IsExtensionFunctor((Functor)cnext)) {
+      if (cnext == (CELL)FunctorDouble ||
+	  cnext == (CELL)FunctorLongInt) {
+	arity = 2;
+	goto args;
+      }
       size_t sz = SizeOfOpaqueTerm(next,cnext);
 
       //      fprintf(stderr,"found %p: %lx %lx %lx %p: %lx %p\n ", next, next[0], next[1], next[2], next+sz-1,next[sz-1], next+sz);
@@ -1388,6 +1393,7 @@ mark_variable(CELL_PTR current USES_REGS)
     inc_vars_of_type(next,gc_func);
 #endif
     arity = ArityOfFunctor((Functor)(cnext));
+  args:
     MARK(next);
     //fprintf(stderr,"%p M\n", next);
     ++LOCAL_total_marked;

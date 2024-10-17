@@ -61,7 +61,7 @@ SizeOfOpaqueTerm(Term *next, CELL cnext)
     }
   case (CELL)FunctorDouble:
     {
-         sz =2+  SIZEOF_DOUBLE / SIZEOF_INT_P;
+         sz =1+  2*SIZEOF_DOUBLE / SIZEOF_INT_P;
 	 break;
       }
   case (CELL)FunctorString:
