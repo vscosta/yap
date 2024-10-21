@@ -293,7 +293,7 @@ be lost.
 '$spy'(ModG,Ctx) :-
     gated_call(
     strip_module(ModG,M,G),
-    (G = true -> true ; '$trace'(M:G, Ctx)),
+    (G == true -> true ; '$trace'(M:G, Ctx)),
     Port,
     '$continue_debugging'(Port,Ctx)).
 
@@ -334,26 +334,17 @@ be lost.
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'( yap_hacks:trace( MG), Ctx) :-
-    !,
-    '$trace'( MG,Ctx).
 '$trace'( MG, _Ctx) :-
     '$zip_at_port'( call, _GN0, MG),
     !,
     '$execute_non_stop'(MG).
-'$trace'(MG, top) :-
+'$trace'(MG, Ctx) :-
     strip_module(MG,M,G),
     !,
     nb_setval(creep,creep),
-    '$id_goal'(GoalNumberN),
-    nb_setval(creep,creep),
     '$set_debugger_state'( creep, 0, stop, on, false ),
     current_choice_point(CP0),
-catch(
-    trace_goal(G,M, Ctx, GoalNumberN, CP0),
-    Error,
-    trace_error(Error, GoalNumberN, trace_goal(G,M, Ctx, GoalNumberN, CP0))
-    ).
+    trace_goal(G, M, _, Ctx, CP0).
 /*'$trace'(M:G, Ctx) :- % system
     '$id_goal'(GoalNumberN),
     '$meta_hook'(M:G,MNG),
@@ -430,7 +421,7 @@ true
 %
 %  debug a complex query
 %
-trace_goal(V, M, _, _) :-
+trace_goal(V, M, _, _, _) :-
     (
 	var(V)
     ->
@@ -440,6 +431,16 @@ trace_goal(V, M, _, _) :-
     ->
     throw_error(instantiation_error,call(M:V))
     ).
+trace_goal( '$call'( G, CP0, _, M), _, Ctx, _, _) :-
+    !,
+    trace_goal(G, M,  Ctx, _, CP0).
+trace_goal( '$top_level', _, _Ctx, _, _) :-
+    !,
+    nb_setval(creep,zip).
+trace_goal('$drop_exception'(V,J), _, _, _, _) :-
+    !,
+    '$drop_exception'(V,J).
+
 trace_goal(true,_, _, _,  _CP) :-
     !.
 trace_goal(false,_, _, _,  _CP) :-
@@ -491,6 +492,13 @@ trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
     trace_goal(G,M0, Ctx, GoalNumberN, CP0).
 trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
     '$id_goal'(GoalNumberN),
+catch(
+step_goal(G,M,GoalNumberN),
+    Error,
+    trace_error(Error, GoalNumberN, step_goal(G,M, GoalNumberN))
+    ).
+
+ step_goal(G,M, GoalNumberN) :-
     '$interact'([call], M:G, GoalNumberN),
  '$predicate_type'(G,M,T),
     '$step'(T,M:G,GoalNumberN).

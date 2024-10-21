@@ -189,7 +189,7 @@ AVs = [],
     current_prolog_flag(debug,true),
     '$get_debugger_state'(trace,on),
     !,
-        nb_setval(creep,creep),
+    nb_setval(creep,creep),
     % '$set_debugger_state'(creep,creep),
     current_choice_point(CP0),
     '$spy'(G,top),
@@ -284,14 +284,14 @@ true
 
 '$trace_on' :-
     '$get_debugger_state'(debug, true),
-    '$set_debugger_state'(trace, on).
+    '$get_debugger_state'(trace, on).
 
 
 
 
 '$trace_off' :-
         '$get_debugger_state'(debug, true),
-    '$set_debugger_state'(trace, off).
+    '$get_debugger_state'(trace, off).
 
 
 '$call'(V, _CP, G0, M) :-
@@ -507,6 +507,7 @@ log_event( String, Args ) :-
 
 live  :-
     repeat,
+    '$top_level',
     live__,
     !.
 
@@ -525,8 +526,9 @@ live__ :-
     ),
 % reset alarms when entering top-level.
     alarm(0, 0, _, _),
+    '$top_level',
+    nb_setval(creep,zip),
     '$clean_up_dead_clauses',
-    nb_setval(creep,creep),
     get_value('$top_level_goal',GA),
     (
 	GA \= []
@@ -567,7 +569,7 @@ live__(Error) :-
     format(user_error, '%% WARNING: uncaught  throw ~q.~n', [Error]),
     live.
 
-
+'$top_level'.
 
 /**
 @} 

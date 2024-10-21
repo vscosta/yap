@@ -222,7 +222,8 @@ Ends tracing and exits the debugger. This is the same as
 nodebug/0.
  */
 notrace :-
-    nodebug.
+    '$set_debugger_state'(trace, off),
+    print_message(informational,debug(off)).
 
 /*-----------------------------------------------------------------------------
 
