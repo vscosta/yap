@@ -1,4 +1,3 @@
-
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -63,8 +62,6 @@ static yap_signals ProcessSIGINT(void);
 
 bool Yap_DisableInterrupts(int wid) {
     CACHE_REGS
-  LOCAL_InterruptsDisabled = true;
-  LOCAL_debugger_state[DEBUG_DEBUG] =     TermFalse;
     LOCAL_InterruptsDisabled = true;
   YAPEnterCriticalSection();
   return true;
@@ -72,7 +69,6 @@ bool Yap_DisableInterrupts(int wid) {
 
 bool Yap_EnableInterrupts(int wid ) {
     CACHE_REGS
-  LOCAL_debugger_state[DEBUG_DEBUG]= getAtomicLocalPrologFlag(DEBUG_FLAG);
   LOCAL_InterruptsDisabled = false;
   if (LOCAL_Signals) {
     if (LOCAL_Signals == SIGINT) {
@@ -130,10 +126,8 @@ static bool InteractSIGINT(int ch USES_REGS) {
     return true;
  case 't':
    LOCAL_Flags[DEBUG_FLAG].at = TermTrue;
-   LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermCreep;
-   LOCAL_debugger_state[DEBUG_SPY] = TermTrue;
-   LOCAL_debugger_state[DEBUG_TRACE] = TermTrue;
-   LOCAL_debugger_state[DEBUG_DEBUG] = TermTrue;
+   LOCAL_Flags[TRACE_FLAG].at = TermTrue;
+   Yap_SetGlobalVal(AtomCreep,TermCreep);
    /* start tracing */
     Yap_signal(YAP_CREEP_SIGNAL);
     break;

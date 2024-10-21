@@ -108,8 +108,6 @@ static bool gate(Term t USES_REGS)
   t=Deref(t);
   Yap_must_be_callable(t,CurrentModule);
   yap_error_descriptor_t *old=NULL;
-  Term ostate = LOCAL_debugger_state[DEBUG_DEBUG];
-  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
 
   bool rc = Yap_RunTopGoal(t, true);
   if (old) 
@@ -119,7 +117,6 @@ static bool gate(Term t USES_REGS)
     prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
     LOCAL_PrologMode &= ErrorHandlingMode;
   }
-  LOCAL_debugger_state[DEBUG_DEBUG] = ostate;
   
   // We'll pass it through
   P = oP;

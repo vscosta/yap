@@ -362,7 +362,6 @@ static Term interrupt_wake_up(Term nextg USES_REGS) {
     Yap_UpdateTimedVar(LOCAL_WokenGoals, td);
   }
   if (creep) {
-    LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
     tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
   }
   if (sig) {
