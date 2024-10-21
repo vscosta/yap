@@ -170,7 +170,15 @@ YAP_FLAG(SYNTAX_ERRORS_FLAG, "syntax_errors", true, synerr, "error",
 + `error` Report the syntax error and generate an error (default).
 + `quiet` Just fail
 		  */
+      
+  YAP_FLAG(TRACE_FLAG, "trace", true, booleanFlag,
+             "false", NULL),
+  /**< 
+   @brief   If this flag is `true` and debugging is `true`, YAP will  debug at the next query.
+  */  
     
+    
+ 
     
 YAP_FLAG(TYPEIN_MODULE_FLAG, "typein_module", true, isatom, "user",
              typein),

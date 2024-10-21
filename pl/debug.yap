@@ -342,7 +342,8 @@ be lost.
     strip_module(MG,M,G),
     !,
     nb_setval(creep,creep),
-    '$set_debugger_state'( creep, 0, stop, on, false ),
+    nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0),
     current_choice_point(CP0),
     trace_goal(G, M, _, Ctx, CP0).
 /*'$trace'(M:G, Ctx) :- % system
@@ -434,6 +435,9 @@ trace_goal(V, M, _, _, _) :-
 trace_goal( '$call'( G, CP0, _, M), _, Ctx, _, _) :-
     !,
     trace_goal(G, M,  Ctx, _, CP0).
+trace_goal( '$cleanup_on_exit'(CP0, TaskF), _, _Ctx, _, _CP) :-
+    !,
+     '$cleanup_on_exit'(CP0, TaskF).
 trace_goal( '$top_level', _, _Ctx, _, _) :-
     !,
     nb_setval(creep,zip).
@@ -585,7 +589,6 @@ Port,
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
     '$tag_cleanup'(CP0, Task0),
-    '$set_debugger_state'(trace,on),
     '$execute_non_stop'(M:G),
     '$cleanup_on_exit'(CP0, TaskF).
 
@@ -631,11 +634,9 @@ Port,
 '$interact'(Ports, MG, GoalNumber) :-
     '$ports_to_port'(Ports,P),
     '$zip_at_port'(P,GoalNumber,MG),
-    %'$get_debugger_state'(creep,leap),
     !.
 '$interact'(Ports, Module:G, L) :-
      nb_getval(creep,leap),
-    %'$get_debugger_state'(creep,leap),
      !,
      '$ports_to_port'(Ports,P),
     ('$deterministic_port'(Ports) -> Deterministic = '?' ; Deterministic = ' '),
@@ -710,7 +711,7 @@ Port,
 
 %        
 % last.first
-'$ports_to_port'(P, _) :- writeln(P), fail. 
+%'$ports_to_port'(P, _) :- writeln(P), fail. 
 '$ports_to_port'([answer], exit).
 '$ports_to_port'([answer,exit], exit).
 '$ports_to_port'([answer,answer], exit).
@@ -797,9 +798,9 @@ trace_error(error(debugger_event(redo,G0),[]), GoalNumber, G) :-
     ->
     throw(error(debugger_event(redo,G0),[]))
     ;
-    '$get_debugger_state'(trace,Trace),
     nb_setval(creep,creep),
-    '$set_debugger_state'( creep, 0, stop, Trace, false ),
+    nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0),
      G
     ).
 %trace_error( error(Id,Info), _, _, _, _) :-
@@ -853,10 +854,10 @@ trace_error(Event,_,_,_,_,_) :-
     get_char( debugger_input,C),
     '$action'(C,P,CallNumber,G,Module,Deterministic).
 '$action'('\n',_,_,_,_,_) :- !,			% newline 	creep
-    '$get_debugger_state'(trace,Trace),
 %    start_low_level_trace,
     nb_setval(creep,creep),
-    '$set_debugger_state'( creep, 0, stop, Trace, false ).
+    nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0).
 '$action'(!,_,_,_,_,_) :- !,			% ! 'g		execute
     read(debugger_input, G), 
     % don't allow yourself to be caught by creep.
@@ -871,9 +872,9 @@ trace_error(Event,_,_,_,_,_) :-
     '$memberchk'( call_tracer, Opts),
     !,			% <'Depth
     skip( debugger_input, 10),
-    '__NB_getval__'('$trace',Trace,fail),
     nb_setval(creep,creep),
-    '$set_debugger_state'( creep, 0, stop,Trace,false).
+    nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0).
 '$action'(^,_,_,G,_,_) :- !,			% '
     '$print_deb_sterm'(G),
     skip( debugger_input, 10),
@@ -893,9 +894,9 @@ trace_error(Event,_,_,_,_,_) :-
     fail.
 '$action'(c,_,_,_,_,_) :- !,			% 'c		creep
     skip( debugger_input, 10),
-    '$get_debugger_state'(trace,Trace),
     nb_setval(creep,creep),
-    '$set_debugger_state'( creep,0,stop,Trace, false ).
+    nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0).
 '$action'(e,_,_,_,_,_) :- !,			% 'e		exit
     halt.
 '$action'(f,_,CallNumber,_,_,_) :- !,		% 'f		fail
@@ -927,23 +928,23 @@ trace_error(Event,_,_,_,_,_) :-
     skip( debugger_input, 10),
     fail.
 '$action'(l,_,CallNumber,_,_,_) :- !,			% 'leap
-( '$scan_number'(ScanNumber) -> Goal = ScanNumber ; Goal = CallNumber ),
-    '$get_debugger_state'(trace,Trace),
-nb_setval(creep,leap),
-    '$set_debugger_state'( leap, 0, stop,Trace, false ).
+	( '$scan_number'(ScanNumber) -> Goal = ScanNumber ; Goal = CallNumber ),
+  nb_setval(creep,leap),
+    nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0).
 '$action'(z,_,CallNumber,_,_,_CP) :- !,
 % 'z		zip, fast leap
-( '$scan_number'(ScanNumber) -> Goal = ScanNumber ; Goal = CallNumber ),
-    '$get_debugger_state'(trace,Trace),
+  ( '$scan_number'(ScanNumber) -> Goal = ScanNumber ; Goal = CallNumber ),
     nb_setval(creep,zip),
-    '$set_debugger_state'( zip , Goal, stop, Trace, false ).
+    nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',Goal).
 % skip first call (for current goal),
 % stop next time.
 '$action'(k,_,_CallNumber,_,_,_) :- !,
 '$ensure_number'(_ScanNumber),
 nb_setval(creep,zip),
-    '$get_debugger_state'(trace,Trace),
-    '$set_debugger_state'( zip, 0, stop, Trace, false).
+nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0).
 % skip first call (for current goal),
 % stop next time.
 '$action'(n,_,_,_,_,_) :- !,			% 'n		nodebug
@@ -957,16 +958,16 @@ nb_setval(creep,zip),
     ;
     true
     ),
-      '$get_debugger_state'(trace,Trace),
 nb_setval(creep,leap),
-'$set_debugger_state'( leap, Goal, ignore,Trace,false),
+nb_setval('$spy_on',ignore),
+    nb_setval('$spy_target',Goal),
      throw(error(debugger_event(redo,Goal),[])).
 '$action'(s,P,CallNumber,_,_,_) :- !,		% 's		skip
     ( '$scan_number'(ScanNumber) -> Goal = ScanNumber ; Goal = CallNumber ),
     ( (P==call; P==redo) ->
-      '$get_debugger_state'(trace,Trace),
       nb_setval(creep,leap),
-      '$set_debugger_state'( leap, Goal, ignore,Trace,false)
+nb_setval('$spy_on',ignore),
+    nb_setval('$spy_target',Goal)
     ;
     '$ilgl'(s)				%
     ).
@@ -974,17 +975,17 @@ nb_setval(creep,leap),
     ( '$scan_number'(ScanNumber) -> Goal = ScanNumber ; Goal = CallNumber ),
     ( (P=call; P=redo) ->
       nb_setval(creep,zip),
-      '$get_debugger_state'(trace,Trace),
-      '$set_debugger_state'( zip, Goal, ignore,Trace, false)
+nb_setval('$spy_on',ignore),
+    nb_setval('$spy_target',Goal)
     ;
     '$ilgl'(t)				%
     ).
 '$action'(q,P,CallNumber,_,_,_) :- !,		% qst skip
     ( '$scan_number'(ScanNumber) -> Goal = ScanNumber ; Goal = CallNumber ),
     ( (P=call; P=redo) ->
-      '$get_debugger_state'(trace,Trace),
-       nb_setval(trace,leap),
-      '$set_debugger_state'( leap, Goal, stop, Trace, false)
+       nb_setval(creep,leap),
+       nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',Goal)
     ;
     '$ilgl'(t)				%
     ).

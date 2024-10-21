@@ -187,10 +187,9 @@ AVs = [],
     !.
 '$query'(G,_Vs,Port) :-
     current_prolog_flag(debug,true),
-    '$get_debugger_state'(trace,on),
+   current_prolog_flag(trace,true),
     !,
     nb_setval(creep,creep),
-    % '$set_debugger_state'(creep,creep),
     current_choice_point(CP0),
     '$spy'(G,top),
     current_choice_point(CPF),
@@ -202,7 +201,6 @@ AVs = [],
     ).
 '$query'(G,_,Port) :-
     nb_setval(creep,zip),
-    %'$set_debugger_state'(creep,zip),
     catch(
 	gated_call(
 	    true,
@@ -262,36 +260,26 @@ true
 
 '$disable_debugging_on_port'(retry) :-
     !,
-    current_prolog_flag(debug,true),
-    '$set_debugger_state'(debug, true).
-'$disable_debugging_on_port'(_Port) :-
-    '$set_debugger_state'(debug, false).
+    current_prolog_flag(debug,true).
+'$disable_debugging_on_port'(_Port).
 
 
 
 % enable creeping
 '$enable_debugging':-
-    current_prolog_flag(debug, false), !.
+current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
-    '$get_debugger_state'(trace,on),
+    current_prolog_flag(trace,true),
     !,
     nb_setval(creep,creep),
-    '$set_debugger_state'(creep, 0, stop, on, true),
+    	       nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0),
     '$creep'.
 '$enable_debugging' :-
     nb_setval(creep,zip),
-    '$set_debugger_state'(zip, 0, stop, on, true).
-
-'$trace_on' :-
-    '$get_debugger_state'(debug, true),
-    '$get_debugger_state'(trace, on).
-
-
-
-
-'$trace_off' :-
-        '$get_debugger_state'(debug, true),
-    '$get_debugger_state'(trace, off).
+            nb_setval(creep,creep),
+    	       nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0).
 
 
 '$call'(V, _CP, G0, M) :-
@@ -452,7 +440,7 @@ log_event( String, Args ) :-
     ),
     (
 	current_prolog_flag(debug,true),
-	'$get_debugger_state'(trace, on)
+	current_prolog_flag(trace,true)
     ->
     LD  = ['[trace] '|L]
      ;

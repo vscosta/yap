@@ -180,8 +180,8 @@ Enables the Prolof debugging. Notice that tracing is disabled, even if it was ac
 */
 debug :-
     ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
-	 set_prolog_flag(debug,true),
-    '$set_debugger_state'(trace, off),
+    set_prolog_flag(debug,true),
+    set_prolog_flag(trace,false),
     '$start_user_code',
     print_message(informational,debug(debug)),
     '$init_debugger'.
@@ -190,7 +190,7 @@ debug :-
 
 nodebug :-
     set_prolog_flag(debug, false),
-    '$set_debugger_state'(trace, off),
+    set_prolog_flag(trace,false),
     print_message(informational,debug(off)).
 
 %
@@ -210,9 +210,8 @@ trace :-
     print_message(informational,debug(trace)),
     '$init_debugger',
     set_prolog_flag(debug,true),
-    '$set_debugger_state'(trace, on),
-    nb_setval(creep,creep),
-    '$set_debugger_state'(creep, creep).
+    set_prolog_flag(trace,true),
+    nb_setval(creep,creep).
 
 
 /** @pred notrace
@@ -221,8 +220,8 @@ trace :-
 Ends tracing and exits the debugger. This is the same as
 nodebug/0.
  */
-notrace :-
-    '$set_debugger_state'(trace, off),
+notrace :
+    set_prolog_flag(trace,false),
     print_message(informational,debug(off)).
 
 /*-----------------------------------------------------------------------------
@@ -376,13 +375,15 @@ notrace(G) :-
     '$init_debugger_trace'.
 
 '$init_debugger_trace' :-
-    '$get_debugger_state'( trace,on),
-    !,
-    nb_setval(creep,creep),
-    '$set_debugger_state'( creep,  0, stop, on, true ).
+    nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0),
+    fail.
 '$init_debugger_trace' :-
-    nb_setval(creep,zip),
-    '$set_debugger_state'( zip,  0, stop, off, true ).
+    current_prolog_flag( trace,true),
+    !,
+    nb_setval(creep,creep).
+'$init_debugger_trace' :-
+    nb_setval(creep,zip).
 
 
 
@@ -420,21 +421,20 @@ notrace(G) :-
     current_prolog_flag( debug, false),
     !.
 '$zip_at_port'(_,_GoalNo,M:T) :-
-    '$get_debugger_state'( spy, stop),
+    nb_getval('$spy_on', stop),
     recorded('$spy','$spy'(T,M),_),
     !,
     fail.
 '$zip_at_port'(Port,GoalNo,_) :-
     nb_getval(creep,zip),
-    '$get_debugger_state'( creep, zip),
-    '$get_debugger_state'( goal_number, TargetGoal ),
-      number(GoalNo),
+    nb_getval('$spy_target', TargetGoal ),
+    number(GoalNo),
     number(TargetGoal),
     (Port == redo
       ->
-      GoalNo > TargetGoal
+      GoalNo > TargetGoal-1
     ;
-      GoalNo > TargetGoal+1
+      GoalNo > TargetGoal
     ).      
       
 
@@ -450,17 +450,20 @@ notrace(G) :-
     current_prolog_flag(debug, false),
     !.
 '$continue_debugging'(_) :-
-    '$get_debugger_state'(trace, on),
+      current_prolog_flag( trace,true),
     nb_getval(creep,creep),
-%    '$set_debugger_state'(creep,creep),
     fail.
 '$continue_debugging'(inner).
 
+'$continue_debugging'(_) :-
+    current_prolog_flag(debug, false),
+    !.
 '$restart_debugging':-
-    current_prolog_flag(debug, Debug),
-     nb_getval(creep,creep),
-   '$get_debugger_state'(creep,Creep),
-    '$may_creep'(Debug,Creep),
+    nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0),
+    fail.
+'$restart_debugging':-
+     nb_getval(creep,creep), 
     !,
     '$creep'.
 '$restart_debugging'.
