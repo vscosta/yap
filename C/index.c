@@ -981,7 +981,7 @@ static void sort_group(GroupDef *grp, CELL *top, struct intermediates *cint) {
   if (!(base = (CELL *)Yap_AllocCodeSpace(2 * max * sizeof(CELL)))) {
     CACHE_REGS
       save_machine_regs();
-    LOCAL_Error_Size = 2 * max * sizeof(CELL);
+    LOCAL_Error_Size = 2 * (max+1) * sizeof(CELL);
     siglongjmp(cint->CompilerBotch, 2);
   }
 #else

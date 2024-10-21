@@ -109,7 +109,6 @@ static Term mkplus(Term val)
 }
 
 Term booleanFlag(Term inp) {
-  CACHE_REGS
     if (IsStringTerm(inp)) {
         inp =  MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
     }
@@ -370,7 +369,6 @@ static flag_info global_flags_setup[] = {
 #undef END_FLAG
   
 static Term indexer(Term inp) {
-  CACHE_REGS
     if (IsStringTerm(inp)) {
       inp = MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
     }
@@ -420,7 +418,6 @@ static bool dollar_to_lc(Term inp) {
 }
 
 static Term isaccess(Term inp) {
-  CACHE_REGS
     if (inp == TermReadWrite || inp == TermReadOnly)
       return inp;
 
@@ -496,7 +493,6 @@ static Term isground(Term inp) {
 }
 
 static Term flagscope(Term inp) {
-  CACHE_REGS
     if (inp == TermGlobal || inp == TermThread || inp == TermModule)
       return inp;
 
@@ -745,7 +741,6 @@ static bool string( Term inp ) {
 #endif
 
 static Term list_option(Term inp) {
-  CACHE_REGS
     if (IsVarTerm(inp)) {
       Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag in \"...\"");
       return inp;

@@ -193,6 +193,7 @@ static Int p_rmspy(USES_REGS1) { /* '$rm_spy'(+T,+Mod)	 */
 
 bool Yap_may_creep(bool creep_on_forward)
 {
+CACHE_REGS
   Atom at;
   PredEntry *pred;
   if (  LOCAL_DebEvent) {

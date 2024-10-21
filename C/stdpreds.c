@@ -725,7 +725,7 @@ static Int functor_predicate(USES_REGS1)
   Term t1    = Deref(ARG1);
   if (IsVarTerm(t1)) {
     EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
-    return continue_functor_predicate();
+    return continue_functor_predicate(PASS_REGS1);
   } else {
     Term task = Deref(ARG4);
     must_be_atom(t1);
@@ -883,7 +883,7 @@ while (npp && !valid_prop((Prop)(npp), task)) {
 static Int module_predicate(USES_REGS1)
 {
   EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
-  return continue_module_predicate();
+  return continue_module_predicate(PASS_REGS1);
 }
 
 static Int functors_for_atom(USES_REGS1) {
