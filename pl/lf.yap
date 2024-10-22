@@ -367,6 +367,7 @@
 	stream_property(Stream, file_name(Y)),
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
+    '$conditional_compilation_init',
     file_directory_name(File, Dir),
     working_directory(OldD,OldD),
     !,
@@ -374,7 +375,6 @@
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
     '$conditional_compilation_get_state'(State),
-    '$conditional_compilation_init',
     (
      '$memberchk'(consult(Reconsult0), Opts)
       ->

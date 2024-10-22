@@ -327,7 +327,7 @@ LOCAL(scratch_sys_struct_t, WorkerBuffer);
 // Thread Local Area for SWI-Prolog emulation routines.
 // stInitSruct LOCAL_INIT( PL_local_data*, PL_local_data_p,  Yap_InitThreadIO(wid));
 #ifdef THREADS
-LOCAL_INITF(struct thandle, ThreadHandle, InitThreadHandle(wid));
+LOCAL_INITF(struct  thandle, ThreadHandle, InitThreadHandle(wid));
 #endif /* THREADS */
 
 #if defined(YAPOR) || defined(TABLING)

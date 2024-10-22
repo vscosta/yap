@@ -501,7 +501,7 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
       }
     }
     Yap_DebugPutc(stderr, '\n');
-  }
+   }
 #endif
   /* Do not try to index a dynamic predicate  or one whithout args */
   if (is_dynamic(ap)) {
@@ -1129,22 +1129,22 @@ bool Yap_unknown(Term t) {
 static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
    yamop *pt = cp;
 
+  p->cs.p_code.TrueCodeOfPred = pt;
+  p->cs.p_code.FirstClause = p->cs.p_code.LastClause = cp;
+  p->OpcodeOfPred = pt->opc;
+    p->CodeOfPred = pt;
 #ifdef TABLING
   if (is_tabled(p)) {
     p->OpcodeOfPred = INDEX_OPCODE;
     p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   }
 #endif /* TABLING */
-  p->cs.p_code.TrueCodeOfPred = pt;
-  p->cs.p_code.FirstClause = p->cs.p_code.LastClause = cp;
-  p->OpcodeOfPred = pt->opc;
-    p->CodeOfPred = pt;
 #if defined(YAPOR) || defined(THREADS)
   if (p->PredFlags & LogUpdatePredFlag &&
       !(p->PredFlags & ThreadLocalPredFlag) && p->ModuleOfPred != IDB_MODULE) {
     p->OpcodeOfPred = LOCKPRED_OPCODE;
-    p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-  } else
+    p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+  } 
 #endif
   p->cs.p_code.NOfClauses = 1;
   if (!(p->PredFlags & MultiFileFlag)) {
@@ -1802,7 +1802,6 @@ bool Yap_addclause(PredEntry *p, Term t, yamop *cp, Term tmode, Term mod, Term *
     }
 #endif
   }
-  UNLOCKPE(32, p);
   if (t5ref ) {
   if (pflags & LogUpdatePredFlag) {
     LogUpdClause *cl = (LogUpdClause *)ClauseCodeToLogUpdClause(cp);
@@ -1819,6 +1818,7 @@ bool Yap_addclause(PredEntry *p, Term t, yamop *cp, Term tmode, Term mod, Term *
   } else {
     tf = Yap_MkStaticRefTerm(ClauseCodeToStaticClause(cp), p);
   }
+  UNLOCKPE(32, p);
     if (!Yap_unify(*t5ref, tf)) {
       return false;
     }
@@ -1905,14 +1905,6 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
   } else {
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
   }
-#if defined(YAPOR) || defined(THREADS)
-  if (ap->PredFlags & LogUpdatePredFlag &&
-      !(ap->PredFlags & ThreadLocalPredFlag) &&
-      ap->ModuleOfPred != IDB_MODULE) {
-    ap->OpcodeOfPred = LOCKPRED_OPCODE;
-    ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
-  }
-#endif
 }
 
 void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
@@ -2122,9 +2114,9 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
   }
   /* we are redefining a prolog module predicate */
   if (Yap_constPred(p)) {
+    UNLOCKPE(30, p);
     Atom at = p->ArityOfPE == 0? (Atom)p->FunctorOfPred : NameOfFunctor(p->FunctorOfPred);
     addcl_permission_error(at, p->ArityOfPE, false);
-    UNLOCKPE(30, p);
      return false;
   }
   yhandle_t ytref, yt;
@@ -2139,7 +2131,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
                                arguments to cclause() in case there is a
                                overflow */
   tref = Yap_PopHandle(ytref);
-  t = Yap_PopHandle(yt);
+   t = Yap_PopHandle(yt);
   if (!LOCAL_ErrorMessage) {
     Term*pt;
     YAPEnterCriticalSection();
@@ -2154,6 +2146,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
   if ((err=LOCAL_Error_TYPE) != YAP_NO_ERROR) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (LOCAL_ErrorMessage) {
+    UNLOCKPE(30, p);
      Yap_ThrowError(err, t, LOCAL_ErrorMessage);
      return false;
     }
@@ -2164,6 +2157,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
     if (discontiguous) {
       warn(WARNING_DISCONTIGUOUS, t, TermDiscontiguous, d_culprit, "discontiguous definition in same file warning");
      }
+    UNLOCKPE(30, p);
   return true;
 }
 

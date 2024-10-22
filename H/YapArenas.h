@@ -68,17 +68,27 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
 /* get predicate entry for ap/arity; create it if neccessary. */
 {
     Prop p0;
-    AtomEntry *ae = RepAtom(at);
     GlobalEntry *newe;
+    AtomEntry *ae = RepAtom(at);
 
-    WRITE_LOCK(ae->ARWLock);
+#if THREADS
+    if (worker_id > 0) {
+      p0 = LOCAL_ThreadHandle.ge;
+    } else
+#else
+      {
     p0 = ae->PropsOfAE;
+      {
+#endif
     while (p0) {
         GlobalEntry *pe = RepGlobalProp(p0);
-        if (pe->KindOfPE == GlobalProperty
+        if (
 #if THREADS
-            && pe->owner_id == worker_id	
+	    worker_id > 0 ?
+	    pe->AtomOfGE == ae
+	    :
 #endif
+	    pe->KindOfPE == GlobalProperty
                 ) {
             WRITE_UNLOCK(ae->ARWLock);
             return pe;
@@ -86,16 +96,20 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
         p0 = pe->NextOfPE;
     }
     newe = (GlobalEntry *) Yap_AllocAtomSpace(sizeof(*newe));
-    INIT_RWLOCK(newe->GRWLock);
     newe->KindOfPE = GlobalProperty;
-#if THREADS
-    newe->owner_id = worker_id;
-#endif
-    newe->NextGE = LOCAL_GlobalVariables;
-    LOCAL_GlobalVariables = newe;
     newe->AtomOfGE = ae;
-    AddPropToAtom(ae, (PropEntry *) newe);
     RESET_VARIABLE(&newe->global);
+#if THREADS
+     if (worker_id > 0) {
+      newe->NextOfPE   = LOCAL_ThreadHandle.ge;
+      LOCAL_ThreadHandle.ge = AbsGlobalProp(newe);
+    } else
+#endif
+	{
+	  newe->NextGE = LOCAL_GlobalVariables;
+	  LOCAL_GlobalVariables = newe;
+	  AddPropToAtom(ae, (PropEntry *) newe);
+	}
     WRITE_UNLOCK(ae->ARWLock);
     return newe;
 }

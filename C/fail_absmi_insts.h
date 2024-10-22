@@ -36,11 +36,7 @@ shared_fail:
   /* fail                             */
   PBOp(op_fail, e);
 
-  if (PP) {
-    UNLOCK(PP->PELock);
-    PP = NULL;
-  }
-  CACHE_Y_AS_ENV(YREG);
+  CACHE_Y_AS_ENV(YREG); 
   check_stack(NoStackFail, HR);
   ENDCACHE_Y_AS_ENV();
 

@@ -140,17 +140,28 @@ inline static GlobalEntry *FindGlobalEntry(Atom at USES_REGS)
 /* get predicate entry for ap/arity; create it if neccessary. */
 {
     Prop p0;
-    AtomEntry *ae = RepAtom(at);
 
-    READ_LOCK(ae->ARWLock);
+    AtomEntry *ae = RepAtom(at);
+#if THREADS
+    if (worker_id > 0) {
+      p0 = LOCAL_ThreadHandle.ge;
+    } else
+#else
+      {
     p0 = ae->PropsOfAE;
+      {
+#endif
+    READ_LOCK(ae->ARWLock);
     while (p0) {
         GlobalEntry *pe = RepGlobalProp(p0);
-        if (pe->KindOfPE == GlobalProperty
+        if (
 #if THREADS
-            && pe->owner_id == worker_id
-#endif
-                ) {
+	    worker_id > 0 ?
+	    pe->AtomOfGE == ae
+:
+ #endif
+	    pe->KindOfPE == GlobalProperty
+	    ) {
             READ_UNLOCK(ae->ARWLock);
             return pe;
         }
@@ -297,9 +308,7 @@ Term Yap_SetGlobalVal(Atom at, Term t0) {
     to = CopyTermToArena(t0, FALSE, TRUE, NULL, &(LOCAL_GlobalArena), NULL PASS_REGS);
     if (to == 0L)
         return to;
-    WRITE_LOCK(ge->GRWLock);
     ge->global = to;
-    WRITE_UNLOCK(ge->GRWLock);
     return to;
 }
 
@@ -381,17 +390,14 @@ static Int nb_set_shared_val(USES_REGS1) {
     to = CopyTermToArena(ARG2, TRUE, TRUE, NULL, &LOCAL_GlobalArena, NULL PASS_REGS);
     if (to == 0L)
         return FALSE;
-    WRITE_LOCK(ge->GRWLock);
     ge->global = to;
-    WRITE_UNLOCK(ge->GRWLock);
-    return TRUE;
+     return TRUE;
 }
 
 bool Yap_SetBacktrackableGlobalVal(Atom atkey, Term val USES_REGS)
 {
     GlobalEntry *ge;
     ge = GetGlobalEntry(atkey PASS_REGS);
-    WRITE_LOCK(ge->GRWLock);
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     /* the evil deed is to be done now */
     {
@@ -404,10 +410,8 @@ bool Yap_SetBacktrackableGlobalVal(Atom atkey, Term val USES_REGS)
       }
       MaBind(&ge->global, val);
     }
-    WRITE_UNLOCK(ge->GRWLock);
     return true;
 #else
-    WRITE_UNLOCK(ge->GRWLock);
     Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t, "update_array");
     return FALSE;
 #endif
@@ -451,11 +455,9 @@ static Int nb_getval(USES_REGS1) {
     ge = FindGlobalEntry(AtomOfTerm(t) PASS_REGS);
     if (!ge)
         return undefined_global(PASS_REGS1);
-    READ_LOCK(ge->GRWLock);
     to = ge->global;
     if (!to)
         Yap_ThrowError(INSTANTIATION_ERROR, ARG1, "nb_getval");
-    READ_UNLOCK(ge->GRWLock);
     if (to == TermFoundVar) {
         return FALSE;
     }
@@ -470,14 +472,12 @@ Term Yap_GetGlobal(Atom at) {
     ge = FindGlobalEntry(at PASS_REGS);
     if (!ge)
         return 0L;
-    READ_LOCK(ge->GRWLock);
     to = ge->global;
     if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
         Term t = MkVarTerm();
         Bind_and_Trail(VarOfTerm(to), t);
         to = t;
     }
-    READ_UNLOCK(ge->GRWLock);
     if (to == TermFoundVar) {
         return 0;
     }
@@ -511,16 +511,21 @@ static Int nbdelete(Atom at USES_REGS) {
         Yap_ThrowError(EXISTENCE_ERROR_VARIABLE, MkAtomTerm(at), "nb_delete");
         return FALSE;
     }
-    WRITE_LOCK(ge->GRWLock);
     ae = ge->AtomOfGE;
-    if (LOCAL_GlobalVariables == ge) {
-        LOCAL_GlobalVariables = ge->NextGE;
-    } else {
-        g = LOCAL_GlobalVariables;
-        while (g->NextGE != ge)
+    #if THREADS
+    if (worker_id >0) {
+    } else
+    #endif
+      {
+	if (LOCAL_GlobalVariables == ge) {
+	  LOCAL_GlobalVariables = ge->NextGE;
+	} else {
+	  g = LOCAL_GlobalVariables;
+	  while (g->NextGE != ge)
             g = g->NextGE;
-        g->NextGE = ge->NextGE;
-    }
+	  g->NextGE = ge->NextGE;
+	}
+      }
     gp = AbsGlobalProp(ge);
     WRITE_LOCK(ae->ARWLock);
     if (ae->PropsOfAE == gp) {
@@ -532,7 +537,6 @@ static Int nbdelete(Atom at USES_REGS) {
         g0->NextOfPE = ge->NextOfPE;
     }
     WRITE_UNLOCK(ae->ARWLock);
-    WRITE_UNLOCK(ge->GRWLock);
     Yap_FreeCodeSpace((char *) ge);
     return TRUE;
 }
@@ -594,9 +598,7 @@ static Int nb_create(USES_REGS1) {
         return false;
     }
 
-    WRITE_LOCK(ge->GRWLock);
     ge->global = to;
-    WRITE_UNLOCK(ge->GRWLock);
     return TRUE;
 }
 
@@ -644,9 +646,7 @@ static Int nb_create2(USES_REGS1) {
     to = CopyTermToArena(tinit, false, false, NULL, &LOCAL_GlobalArena, NULL PASS_REGS);
     if (to == 0)
         return false;
-    WRITE_LOCK(ge->GRWLock);
     ge->global = to;
-    WRITE_UNLOCK(ge->GRWLock);
     return true;
 }
 

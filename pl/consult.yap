@@ -831,24 +831,24 @@ QEnd of cond  itional compilation.
     nb_setval('$conditional_compilation_level',[run]).
 
 '$conditional_compilation_get_state'(state(LB)) :-
-    nb_getval('$conditional_compilation_level', LB).
+    '__NB_getval__'('$conditional_compilation_level', LB, fail).
 
 '$conditional_compilation_set_state'(state(LB)) :-
     nb_setval('$conditional_compilation_level', LB).
 
 '$conditional_compilation_push'(Mode) :-
-    nb_getval('$conditional_compilation_level', Levels),
+    '__NB_getval__'('$conditional_compilation_level', Levels,fail),
     nb_setval('$conditional_compilation_level', [Mode|Levels]).
 
 
 '$conditional_compilation'(Mode) :-
-    nb_getval('$conditional_compilation_level', [Mode|_Levels]).
+    '__NB_getval__'('$conditional_compilation_level', [Mode|_Levels], fail).
 
 
 '$conditional_compilation_skip'(V)  :-
     var(V),
     !,
-    nb_getval('$conditional_compilation_level', [L|_Levels]),
+    '__NB_getval__'('$conditional_compilation_level', [L|_Levels], fail),
     (L == skip
     ;
     L == done),
@@ -866,19 +866,19 @@ QEnd of cond  itional compilation.
       '$endif',
 !.
 '$conditional_compilation_skip'(_)  :-
-    nb_getval('$conditional_compilation_level', [L|_Levels]),
+    '__NB_getval__'('$conditional_compilation_level', [L|_Levels], fail),
     (L == skip
     ;
     L == done),
     !.
 
 '$conditional_compilation_set'(Mode) :-
-    nb_getval('$conditional_compilation_level', [_Mode_|Levels]),
+    '__NB_getval__'('$conditional_compilation_level', [_Mode_|Levels], fail),
     nb_setval('$conditional_compilation_level', [Mode|Levels]).
 
 
 '$conditional_compilation_pop' :-
-    nb_getval('$conditional_compilation_level', [_|Levels]),
+    '__NB_getval__'('$conditional_compilation_level', [_|Levels], fail),
     nb_setval('$conditional_compilation_level', Levels).
     
 :- '$conditional_compilation_init'.

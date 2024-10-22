@@ -300,10 +300,10 @@ static void
 kill_thread_engine (int wid, int always_die)
 {
   Prop p0 = AbsPredProp(REMOTE_ThreadHandle(wid).local_preds);
-  GlobalEntry *gl = REMOTE_GlobalVariables(wid);
+  Prop gl = REMOTE_ThreadHandle(wid).ge;
 
   REMOTE_ThreadHandle(wid).local_preds = NIL;
-  REMOTE_GlobalVariables(wid) = NULL;
+  REMOTE_ThreadHandle(wid).ge = NIL;
   /* kill all thread local preds */
   while(p0) {
     PredEntry *ap = RepPredProp(p0);
@@ -312,9 +312,11 @@ kill_thread_engine (int wid, int always_die)
     Yap_FreeCodeSpace((char *)ap);
   }
   while (gl) {
-    gl->global = TermFoundVar;
-    gl = gl->NextGE;
+    GlobalEntry *gb = RepGlobalProp(gl);
+    gl = gb->NextOfPE;
+    Yap_FreeCodeSpace((char *)gb);
   }
+
   Yap_KillStacks(wid);
   REMOTE_Signals(wid) = 0L;
   // must be done before relessing the memory used to store 
