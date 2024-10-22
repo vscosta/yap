@@ -67,19 +67,18 @@ typedef struct cell_space {
 inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
 /* get predicate entry for ap/arity; create it if neccessary. */
 {
-    Prop p0;
     GlobalEntry *newe;
     AtomEntry *ae = RepAtom(at);
-
+	  WRITE_LOCK(ae->ARWLock);
+    Prop p0;
 #if THREADS
     if (worker_id > 0) {
       p0 = LOCAL_ThreadHandle.ge;
     } else
-#else
-      {
-    p0 = ae->PropsOfAE;
-      {
 #endif
+      {
+	p0 = ae->PropsOfAE;
+      }
     while (p0) {
         GlobalEntry *pe = RepGlobalProp(p0);
         if (
@@ -90,7 +89,7 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
 #endif
 	    pe->KindOfPE == GlobalProperty
                 ) {
-            WRITE_UNLOCK(ae->ARWLock);
+	  WRITE_UNLOCK(ae->ARWLock);
             return pe;
         }
         p0 = pe->NextOfPE;

@@ -146,11 +146,10 @@ inline static GlobalEntry *FindGlobalEntry(Atom at USES_REGS)
     if (worker_id > 0) {
       p0 = LOCAL_ThreadHandle.ge;
     } else
-#else
+#endif
       {
     p0 = ae->PropsOfAE;
-      {
-#endif
+      }
     READ_LOCK(ae->ARWLock);
     while (p0) {
         GlobalEntry *pe = RepGlobalProp(p0);
@@ -502,41 +501,52 @@ Term Yap_GetGlobal(Atom at) {
 
     */
 static Int nbdelete(Atom at USES_REGS) {
-    GlobalEntry *ge, *g;
+  Prop ge, g;
     AtomEntry *ae;
-    Prop gp, g0;
 
-    ge = FindGlobalEntry(at PASS_REGS);
+    ge =  RepAtom(at)->PropsOfAE;
     if (!ge) {
         Yap_ThrowError(EXISTENCE_ERROR_VARIABLE, MkAtomTerm(at), "nb_delete");
         return FALSE;
     }
-    ae = ge->AtomOfGE;
+    ae = RepAtom(at);
     #if THREADS
     if (worker_id >0) {
+      if (LOCAL_ThreadHandle.ge == ge) {
+	LOCAL_ThreadHandle.ge = RepGlobalProp(ge)->NextOfPE;
+      } else
+	{
+	  g = LOCAL_ThreadHandle.ge;
+	  while (RepGlobalProp(g)->NextOfPE != ge)  {
+	    g  = RepGlobalProp(g)->NextOfPE;
+	    RepGlobalProp(g)->NextOfPE = ge;
+	  }
+	}
     } else
-    #endif
+#endif
       {
-	if (LOCAL_GlobalVariables == ge) {
-	  LOCAL_GlobalVariables = ge->NextGE;
+	GlobalEntry *g, *ge = FindGlobalEntry(at PASS_REGS);
+	Prop gp;
+	if (LOCAL_GlobalVariables  == (ge)) {
+	  LOCAL_GlobalVariables  =  RepGlobalProp(ge->NextOfPE);
 	} else {
-	  g = LOCAL_GlobalVariables;
+	  g   = LOCAL_GlobalVariables;
 	  while (g->NextGE != ge)
             g = g->NextGE;
 	  g->NextGE = ge->NextGE;
 	}
-      }
-    gp = AbsGlobalProp(ge);
-    WRITE_LOCK(ae->ARWLock);
-    if (ae->PropsOfAE == gp) {
-        ae->PropsOfAE = ge->NextOfPE;
-    } else {
-        g0 = ae->PropsOfAE;
-        while (g0->NextOfPE != gp)
+	gp = AbsGlobalProp(ge);
+	WRITE_LOCK(ae->ARWLock);
+	if (ae->PropsOfAE == gp) {
+	  ae->PropsOfAE = ge->NextOfPE;
+	} else {
+	  Prop g0 = ae->PropsOfAE;
+	  while (g0->NextOfPE != gp)
             g0 = g0->NextOfPE;
-        g0->NextOfPE = ge->NextOfPE;
-    }
-    WRITE_UNLOCK(ae->ARWLock);
+	  g0->NextOfPE = ge->NextOfPE;
+	}
+	WRITE_UNLOCK(ae->ARWLock);
+      }
     Yap_FreeCodeSpace((char *) ge);
     return TRUE;
 }
