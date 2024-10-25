@@ -95,6 +95,8 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
         p0 = pe->NextOfPE;
     }
     newe = (GlobalEntry *) Yap_AllocAtomSpace(sizeof(*newe));
+	  newe->NextGE = LOCAL_GlobalVariables;
+	  LOCAL_GlobalVariables = newe;
     newe->KindOfPE = GlobalProperty;
     newe->AtomOfGE = ae;
     RESET_VARIABLE(&newe->global);
@@ -105,8 +107,6 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
     } else
 #endif
 	{
-	  newe->NextGE = LOCAL_GlobalVariables;
-	  LOCAL_GlobalVariables = newe;
 	  AddPropToAtom(ae, (PropEntry *) newe);
 	}
     WRITE_UNLOCK(ae->ARWLock);
