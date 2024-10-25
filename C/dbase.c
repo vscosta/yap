@@ -4148,10 +4148,15 @@ static void EraseEntry(DBRef entryref) {
   if (entryref->Flags & ErasedMask)
     return;
   if (entryref->Flags & LogUpdMask && !(entryref->Flags & DBClMask)) {
+    CACHE_REGS
     LogUpdClause *luclause = (LogUpdClause *)entryref;
-    PELOCK(67, luclause->ClPred);
+    if (!PP || PP!=  luclause->ClPred) {
+      PELOCK(67, luclause->ClPred);
+    }
     EraseLogUpdCl(luclause);
-    UNLOCK(luclause->ClPred->PELock);
+    if (!PP || PP!=  luclause->ClPred) {
+      UNLOCK(luclause->ClPred->PELock);
+    }
     return;
   }
   entryref->Flags |= ErasedMask;

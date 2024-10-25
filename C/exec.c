@@ -1323,7 +1323,7 @@ static Int execute_depth_limit(USES_REGS1)
 
 #endif
 
-static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
+static int exec_absmi(bool handle_ints, yap_reset_t reset_mode USES_REGS)
 {
   int lval, out;
 
@@ -1334,7 +1334,9 @@ static int exec_absmi(bool top, yap_reset_t reset_mode USES_REGS)
   if (!sigoldp)
     LOCAL_TopRestartEnv = sigoldp;
   LOCAL_RestartEnv = signewp;
+  if (handle_ints) {
       CalculateStackGap(PASS_REGS1);
+  }
     lval = sigsetjmp(signew, 0);
 bool done=false;
     while(!done) {
@@ -1367,7 +1369,7 @@ bool done=false;
     /* make sure we don't leave a FAIL signal hanging around */
     if (Yap_get_signal(YAP_FAIL_SIGNAL))
       P = FAILCODE;
-    if (!Yap_has_a_signal())
+    if (handle_ints && !Yap_has_a_signal())
       CalculateStackGap(PASS_REGS1);
 
     break;
@@ -1391,7 +1393,9 @@ bool done=false;
       return false;
     }
     case 5:
+      if (handle_ints) {
       Yap_JumpToEnv();
+      }
       if (LCL0-(CELL*)B >= LOCAL_CBorder) {
 	Yap_RestartYap(6);
       }
@@ -1465,7 +1469,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
   CP = YESCODE;
 }
 
-static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, bool top USES_REGS)
+static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, bool pass_ints USES_REGS)
 {
 
   Int out = false;
@@ -1474,13 +1478,7 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, bool t
   CACHE_A1();
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
-    out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
-#if 0
-    if (Yap_has_a_signal()) {
-      Yap_dispatch_interrupts(PASS_REGS1);
-      continue;
-    } else
-#endif
+    out = exec_absmi(pass_ints, YAP_EXEC_ABSMI PASS_REGS);
 
   
       CalculateStackGap(PASS_REGS1);
@@ -1494,10 +1492,10 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, bool t
   }
 
 
-bool Yap_exec_absmi(bool top, yap_reset_t has_reset)
+bool Yap_exec_absmi(bool handle_ints, yap_reset_t has_reset)
 {
   CACHE_REGS
-  return exec_absmi(top, has_reset PASS_REGS);
+    return exec_absmi(handle_ints, has_reset PASS_REGS);
 }
 
 /**
@@ -1552,7 +1550,7 @@ void Yap_fail_all(choiceptr bb USES_REGS)
   P = saved_p;
 }
 
-bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
+bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool handle_errors USES_REGS)
 {
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
@@ -1566,7 +1564,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   PELOCK(81v, ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
-  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, true, true PASS_REGS);
+  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, true, handle_errors PASS_REGS);
 
 
   if (out)
@@ -1615,7 +1613,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
     YENV = ENV;
     // should we catch the exception or pass it through?
     // We'll pass it through
-    if (pass_ex && Yap_HasException(PASS_REGS1))
+    if (handle_errors && Yap_HasException(PASS_REGS1))
     {
         Yap_RaiseException();
       rc = false;
@@ -1641,7 +1639,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
     HB = PROTECT_FROZEN_H(B);
     // should we catch the exception or pass it through?
     // We'll pass it through
-    if (pass_ex &&  Yap_HasException(PASS_REGS1))
+    if (handle_errors &&  Yap_HasException(PASS_REGS1))
     {
         Yap_RaiseException();
     rc = false;
@@ -1657,7 +1655,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS)
   return rc;
 }
 
-bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex)
+bool Yap_execute_goal(Term t, int nargs, Term mod, bool handle_errors)
 {
   CACHE_REGS
   Prop pe;
@@ -1698,7 +1696,7 @@ bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex)
   {
     return CallMetaCall(t, mod PASS_REGS);
   }
-  return Yap_execute_pred(ppe, pt, pass_ex PASS_REGS);
+  return Yap_execute_pred(ppe, pt, handle_errors PASS_REGS);
 }
 
 void Yap_trust_last(void)
@@ -1758,6 +1756,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
   }
   else if (IsApplTerm(t))
   {
+
     Functor f = FunctorOfTerm(t);
 
     if (IsBlobFunctor(f))
@@ -2127,7 +2126,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset)
   HR = H0;
   if (full_reset)
     {
-      Yap_AllocateDefaultArena(128 * 128, 0, NULL);
+      Yap_AllocateDefaultArena(128 * 128, myworker_id, NULL);
     }
   else
     {

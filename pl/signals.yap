@@ -27,7 +27,6 @@
 
 :- use_system_module( '$_debug', ['$trace'/1]).
 
-:- use_system_module( '$_threads', ['$thread_gfetch'/1]).
 
 /** @pred  alarm(+ _Seconds_,+ _Callable_,+ _OldAlarm_)
 
@@ -157,7 +156,7 @@
 	'$thread_gfetch'(Goal),
 	% if more signals alive, set creep flag
 	'$current_module'(M0),
-	'$execute0'(M0:Goal).
+	('$execute_rlist'(Goal,M0),fail ; true).
 '$signal_handler'(sig_trace) :-
 	trace.
 '$signal_handler'(sig_debug) :-
@@ -213,6 +212,11 @@ int_action(h) :-
     format(user_error, "    s for statistics~n",[]),
     format(user_error, "    t for trace\n").
 
+'$execute_rlist'([_|L],M) :-
+    '$execute_rlist'(L,M).
+'$execute_rlist'([G|_],M) :-
+    once(M:G),
+    fail.
 
 
 

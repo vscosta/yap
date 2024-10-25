@@ -531,6 +531,7 @@ static void interrupt_delay(op_numbers op, yamop *pc USES_REGS) {
 bool Yap_dispatch_interrupts( USES_REGS1 ) {
   if (Yap_has_a_signal()) {
     interrupt_main(P->opc, P PASS_REGS);
+    return false;
   }
   return true;
 }

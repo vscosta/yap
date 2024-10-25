@@ -63,7 +63,6 @@
         threads/0,
         (volatile)/1,
         with_mutex/2], ['$reinit_thread0'/0,
-        '$thread_gfetch'/1,
         '$thread_local'/2]).
 
 /**
@@ -144,11 +143,12 @@ volatile(P) :-
 	'$current_module'(Module),
 	'$run_at_thread_start',
 	% always finish with a throw to make sure we clean stacks.
-	(catch(Module:G, Exception ,'$close_thread'(Exception, Detached)) ->
+catch((Module:G ->
 	     '$close_thread'('$thread_finished'(true), Detached);
 	 '$close_thread'('$thread_finished'(false), Detached)),
+Error, throw(Error)),
+!.
 	% force backtracking and handling exceptions	
-	fail.
 
 %call_(G, Detached):- G, !, '$close_thread'('$thread_finished'(true), Detached).
 %call_(_, Detached):- '$close_thread'('$thread_finished'(false), Detached).
@@ -1291,17 +1291,7 @@ thread_sleep(Time) :-
 thread_signal(Id, Goal) :-
 	'$check_thread_or_alias'(Id, thread_signal(Id, Goal)),
 	must_be_callable(Goal),
-	'$thread_id_alias'(Id0, Id),
-	(	recorded('$thread_signal', [Id0| _], R), erase(R), fail
-	;	true
-	),
-	recorda('$thread_signal', [Id0| Goal], _),
-	'$signal_thread'(Id0).
-
-'$thread_gfetch'(G) :-
-	'$thread_self'(Id),
-	recorded('$thread_signal',[Id|G],R),
-	erase(R).
+	'$signal_thread'(Id,Goal).
 
 %% @}
 

@@ -81,11 +81,17 @@ int Yap_write_blob(AtomEntry *ref, FILE *stream) {
     Atom at = AbsAtom(ref);
     return type->write(stream, at, 0);
   } else {
+    const char *s = RepAtom(AtomSWIStream)->StrOfAE;
 #if defined(__linux__) || defined(__APPLE__)
-    return fprintf(stream, "\'%s\'(%p)", RepAtom(AtomSWIStream)->StrOfAE, ref);
+    if (s && s[0]) {
+      return fprintf(stream, "\'%s\'(%p)",s , ref);
+    }
+    return fprintf(stream, "blob(%p)",ref);
 #else
-    return fprintf(stream, "\'%s\'(0x%p)", RepAtom(AtomSWIStream)->StrOfAE,
-                   ref);
+    if (s && s[0]) {
+      return fprintf(stream, "\'%s\'(0x%p)",s , ref);
+    }
+    return fprintf(stream, "blob(0x%p)", ref);
 #endif
   }
   return 0;

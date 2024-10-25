@@ -72,7 +72,7 @@ static void prune_inner_computation(choiceptr parent USES_REGS)
   B = parent;
 }
 
-bool Yap_exists(Term t, bool succeed USES_REGS)
+bool Yap_exists(Term t, bool handle_sigs USES_REGS)
 {
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
@@ -82,7 +82,7 @@ bool Yap_exists(Term t, bool succeed USES_REGS)
   t=Deref(t);
   Yap_must_be_callable(t,CurrentModule);
   {
-    bool rc = Yap_RunTopGoal(t, succeed);
+    bool rc = Yap_RunTopGoal(t, handle_sigs);
 
     // We'll pass it through
     P = oP;
@@ -94,7 +94,7 @@ bool Yap_exists(Term t, bool succeed USES_REGS)
       {
 	B = nb;
       }
-    return rc ||succeed;
+    return rc;
   }
 }
 
