@@ -429,9 +429,9 @@ static int wrputblob(AtomEntry *ref, int Quote_illegal,
                      struct write_globs *wglb) {
   wrf stream = wglb->stream;
   int rc;
-  int Yap_write_blob(AtomEntry * ref, StreamDesc * stream);
+  int Yap_write_blob(AtomEntry * ref, FILE * stream);
 
-  if ((rc = Yap_write_blob(ref, stream))) {
+  if ((rc = Yap_write_blob(ref, stream->file))) {
     return rc;
   }
   lastw = alphanum;

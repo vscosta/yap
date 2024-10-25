@@ -36,12 +36,12 @@ shared_fail:
   /* fail                             */
   PBOp(op_fail, e);
 
+fail : {
+
+
   CACHE_Y_AS_ENV(YREG); 
   check_stack(NoStackFail, HR);
   ENDCACHE_Y_AS_ENV();
-
-fail : {
-
     
   register tr_fr_ptr pt0 = TR;
 #if defined(YAPOR) || defined(THREADS)
@@ -324,6 +324,7 @@ hence we don't need to have a lock it */
           if (ap) {
 
             PELOCK(9, ap);
+	    PP = ap;
             DEC_CLREF_COUNT(cl);
             erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
             if (erase) {

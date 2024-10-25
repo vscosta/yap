@@ -656,7 +656,7 @@ typedef struct thandle {
   UInt sysize;
   void *stack_address;
   Term tdetach;
-  Term cmod, texit_mod;
+  Term cmod, texit_mod, itiq;
   Term tgoal, texit;
   int id;
   int ret;
