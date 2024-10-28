@@ -1038,8 +1038,10 @@ inline static yamop *a_ud(op_numbers opcode, op_numbers opcode_w, yamop *code_p,
     code_p->y_u.od.opcw = emit_op(opcode_w);
     code_p->y_u.od.d[0] = (CELL)FunctorDouble;
     code_p->y_u.od.d[1] = RepAppl(cpc->rnd1)[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
     code_p->y_u.od.d[2] = RepAppl(cpc->rnd1)[2];
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+    code_p->y_u.oi.i[3] = RepAppl(cpc->rnd1)[3];
+    code_p->y_u.od.d[4] = RepAppl(cpc->rnd1)[4];
 #endif
   }
   GONEXT(od);
@@ -1053,6 +1055,7 @@ inline static yamop *a_ui(op_numbers opcode, op_numbers opcode_w, yamop *code_p,
     code_p->y_u.oi.opcw = emit_op(opcode_w);
     code_p->y_u.oi.i[0] = (CELL)FunctorLongInt;
     code_p->y_u.oi.i[1] = RepAppl(cpc->rnd1)[1];
+    code_p->y_u.oi.i[2] = RepAppl(cpc->rnd1)[2];
   }
   GONEXT(oi);
   return code_p;
@@ -1064,8 +1067,10 @@ inline static yamop *a_wd(op_numbers opcode, yamop *code_p, int pass_no,
     code_p->opc = emit_op(opcode);
     code_p->y_u.d.d[0] = (CELL)FunctorDouble;
     code_p->y_u.d.d[1] = RepAppl(cpc->rnd1)[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
     code_p->y_u.d.d[2] = RepAppl(cpc->rnd1)[2];
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+    code_p->y_u.d.d[3] = RepAppl(cpc->rnd1)[3];
+    code_p->y_u.d.d[4] = RepAppl(cpc->rnd1)[4];
 #endif
   }
   GONEXT(d);
@@ -1078,6 +1083,7 @@ inline static yamop *a_wi(op_numbers opcode, yamop *code_p, int pass_no,
     code_p->opc = emit_op(opcode);
     code_p->y_u.i.i[0] = (CELL)FunctorLongInt;
     code_p->y_u.i.i[1] = RepAppl(cpc->rnd1)[1];
+    code_p->y_u.i.i[2] = RepAppl(cpc->rnd1)[2];
   }
   GONEXT(i);
   return code_p;
