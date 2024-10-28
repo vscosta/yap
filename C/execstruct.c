@@ -19,6 +19,7 @@
 
 #include "absmi.h"
 
+#include "amidefs.h"
 #include "attvar.h"
 #include "cut_c.h"
 #include "yapio.h"
@@ -45,7 +46,7 @@ static bool deterministic(Int BRef)
  * remove choice points created since a call to top-goal.
  *
  */
-static void prune_inner_computation(choiceptr parent USES_REGS)
+void Yap_prune_inner_computation(choiceptr parent USES_REGS)
 {
   /* code */
   choiceptr cut_pt;
@@ -71,7 +72,7 @@ static void prune_inner_computation(choiceptr parent USES_REGS)
   B = parent;
 }
 
-bool Yap_exists(Term t, bool handle_sigs USES_REGS)
+bool Yap_exists(Term t, ex_handler_t handle_sigs USES_REGS)
 {
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
@@ -108,12 +109,12 @@ static bool gate(Term t USES_REGS)
   Yap_must_be_callable(t,CurrentModule);
   yap_error_descriptor_t *old=NULL;
 
-  bool rc = Yap_RunTopGoal(t, true);
+  bool rc = Yap_RunTopGoal(t, LOCAL_EX);
   if (old) 
    LOCAL_ActiveError=old;
   if (rc) {
     LOCAL_PrologMode |= ErrorHandlingMode;
-    prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
+    Yap_prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
     LOCAL_PrologMode &= ErrorHandlingMode;
   }
   
@@ -290,7 +291,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
   bool rc;
 
   Yap_DisableInterrupts(worker_id);
-  rc = Yap_RunTopGoal(Setup, true);
+  rc = Yap_RunTopGoal(Setup, LOCAL_EX);
   Yap_EnableInterrupts(worker_id);
   if (!rc)
     {
@@ -300,7 +301,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
     }
   else
     {
-      prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
+      Yap_prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
     }
   B=(choiceptr)(LCL0-B0);
   if (Yap_PeekException())

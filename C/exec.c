@@ -1323,7 +1323,7 @@ static Int execute_depth_limit(USES_REGS1)
 
 #endif
 
-static int exec_absmi(bool handle_ints, yap_reset_t reset_mode USES_REGS)
+static int exec_absmi(ex_handler_t handle_ints, yap_reset_t reset_mode USES_REGS)
 {
   int lval, out;
 
@@ -1367,9 +1367,9 @@ bool done=false;
     YENV[E_CB] = Unsigned(B);
     break;
     /* make sure we don't leave a FAIL signal hanging around */
-    if (Yap_get_signal(YAP_FAIL_SIGNAL))
-      P = FAILCODE;
-    if (handle_ints && !Yap_has_a_signal())
+    // if (Yap_get_signal(YAP_FAIL_SIGNAL))
+    //  P = FAILCODE;
+    if ( !Yap_has_a_signal())
       CalculateStackGap(PASS_REGS1);
 
     break;
@@ -1393,11 +1393,11 @@ bool done=false;
       return false;
     }
     case 5:
-      if (handle_ints) {
-      Yap_JumpToEnv();
-      }
+         Yap_JumpToEnv();
+   if (handle_ints==THROW_EX) {
       if (LCL0-(CELL*)B >= LOCAL_CBorder) {
 	Yap_RestartYap(6);
+      }
       }
     case 6:
       // going up, unless there is no up to go to. or someone
@@ -1469,7 +1469,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS)
   CP = YESCODE;
 }
 
-static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, bool pass_ints USES_REGS)
+static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, ex_handler_t pass_ints USES_REGS)
 {
 
   Int out = false;
@@ -1492,7 +1492,7 @@ static int do_goal(yamop *CodeAdr, int arity, CELL *pt, bool may_succeed, bool p
   }
 
 
-bool Yap_exec_absmi(bool handle_ints, yap_reset_t has_reset)
+bool Yap_exec_absmi(ex_handler_t handle_ints, yap_reset_t has_reset)
 {
   CACHE_REGS
     return exec_absmi(handle_ints, has_reset PASS_REGS);
@@ -1550,7 +1550,7 @@ void Yap_fail_all(choiceptr bb USES_REGS)
   P = saved_p;
 }
 
-bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool handle_errors USES_REGS)
+bool Yap_execute_pred(PredEntry *ppe, CELL *pt, ex_handler_t handle_errors USES_REGS)
 {
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
@@ -1655,7 +1655,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool handle_errors USES_REGS)
   return rc;
 }
 
-bool Yap_execute_goal(Term t, int nargs, Term mod, bool handle_errors)
+bool Yap_execute_goal(Term t, int nargs, Term mod, ex_handler_t handle_errors)
 {
   CACHE_REGS
   Prop pe;
@@ -1719,7 +1719,7 @@ void Yap_trust_last(void)
   }
 }
 
-Term Yap_RunTopGoal(Term t, bool handle_errors)
+Term Yap_RunTopGoal(Term t, ex_handler_t error_manager)
 {
   CACHE_REGS
   yamop *CodeAdr;
@@ -1805,7 +1805,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors)
   }
 #endif
     LOCAL_PrologMode &= ~TopGoalMode;
-    goal_out = do_goal(CodeAdr, arity, pt, true, handle_errors PASS_REGS);
+    goal_out = do_goal(CodeAdr, arity, pt, true, error_manager PASS_REGS);
   return goal_out;
 }
 

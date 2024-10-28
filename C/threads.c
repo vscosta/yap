@@ -437,7 +437,7 @@ thread_run(void *widp)
   tgs[0] = LOCAL_ThreadHandle.tgoal;
   tgs[1] = LOCAL_ThreadHandle.tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
-  Yap_RunTopGoal(tgoal PASS_REGS);
+  Yap_RunTopGoal(tgoal, THROW_EX);
 #ifdef TABLING
   {
     tab_ent_ptr tab_ent;
@@ -1157,7 +1157,13 @@ p_with_mutex( USES_REGS1 )
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) 
     {
+      Term ts[2];
       mut = NewMutex();
+    ts[0] = MkAddressTerm(mut);    
+    ts[1] = MkIntegerTerm(mut->timestamp);    
+    if (!Yap_unify(ARG1, Yap_MkApplTerm(FunctorMutex, 2, ts) ) ) {
+      return false;
+    }
     }
   else
     {
@@ -1168,10 +1174,31 @@ p_with_mutex( USES_REGS1 )
   if (!mut || !LockMutex(mut PASS_REGS)) {
     return FALSE;
   }
-  rc= Yap_exists(Deref(ARG2), false PASS_REGS);
+  Int B0 = LCL0-(CELL *)B;
+  yamop *oP = P, *oCP = CP;
+  Int oENV = LCL0 - ENV;
+  Int oYENV = LCL0 - YENV;
+
+  rc= Yap_RunTopGoal(Deref(ARG2), LOCAL_EX );
+   if (!rc)
+    {
+      Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
+      // We'll pass it throughs
+
+    }
+  else
+    {
+      Yap_prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
+    }
+ 
+  P = oP;
+  CP = oCP;
+  ENV = LCL0 - oENV;
+  YENV = LCL0 - oYENV;
   if ( !UnLockMutex(mut PASS_REGS) ) {
-    return false;;
+    return false;
   }
+  
     if (Yap_PeekException())
     {
       Yap_JumpToEnv();
@@ -1606,7 +1633,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("mutex_lock", 1, p_lock_mutex, SafePredFlag);
   Yap_InitCPred("mutex_trylock", 1, p_trylock_mutex, SafePredFlag);
   Yap_InitCPred("mutex_unlock", 1, p_unlock_mutex, SafePredFlag);
-  Yap_InitCPred("with_c_mutex", 2, p_with_mutex, MetaPredFlag);
+ // Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFrlag);
   Yap_InitCPred("$with_with_mutex", 1, p_with_with_mutex, 0);
   Yap_InitCPred("$unlock_with_mutex", 1, p_unlock_with_mutex, 0);
   Yap_InitCPred("$mutex_info", 3, p_mutex_info, SafePredFlag);
@@ -1717,7 +1744,7 @@ p_new_mutex(void)
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   bool rc;
 
-  rc = Yap_exists(ARG2, true  PASS_REGS);
+  rc = Yap_RunTopGoal(ARG2, EX_PASS  PASS_REGS);
     if (Yap_HasException(PASS_REGS1))
     {
       Yap_JumpToEnv();
