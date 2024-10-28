@@ -371,7 +371,7 @@ static Term interrupt_wake_up(Term nextg USES_REGS) {
     }
   }
   if (( !wk && !creep && !sig)|| tg == nextg)
-    return TermTrue;
+    return nextg;
   return tg;
 
 }
@@ -555,10 +555,11 @@ static PredEntry * interrupt_fail(USES_REGS1) {
      
   Term g = interrupt_wake_up( TermFail PASS_REGS );
   //  g = Yap_protect_goal(&pe, g,CurrentModule, g);
-  if (pe && pe->CodeOfPred == FAILCODE)
+  if (!pe ||pe->CodeOfPred->opc == FAIL_OPCODE) {
+    CalculateStackGap(PASS_REGS1);
     return NULL;
+  }
   if (IsApplTerm(g))  {
-
     ARG1 =  g;  
     pe = PredCall;
   }

@@ -185,7 +185,7 @@ clause(V0,Q,R) :-
 
 
 '$clause'(exo_procedure,P,M,true,exo(P)) :-
-	'$execute0'(M:P).
+	'$execute0grep'(M:P).
 '$clause'(mega_procedure,P,M,true,mega(P)) :-
 	'$execute0'(M:P).
 '$clause'(updatable_procedure, P,M,Q,R) :-
@@ -401,12 +401,7 @@ or built-in.
 
 */
 predicate_property(Pred,Prop) :-
-    (var(Pred)
-    ->
-	Pred = M:P
-    ;
-    '$yap_strip_module'(Pred, M, P)
-    ),
+    '$yap_strip_module'(Pred, M, P),
     (var(M)
     ->
 	'$all_current_modules'(M)
@@ -415,7 +410,7 @@ predicate_property(Pred,Prop) :-
     ),
     (var(P) %
     ->
-      module_predicate(M,N,Ar,_),
+    module_predicate(M,N,Ar,_),
       functor(P,N,Ar)
     ;
     true
@@ -427,12 +422,14 @@ predicate_property(Pred,Prop) :-
     ;
       '$is_proxy_predicate'(P,M)
       ->
+(
 	'$import_chain'(M,P,M0,P0),
-	'$pred_exists'(P0,M0),
+      '$pred_exists'(P0,M0),
       (Prop = imported_from(M0)
 	;
 	'$predicate_property'(P0,M0,Prop)
       )
+)
     ;
     '$predicate_property'(P,M,Prop)
     ).

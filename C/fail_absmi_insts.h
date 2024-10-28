@@ -42,7 +42,7 @@ fail : {
   CACHE_Y_AS_ENV(YREG); 
   check_stack(NoStackFail, HR);
   ENDCACHE_Y_AS_ENV();
-    
+  failing:
   register tr_fr_ptr pt0 = TR;
 #if defined(YAPOR) || defined(THREADS)
   if (PP) {
@@ -418,8 +418,9 @@ hence we don't need to have a lock it */
     SREG = Yap_REGS.S_;
 #endif
     if (pe==NULL)
-      goto fail;
+      goto failing;
     PREG = P = pe->CodeOfPred;
+
     JMPNext();
   }
 #ifdef INDENT_CODE

@@ -19,7 +19,6 @@
 
 #include "absmi.h"
 
-#include "amidefs.h"
 #include "attvar.h"
 #include "cut_c.h"
 #include "yapio.h"
@@ -162,6 +161,9 @@ static bool watch_cut(Term ext)
   bool active = ArgOfTerm(5, task) == TermTrue;
   bool ex_mode;
  CELL *port_pt = deref_ptr(RepAppl(task)+2);
+ if (IsNonVarTerm(port_pt[0])) {
+     return true;
+ }
   CELL *completion_pt = deref_ptr(RepAppl(task)+4);
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {

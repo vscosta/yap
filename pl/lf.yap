@@ -367,7 +367,6 @@
 	stream_property(Stream, file_name(Y)),
        '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
-    '$conditional_compilation_init',
     file_directory_name(File, Dir),
     working_directory(OldD,OldD),
     !,
@@ -738,12 +737,10 @@ consult(Fs) :-
   @pred compile(+ _F_ )
 
 Updates the program by replacing the
-previous definitions for the predicates defined in  _F_. It differs from consult/1
-in that it only multifile/1 predicates are not reset in a reconsult. Instead, consult/1
-sees all predicates as multifile.
+previous definitions for the predicates defined in  _F_. 
 
 YAP also offers no difference between consult/1 and compile/1. The two
-are  implemented by the same exact code.
+are  implemented by the same code.
 
 Example:
 

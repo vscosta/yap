@@ -14,6 +14,7 @@
  * comments:	threads							 *
  *									 *
  *************************************************************************/
+#include <setjmp.h>
 #ifdef SCCS
 static char     SccsId[] = "%W% %G%";
 #endif
@@ -178,17 +179,16 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   pthread_cond_t *fullp = &mboxp->full;
   pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
-
+  
   if (!mboxp->open) {
     // oops, dead mailbox
  pthread_mutex_unlock(mutexp);
     return false;
   }
-  if (mboxp->nmsgs == mboxp->max)
+  while (mboxp->nmsgs == mboxp->max)
     pthread_cond_wait(fullp,mutexp);
   //Yap_DebugPlWriteln(t);
   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
-  fprintf(stderr,"+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
   mboxp->nmsgs++;
      pthread_cond_signal(emptyp);
  pthread_mutex_unlock(mutexp);
@@ -202,20 +202,25 @@ mboxReceive( mbox_t *mboxp, Term *t USES_REGS )
   pthread_cond_t *emptyp = &mboxp->empty;
   // pthread_cond_t *fullp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
-  bool rc; 
+  bool rc;
+  while(true) {
   if (!mboxp->open){
       pthread_mutex_unlock(mutexp);
     return false; 	// don't try to read if someone else already closed dopxu[xuxuwn...
   }
-    rc=Yap_dequeue_tqueue(msgsp, t, false, true PASS_REGS);
+
+  rc=Yap_dequeue_tqueue(msgsp, t, false, true PASS_REGS);
       // Yap_DebugPlWriteln(t);
       if (rc) {
 	mboxp->nmsgs--;
 	pthread_mutex_unlock(mutexp);
+  return rc;
       } else {
 	pthread_cond_wait(emptyp, mutexp);
       }
-  return rc;
+
+
+  }
 }
   
 
@@ -225,7 +230,8 @@ mboxPeek( mbox_t *mboxp, Term t USES_REGS )
   pthread_mutex_t *mutexp = &mboxp->mutex;
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc = Yap_dequeue_tqueue(msgsp, &t, false,  false PASS_REGS);
-  pthread_mutex_unlock(mutexp);
+  if (rc)   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
+ pthread_mutex_unlock(mutexp);
   return rc;
 }
 
@@ -482,6 +488,7 @@ p_thread_new_tid( USES_REGS1 )
   return Yap_unify(MkIntegerTerm(new_worker), ARG1);
 }
 
+
 static Int
 p_thread_barrier_new_tid( USES_REGS1 )
 {
@@ -539,7 +546,7 @@ p_create_thread( USES_REGS1 )
     /* wait until the client is initialized */
   }
   pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(owid).current_yaam_regs);
-  return FALSE;
+  return true;
 }
 
 static Int
@@ -595,8 +602,9 @@ p_thread_zombie_self( USES_REGS1 )
   if (Yap_has_signal( YAP_ITI_SIGNAL )) {
     return FALSE;
   }
-  //  fprintf(stderr," -- %d\n", worker_id); 
-  LOCAL_ThreadHandle.in_use = FALSE;
+  //  fprintf(stderr," -- %d\n", worker_id);
+  MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
+  LOCAL_ThreadHandle.in_use = FALSE;  
   LOCAL_ThreadHandle.zombie = TRUE;
   MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
@@ -846,6 +854,14 @@ p_thread_set_concurrency( USES_REGS1 )
   return FALSE;
 #endif
 }
+
+  /** @pred thread_yield 
+
+
+      Voluntarily relinquish the processor.
+
+
+  */
 
 static Int
 p_thread_yield( USES_REGS1 )
@@ -1156,7 +1172,7 @@ p_with_mutex( USES_REGS1 )
   if ( !UnLockMutex(mut PASS_REGS) ) {
     return false;;
   }
-    if (Yap_HasException(PASS_REGS1))
+    if (Yap_PeekException())
     {
       Yap_JumpToEnv();
       return false;
@@ -1219,10 +1235,8 @@ typedef struct {
        namet = MkAtomTerm(RepAtom(ae));
        mboxp = (mbox_t *)(ae->rep.blob[0].data);
       Yap_unify(ARG1, namet);
-      LOCK(GLOBAL_mboxq_lock);
-   } else if (IsAtomTerm(namet)) {
-       LOCK(GLOBAL_mboxq_lock);
-       while( mboxp && mboxp->name != namet)
+    } else if (IsAtomTerm(namet)) {
+         while( mboxp && mboxp->name != namet)
 	 mboxp = mboxp->next;
        if (mboxp) {
 	   UNLOCK(GLOBAL_mboxq_lock);
@@ -1230,15 +1244,15 @@ typedef struct {
        }
        mboxp = (mbox_t *)Yap_AllocCodeSpace(sizeof(mbox_t));
        if (mboxp == NULL) {
-	   UNLOCK(GLOBAL_mboxq_lock);
 	   return FALSE;
        }
        // global mbox, for now we'll just insert in list
-       mboxp->next = GLOBAL_named_mboxes;
+       LOCK(GLOBAL_mboxq_lock);
+     mboxp->next = GLOBAL_named_mboxes;
        GLOBAL_named_mboxes = mboxp;
+	   UNLOCK(GLOBAL_mboxq_lock);
    }
    bool rc = mboxCreate( namet, mboxp PASS_REGS );
-   UNLOCK(GLOBAL_mboxq_lock);
    return rc;
  }
 
@@ -1293,10 +1307,10 @@ p_mbox_destroy( USES_REGS1 )
      }
      if (!mboxp->open)
        mboxp = NULL;
+     UNLOCK(GLOBAL_mboxq_lock);
      if (mboxp) {
 	 pthread_mutex_lock(& mboxp->mutex);
      }
-     UNLOCK(GLOBAL_mboxq_lock);
    } else if (IsIntTerm(t)) {
        int wid = IntOfTerm(t);
        if (REMOTE(wid) &&
@@ -1581,13 +1595,6 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_join", 1, p_thread_join, 0);
   Yap_InitCPred("$thread_destroy", 1, p_thread_destroy, 0);
   Yap_InitCPred("thread_yield", 0, p_thread_yield, 0);
-  /** @pred thread_yield 
-
-
-      Voluntarily relinquish the processor.
-
-
-  */
   Yap_InitCPred("$detach_thread", 1, p_thread_detach, 0);
   Yap_InitCPred("$thread_detached", 1, p_thread_detached, 0);
   Yap_InitCPred("$thread_detached", 2, p_thread_detached2, 0);
@@ -1599,7 +1606,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("mutex_lock", 1, p_lock_mutex, SafePredFlag);
   Yap_InitCPred("mutex_trylock", 1, p_trylock_mutex, SafePredFlag);
   Yap_InitCPred("mutex_unlock", 1, p_unlock_mutex, SafePredFlag);
-  Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFlag);
+  Yap_InitCPred("with_c_mutex", 2, p_with_mutex, MetaPredFlag);
   Yap_InitCPred("$with_with_mutex", 1, p_with_with_mutex, 0);
   Yap_InitCPred("$unlock_with_mutex", 1, p_unlock_with_mutex, 0);
   Yap_InitCPred("$mutex_info", 3, p_mutex_info, SafePredFlag);
@@ -1729,7 +1736,7 @@ Yap_InitFirstWorkerThreadHandle(void)
 
 void Yap_InitThreadPreds(void)
 { 
-  Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFlag);
+   Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFlag);
   Yap_InitCPred("mutex_create", 1, p_new_mutex, SafePredFlag);
   Yap_InitCPred("$max_workers", 1, p_max_workers, 0);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag);

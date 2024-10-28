@@ -132,6 +132,7 @@ meta_predicate(P) :-
 	incore(0),
 	initialization(0),
 	initialization(0,+),
+        load_files(:,+),
 	nospy(:),
         not(0),
         notrace(0),

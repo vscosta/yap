@@ -164,6 +164,7 @@ A	Exit			N	"exit"
 A	ExoClause		F	"$exo_clause"
 A	ExoProcedure		N	"exo_procedure"
 A	Expand			N	"expand"
+A	ExpandGoal		N	"expand_goal"
 A	ExpectedNumber		N	"expected_number_syntax"
 A	ExtendFileSearchPath	F	"$extend_file_search_path"
 A	Extendsions		N	"extensionh"
@@ -612,6 +613,7 @@ F	ExecuteInMod		ExecuteInMod	2
 F	ExecuteWithin		ExecuteWithin	2
 F	ExistenceError		ExistenceError	2
 F	ExoClause		ExoClause	2
+F	ExoandGoal		ExpandGoal	2
 F	ExternalException	ExternalException  1
 F	Float			Float		3
 F	Floats			Floats		2

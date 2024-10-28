@@ -279,7 +279,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     TaskF = top( All, Catcher, Cleanup, Tag, false, CP0),
 
     strip_module(Goal,M,G),
-    '$execute0'( M:G ),
+    '$execute'( M:G ),
     '$cleanup_on_exit'(CP0, TaskF).
 
 

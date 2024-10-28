@@ -181,7 +181,7 @@ Similar to initialization/1, but allows  specifying when
     '$declare_module'(HostM,N,P,Pos).
 '$exec_directive'(system_module(N,Ps,Ss), _Status, HostM, Log, Pos) :-
     (
-prolog_flag(compiler_top_level, scanner:scanner_loop)
+current_prolog_flag(compiler_top_level, scanner:scanner_loop)
     ->
       current_source_module(_,prolog)
     ;

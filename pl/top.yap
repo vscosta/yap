@@ -185,25 +185,26 @@ AVs = [],
 
 '$query'([],_Vs,_Port) :-
     !.
-'$query'(G,_Vs,Port) :-
+'$query'(G0,_Vs,Port) :-
     current_prolog_flag(debug,true),
    current_prolog_flag(trace,true),
     !,
+    expand_goal(G0,G),
     nb_setval(creep,creep),
     current_choice_point(CP0),
     '$spy'(G,top),
     current_choice_point(CPF),
     (CP0 == CPF
     ->
-	Port = exit
+ 	Port = exit
     ;
     Port = answer
     ).
-'$query'(G,_,Port) :-
+'$query'(G0,_,Port) :-
     nb_setval(creep,zip),
     catch(
 	gated_call(
-	    true,
+	    expand_goal(G0,G),
 	    G,
 	    Port,
 true	   	    
@@ -325,7 +326,7 @@ current_prolog_flag(debug, false), !.
     ('$call'(A, CP, G0, M);
      '$call'(B, CP, G0, M)).
 '$call'(G, _CP, _G0, M) :-
-    call(M:G).
+    '$execute'(M:G).
 
 /* General purpose predicates				*/
 
@@ -421,7 +422,7 @@ expand_clause(Term, Term, Term).
 
 '$run_at_thread_start' :-
     recorded('$thread_initialization',M:D,_),
-    '$execute0'(M:D),
+    '$execute'(M:D),
     fail.
 '$run_at_thread_start'.
 

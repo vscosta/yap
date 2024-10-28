@@ -54,14 +54,7 @@ ctrace/1,
  * step-by-step trace of the execution of _Goal_
  *
  */
-	
-:- meta_predicate(yap_hacks:ctrace(0)).
 
-yap_hacks:ctrace(G) :-
-    gated_call(start_low_level_trace,
-	       G,
-	       _,
-	       stop_low_level_trace).
 
 
 /**

@@ -831,7 +831,10 @@ QEnd of cond  itional compilation.
     nb_setval('$conditional_compilation_level',[run]).
 
 '$conditional_compilation_get_state'(state(LB)) :-
-    '__NB_getval__'('$conditional_compilation_level', LB, fail).
+    catch(nb_getval('$conditional_compilation_level', LB), _Undef,
+('$conditional_compilation_init',
+'$conditional_compilation_get_state'(state(LB)) )
+).
 
 '$conditional_compilation_set_state'(state(LB)) :-
     nb_setval('$conditional_compilation_level', LB).
