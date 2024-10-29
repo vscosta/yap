@@ -349,10 +349,10 @@ static void ReceiveSignal(int s, void *x, void *y) {
     Yap_external_signal(worker_id, YAP_INT_SIGNAL);
     break;
   case SIGALRM:
-    Yap_external_signal(worker_id, YAP_ALARM_SIGNAL);
+     Yap_external_signal(worker_id, YAP_ALARM_SIGNAL);
     break;
   case SIGVTALRM:
-    Yap_external_signal(worker_id, YAP_VTALARM_SIGNAL);
+     Yap_external_signal(worker_id, YAP_VTALARM_SIGNAL);
     break;
 #ifndef MPW
 #ifdef HAVE_SIGFPE

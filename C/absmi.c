@@ -367,7 +367,7 @@ static Term interrupt_wake_up(Term nextg USES_REGS) {
   if (sig) {
     Term td;
     while ((td = Yap_next_signal(PASS_REGS1))) {
-      tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
+  tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
     }
   }
   if (( !wk && !creep && !sig)|| tg == nextg)
@@ -555,10 +555,6 @@ static PredEntry * interrupt_fail(USES_REGS1) {
      
   Term g = interrupt_wake_up( TermFail PASS_REGS );
   //  g = Yap_protect_goal(&pe, g,CurrentModule, g);
-  if (!pe ||pe->CodeOfPred->opc == FAIL_OPCODE) {
-    CalculateStackGap(PASS_REGS1);
-    return NULL;
-  }
   if (IsApplTerm(g))  {
     ARG1 =  g;  
     pe = PredCall;
