@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -1744,7 +1745,7 @@ p_new_mutex(void)
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   bool rc;
 
-  rc = Yap_RunTopGoal(ARG2, EX_PASS  PASS_REGS);
+  rc = Yap_RunTopGoal(ARG2, LOCAL_EX  PASS_REGS);
     if (Yap_HasException(PASS_REGS1))
     {
       Yap_JumpToEnv();
