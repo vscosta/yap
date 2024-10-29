@@ -1130,9 +1130,11 @@ inline static yamop *a_rd(op_numbers opcode, yamop *code_p, int pass_no,
     code_p->opc = emit_op(opcode);
     code_p->y_u.xd.x = emit_x(cpc->rnd2);
     code_p->y_u.xd.d[0] = (CELL)FunctorDouble;
-    code_p->y_u.xd.d[1] = RepAppl(cpc->rnd1)[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+    code_p->y_u.xd.d[1]      = RepAppl(cpc->rnd1)[1];
     code_p->y_u.xd.d[2] = RepAppl(cpc->rnd1)[2];
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+    code_p->y_u.xd.d[3] = RepAppl(cpc->rnd1)[3];
+    code_p->y_u.xd.d[4] = RepAppl(cpc->rnd1)[4];
 #endif
   }
   GONEXT(xd);
@@ -1146,6 +1148,7 @@ inline static yamop *a_ri(op_numbers opcode, yamop *code_p, int pass_no,
     code_p->y_u.xi.x = emit_x(cpc->rnd2);
     code_p->y_u.xi.i[0] = (CELL)FunctorLongInt;
     code_p->y_u.xi.i[1] = RepAppl(cpc->rnd1)[1];
+    code_p->y_u.xi.i[2] = RepAppl(cpc->rnd1)[2];
   }
   GONEXT(xi);
   return code_p;

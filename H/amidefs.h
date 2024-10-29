@@ -328,7 +328,7 @@ typedef struct yami {
       CELL next;
     } clll;
     struct {
-      CELL    d[2+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      CELL    d[1+2*SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } d;
     struct {
@@ -607,7 +607,7 @@ typedef struct yami {
     struct {
       COUNT               s0;
       COUNT               s1;
-      CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      CELL    d[1+2*SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } ssd;
     struct {
