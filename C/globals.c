@@ -257,8 +257,11 @@ static Int nb_add_to_accumulator(USES_REGS1) {
         CELL *source = RepAppl(new);
 
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-        target[2] = source[2];
+        target[4] = source[4];
+        target[3 = source[3];
+
 #endif
+        target[2] = source[2];
         target[1] = source[1];
         return TRUE;
     }
@@ -501,7 +504,7 @@ Term Yap_GetGlobal(Atom at) {
 
     */
 static Int nbdelete(Atom at USES_REGS) {
-  Prop ge, g;
+  Prop ge;
     AtomEntry *ae;
 
     ge =  RepAtom(at)->PropsOfAE;
@@ -512,6 +515,7 @@ static Int nbdelete(Atom at USES_REGS) {
     ae = RepAtom(at);
     #if THREADS
     if (worker_id >0) {
+      Prop g;
       if (LOCAL_ThreadHandle.ge == ge) {
 	LOCAL_ThreadHandle.ge = RepGlobalProp(ge)->NextOfPE;
       } else

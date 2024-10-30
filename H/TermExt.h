@@ -472,7 +472,7 @@ INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0, CELL d1)
   case db_ref_e:
     return (d0 == d1);
   case long_int_e:
-    return (pt0[1] == RepAppl(d1)[1]);
+    return (pt0[1] == RepAppl(d1)[1] && pt0[2] == RepAppl(d1)[2] );
   case blob_e:
     return (pt0[2] == RepAppl(d1)[2] && !memcmp(pt0+3, RepAppl(d1)+3, pt0[2]*sizeof(CELL) ) );
   case string_e:
@@ -485,11 +485,14 @@ INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0, CELL d1)
 #endif /* USE_GMP */
   case double_e: {
     CELL *pt1 = RepAppl(d1);
-    return (pt0[1] == pt1[1]
+    return pt0[1] == pt1[1] &&
+	    pt0[2] == pt1[2]
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-            && pt0[2] == pt1[2]
+      &&
+	    pt0[3] == pt1[3] &&
+            pt0[4] == pt1[4]
 #endif
-            );
+            ;
   }
   }
 	    return false;

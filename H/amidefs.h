@@ -585,7 +585,7 @@ typedef struct yami {
     } sc;
     struct {
       COUNT               s;
-      CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      CELL    d[1+2*SIZEOF_DOUBLE/SIZEOF_INT_P];
       struct yami        *F;
       struct yami        *T;
       CELL next;

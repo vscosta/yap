@@ -773,8 +773,10 @@
       PREG = NEXTOP(PREG, xd);
       if (
 	  pt1[1] != pt0[1]
-#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 	  || pt1[2] != pt0[2]
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+	  || pt1[3] != pt0[3]
+	  || pt1[4] != pt0[4]
 #endif
 	  ) FAIL();
       ENDP(pt1);
@@ -862,7 +864,8 @@
       if (*pt0 != (CELL)FunctorLongInt) {
 	FAIL();
       }
-      if (PREG->y_u.xi.i[1] != (CELL)pt0[1]) FAIL();
+      if (PREG->y_u.xi.i[1] != (CELL)pt0[1] ||
+	  PREG->y_u.xi.i[2] != (CELL)pt0[2]) FAIL();
       ENDP(pt0);
       PREG = NEXTOP(PREG, xi);
       /* enter read mode */
@@ -2436,8 +2439,10 @@
       PREG = NEXTOP(PREG, od);
       if (
 	  pt1[1] != pt0[1]
-#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 	  || pt1[2] != pt0[2]
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+	  || pt1[3] != pt0[3]
+	  || pt1[4] != pt0[4]
 #endif
 	  ) FAIL();
       ENDP(pt1);
@@ -2484,8 +2489,10 @@
       PREG = NEXTOP(PREG, od);
       if (
 	  pt1[1] != pt0[1]
-#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 	  || pt1[2] != pt0[2]
+#if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+	  || pt1[3] != pt0[3]
+	  || pt1[4] != pt0[4]
 #endif
 	  ) FAIL();
       ENDP(pt1);
@@ -2612,7 +2619,8 @@
       BEGP(pt1);
       pt1 = PREG->y_u.oi.i;
       PREG = NEXTOP(PREG, oi);
-      if (pt1[1] != pt0[1]) FAIL();
+      if (pt1[1] != pt0[1] ||
+	  pt1[2] != pt0[2] ) FAIL();
       ENDP(pt1);
       ENDP(pt0);
       GONext();
@@ -2655,7 +2663,8 @@
       BEGP(pt1);
       pt1 = PREG->y_u.oi.i;
       PREG = NEXTOP(PREG, oi);
-      if (pt1[1] != pt0[1]) FAIL();
+      if (pt1[1] != pt0[1] ||
+	  pt1[2] != pt0[2]) FAIL();
       ENDP(pt1);
       ENDP(pt0);
       GONext();

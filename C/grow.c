@@ -607,7 +607,9 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	*hpt = LocalAdjust(reg);
       else if (IsOldTrail(reg)) {
 	*hpt = TrailAdjust(reg);
-      } else if ( IsExtensionFunctor((Functor)reg) && reg > 0 && reg % sizeof(CELL)==0 ) {
+      } else if ( IsExtensionFunctor((Functor)reg) && reg != (CELL)FunctorDouble &&
+		  reg != (CELL)FunctorLongInt
+		  && reg > 0 && reg % sizeof(CELL)==0 ) {
 	ssize_t bigsz =  SizeOfOpaqueTerm(hpt,reg);
 	if (bigsz <= 0 || hpt + bigsz > HR ||!IsAtomTerm(hpt[bigsz-1])) {
 	  *hpt = reg;

@@ -2863,8 +2863,10 @@ hash_complex_term(register CELL *pt0,
 	    {
 	      CELL *pt = RepAppl(d0);
 	      *st++ = pt[1];
-#if  SIZEOF_DOUBLE == 2*SIZEOF_INT_P
 	      *st++ = pt[2];
+#if  SIZEOF_DOUBLE == 2*SIZEOF_INT_P
+	      *st++ = pt[3];
+	      *st++ = pt[4];
 #endif
 	      break;
 	    }

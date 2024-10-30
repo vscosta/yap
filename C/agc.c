@@ -329,7 +329,7 @@ mark_global_cell(CELL *pt)
     switch(reg) {
     case (CELL)FunctorDouble:
 #if SIZEOF_DOUBLE == 2*SIZEOF_INT_P
-      return pt + 4;
+      return pt + 5;
 #else
       return pt + 3;
 #endif

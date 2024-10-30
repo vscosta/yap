@@ -353,22 +353,34 @@ static int  copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
                 if (IsExtensionFunctor((Functor) dd1)) {
 		  Functor f = (Functor) dd1;
-         if (f == FunctorDBRef) {
+		  if (f == FunctorDBRef) {
                     *ptf = d0;
-        } else {
-	    Term t = d0;
-	    size_t szop = SizeOfOpaqueTerm(RepAppl(t), (CELL) f);
-            	      if (ASP-HR < szop+MIN_ARENA_SIZE) {
-		return stt->err = RESOURCE_ERROR_STACK;
-	      }
-	      *ptf = AbsAppl(HR);
-	      if (f!=FunctorDouble && f!=FunctorLongInt) {
-	      memmove(HR, RepAppl(t), (szop-1) * CellSize);
-		HR[szop - 1] = CloseExtension(HR);
-	      } else {
-	      memmove(HR, RepAppl(t), szop * CellSize);
-	      }
-	      HR+=szop;
+		  } else {
+		    Term t = d0;
+		    *ptf = AbsAppl(HR);
+		    if (f==FunctorDouble) {
+		      size_t szop = 1 + 2 * (SIZEOF_DOUBLE/SIZEOF_LONG_INT);
+		      if (ASP-HR < szop+MIN_ARENA_SIZE) {
+			return stt->err = RESOURCE_ERROR_STACK;
+		      }
+		      memmove(HR, RepAppl(t), szop * CellSize);
+		      HR+=szop;
+		    } else if (f==FunctorLongInt) {
+		      size_t szop = 3;
+		      if (ASP-HR < szop+MIN_ARENA_SIZE) {
+			return stt->err = RESOURCE_ERROR_STACK;
+		      }
+		      memmove(HR, RepAppl(t), szop * CellSize);
+		      HR+=szop;
+		    } else {
+		      size_t szop = SizeOfOpaqueTerm(RepAppl(t), (CELL) f);
+		      if (ASP-HR < szop+MIN_ARENA_SIZE) {
+			return stt->err = RESOURCE_ERROR_STACK;
+		      }
+		      memmove(HR, RepAppl(t), (szop-1) * CellSize);
+		      HR[szop - 1] = CloseExtension(HR);
+		      HR += szop;
+		    }
                   continue;
                 }
 		}else if (IS_VISIT_MARKER(dd1)) {
@@ -535,6 +547,44 @@ Term CopyTermToArena(Term t,
     } else if (IsApplTerm(t) && IsExtensionFunctor((f = FunctorOfTerm(t)))) {
         if (f == FunctorDBRef) {
 	  return t;
+        } else if (f == FunctorDouble) {
+	  size_t szop = 1+2*SIZEOF_DOUBLE/CellSize;
+	      while (HR + (MIN_ARENA_SIZE + szop) > ASP) {
+		yhandle_t yt1, yt;
+		yt = Yap_InitHandle(t);
+		if (bindp)
+		  yt1 = Yap_InitHandle(*bindp);
+		if (!Yap_dogcl(2 * MIN_ARENA_SIZE + szop PASS_REGS)) {
+		  stt->err = RESOURCE_ERROR_STACK;
+		  break;
+		}
+		if (bindp)
+		  *bindp = Yap_PopHandle(yt1);
+		t = Yap_PopHandle(yt);
+	      }
+	      memmove(HR, RepAppl(t), szop * CellSize);
+	      Term tf = AbsAppl(HR);
+	      HR += szop;
+	      return tf;
+	} else if (f == FunctorLongInt) {
+	       size_t szop = 3;
+	      while (HR + (MIN_ARENA_SIZE + szop) > ASP) {
+		yhandle_t yt1, yt;
+		yt = Yap_InitHandle(t);
+		if (bindp)
+		  yt1 = Yap_InitHandle(*bindp);
+		if (!Yap_dogcl(2 * MIN_ARENA_SIZE + szop PASS_REGS)) {
+		  stt->err = RESOURCE_ERROR_STACK;
+		  break;
+		}
+		if (bindp)
+		  *bindp = Yap_PopHandle(yt1);
+		t = Yap_PopHandle(yt);
+	      }
+	      memmove(HR, RepAppl(t), szop * CellSize);
+	      Term tf = AbsAppl(HR);
+	      HR += szop;
+	      return tf;
         } else {
 	    CELL *end;
 	  
