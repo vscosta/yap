@@ -503,7 +503,11 @@ step_goal(G,M,GoalNumberN),
     ).
 
  step_goal(G,M, GoalNumberN) :-
-    '$interact'([call], M:G, GoalNumberN),
+     '$interact'([call], M:G, GoalNumberN),
+     nb_getval(creep,zip),
+     !,
+     '$step'(zipped_procedure,M:G,GoalNumberN).
+ step_goal(G,M, GoalNumberN) :-
  '$predicate_type'(G,M,T),
     '$step'(T,M:G,GoalNumberN).
 
@@ -557,7 +561,14 @@ Port,
 	    Port,	
          '$interact'([Port], NMG, GoalNumber)
 	).
-
+'$step'(   zipped_procedure,MG,GoalNumber) :-
+  	gated_call(    % debugging allowed.
+  true,
+	    call(MG),
+	    Port,	
+         '$interact'([Port], MG, GoalNumber)
+	)
+.
 '$creep_enumerate_sources'(Setup, M:Goal, B,Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
     Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
