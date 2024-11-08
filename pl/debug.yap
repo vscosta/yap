@@ -511,7 +511,7 @@ step_goal(G,M,GoalNumberN),
  '$predicate_type'(G,M,T),
     '$step'(T,M:G,GoalNumberN).
 
-%
+%%
 % step a call
 % 
 '$step'(   exo_procedure,MG,GoalNumber) :-

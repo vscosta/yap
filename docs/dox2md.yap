@@ -670,14 +670,17 @@ merge_nodes :-
 one(class,S,Id,_Name, File,Line,Column,Brief,Text,Title) :-
     format(S,'# ~s\n\n~s\n',[Title,Brief]),
    forall(extrabrief(Id,Extra),format(S,'~s\n',[Extra])),
+    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
     process_class(S,Id,File,Line,Column,Text).
 one(predicate,S,Id, _Name, File,Line,Column,Brief,Text,Title) :-
     format(S,'# ~s\n\n~s\n',[Title,Brief]),
     forall(extrabrief(Id,Extra),format(S,'~s\n',[Extra])),
+    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
     process_predicate(S,Id,File,Line,Column,Text).
 one(group, S,Id, _Name, File,Line,Column,Brief,Text,Title) :-
  format(S,'# ~s\n\n~s\n',[Title,Brief]),
  forall(extrabrief(Id,Extra),format(S,'~s\n',[Extra])),
+    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
  subgroups(S,Id),
 process_group(S,Id,File,Line,Column,Text).
 

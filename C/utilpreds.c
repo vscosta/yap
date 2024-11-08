@@ -14,6 +14,7 @@
 * comments:	new utility predicates for YAP				 *
 *									 *
 *************************************************************************/
+
 #ifdef SCCS
 static char     SccsId[] = "@(#)utilpreds.c	1.3";
 #endif
@@ -3089,12 +3090,47 @@ p_instantiated_term_hash( USES_REGS1 )
   return Yap_unify(ARG4,result);
 }
 
+static CELL init_variant_entry(CELL *ptr USES_REGS)
+{
+  CELL trl = (CELL)ptr;
+  if (ptr < HBREG) {
+    trl = (CELL)HR;
+    Bind_and_Trail(ptr, (CELL)HR);
+    RESET_VARIABLE(HR);
+    HR[1] = 0;
+    HR[2] = 0;
+    HR+=3;
+  }
+  return trl;
+}
+
+
+
+bool left_match(CELL *ptrl, CELL trr USES_REGS)
+{
+  if (ptrl[2] == 0) {
+    ptrl[2]=trr;
+    return true;
+  }
+  return ptrl[2]==trr;
+}
+
+bool right_match(CELL *ptrr, CELL trl USES_REGS)
+{
+ if (ptrr[1] == 0) {
+    ptrr[1]=trl;
+    return true;
+  }
+  return ptrr[1]==trl;
+}
+
+
 static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 		   CELL *pt1 USES_REGS)
 {
   tr_fr_ptr OLDTR = TR;
-  register CELL **tovisit = (CELL **)ASP;
-  /* make sure that unification always forces trailing */
+  CELL **tovisit = (CELL **)ASP;
+    /* make sure that unification always forces trailing */
   HBREG = HR;
 
 
@@ -3106,28 +3142,31 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
     d0 = Derefa(pt0);
     d1 = Derefa(pt1);
     if (IsVarTerm(d0)) {
-      if (IsVarTerm(d1)) {
-	CELL *pt0 = VarOfTerm(d0);
-	CELL *pt1 = VarOfTerm(d1);
-	if (pt0 >= HBREG || pt1 >= HBREG) {
-	  /* one of the variables has been found before */
-	  if (pt0==pt1) continue;
-	  goto fail;
-	} else {
-	  /* two new occurrences of the same variable */
-	  Term n0 = MkVarTerm(), n1 = MkVarTerm();
-	  Bind_Global(VarOfTerm(d0), n0);
-	  Bind_Global(VarOfTerm(d1), n1);
+      if (!IsVarTerm(d1))
+	goto fail;
+      if (d0==d1) {
+	d0 =  init_variant_entry(VarOfTerm(d0) PASS_REGS);
+	if (left_match(VarOfTerm(d0), d0 PASS_REGS) &&
+	  right_match(VarOfTerm(d0), d0 PASS_REGS)) {
+         continue;
 	}
-	continue;
-      } else {
 	goto fail;
       }
-    } else if (IsVarTerm(d1)) {
+      d0 =  init_variant_entry(VarOfTerm(d0) PASS_REGS);
+      d1 = Deref(d1);
+      d1 =  init_variant_entry(VarOfTerm(d1) PASS_REGS);
+      d0 = Deref(d0);
+      if (left_match(VarOfTerm(d0), d1 PASS_REGS) &&
+	  right_match(VarOfTerm(d1), d0 PASS_REGS)) {
+         continue;
+      }
       goto fail;
-    } else {
-      if (d0 == d1) continue;
-      else if (IsAtomOrIntTerm(d0)) {
+    }
+    if (IsVarTerm(d1))
+      goto fail;
+    if (d0==d1)
+      continue;
+    if (IsAtomOrIntTerm(d0)) {
 	goto fail;
       } else if (IsPairTerm(d0)) {
 	if (!IsPairTerm(d1)) {
@@ -3208,8 +3247,7 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	}
       }
     }
-  }
-  /* Do we still have compound terms to visit */
+   /* Do we still have compound terms to visit */
   if (tovisit < (CELL **)ASP) {
 #ifdef RATIONAL_TREES
     pt0 = tovisit[0];
@@ -3225,7 +3263,6 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 #endif
     goto loop;
   }
-
   HR = HBREG;
   /* untrail all bindings made by variant */
   while (TR != (tr_fr_ptr)OLDTR) {

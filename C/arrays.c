@@ -133,7 +133,7 @@ extern int errno;
 static Int compile_array_refs(USES_REGS1);
 static Int array_refs_compiled(USES_REGS1);
 static Int sync_mmapped_arrays(USES_REGS1);
-
+static bool DeleteStaticArray(Prop pp);
 /**
  * This file works together with pl/arrays.yap and arrays.h.
  *
@@ -796,6 +796,9 @@ static ArrayEntry *CreateStaticArray(AtomEntry *ae, size_t ndims,
     AddPropToAtom(ae, (PropEntry *)p);
   p->NextAE = LOCAL_StaticArrays;
     LOCAL_StaticArrays = p;
+  } else {
+    if (!DeleteStaticArray(AbsArrayProp(p)))
+      return false;;
   }
   WRITE_LOCK(p->ArRWLock);
   p->ArrayEArity = sz;
@@ -1389,6 +1392,29 @@ static Int clear_static_array(USES_REGS1) {
   }
 }
 
+static bool DeleteStaticArray(Prop pp)
+{
+  ArrayEntry *ptr = RepArrayProp(pp);
+      if (ptr->ValueOfStaticVE.chars) {
+#if HAVE_MMAP
+        Int val =
+            CloseMmappedArray(ptr, (void *)ptr->ValueOfStaticVE.chars PASS_REGS);
+#if USE_SYSTEM_MALLOC
+        if (val) {
+#endif
+          return (val);
+#if USE_SYSTEM_MALLOC
+        }
+#endif
+#endif
+        Yap_FreeAtomSpace((char *)(ptr->ValueOfStaticVE.ints));
+        ptr->ValueOfStaticVE.ints = NULL;
+        ptr->ArrayEArity = 0;
+        return true;
+      } 
+      return false;
+}
+
 /* Close a named array (+Name) */
 /** @pred  close_static_array(+ _Name_)
 
@@ -1399,7 +1425,7 @@ further accesses to the array will return an error.
 
 
 */
-static Int close_static_array(USES_REGS1) {
+ static Int close_static_array(USES_REGS1) {
   /* does not work for mmap arrays yet */
   Term t = Deref(ARG1);
 
@@ -1419,26 +1445,7 @@ static Int close_static_array(USES_REGS1) {
     if (EndOfPAEntr(pp)) {
       return (FALSE);
     } else {
-      ArrayEntry *ptr = (ArrayEntry *)pp;
-      if (ptr->ValueOfStaticVE.ints != NULL) {
-#if HAVE_MMAP
-        Int val =
-            CloseMmappedArray(ptr, (void *)ptr->ValueOfStaticVE.chars PASS_REGS);
-#if USE_SYSTEM_MALLOC
-        if (val) {
-#endif
-          return (val);
-#if USE_SYSTEM_MALLOC
-        }
-#endif
-#endif
-        Yap_FreeAtomSpace((char *)(ptr->ValueOfStaticVE.ints));
-        ptr->ValueOfStaticVE.ints = NULL;
-        ptr->ArrayEArity = 0;
-        return (TRUE);
-      } else {
-        return (FALSE);
-      }
+      return DeleteStaticArray(pp);
     }
   } else {
     Yap_ThrowError(TYPE_ERROR_ATOM, t, "close static array");
@@ -1572,6 +1579,7 @@ static Int create_mmapped_array(USES_REGS1) {
         return FALSE;
       } else {
         WRITE_LOCK(pp->ArRWLock);
+	delete_static_array(pp);
       }
       CreateStaticArray(ae, size, props, array_addr, pp PASS_REGS);
       ptr = (mmap_array_block *)Yap_AllocAtomSpace(sizeof(mmap_array_block));
