@@ -15,6 +15,7 @@
 *									 *
 *************************************************************************/
 
+
 #ifdef SCCS
 static char     SccsId[] = "@(#)utilpreds.c	1.3";
 #endif
@@ -3094,13 +3095,15 @@ static CELL init_variant_entry(CELL *ptr USES_REGS)
 {
   CELL trl = (CELL)ptr;
   if (ptr < HBREG) {
+
     trl = (CELL)HR;
-    Bind_and_Trail(ptr, (CELL)HR);
     RESET_VARIABLE(HR);
+
     HR[1] = 0;
     HR[2] = 0;
     HR+=3;
-  }
+    Bind_and_Trail(ptr,trl );
+}
   return trl;
 }
 
@@ -3109,7 +3112,7 @@ static CELL init_variant_entry(CELL *ptr USES_REGS)
 bool left_match(CELL *ptrl, CELL trr USES_REGS)
 {
   if (ptrl[2] == 0) {
-    ptrl[2]=trr;
+    ptrl[2]= trr;
     return true;
   }
   return ptrl[2]==trr;
@@ -3117,16 +3120,17 @@ bool left_match(CELL *ptrl, CELL trr USES_REGS)
 
 bool right_match(CELL *ptrr, CELL trl USES_REGS)
 {
- if (ptrr[1] == 0) {
-    ptrr[1]=trl;
+  if (ptrr[1] == 0) {
+   ptrr[1]=trl;
     return true;
   }
+
   return ptrr[1]==trl;
 }
 
 
 static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
-		   CELL *pt1 USES_REGS)
+			  CELL *pt1 USES_REGS)
 {
   tr_fr_ptr OLDTR = TR;
   CELL **tovisit = (CELL **)ASP;
@@ -3164,14 +3168,15 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
     }
     if (IsVarTerm(d1))
       goto fail;
+    if (IsAtomOrIntTerm(d0)) {
     if (d0==d1)
       continue;
-    if (IsAtomOrIntTerm(d0)) {
 	goto fail;
-      } else if (IsPairTerm(d0)) {
-	if (!IsPairTerm(d1)) {
-	  goto fail;
-	}
+    }
+    if (IsPairTerm(d0)) {
+      if (!IsPairTerm(d1)) {
+	goto fail;
+      }
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
@@ -3198,25 +3203,26 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	pt0_end = RepPair(d0) + 1;
 	pt1 = RepPair(d1) - 1;
 	continue;
-      } else if (IsApplTerm(d0)) {
+    }
+    if (IsApplTerm(d0)) {
 	register Functor f;
 	register CELL *ap2, *ap3;
 	if (!IsApplTerm(d1)) {
 	  goto fail;
-	} else {
-	  /* store the terms to visit */
+	}
+	/* store the terms to visit */
 	  Functor f2;
-	  ap2 = RepAppl(d0);
-	  ap3 = RepAppl(d1);
-	  f = (Functor)(*ap2);
-	  f2 = (Functor)(*ap3);
-	  if (f != f2)
+	ap2 = RepAppl(d0);
+	ap3 = RepAppl(d1);
+	f = (Functor)(*ap2);
+	f2 = (Functor)(*ap3);
+	if (f != f2)
+	  goto fail;
+	if (IsExtensionFunctor(f)) {
+	  if (!unify_extension(f, d0, ap2, d1))
 	    goto fail;
-	  if (IsExtensionFunctor(f)) {
-	    if (!unify_extension(f, d0, ap2, d1))
-	      goto fail;
-	    continue;
-	  }
+	  continue;
+	}
 #ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
@@ -3244,9 +3250,8 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
 	  pt0_end = ap2 + d0;
 	  pt1 = ap3;
 	  continue;
-	}
-      }
     }
+  }
    /* Do we still have compound terms to visit */
   if (tovisit < (CELL **)ASP) {
 #ifdef RATIONAL_TREES
