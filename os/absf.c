@@ -11,7 +11,7 @@
  * File:		iopreds.c *
  * Last rev:	5/2/88							 *
  * mods: *
- * comments:	Input/Output C implemented predicates			 *
+ * comments:	Absolute and Relative File Systems Paths		 *
  *									 *
  *************************************************************************/
 #ifdef SCCS
@@ -32,15 +32,20 @@ static char SccsId[] = "%W% %G%";
  * @file   absf.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 00:45:56 2016
+ * @brief  c-code for absolute file name and friends.
  *
- * @brief  absolute file name: c-code
- lo *
  */
 
 /**
+ *
+ * @defgroup absf C-code fior absolute and relative paths.
  * @addtogroup absf
  *
- * @brief C-code support for dealing with paths
+ * @brief C-code support for dealing with absolute and relative paths.
+ *
+ * This code provides the necessary built-ins to open, close and move around
+ * Linux, Unix, and OSX filesystems. It should also work in WIN32.
+ *
  * @{
  */
 
@@ -193,8 +198,16 @@ char s[257];
   return pop_output_text_stack(lvl, rc);
 }
 
+/* Expand globs in a path.
+
+   Globs examples:
+   - `[a-z]*` returns all paths that start with a lower-case character;
+   - `a[^b]+`. returns all paths that do not start with a `b`
+   - `returns the name of  all hidden files in the currrent ddirectory.
+     `.?.?.?*`
+
+*/
 static Term
-/* Expand the string for the program to run.  */
 do_glob(const char *spec, bool glob_vs_wordexp) {
   CACHE_REGS
   if (spec == NULL) {
@@ -464,7 +477,7 @@ static const char *PlExpandVars(const char *source, const char *root) {
 /**
   @pred absolute_file_name(+Name:atom,+Path:atom) is nondet
 
-  Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
+  Converts the given file specification into an absolute path, using default options. Please, see absolute_file_name/3 for details on the options.
 */
 static Int real_path(USES_REGS1) {
   Term t1 = Deref(ARG1);
@@ -537,8 +550,12 @@ bool Yap_IsAbsolutePath(const char *p0, bool expand) {
 
  
 
+/**
+   @pred true_file_name(A,B)
 
-static Int true_file_name(USES_REGS1) {
+   @brief Unify _B_ with the absolute path to _A_.
+*/
+   static Int true_file_name(USES_REGS1) {
     Term t = Deref(ARG1);
     const char *s;
 

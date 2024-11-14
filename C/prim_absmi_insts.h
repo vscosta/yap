@@ -1,5 +1,5 @@
 /************************************************************************ \
- *    Basic Primitive Predicates                                       *
+ *    Basicc Primitive Predicates                                       *
 \************************************************************************/
 
 #ifdef INDENT_CODE
@@ -2706,7 +2706,7 @@ arg_y_arg1_nvar:
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS) ) {
+        if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) ) {
                          setregs();
           Yap_AsmError(RESOURCE_ERROR_STACK, d1);
           JMPNext();
@@ -2810,7 +2810,7 @@ arg_y_arg1_nvar:
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS)) {
+	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) )) {
             setregs();
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
@@ -2926,7 +2926,7 @@ arg_y_arg1_nvar:
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) PASS_REGS) {
+          if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) ) {
             setregs();
             Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
@@ -3044,7 +3044,7 @@ arg_y_arg1_nvar:
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) PASS_REGS) {
+        if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) ) {
                          setregs();
           Yap_AsmError(RESOURCE_ERROR_STACK, d1);
           JMPNext();
@@ -3427,7 +3427,7 @@ ARG3 = HR[1];
         if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
           /* make sure we have something to show for our trouble */
           saveregs();
-          if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) PASS_REGS) {
+          if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL))) {
                            setregs();
             Yap_AsmError(INSTANTIATION_ERROR,d1);
           } else {

@@ -656,7 +656,7 @@ typedef struct thandle {
   UInt sysize;
   void *stack_address;
   Term tdetach;
-  Term cmod, texit_mod;
+  Term cmod, texit_mod, itiq;
   Term tgoal, texit;
   int id;
   int ret;
@@ -667,6 +667,7 @@ typedef struct thandle {
   pthread_barrier_t pthread_barrier;
   mbox_t mbox_handle;
   int ref_count;
+  Prop ge;
 #ifdef LOW_LEVEL_TRACER
   long long int thread_inst_count;
   int been_here1;

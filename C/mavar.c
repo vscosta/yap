@@ -574,9 +574,7 @@ static Int nb_linkval(USES_REGS1) {
     }
     ge = GetGlobalEntry(AtomOfTerm(t) PASS_REGS);
     to = Deref(ARG2);
-    WRITE_LOCK(ge->GRWLock);
     ge->global = to;
-    WRITE_UNLOCK(ge->GRWLock);
     return TRUE;
 }
 

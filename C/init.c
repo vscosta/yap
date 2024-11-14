@@ -1138,6 +1138,7 @@ static void InitThreadHandle(int wid) {
   pthread_mutex_init(&(REMOTE_ThreadHandle(wid).tlock_status), NULL);
   REMOTE_ThreadHandle(wid).tdetach = (CELL)0;
   REMOTE_ThreadHandle(wid).cmod = (CELL)0;
+  REMOTE_ThreadHandle(wid).itiq = TermNil;
   {
     mbox_t *mboxp = &REMOTE_ThreadHandle(wid).mbox_handle;
     pthread_mutex_t *mutexp;

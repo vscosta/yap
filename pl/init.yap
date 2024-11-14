@@ -23,7 +23,6 @@
 
 '$init_consult' :-
 	set_prolog_flag(optimise, true ),
-	'$conditional_compilation_init',
 	nb_setval('$assert_all',off),
  	nb_setval('$initialization_goals',off),
 	nb_setval('$included_file',[]),

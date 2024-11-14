@@ -228,11 +228,15 @@ false,
     var(V0),
     !,
     ('$vmember'(V0,HVars) -> G = call(V0) ; G = call(SM:V0) ).
-'$expand_goals'(V0,O,O,_HM,_SM,BM0,_HVarsH) :-
+'$expand_goals'(V0,O,O,_HM,_SM,BM0,_HVars-_H) :-
     '$yap_strip_module'(BM0:V0,  BM, V),
     (var(BM)->
 	 (callable(V)->
-	      O=call(BM:V)
+	  ('$pred_exists'(V,prolog)->
+'$meta_expansion'(V,BM,BM,[],O),writeln(O)
+
+;
+    O=call(BM:V))
 	 ;
 	 var(V)
 	 ->
@@ -332,15 +336,17 @@ false,
 '$import_expansion'(MG, MG).
 
 '$meta_expansion'(G, GM, _SM, _HVars,(G)) :-
-    '$yap_strip_module'(GM:G, M, G0),
-    (var(M);var(G0);\+atom(M);\+callable(G0)),
+    '$yap_strip_module'(GM:G, _M, G0),
+    \+callable(G0),
     !.
 
 '$meta_expansion'(goal_expansion(A,B), _GM, _SM, _HVars, goal_expansion(A,B)) :-
     !.
 '$meta_expansion'(G, GM, SM, HVars, OG) :-
-    nonvar(GM),
-	 '$is_metapredicate'(G,GM),
+    ( var(GM) -> '$is_metapredicate'(G,prolog)
+      ;
+	 '$is_metapredicate'(G,GM)
+),
     functor(G, F, Arity ),
 	 functor(PredDef, F, Arity ),
 	 recorded('$m' , meta_predicate(M0,PredDef),_),
@@ -519,5 +525,4 @@ o:p(B) :- n:g, X is 2+3, call(B).
 expand_goal(Input, Output) :-
     '$expand_meta_call'(Input, [], Output ).
 
-
-%%XS @}
+%% @}

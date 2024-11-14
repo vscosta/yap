@@ -54,14 +54,7 @@ ctrace/1,
  * step-by-step trace of the execution of _Goal_
  *
  */
-	
-:- meta_predicate(yap_hacks:ctrace(0)).
 
-yap_hacks:ctrace(G) :-
-    gated_call(start_low_level_trace,
-	       G,
-	       _,
-	       stop_low_level_trace).
 
 
 /**
@@ -189,7 +182,7 @@ show_cp(CP, Continuation) -->
 	  [ '0x~16r~t *~16+~a ~d~16+ ~q:' -
 		[Addr, Continuation, ClNo, Mod]]
 	),
-	{ prolog_flag( debugger_print_options, Opts) },
+	{ current_prolog_flag( debugger_print_options, Opts) },
 	{ export_beautify(Mod:Goal,G)},
 	['~@.~n' -  write_term(G,Opts)].
 
@@ -202,7 +195,7 @@ show_env(Env,_Cont,NCont) -->
         [ '0x~16r~t  ~16+ ~d~16+ ~q:' -
 		[Addr, ClId, Mod] ],
 	{scratch_goal(Name, Arity, Mod, G)},
-	{ prolog_flag( debugger_print_options, Opts) },
+	{ current_prolog_flag( debugger_print_options, Opts) },
 	['~@.~n' - write_term(G,Opts)].
 
 

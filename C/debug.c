@@ -25,96 +25,6 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "cut_c.h"
 #include "yapio.h"
 
-static Int get_debugger_state(USES_REGS1) {
-  Term key = Deref(ARG1);
-  if (key == TermCreep0) {
-    return Yap_unify(ARG1, LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP]);
-  }
-  if (key == TermGoalNumber) {
-    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_GOAL_NUMBER]);
-  }
-  if (key == TermSpy0) {
-    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_SPY]);
-  }
-  if (key == TermTrace) {
-    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_TRACE]);
-  }
-  if (key == TermDebug) {
-    return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_DEBUG]);
-  }
-  Yap_ThrowError(DOMAIN_ERROR_DEBUGGER_KEY,key,NULL);
-  return false;
-}
-
-static Int set_debugger_state(USES_REGS1) {
-  Term key = Deref(ARG1);
-  if (key == TermCreep0) {
-    LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP];;
-  } else   if (key == TermGoalNumber) {
-    LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = Deref(ARG2);
-  } else   if (key == TermSpy0) {
-     LOCAL_debugger_state[DEBUG_SPY] = Deref(ARG2);
-  } else   if (key == TermTrace) {
-    LOCAL_debugger_state[DEBUG_TRACE] = Deref(ARG2);
-  } else  if (key == TermDebug) {
-    LOCAL_debugger_state[DEBUG_DEBUG] = Deref(ARG2);
-  } else {
-    Yap_ThrowError(DOMAIN_ERROR_DEBUGGER_KEY,key,NULL);
-    return false;
-}
-  return true;
-}
-
-static void init_debugger_state(void) {
-  CACHE_REGS
-  LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermCreep;
-  LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = MkIntTerm(0);
-  LOCAL_debugger_state[DEBUG_SPY] = TermOff;
-  LOCAL_debugger_state[DEBUG_TRACE] = TermFalse;
-  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
-}
-
-static Int set_debugger_state5(USES_REGS1) {
-  Term t1 = Deref(ARG1);
-  if (!IsVarTerm(t1)) {
-    LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = t1;
-  }
-  {
-    Term t2 = Deref(ARG2);
-    if (!IsVarTerm(t2)) {
-      LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = t2;
-    }
-  }
-  {
-    Term t3 = Deref(ARG3);
-    if (!IsVarTerm(t3)) {
-      LOCAL_debugger_state[DEBUG_SPY] = t3;
-    }
-  }
-  {
-   Term  t4 = Deref(ARG4);
-    if (!IsVarTerm(t4)) {
-
-    LOCAL_debugger_state[DEBUG_TRACE] = t4;
-    }
-  }
-  {
-    Term t5 = Deref(ARG5);
-  if (!IsVarTerm(t5)) {
-    LOCAL_debugger_state[DEBUG_DEBUG] = t5;
-  }
-  return true;
-  }
-}
-
-static Int get_debugger_state5(USES_REGS1) {
-  return
-Yap_unify(LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP], ARG1) &&
-  Yap_unify(LOCAL_debugger_state[DEBUG_GOAL_NUMBER], ARG2) &&
-  Yap_unify(LOCAL_debugger_state[DEBUG_SPY], ARG3) &&
-  Yap_unify(LOCAL_debugger_state[DEBUG_TRACE], ARG4) &&
-Yap_unify(LOCAL_debugger_state[DEBUG_DEBUG], ARG5);
-}
 
 /******************************************************************
 
@@ -283,6 +193,7 @@ static Int p_rmspy(USES_REGS1) { /* '$rm_spy'(+T,+Mod)	 */
 
 bool Yap_may_creep(bool creep_on_forward)
 {
+CACHE_REGS
   Atom at;
   PredEntry *pred;
   if (  LOCAL_DebEvent) {
@@ -294,11 +205,10 @@ bool Yap_may_creep(bool creep_on_forward)
     }
     pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
     CreepCode = pred;
-    LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
     Yap_signal( YAP_CREEP_SIGNAL);
     return true;
   }
-  LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermZip;
+  Yap_SetGlobalVal(AtomCreep, TermZip);
   return false;
 }
 
@@ -312,7 +222,6 @@ static Int creepfail(USES_REGS1) {
 }
 
 static Int stop_creeping(USES_REGS1) {
-  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
   Yap_get_signal(YAP_CREEP_SIGNAL);
     return Yap_unify(ARG1, TermTrue);
 }
@@ -331,7 +240,6 @@ static Int creep_allowed(USES_REGS1) {
 }
 
 void Yap_InitDebugFs(void) {
-    init_debugger_state();
     Yap_InitCPred("creep", 0, p_creep, SafePredFlag);
    Yap_InitCPred("$creep", 0, p_creep, SafePredFlag);
   Yap_InitCPred("$creep_fail", 0, creepfail, SafePredFlag);
@@ -340,10 +248,6 @@ void Yap_InitDebugFs(void) {
   Yap_InitCPred("$may_set_spy_point",2, may_set_spy_point, SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag);
   Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag | SyncPredFlag);
-     Yap_InitCPred("$get_debugger_state", 2, get_debugger_state, NoTracePredFlag);
-  Yap_InitCPred("$get_debugger_state", 5, get_debugger_state5, NoTracePredFlag);
-  Yap_InitCPred("$set_debugger_state", 2, set_debugger_state, NoTracePredFlag);
-  Yap_InitCPred("$set_debugger_state", 5, set_debugger_state5, NoTracePredFlag);
   Yap_InitCPred("$is_no_trace", 2, p_is_no_trace, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$set_no_trace", 2, p_set_no_trace,
                 TestPredFlag | SafePredFlag);

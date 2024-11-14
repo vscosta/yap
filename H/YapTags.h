@@ -320,12 +320,9 @@ INLINE_ONLY Term __MkIntegerTerm(Int n USES_REGS) {
 #endif
 
 INLINE_ONLY bool IsIntegerTerm(Term);
-
 INLINE_ONLY bool IsIntegerTerm(Term t) {
   return (int)(IsIntTerm(t) || IsLongIntTerm(t));
 }
-
-INLINE_ONLY Int IntegerOfTerm(Term);
 
 INLINE_ONLY Int IntegerOfTerm(Term t) {
 

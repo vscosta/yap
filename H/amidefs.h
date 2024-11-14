@@ -328,7 +328,7 @@ typedef struct yami {
       CELL next;
     } clll;
     struct {
-      CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      CELL    d[1+2*SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } d;
     struct {
@@ -509,7 +509,7 @@ typedef struct yami {
     } oN;
     struct {
       OPCODE              opcw;
-      CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      CELL    d[1+2*SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } od;
     struct {
@@ -525,7 +525,7 @@ typedef struct yami {
     } ofa;
     struct {
       OPCODE              opcw;
-      CELL		     i[2];
+      CELL		     i[3];
       CELL next;
     } oi;
     struct {
@@ -585,7 +585,7 @@ typedef struct yami {
     } sc;
     struct {
       COUNT               s;
-      CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      CELL    d[1+2*SIZEOF_DOUBLE/SIZEOF_INT_P];
       struct yami        *F;
       struct yami        *T;
       CELL next;
@@ -607,7 +607,7 @@ typedef struct yami {
     struct {
       COUNT               s0;
       COUNT               s1;
-      CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      CELL    d[1+2*SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } ssd;
     struct {
@@ -730,7 +730,7 @@ typedef struct yami {
     } xN;
     struct {
       wamreg                x;
-      CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
+      CELL    d[1+2*SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } xd;
     struct {
@@ -751,7 +751,7 @@ typedef struct yami {
     } xl;
     struct {
       wamreg                x;
-      CELL    i[2];
+      CELL    i[3];
       CELL next;
     } xi;
     struct {
@@ -1114,6 +1114,10 @@ DEBUG_DEBUG = 4,
 DEBUG_NUMBER_OF_OPTS = 5
 } debug_key_t ;
 
+typedef enum {
+  LOCAL_EX,
+  THROW_EX
+} ex_handler_t;
 
 #endif
 

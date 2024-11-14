@@ -46,7 +46,7 @@ static bool deterministic(Int BRef)
  * remove choice points created since a call to top-goal.
  *
  */
-static void prune_inner_computation(choiceptr parent USES_REGS)
+void Yap_prune_inner_computation(choiceptr parent USES_REGS)
 {
   /* code */
   choiceptr cut_pt;
@@ -72,7 +72,7 @@ static void prune_inner_computation(choiceptr parent USES_REGS)
   B = parent;
 }
 
-bool Yap_exists(Term t, bool succeed USES_REGS)
+bool Yap_exists(Term t, ex_handler_t handle_sigs USES_REGS)
 {
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
@@ -82,7 +82,7 @@ bool Yap_exists(Term t, bool succeed USES_REGS)
   t=Deref(t);
   Yap_must_be_callable(t,CurrentModule);
   {
-    bool rc = Yap_RunTopGoal(t, succeed);
+    bool rc = Yap_RunTopGoal(t, handle_sigs);
 
     // We'll pass it through
     P = oP;
@@ -94,7 +94,7 @@ bool Yap_exists(Term t, bool succeed USES_REGS)
       {
 	B = nb;
       }
-    return rc ||succeed;
+    return rc;
   }
 }
 
@@ -108,18 +108,15 @@ static bool gate(Term t USES_REGS)
   t=Deref(t);
   Yap_must_be_callable(t,CurrentModule);
   yap_error_descriptor_t *old=NULL;
-  Term ostate = LOCAL_debugger_state[DEBUG_DEBUG];
-  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
 
-  bool rc = Yap_RunTopGoal(t, true);
+  bool rc = Yap_RunTopGoal(t, LOCAL_EX);
   if (old) 
    LOCAL_ActiveError=old;
   if (rc) {
     LOCAL_PrologMode |= ErrorHandlingMode;
-    prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
+    Yap_prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
     LOCAL_PrologMode &= ErrorHandlingMode;
   }
-  LOCAL_debugger_state[DEBUG_DEBUG] = ostate;
   
   // We'll pass it through
   P = oP;
@@ -165,6 +162,9 @@ static bool watch_cut(Term ext)
   bool active = ArgOfTerm(5, task) == TermTrue;
   bool ex_mode;
  CELL *port_pt = deref_ptr(RepAppl(task)+2);
+ if (IsNonVarTerm(port_pt[0])) {
+     return true;
+ }
   CELL *completion_pt = deref_ptr(RepAppl(task)+4);
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {
@@ -291,7 +291,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
   bool rc;
 
   Yap_DisableInterrupts(worker_id);
-  rc = Yap_RunTopGoal(Setup, true);
+  rc = Yap_RunTopGoal(Setup, LOCAL_EX);
   Yap_EnableInterrupts(worker_id);
   if (!rc)
     {
@@ -301,7 +301,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
     }
   else
     {
-      prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
+      Yap_prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
     }
   B=(choiceptr)(LCL0-B0);
   if (Yap_PeekException())

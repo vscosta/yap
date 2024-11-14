@@ -49,7 +49,7 @@ static void sweep_choicepoints(choiceptr, bool CACHE_TYPE);
 static void compact_heap( CACHE_TYPE1 );
 static void update_relocation_chain(CELL *, CELL * CACHE_TYPE);
 static bool  is_gc_verbose(void);
-static bool  is_gc_very_verbose(void);
+static bool  is_gc_very_verbose(USES_REGS1);
 static void  LeaveGCMode( CACHE_TYPE1 );
 #ifdef EASY_SHUNTING
 static void  set_conditionals(tr_fr_ptr CACHE_TYPE);
@@ -1337,6 +1337,11 @@ mark_variable(CELL_PTR current USES_REGS)
 
     if (next < H0 || next > HR) POP_CONTINUATION();
     if (IsExtensionFunctor((Functor)cnext)) {
+      if (cnext == (CELL)FunctorDouble ||
+	  cnext == (CELL)FunctorLongInt) {
+	arity = 2;
+	goto args;
+      }
       size_t sz = SizeOfOpaqueTerm(next,cnext);
 
       //      fprintf(stderr,"found %p: %lx %lx %lx %p: %lx %p\n ", next, next[0], next[1], next[2], next+sz-1,next[sz-1], next+sz);
@@ -1388,6 +1393,7 @@ mark_variable(CELL_PTR current USES_REGS)
     inc_vars_of_type(next,gc_func);
 #endif
     arity = ArityOfFunctor((Functor)(cnext));
+  args:
     MARK(next);
     //fprintf(stderr,"%p M\n", next);
     ++LOCAL_total_marked;
@@ -3693,8 +3699,8 @@ marking_phase(tr_fr_ptr old_TR,  gc_entry_info_t volatile *info USES_REGS)
      values */
   mark_regs(info->a, old_TR, info->p_env PASS_REGS);		/* active registers & trail */
   /* active environments */
-  mark_environments(info->env, info->p_env, info->env_size, is_gc_very_verbose() , EnvBMap(info->p_env) PASS_REGS);
-  mark_choicepoints(B, old_TR, is_gc_very_verbose() PASS_REGS);	/* choicepoints, and environs  */
+  mark_environments(info->env, info->p_env, info->env_size, is_gc_very_verbose(PASS_REGS1) , EnvBMap(info->p_env) PASS_REGS);
+  mark_choicepoints(B, old_TR, is_gc_very_verbose(PASS_REGS1) PASS_REGS);	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
   set_conditionals(LOCAL_sTR PASS_REGS);
 #endif
@@ -4012,9 +4018,8 @@ Yap_is_gc_verbose(void)
 }
 
 static bool
-is_gc_very_verbose(void)
+is_gc_very_verbose(USES_REGS1)
 {
-  CACHE_REGS
     if (LOCAL_PrologMode == BootMode)
     return false;
   return gcTrace() == TermVeryVerbose;

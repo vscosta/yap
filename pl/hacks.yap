@@ -64,6 +64,14 @@ yap_hacks:yap_error_descriptor(Inf,Des) :-
    '$messages': error_descriptor(Inf,Des).
 
 
+:- meta_predicate(prolog:ctrace(0)).
+
+prolog:ctrace(G) :-
+    gated_call(start_low_level_trace,
+	       user:G,
+	       _,
+	       stop_low_level_trace).
+
 
 
 %% @}

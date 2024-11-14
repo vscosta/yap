@@ -374,7 +374,6 @@
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
     '$conditional_compilation_get_state'(State),
-    '$conditional_compilation_init',
     (
      '$memberchk'(consult(Reconsult0), Opts)
       ->
@@ -738,12 +737,10 @@ consult(Fs) :-
   @pred compile(+ _F_ )
 
 Updates the program by replacing the
-previous definitions for the predicates defined in  _F_. It differs from consult/1
-in that it only multifile/1 predicates are not reset in a reconsult. Instead, consult/1
-sees all predicates as multifile.
+previous definitions for the predicates defined in  _F_. 
 
 YAP also offers no difference between consult/1 and compile/1. The two
-are  implemented by the same exact code.
+are  implemented by the same code.
 
 Example:
 

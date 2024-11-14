@@ -743,7 +743,8 @@ restart:
                    &cglobs->cint);
         else
           Yap_emit((cglobs->onhead ? (argno == (Int)arity ? unify_last_float_op
-                                                          : unify_float_op)
+
+				      : unify_float_op)
                                    : write_float_op),
                    t, Zero, &cglobs->cint);
 	return;

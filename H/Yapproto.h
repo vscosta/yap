@@ -17,6 +17,7 @@
 /// @file Yapproto.h
 /// @brief Prototype Declarations
 
+#include "amidefs.h"
 #ifndef YAP_PROTOS_H
 #define YAP_PROTOS_H 1
 
@@ -235,16 +236,16 @@ extern void Yap_fail_all(choiceptr bb USES_REGS);
 extern Term Yap_ExecuteCallMetaCall(Term,Term);
 extern void Yap_InitExecFs(void);
 extern bool Yap_JumpToEnv(void);
-extern Term Yap_RunTopGoal(Term, bool);
-extern bool Yap_exists(Term, bool USES_REGS);
-extern bool Yap_execute_goal(Term, int, Term, bool);
-extern bool Yap_exec_absmi(bool, yap_reset_t);
+extern Term Yap_RunTopGoal(Term, ex_handler_t);
+extern bool Yap_exists(Term, ex_handler_t USES_REGS);
+extern bool Yap_execute_goal(Term, int, Term, ex_handler_t);
+extern bool Yap_exec_absmi(ex_handler_t, yap_reset_t);
 extern void Yap_trust_last(void);
 extern bool Yap_dispatch_interrupts( USES_REGS1 ); 
 extern struct pred_entry *Yap_MkConjunction(Term t, Int MyB);
 extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
-                      bool pass_exception USES_REGS);
+                      ex_handler_t pass_exception USES_REGS);
 extern Term Yap_PredicateIndicator(Term t, Term mod);
 extern bool Yap_Execute(Term t USES_REGS);
 extern bool Yap_restore_regs(Term t USES_REGS);
@@ -253,6 +254,7 @@ extern void Yap_InitExoPreds(void);
 extern void Yap_udi_Interval_init(void);
 extern bool Yap_Reset(yap_reset_t mode, bool hard);
 extern void Yap_InitExecStruct(void);
+extern void Yap_prune_inner_computation(choiceptr parent USES_REGS);
 
 /* foreign.c */
 extern char *Yap_FindExecutable(void);

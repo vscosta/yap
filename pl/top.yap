@@ -185,27 +185,26 @@ AVs = [],
 
 '$query'([],_Vs,_Port) :-
     !.
-'$query'(G,_Vs,Port) :-
+'$query'(G0,_Vs,Port) :-
     current_prolog_flag(debug,true),
-    '$get_debugger_state'(trace,on),
+   current_prolog_flag(trace,true),
     !,
-        nb_setval(creep,creep),
-    % '$set_debugger_state'(creep,creep),
+    expand_goal(G0,G),
+    nb_setval(creep,creep),
     current_choice_point(CP0),
     '$spy'(G,top),
     current_choice_point(CPF),
     (CP0 == CPF
     ->
-	Port = exit
+ 	Port = exit
     ;
     Port = answer
     ).
-'$query'(G,_,Port) :-
+'$query'(G0,_,Port) :-
     nb_setval(creep,zip),
-    %'$set_debugger_state'(creep,zip),
     catch(
 	gated_call(
-	    true,
+	    expand_goal(G0,G),
 	    G,
 	    Port,
 true	   	    
@@ -262,36 +261,26 @@ true
 
 '$disable_debugging_on_port'(retry) :-
     !,
-    current_prolog_flag(debug,true),
-    '$set_debugger_state'(debug, true).
-'$disable_debugging_on_port'(_Port) :-
-    '$set_debugger_state'(debug, false).
+    current_prolog_flag(debug,true).
+'$disable_debugging_on_port'(_Port).
 
 
 
 % enable creeping
 '$enable_debugging':-
-    current_prolog_flag(debug, false), !.
+current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
-    '$get_debugger_state'(trace,on),
+    current_prolog_flag(trace,true),
     !,
     nb_setval(creep,creep),
-    '$set_debugger_state'(creep, 0, stop, on, true),
+    	       nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0),
     '$creep'.
 '$enable_debugging' :-
     nb_setval(creep,zip),
-    '$set_debugger_state'(zip, 0, stop, on, true).
-
-'$trace_on' :-
-    '$get_debugger_state'(debug, true),
-    '$set_debugger_state'(trace, on).
-
-
-
-
-'$trace_off' :-
-        '$get_debugger_state'(debug, true),
-    '$set_debugger_state'(trace, off).
+            nb_setval(creep,creep),
+    	       nb_setval('$spy_on',stop),
+    nb_setval('$spy_target',0).
 
 
 '$call'(V, _CP, G0, M) :-
@@ -337,7 +326,7 @@ true
     ('$call'(A, CP, G0, M);
      '$call'(B, CP, G0, M)).
 '$call'(G, _CP, _G0, M) :-
-    call(M:G).
+    '$execute'(M:G).
 
 /* General purpose predicates				*/
 
@@ -433,7 +422,7 @@ expand_clause(Term, Term, Term).
 
 '$run_at_thread_start' :-
     recorded('$thread_initialization',M:D,_),
-    '$execute0'(M:D),
+    '$execute'(M:D),
     fail.
 '$run_at_thread_start'.
 
@@ -452,7 +441,7 @@ log_event( String, Args ) :-
     ),
     (
 	current_prolog_flag(debug,true),
-	'$get_debugger_state'(trace, on)
+	current_prolog_flag(trace,true)
     ->
     LD  = ['[trace] '|L]
      ;
@@ -507,6 +496,7 @@ log_event( String, Args ) :-
 
 live  :-
     repeat,
+    '$top_level',
     live__,
     !.
 
@@ -525,8 +515,9 @@ live__ :-
     ),
 % reset alarms when entering top-level.
     alarm(0, 0, _, _),
+    '$top_level',
+    nb_setval(creep,zip),
     '$clean_up_dead_clauses',
-    nb_setval(creep,creep),
     get_value('$top_level_goal',GA),
     (
 	GA \= []
@@ -548,7 +539,7 @@ live__ :-
     ->
     !
     ;
-    nb_setval('$spy_gn',1),
+    nb_setval('$spy_gn',0),
     % stop at spy-points if debugging is on.
     '$init_debugger_trace',
     catch('$goal'(Goal,Bindings,Pos),_Error,error_handler),
@@ -567,7 +558,7 @@ live__(Error) :-
     format(user_error, '%% WARNING: uncaught  throw ~q.~n', [Error]),
     live.
 
-
+'$top_level'.
 
 /**
 @} 

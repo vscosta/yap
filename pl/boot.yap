@@ -109,6 +109,11 @@ system_module_(_,_,_).
     '$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(_,_,_,_,_).
 
+'$vmember'(V,[V1|_]) :- V == V1, !.
+'$vmember'(V,[_|LV0]) :-
+	'$vmember'(V,LV0).
+
+
 :- c_compile('predtypes.yap').
 
 :- c_compile('arith.yap').

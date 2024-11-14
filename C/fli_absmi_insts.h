@@ -461,6 +461,7 @@ Yap_RaiseException();
           /* update ASP before calling IPred */
           SET_ASP(YREG, EnvSizeInCells );
           saveregs();
+
           Yap_IPred(ap, 0, CP);
           /* IPred can generate errors, it thus must get rid of the lock itself
            */

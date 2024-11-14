@@ -664,50 +664,36 @@ static bool valid_prop(Prop p,
   return true;
 }
 
+
+
+static Prop  next_pred_in_chain(Prop p, Term task)
+{
+  Prop np = p->NextOfPE;
+  while (np) {
+    if( IsPredProperty(np->KindOfPE)&& valid_prop((np),task)) {
+      return np;
+    }
+    np = np->NextOfPE;
+  }
+  return NIL;
+}
+  
 static Int continue_functor_predicate(USES_REGS1)
 {
     // operating within the same module.
     Term task = Deref(ARG4); 
     Prop p =AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
-    Atom name = AtomOfTerm(Deref(ARG2));
-    arity_t Arity = IntegerOfTerm(Deref(ARG3));;
-    if (!p) {
-      if (Arity==0) {
-	p=RepAtom(AtomOfTerm(Deref(ARG2)))->PropsOfAE;
-    while (p) {
-	if( IsPredProperty(p->KindOfPE)&&
-	    valid_prop((p),task)) {
-	  break;
-	}
-	p = p->NextOfPE;
+    Prop np = next_pred_in_chain(p, task);
+    if (!np) {
+      cut_succeed();
     }
-      } else {
-      p = Yap_MkFunctor(name,Arity)->PropsOfFE;
-      }
-    } 
-    if (!p) {
-        /* try Prolog Module */
-        cut_fail();
-    }
-    Prop np = p->NextOfPE;
-    while (np) {
-      if( IsPredProperty(np->KindOfPE)&& valid_prop((np),task)) {
-	break;
-      }
-
-      np = np->NextOfPE;
-    }
-     Term mod = RepPredProp( p)->ModuleOfPred;
-     if (mod == PROLOG_MODULE)
-       mod = TermProlog;
-     Yap_unify(ARG1,mod);
-     if (!np) {
-       cut_succeed();
-     } else {
-      EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(np);
-     }
-     return true;
-    }
+    Term mod = RepPredProp( p)->ModuleOfPred;
+    if (mod == PROLOG_MODULE)
+      mod = TermProlog;
+    Yap_unify(ARG1,mod);
+    EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(np);
+    return true;
+}
 
 
 
@@ -718,18 +704,30 @@ static Int continue_functor_predicate(USES_REGS1)
 */
 static Int functor_predicate(USES_REGS1)
 { 
-  Term t2 = Deref(ARG2),
-  t3 = Deref(ARG3);
+  Term t2 = Deref(ARG2);
+  Term t3 = Deref(ARG3);
+  Term task = Deref(ARG4); 
   must_be_atom(t2);
   must_be_arity(t3);
   Term t1    = Deref(ARG1);
+  Atom name = AtomOfTerm(t2);
+  arity_t Arity = IntegerOfTerm(t3);
   if (IsVarTerm(t1)) {
-    EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
-    return continue_functor_predicate();
+    Prop p;
+    if (Arity==0) {
+	p=RepAtom(name)->PropsOfAE;
+      } else {
+	p = Yap_MkFunctor(name,Arity)->PropsOfFE;
+      }
+    p = next_pred_in_chain(p, task);
+    if (!p) {
+      cut_fail();
+    }
+    EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(p);
+    return continue_functor_predicate(PASS_REGS1);
   } else {
     Term task = Deref(ARG4);
     must_be_atom(t1);
-    arity_t Arity = IntegerOfTerm(t3);
     bool rc;
     PredEntry *np;
     if (Arity == 0) {
@@ -747,54 +745,38 @@ static Int functor_predicate(USES_REGS1)
   }
 }
 
+Prop next_functor_for_atom(Prop p)
+{
+   while (p != NIL) {       
+      if ( p->KindOfPE == FunctorProperty) {
+       return p;
+      }
+      p=p->NextOfPE;
+    }
+   return NIL;
+ }
+
 /** @pred name_functor(Name,Arity)
-    Succeeds if Name is an atom and `Name(...)` with arity _N_ exists in the */
+    Succeeds if Name is an atom and `Name(...)` with arity _N_ > 0 exists in the */
 static Int continue_atom_functor(USES_REGS1)
 {
     // find functors 
   Prop p;
   arity_t Arity;
-  Term found0 = EXTRA_CBACK_ARG(2,2);
+
   p = AddressOfTerm(EXTRA_CBACK_ARG(2, 1));
-  if (!p) {
-    Term t1 = Deref(ARG1);
-    Atom at = AtomOfTerm(t1);
-    p = RepAtom(at)->PropsOfAE;
-  }
-    while (p != NIL) {       
-      if (found0==TermFalse && IsPredProperty(p->KindOfPE)) {
-	Arity = 0;
-	found0 = TermTrue;
-	break;
-      } else if (p->KindOfPE == FunctorProperty) {
-	Arity = RepFunctorProp(p)->ArityOfFE;	
-	break;
-      }
-      p=p->NextOfPE;
-    }
-    if (p == NIL) {
-      cut_fail();
-    }
-    Prop np=p->NextOfPE;
-    while (np != NIL) {       
-      if ((found0==TermFalse && IsPredProperty(np->KindOfPE)) ||
-	  np->KindOfPE == FunctorProperty) {
-	found0 = TermTrue;
-	break;
-      }
-      np=np->NextOfPE;
-    }
-    bool rc = Yap_unify(ARG2, MkIntTerm(Arity));
-    if (np) {
-      EXTRA_CBACK_ARG(2, 1) = MkAddressTerm(np);
-      EXTRA_CBACK_ARG(2, 2) = found0;
-      return rc;
-    } else {
-      if (rc)
+  Prop np=next_functor_for_atom(p->NextOfPE);
+  Arity = RepFunctorProp(p)->ArityOfFE;
+  bool rc = Yap_unify(ARG2, MkIntTerm(Arity));
+  if (np) {
+    EXTRA_CBACK_ARG(2, 1) = MkAddressTerm(np);
+    return rc;
+  } else {
+    if (rc)
       cut_succeed();
-      else
-	cut_fail();
-    }
+    else
+      cut_fail();
+  }
 }
 
 
@@ -805,14 +787,26 @@ static Int continue_atom_functor(USES_REGS1)
 */
 static Int atom_functor(USES_REGS1)
 {
-  must_be_atom(ARG1);
-  if (!IsVarTerm(Deref(ARG2))) {
+  
+  Term t1 = Deref(ARG1);
+  must_be_atom(t1);
+  Atom at = AtomOfTerm(t1);
+  Prop p = RepAtom(at)->PropsOfAE;
+   if (!IsVarTerm(Deref(ARG2))) {
     must_be_arity(Deref(ARG2));
     cut_succeed();
-  }
-  EXTRA_CBACK_ARG(2, 1) = MkAddressTerm(NULL);
-  EXTRA_CBACK_ARG(2, 2) = TermFalse;
-  return continue_atom_functor(PASS_REGS1);
+   }
+   p = next_functor_for_atom(p);
+   bool rc = Yap_unify(ARG2,MkIntTerm(0));
+   if (!p) {
+     if (rc)
+       cut_succeed();
+     else
+       cut_fail();
+   } else {
+     EXTRA_CBACK_ARG(2, 1) = MkAddressTerm(p);
+     return rc;
+   }
 }
 
 static Int continue_module_predicate(USES_REGS1)
@@ -883,7 +877,7 @@ while (npp && !valid_prop((Prop)(npp), task)) {
 static Int module_predicate(USES_REGS1)
 {
   EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
-  return continue_module_predicate();
+  return continue_module_predicate(PASS_REGS1);
 }
 
 static Int functors_for_atom(USES_REGS1) {
@@ -1406,7 +1400,7 @@ void Yap_InitBackCPreds(void) {
   Yap_InitCPredBack("$current_atom_op", 5, 1, init_current_atom_op,
                     cont_current_atom_op, SafePredFlag | SyncPredFlag);
   Yap_InitCPredBack("module_predicate", 4, 1, module_predicate,continue_module_predicate, SafePredFlag );
-  Yap_InitCPredBack("atom_functor", 2, 2, atom_functor,continue_atom_functor, SafePredFlag );
+  Yap_InitCPredBack("atom_functor", 2, 1, atom_functor,continue_atom_functor, SafePredFlag );
   Yap_InitCPredBack("functor_predicate", 4, 1, functor_predicate,continue_functor_predicate, SafePredFlag );
 
 #ifdef BEAM

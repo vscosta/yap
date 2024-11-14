@@ -81,10 +81,6 @@
 	'$predicate_flags'(G, Mod, Fl, Fl),
 	Fl /\ 0x00008880 =\= 0.
 
-'$vmember'(V,[V1|_]) :- V == V1, !.
-'$vmember'(V,[_|LV0]) :-
-	'$vmember'(V,LV0).
-
 
 '$localise_disj_vars'((B;B2), M, (NB ; NB2), LV, LV0, LEqs) :- !,
 	'$localise_vars'(B, M, NB, LV, LV0, LEqs),

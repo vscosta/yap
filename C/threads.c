@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -14,6 +15,7 @@
  * comments:	threads							 *
  *									 *
  *************************************************************************/
+#include <setjmp.h>
 #ifdef SCCS
 static char     SccsId[] = "%W% %G%";
 #endif
@@ -178,17 +180,16 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   pthread_cond_t *fullp = &mboxp->full;
   pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
-
+  
   if (!mboxp->open) {
     // oops, dead mailbox
  pthread_mutex_unlock(mutexp);
     return false;
   }
-  if (mboxp->nmsgs == mboxp->max)
+  while (mboxp->nmsgs == mboxp->max)
     pthread_cond_wait(fullp,mutexp);
   //Yap_DebugPlWriteln(t);
   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
-  fprintf(stderr,"+   (%d) %d/%d\n", worker_id,mboxp->nclients, mboxp->nmsgs);
   mboxp->nmsgs++;
      pthread_cond_signal(emptyp);
  pthread_mutex_unlock(mutexp);
@@ -202,20 +203,25 @@ mboxReceive( mbox_t *mboxp, Term *t USES_REGS )
   pthread_cond_t *emptyp = &mboxp->empty;
   // pthread_cond_t *fullp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
-  bool rc; 
+  bool rc;
+  while(true) {
   if (!mboxp->open){
       pthread_mutex_unlock(mutexp);
     return false; 	// don't try to read if someone else already closed dopxu[xuxuwn...
   }
-    rc=Yap_dequeue_tqueue(msgsp, t, false, true PASS_REGS);
+
+  rc=Yap_dequeue_tqueue(msgsp, t, false, true PASS_REGS);
       // Yap_DebugPlWriteln(t);
       if (rc) {
 	mboxp->nmsgs--;
 	pthread_mutex_unlock(mutexp);
+  return rc;
       } else {
 	pthread_cond_wait(emptyp, mutexp);
       }
-  return rc;
+
+
+  }
 }
   
 
@@ -225,7 +231,8 @@ mboxPeek( mbox_t *mboxp, Term t USES_REGS )
   pthread_mutex_t *mutexp = &mboxp->mutex;
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc = Yap_dequeue_tqueue(msgsp, &t, false,  false PASS_REGS);
-  pthread_mutex_unlock(mutexp);
+  if (rc)   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
+ pthread_mutex_unlock(mutexp);
   return rc;
 }
 
@@ -300,10 +307,10 @@ static void
 kill_thread_engine (int wid, int always_die)
 {
   Prop p0 = AbsPredProp(REMOTE_ThreadHandle(wid).local_preds);
-  GlobalEntry *gl = REMOTE_GlobalVariables(wid);
+  Prop gl = REMOTE_ThreadHandle(wid).ge;
 
   REMOTE_ThreadHandle(wid).local_preds = NIL;
-  REMOTE_GlobalVariables(wid) = NULL;
+  REMOTE_ThreadHandle(wid).ge = NIL;
   /* kill all thread local preds */
   while(p0) {
     PredEntry *ap = RepPredProp(p0);
@@ -312,9 +319,11 @@ kill_thread_engine (int wid, int always_die)
     Yap_FreeCodeSpace((char *)ap);
   }
   while (gl) {
-    gl->global = TermFoundVar;
-    gl = gl->NextGE;
+    GlobalEntry *gb = RepGlobalProp(gl);
+    gl = gb->NextOfPE;
+    Yap_FreeCodeSpace((char *)gb);
   }
+
   Yap_KillStacks(wid);
   REMOTE_Signals(wid) = 0L;
   // must be done before relessing the memory used to store 
@@ -370,6 +379,7 @@ setup_engine(int myworker_id, int init_thread)
   if ( (err =pthread_barrier_init(&REMOTE_ThreadHandle(myworker_id).pthread_barrier, NULL, 2)) != 0)
     Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, MkIntTerm(err), NULL);
   /* create the YAAM descriptor */
+  REMOTE_TextBuffer(myworker_id) = Yap_InitTextAllocator();
   REMOTE_ThreadHandle(myworker_id).default_yaam_regs = standard_regs;
   REMOTE_ThreadHandle(myworker_id).current_yaam_regs = standard_regs;
   Yap_InitExStacks(myworker_id, REMOTE_ThreadHandle(myworker_id).tsize, REMOTE_ThreadHandle(myworker_id).ssize);
@@ -428,7 +438,7 @@ thread_run(void *widp)
   tgs[0] = LOCAL_ThreadHandle.tgoal;
   tgs[1] = LOCAL_ThreadHandle.tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
-  Yap_RunTopGoal(tgoal PASS_REGS);
+  Yap_RunTopGoal(tgoal, THROW_EX);
 #ifdef TABLING
   {
     tab_ent_ptr tab_ent;
@@ -478,6 +488,7 @@ p_thread_new_tid( USES_REGS1 )
   }
   return Yap_unify(MkIntegerTerm(new_worker), ARG1);
 }
+
 
 static Int
 p_thread_barrier_new_tid( USES_REGS1 )
@@ -536,7 +547,7 @@ p_create_thread( USES_REGS1 )
     /* wait until the client is initialized */
   }
   pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(owid).current_yaam_regs);
-  return FALSE;
+  return true;
 }
 
 static Int
@@ -592,8 +603,9 @@ p_thread_zombie_self( USES_REGS1 )
   if (Yap_has_signal( YAP_ITI_SIGNAL )) {
     return FALSE;
   }
-  //  fprintf(stderr," -- %d\n", worker_id); 
-  LOCAL_ThreadHandle.in_use = FALSE;
+  //  fprintf(stderr," -- %d\n", worker_id);
+  MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
+  LOCAL_ThreadHandle.in_use = FALSE;  
   LOCAL_ThreadHandle.zombie = TRUE;
   MUTEX_UNLOCK(&(LOCAL_ThreadHandle.tlock));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
@@ -670,6 +682,13 @@ Yap_thread_create_engine(YAP_thread_attr *ops)
   return new_id;
 }
 
+static Int 
+ p_thread_gfetch( USES_REGS1 )
+ {                             /* '$thread_unlock'      */
+ return
+   Yap_unify(ARG1,LOCAL_ThreadHandle.itiq);
+ }
+
 Int
 Yap_thread_attach_engine(int wid)
 {
@@ -729,7 +748,7 @@ p_thread_join( /*USES_REGS1*/)
     MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
     return FALSE;
   }
-  if (REMOTE_ThreadHandle(tid).tdetach != TermTrue) {
+  if (REMOTE_ThreadHandle(tid).tdetach == TermTrue) {
     MUTEX_UNLOCK(&(REMOTE_ThreadHandle(tid).tlock));
     return FALSE;
   }
@@ -836,6 +855,14 @@ p_thread_set_concurrency( USES_REGS1 )
   return FALSE;
 #endif
 }
+
+  /** @pred thread_yield 
+
+
+      Voluntarily relinquish the processor.
+
+
+  */
 
 static Int
 p_thread_yield( USES_REGS1 )
@@ -1131,7 +1158,13 @@ p_with_mutex( USES_REGS1 )
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) 
     {
+      Term ts[2];
       mut = NewMutex();
+    ts[0] = MkAddressTerm(mut);    
+    ts[1] = MkIntegerTerm(mut->timestamp);    
+    if (!Yap_unify(ARG1, Yap_MkApplTerm(FunctorMutex, 2, ts) ) ) {
+      return false;
+    }
     }
   else
     {
@@ -1142,11 +1175,32 @@ p_with_mutex( USES_REGS1 )
   if (!mut || !LockMutex(mut PASS_REGS)) {
     return FALSE;
   }
-  rc= Yap_exists(Deref(ARG2), true PASS_REGS);
+  Int B0 = LCL0-(CELL *)B;
+  yamop *oP = P, *oCP = CP;
+  Int oENV = LCL0 - ENV;
+  Int oYENV = LCL0 - YENV;
+
+  rc= Yap_RunTopGoal(Deref(ARG2), LOCAL_EX );
+   if (!rc)
+    {
+      Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
+      // We'll pass it throughs
+
+    }
+  else
+    {
+      Yap_prune_inner_computation((choiceptr)(LCL0-B0) PASS_REGS);
+    }
+ 
+  P = oP;
+  CP = oCP;
+  ENV = LCL0 - oENV;
+  YENV = LCL0 - oYENV;
   if ( !UnLockMutex(mut PASS_REGS) ) {
-    return false;;
+    return false;
   }
-    if (Yap_HasException(PASS_REGS1))
+  
+    if (Yap_PeekException())
     {
       Yap_JumpToEnv();
       return false;
@@ -1209,10 +1263,8 @@ typedef struct {
        namet = MkAtomTerm(RepAtom(ae));
        mboxp = (mbox_t *)(ae->rep.blob[0].data);
       Yap_unify(ARG1, namet);
-      LOCK(GLOBAL_mboxq_lock);
-   } else if (IsAtomTerm(namet)) {
-       LOCK(GLOBAL_mboxq_lock);
-       while( mboxp && mboxp->name != namet)
+    } else if (IsAtomTerm(namet)) {
+         while( mboxp && mboxp->name != namet)
 	 mboxp = mboxp->next;
        if (mboxp) {
 	   UNLOCK(GLOBAL_mboxq_lock);
@@ -1220,15 +1272,15 @@ typedef struct {
        }
        mboxp = (mbox_t *)Yap_AllocCodeSpace(sizeof(mbox_t));
        if (mboxp == NULL) {
-	   UNLOCK(GLOBAL_mboxq_lock);
 	   return FALSE;
        }
        // global mbox, for now we'll just insert in list
-       mboxp->next = GLOBAL_named_mboxes;
+       LOCK(GLOBAL_mboxq_lock);
+     mboxp->next = GLOBAL_named_mboxes;
        GLOBAL_named_mboxes = mboxp;
+	   UNLOCK(GLOBAL_mboxq_lock);
    }
    bool rc = mboxCreate( namet, mboxp PASS_REGS );
-   UNLOCK(GLOBAL_mboxq_lock);
    return rc;
  }
 
@@ -1283,10 +1335,10 @@ p_mbox_destroy( USES_REGS1 )
      }
      if (!mboxp->open)
        mboxp = NULL;
+     UNLOCK(GLOBAL_mboxq_lock);
      if (mboxp) {
 	 pthread_mutex_lock(& mboxp->mutex);
      }
-     UNLOCK(GLOBAL_mboxq_lock);
    } else if (IsIntTerm(t)) {
        int wid = IntOfTerm(t);
        if (REMOTE(wid) &&
@@ -1453,7 +1505,9 @@ p_thread_signal( USES_REGS1 )
     MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
     return TRUE;
   }
+  REMOTE_ThreadHandle(wid).itiq = Yap_SaveTerm(MkPairTerm(ARG2,REMOTE_ThreadHandle(wid).itiq));
   Yap_external_signal( wid,  YAP_ITI_SIGNAL );
+  pthread_cond_signal(&REMOTE_ThreadHandle(wid).mbox_handle.empty);
   MUTEX_UNLOCK(&(REMOTE_ThreadHandle(wid).tlock));
   return TRUE;
 }
@@ -1569,13 +1623,6 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_join", 1, p_thread_join, 0);
   Yap_InitCPred("$thread_destroy", 1, p_thread_destroy, 0);
   Yap_InitCPred("thread_yield", 0, p_thread_yield, 0);
-  /** @pred thread_yield 
-
-
-      Voluntarily relinquish the processor.
-
-
-  */
   Yap_InitCPred("$detach_thread", 1, p_thread_detach, 0);
   Yap_InitCPred("$thread_detached", 1, p_thread_detached, 0);
   Yap_InitCPred("$thread_detached", 2, p_thread_detached2, 0);
@@ -1587,7 +1634,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("mutex_lock", 1, p_lock_mutex, SafePredFlag);
   Yap_InitCPred("mutex_trylock", 1, p_trylock_mutex, SafePredFlag);
   Yap_InitCPred("mutex_unlock", 1, p_unlock_mutex, SafePredFlag);
-  Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFlag);
+ // Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFrlag);
   Yap_InitCPred("$with_with_mutex", 1, p_with_with_mutex, 0);
   Yap_InitCPred("$unlock_with_mutex", 1, p_unlock_with_mutex, 0);
   Yap_InitCPred("$mutex_info", 3, p_mutex_info, SafePredFlag);
@@ -1603,7 +1650,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$message_queue_size", 2, p_mbox_size, SafePredFlag);
   Yap_InitCPred("$message_queue_peek", 2, p_mbox_peek, SafePredFlag);
   Yap_InitCPred("$thread_stacks", 4, p_thread_stacks, SafePredFlag);
-  Yap_InitCPred("$signal_thread", 1, p_thread_signal, SafePredFlag);
+  Yap_InitCPred("$signal_thread", 2, p_thread_signal, SafePredFlag);
   Yap_InitCPred("$nof_threads", 1, p_nof_threads, SafePredFlag);
   Yap_InitCPred("$nof_threads_created", 1, p_nof_threads_created, SafePredFlag);
   Yap_InitCPred("$thread_sleep", 4, p_thread_sleep, SafePredFlag);
@@ -1611,6 +1658,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$thread_self_lock", 1, p_thread_self_lock, SafePredFlag);
   Yap_InitCPred("$thread_run_at_exit", 2, p_thread_atexit, SafePredFlag);
   Yap_InitCPred("$thread_unlock", 1, p_thread_unlock, SafePredFlag);
+  Yap_InitCPred("$thread_gfetch", 1, p_thread_gfetch, SafePredFlag);
 #if DEBUG_LOCKS||DEBUG_PE_LOCKS
   Yap_InitCPred("debug_locks", 0, p_debug_locks, SafePredFlag);
   Yap_InitCPred("nodebug_locks", 0, p_nodebug_locks, SafePredFlag);
@@ -1697,7 +1745,7 @@ p_new_mutex(void)
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   bool rc;
 
-  rc = Yap_exists(ARG2, true  PASS_REGS);
+  rc = Yap_RunTopGoal(ARG2, LOCAL_EX  PASS_REGS);
     if (Yap_HasException(PASS_REGS1))
     {
       Yap_JumpToEnv();
@@ -1716,7 +1764,7 @@ Yap_InitFirstWorkerThreadHandle(void)
 
 void Yap_InitThreadPreds(void)
 { 
-  Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFlag);
+  Yap_InitCPred("c_with_mutex", 2, p_with_mutex, MetaPredFlag);
   Yap_InitCPred("mutex_create", 1, p_new_mutex, SafePredFlag);
   Yap_InitCPred("$max_workers", 1, p_max_workers, 0);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag);

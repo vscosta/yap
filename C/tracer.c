@@ -211,10 +211,6 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   //if (vsc_count==7908)
   //  jmp_deb(1);
   vsc_count++;
-    Term u =  LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP];
-    Yap_DebugPlWrite(u);
-     printf("= ");
-
   int l = push_text_stack();
 
 //jmp_deb(1);

@@ -452,10 +452,12 @@ eval1(Int fi, Term t USES_REGS)
   case op_log:
     {
       Float dbl = get_float(t);
-      if (dbl >= 0) {
+      if (dbl > 0 || !!isoLanguageFlag()) {
 	RFLOAT(log(dbl));
+      } else if (dbl==0.0) {
+	  Yap_ThrowError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer (%f)");
       } else {
-	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "log(%f)", dbl);
+	  Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "log(%f)", dbl);
       }
     }
   case op_log10:

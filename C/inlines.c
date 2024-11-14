@@ -937,7 +937,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
       return(FALSE);
     }
     while (HR+d1 > ASP - StackGap( PASS_REGS1 )) {
-      if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) PASS_REGS)) {
+      if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) )) {
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return false;
       }

@@ -124,12 +124,6 @@ INLINE_ONLY PropFlags IsFunctorProperty(int flags) {
 typedef struct global_entry {
   Prop NextOfPE;      /* used to chain properties             */
   PropFlags KindOfPE; /* kind of property                     */
-#if defined(YAPOR) || defined(THREADS)
-  rwlock_t GRWLock; /* a simple lock to protect this entry */
-#if THREADS
-  unsigned int owner_id; /* owner thread */
-#endif
-#endif
   struct AtomEntryStruct *AtomOfGE; /* parent atom for deletion */
   struct global_entry *NextGE;      /* linked list of global entries */
   Term global;                      /* index in module table                */

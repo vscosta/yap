@@ -187,9 +187,9 @@ arguments.
 */
 '->'(X,Y) :-
     (
-	'$execute0'(X)
+	'$execute'(X)
     ->
-    '$execute0'(Y)
+    '$execute'(Y)
     ).
 
 
@@ -258,9 +258,9 @@ If _P_ includes cuts, the cuts are defined to be scoped by _P_: they cannot cut 
  ~~~~~~~~~~~~
 
 */
-\+(G) :-     \+ '$execute0'(G).
+\+(G) :-     \+ '$execute'(G).
 
-not(G) :-    \+ '$execute0'(G).
+not(G) :-    \+ '$execute'(G).
 
 
 
@@ -362,10 +362,10 @@ once/1.
 */
 once(!) :- !.
 once(G) :-
-	'$execute0'(G), !.
+	'$execute'(G), !.
 
 
-(:- G) :- '$execute0'(G), !.
+(:- G) :- '$execute'(G), !.
 
 (?- G) :- '$execute'(G).
 

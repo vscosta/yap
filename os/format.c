@@ -17,6 +17,7 @@
 
 #include "Yap.h"
 
+#include "YapError.h"
 #include "YapInterface.h"
 
 #ifdef SCCS
@@ -329,20 +330,22 @@ static int format_print_str(int sno, Int size, bool has_size, Term args,
         if (args == TermNil) {
             return true;
         }
+	int off;
         const unsigned char *pt = RepAtom(AtomOfTerm(args))->UStrOfAE;
-        while (*pt && (!has_size || size > 0) )  {
-            utf8proc_int32_t ch;
-
-            if ((pt += get_utf8(pt, -1, &ch)) > 0) {
-                f_putc(sno, ch);
-            }
-        }
-	if (has_size) {
+	utf8proc_int32_t ch;
+        while ((off=get_utf8(pt, -1, &ch)>0 && ch != '\0') && (!has_size || size > 0) )  {
+	  if (off > 0) {
+	    f_putc(sno, ch);
+	    pt += off;
+	    size--;
+	  } else if (off < 0) {
+	    Yap_ThrowError(SYNTAX_ERROR_ENCODING,args,NULL);
+	  }
+	}
 	  while (size>0) {
 	    size--;
 	    f_putc(sno, ' ');
 	  }
-	}
     } else {
         while (!has_size || size > 0) {
             bool maybe_chars = true, maybe_codes = true;

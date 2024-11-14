@@ -257,3 +257,6 @@ misc/dlocals.h
 misc/library/system/sys_config.h
 C/readterm.c
 CXX/CMakeCache.txt
+C/absm.c
+C/preds.yap
+H/exec/c

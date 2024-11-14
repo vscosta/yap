@@ -661,12 +661,12 @@ static UInt do_index(ClauseDef *, ClauseDef *, struct intermediates *, UInt,
 static UInt do_compound_index(ClauseDef *, ClauseDef *, Term *t,
                               struct intermediates *, UInt, UInt, UInt, UInt,
                               int, int, int, CELL *, int);
-static UInt do_dbref_index(ClauseDef *, ClauseDef *, Term,
-                           struct intermediates *, UInt, UInt, int, int,
-                           CELL *);
 static UInt do_blob_index(ClauseDef *, ClauseDef *, Term,
                           struct intermediates *, UInt, UInt, int, int, CELL *,
                           int);
+static UInt do_dbref_index(ClauseDef *min, ClauseDef *max, Term t,
+                           struct intermediates *cint, UInt argno, UInt fail_l,
+                           int first, int clleft, CELL *top);
 
 static UInt cleanup_sw_on_clauses(CELL larg, UInt sz, OPCODE ecls) {
   if (larg & 1) {
@@ -981,7 +981,7 @@ static void sort_group(GroupDef *grp, CELL *top, struct intermediates *cint) {
   if (!(base = (CELL *)Yap_AllocCodeSpace(2 * max * sizeof(CELL)))) {
     CACHE_REGS
       save_machine_regs();
-    LOCAL_Error_Size = 2 * max * sizeof(CELL);
+    LOCAL_Error_Size = 2 * (max+1) * sizeof(CELL);
     siglongjmp(cint->CompilerBotch, 2);
   }
 #else
@@ -2246,7 +2246,7 @@ static UInt do_funcs(GroupDef *grp, Term t, struct intermediates *cint,
     if (IsExtensionFunctor(f)) {
       if (f == FunctorDBRef)
         ifs->u_f.Label = do_dbref_index(min, max, t, cint, argno, nxtlbl, first,
-                                        clleft, top);
+				       clleft, top);
       else if (f == FunctorLongInt || f == FunctorBigInt)
         ifs->u_f.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first,
                                        clleft, top, FALSE);

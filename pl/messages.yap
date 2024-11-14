@@ -1356,6 +1356,8 @@ error_descriptor( V, List) :-
     ->
     '$read_exception'(Info,List)
     ;
+    is_list(V)
+    ->
     V=List
     ).
 
@@ -1426,6 +1428,11 @@ prolog:print_message(Severity, Msg) :-
 	print_message_(Severity, Msg),
 	fail.
 prolog:print_message(_Severity, _Msg).
+
+is_exception_descriptor(exception(Address)) :-
+    integer(Address). 
+is_exception_descriptor(List) :-
+    is_list(List).
 
 %%
 %% @pred print_warning( +Msg )

@@ -362,17 +362,16 @@ static Term interrupt_wake_up(Term nextg USES_REGS) {
     Yap_UpdateTimedVar(LOCAL_WokenGoals, td);
   }
   if (creep) {
-    LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
     tg=Yap_MkApplTerm(FunctorCreep, 1, &tg);
   }
   if (sig) {
     Term td;
     while ((td = Yap_next_signal(PASS_REGS1))) {
-      tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
+  tg = addgs(Yap_MkApplTerm(FunctorSignalHandler, 1, &td),tg);
     }
   }
   if (( !wk && !creep && !sig)|| tg == nextg)
-    return TermTrue;
+    return nextg;
   return tg;
 
 }
@@ -532,6 +531,7 @@ static void interrupt_delay(op_numbers op, yamop *pc USES_REGS) {
 bool Yap_dispatch_interrupts( USES_REGS1 ) {
   if (Yap_has_a_signal()) {
     interrupt_main(P->opc, P PASS_REGS);
+    return false;
   }
   return true;
 }
@@ -555,10 +555,7 @@ static PredEntry * interrupt_fail(USES_REGS1) {
      
   Term g = interrupt_wake_up( TermFail PASS_REGS );
   //  g = Yap_protect_goal(&pe, g,CurrentModule, g);
-  if (pe && pe->CodeOfPred == FAILCODE)
-    return NULL;
   if (IsApplTerm(g))  {
-
     ARG1 =  g;  
     pe = PredCall;
   }

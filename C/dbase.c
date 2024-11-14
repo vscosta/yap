@@ -862,10 +862,9 @@ typedef struct { CELL *addr; } visitel;
   }
 
 static CELL *copy_long_int(CELL *st, CELL *pt) {
-  /* first thing, store a link to the list before we move on */
   st[0] = (CELL)FunctorLongInt;
   st[1] = pt[1];
-  st[2] = CloseExtension(st);
+  st[2] = pt[2];
   /* now reserve space */
   return st + 3;
 }
@@ -874,14 +873,13 @@ static CELL *copy_double(CELL *st, CELL *pt) {
   /* first thing, store a link to the list before we move on */
   st[0] = (CELL)FunctorDouble;
   st[1] = pt[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
   st[2] = pt[2];
-  st[3] = CloseExtension(st);
-#else
-  st[2] = CloseExtension(st);
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+  st[3] = pt[3];
+  st[4] = pt[4];
 #endif
   /* now reserve space */
-  return st + (2 + SIZEOF_DOUBLE / SIZEOF_INT_P);
+  return st + (1+2 * SIZEOF_DOUBLE / SIZEOF_INT_P);
 }
 
 static CELL *copy_string(CELL *st, CELL *pt) {
@@ -998,17 +996,15 @@ loop:
           CheckDBOverflow(3);
           *StoPoint++ = AbsAppl(CodeMax);
           CodeMax = copy_long_int(CodeMax, ap2);
-	  *dbg->lr++ = ToSmall((CELL)(CodeMax-1) - (CELL)(tbase));
-          ++pt0;
-          continue;
+	  ++pt0;
+	  continue;
 #ifdef USE_GMP
         case (CELL)FunctorBigInt:
           CheckDBOverflow(3 + Yap_SizeOfBigInt(d0));
           /* first thing, store a link to the list before we move on */
           *StoPoint++ = AbsAppl(CodeMax);
           CodeMax = copy_big_int(CodeMax, ap2);
-	  *dbg->lr++ = ToSmall((CELL)(CodeMax-1) - (CELL)(tbase));
-          ++pt0;
+	  ++pt0;
           continue;
 #endif
         case (CELL)FunctorString: {
@@ -1025,12 +1021,11 @@ loop:
         case (CELL)FunctorDouble: {
           CELL *st = CodeMax;
 
-          CheckDBOverflow(4);
+          CheckDBOverflow(3);
           /* first thing, store a link to the list before we move on */
           *StoPoint++ = AbsAppl(st);
           CodeMax = copy_double(CodeMax, ap2);
-          ++pt0;
-	  *dbg->lr++ = ToSmall((CELL)(CodeMax-1) - (CELL)(tbase));
+	  ++pt0;
           continue;
         }
         }
@@ -2483,7 +2478,6 @@ with its reference.
 */
 static Int recordz(USES_REGS1) { Term TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
   PredEntry *pe;
-
   if (!IsVarTerm(Deref(ARG3)))
     return (FALSE);
   pe = find_lu_entry(t1);
@@ -4151,10 +4145,15 @@ static void EraseEntry(DBRef entryref) {
   if (entryref->Flags & ErasedMask)
     return;
   if (entryref->Flags & LogUpdMask && !(entryref->Flags & DBClMask)) {
+    CACHE_REGS
     LogUpdClause *luclause = (LogUpdClause *)entryref;
-    PELOCK(67, luclause->ClPred);
+    if (!PP || PP!=  luclause->ClPred) {
+      PELOCK(67, luclause->ClPred);
+    }
     EraseLogUpdCl(luclause);
-    UNLOCK(luclause->ClPred->PELock);
+    if (!PP || PP!=  luclause->ClPred) {
+      UNLOCK(luclause->ClPred->PELock);
+    }
     return;
   }
   entryref->Flags |= ErasedMask;
