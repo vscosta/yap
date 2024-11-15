@@ -681,14 +681,14 @@ Create a "random" peermutation of a list. The initial list may have repeated
 elements,
 */
 randomize(List,RandomListPermutation) :-
-    maplist(add_random,List,RList),
+    add_random(List,RList),
     msort(RList, SList),
-    maplist(rm_random,SList,RandomListPermutation).
+    add_random(RandomListPermutation,SList).
 
-add_random(H,R-H) :-R is random.
-
-rm_random(_-H,H).
-
+add_random([],[]).
+add_random([H|L],[R-H|NL]) :-
+R is random,
+add_random(L,NL).
 
 
 /** @} */

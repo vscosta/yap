@@ -21,11 +21,13 @@
  *
  * @brief  Vector, Array and Matrix  library
  *
+
+ 
  *
 */
 
 
-:- module( matrix,
+:- module( (matrix),
 	   [(<==)/2, op(800, xfx, <==),
 	    (+==)/2, op(800, xfx, +==),
 	    (-==)/2, op(800, xfx, -==),
@@ -33,11 +35,11 @@
 	   op(950,yfx,:=),
 %	   op(950,fx,<-),
 %	   op(950,yfx,<-),
-	    op(700, xfx, in),
-	    op(700, xfx, within),
-	    op(700, xfx, ins),
+	    op(700, xfx , (in)),
+	    op(700, xfx, (within)),
+	    op(700, xfx, (ins)),
         op(450, xfx, '..'), % should bind more tightly than \/
-	op(790, fx, matrix),
+	op(790, fx, (matrix)),
 	op(790, fx, array),
 	op(780, xfx, of),
 
@@ -872,8 +874,8 @@ matrix_create(terms, b, Dims, Base, _, Data,
     multiply(RDims,H,Size),
     length(List,Size),
     fill(Data,List),
-    Matrix =.. [matrix|List],
-    functor(Matrix,matrix,Size).
+    Matrix =.. [(matrix)|List],
+    functor(Matrix,(matrix),Size).
 matrix_create(Type, b, Dims, Base, fill, 0,New) :-
     !,
     matrix_new_matrix(Type,Dims,Base,New).
@@ -1267,8 +1269,7 @@ matrix_op_to_lines(M1,M2,/,NM) :-
 
 
 
- _Result_ is the result of applying  _Op_ to all elements of
- _Matrix1_, with the corresponding element in  _Cols_ as the
+ _Result_ is the result of applying  _Op_ to all elements    _Matrix1_, with the corresponding element in  _Cols_ as the
 second argument. Currently, only addition (`+`) is
 supported. Notice that  _Cols_ will have n-1 dimensions.
 

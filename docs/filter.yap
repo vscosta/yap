@@ -1,9 +1,9 @@
-
+:- use_module(library(maplist)).
 main :-
     unix(argv([File])),
     open(File,read,S),
     findall(O, entry(S,O), Info),
-    predcates(Info, _, Preds, _),
+    predicates(Info, _, Preds, _),
     maplist(output,Preds).
 
 entry(S,O) :-

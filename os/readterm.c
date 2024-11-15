@@ -683,9 +683,10 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
       trueGlobalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) == TermTrue;
   }
   if (args && args[READ_COMMENTS].used) {
-    fe->scanner.store_comments = args[READ_COMMENTS].tvalue;
+    fe->scanner.store_comments = true;
+    fe->scanner.ecomms = args[READ_COMMENTS].tvalue;
   } else {
-    fe->scanner.store_comments = 0;
+    fe->scanner.store_comments = false;
   }
   if (args && args[READ_QUASI_QUOTATIONS].used) {
     fe->qq = args[READ_QUASI_QUOTATIONS].tvalue;
@@ -998,7 +999,7 @@ static Term scan_to_list(TokEntry * t)
   if (fe->t) {
     return (!fe->vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
       (!fe->scanner.store_comments
-       || Yap_unify(fe->scanner.tcomms, fe->scanner.store_comments)) &&
+       || Yap_unify(fe->scanner.tcomms, fe->scanner.ecomms)) &&
       (!fe->np || Yap_unify(v_vnames, fe->np)) &&
       (!fe->scan ||   Yap_unify(vs, fe->scan)) &&
       (!fe->tp || Yap_unify(v_pos, fe->tp)) ;
@@ -1124,8 +1125,23 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
     fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
   else
     fe->scanner.stored_scan = TermNil;
- if (1||fe->scanner.store_comments) {
- while (LOCAL_tokptr && LOCAL_tokptr->Tok == Ord(Comment_tok)) {
+   if (fe->scanner.store_comments) {
+   Term comms = TermNil;
+   while (LOCAL_tokptr->TokNext) {
+     if (LOCAL_tokptr->TokNext->Tok == Ord(Comment_tok)) {
+       Term new =  Yap_MkNewPairTerm();
+       if (comms == TermNil)
+	 fe->scanner.tcomms = new;
+       else
+	 *VarOfTerm(TailOfTerm(comms))= new;
+       Yap_unify(HeadOfTerm(new),LOCAL_tokptr->TokNext->TokInfo);
+       comms = TailOfTerm(new);
+    LOCAL_tokptr->TokNext=LOCAL_tokptr->TokNext->TokNext;
+  }
+   }
+   
+   } 
+  while (LOCAL_tokptr && LOCAL_tokptr->Tok == Ord(Comment_tok)) {
     LOCAL_tokptr=LOCAL_tokptr->TokNext;
   }
    TokEntry *tokstart = LOCAL_tokptr;
@@ -1136,7 +1152,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
      tokstart=tokstart->TokNext;
    }
  
- }  if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
+ if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
     // next step
     return YAP_PARSING;
   }
@@ -1612,21 +1628,6 @@ static Int start_mega(USES_REGS1)
   if (fe->scan) {
     fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
   }
- if (fe->store_comments) {
-   Term comms = TermNil;
-   while (LOCAL_tokptr->TokNext) {
-     if (LOCAL_tokptr->TokNext->Tok == Ord(Comment_tok)) {
-       Term new =  Yap_MkNewPairTerm();
-       if (comms == TermNil)
-	 fe->scanner.comms = new;
-       else
-	 VarOfTerm(TailOfTerm(comms) = new;
-       Yap_unify(HeadOfTerm(new),LOCAL_tokptr->TokNext->TokInfo);
-       comms = TailOfTerm(new);
-    LOCAL_tokptr->TokNext=LOCAL_tokptr->TokNext->TokNext;
-  }
-   }
- }
     LOCAL_StartLineCount = tokptr->TokLine;
   if (tokptr->Tok == Name_tok && (next = tokptr->TokNext) != NULL &&
       next->Tok == Ponctuation_tok && next->TokInfo == TermOpenBracket)
@@ -1635,7 +1636,7 @@ static Int start_mega(USES_REGS1)
       while ((tokptr = next->TokNext))
 	{
 	  if (IsAtomOrIntTerm(t = fe->tp))
-	    {
+\     	    {
 	      ip->opc = Yap_opcode(get_atom);
 	      ip->y_u.x_c.c = t.
 		ip->y_u.x_c.x = fe->tp++; / ()c * /
