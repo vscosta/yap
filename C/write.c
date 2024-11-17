@@ -1315,6 +1315,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
       depth = IntegerOfTerm(v);
     flags |=YAP_WRITE_ENABLE_DEPTH;
    } else {
+     depth = 5;
 	    badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_MAX_DEPTH]);
 	  }
   }

@@ -341,7 +341,7 @@ typedef struct yami {
       CELL next;
     } fa;
     struct {
-      CELL    i[2];
+      CELL    i[4];
       CELL next;
     } i;
     struct {

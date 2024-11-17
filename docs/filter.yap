@@ -1,4 +1,7 @@
+
 :- use_module(library(maplist)).
+
+
 main :-
     unix(argv([File])),
     open(File,read,S),
@@ -9,14 +12,14 @@ main :-
 entry(S,O) :-
     repeat,
     Vs=[],
-     read_clause(S,T,[comments(Comments)]),
+    read_clause(S,T,[comments(Comments)]),
+    writeln(S:T),
      (
      T == end_of_file
      ->
-     !,
-      fail
-     ;
-     T = ( :- Directive )
+ !
+;
+    T = ( :- Directive )
      ->
      O = directive(Directive, Comments, Vs)
      ;

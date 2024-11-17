@@ -42,8 +42,9 @@ fail : {
   CACHE_Y_AS_ENV(YREG); 
   check_stack(NoStackFail, HR);
   ENDCACHE_Y_AS_ENV();
+tr_fr_ptr pt0;
   failing:
-  register tr_fr_ptr pt0 = TR;
+  pt0 = TR;
 #if defined(YAPOR) || defined(THREADS)
   if (PP) {
     UNLOCK(PP->PELock);

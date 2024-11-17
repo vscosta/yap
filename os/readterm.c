@@ -169,7 +169,7 @@ static Int qq_open(USES_REGS1) {
       if ((s = Yap_open_buf_read_stream(start, len, ENC_UTF8, MEM_BUF_USER)) <
           0)
         return false;
-      return Yap_unify(ARG2, Yap_MkStream(s));
+      return Yap_unify(ARG2, Yap_CbMkStream(s));
     } else {
       Yap_ThrowError(TYPE_ERROR_READ_CONTEXT, t);
     }
@@ -445,6 +445,7 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
      const char *s =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
      e->parserFile = strcpy(malloc(strlen(s)+1),s);
    }
+  
    if (err->TokNext) {
      while (end->TokNext && end->Tok != eot_tok) {
        end = end->TokNext;
@@ -583,7 +584,10 @@ opos=	ftell(GLOBAL_Stream[sno].file);
   e->parserTextB = realloc(buf, strlen(buf)+1);
 }
 
-  /* 0:  strat, error, end line */
+    if (st->status & Past_Eof_Stream_f) {
+      Yap_CloseStream(sno);
+    }
+      /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
   clean_vars(LOCAL_VarTable);
@@ -687,6 +691,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     fe->scanner.ecomms = args[READ_COMMENTS].tvalue;
   } else {
     fe->scanner.store_comments = false;
+    fe->scanner.ecomms = TermNil;
   }
   if (args && args[READ_QUASI_QUOTATIONS].used) {
     fe->qq = args[READ_QUASI_QUOTATIONS].tvalue;
@@ -1032,14 +1037,16 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
       return YAP_PARSING_FINISHED;
     }
     // a :- <eof>
+    
     if (GLOBAL_Stream[inp_stream].status & Past_Eof_Stream_f) {
       fe->msg = "parsing stopped at a end-of-file";
-      return YAP_PARSING_ERROR;
+      Yap_CloseStream(inp_stream);
+      Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,Yap_MkStream(inp_stream),NULL); 
     }
     /* we need to force the next read to also give end of file.*/
     GLOBAL_Stream[inp_stream].status |= Push_Eof_Stream_f;
     fe->msg = "end of file found before end of term";
-    return YAP_PARSING;
+    return YAP_PARSING_FINISHED;
   } else {
     // <eof>
     // return end_of_file
@@ -1125,23 +1132,30 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
     fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
   else
     fe->scanner.stored_scan = TermNil;
-   if (fe->scanner.store_comments) {
+  if (fe->scanner.store_comments) {
+    TokEntry *tok = LOCAL_tokptr;
    Term comms = TermNil;
-   while (LOCAL_tokptr->TokNext) {
-     if (LOCAL_tokptr->TokNext->Tok == Ord(Comment_tok)) {
+   while (tok) {
+     if (tok->Tok == Ord(Comment_tok)) {
        Term new =  Yap_MkNewPairTerm();
        if (comms == TermNil)
 	 fe->scanner.tcomms = new;
        else
-	 *VarOfTerm(TailOfTerm(comms))= new;
-       Yap_unify(HeadOfTerm(new),LOCAL_tokptr->TokNext->TokInfo);
+	 *VarOfTerm((comms))= new;
+       Yap_unify(HeadOfTerm(new),tok->TokInfo);
        comms = TailOfTerm(new);
-    LOCAL_tokptr->TokNext=LOCAL_tokptr->TokNext->TokNext;
-  }
+
+	 LOCAL_tokptr->TokNext = tok->TokNext;
+     } else {
+	 LOCAL_tokptr = tok;
+     }
+     tok = tok->TokNext;
+
    }
-   
-   } 
+   Yap_unify(TermNil,comms);
+  } else{
   while (LOCAL_tokptr && LOCAL_tokptr->Tok == Ord(Comment_tok)) {
+
     LOCAL_tokptr=LOCAL_tokptr->TokNext;
   }
    TokEntry *tokstart = LOCAL_tokptr;
@@ -1150,8 +1164,8 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
     tokstart->TokNext=tokstart->TokNext->TokNext;
   } else
      tokstart=tokstart->TokNext;
-   }
- 
+ }
+}
  if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
     // next step
     return YAP_PARSING;
@@ -1159,7 +1173,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
   if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokNext == NULL &&
       LOCAL_tokptr->TokInfo != TermEof) {
     fe->msg = ". is end-of-term?";
-  return YAP_PARSING_ERROR;
+    return YAP_PARSING_ERROR;
   }
   return scanEOF(fe, sno);
 }
