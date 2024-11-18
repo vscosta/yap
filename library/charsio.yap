@@ -74,7 +74,7 @@ Execute the built-in procedure format/2 with form  _Form_ and
 arguments  _Args_ outputting the result to the difference list of
 character codes  _Result-Result0_.
 
-*/
+v*/
 format_to_chars(Format, Args, OUT, L0) :-
 	format(codes(OUT, L0), Format, Args).
 

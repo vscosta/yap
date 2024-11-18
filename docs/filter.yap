@@ -1,7 +1,6 @@
-#!/home/vsc/.local/bin/yap -L --
-zero.
-
-% 
+#!/Users/vsc/.local/bin/yap -L --
+# zero.
+#
 
 /** @file filter.yap
  *
@@ -18,11 +17,17 @@ zero.
 */
 main :-
     unix(argv([File])),
-    open(File,read,S),
+    absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
+    !,
+    open(Y,read,S),
     findall(O, entry(S,O), Info),
     predicates(Info, _, Preds, _),
     maplist(output,Preds).
-
+main :-
+    open(File,read,S),
+    read_stream_to_string(S,Text),
+    format('~s',[Text]).
+    
 entry(S,O) :-
     repeat,
     read_clause(S,T,[comments(Comments),variable_names(Vs)]),

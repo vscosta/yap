@@ -250,9 +250,6 @@ INLINE_ONLY bool IsLongIntTerm(Term t) {
 
 #define MkStringTerm(i) __MkStringTerm((i)PASS_REGS)
 // < functor, request (size in cells ), cells, eot >
-INLINE_ONLY Term
-__MkStringTerm(const  char *s USES_REGS);
-
 INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
     Term t = AbsAppl(HR);
     size_t sz = (s[0] == '\0' ? 1 : strlen((const char *) s) + 1);
@@ -261,6 +258,22 @@ INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
     HR[1] = request;
     HR[1 + request] = 0;
     memcpy((HR + 2), s, sz);
+    HR[2 + request] = CloseExtension(HR);
+    HR += 3 + request;
+    return t;
+}
+
+
+#define AppendToStringTerm(t,s) __AppendToStringTerm(t,s PASS_REGS)
+// < functor, request (size in cells ), 
+/// This routine expands a string
+INLINE_ONLY Term __AppendToStringTerm(Term t, const char *s USES_REGS) {
+  HR = RepAppl(t);
+  char *str0 = (char *)(HR+2);
+    char *end = strcpy(str0,s);
+    size_t request = ((end-str0) + CELLSIZE - 1) / CELLSIZE; // request is in cells >= 1
+    HR[1] = request;
+    request = 0;
     HR[2 + request] = CloseExtension(HR);
     HR += 3 + request;
     return t;

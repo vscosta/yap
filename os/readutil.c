@@ -280,6 +280,49 @@ static Int read_stream_to_codes(USES_REGS1) {
   return Yap_unify(AbsPair(HBASE), ARG2);
 }
 
+/**
+   @pred read_stream_to_codes( +_Stream_, -Codes, ?_Tail_)
+
+   If _Stream_ is a readable text stream, unify _String_ with
+   the difference list  storing the codes forming the first line of the stream.
+
+     If the stream is exhausted, unify _Codes_ with `end_of_file`.
+ */
+static Int read_stream_to_string(USES_REGS1) {
+  int sno = Yap_CheckStream(ARG1, Input_Stream_f,
+                            "reaMkAtomTerm (AtomEofd_line_to_codes/2");
+  CELL *h0 =HR;
+  char buf[4096], *b = buf;
+
+  Term t = MkStringTerm("");
+  if (sno < 0)
+    return FALSE;
+  while (!(GLOBAL_Stream[sno].status & Past_Eof_Stream_f)) {
+    /* skip errors */
+    Int ch = GLOBAL_Stream[sno].stream_getc(sno);
+    if (ch == EOFCHAR)
+      break;
+    *b++ = ch;
+    if (buf-b==4095) {
+      b[0]='\0';
+      t=  AppendToStringTerm(t,buf);
+      if (HR > ASP - 1024) {
+	HR = h0;
+      if (!Yap_dogc(PASS_REGS1)) {
+        Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_stream_to_codes/3");
+        return false;
+      }
+      h0 = HR;
+      t = MkStringTerm("");
+    }
+      /* build a legal term again */
+    }
+  }
+    b[0]='\0';
+    AppendToStringTerm(t,buf);
+  return Yap_unify(t, ARG2);
+}
+
 
 /**
    @pred read_stream_to_terms( +_Stream_, -Terms, ?_Tail_)
@@ -289,6 +332,7 @@ static Int read_stream_to_codes(USES_REGS1) {
 
      If the stream is exhausted, unify _Codes_ with `end_of_file`.
  */
+
 static Int read_stream_to_terms(USES_REGS1) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
   Term t, r;
@@ -309,8 +353,7 @@ static Int read_stream_to_terms(USES_REGS1) {
       t = Deref(Yap_GetFromHandle(hdl));
     if (Deref(r) == TermEOfCode) {
       break;
-    } else {
-      
+    } else {    
       if (IsVarTerm(t)) {
 	Yap_unify(t, Yap_MkNewPairTerm());
 	t = Deref(t);
@@ -326,6 +369,7 @@ static Int read_stream_to_terms(USES_REGS1) {
   return Yap_unify( Yap_GetFromHandle(hdl), Yap_GetFromHandle(hd3));
 }
 
+
 void Yap_InitReadUtil(void) {
   CACHE_REGS
 
@@ -338,6 +382,7 @@ void Yap_InitReadUtil(void) {
   Yap_InitCPred("read_line_to_chars", 2, read_line_to_chars2, SyncPredFlag);
   Yap_InitCPred("read_stream_to_codes", 3, read_stream_to_codes, SyncPredFlag);
   Yap_InitCPred("read_stream_to_terms", 3, read_stream_to_terms, SyncPredFlag);
+  Yap_InitCPred("read_stream_to_string", 3, read_stream_to_string, SyncPredFlag);
   CurrentModule = cm;
 }
 
