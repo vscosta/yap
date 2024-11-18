@@ -1134,7 +1134,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
     fe->scanner.stored_scan = TermNil;
   if (fe->scanner.store_comments) {
     TokEntry *tok = LOCAL_tokptr;
-   Term comms = TermNil;
+   Term comms = fe->scanner.tcomms = TermNil;
    while (tok) {
      if (tok->Tok == Ord(Comment_tok)) {
        Term new =  Yap_MkNewPairTerm();
@@ -1142,18 +1142,17 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
 	 fe->scanner.tcomms = new;
        else
 	 *VarOfTerm((comms))= new;
-       Yap_unify(HeadOfTerm(new),tok->TokInfo);
+       RepPair(new)[0] = tok->TokInfo;
        comms = TailOfTerm(new);
 
-	 LOCAL_tokptr->TokNext = tok->TokNext;
-     } else {
-	 LOCAL_tokptr = tok;
+
+
      }
-     tok = tok->TokNext;
+   tok = tok->TokNext;
 
    }
    Yap_unify(TermNil,comms);
-  } else{
+  } 
   while (LOCAL_tokptr && LOCAL_tokptr->Tok == Ord(Comment_tok)) {
 
     LOCAL_tokptr=LOCAL_tokptr->TokNext;
@@ -1165,8 +1164,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
   } else
      tokstart=tokstart->TokNext;
  }
-}
- if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
+     if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
     // next step
     return YAP_PARSING;
   }
@@ -1524,9 +1522,11 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
   }
   fe->sp = 0;
   if (args && args[READ_CLAUSE_COMMENTS].used) {
-    fe->scanner.store_comments = (args[READ_CLAUSE_COMMENTS].tvalue = true);
+    fe->scanner.store_comments = (args[READ_CLAUSE_COMMENTS].used);
+    fe->scanner.ecomms = args[READ_COMMENTS].tvalue;
   } else {
     fe->scanner.store_comments = false;
+     fe->scanner.ecomms = TermNil;
   }
   if (args && args[READ_CLAUSE_SYNTAX_ERRORS].used) {
     re->sy = args[READ_CLAUSE_SYNTAX_ERRORS].tvalue;

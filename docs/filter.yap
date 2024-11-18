@@ -1,7 +1,21 @@
+#!/home/vsc/.local/bin/yap -L --
+zero.
+
+% 
+
+/** @file filter.yap
+ *
+ * This filter extends doxygen with YAP documentation support.
+ *
+ */
 
 :- use_module(library(maplist)).
 
-
+/**
+ * @pred main
+ *
+ * Call the filter.
+*/
 main :-
     unix(argv([File])),
     open(File,read,S),
@@ -11,9 +25,7 @@ main :-
 
 entry(S,O) :-
     repeat,
-    Vs=[],
-    read_clause(S,T,[comments(Comments)]),
-    writeln(S:T),
+    read_clause(S,T,[comments(Comments),variable_names(Vs)]),
      (
      T == end_of_file
      ->
@@ -26,7 +38,8 @@ entry(S,O) :-
      T = (( Grammar --> Expansion ))
      ->
      functor(Grammar,Name,Arity),
-     O = grammar_rule(Name//Arity,Grammar, Expansion, Comments, Vs)
+     A is Arity+2,
+     O = clause(Name/A, Grammar, Expansion, Comments, Vs)
      ;
      T = (( Head :- Body ))
      ->
@@ -37,12 +50,14 @@ entry(S,O) :-
      ).
 
 %% initial directive
+predicates([H|_],_,_,_) :-
+    writeln(H),
+    fail.
 predicates([],_,[],[]).
 predicates([directive(Directive,Comments,Vs)|More],Ctx,
-	   [command(N/A,[comments(Comments),  body(Directive, Vs,Ctx),[]])|Preds], L0) :-
-    Ctx \= N/A,
+	   [command([comments(Comments),  body(Directive, Vs,Ctx),[]])|Preds], L0) :-
     !,
-    predicates(More,N/A,Preds,L0).
+    predicates(More,0,Preds,L0).
 % change of predicate
 predicates([clause(N/A,Head,Body,Comments,Vs)|More],Ctx,
 	   [predicate(N/A,[comments(Comments), head_body(Head, Body, Vs)|L0])|Preds], L0) :-
@@ -59,24 +74,31 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
 	   Preds, [comments(Comments), head_body(Head, Body, Vs)|L0]) :-
     predicates(More,N/A,Preds,L0).
 
-output(command(_ ,[comments(Comments) |_])) :-
-	   maplist(out_comment,Comments,_ ).
+output(command([comments(Comments) |_])) :-
+	   maplist(out_comment(_),Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
-	   maplist(out_comment,Comments,Found),
+	   maplist(out_comment(Found),Comments),
 	   addcomm(N/A,Found),
 	   findall(I,between(1,A,I),Is),
 	   maplist(atomic_concat('int ARG'),Is,NIs),
 	   T =.. [N|NIs],
-	   format('static bool ~w { }~n',[T]).
+	   format('class  ~w {~n ~w ~w;~n};~n',[N,N,T]).
 	   
 
-out_comment(C) :- format('~s',[C]).
+out_comment(_,C) :-
+    format('~s~n',[C]),
+    fail.
+out_comment(true,C) :-
+    sub_string(C,_,_,_,`@pred`),
+    !.
+out_comment(_,_C).
 
-addcom(N/A,false) :-
+addcomm(N/A,false) :-
+    !,
     length(L,A),
-    maplist(bind,'?'),
+    maplist(=('?'),L),
     T =.. [N|L],
-    format('~n~n@pred ~q.  (undocumented)~n',[T]).
-     
-addcom(_N/_A,_Found) :-
-	       !.
+    format('~n~n/** @pred ~q.  (undocumented)  **/~n',[T]).
+addcomm(_,_).
+
+:- initialization(main).
