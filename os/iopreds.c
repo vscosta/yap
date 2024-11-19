@@ -1961,18 +1961,26 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
 
 int Yap_CheckTextWriteStream__(const char *file, const char *f, int line,
                                Term arg, const char *msg) {
-  int sno, kind = Output_Stream_f|Text_Stream_f ;
+  int sno, kind = Output_Stream_f ;
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
+  if( GLOBAL_Stream[sno].status & Binary_Stream_f) {
+    Yap_ThrowError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
+    return -1;
+  }    
    return sno;
 }
 
 int Yap_CheckTextReadStream__(const char *file, const char *f, int line,
                               Term arg, const char *msg) {
   int sno;
-  estream_f kind = Input_Stream_f|Text_Stream_f;
+  estream_f kind = Input_Stream_f;
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
+  if( GLOBAL_Stream[sno].status & Binary_Stream_f) {
+    Yap_ThrowError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
+    return -1;
+  }    
   return sno;
 }
 

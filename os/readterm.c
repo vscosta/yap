@@ -1019,14 +1019,12 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream);
 
 static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream);
 
-static parser_state_t scanEOF(FEnv *fe, int inp_stream);
 
 static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream);
 
-static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
+static parser_state_t scanEOF(FEnv *fe, int inp_stream, TokEntry *tokstart) {
   CACHE_REGS
   // bool store_comments = false;
-  TokEntry *tokstart = LOCAL_tokptr;
 
   // check for an user abort
   if (tokstart != NULL && tokstart->Tok != Ord(eot_tok)) {
@@ -1038,6 +1036,11 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
     }
     // a :- <eof>
     
+  /* if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokNext == NULL && */
+  /*     LOCAL_tokptr->TokInfo != TermEof) { */
+  /*   fe->msg = ". is end-of-term?"; */
+  /*   return YAP_PARSING_ERROR; */
+  /* } */
     if (GLOBAL_Stream[inp_stream].status & Past_Eof_Stream_f) {
       fe->msg = "parsing stopped at a end-of-file";
       Yap_CloseStream(inp_stream);
@@ -1103,6 +1106,19 @@ static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
   return YAP_SCANNING;
 }
 
+static Term add_comment(FEnv *fe,Term comms, Term v){
+if (fe->scanner.store_comments) {
+    Term new =  Yap_MkNewPairTerm();
+       if (comms == TermNil)
+	 fe->scanner.tcomms = new;
+       else
+	 *VarOfTerm((comms))= new;
+       RepPair(new)[0] = v;
+       return TailOfTerm(new);
+     }
+return comms;
+   }
+
 static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
   CACHE_REGS
   /* preserve   value of H after scanning: otherwise we may lose strings
@@ -1132,48 +1148,30 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
     fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
   else
     fe->scanner.stored_scan = TermNil;
-  if (fe->scanner.store_comments) {
-    TokEntry *tok = LOCAL_tokptr;
    Term comms = fe->scanner.tcomms = TermNil;
-   while (tok) {
-     if (tok->Tok == Ord(Comment_tok)) {
-       Term new =  Yap_MkNewPairTerm();
-       if (comms == TermNil)
-	 fe->scanner.tcomms = new;
-       else
-	 *VarOfTerm((comms))= new;
-       RepPair(new)[0] = tok->TokInfo;
-       comms = TailOfTerm(new);
 
 
 
-     }
-   tok = tok->TokNext;
-
-   }
-   Yap_unify(TermNil,comms);
-  } 
-  while (LOCAL_tokptr && LOCAL_tokptr->Tok == Ord(Comment_tok)) {
-
+   while (LOCAL_tokptr && LOCAL_tokptr->Tok == Ord(Comment_tok)) {
+    comms = add_comment(fe,comms, LOCAL_tokptr->TokInfo);
     LOCAL_tokptr=LOCAL_tokptr->TokNext;
   }
    TokEntry *tokstart = LOCAL_tokptr;
+
  while (tokstart->TokNext) {
      if (tokstart->TokNext->Tok == Ord(Comment_tok)) {
+           comms = add_comment(fe,comms, tokstart->TokNext->TokInfo);
     tokstart->TokNext=tokstart->TokNext->TokNext;
   } else
      tokstart=tokstart->TokNext;
  }
+ // LOCAL_tokptr=tokstart;
+ 
      if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
     // next step
     return YAP_PARSING;
   }
-  if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokNext == NULL &&
-      LOCAL_tokptr->TokInfo != TermEof) {
-    fe->msg = ". is end-of-term?";
-    return YAP_PARSING_ERROR;
-  }
-  return scanEOF(fe, sno);
+  return scanEOF(fe, sno, tokstart);
 }
 
 

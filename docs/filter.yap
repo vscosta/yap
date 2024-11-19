@@ -1,7 +1,5 @@
 #!/home/vsc/.local/bin/yap -L --
-zero.
-
-% 
+%
 
 /** @file filter.yap
  *
@@ -10,6 +8,13 @@ zero.
  */
 
 :- use_module(library(maplist)).
+:- use_module(library(system)).
+:- use_module(library(readutil)).
+
+valid_suffix('.yap').
+valid_suffix('.pl').
+valid_suffix('.prolog').
+valid_suffix('.P').
 
 /**
  * @pred main
@@ -18,10 +23,35 @@ zero.
 */
 main :-
     unix(argv([File])),
-    open(File,read,S),
+    absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
+valid_suffix(ValidSuffix),
+sub_atom(Y,_,_,0,ValidSuffix),
+    !,
+    open(Y,read,S),
+    script(S),
     findall(O, entry(S,O), Info),
     predicates(Info, _, Preds, _),
     maplist(output,Preds).
+main :-
+    unix(argv([File])),
+    open(File,read,S),
+    read_stream_to_string(S,Text),
+    format('~s',[Text]).
+
+
+/*
+atom_concat('cat ',File,Command), 
+unix(system(Command)).
+
+
+    read_stream_to_string(S,Text),
+    format('~s',[Text]).
+*/
+script(S) :-
+peek_char(S,#),
+readutil:read_line_to_string(S,_),
+script(S).
+script(_).
 
 entry(S,O) :-
     repeat,
@@ -33,8 +63,9 @@ entry(S,O) :-
 ;
     T = ( :- Directive )
      ->
-     O = directive(Directive, Comments, Vs)
-     ;
+    dxpand(Directive), O = directive(Directive, Comments, Vs)
+    ;
+    
      T = (( Grammar --> Expansion ))
      ->
      functor(Grammar,Name,Arity),
@@ -93,6 +124,9 @@ out_comment(true,C) :-
     !.
 out_comment(_,_C).
 
+addcomm(N/0,false) :-
+!,
+    format('~n~n/** @pred ~q().  (undocumented)  **/~n',[N]).
 addcomm(N/A,false) :-
     !,
     length(L,A),
@@ -101,4 +135,13 @@ addcomm(N/A,false) :-
     format('~n~n/** @pred ~q.  (undocumented)  **/~n',[T]).
 addcomm(_,_).
 
-:- initialization(main).
+%:- initialization(main).
+
+dxpand(module(M,Gs)) :-
+    module(M,Gs).
+dxpand(op(M,Gs,Y)) :-
+    op(M,Gs,Y).
+dxpand(use_module(M,Gs)) :-
+    use_module(M,Gs).
+dxpand(use_module(M)) :-
+use_module(M).

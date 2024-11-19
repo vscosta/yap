@@ -55,14 +55,7 @@
 '$lf_option'(silent, 8, D) :-
     current_prolog_flag(verbose_load,F),
     (F==true->D=false;D=true).
-'$lf_option'(skip_unix_header, 9, Skip) :-
-    stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
-    ( Rep == true
-    ->
-	     (TTy = true   -> Skip = false ; Skip = true)
-      ;
-      Skip = false
-      ).
+'$lf_option'(skip_unix_header, 9, false).
 '$lf_option'(compilation_mode, 10, Flag) :-
 	current_prolog_flag(source, YFlag),
 	( YFlag == false -> Flag = compact ; Flag = source ).
@@ -323,7 +316,20 @@
      close(Stream),
      !.
 
-    
+  
+'$script'(_Stream,Opts) :-
+     '$memberchk'(skip_unix_header(false), Opts),
+!.
+'$script'(Stream,_Opts) :-
+     '$skip_script'(Stream).
+'$script'(_Stream,_Opts).
+
+'$skip_script'(Stream) :-
+peek_char(Stream,#),
+readutil:read_line_to_string(Stream,_),
+'$skip_script'(Stream).
+
+  
 '$load_file__'(Type,File,Stream, Y, M, Opts, Call) :-
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
     '$mk_file_opts'(TOpts) ,
@@ -383,12 +389,7 @@
     unload_file(File),
     '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts),
    	'$start_consult'(Reconsult,File,Dir,Stream,LC),
-    (
-     '$memberchk'(skip_unix_header(SkipUnixHeader), Opts)
-      ->
-       			  true ;
-      SkipUnixHeader = true
-    ),
+ '$script'(Stream,Opts),
     '$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,UserFile,Opts),
    (
 	'$memberchk'(source_module(M1),Opts)
@@ -431,7 +432,7 @@
  '$end_consult'(OldD),
  '$exec_initialization_goals'(File),
     !.
-
+   
 '$dry_loop'(Stream,_Status) :-
     repeat,
   (

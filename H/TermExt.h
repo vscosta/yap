@@ -250,9 +250,6 @@ INLINE_ONLY bool IsLongIntTerm(Term t) {
 
 #define MkStringTerm(i) __MkStringTerm((i)PASS_REGS)
 // < functor, request (size in cells ), cells, eot >
-INLINE_ONLY Term
-__MkStringTerm(const  char *s USES_REGS);
-
 INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
     Term t = AbsAppl(HR);
     size_t sz = (s[0] == '\0' ? 1 : strlen((const char *) s) + 1);
@@ -265,6 +262,7 @@ INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
     HR += 3 + request;
     return t;
 }
+
 
 #define MkUStringTerm(i) __MkStringTerm((const char *)(i)PASS_REGS)
 
@@ -288,6 +286,23 @@ INLINE_ONLY bool IsStringTerm(Term t) {
           FunctorOfTerm(t) == FunctorString;
 }
 
+
+#define AppendToStringTerm(t,s) __AppendToStringTerm(t,s PASS_REGS)
+// < functor, request (size in cells ), 
+/// This routine expands a string
+INLINE_ONLY Term __AppendToStringTerm(Term t, const char *s USES_REGS) {
+  if (RepAppl(t)+SizeOfOpaqueTerm(RepAppl(t),*RepAppl(t)) != HR)
+    t = MkStringTerm(StringOfTerm(t));
+  HR = RepAppl(t);
+  char *str0 = (char *)(HR+2);
+  strcat(str0,s);
+  size_t sz = strlen(str0)+1;
+    size_t request = (sz + CELLSIZE - 1) / CELLSIZE; // request is in cells >= 1
+    HR[1] = request;
+    HR[2 + request] = CloseExtension(HR);
+    HR += 3 + request;
+    return t;
+}
 
 /****************************************************/
 
