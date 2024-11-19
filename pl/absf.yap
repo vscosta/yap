@@ -210,6 +210,7 @@ clean_name(N0,_OPts,NF) :-
 
 
 '$cat_file_name'(A/B, NA, IA	) :-
+    
     !,
     '$cat_file_name'(A, NA, RA),
     '$cat_file_name'(B, RA, IA).

@@ -1580,7 +1580,7 @@ xarg *   args = Yap_ArgListToVector(tlist, open_defs, OPEN_END, NULL,DOMAIN_ERRO
       needs_bom = false;
     }
   }
-    bool script = false;
+    bool script = true;
     if (args[OPEN_SCRIPT].used) {
       if (IsVarTerm(args[OPEN_SCRIPT].tvalue)) {
 	Yap_ThrowError(INSTANTIATION_ERROR,Yap_MkNewApplTerm(Yap_MkFunctor(AtomAlias,1),1),NULL);
