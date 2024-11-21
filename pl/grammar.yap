@@ -292,9 +292,9 @@ prolog:!(S, S).
 
 prolog:true(S, S).
 
-prolog:[](S, S).
+prolog:'[]'(S, S).
 
-prolog:[](H, T, S0, S) :- '$append'([H|T], S, S0).
+prolog:'[]'(H, T, S0, S) :- '$append'([H|T], S, S0).
 
 prolog:'.'(H,T, S0, S) :-
 	'$append'([H|T], S, S0).
@@ -312,7 +312,7 @@ prolog:';'(A,B) -->
     call(B).
 
 
-prolog:('|'(A,B, S0, S)) :-
+gprolog:('|'(A,B, S0, S)) :-
 	 t_body((A|B), _, last, S0, S, Goal),
 	 '$execute'(Goal).
 

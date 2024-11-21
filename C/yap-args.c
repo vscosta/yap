@@ -17,6 +17,7 @@
 /* static char SccsId[] = "X 4.3.3"; */
 #include "Yap.h"
 #include "YapError.h"
+#include "YapFlags.h"
 #include "YapHeap.h"
 #include "YapInterface.h"
 #include "YapStreams.h"
@@ -1212,8 +1213,9 @@ GLOBAL_VFS = NULL;
     CurrentModule = PROLOG_MODULE;
 
   if (yap_init->QuietMode) {
-    setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG,
-			      false);
+      setAtomicLocalPrologFlag(VERBOSE_FLAG, MkAtomTerm(Yap_LookupAtom("silent")));
+
+      
    }
   if (yap_init->PrologRCFile != NULL) {
     /*
@@ -1259,7 +1261,7 @@ GLOBAL_VFS = NULL;
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
   } else {
     if (yap_init->QuietMode) {
-      setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, false);
+      setAtomicLocalPrologFlag(VERBOSE_FLAG, MkAtomTerm(Yap_LookupAtom("silent")));
       setBooleanLocalPrologFlag(COMPILING_FLAG, true);
     }
     __android_log_print(

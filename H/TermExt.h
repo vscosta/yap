@@ -304,6 +304,24 @@ INLINE_ONLY Term __AppendToStringTerm(Term t, const char *s USES_REGS) {
     return t;
 }
 
+
+#define GrowStringTerm(t,sz) __GrowStringTerm(t,sz PASS_REGS)
+// < functor, request (size in cells ), 
+/// This routine expands a string
+INLINE_ONLY Term __GrowStringTerm(Term t, size_t sz USES_REGS) {
+  if (RepAppl(t)+SizeOfOpaqueTerm(RepAppl(t),*RepAppl(t)) != HR)
+    t = MkStringTerm(StringOfTerm(t));
+  HR = RepAppl(t);
+  char *str0 = (char *)(HR+2);
+  size_t sz0= strlen(str0);
+    size_t request = (sz0+sz+CELLSIZE - 1) / CELLSIZE; // request is in cells >= 1
+    HR[1] = request;
+    HR[2 + request] = CloseExtension(HR);
+    HR += 3 + request;
+    return t;
+}
+
+
 /****************************************************/
 
 #ifdef USE_GMP

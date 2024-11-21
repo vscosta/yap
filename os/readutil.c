@@ -14,6 +14,10 @@
 * comments:	readutil library support				 *
 *									 *
 *************************************************************************/
+
+#include "Yap.h"
+#include "YapError.h"
+#include "YapTags.h"
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -25,6 +29,15 @@ static char SccsId[] = "%W% %G%";
 #include "YapEncoding.h"
 #include "iopreds.h"
 #include "yapio.h"
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 
 /**
 * @defgroup readutil Reading Lines and Files
@@ -281,47 +294,46 @@ static Int read_stream_to_codes(USES_REGS1) {
 }
 
 /**
-   @pred read_stream_to_codes( +_Stream_, -Codes, ?_Tail_)
+   @pred read_stream_to_string( +_Stream_, -Codes)
 
    If _Stream_ is a readable text stream, unify _String_ with
-   the difference list  storing the codes forming the first line of the stream.
+   the contents of the stream.
 
      If the stream is exhausted, unify _Codes_ with `end_of_file`.
  */
 static Int read_stream_to_string(USES_REGS1) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f,
                             "reaMkAtomTerm (AtomEofd_line_to_codes/2");
-  CELL *h0 =HR;
-  char buf[4096], *b = buf;
+ size_t sz=4096;
+  char *buf =malloc(sz), *b = buf;
 
-  Term t = MkStringTerm("");
+  Term t;
   if (sno < 0)
-    return FALSE;
-  while (true) {
-    /* skip errors */
+    return false;
+  while (!(GLOBAL_Stream[sno].status & Past_Eof_Stream_f)) {
     Int ch = GLOBAL_Stream[sno].stream_getc(sno);
-    if (ch == EOFCHAR)
+    if (ch == EOF)
       break;
     *b++ = ch;
-    if (buf-b==4095) {
-      b[0]='\0';
-      t=  AppendToStringTerm(t,buf);
-      if (HR > ASP - 1024) {
-	HR = h0;
-      if (!Yap_dogc(PASS_REGS1)) {
+    if (b-buf==sz-1) {
+       size_t n=b-buf;
+      sz+=4096;
+      buf = realloc(buf,sz);
+      b=buf+n;
+            /* build a legal term again */
+  }
+  }
+    b[0]='\0';
+    if (HR > ASP - (sz/sizeof(CELL)+4096)) {
+     if (!Yap_dogc(PASS_REGS1)) {
         Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_stream_to_codes/3");
         return false;
       }
-      h0 = HR;
-      t = MkStringTerm("");
     }
-      b=buf;
-      /* build a legal term again */
-    }
-  }
-    b[0]='\0';
     if (b!=buf)
-    AppendToStringTerm(t,buf);
+      t=MkStringTerm(buf);
+    if (buf)
+    free(buf);
   return Yap_unify(t, ARG2);
 }
 
@@ -372,6 +384,48 @@ static Int read_stream_to_terms(USES_REGS1) {
 }
 
 
+/**
+   @pred read_file_to_string( +_Stream_, -Codes)
+
+   If _Stream_ is a file text stream, unify _String_ with
+   the contents of the stream.
+
+ */
+static Int read_file_to_string(USES_REGS1) {
+ char *s;
+ must_be_atom(Deref(ARG1));
+  s  = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
+ 
+  int fildes  = open(s,O_RDONLY);
+  if (fildes<0) {
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "error %s while opening %s", strerror(errno), s);
+  }
+  struct stat buf;
+  if (fstat(fildes, &buf) < 0) {
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "error %s while opening %s", strerror(errno), s); 
+}
+  size_t sz = buf.st_size;
+  while (HR > ASP - (sz/sizeof(CELL)+4096)) {
+     if (!Yap_dogc(PASS_REGS1)) {
+        Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_stream_to_codes/3");
+        return false;
+      }
+    }
+  Term t = MkStringTerm("");
+  if (sz) {
+    GrowStringTerm(t, sz);
+    s = (char*)StringOfTerm(t);
+    if (read(fildes,s, sz) < 0) {
+      Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "error %s while opening %s", strerror(errno), s); 
+    }
+    s[sz]='\0';
+  }
+    return Yap_unify(ARG2,t);
+}
+
+
+
+
 void Yap_InitReadUtil(void) {
   CACHE_REGS
 
@@ -384,8 +438,10 @@ void Yap_InitReadUtil(void) {
   Yap_InitCPred("read_line_to_chars", 2, read_line_to_chars2, SyncPredFlag);
   Yap_InitCPred("read_stream_to_codes", 3, read_stream_to_codes, SyncPredFlag);
   Yap_InitCPred("read_stream_to_terms", 3, read_stream_to_terms, SyncPredFlag);
+  Yap_InitCPred("read_file_to_string", 2, read_file_to_string, SyncPredFlag);
   Yap_InitCPred("read_stream_to_string", 2, read_stream_to_string, SyncPredFlag);
   CurrentModule = cm;
 }
 
 /// @}
+  

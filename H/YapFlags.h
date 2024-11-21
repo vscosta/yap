@@ -258,7 +258,7 @@ static inline Term getAtomicLocalPrologFlag__(int id USES_REGS) {
   return LOCAL_Flags[id].at;
 }
 
-#define setAtomicLocalPrologFlag(id,v) setAtomicLocalPrologFlag__( id, v PASS_REGs)
+#define setAtomicLocalPrologFlag(id,v) setAtomicLocalPrologFlag__( id, v PASS_REGS)
 static inline void setAtomicLocalPrologFlag__(int id, Term v USES_REGS) {
   check_refs_to_ltable();
   LOCAL_Flags[id].at = v;

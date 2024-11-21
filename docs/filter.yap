@@ -1,11 +1,13 @@
 #!/home/vsc/.local/bin/yap -L --
-%
 
 /** @file filter.yap
  *
  * This filter extends doxygen with YAP documentation support.
  *
  */
+
+
+:- dynamic exported/2.
 
 :- use_module(library(maplist)).
 :- use_module(library(system)).
@@ -27,17 +29,22 @@ main :-
 valid_suffix(ValidSuffix),
 sub_atom(Y,_,_,0,ValidSuffix),
     !,
-    open(Y,read,S),
+      file_directory_name(File, Dir),
+    working_directory(OldD,Dir),
+  open(Y,read,S),
     script(S),
     findall(O, entry(S,O), Info),
     predicates(Info, _, Preds, _),
-    maplist(output,Preds).
+    maplist(output,Preds),
+    working_directory(_,OldD),
+halt.
 main :-
-    unix(argv([File])),
-    open(File,read,S),
-    read_stream_to_string(S,Text),
-    format('~s',[Text]).
-
+halt. 
+/*    unix(argv([File])),
+    read_file_to_string(File,Text),
+    format('~s',[Text]),
+halt.
+*/
 
 /*
 atom_concat('cat ',File,Command), 
@@ -81,9 +88,9 @@ entry(S,O) :-
      ).
 
 %% initial directive
-predicates([H|_],_,_,_) :-
-    writeln(H),
-    fail.
+% predicates([H|_],_,_,_) :-
+%     writeln(H),
+%     fail.
 predicates([],_,[],[]).
 predicates([directive(Directive,Comments,Vs)|More],Ctx,
 	   [command([comments(Comments),  body(Directive, Vs,Ctx),[]])|Preds], L0) :-
@@ -125,23 +132,29 @@ out_comment(true,C) :-
 out_comment(_,_C).
 
 addcomm(N/0,false) :-
+exported(N,0),
 !,
-    format('~n~n/** @pred ~q().  (undocumented)  **/~n',[N]).
+    format('~n~n/** @pred Predicate~q().  (undocumented)  **/~n',[N]).
 addcomm(N/A,false) :-
+exported(N,A),
     !,
     length(L,A),
     maplist(=('?'),L),
     T =.. [N|L],
-    format('~n~n/** @pred ~q.  (undocumented)  **/~n',[T]).
+    format('~n~n/** @pred Predicate~q.  (undocumented)  **/~n',[T]).
 addcomm(_,_).
 
-%:- initialization(main).
+:- initialization(main).
 
 dxpand(module(M,Gs)) :-
-    module(M,Gs).
+    module(M),
+maplist(dxpand,Gs).
 dxpand(op(M,Gs,Y)) :-
     op(M,Gs,Y).
 dxpand(use_module(M,Gs)) :-
-    use_module(M,Gs).
+    (:-use_module(M,Gs)).
 dxpand(use_module(M)) :-
 use_module(M).
+dxpand(A/B) :-assert(exported(A,B)).
+dxpand(A//B):- B2 is B+2, assert(exported(A,B2)) .
+

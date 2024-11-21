@@ -244,6 +244,7 @@ qend_program :-
 	X \= user_input,
 	X \= user_output,
 	X \= user_error,
+	X \= verbose,
 	X \= verbose_load,
 	current_prolog_flag(X, V),
 	fail.
