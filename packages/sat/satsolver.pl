@@ -2,30 +2,30 @@
     @brief Prolog interface to SAT solver
 */
 
-/**
-@defgroup SAT
-@ingroup  YAPPackages
-@brief Calling a SAT solver from Prolog
-@{
+    /**
+    @defgroup SAT
+    @ingroup  YAPPackages
+    @brief Calling a SAT solver from Prolog
+    @{
 
-There are four SAT solver modules available:
-    CryptoMinisat     (cryptominisat)
-    Minisat 2.0.2          (minisat)
-    Glucose 2.2            (glucose)
-    Glucose 4.0            (glucose4)
+	There are four SAT solver modules available:
+	CryptoMinisat     (cryptominisat)
+	    Minisat 2.0.2          (minisat)
+	    Glucose 2.2            (glucose)
+	    Glucose 4.0            (glucose4)
 
-Glucose 2.2 is the default SAT solver.
+	    Glucose 2.2 is the default SAT solver.
 
-To change the default SAT solver, the user should use:
-   :- nb_setval(satSolver_module,<New Value>).
-before loading 'satsolver' module.
+	    To change the default SAT solver, the user should use:
+	    :- nb_setval(satSolver_module,<New Value>).
+	    before loading 'satsolver' module.
 
-For example:
-   :- module(myApp, [...]).
-   :- nb_setval(satSolver_module, glucose4).
-   :- use_module('satsolver',[sat/1]).
+	    For example:
+	    :- module(myApp, [...]).
+	    :- nb_setval(satSolver_module, glucose4).
+	    :- use_module('satsolver',[sat/1]).
 
-*/
+	    */
 
 :- module(satsolver,[
                         sat/3,          sat/1,
@@ -33,42 +33,42 @@ For example:
                         satMaxUnary/4,  satMaxUnary/2,
                         satMinUnary/4,  satMinUnary/2,
                         satMinBinary/4, satMinBinary/2 %%% Binary is MSB first
-                       ]).
+    ]).
 
-:- create_prolog_flag(sat_solver, glucose4, [type(atom), access(read_write), keep(true)]).
+    :- create_prolog_flag(sat_solver, glucose4, [type(atom), access(read_write), keep(true)]).
 
-satSolverLibrary(minisat,'MINISAT'):-!.
-satSolverLibrary(glucose,'GLUCOSE'):-!.
-satSolverLibrary(glucose4,'GLUCOSE4'):-!.
-satSolverLibrary(cryptominisat,'CRYPTOMINISAT'):-!.
-satSolverLibrary(Value,_):-!, throw(error(domain_error(satSolver_module,Value),satSolverLibrary(Value,_))).
+    satSolverLibrary(minisat,'MINISAT'):-!.
+    satSolverLibrary(glucose,'GLUCOSE'):-!.
+    satSolverLibrary(glucose4,'GLUCOSE4'):-!.
+    satSolverLibrary(cryptominisat,'CRYPTOMINISAT'):-!.
+    satSolverLibrary(Value,_):-!, throw(error(domain_error(satSolver_module,Value),satSolverLibrary(Value,_))).
+    
 
 
-
-% find which SAT solver to use 
-:- prolog_flag(sat_solver, Value),
-   % translate value to library name
+    % find which SAT solver to use 
+    :- current_prolog_flag(sat_solver, Value),
+    % translate value to library name
     satSolverLibrary(Value,SATsolver),
     % add predicate (used later in this code)
     !,
-      % load SAT solver
+    % load SAT solver
     load_foreign_files([],[SATsolver]
 		       ,install).
 
 
 
 
-% load SAT solver
-%:- useSatSolver(SATsolver), load_foreign_library(SATsolver,install).
+    % load SAT solver
+    %:- useSatSolver(SATsolver), load_foreign_library(SATsolver,install).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Solve CNF                        %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-/**
- * sat(+CNf)
- * call a sat solver on the conjunctive normal formula _CNF_
- *
- */
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Solve CNF                        %%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    /**
+    * sat(+CNf)
+    * call a sat solver on the conjunctive normal formula _CNF_
+    *
+    */
 sat(CNF):-
     sat(CNF,Solved,_),!,
    Solved=1.
@@ -168,215 +168,215 @@ assignAllCloseList([[]|L]):-assignAllCloseList(L).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Minimize / Maximize unary number %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-satMinUnary(CNF,Unary):-
+    satMinUnary(CNF,Unary):-
     satMinUnary(CNF,Unary,Solved,_RunTime),!,
     Solved=1.
 
-satMaxUnary(CNF,Unary):-
+    satMaxUnary(CNF,Unary):-
     satMaxUnary(CNF,Unary,Solved,_RunTime),!,
     Solved=1.
 
-satMinUnary(CNF,Unary,Solved,RunTime):-
-     reverseNot(Unary,RNUnary),
-     satMaxUnary(CNF,RNUnary,Solved,RunTime).
+    satMinUnary(CNF,Unary,Solved,RunTime):-
+    reverseNot(Unary,RNUnary),
+    satMaxUnary(CNF,RNUnary,Solved,RunTime).
 
-satMaxUnary(CNF,Unary,Solved,Time):-
-     statistics(cputime,[_,StartTime]),
-     solver_new_solver,
-%     solver_add_clause([1]),
-     (addCnf2Solver(CNF,Unary,FVars,MaxLits) ->
-          (solver_solve ->
-               solver_get_model(Model),
-               satMaxUnaryLoop(MaxLits,Model,FVars),
-               Solved = 1
-          ;
-               Solved = 0
-          )
+    satMaxUnary(CNF,Unary,Solved,Time):-
+    statistics(cputime,[_,StartTime]),
+    solver_new_solver,
+    %     solver_add_clause([1]),
+    (addCnf2Solver(CNF,Unary,FVars,MaxLits) ->
+     (solver_solve ->
+      solver_get_model(Model),
+      satMaxUnaryLoop(MaxLits,Model,FVars),
+      Solved = 1
+      ;
+      Solved = 0
+     )
      ;
-          Solved=0
-     ),
-     solver_delete_solver,
-     statistics(cputime,[_,EndTime]),!,
-     Time is EndTime-StartTime.
+     Solved=0
+    ),
+    solver_delete_solver,
+    statistics(cputime,[_,EndTime]),!,
+    Time is EndTime-StartTime.
 
 
-satMaxUnaryLoop(MaxLits,Model,FVars):-!,
-     ((nextMaxUnaryValue(MaxLits,NewMaxLits), solver_solve) ->
-         solver_get_model(NewModel),
-         satMaxUnaryLoop(NewMaxLits,NewModel,FVars)
+    satMaxUnaryLoop(MaxLits,Model,FVars):-!,
+    ((nextMaxUnaryValue(MaxLits,NewMaxLits), solver_solve) ->
+     solver_get_model(NewModel),
+     satMaxUnaryLoop(NewMaxLits,NewModel,FVars)
      ;
-         assign_model(FVars,Model)
-     ).
+     assign_model(FVars,Model)
+    ).
 
-nextMaxUnaryValue([X|MaxLits],NewMinLits):-!,
+    nextMaxUnaryValue([X|MaxLits],NewMinLits):-!,
     I is abs(X),
     solver_get_var_assignment(I,Ival),
     TorF is sign(X)*sign(Ival),
     (TorF == 1 ->
-         nextMaxUnaryValue(MaxLits,NewMinLits)
-    ;
-         %add_cnf_clauses([[X]]),
-         NewMinLits=MaxLits
+     nextMaxUnaryValue(MaxLits,NewMinLits)
+     ;
+     %add_cnf_clauses([[X]]),
+     NewMinLits=MaxLits
     ).
-nextMaxUnaryValue([],[]):-!,fail.
+    nextMaxUnaryValue([],[]):-!,fail.
 
 
-reverseNot(Xs,Ys):-
-   reverseNot(Xs,[],Ys).
-reverseNot([X|Xs],RNXs,Ys):-!,
-   reverseNot(Xs,[-X|RNXs],Ys).
-reverseNot([],Ys,Ys):-!.
+    reverseNot(Xs,Ys):-
+    reverseNot(Xs,[],Ys).
+    reverseNot([X|Xs],RNXs,Ys):-!,
+    reverseNot(Xs,[-X|RNXs],Ys).
+    reverseNot([],Ys,Ys):-!.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% Minimize Binary number           %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Minimize Binary number           %%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-satMinBinary(CNF,Binary):-
-   satMinBinary(CNF,Binary,1,_).
+    satMinBinary(CNF,Binary):-
+    satMinBinary(CNF,Binary,1,_).
 
-% Binary MSB first
-satMinBinary(CNF,Binary,Solved,Time):-
-     statistics(cputime,[_,StartTime]),
-     solver_new_solver,
-%     solver_add_clause([1]),
-     (addCnf2Solver(CNF,Binary,FVars,MinLits) ->
-          (solver_solve ->
-               solver_get_model(Model),
-               satMinBinaryLoop(MinLits,Model,FVars),
-               Solved = 1
-          ;
-               Solved = 0
-          )
+    % Binary MSB first
+    satMinBinary(CNF,Binary,Solved,Time):-
+    statistics(cputime,[_,StartTime]),
+    solver_new_solver,
+    %     solver_add_clause([1]),
+    (addCnf2Solver(CNF,Binary,FVars,MinLits) ->
+     (solver_solve ->
+      solver_get_model(Model),
+      satMinBinaryLoop(MinLits,Model,FVars),
+      Solved = 1
+      ;
+      Solved = 0
+     )
      ;
-          Solved=0
-     ),
-     solver_delete_solver,
-     statistics(cputime,[_,EndTime]),!,
-     Time is EndTime-StartTime.
+     Solved=0
+    ),
+    solver_delete_solver,
+    statistics(cputime,[_,EndTime]),!,
+    Time is EndTime-StartTime.
 
 
-satMinBinaryLoop(MinLits,Model,FVars):-!,
-     ((nextMinBinaryValue(MinLits,NewMinLits), solver_solve) ->
-         solver_get_model(NewModel),
-         satMinBinaryLoop(NewMinLits,NewModel,FVars)
+    satMinBinaryLoop(MinLits,Model,FVars):-!,
+    ((nextMinBinaryValue(MinLits,NewMinLits), solver_solve) ->
+     solver_get_model(NewModel),
+     satMinBinaryLoop(NewMinLits,NewModel,FVars)
      ;
-         assign_model([1|FVars],Model)
-     ).
+     assign_model([1|FVars],Model)
+    ).
 
-nextMinBinaryValue([X|MinLits],NewMinLits):-!,
+    nextMinBinaryValue([X|MinLits],NewMinLits):-!,
     I is abs(X),
     solver_get_var_assignment(I,Ival),
     TorF is sign(X)*sign(Ival),
     (TorF == 1 ->
-         getGroundBinary(MinLits,GroundBin),
-         groundVecGreatThanVec([1|GroundBin],[X|MinLits],Cnf),
-         add_cnf_clauses(Cnf),
-         NewMinLits=[X|MinLits]
-    ;
-         add_cnf_clauses([[-X]]),
-         nextMinBinaryValue(MinLits,NewMinLits)
+     getGroundBinary(MinLits,GroundBin),
+     groundVecGreatThanVec([1|GroundBin],[X|MinLits],Cnf),
+     add_cnf_clauses(Cnf),
+     NewMinLits=[X|MinLits]
+     ;
+     add_cnf_clauses([[-X]]),
+     nextMinBinaryValue(MinLits,NewMinLits)
     ).
-nextMinBinaryValue([],[]):-!,fail.
+    nextMinBinaryValue([],[]):-!,fail.
 
 
-getGroundBinary([X|Lits],[TorF|Vals]):-!,
+    getGroundBinary([X|Lits],[TorF|Vals]):-!,
     I is abs(X),
     solver_get_var_assignment(I,Ival),
     TorF is sign(X)*sign(Ival),
     getGroundBinary(Lits,Vals).
-getGroundBinary([],[]):-!.
+    getGroundBinary([],[]):-!.
 
-% GroundVec > Vec
-% Vec = binary number MSB first
-groundVecGreatThanVec([X|GroundVec],[Y|Vec],[[-Y]|Cnf]):-
+    % GroundVec > Vec
+    % Vec = binary number MSB first
+    groundVecGreatThanVec([X|GroundVec],[Y|Vec],[[-Y]|Cnf]):-
     X=:= -1,!,
     groundVecGreatThanVec(GroundVec,Vec,Cnf).
-groundVecGreatThanVec([_X|GroundVec],[Y|Vec],Cnf):-!,
+    groundVecGreatThanVec([_X|GroundVec],[Y|Vec],Cnf):-!,
     findLastOne(GroundVec,2,1,Last),
     groundVecGreatThanVec(GroundVec,Vec,2,Last,[-Y],Cnf).
 
 
-findLastOne([X|GroundVec],Indx,LastSeen,Last):-
+    findLastOne([X|GroundVec],Indx,LastSeen,Last):-
     Indx1 is Indx + 1,
     (X =:= 1 ->
-         findLastOne(GroundVec,Indx1,Indx,Last)
-    ;
-         findLastOne(GroundVec,Indx1,LastSeen,Last)
+     findLastOne(GroundVec,Indx1,Indx,Last)
+     ;
+     findLastOne(GroundVec,Indx1,LastSeen,Last)
     ).
-findLastOne([],_,LastSeen,LastSeen):-!.
+    findLastOne([],_,LastSeen,LastSeen):-!.
 
 
-groundVecGreatThanVec([Xi|GroundVec],[Yi|Vec],I,Last,Clause,Cnf):-
+    groundVecGreatThanVec([Xi|GroundVec],[Yi|Vec],I,Last,Clause,Cnf):-
     I1 is I + 1,
     (Xi=:= -1 ->
-       Cnf=[[-Yi|Clause]|MCnf],
-       groundVecGreatThanVec(GroundVec,Vec,I1,Last,[Yi|Clause],MCnf)
-    ;
-           (I<Last ->
-           groundVecGreatThanVec(GroundVec,Vec,I1,Last,[-Yi|Clause],Cnf)
-       ;
-           Cnf=[[-Yi|Clause]]
-       )
-    ).
-groundVecGreatThanVec([],[],_I,_Last,Clause,[Clause]):-!.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% General Aux Predicates           %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-:-dynamic(keptLiterals/1).
-keptLiterals([]).
-
-
-addCnf2Solver(Cnf,FVars):-
-        term_variables(Cnf,FVars),!,
-        \+ \+ ( bind2index(FVars,1,_FN), add_cnf_clauses(Cnf)).
-
-
-addCnf2Solver(Cnf,RememberVars,FVars,DimacsVars):-
-        term_variables([Cnf|RememberVars],FVars),!,
-        \+ \+ ( bind2index(FVars,1,FN), add_cnf_clauses(Cnf), add_cnf_clauses([[FN,-FN]]), keepLiterals(RememberVars),!),
-        keptLiterals(DimacsVars),
-        keepLiterals([]),!.
-
-keepLiterals(KeepLiterals):-
-     retractall(satsolver:keptLiterals(_)),
-     asserta(satsolver:keptLiterals(KeepLiterals)),!.
-
-:- if(prolog_flag(sat_solver,cryptominisat)).
-add_cnf_clauses([Cl|Cls]):-!,
-     (Cl=[x|RCl] ->
-        to_solver(RCl,SolverCl),
-        solver_add_xorclause(SolverCl)
+     Cnf=[[-Yi|Clause]|MCnf],
+     groundVecGreatThanVec(GroundVec,Vec,I1,Last,[Yi|Clause],MCnf)
      ;
-        to_solver(Cl,SolverCl),
-        solver_add_clause(SolverCl)
-     ),
-     add_cnf_clauses(Cls).
-add_cnf_clauses([]):-!.
-:- else.
-add_cnf_clauses([Cl|Cls]):-!,
-     to_solver(Cl,SolverCl),
-     solver_add_clause(SolverCl),
-%%%%%     maplist(w,SolverCl),writeln(0),
-     add_cnf_clauses(Cls).
-add_cnf_clauses([]):-!.
-:- endif.
+     (I<Last ->
+      groundVecGreatThanVec(GroundVec,Vec,I1,Last,[-Yi|Clause],Cnf)
+      ;
+      Cnf=[[-Yi|Clause]]
+     )
+    ).
+    groundVecGreatThanVec([],[],_I,_Last,Clause,[Clause]):-!.
 
-w(I) :- write(I), write(' ').
-		      
-to_solver([L|Ls],[N|Ns]) :-!,
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% General Aux Predicates           %%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    :-dynamic(keptLiterals/1).
+    keptLiterals([]).
+
+
+    addCnf2Solver(Cnf,FVars):-
+    term_variables(Cnf,FVars),!,
+    \+ \+ ( bind2index(FVars,1,_FN), add_cnf_clauses(Cnf)).
+
+
+    addCnf2Solver(Cnf,RememberVars,FVars,DimacsVars):-
+    term_variables([Cnf|RememberVars],FVars),!,
+    \+ \+ ( bind2index(FVars,1,FN), add_cnf_clauses(Cnf), add_cnf_clauses([[FN,-FN]]), keepLiterals(RememberVars),!),
+    keptLiterals(DimacsVars),
+    keepLiterals([]),!.
+
+    keepLiterals(KeepLiterals):-
+    retractall(satsolver:keptLiterals(_)),
+    asserta(satsolver:keptLiterals(KeepLiterals)),!.
+
+    :- if(current_prolog_flag(sat_solver,cryptominisat)).
+    add_cnf_clauses([Cl|Cls]):-!,
+    (Cl=[x|RCl] ->
+     to_solver(RCl,SolverCl),
+     solver_add_xorclause(SolverCl)
+     ;
+     to_solver(Cl,SolverCl),
+     solver_add_clause(SolverCl)
+    ),
+    add_cnf_clauses(Cls).
+    add_cnf_clauses([]):-!.
+    :- else.
+    add_cnf_clauses([Cl|Cls]):-!,
+    to_solver(Cl,SolverCl),
+    solver_add_clause(SolverCl),
+    %%%%%     maplist(w,SolverCl),writeln(0),
+    add_cnf_clauses(Cls).
+    add_cnf_clauses([]):-!.
+    :- endif.
+
+    w(I) :- write(I), write(' ').
+    
+    to_solver([L|Ls],[N|Ns]) :-!,
     N is L,
     to_solver(Ls,Ns).
-to_solver([],[]):-!.
+    to_solver([],[]):-!.
 
-bind2index([N|Ns],N,FN) :- N1 is N+1, bind2index(Ns,N1,FN).
-bind2index([],N,FN):-!, FN is N - 1.
+    bind2index([N|Ns],N,FN) :- N1 is N+1, bind2index(Ns,N1,FN).
+    bind2index([],N,FN):-!, FN is N - 1.
 
-assign_model([],_).
-assign_model([V|Vs],[N|Ns]) :- ( N<0 -> V= -1 ; V=1), assign_model(Vs,Ns).
+    assign_model([],_).
+    assign_model([V|Vs],[N|Ns]) :- ( N<0 -> V= -1 ; V=1), assign_model(Vs,Ns).
 
-%% @}
+    %% @}

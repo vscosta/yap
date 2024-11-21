@@ -22,14 +22,14 @@ main :-
     writeln(Out).
 main.
 
-out(N,-H,I,I1,L,L) :-
+out(40,-H,I,I1,L,L) :-
     !,
     I1 is (I+1) mod N.
 out(N,H,I,I1,[H-I],L,L) :-
     !,
     I1 is (I+1) mod N.
 
-queens(N, LQueens) :-
+queens(N, ens) :-
     time(queens(N,LQueens,_)).
 
 
@@ -38,15 +38,9 @@ queens(N, LQueens, F) :-
     LQueens <== Queens.list(),
 		       queens(N, _, Queens, F, []),
 		       %length(F,NF),
-%% 		       length(LQueens,NQ),
-%% 		       tell(o),
-%% 		       format('p cnf ~d ~d~n',[NQ,NF]),
-%% 		       (foldl(inc,LQueens,1,_),member(C,F),maplist(wb,C),writeln(0),fail;true),
-%% 		       told,
-%% %		       formula(F,RF),
 		       ( sat(F)
 		       ->
-		       ( verify(Queens,N) -> writeln(ok);writeln(bad))
+		       true  % ( verify(Queens,N) -> writeln(ok);writeln(bad))
 		       ;
 		       writeln(no_solution)
 		       ).
