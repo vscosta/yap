@@ -324,17 +324,14 @@ static Int read_stream_to_string(USES_REGS1) {
   }
   }
     b[0]='\0';
-    if (HR > ASP - (sz/sizeof(CELL)+4096)) {
+    while (HR > ASP - (sz/sizeof(CELL)+4096)) {
      if (!Yap_dogc(PASS_REGS1)) {
         Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_stream_to_codes/3");
         return false;
-      }
+     }
     }
-    if (b!=buf)
-      t=MkStringTerm(buf);
-    if (buf)
-    free(buf);
-  return Yap_unify(t, ARG2);
+    t = MkStringTerm(buf);
+    return Yap_unify(t, ARG2);
 }
 
 

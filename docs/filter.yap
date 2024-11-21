@@ -65,8 +65,7 @@ entry(S,O) :-
     read_clause(S,T,[comments(Comments),variable_names(Vs)]),
      (
      T == end_of_file
-     ->
- !
+     -> !
 ;
     T = ( :- Directive )
      ->
