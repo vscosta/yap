@@ -452,10 +452,13 @@ eval1(Int fi, Term t USES_REGS)
   case op_log:
     {
       Float dbl = get_float(t);
-      if (dbl > 0 || !!isoLanguageFlag()) {
+      if (dbl > 0) {
 	RFLOAT(log(dbl));
       } else if (dbl==0.0) {
-	  Yap_ThrowError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer (%f)");
+	if ( isoLanguageFlag())
+	  Yap_ThrowError(EVALUATION_ERROR_FLOAT_OVERFLOW, t, "integer (%f)");
+	else
+	RFLOAT(log(dbl));	  
       } else {
 	  Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "log(%f)", dbl);
       }
@@ -463,10 +466,15 @@ eval1(Int fi, Term t USES_REGS)
   case op_log10:
     {
       Float dbl = get_float(t);
-      if (dbl >= 0) {
+      if (dbl > 0)  {
 	RFLOAT(log10(dbl));
+      } else if (dbl==0.0) {
+	if ( isoLanguageFlag())
+	  Yap_ThrowError(EVALUATION_ERROR_FLOAT_OVERFLOW, t, "integer (%f)");
+	else
+	RFLOAT(log10(dbl));	  
       } else {
-	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "log10(%f)", dbl);
+	  Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "log(%f)", dbl);
       }
     }
   case op_sqrt:
