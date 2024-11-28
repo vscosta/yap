@@ -537,8 +537,12 @@ static Int char_type_punct(USES_REGS1) {
 */
 static Int char_type_space(USES_REGS1) {
   int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k >= QT && k <= BK;
+  if (ch < 256 && ch!='\n') {
+    char_kind_t k = Yap_chtype[ch];
+    return k == BS;
+  }
+  utf8proc_category_t ct = utf8proc_category(ch);
+  return ct == UTF8PROC_CATEGORY_ZS;
 }
 
 /** @pred  char_type_end_of_file( Char )
@@ -793,7 +797,7 @@ static Int code_type_punct(USES_REGS1) {
 */
 static Int code_type_space(USES_REGS1) {
   int ch = get_code(ARG1);
-  if (ch < 256) {
+  if (ch < 256 && ch!='\n') {
     char_kind_t k = Yap_chtype[ch];
     return k == BS;
   }
