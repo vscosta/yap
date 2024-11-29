@@ -7,8 +7,9 @@
  */
 
 
-:- dynamic exported/2.
+:- dynamic exported/2, defines_module/1.
 
+:- use_module(library(lists)).
 :- use_module(library(maplist)).
 :- use_module(library(system)).
 :- use_module(library(readutil)).
@@ -23,23 +24,26 @@ valid_suffix('.P').
  *
  * Call the filter.
 */
+
 main :-
     unix(argv([File])),
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
-valid_suffix(ValidSuffix),
-sub_atom(Y,_,_,0,ValidSuffix),
+    valid_suffix(ValidSuffix),
+    sub_atom(Y,_,_,0,ValidSuffix),
     !,
-      file_directory_name(File, Dir),
+    file_directory_name(File, Dir),
     working_directory(OldD,Dir),
-  open(Y,read,S),
+    open(Y,read,S),
     script(S),
     findall(O, entry(S,O), Info),
     predicates(Info, _, Preds, _),
+    insert_module_header,
     maplist(output,Preds),
     working_directory(_,OldD),
-halt.
+    insert_module_tail,
+    halt.
 main :-
-halt. 
+    halt.
 /*    unix(argv([File])),
     read_file_to_string(File,Text),
     format('~s',[Text]),
@@ -47,44 +51,55 @@ halt.
 */
 
 /*
-atom_concat('cat ',File,Command), 
+atom_concat('cat ',File,Command),
 unix(system(Command)).
 
 
     read_stream_to_string(S,Text),
     format('~s',[Text]).
 */
+
+%%
+%% @pred script(+S)
+%%
 script(S) :-
-peek_char(S,#),
-readutil:read_line_to_string(S,_),
-script(S).
+    peek_char(S,'#'),
+    !,
+    read_line_to_string(S,_),
+    script(S).
 script(_).
 
+/**
+ * @pred entry(+Stream, -Units).
+ * Obtain text units
+ */
 entry(S,O) :-
     repeat,
     read_clause(S,T,[comments(Comments),variable_names(Vs)]),
-     (
-     T == end_of_file
-     -> !
-;
-    T = ( :- Directive )
-     ->
-    dxpand(Directive), O = directive(Directive, Comments, Vs)
-    ;
-    
-     T = (( Grammar --> Expansion ))
-     ->
-     functor(Grammar,Name,Arity),
-     A is Arity+2,
-     O = clause(Name/A, Grammar, Expansion, Comments, Vs)
-     ;
-     T = (( Head :- Body ))
-     ->
-     functor(Head,Name,Arity),
-     O = clause(Name/Arity,Head,Body,Comments,Vs)
-     ;
-     O=clause(Name/Arity,Head,true,Comments,Vs)
-     ).
+    (
+      T == end_of_file
+      ->
+      !
+      ;
+      T = ( :- Directive )
+      ->
+      dxpand(Directive),
+      O = directive(Directive, Comments, Vs)
+      ;
+
+      T = (( Grammar --> Expansion ))
+      ->
+      functor(Grammar,Name,Arity),
+      A is Arity+2,
+      O = clause(Name/A, Grammar, Expansion, Comments, Vs)
+      ;
+      T = (( Head :- Body ))
+      ->
+      functor(Head,Name,Arity),
+      O = clause(Name/Arity,Head,Body,Comments,Vs)
+      ;
+      O=clause(Name/Arity,Head,true,Comments,Vs)
+    ).
 
 %% initial directive
 % predicates([H|_],_,_,_) :-
@@ -103,6 +118,7 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],Ctx,
     predicates(More,N/A,Preds,L0).
 % new predicate
 predicates([clause(N/A,Head,Body,Comments,Vs)|More],[],
+
 	   [predicate(N/A,[comments(Comments), head_body(Head, Body, Vs)|L0])|Preds], L0) :-
     !,
     predicates(More,N/A,Preds,L0).
@@ -112,48 +128,150 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
     predicates(More,N/A,Preds,L0).
 
 output(command([comments(Comments) |_])) :-
-	   maplist(out_comment(_),Comments ).
+    maplist(out_comment(_),Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
-	   maplist(out_comment(Found),Comments),
-	   addcomm(N/A,Found),
-	   findall(I,between(1,A,I),Is),
-	   maplist(atomic_concat('int ARG'),Is,NIs),
-	   T =.. [N|NIs],
-	   format('class  ~w {~n ~w ~w;~n};~n',[N,N,T]).
-	   
+    atom_chars(N,Ns),
+    foldl(csafe,Ns,SNs,[]),
+    format(atom(N1),'Y_~s_~d',[SNs,A]),
+    maplist(out_comment(Found),Comments),
+    addcomm(N1/A,Found),
+    findall(I,between(1,A,I),Is),
+    maplist(atomic_concat('int ARG'),Is,NIs),
+    T =.. [N1|NIs],
+    format('class  ~w public: Predicate {~n ~w ~w;~n};~n~n',[N1,N1,T]).
 
-out_comment(_,C) :-
-    format('~s~n',[C]),
-    fail.
+insert_module_header :-
+    format('class Predicate;~n´,[]),
+    defines_module(M),
+    !,
+    format('namespace ~s~n{~n',[M]).
+insert_module_tail.
+
+insert_module_tail :-
+    defines_module(_M),
+    !,
+    format('}~n',[]).
+insert_module_tail.
+
+
+
 out_comment(true,C) :-
-    sub_string(C,_,_,_,`@pred`),
+    string_chars(C,Cs),
+    trl(Cs,Cf),
+    !,
+    format('~s~n',[Cf]).
+out_comment(_,C) :-
+    format('~s~n',[C  ]).
+
+trl( ['%','%',' ','<'|L],['/','/','/','<',' '|NL]) :-
+    !,
+    trl_in(L,NL).
+trl( ['%','%',' '|L],['/','/','/',' '|NL]) :-
+    !,
+    trl_in(L,NL).
+trl( ['%'|L],['/','/',' '|NL]) :-
+    !,
+    trl_in(L,NL).
+trl( L,NL) :-
+    trl_in(L,NL).
+
+trl_in(RL,NL) :-
+    (
+      append(Start,['@',p,r,e,d|Decl0],RL)
+      ->
+      scan_line(Decl0,Line,Rest),
+      skip_blanks(Line,Decl),
+      decl(Decl,DL),
+      append([Start,DL,['\n'|Rest]],NL)
+      ;
+      NL=RL
+    ).
+
+scan_line([],[],[]).
+
+scan_line(['\n'|R],[],R) :-
     !.
-out_comment(_,_C).
+scan_line([C|Cs],[C|M],R) :-
+    scan_line(Cs,M, R).
+
+skip_blanks([C|Cs], R) :-
+    char_type(C,space),
+    !,
+    skip_blanks(Cs,R).
+skip_blanks(Cs,Cs).
+
+
+decl(D,F) :-
+    append(Name,['('|D1],D),
+    Name = [_|_],
+    !,
+    append(Info,[')'|R1],D1),
+    foldl(arity,Info,1,Arity),
+    foldl(csafe,Name,TName,[]),
+    format(chars(F),'@class Y_~s_~d~n  @brief <bf>~s(~s)</bf? ~s~n ',[TName,Arity,Name,Info,R1]).
+decl(D,F) :-
+    append(Name,[C|D1],D),
+    char_type(C,blank),
+    Name = [_|_],
+    !,
+    foldl(csafe,Name,TName,[]),
+    format(chars(F,D1),'@class <bf>Y_~s_0()</bf> ~s~n',[TName,Name,[C|D1]]).
+
+    /* This routine generates two streams from the comment:
+ * - the class text.
+ * - The source
+ */
+arity(',',I, I1) :-
+    !,
+    I1 is I+1.
+arity(_,I,I).
+
+csafe(C,LF,L0) :-
+    char_to_safe(C,LF,L0),
+    !.
+csafe(C,[C|L],L).
+
+char_to_safe('=',['_',e,q|L],L).
+char_to_safe('<',['_',l,t|L],L).
+char_to_safe('>',['_',g,t|L],L).
+char_to_safe('_',['_','_'|L],L).
+char_to_safe('!',['_',c,t|L],L).
+char_to_safe('-',['_',m,n|L],L).
+char_to_safe('+',['_',p,l|L],L).
+char_to_safe('*',['_',s,t|L],L).
+char_to_safe('/',['_',s,l|L],L).
 
 addcomm(N/0,false) :-
-exported(N,0),
-!,
-    format('~n~n/** @pred Predicate~q().  (undocumented)  **/~n',[N]).
+    is_exported(N,0),
+    !,
+    format('~n~n/** @class ~w. @brief ~w  (undocumented)  **/~n',[N,N]).
+
 addcomm(N/A,false) :-
-exported(N,A),
+    is_exported(N,A),
     !,
     length(L,A),
     maplist(=('?'),L),
     T =.. [N|L],
-    format('~n~n/** @pred Predicate~q.  (undocumented)  **/~n',[T]).
+    format('~n~n/** @class ~w. <bf>~w</bf>  (undocumented)  **/~n',[N,T]).
 addcomm(_,_).
 
-:- initialization(main).
+% :- initialization(main).
 
 dxpand(module(M,Gs)) :-
     module(M),
-maplist(dxpand,Gs).
+    assert(defines_module(M)),
+    maplist(dxpand,Gs).
 dxpand(op(M,Gs,Y)) :-
     op(M,Gs,Y).
 dxpand(use_module(M,Gs)) :-
     (:-use_module(M,Gs)).
-dxpand(use_module(M)) :-
-use_module(M).
+dxpand(module(M)) :-
+    ensure_loaded(M).
 dxpand(A/B) :-assert(exported(A,B)).
 dxpand(A//B):- B2 is B+2, assert(exported(A,B2)) .
 
+is_exported(_,_) :-
+    current_source_module(_,user),
+    !.
+is_exported(N,A) :-
+    exported(N,A).

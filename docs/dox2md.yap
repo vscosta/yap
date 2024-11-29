@@ -23,25 +23,25 @@ xml(XMLTasks) :-
 
 add_task(Kind, A,B,C) -->
     { string_atom(Kind,Atom),
-    Linkage =.. [Atom, A, B],
-    AnyLinkage =.. [Atom,A,_],
-    BaseLinkage =.. [Atom, A, ``],
-    Name =.. [Atom,A,C],
-    Linkage =.. [Atom,A,B] },
+      Linkage =.. [Atom, A, B],
+      AnyLinkage =.. [Atom,A,_],
+      BaseLinkage =.. [Atom, A, ``],
+      Name =.. [Atom,A,C],
+      Linkage =.. [Atom,A,B] },
     add_kind_of_task(Name, Linkage, BaseLinkage,AnyLinkage).
 
 extra_task(Kind,Ref,Parent,Name) -->
     { add_task(Kind,Ref,Parent,Name,[], Tasks),
-    Tasks = [New]
-    ->
-    fetch(New)
-    ;
-    true
-      }.
+      Tasks = [New]
+      ->
+      fetch(New)
+      ;
+      true
+    }.
 
 add_kind_of_task(Name, Linkage, BaseLinkage,_) -->
- {retract(BaseLinkage),assert(Linkage)},
- [Name].
+    {retract(BaseLinkage),assert(Linkage)},
+    [Name].
 add_kind_of_task(_,_,_,AnyLinkage) --> {AnyLinkage}, !.
 add_kind_of_task(Name,Linkage,_,_) --> {assert(Linkage)}, [Name].
 
@@ -84,10 +84,10 @@ run_task(_,Task) --> {writeln(task:Task),fail}.
 
 sub_tasks(`group`,Ref) -->
     { unix(argv([Input,_Output])),
-    atom_concat([Input,'/',Ref,'.xml'],G),
-    catch(load_xml(G,[doxygen([_|Info])]),_,fail),
-    Info = [compounddef([_,_,_|Inner])]
-      },
+      atom_concat([Input,'/',Ref,'.xml'],G),
+      catch(load_xml(G,[doxygen([_|Info])]),_,fail),
+      Info = [compounddef([_,_,_|Inner])]
+    },
     foldl(inner_tasks(Ref),Inner).
 sub_tasks(_,_Ref) --> !.
 
@@ -108,8 +108,8 @@ inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
     !,
     add_task(`class`,Ref,Parent,Name).
 inner_tasks(Parent,innergroup([[refid(Ref)|_],Name|_])) -->
-!,
-add_task(`group`,Ref,Parent,Name).
+    !,
+    add_task(`group`,Ref,Parent,Name).
 inner_tasks(_,_) --> [].
 
 
@@ -123,7 +123,7 @@ members([member([[refid(Ref),kind(Kind)],name([[],Name])|InnerMembers])|Members]
     members(InnerMembers,Ref),
     members(Members,FromRef).
 members([_|Members],FromRef)-->		 
-     members(Members,FromRef).
+    members(Members,FromRef).
 		 
     
 
@@ -210,17 +210,17 @@ compacttail([V|Vs]) -->
     
 
 cstr(A,S0,SF) :-
-   catch( string_concat(S0,A, SF),_,(atomic_concat(S0,A,SA),atom_string(SA,SF))).
+    catch( string_concat(S0,A, SF),_,(atomic_concat(S0,A,SA),atom_string(SA,SF))).
 
 mcstr(A,S0,SF) :-
-     string_concat([S0|A], SF).
+    string_concat([S0|A], SF).
 
 rpar(U,Ts) -->
     foldl(par(U,[]),Ts),
     cstr(`\n`).
 
 top_par(U0,_Info,C) -->
-%    {writeln(C)},
+    %    {writeln(C)},
     par(U0,_Info,C).
 top_par(_U0,_Info,C) -->
     {
@@ -236,7 +236,7 @@ par(U0,Info,sectiondef([[kind(`var`)|_]|Paras])) -->
       arg(1,Info,Id),
       foldl(var_member(U0,Info),Paras, ``, Desc),
       assert_static(v(Id,Desc))
-      }.
+    }.
 par(U0,Info,sectiondef([[kind(`friend`)|_]|Paras])) -->
     !,
     {
@@ -244,7 +244,7 @@ par(U0,Info,sectiondef([[kind(`friend`)|_]|Paras])) -->
       format(string(S), `\n#### Friends:\n`, []),
       foldl(friend_member(U0,Info),Paras, S, Desc),
       assert(v(Id,Desc))
-      }.
+    }.
 par(U0,Info,sectiondef([[kind(Kind)|_Opts]|Paras])) -->
     !,
     {
@@ -252,13 +252,13 @@ par(U0,Info,sectiondef([[kind(Kind)|_Opts]|Paras])) -->
       string_concat([`\n#### `,Kind, `.\n`], S0),
       foldl(function_member(U0,Info),Paras, S0, Desc),
       assert(f(Id,Desc))
-      }.
+    }.
 par(U0,Info,sectiondef([[kind(`public-func`)|_Opts]|Paras])) -->
     !,{
       arg(1,Info,Id),
       foldl(function_member(U0,Info),Paras, `\n##### Public Functions:\n`, Desc),
       assert(f(Id,Desc))
-      }.
+    }.
 par(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) -->
     !.
 par(_U0,_Info,sectiondef([[kind(`def`)|_]|_])) -->
@@ -322,10 +322,10 @@ par(_U0,Info,innerclass([[refid(Ref),_],Name])) -->
     {  arg(1, Info, Parent)},
     extra_task(`class`,Ref,Parent,Name).
 par(_U0,_Info,innerclass([[refid(_Ref),_],_Name])) -->
-!.
+    !.
 par(_U0,_Info,image([[type(`html`),name(File),alt(Alt),inline(true)]])) -->
-	!,
-	mcstr([`![`,Alt,`](`,File,`)`]).
+    !,
+    mcstr([`![`,Alt,`](`,File,`)`]).
 par(_U, _Info, briefdescription([[]])) -->
     !.
 par(U,Info, briefdescription([_|Paras])) -->
@@ -339,9 +339,9 @@ par(U0,Info,
     foldl(par(U0,[]),Paras,``,Desc),
     {
       (Desc == ``-> true
-      ; var(D0)->D0=Desc;arg(1,Info,Id),
-      assert(extra(Id,Desc)))
-      }.
+       ; var(D0)->D0=Desc;arg(1,Info,Id),
+			  assert(extra(Id,Desc)))
+    }.
 par(_U, _Info, inbodydescription([[]])) -->
     !.
 par(U0,Info,
@@ -351,9 +351,9 @@ par(U0,Info,
     foldl(par(U0,[]),Paras,``,Desc),
     {
       (Desc == ``-> true
-      ; var(D0)->D0=Desc;arg(1,Info,Id),
-      assert(extra(Id,Desc)))
-      }.
+       ; var(D0)->D0=Desc;arg(1,Info,Id),
+			  assert(extra(Id,Desc)))
+    }.
 par(_U, _Info, detaileddescription([[]])) -->
     !.
 par(U0,Info,detaileddescription([[]|Paras]))-->
@@ -368,26 +368,26 @@ par(U0,Info,detaileddescription([[]|Paras]))-->
 	true
       ),
       (Desc == ``  ->
-      true
-      ;
-      arg(1,Info,Id),
-      assert_static(extra(Id,Desc))
+       true
+       ;
+       arg(1,Info,Id),
+       assert_static(extra(Id,Desc))
       )
-      }.
+    }.
 par(_U0,GT,location([[file(File),line(Line),column(Column)|_]])) -->
     {
       arg(3,GT,File),
       arg(4,GT,Line),	
       arg(5,GT,Column)
-      },
+    },
     !.
 par(_U0,_GT, location(_)) -->
     !.
 par(_,[],title([[],_Title])) -->
-     !.
+    !.
 par(_,GT,title([[],Title])) -->
-     !,
-     {arg(8,GT,Title) }.
+    !,
+    {arg(8,GT,Title) }.
 par(_,_GT,initializer([[]|_L])) -->
     !.
 par(_,_GT,listofallmembers([[]|_L])) -->
@@ -402,10 +402,10 @@ par(U0,Info,memberdef([_|Seq]))-->
     foldl(par(U,Info),Seq),
     add_nl(U).
 par(U,Info,lsquo(_)) -->
-     !,
-     par(U,Info,`\``).
+    !,
+    par(U,Info,`\``).
 par(_,_,param(_)) -->
-!.	
+    !.	
 par(_U0,_Info,compoundname(_)) -->
     !.
 par(U0,Info,compounddef([_|Par])) -->
@@ -414,23 +414,23 @@ par(U0,Info,compounddef([_|Par])) -->
 par(_U0,_Info,innerfile(_)) -->
     !.
 par(U,Info,mdash(_)) -->
-     !,
-     par(U,Info,`-`).
+    !,
+    par(U,Info,`-`).
 par(U,Info,ndash(_)) -->
-     !,
-     par(U,Info,`-`).
+    !,
+    par(U,Info,`-`).
 par(_,_,true) -->
-     !,
-     cstr(`true`).
+    !,
+    cstr(`true`).
 par(_,_,false) -->
-     !,
-     cstr(`false`).
+    !,
+    cstr(`false`).
 par(_,_,ulink([[url(_)],_Text])) -->
-     !.
+    !.
 par(_,_,rsquo(_)) -->
-     !,
-     cstr(`\'`),
-     add_nl(0).
+    !,
+    cstr(`\'`),
+    add_nl(0).
 par(_,_,zwj([[],Text])) -->
     !,
     cstr(Text).
@@ -548,17 +548,17 @@ par(_U,_Info,ref([[refid(`classT`),kindref(`compound`)],true])) -->
     !.
 par(_U,_Info, ref([[refid(R)|_],Name])) -->
     { string(Name),
-    deref(R,DR) },
+      deref(R,DR) },
     !,
     mcstr([`[`,Name,`](`,DR,`)`]).
 par(_U,_Info, basecompoundref([[refid(R)|_],Name])) -->
     { string(Name),
-    deref(R,DR) },
+      deref(R,DR) },
     !,
     mcstr([`[`,Name,`](`,DR,`#)`]).
 par(_U,_Info, basecompoundref([[refid(R)|_],Name])) -->
     { string(Name),
-    deref(R,DR) },
+      deref(R,DR) },
     !,
     mcstr([`[`,Name,`](`,DR,`#)`]).
 par(_U,_Info, derivedcompoundref([_,Name])) -->
@@ -680,9 +680,9 @@ one(predicate,S,Id, _Name, File,Line,Column,Brief,Text,Title) :-
     forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
     process_predicate(S,Id,File,Line,Column,Text).
 one(group, S,Id, _Name, File,Line,Column,Brief,Text,Title) :-
- format(S,'# ~s\n\n~s\n',[Title,Brief]),
- forall(extrabrief(Id,Extra),format(S,'~s\n',[Extra])),
- forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
+    format(S,'# ~s\n\n~s\n',[Title,Brief]),
+    forall(extrabrief(Id,Extra),format(S,'~s\n',[Extra])),
+    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
  subgroups(S,Id),
 process_group(S,Id,File,Line,Column,Text).
 
@@ -713,7 +713,7 @@ process_group(S,Id,_File,_Line,_Column,_Text) :-
     fail.
     %format(S,'~s\n',[Brief]),
 process_group(S,Id,File,Line,Column,Text) :-
-%    forall(predicate(Ref,Id),(output_predicate(S,Ref))),
+    %    forall(predicate(Ref,Id),(output_predicate(S,Ref))),
     load_all_text(Id,Text,AllText),
     format(S,'~s',[AllText]),
     nl(S),
@@ -758,7 +758,7 @@ preds(Id, S) :-
       predicate(_,Id)
       ->
       format(S,'## List of Predicates\n',[])
-    ;
+      ;
       true
     ).
 
@@ -805,34 +805,34 @@ strip_late_blanks(Brief,Brief).
 
 
 var_member(U0,Info,memberdef([[kind(_Kind),id(MyId)|_]|Text])) -->
-{ member(definition([[],Def]), Text),
-%member(name([[],Name]), Text),
-!,
-rel_id(MyId,Info,Id),
-format(string(St),`######  ~s  {#~s}\n`,[Def,Id])
-  },
-cstr(St),
-add_comments(U0,Text).
+    { member(definition([[],Def]), Text),
+      %member(name([[],Name]), Text),
+      !,
+      rel_id(MyId,Info,Id),
+      format(string(St),`######  ~s  {#~s}\n`,[Def,Id])
+    },
+    cstr(St),
+    add_comments(U0,Text).
 
 add_comments(U,Text) -->
     {
       member(briefdescription([[]|Brief]),Text),
       member(inbodydescription([[]|InBody]),Text),
       member(detaileddescription([[]|Detailed]),Text)
-      },
+    },
     rpar(U,Brief),
     rpar(U,InBody),
     rpar(U,Detailed).
 
 
 friend_member(U0,Info,memberdef([[kind(_Kind),id(MyId)|_]|Text])) -->
-{ member(definition([[],Def]), Text),
-!,
-rel_id(MyId,Info,Id),
-format(string(St),`###### ~s  {#~s}\n`,[Def,Id])
-  },
-cstr(St),
-add_comments(U0,Text).
+    { member(definition([[],Def]), Text),
+      !,
+      rel_id(MyId,Info,Id),
+      format(string(St),`###### ~s  {#~s}\n`,[Def,Id])
+    },
+    cstr(St),
+    add_comments(U0,Text).
 
 function_member(U0,Info,memberdef([[kind(_),id(MyId)|_]|Text])) -->
     {
@@ -841,7 +841,7 @@ function_member(U0,Info,memberdef([[kind(_),id(MyId)|_]|Text])) -->
 
       rel_id(MyId,Info,Id),
       format(string(St),`###### ~s~s  {#~s}\n`,[Def,As,Id])
-      },
+    },
     cstr(St),
     add_comments(U0,Text),
     !.
