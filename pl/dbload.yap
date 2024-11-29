@@ -55,10 +55,11 @@ load_mega_clause( Stream ) :-
  */
 load_db(Fs) :-
         '$current_module'(M0),
-	prolog_flag(agc_margin,Old,0),
+ 	current_prolog_flag(agc_margin,Old,0),
+ 	set_prolog_flag(agc_margin,0),
 	dbload(Fs,M0,load_db(Fs)),
 	load_facts,
-	prolog_flag(agc_margin,_,Old),
+	set_prolog_flag(agc_margin,Old),
 	'$clean_up'.
 
 dbload(Fs, _, G) :-

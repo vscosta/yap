@@ -3,7 +3,7 @@
 :- use_module(library(system)).
 :- use_module(library(xml2yap)).
 
-%:- dynamic group/8, predicate/8, pred/8, pred/3, show/0.
+%:- dynamic group/8, predicate/8, show/0.
 
 :- multifile extrabrief/2.
 :- dynamic group/2, predicate/2, class/2, subclass/2.
@@ -21,13 +21,12 @@ xml(XMLTasks) :-
     maplist(fetch,Tasks),
     merge_nodes.
 
-add_task(Kind, A,B,C) -->
+add_task(Kind, A,B,Name0) -->
     { string_atom(Kind,Atom),
       Linkage =.. [Atom, A, B],
       AnyLinkage =.. [Atom,A,_],
       BaseLinkage =.. [Atom, A, ``],
-      Name =.. [Atom,A,C],
-      Linkage =.. [Atom,A,B] },
+      Name =.. [Atom,A,Name0] },
     add_kind_of_task(Name, Linkage, BaseLinkage,AnyLinkage).
 
 extra_task(Kind,Ref,Parent,Name) -->
@@ -96,9 +95,12 @@ inner_tasks(Parent,sectiondef([_|L])) -->
     !,
     foldl(inner_tasks(Parent),L).
 inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
-    {  sub_string(Ref,7,_,_,`Predicate`) },
+{  sub_string(Ref,0,Sz,_,`classY__`) }, 
     !,
     add_task(`predicate`,Ref,Parent,Name).
+inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
+    !,
+    add_task(`class`,Ref,Parent,Name).
 inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
     {  sub_string(Ref,0,_,_,`concept`) },
     !,
@@ -113,12 +115,48 @@ inner_tasks(Parent,innergroup([[refid(Ref)|_],Name|_])) -->
 inner_tasks(_,_) --> [].
 
 
+ true_name([],[]).
+true_name(['_','_',C],['/',C]) :-
+!.
+true_name(['_',e,q|L],['='|NL]) :-
+!,
+true_name(L,NL).
+true_name(['_',l,t|L],['<'|NL]) :-
+!,
+true_name(L,NL).
+true_name(['_',g,t|L],['>'|NL]) :-
+!,
+true_name(L,NL).
+true_name(['_','_'|L],['_'|NL]) :-
+!,
+true_name(L,NL).
+true_name(['_',c,t|L],['!'|NL]) :-
+!,
+true_name(L,NL).
+true_name(['_',m,n|L],['-'|NL]) :-
+!,
+true_name(L,NL).
+true_name(['_',p,l|L],['+'|NL]) :-
+!,
+true_name(L,NL).
+true_name(['_',s,t|L],['*'|NL]) :-
+!,
+true_name(L,NL).
+true_name(['_',s,l|L],['/'|NL]) :-
+!,
+true_name(L,NL).
+true_name(['_',d,l|L],['$'|L]) :-
+!,
+true_name(L,NL).
+true_name([C|L],[C|NL]) :-
+true_name(L,NL).
+
 %members([M|_], _FromType, FromRef) -->
 %    {writeln(M),fail}.
 
 members([],_) --> [].
 members([member([[refid(Ref),kind(Kind)],name([[],Name])|InnerMembers])|Members], FromRef) -->
-    add_task(Kind,Ref,FromRef,Name),
+    add_task(Kind,Ref,FromRef),
     !,
     members(InnerMembers,Ref),
     members(Members,FromRef).
@@ -129,7 +167,7 @@ members([_|Members],FromRef)-->
 
 :- dynamic visited/1.
 fetch(T) :-
-    T=..[_,K,_L],
+    T=..[_,K,_,_L],
     (
       visited(K) -> !;
       assert(visited(K)),
@@ -142,15 +180,14 @@ fetch(class(Ref,Name)) :-
     functor(Descriptor,class,8),
     fill(Descriptor,Ref,Name).
 
-fetch(concept(Ref,Name)) :-
-    sub_string(Name,_,1,D,`/`),
-    sub_string(Name,_,D,0,N),
-    string_number(N,_),
-    functor(Descriptor,predicate,8),
-    fill(Descriptor,Ref,Name ),
-    !.
-fetch(predicate(Ref,Name)) :-
-    !,
+fetch(predicate(Ref,_)) :-
+!,
+ sub_string(Ref,0,Sz,_,`classY__`) ,
+sub_string(Ref,Sz,_,0,SafeName),
+string_chars(SafeName,CharsSafeName),
+true_name(CharsSafeName,CharsName),
+string_chars(Name,CharsName) ,
+writeln(Name),
     functor(Descriptor,predicate,8),
     fill(Descriptor,Ref,Name).
 fetch(group(Ref,Name)) :-
@@ -312,7 +349,7 @@ par(_U0,_Info,ref([[refid(`structF`),kindref(`compound`)],false ])) -->
 par(_U0,_Info,basecompoundref([[_|_],_])) -->
     !.
 par(_U0,Info,innerclass([[refid(Ref),_],Name])) -->
-    {  sub_string(Ref,7,_,_,`Predicate`) },
+    {  sub_string(Ref,0,_,End,`classY__`) },
     !,
     {  arg(1, Info, Parent)},
     extra_task(`predicate`,Ref,Parent,Name).
@@ -650,6 +687,8 @@ is_parent(P) :-
     group(_Id,P).
 is_parent(P) :-
     class(_Id,P).
+is_parent(P) :-
+    predicate(_Id,P).
 
 ent(Id,class,Name, File,Line,Column,Brief,Text,Title) :-
     class(Id,Name, File,Line,Column,Brief,Text,Title).
@@ -682,12 +721,12 @@ one(predicate,S,Id, _Name, File,Line,Column,Brief,Text,Title) :-
 one(group, S,Id, _Name, File,Line,Column,Brief,Text,Title) :-
     format(S,'# ~s\n\n~s\n',[Title,Brief]),
     forall(extrabrief(Id,Extra),format(S,'~s\n',[Extra])),
-    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
- subgroups(S,Id),
+forall(extra(Id,Extra) ,  format(S,'~s',[Extra])),
+subgroups(S,Id),
 process_group(S,Id,File,Line,Column,Text).
 
 subgroups(S,Id) :-
-    is_parent(Id),
+    group(_,Id),
     !,
     format(S,'### SubGroups\n\n' ,[]),
     forall(group(Ref,Id),(addsubg(S,Ref))).

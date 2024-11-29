@@ -48,7 +48,7 @@
 '$pred_graph_edge'(_ImportingMod:G, ExportingModI:G ) :-  
     recorded('$dialect',swi,_),
     set_prolog_flag(autoload, true),
-    prolog_flag(unknown, _OldUnk, fail),
+   set_ prolog_flag(unknown, fail),
     (
 	'$module'( _, autoloader, _, _Exports)
     ->

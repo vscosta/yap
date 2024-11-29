@@ -144,7 +144,7 @@ do_not_compile_expressions :-
          ( stream_property(loop_stream, line_number(L)) -> true;  L = 0),
 	 functor(Head,N,A).
 '$do_c_built_in'(throw_file_error( error, error(Error, G)), _M, _Head,
-		 (prolog_flag(file_errors, error), NG)) :-
+		 (current_prolog_flag(file_errors, error), NG)) :-
     !,
     '$do_c_built_in'(throw_error( error, error(Error, G)), _M, _Head, NG).
 '$do_c_built_in'(X is Y, M, H,  P) :-

@@ -120,7 +120,7 @@ reaches 0.
 Next, we show a simple example of how to use call counters:
 
 ```
-   ?- prolog_flag(call_counting,on), [-user]. l :- l. end_of_file. current_prolog_flag(call_counting,off).
+   ?-  current_prolog_flag(call_counting,on), [-user]. l :- l. end_of_file. current_prolog_flag(call_counting,off).
 
 yes
 

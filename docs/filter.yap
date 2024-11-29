@@ -134,18 +134,18 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
     foldl(csafe,Ns,SNs,[]),
     format(atom(N1),'Y_~s_~d',[SNs,A]),
     maplist(out_comment(Found),Comments),
-    addcomm(N1/A,Found),
+    addcomm(N1/A,N/A,Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
     T =.. [N1|NIs],
     format('class  ~w public: Predicate {~n ~w ~w;~n};~n~n',[N1,N1,T]).
 
 insert_module_header :-
-    format('class Predicate;~n´,[]),
+    format('class Predicate;~n~n',[]),
     defines_module(M),
     !,
     format('namespace ~s~n{~n',[M]).
-insert_module_tail.
+insert_module_header.
 
 insert_module_tail :-
     defines_module(_M),
@@ -163,7 +163,7 @@ out_comment(true,C) :-
 out_comment(_,C) :-
     format('~s~n',[C  ]).
 
-trl( ['%','%',' ','<'|L],['/','/','/','<',' '|NL]) :-
+trl( ['%','%',' ','<+++u'|L],['/','/','/','<',' '|NL]) :-
     !,
     trl_in(L,NL).
 trl( ['%','%',' '|L],['/','/','/',' '|NL]) :-
@@ -240,22 +240,23 @@ char_to_safe('-',['_',m,n|L],L).
 char_to_safe('+',['_',p,l|L],L).
 char_to_safe('*',['_',s,t|L],L).
 char_to_safe('/',['_',s,l|L],L).
+char_to_safe('$',['_',d,l|L],L).
 
-addcomm(N/0,false) :-
+addcomm(N/0,N0/0,false) :-
     is_exported(N,0),
     !,
-    format('~n~n/** @class ~w. @brief ~w  (undocumented)  **/~n',[N,N]).
+    format('~n~n/** @class ~w. @brief ~w  (undocumented)  **/~n',[N,N0]).
 
-addcomm(N/A,false) :-
-    is_exported(N,A),
+addcomm(N/A,N0/A,false) :-
+    is_exported(N0,A),
     !,
     length(L,A),
     maplist(=('?'),L),
-    T =.. [N|L],
+    T =.. [N0|L],
     format('~n~n/** @class ~w. <bf>~w</bf>  (undocumented)  **/~n',[N,T]).
-addcomm(_,_).
+addcomm(_,_,_).
 
-% :- initialization(main).
+:- initialization(main).
 
 dxpand(module(M,Gs)) :-
     module(M),
@@ -265,6 +266,7 @@ dxpand(op(M,Gs,Y)) :-
     op(M,Gs,Y).
 dxpand(use_module(M,Gs)) :-
     (:-use_module(M,Gs)).
+dxpand(module(user)) :- !.
 dxpand(module(M)) :-
     ensure_loaded(M).
 dxpand(A/B) :-assert(exported(A,B)).

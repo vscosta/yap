@@ -228,13 +228,13 @@ qend_program :-
     throw_error(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
-'$x_sprolog_flag'(language, V) :-
+'$x_prolog_flag'(language, V) :-
 	current_prolog_flag(language, V).
 '$x_current_prolog_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
 '$x_current_prolog_flag'(X, V) :-
-	prolog_flag_property(X, [access(read_write)]),
+ 	prolog_flag_property(X, [access(read_write)]),
 	atom(X),
 	X \= gc_margin, % different machines will have different needs,
 	X \= argv,
