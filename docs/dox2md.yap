@@ -6,7 +6,7 @@
 %:- dynamic group/8, predicate/8, show/0.
 
 :- multifile extrabrief/2.
-:- dynamic group/2, predicate/2, class/2, subclass/2.
+:- dynamic group/2, sub_predicate/2, sub_class/2, class/1, predicate/1, subclass/2.
 
 main :-
     unix(argv([Input,_Output])),
@@ -95,7 +95,7 @@ inner_tasks(Parent,sectiondef([_|L])) -->
     !,
     foldl(inner_tasks(Parent),L).
 inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
-{  sub_string(Ref,0,Sz,_,`classY__`) }, 
+    {  sub_string(Ref,0,_Sz,_,`class`) }, 
     !,
     add_task(`predicate`,Ref,Parent,Name).
 inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
@@ -117,46 +117,46 @@ inner_tasks(_,_) --> [].
 
  true_name([],[]).
 true_name(['_','_',C],['/',C]) :-
-!.
+    !.
 true_name(['_',e,q|L],['='|NL]) :-
-!,
-true_name(L,NL).
+    !,
+    true_name(L,NL).
 true_name(['_',l,t|L],['<'|NL]) :-
-!,
-true_name(L,NL).
+    !,
+    true_name(L,NL).
 true_name(['_',g,t|L],['>'|NL]) :-
-!,
-true_name(L,NL).
+    !,
+    true_name(L,NL).
 true_name(['_','_'|L],['_'|NL]) :-
-!,
-true_name(L,NL).
+    !,
+    true_name(L,NL).
 true_name(['_',c,t|L],['!'|NL]) :-
-!,
-true_name(L,NL).
+    !,
+    true_name(L,NL).
 true_name(['_',m,n|L],['-'|NL]) :-
-!,
-true_name(L,NL).
+    !,
+    true_name(L,NL).
 true_name(['_',p,l|L],['+'|NL]) :-
-!,
-true_name(L,NL).
+    !,
+    true_name(L,NL).
 true_name(['_',s,t|L],['*'|NL]) :-
-!,
-true_name(L,NL).
+    !,
+    true_name(L,NL).
 true_name(['_',s,l|L],['/'|NL]) :-
-!,
-true_name(L,NL).
-true_name(['_',d,l|L],['$'|L]) :-
-!,
-true_name(L,NL).
+    !,
+    true_name(L,NL).
+true_name(['_',d,l|L],['$'|NL]) :-
+    !,
+    true_name(L,NL).
 true_name([C|L],[C|NL]) :-
-true_name(L,NL).
+    true_name(L,NL).
 
 %members([M|_], _FromType, FromRef) -->
 %    {writeln(M),fail}.
 
 members([],_) --> [].
 members([member([[refid(Ref),kind(Kind)],name([[],Name])|InnerMembers])|Members], FromRef) -->
-    add_task(Kind,Ref,FromRef),
+    add_task(Kind,Ref,FromRef,Name),
     !,
     members(InnerMembers,Ref),
     members(Members,FromRef).
@@ -166,8 +166,13 @@ members([_|Members],FromRef)-->
     
 
 :- dynamic visited/1.
+fetch(G) :-
+    writeln(G),
+    fail.
+fetch(class(`class__`,_ ) ) :-
+    !.
 fetch(T) :-
-    T=..[_,K,_,_L],
+    T=..[_,K,_],
     (
       visited(K) -> !;
       assert(visited(K)),
@@ -175,20 +180,21 @@ fetch(T) :-
       fail
     ).
 
+fetch(class(Ref,_)) :-
+    sub_string(Ref,_,2,1,'@@'),
+    !,
+    assert(predicate(Ref)),
+    sub_string(Ref,Sz,_,0,SafeName),
+    string_chars(SafeName,CharsSafeName),
+    true_name(CharsSafeName,CharsName),
+    string_chars(Name,CharsName) ,
+    functor(Descriptor,predicate,8),
+    fill(Descriptor,Ref,Name).
 fetch(class(Ref,Name)) :-
     !,
+    writeln(class:Ref),
+    assert(class(Ref)),
     functor(Descriptor,class,8),
-    fill(Descriptor,Ref,Name).
-
-fetch(predicate(Ref,_)) :-
-!,
- sub_string(Ref,0,Sz,_,`classY__`) ,
-sub_string(Ref,Sz,_,0,SafeName),
-string_chars(SafeName,CharsSafeName),
-true_name(CharsSafeName,CharsName),
-string_chars(Name,CharsName) ,
-writeln(Name),
-    functor(Descriptor,predicate,8),
     fill(Descriptor,Ref,Name).
 fetch(group(Ref,Name)) :-
     !,
@@ -208,6 +214,14 @@ fetch(union(Ref,Name)) :-
     fill(Descriptor,Ref,Name).
 */
 fetch(_).
+
+sub_class(Parent,Child) :-
+    class(Child,Parent),
+    class(Child).
+
+sub_predicate(Parent,Child) :-
+    predicate(Child,Parent),
+    predicate(Child).
 
 fill(Descriptor,Ref,Name) :-
     unix(argv([Input,_Output])),
@@ -349,15 +363,10 @@ par(_U0,_Info,ref([[refid(`structF`),kindref(`compound`)],false ])) -->
 par(_U0,_Info,basecompoundref([[_|_],_])) -->
     !.
 par(_U0,Info,innerclass([[refid(Ref),_],Name])) -->
-    {  sub_string(Ref,0,_,End,`classY__`) },
+    {  sub_string(Ref,0,_,_End,`class`) },
     !,
     {  arg(1, Info, Parent)},
-    extra_task(`predicate`,Ref,Parent,Name).
-par(_U0,Info,innerclass([[refid(Ref),_],Name])) -->
-    {  sub_string(Ref,0,_,_,`class`) },
-    !,
-    {  arg(1, Info, Parent)},
-    extra_task(`class`,Ref,Parent,Name).
+    extra_task(`c`,Ref,Parent,Name).
 par(_U0,_Info,innerclass([[refid(_Ref),_],_Name])) -->
     !.
 par(_U0,_Info,image([[type(`html`),name(File),alt(Alt),inline(true)]])) -->
@@ -687,8 +696,6 @@ is_parent(P) :-
     group(_Id,P).
 is_parent(P) :-
     class(_Id,P).
-is_parent(P) :-
-    predicate(_Id,P).
 
 ent(Id,class,Name, File,Line,Column,Brief,Text,Title) :-
     class(Id,Name, File,Line,Column,Brief,Text,Title).
@@ -700,7 +707,6 @@ ent(Id,predicate,Name, File,Line,Column,Brief,Text,Title) :-
 merge_nodes :-
     unix(argv([_Input,Output])),
     ent(Id,Type,Name, File,Line,Column,Brief,Text,Title),
-    ( stream_property(S0,[alias(Type)]) -> close(S0) ; true ),
     atomic_concat([Output,'/',Id,'.md'],F),
     open(F,write,S,[alias(Type)]),
     ignore(one(Type,S,Id,Name, File,Line,Column,Brief,Text,Title)),
@@ -711,19 +717,19 @@ merge_nodes :-
 one(class,S,Id,_Name, File,Line,Column,Brief,Text,Title) :-
     format(S,'# ~s\n\n~s\n',[Title,Brief]),
     forall(extrabrief(Id,Extra),format(S,'~s\n',[Extra])),
-    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
+    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])),
     process_class(S,Id,File,Line,Column,Text).
 one(predicate,S,Id, _Name, File,Line,Column,Brief,Text,Title) :-
     format(S,'# ~s\n\n~s\n',[Title,Brief]),
     forall(extrabrief(Id,Extra),format(S,'~s\n',[Extra])),
-    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).
+    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])),
     process_predicate(S,Id,File,Line,Column,Text).
 one(group, S,Id, _Name, File,Line,Column,Brief,Text,Title) :-
     format(S,'# ~s\n\n~s\n',[Title,Brief]),
     forall(extrabrief(Id,Extra),format(S,'~s\n',[Extra])),
-forall(extra(Id,Extra) ,  format(S,'~s',[Extra])),
-subgroups(S,Id),
-process_group(S,Id,File,Line,Column,Text).
+    forall(extra(Id,Extra) ,  format(S,'~s',[Extra])),
+    subgroups(S,Id),
+    process_group(S,Id,File,Line,Column,Text).
 
 subgroups(S,Id) :-
     group(_,Id),
@@ -733,21 +739,21 @@ subgroups(S,Id) :-
 subgroups(_S,_Id).
 
 process_group(S,Id,_File,_Line,_Column,_Text) :-
-    once(predicate(_,Id)),
+    once(sub_predicate(Id,_Pred)),
     format(S,'## Predicates\n\n', []), 
     format(S,'|Predicate~t|~20|Description~t|~40|\n', []), 
     format(S,'|:---|:---~|\n', []), 
-    forall(predicate(Ref,Id),(addsubp(S,Ref))),
+    forall(sub_predicate(Id,Ref),(addsubp(S,Ref))),
     format(S,'\n\n',[]),
     fail.
     %format(S,'~s\n',[Brief]),
 
 process_group(S,Id,_File,_Line,_Column,_Text) :-
-    once(class(_,Id)),
+    once(sub_class(Id,_)),
     format(S,'## Classes\n\n', []), 
     format(S,'|Class~t|~20|Description~t|~40|\n', []), 
     format(S,'|:---|:---~|\n', []), 
-    forall(class(Ref,Id),(addsubc(S,Ref))),
+    forall(sub_class(Id,Ref),(addsubc(S,Ref))),
     format(S,'\n\n',[]),
     fail.
     %format(S,'~s\n',[Brief]),

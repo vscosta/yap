@@ -383,6 +383,134 @@ static Int
   return TRUE;
 }
 
+static bool type_alpha(int ch)
+{
+  return iswalpha(c);
+}
+
+
+/** @pred  code_type_alpha( Code )
+
+Holds true if Code is a letter of the alphabet.
+ */
+static Int code_type_alpha(USES_REGS1) {
+  return type_alpha(  get_code(ARG1) );
+}
+
+/** @pred  char_type_alpha( Char )
+
+Holds true if Char is a letter of the alphabet.
+ */
+static Int char_type_alpha(USES_REGS1) {
+  return type_alpha(  get_char(ARG1) );
+}
+
+static bool type_ascii(int ch)
+{
+  return isascii(ch);
+}
+
+/** @pred  char_type_ascii( Char )
+
+Holds true if Char belongs to the ASCII code.
+ */
+static Int char_type_ascii(USES_REGS1) {
+  return type_ascii( get_char(ARG1) );
+}
+
+/** @pred  code_type_ascii( Code )
+
+Holds true if Code belongs to the ASCII code.
+ */
+static Int code_type_ascii(USES_REGS1) {
+  return type_ascii( get_code(ARG1) );
+}
+
+  static bool type_cntrl(int ch)
+{
+  return iswcntrl(ch);
+}
+
+/** @pred  char_type_cntrl( Char )
+
+    Holds true if Char is an ASCII control character.
+*/
+static Int char_type_cntrl(USES_REGS1) {
+  return type_cntrl( get_char(ARG1) );
+}
+
+/** @pred  code_type_cntrl( Code )
+
+    Holds true if Code is an ASCII control character.
+*/
+static Int code_type_cntrl(USES_REGS1) {
+  return type_cntrl( get_code(ARG1) );
+}
+
+  static bool type_csym(int ch)
+{
+  if (ch=='_' || ch ==0x0332)
+    return true;
+  return iswalnum(c);
+}
+
+/** @pred  code_type_csym( Code )
+
+Holds true if Code is a letter, digit or underscore.
+ */
+static Int code_type_csym(USES_REGS1) {
+  return type_csym( get_code(ARG1) );
+}
+
+/** @pred  char_type_csym( Char )
+
+Holds true if Char is a letter, digit or underscore.
+ */
+static Int char_type_csym(USES_REGS1) {
+  return type_csym( get_char(ARG1) );
+}
+
+
+static bool type_csymf(int ch)
+{
+  if (ch=='_' || ch ==0x0332)
+    return true;
+  return iswupper(ch);
+}
+
+static bool type_digit(int ch)
+{
+  return iswdigit(ch);
+}
+static bool type_xdigit(int ch)
+{
+  return iswxdigit(ch);
+}
+
+static bool type_graph(int ch)
+{
+  return iswgraph(ch);
+}
+
+static bool type_lower(int ch)
+{
+  return iswlower(ch);
+}
+
+static bool type_punct(int ch)
+{
+  return iswpunct(ch);
+}
+static bool type_upper(int ch)
+{
+  return iswupper(ch);
+}
+
+static bool type_white(int ch)
+{
+  return ch == ' '||ch == '\t';
+}
+
 
 /** @pred  char_type_alnum( Char )
 
@@ -393,27 +521,6 @@ static Int char_type_alnum(USES_REGS1) {
   char_kind_t k = Yap_wide_chtype(ch);
   return k == UC || k == LC || k == NU;
 }
-
-/** @pred  char_type_alpha( Char )
-
-Holds true if Char is a letter of the alphabet.
- */
-static Int char_type_alpha(USES_REGS1) {
-  int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == UC || k == LC;
-}
-
-/** @pred  char_type_csym( Char )
-
-Holds true if Char is a letter, digit or underscore.
- */
-static Int char_type_csym(USES_REGS1) {
-  int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k >= UC && k <= NU;
-}
-
 /** @pred  char_type_csymf( Char )
 
 Holds true if Char is an uppercase letter, digit or underscore.
@@ -422,15 +529,6 @@ static Int char_type_csymf(USES_REGS1) {
   int ch = get_char(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= UC && k <= LC;
-}
-
-/** @pred  char_type_ascii( Char )
-
-Holds true if Char belongs to the ASCII code.
- */
-static Int char_type_ascii(USES_REGS1) {
-  int ch = get_char(ARG1);
-  return isascii(ch);
 }
 
 /** @pred  char_type_white( Char )
@@ -445,16 +543,6 @@ static Int char_type_white(USES_REGS1) {
   }
   utf8proc_category_t ct = utf8proc_category(ch);
   return ct == UTF8PROC_CATEGORY_ZS;
-}
-
-/** @pred  char_type_cntrl( Char )
-
-    Holds true if Char is an ASCII control character.
-*/
-static Int char_type_cntrl(USES_REGS1) {
-  Int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == BG;
 }
 
 /** @pred  char_type_digit( Char )
@@ -660,25 +748,7 @@ static Int code_type_alnum(USES_REGS1) {
   return k == UC || k == LC || k == NU;
 }
 
-/** @pred  code_type_alpha( Code )
 
-Holds true if Code is a letter of the alphabet.
- */
-static Int code_type_alpha(USES_REGS1) {
-  int ch = get_code(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == UC || k == LC;
-}
-
-/** @pred  code_type_csym( Code )
-
-Holds true if Code is a letter, digit or underscore.
- */
-static Int code_type_csym(USES_REGS1) {
-  int ch = get_code(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k >= UC && k <= NU;
-}
 
 /** @pred  code_type_csymf( Code )
 
@@ -690,15 +760,6 @@ static Int code_type_csymf(USES_REGS1) {
   return k >= UC && k <= LC;
 }
 
-
-/** @pred  code_type_ascii( Code )
-
-Holds true if Code belongs to the ASCII code.
- */
-static Int code_type_ascii(USES_REGS1) {
-  int ch = get_code(ARG1);
-  return isascii(ch);
-}
 
 /** @pred  code_type_white( Code )
 
@@ -712,16 +773,6 @@ static Int code_type_white(USES_REGS1) {
   }
   utf8proc_category_t ct = utf8proc_category(ch);
   return ct == UTF8PROC_CATEGORY_ZS;
-}
-
-/** @pred  code_type_cntrl( Code )
-
-    Holds true if Code is an ASCII control character.
-*/
-static Int code_type_cntrl(USES_REGS1) {
-  Int ch = get_code(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == BG;
 }
 
 /** @pred  code_type_digit( Code )

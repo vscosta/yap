@@ -29,12 +29,6 @@
  @defgroup ErrorBuiltins Error generating type-checking
 @ingroup YAPError
 
-@beiwd\\\
-]]]]]
-
-
-]
-
 
 
 This  code is based oon the SWI   predicates  to  simplify  error  generation  and

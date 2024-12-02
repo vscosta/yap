@@ -274,7 +274,7 @@ p_code_type( UPPER , upper( Lower)) :-
 	tolower( UPPER, Lower).
 p_code_type( UPPER, to_upper( Lower) ) :-
 	tolower( UPPER, Lower),
-	char_type_upper( UPPER).
+	code_type_upper( UPPER).
 p_code_type( PUNCT , punct) :-
 	code_type_punct( PUNCT ).
 p_code_type( SPACE , space) :-
@@ -794,7 +794,7 @@ digit_weight( 0x1D7DB, 3).
 digit_weight( 0x1D7E5, 3).
 digit_weight( 0x1D7EF, 3).
 digit_weight( 0x1D7F9, 3).
-digit_weight( 0x1E8C9, 3).
+xdigit_weight( 0x1E8C9, 3).
 digit_weight( 0x1F104, 3).
 digit_weight( 0x20AFD, 3).
 digit_weight( 0x20B19, 3).

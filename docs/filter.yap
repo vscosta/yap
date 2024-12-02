@@ -12,6 +12,7 @@
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
 :- use_module(library(system)).
+:- use_module(library(matrix)).
 :- use_module(library(readutil)).
 
 valid_suffix('.yap').
@@ -130,18 +131,25 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
 output(command([comments(Comments) |_])) :-
     maplist(out_comment(_),Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
-    atom_chars(N,Ns),
-    foldl(csafe,Ns,SNs,[]),
-    format(atom(N1),'Y_~s_~d',[SNs,A]),
+%    atom_chars(N,Ns),
+%    foldl(csafe,Ns,SNs,[]),
+    %    format(atom(N1),'~s/~d',[SNs,A]),
+    N1=N,
     maplist(out_comment(Found),Comments),
     addcomm(N1/A,N/A,Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
-    T =.. [N1|NIs],
-    format('class  ~w public: Predicate {~n ~w ~w;~n};~n~n',[N1,N1,T]).
+    (
+      A==0 ->
+      T = N()
+      ;
+      T =.. [N1|NIs]
+    ),
+    
+    format(' class  YAP~s { ~n YAP~w;~n};~n~n~n',[ N,T]).
 
 insert_module_header :-
-    format('class Predicate;~n~n',[]),
+%    format('class Predicate;~n~n',[]),
     defines_module(M),
     !,
     format('namespace ~s~n{~n',[M]).
@@ -163,17 +171,27 @@ out_comment(true,C) :-
 out_comment(_,C) :-
     format('~s~n',[C  ]).
 
-trl( ['%','%',' ','<+++u'|L],['/','/','/','<',' '|NL]) :-
+trl( ['/','*','<',C|L],['/','*','<',C|NL]) :-
+    sp(C),
     !,
     trl_in(L,NL).
-trl( ['%','%',' '|L],['/','/','/',' '|NL]) :-
+trl( ['/','*','*',C|L],['/','*','*',C|NL]) :-
+    sp(C),
     !,
     trl_in(L,NL).
-trl( ['%'|L],['/','/',' '|NL]) :-
+trl( ['%','%','<',C|L],['/','/','/','<',C|NL]) :-
+    sp(C),
     !,
     trl_in(L,NL).
-trl( L,NL) :-
+trl( ['%','%',C|L],['/','/','/',C|NL]) :-
+    sp(C),
+    !,
     trl_in(L,NL).
+trl( L,L).
+
+sp(' ').
+sp('\t').
+sp('\n').
 
 trl_in(RL,NL) :-
     (
@@ -195,7 +213,7 @@ scan_line([C|Cs],[C|M],R) :-
     scan_line(Cs,M, R).
 
 skip_blanks([C|Cs], R) :-
-    char_type(C,space),
+    sp(C),
     !,
     skip_blanks(Cs,R).
 skip_blanks(Cs,Cs).
@@ -207,15 +225,15 @@ decl(D,F) :-
     !,
     append(Info,[')'|R1],D1),
     foldl(arity,Info,1,Arity),
-    foldl(csafe,Name,TName,[]),
-    format(chars(F),'@class Y_~s_~d~n  @brief <bf>~s(~s)</bf? ~s~n ',[TName,Arity,Name,Info,R1]).
+%    foldl(csafe,Name,TName,[]),
+    format(chars(F),'@class YAP~s [~s/~d](@ref YAP~s)~n @brief  <b>~s(~s)</b> ~s~n ',  [Name,Name,Arity,Name,Name,Info,R1]).
 decl(D,F) :-
     append(Name,[C|D1],D),
-    char_type(C,blank),
+    sp(C),
     Name = [_|_],
     !,
-    foldl(csafe,Name,TName,[]),
-    format(chars(F,D1),'@class <bf>Y_~s_0()</bf> ~s~n',[TName,Name,[C|D1]]).
+    %foldl(csafe,Name,TName,[]),
+    format(chars(F,D1),'@class YAP~s [~s/0](@ref YAP~s)~n @brief <b>~s()</b>~n ~s~n',[Name,Name,Name,Name,[C|D1]]).
 
     /* This routine generates two streams from the comment:
  * - the class text.
@@ -234,7 +252,7 @@ csafe(C,[C|L],L).
 char_to_safe('=',['_',e,q|L],L).
 char_to_safe('<',['_',l,t|L],L).
 char_to_safe('>',['_',g,t|L],L).
-char_to_safe('_',['_','_'|L],L).
+%char_to_safe('_',['_','_'|L],L).
 char_to_safe('!',['_',c,t|L],L).
 char_to_safe('-',['_',m,n|L],L).
 char_to_safe('+',['_',p,l|L],L).
@@ -242,18 +260,13 @@ char_to_safe('*',['_',s,t|L],L).
 char_to_safe('/',['_',s,l|L],L).
 char_to_safe('$',['_',d,l|L],L).
 
-addcomm(N/0,N0/0,false) :-
-    is_exported(N,0),
-    !,
-    format('~n~n/** @class ~w. @brief ~w  (undocumented)  **/~n',[N,N0]).
-
-addcomm(N/A,N0/A,false) :-
+addcomm(_N/A,N0/A,false) :-
     is_exported(N0,A),
     !,
     length(L,A),
     maplist(=('?'),L),
     T =.. [N0|L],
-    format('~n~n/** @class ~w. <bf>~w</bf>  (undocumented)  **/~n',[N,T]).
+    format('~n~n/**   @class YAP~s [~s/~d](@ref YAP~s)~n @brief <b>~w</b>  (undocumented)  **/~n~n~n~n',[N0,N0,A,N0,T]).
 addcomm(_,_,_).
 
 :- initialization(main).
@@ -272,6 +285,16 @@ dxpand(module(M)) :-
 dxpand(A/B) :-assert(exported(A,B)).
 dxpand(A//B):- B2 is B+2, assert(exported(A,B2)) .
 
+is_exported(N,_) :-
+    string(N),
+    string_concat(`$`,_,N),
+    !,
+    fail.
+is_exported(N,_) :-
+    atom(N),
+    atom_concat('$',_,N),
+    !,
+    fail.
 is_exported(_,_) :-
     current_source_module(_,user),
     !.
