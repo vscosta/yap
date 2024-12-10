@@ -25,15 +25,15 @@
 
 sub_atom(T,B,L,A,S) :-
     deterministic_sub_atom(T,B,L,A,S, ND),
-    ( var(ND)-> true ; sub_text(T.B,L.A.S,ND)).
+    ( var(ND)-> true ; sub_text(T,B,L,A,S,ND)).
     
 sub_string(T,B,L,A,S) :-
     deterministic_sub_string(T,B,L,A,S, ND),
-    ( var(ND)-> true ; sub_text(T.B,L.A.S,ND)).
+    ( var(ND)-> true ; sub_text(T,B,L,A,S,ND)).
     
 sub_text(T,B,L,A,S) :-
     deterministic_sub_text(T,B,L,A,S, ND),
-    (var(ND) -> true ; sub_text(T.B,L.A.S,ND)).
+    (var(ND) -> true ; sub_text(T,B,L,A,S,ND)).
     
 
 /**

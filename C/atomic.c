@@ -2579,11 +2579,12 @@ static Int cont_sub_atomic(USES_REGS1) {
       after = sz - minv;
     }
   }
-  EXTRA_CBACK_ARG(5, 1) = MkIntegerTerm(mask);
-  EXTRA_CBACK_ARG(5, 2) = MkIntegerTerm(minv);
-  EXTRA_CBACK_ARG(5, 3) = MkIntegerTerm(len);
-  EXTRA_CBACK_ARG(5, 4) = MkIntegerTerm(after);
-  EXTRA_CBACK_ARG(5, 5) = MkIntegerTerm(sz);
+  Term* ts = RepAppl(Deref(ARG6));
+    ts[0] = MkIntegerTerm(mask);
+ts[1] = MkIntegerTerm(minv);
+ts[2] = MkIntegerTerm(len);
+ts[3] = MkIntegerTerm(after);
+ts[4] = MkIntegerTerm(sz);
 
   return TRUE;
   }
@@ -2868,7 +2869,7 @@ ts[2] = MkIntegerTerm(len);
 ts[3] = MkIntegerTerm(after);
 ts[4] = MkIntegerTerm(sz);
  Yap_unify(ARG6,Yap_MkApplTerm( FunctorSub5,5,ts));
- return false;
+ return true;
 }
 
 /** @pred  sub_atom(+ _A_,? _Bef_, ? _Size_, ? _After_, ?
@@ -2992,7 +2993,8 @@ static Int current_atom(USES_REGS1) { /* current_atom(?Atom)
 void Yap_InitBackAtoms(void) {
   Yap_InitCPredBack("$current_atom", 1, 2, current_atom, cont_current_atom,
                     SafePredFlag | SyncPredFlag);
-  Yap_InitCPredBack("sub_text", 6, 0, cont_sub_atomic, cont_sub_atomic, 0);
+  Yap_InitCPredBack("sub_text", 6, 0, cont_sub_atomic, cont_sub_atomic, 0)
+    ;
   Yap_InitCPredBack("non_det_atom_concat", 3, 2, non_det_atom_concat3, cont_atom_concat3, 0);
  Yap_InitCPredBack("atomic_concat", 3, 2, atomic_concat3, cont_atomic_concat3,
                     0);
