@@ -158,6 +158,7 @@
   AtomExoClause = AtomAdjust(AtomExoClause); TermExoClause = MkAtomTerm(AtomExoClause);
   AtomExoProcedure = AtomAdjust(AtomExoProcedure); TermExoProcedure = MkAtomTerm(AtomExoProcedure);
   AtomExpand = AtomAdjust(AtomExpand); TermExpand = MkAtomTerm(AtomExpand);
+  AtomExpandGoal = AtomAdjust(AtomExpandGoal); TermExpandGoal = MkAtomTerm(AtomExpandGoal);
   AtomExpectedNumber = AtomAdjust(AtomExpectedNumber); TermExpectedNumber = MkAtomTerm(AtomExpectedNumber);
   AtomExtendFileSearchPath = AtomAdjust(AtomExtendFileSearchPath); TermExtendFileSearchPath = MkAtomTerm(AtomExtendFileSearchPath);
   AtomExtendsions = AtomAdjust(AtomExtendsions); TermExtendsions = MkAtomTerm(AtomExtendsions);
@@ -604,6 +605,7 @@
   FunctorExecuteWithin = FuncAdjust(FunctorExecuteWithin);
   FunctorExistenceError = FuncAdjust(FunctorExistenceError);
   FunctorExoClause = FuncAdjust(FunctorExoClause);
+  FunctorExoandGoal = FuncAdjust(FunctorExoandGoal);
   FunctorExternalException = FuncAdjust(FunctorExternalException);
   FunctorFloat = FuncAdjust(FunctorFloat);
   FunctorFloats = FuncAdjust(FunctorFloats);
@@ -698,6 +700,7 @@
   FunctorString1 = FuncAdjust(FunctorString1);
   FunctorStyleCheck = FuncAdjust(FunctorStyleCheck);
   FunctorSub = FuncAdjust(FunctorSub);
+  FunctorSub5 = FuncAdjust(FunctorSub5);
   FunctorSum = FuncAdjust(FunctorSum);
   FunctorSyntaxError = FuncAdjust(FunctorSyntaxError);
   FunctorShortSyntaxError = FuncAdjust(FunctorShortSyntaxError);

@@ -92,8 +92,8 @@ entry(S,O) :-
 
       T = (( Grammar --> Expansion ))
       ->
-      functor(Grammar,Name,Arity),
-      A is Arity+2,
+      functor(Grammar,Name,Arity),      
+A is Arity+2,
       O = clause(Name/A, Grammar, Expansion, Comments, Vs)
       ;
       T = (( Head :- Body ))
@@ -167,7 +167,6 @@ insert_module_tail.
 
 out_comment(true,C) :-
     string_chars(C,Cs),
-    writeln(C),
     trl_comm(Cs,Cf), 
    !,
     format('~s~n',[Cf]).
@@ -250,7 +249,7 @@ decl(D,F) :-
 decl(D,F) :-
     append(Name,[C|R1],D),
     sp(C),
-    Name = [_|_],
+    maplist(Name,alphanum),
     !,
     %foldl(csafe,Name,TName,[]),
     format(chars(F,R1F),'@class YAP~s [~s/0](@ref YAP~s)~n @brief <b>~s()</b>~n ~s~n',[Name,Name,Name,Name,C]),
@@ -269,6 +268,9 @@ csafe(C,LF,L0) :-
     char_to_safe(C,LF,L0),
     !.
 csafe(C,[C|L],L).
+
+alphanum(A) :-
+    char_type(A,alphanum).
 
 char_to_safe('=',['_',e,q|L],L).
 char_to_safe('<',['_',l,t|L],L).
@@ -315,7 +317,7 @@ is_exported(N,_) :-
     fail.
 is_exported(N,_) :-
     atom(N),
-    atom_concat('$',_,N),
+    sub_atom(N,0,1,_,'$'),
     !,
     fail.
 is_exported(_,_) :-

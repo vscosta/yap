@@ -158,6 +158,7 @@
   AtomExoClause = Yap_FullLookupAtom("$exo_clause"); TermExoClause = MkAtomTerm(AtomExoClause);
   AtomExoProcedure = Yap_LookupAtom("exo_procedure"); TermExoProcedure = MkAtomTerm(AtomExoProcedure);
   AtomExpand = Yap_LookupAtom("expand"); TermExpand = MkAtomTerm(AtomExpand);
+  AtomExpandGoal = Yap_LookupAtom("expand_goal"); TermExpandGoal = MkAtomTerm(AtomExpandGoal);
   AtomExpectedNumber = Yap_LookupAtom("expected_number_syntax"); TermExpectedNumber = MkAtomTerm(AtomExpectedNumber);
   AtomExtendFileSearchPath = Yap_FullLookupAtom("$extend_file_search_path"); TermExtendFileSearchPath = MkAtomTerm(AtomExtendFileSearchPath);
   AtomExtendsions = Yap_LookupAtom("extensionh"); TermExtendsions = MkAtomTerm(AtomExtendsions);
@@ -604,6 +605,7 @@
   FunctorExecuteWithin = Yap_MkFunctor(AtomExecuteWithin,2);
   FunctorExistenceError = Yap_MkFunctor(AtomExistenceError,2);
   FunctorExoClause = Yap_MkFunctor(AtomExoClause,2);
+  FunctorExoandGoal = Yap_MkFunctor(AtomExpandGoal,2);
   FunctorExternalException = Yap_MkFunctor(AtomExternalException,1);
   FunctorFloat = Yap_MkFunctor(AtomFloat,3);
   FunctorFloats = Yap_MkFunctor(AtomFloats,2);
@@ -698,6 +700,7 @@
   FunctorString1 = Yap_MkFunctor(AtomString,1);
   FunctorStyleCheck = Yap_MkFunctor(AtomStyleCheck,3);
   FunctorSub = Yap_MkFunctor(AtomSub,2);
+  FunctorSub5 = Yap_MkFunctor(AtomSub,5);
   FunctorSum = Yap_MkFunctor(AtomSum,2);
   FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,4);
   FunctorShortSyntaxError = Yap_MkFunctor(AtomSyntaxError,1);

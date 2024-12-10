@@ -2475,19 +2475,19 @@ static bool check_sub_string_bef(int max, const unsigned char *p1,
     ;
   return c2 == 0;
 }
-\
+
 static Int cont_sub_atomic(USES_REGS1) {
   Term tat1 = Deref(ARG1);
   Term tat5 = Deref(ARG5);
   int mask;
   ssize_t minv, len, after, sz;
   const unsigned char *p = NULL, *p5 = NULL;
-
-  mask = IntegerOfTerm(EXTRA_CBACK_ARG(5, 1));
-  minv = IntegerOfTerm(EXTRA_CBACK_ARG(5, 2));
-  len = IntegerOfTerm(EXTRA_CBACK_ARG(5, 3));
-  after = IntegerOfTerm(EXTRA_CBACK_ARG(5, 4));
-  sz = IntegerOfTerm(EXTRA_CBACK_ARG(5, 5));
+  Term* tbase = RepAppl(Deref(ARG6));
+  mask = IntegerOfTerm(tbase[1]);
+  minv = IntegerOfTerm(tbase[2]);
+  len = IntegerOfTerm(tbase[3]);
+  after = IntegerOfTerm(tbase[4]);
+  sz = IntegerOfTerm(tbase[5]);
 
   if (Yap_IsGroundTerm(tat1)) {
     if (IsAtomTerm(tat1)) {
@@ -2594,7 +2594,12 @@ static Int cont_sub_atomic(USES_REGS1) {
 
 Similar to sub_atom/5, but the first argument can be any atomic.
 */
-static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
+/** @Pred  sub_atomic(+ _Atomic_,? _Bef_, ? _Size_, ? _After_, ?
+    _At_out_) is iso
+
+Similar to sub_atom/5, but the first argument can be any atomic.
+*/
+static Int deterministic_sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
   Term tat1, tbef, tsize, tafter, tout;
   int mask = SUB_ATOM_HAS_UTF8;
   size_t minv, len, after, sz;
@@ -2616,7 +2621,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
          sz = strlen_utf8(p);
      } else {
         Yap_ThrowError(TYPE_ERROR_ATOM, tat1, "sub_atom/5");
-        { return false; }
+        { {  return false; }; }
       }
     } else if (sub_string) {
       if (IsStringTerm(tat1)) {
@@ -2624,10 +2629,10 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         sz = strlen_utf8(p);
       } else if (IsNumTerm(tat1)) {
 	p = UStringOfTerm(Yap_NumberToString(tat1 PASS_REGS));
-         sz = strlen_utf8(p);
+	sz = strlen_utf8(p);
       } else {
         Yap_ThrowError(TYPE_ERROR_STRING, tat1, "sub_string/5");
-        { return false; }
+        { {  return false; }; }
       }
     } else {
       int l = push_text_stack();
@@ -2636,26 +2641,25 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         pop_text_stack(l);
       } else {
         pop_text_stack(l);
-        return false;
+        {  return false; };
       }
     }
   } else {
-
     Yap_ThrowError(INSTANTIATION_ERROR, tat1, "sub_atom/5: first variable\n");
-    return false;
+    {  return false; };
   }
-  EXTRA_CBACK_ARG(5, 3) = MkIntegerTerm(0);
+
   tbef = Deref(ARG2);
   if (!Yap_IsGroundTerm(tbef)) {
     minv = 0;
   } else if (!IsIntegerTerm(tbef)) {
     Yap_ThrowError(TYPE_ERROR_INTEGER, tbef, "sub_string/5");
-    { return false; }
+    { {  return false; }; }
   } else {
     minv = IntegerOfTerm(tbef);
     if ((Int)minv < 0) {
       Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
-      { return false; }
+      { {  return false; }; }
     };
     mask |= SUB_ATOM_HAS_MIN;
     bnds++;
@@ -2664,12 +2668,12 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
     len = 0;
   } else if (!IsIntegerTerm(tsize)) {
     Yap_ThrowError(TYPE_ERROR_INTEGER, tsize, "sub_string/5");
-    { return false; }
+    { {  return false; }; }
   } else {
     len = IntegerOfTerm(tsize);
     if ((Int)len < 0) {
       Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tsize, "sub_string/5");
-      { return false; }
+      { {  return false; }; }
     };
     mask |= SUB_ATOM_HAS_SIZE;
     bnds++;
@@ -2678,12 +2682,12 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
     after = 0;
   } else if (!IsIntegerTerm(tafter)) {
     Yap_ThrowError(TYPE_ERROR_INTEGER, tafter, "sub_string/5");
-    { return false; }
+    { {  return false; }; }
   } else {
     after = IntegerOfTerm(tafter);
     if ((Int)after < 0) {
       Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tafter, "sub_string/5");
-      { return false; }
+      { {  return false; }; }
     };
     mask |= SUB_ATOM_HAS_AFTER;
     bnds++;
@@ -2692,7 +2696,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
     if (sub_atom) {
       if (!IsAtomTerm(tout)) {
         Yap_ThrowError(TYPE_ERROR_ATOM, tout, "sub_atom/5");
-        { return false; }
+        { {  return false; }; }
       } else {
         Atom oat;
         mask |= SUB_ATOM_HAS_VAL | SUB_ATOM_HAS_SIZE;
@@ -2702,20 +2706,19 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
     } else {
       if (!IsStringTerm(tout)) {
         Yap_ThrowError(TYPE_ERROR_STRING, tout, "sub_string/5");
-        { return false; }
+        { {  return false; }; }
       } else {
         mask |= SUB_ATOM_HAS_VAL | SUB_ATOM_HAS_SIZE;
         len = strlen_utf8(UStringOfTerm(tout));
       }
     }
     if (!Yap_unify(ARG3, MkIntegerTerm(len))) {
-      cut_fail();
+      {  return false; };
     }
     bnds += 2;
   }
   /* the problem is deterministic if we have two cases */
   if (bnds > 1) {
-    int out = FALSE;
 
     if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL | SUB_ATOM_HAS_AFTER)) ==
         (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL | SUB_ATOM_HAS_AFTER)) {
@@ -2726,106 +2729,129 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
 	sm =  UStringOfTerm(tout);
       if (mask & SUB_ATOM_HAS_SIZE) {
 	if (len != strlen_utf8(sm) ) {
-	  cut_fail();
+	  {  return false; };
 	} else {
 	  len = strlen_utf8(sm);
 	}
       }
       if (sz != minv+len+after) {
-	 cut_fail();
+	 {  return false; };
       }
-      return do_cut(check_sub_string_at(
-            minv, p, sm, len));
+      if (!check_sub_string_at(
+            minv, p, sm, len))
+	{  return false; };
+      return true;
     } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) ==
         (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) {
+      bool rc;
 	if (! Yap_unify(ARG4,MkIntegerTerm(sz-minv-len)) )
-	  cut_fail();
+	  {  return false; };
       if (sub_atom)
-        return do_cut(check_sub_string_at(
+        rc = (check_sub_string_at(
             minv, p, RepAtom(AtomOfTerm(tout))->UStrOfAE, len));
       else
-        return do_cut(check_sub_string_at(minv, p, UStringOfTerm(tout), len));
-    } else if ((mask & (SUB_ATOM_HAS_AFTER | SUB_ATOM_HAS_VAL)) ==
+        rc = (check_sub_string_at(minv, p, UStringOfTerm(tout), len));
+      if (rc)
+	return true;
+ 	  {  return false; };
+   } else if ((mask & (SUB_ATOM_HAS_AFTER | SUB_ATOM_HAS_VAL)) ==
                (SUB_ATOM_HAS_AFTER | SUB_ATOM_HAS_VAL)) {
-	if (! Yap_unify(ARG2,MkIntegerTerm(sz-after-len)) )
-	  cut_fail();
+      bool rc;
+      if (! Yap_unify(ARG2,MkIntegerTerm(sz-after-len)) )
+	  {  return false; };
       if (sub_atom) {
-        return do_cut(check_sub_string_bef(
+        rc = (check_sub_string_bef(
             sz - after, p, RepAtom(AtomOfTerm(tout))->UStrOfAE));
       } else {
-        return do_cut(check_sub_string_bef(sz - after, p, UStringOfTerm(tout)));}
-    } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_SIZE)) ==
+        rc = (check_sub_string_bef(sz - after, p, UStringOfTerm(tout)));
+    }
+      if (rc)
+	return true;
+ 	  {  return false; };
+   } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_SIZE)) ==
                (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_SIZE)) {
       if (minv + len + after > sz) {
-        cut_fail();
+        {  return false; };
       }
       if ((Int)(after = (sz - (minv + len))) < 0) {
-        cut_fail();
+        {  return false; };
       }
       nat = build_new_atomic(mask, p, minv, len, sz PASS_REGS);
       if (!nat) {
-        cut_fail();
+        {  return false; };
       }
-      return do_cut(Yap_unify(ARG4, MkIntegerTerm(after)) &&
-                    Yap_unify(ARG5, nat));
+       bool rc;
+       rc = Yap_unify(ARG4, MkIntegerTerm(after)) &&
+                    Yap_unify(ARG5, nat);
+      if (rc)
+	return true;
+ 	  {  return false; };
     } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_AFTER)) ==
                (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_AFTER)) {
       if (sz < minv + after) {
-        cut_fail();
+        {  return false; };
       }
       len = sz - (minv + after);
       int l = push_text_stack();
       nat = build_new_atomic(mask, p, minv, len, sz PASS_REGS);
       pop_text_stack(l);
       if (!nat) {
-        cut_fail();
+        {  return false; };
       }
-      return do_cut(Yap_unify(ARG3, MkIntegerTerm(len)) &&
+      bool rc = (Yap_unify(ARG3, MkIntegerTerm(len)) &&
                     Yap_unify(ARG5, nat));
+     if (rc)
+	return true;
+ 	  {  return false; };
     } else if ((mask & (SUB_ATOM_HAS_SIZE | SUB_ATOM_HAS_AFTER)) ==
                (SUB_ATOM_HAS_SIZE | SUB_ATOM_HAS_AFTER)) {
       if (len + after > sz) {
-        cut_fail();
+        {  return false; };
       }
       minv = sz - (len + after);
       int l = push_text_stack();
       nat = build_new_atomic(mask, p, minv, len, sz PASS_REGS);
       pop_text_stack(l);
       if (!nat) {
-        cut_fail();
+        {  return false; };
       }
-      return do_cut(Yap_unify(ARG2, MkIntegerTerm(minv)) &&
+      bool rc;
+      rc = (Yap_unify(ARG2, MkIntegerTerm(minv)) &&
                     Yap_unify(ARG5, nat));
-    } else if ((mask & (SUB_ATOM_HAS_SIZE | SUB_ATOM_HAS_VAL)) ==
+      if (rc)
+	return true;
+ 	  {  return false; };
+   } else if ((mask & (SUB_ATOM_HAS_SIZE | SUB_ATOM_HAS_VAL)) ==
                (SUB_ATOM_HAS_SIZE | SUB_ATOM_HAS_VAL)) {
+      bool rc;
       if (!sub_atom) {
-        out = (strlen_utf8(UStringOfTerm(tout)) == len);
-        if (!out) {
-          cut_fail();
+        rc = (strlen_utf8(UStringOfTerm(tout)) == len);
+        if (!rc) {
+          {  return false; };
         }
       } else {
-        out = (strlen(RepAtom(AtomOfTerm(tout))->StrOfAE) == len);
-        if (!out) {
-          cut_fail();
+        rc = (strlen_utf8(RepAtom(AtomOfTerm(tout))->UStrOfAE) == len);
+        if (!rc) {
+          {  return false; };
         }
       }
         if (len == sz) {
-          out = out && Yap_unify(ARG1, ARG5) &&
+          rc =rc && Yap_unify(ARG1, ARG5) &&
                 Yap_unify(ARG2, MkIntegerTerm(0)) &&
                 Yap_unify(ARG4, MkIntegerTerm(0));
         } else if (len > sz) {
-          cut_fail();
+          {  return false; };
         } else {
           mask |= SUB_ATOM_HAS_SIZE;
           minv = 0;
           after = sz - len;
           goto backtrackable;
         }
-      }
-    if (out) {
-      cut_succeed();
+    if (rc) {
+      return  true;
     }
-    cut_fail();
+    {        return false; } ;
+    }
   } else {
     if (!(mask & SUB_ATOM_HAS_MIN))
       minv = 0;
@@ -2835,12 +2861,14 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
       after = sz - (len + minv);
   }
 backtrackable:
-  EXTRA_CBACK_ARG(5, 1) = MkIntegerTerm(mask);
-  EXTRA_CBACK_ARG(5, 2) = MkIntegerTerm(minv);
-  EXTRA_CBACK_ARG(5, 3) = MkIntegerTerm(len);
-  EXTRA_CBACK_ARG(5, 4) = MkIntegerTerm(after);
-  EXTRA_CBACK_ARG(5, 5) = MkIntegerTerm(sz);
-  return cont_sub_atomic(PASS_REGS1);
+    Term ts[5];
+    ts[0] = MkIntegerTerm(mask);
+ts[1] = MkIntegerTerm(minv);
+ts[2] = MkIntegerTerm(len);
+ts[3] = MkIntegerTerm(after);
+ts[4] = MkIntegerTerm(sz);
+ Yap_unify(ARG6,Yap_MkApplTerm( FunctorSub5,5,ts));
+ return false;
 }
 
 /** @pred  sub_atom(+ _A_,? _Bef_, ? _Size_, ? _After_, ?
@@ -2858,7 +2886,7 @@ backtrackable:
     through all possible sub-strings of  _A_.
 
 */
-static Int sub_atom(USES_REGS1) { return (sub_atomic(true, false PASS_REGS)); }
+static Int  deterministic_sub_atom(USES_REGS1) { return (deterministic_sub_atomic(true, false PASS_REGS)); }
 
 /** @pred  sub_string(+ _S_,? _Bef_, ? _Size_, ? _After_, ?
     _S_out_) is iso
@@ -2875,13 +2903,13 @@ static Int sub_atom(USES_REGS1) { return (sub_atomic(true, false PASS_REGS)); }
     all possible sub-strings of  _S_.
 
 */
-static Int sub_string(USES_REGS1) { return sub_atomic(false, true PASS_REGS); }
+static Int deterministic_sub_string(USES_REGS1) { return deterministic_sub_atomic(false, true PASS_REGS); }
 
 /** @pred  sub_text(+ _S_,? _Bef_, ? _Size_, ? _After_, ?
     _S_out_)
 
     Accepts both atoms and strings */
-static Int sub_text(USES_REGS1) { return sub_atomic(false, false PASS_REGS); }
+static Int deterministic_sub_text(USES_REGS1) { return deterministic_sub_atomic(false, false PASS_REGS); }
 
 
 static Int cont_current_atom(USES_REGS1) {
@@ -2964,14 +2992,15 @@ static Int current_atom(USES_REGS1) { /* current_atom(?Atom)
 void Yap_InitBackAtoms(void) {
   Yap_InitCPredBack("$current_atom", 1, 2, current_atom, cont_current_atom,
                     SafePredFlag | SyncPredFlag);
+  Yap_InitCPredBack("sub_text", 6, 0, cont_sub_atomic, cont_sub_atomic, 0);
   Yap_InitCPredBack("non_det_atom_concat", 3, 2, non_det_atom_concat3, cont_atom_concat3, 0);
-  Yap_InitCPredBack("atomic_concat", 3, 2, atomic_concat3, cont_atomic_concat3,
+ Yap_InitCPredBack("atomic_concat", 3, 2, atomic_concat3, cont_atomic_concat3,
                     0);
   Yap_InitCPredBack("string_concat", 3, 2, string_concat3, cont_string_concat3,
                     0);
-  Yap_InitCPredBack("sub_atom", 5, 5, sub_atom, cont_sub_atomic, 0);
-  Yap_InitCPredBack("sub_string", 5, 5, sub_string, cont_sub_atomic, 0);
-  Yap_InitCPredBack("sub_text", 5, 5, sub_text, cont_sub_atomic, 0);
+  Yap_InitCPred("deterministic_sub_atom", 6, deterministic_sub_atom, 0);
+  Yap_InitCPred("deterministic_sub_string", 6, deterministic_sub_string, 0);
+  Yap_InitCPred("deterministic_sub_text", 6, deterministic_sub_text, 0);
   Yap_InitCPredBack("string_code", 3, 1, string_code3, cont_string_code3, 0);
 }
 
