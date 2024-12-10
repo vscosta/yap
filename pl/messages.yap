@@ -1285,7 +1285,7 @@ the  line and the line-position is not forced to 0
 + `prefix`(_Prefix_)
 define a prefix_ for the next line, say `''` will be seen as an
 empty prefix.
-(see `format/1`, `~N`)+ `<Format>`
+(see `format/1`, option `~N`)
 Handed to `format/3` as `format(Stream, Format, [])`, may get confused
 with other commands.
 + nl

@@ -290,78 +290,57 @@ static int get_char_or_code(Term t, bool *is_char) {
   return val;
 }
 
+static bool to_upper( Term t, Term t2)
+{
+   bool is_char = false;
+   Int out = get_char_or_code(t, &is_char), uout;
+    uout = towupper(out);
+    if (is_char)
+      return Yap_unify(t2, MkCharTerm(uout));
+    else
+      return Yap_unify(t2,MkIntegerTerm(uout));
+  
+}
+
+static bool to_lower( Term t, Term t2)
+{
+    bool is_char = false;
+
+    Int out = get_char_or_code(t, &is_char), uout;
+    uout = towlower(out);
+    if (is_char)
+      return Yap_unify(t2, MkCharTerm(uout));
+    else
+      return Yap_unify(t2,MkIntegerTerm(uout));
+  
+}
+
 /** @pred  toupper(?LowC, ?LUpC)
 
     UpC is the upper case bersion of LowC, or LowC is the lower case version of UpC.
  */
 static Int toupper2(USES_REGS1) {
-  bool is_char = false;
   Term t;
   if (!IsVarTerm(t = Deref(ARG1))) {
-    Int out = get_char_or_code(t, &is_char), uout;
-    if (out < 128)
-      uout = toupper(out);
-    else
-      uout = utf8proc_toupper(out);
-    if (is_char)
-      return Yap_unify(ARG2, MkCharTerm(uout));
-    else
-      return Yap_unify(ARG2, MkIntegerTerm(uout));
+    return to_upper(t,ARG2);
   } else if (!IsVarTerm(t = Deref(ARG2))) {
-    Int uout = get_char_or_code(t, &is_char), out;
-    char_kind_t charp = Yap_wide_chtype(uout);
-    if (charp == UC) {
-      if (uout < 128)
-        out = tolower(uout);
-      else
-        out = utf8proc_tolower(uout);
-    } else {
-      out = uout;
-    }
-    if (is_char)
-      return Yap_unify(ARG1, MkCharTerm(out));
-    else
-      return Yap_unify(ARG1, MkIntegerTerm(out));
+     return to_lower(t,ARG1);
   } else {
     Yap_ThrowError(INSTANTIATION_ERROR, ARG1, NULL);
   }
   return false;
 }
 
-/** @pred  toupper( ?LUpC, ?LowC)
+/** @pred  toLOer( ?LUpC, ?LowC)
 
       LowC is the lower case version of UpC., or UpC is the upper case bersion of LowC,
  */
 static Int tolower2(USES_REGS1) {
-  bool is_char = false;
   Term t;
   if (!IsVarTerm(t = Deref(ARG1))) {
-    bool is_char = false;
-    Int out = get_char_or_code(ARG1, &is_char), uout;
-    if (out < 128)
-      uout = tolower(out);
-    else
-      uout = utf8proc_tolower(out);
-    if (is_char)
-      return Yap_unify(ARG2, MkCharTerm(uout));
-    else
-      return Yap_unify(ARG2, MkIntegerTerm(uout));
+     return to_lower(t,ARG2);
   } else if (IsVarTerm(t = Deref(ARG2))) {
-    Int uout = get_char_or_code(t, &is_char), out;
-    char_kind_t charp = Yap_wide_chtype(uout);
-    if (charp == LC) {
-      if (uout < 128)
-        out = toupper(uout);
-      else
-        out = utf8proc_toupper(uout);
-    } else {
-      out = uout;
-    }
-    if (is_char)
-      return Yap_unify(ARG1, MkCharTerm(out));
-    else
-      return Yap_unify(ARG1, MkIntegerTerm(out));
-  } else {
+     return to_upper(t,ARG1);  } else {
     Yap_ThrowError(INSTANTIATION_ERROR, ARG1, NULL);
   }
   return false;
@@ -385,7 +364,7 @@ static Int
 
 static bool type_alpha(int ch)
 {
-  return iswalpha(c);
+  return iswalpha(ch);
 }
 
 
@@ -404,6 +383,28 @@ Holds true if Char is a letter of the alphabet.
 static Int char_type_alpha(USES_REGS1) {
   return type_alpha(  get_char(ARG1) );
 }
+
+
+static bool type_alnum(int ch)
+{
+  return iswalnum(ch);
+}
+/** @pred  code_type_alnum( Code )
+
+Holds true if Code is a letter of the alphabet or a digit.
+ */
+static Int code_type_alnum(USES_REGS1) {
+  return type_alnum(  get_code(ARG1) );
+}
+
+/** @pred  char_type_alnum( Char )
+
+Holds true if Char is a letter of the alphabet or a digit.
+ */
+static Int char_type_alnum(USES_REGS1) {
+  return type_alnum(  get_char(ARG1) );
+}
+
 
 static bool type_ascii(int ch)
 {
@@ -451,7 +452,7 @@ static Int code_type_cntrl(USES_REGS1) {
 {
   if (ch=='_' || ch ==0x0332)
     return true;
-  return iswalnum(c);
+  return iswalnum(ch);
 }
 
 /** @pred  code_type_csym( Code )
@@ -477,106 +478,97 @@ static bool type_csymf(int ch)
     return true;
   return iswupper(ch);
 }
-
-static bool type_digit(int ch)
-{
-  return iswdigit(ch);
-}
-static bool type_xdigit(int ch)
-{
-  return iswxdigit(ch);
-}
-
-static bool type_graph(int ch)
-{
-  return iswgraph(ch);
-}
-
-static bool type_lower(int ch)
-{
-  return iswlower(ch);
-}
-
-static bool type_punct(int ch)
-{
-  return iswpunct(ch);
-}
-static bool type_upper(int ch)
-{
-  return iswupper(ch);
-}
-
-static bool type_white(int ch)
-{
-  return ch == ' '||ch == '\t';
-}
-
-
-/** @pred  char_type_alnum( Char )
-
-Holds true if Char is a letter of the alphabet or a digit.
- */
-static Int char_type_alnum(USES_REGS1) {
-  int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == UC || k == LC || k == NU;
-}
 /** @pred  char_type_csymf( Char )
 
 Holds true if Char is an uppercase letter, digit or underscore.
  */
 static Int char_type_csymf(USES_REGS1) {
-  int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k >= UC && k <= LC;
+  return type_csymf( get_char(ARG1) );
+}
+/** @pred  code_type_csymf( Code )
+
+Holds true if Code is an uppercase letter, digit or underscore.
+ */
+static Int code_type_csymf(USES_REGS1) {
+  return type_csymf( get_code(ARG1) );
 }
 
-/** @pred  char_type_white( Char )
-
-    Holds true if Char is a space or tab character.
-*/
-static Int char_type_white(USES_REGS1) {
-  int ch = get_char(ARG1);
-  if (ch < 256) {
-    char_kind_t k = Yap_chtype[ch];
-    return k == BS;
-  }
-  utf8proc_category_t ct = utf8proc_category(ch);
-  return ct == UTF8PROC_CATEGORY_ZS;
+static bool type_digit(int ch)
+{
+  return iswdigit(ch);
 }
-
 /** @pred  char_type_digit( Char )
 
     Holds true if Char is a character between `'0'` and `'9'`.
 */
 static Int char_type_digit(USES_REGS1) {
-  Int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == NU;
+  return type_digit( get_char(ARG1) );
+}
+/** @pred  code_type_digit( Code )
+
+    Holds true if Code is a character between `'0'` and `'9'`.
+*/
+static Int code_type_digit(USES_REGS1) {
+  return type_digit( get_code(ARG1) );
 }
 
+
+static bool type_xdigit(int ch)
+{
+  return iswxdigit(ch);
+}
 /** @pred  char_type_xdigit( Char )
 
     Holds true if Char is an hexadecimal digit.
 */
 static Int char_type_xdigit(USES_REGS1) {
-  Int ch = get_char(ARG1);
-#if HAVE_ISWXDIGIT
-  return iswxdigit(ch);
-#elif HAVE_ISWHEXNUMBER
-  return iswhexnumber(ch);
-#else
-  return iswdigit(ch) || ((ch >= 'a' && ch <= 'f') && (ch >= 'A' && ch <= 'F'));
-#endif
+  return type_xdigit( get_char(ARG1) );
+}
+/** @pred  code_type_xdigit( Code )
+
+    Holds true if Code is an hexadecimal digit.
+*/
+static Int code_type_xdigit(USES_REGS1) {
+  return type_xdigit( get_code(ARG1) );
 }
 
+
+
+
+
+static bool type_graph(int ch)
+{
+  return iswgraph(ch);
+}
 /** @pred  char_type_graph( Char )
 
     Holds true if Char outputs a mark.
 */
 static Int char_type_graph(USES_REGS1) {
-  Int ch = get_char(ARG1);
-  return iswgraph(ch);
+  return type_graph( get_char(ARG1) );
+
+}
+
+/** @pred  code_type_graph( Code )
+
+    Holds true if Code outputs a mark.
+*/
+static Int code_type_graph(USES_REGS1) {
+  return type_graph( get_code(ARG1) );
+
+}
+
+
+static bool type_lower(int ch)
+{
+  return iswlower(ch);
+}
+/** @pred  code_type_lower( Code )
+
+    Holds true if Code is lower case.
+*/
+static Int code_type_lower(USES_REGS1) {
+  return  type_lower( get_code(ARG1) );
 }
 
 /** @pred  char_type_lower( Char )
@@ -584,54 +576,97 @@ static Int char_type_graph(USES_REGS1) {
     Holds true if Char is lower case.
 */
 static Int char_type_lower(USES_REGS1) {
-  char_kind_t k;
-  int ch = get_char(ARG1);
-  if (ch < 256) {
-    k = Yap_chtype[ch];
-  } else {
-    k = Yap_wide_chtype(ch);
-  }
-  return k == LC;
+    return  type_lower( get_char(ARG1) );
 }
 
-/** @pred  char_type_upper( Char )
 
-    Holds true if Char is upper case.
-*/
-static Int char_type_upper(USES_REGS1) {
-  char_kind_t k;
-  int ch = get_char(ARG1);
-  if (ch < 256) {
-    k = Yap_chtype[ch];
-  } else {
-    k = Yap_wide_chtype(ch);
-  }
-  return k == UC;
+static bool type_punct(int ch)
+{
+  return iswpunct(ch);
 }
-
 /** @pred  char_type_punct( Char )
 
     Holds true if Char is a punctuation character.
 */
 static Int char_type_punct(USES_REGS1) {
-  int ch = get_char(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k >= QT && k <= BK;
+  return type_punct(get_char(ARG1) );
 }
 
+/** @pred  code_type_punct( Code )
+
+    Holds true if Code is a punctuation codeacter.
+*/
+static Int code_type_punct(USES_REGS1) {
+  return type_punct(get_code(ARG1) );
+}
+
+
+static bool type_space(int ch)
+{
+  return iswspace(ch);
+}
 /** @pred  char_type_space( Char )
 
     Holds true if Char only moves the output.
+
+    
 */
 static Int char_type_space(USES_REGS1) {
-  int ch = get_char(ARG1);
-  if (ch < 256 && ch!='\n') {
-    char_kind_t k = Yap_chtype[ch];
-    return k == BS;
-  }
-  utf8proc_category_t ct = utf8proc_category(ch);
-  return ct == UTF8PROC_CATEGORY_ZS;
+  return type_space(get_char(ARG1) );
 }
+
+/** @pred  code_type_space( Code )
+
+    Holds true if Code only moves the output.
+*/
+static Int code_type_space(USES_REGS1) {
+  return type_space(get_code(ARG1) );
+}
+/** @pred  code_type_space( Code )
+
+    Holds true if Code only moves the output.
+*/
+
+static bool type_upper(int ch)
+{
+  return iswupper(ch);
+}
+/** @pred  char_type_upper( Char )
+
+    Holds true if Char is upper case.
+*/
+static Int char_type_upper(USES_REGS1) {
+  return type_upper (get_char(ARG1) );
+
+}
+/** @pred  code_type_upper( Code )
+
+    Holds true if Code is upper case.
+*/
+static Int code_type_upper(USES_REGS1) {
+  return type_upper( get_code(ARG1) );
+}
+
+
+static bool type_white(int ch)
+{
+  return ch == ' '||ch == '\t';
+}
+/** @pred  char_type_white( Char )
+
+    Holds true if Char is a space or tab character.
+*/
+static Int char_type_white(USES_REGS1) {
+  return type_white( get_char(ARG1) );
+}
+/** @pred  code_type_white( Code )
+
+    Holds true if Code is a space or tab character.
+*/
+static Int code_type_white(USES_REGS1) {
+  return type_white(get_code(ARG1));
+}
+
 
 /** @pred  char_type_end_of_file( Char )
 
@@ -738,123 +773,11 @@ static Int char_type_prolog_prolog_symbol(USES_REGS1) {
   return k == SL || k == SY;
 }
 
-/** @pred  code_type_alnum( Code )
-
-Holds true if Code is a letter of the alphabet or a digit.
- */
-static Int code_type_alnum(USES_REGS1) {
-  int ch = get_code(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == UC || k == LC || k == NU;
-}
 
 
 
-/** @pred  code_type_csymf( Code )
-
-Holds true if Code is an uppercase letter, digit or underscore.
- */
-static Int code_type_csymf(USES_REGS1) {
-  int ch = get_code(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k >= UC && k <= LC;
-}
 
 
-/** @pred  code_type_white( Code )
-
-    Holds true if Code is a space or tab character.
-*/
-static Int code_type_white(USES_REGS1) {
-  int ch = get_code(ARG1);
-  if (ch < 256) {
-    char_kind_t k = Yap_chtype[ch];
-    return k == BS;
-  }
-  utf8proc_category_t ct = utf8proc_category(ch);
-  return ct == UTF8PROC_CATEGORY_ZS;
-}
-
-/** @pred  code_type_digit( Code )
-
-    Holds true if Code is a character between `'0'` and `'9'`.
-*/
-static Int code_type_digit(USES_REGS1) {
-  Int ch = get_code(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == NU;
-}
-
-/** @pred  code_type_xdigit( Code )
-
-    Holds true if Code is an hexadecimal digit.
-*/
-static Int code_type_xdigit(USES_REGS1) {
-  Int ch = get_code(ARG1);
-#if HAVE_ISWXDIGIT
-  return iswxdigit(ch);
-#elif HAVE_ISWHEXNUMBER
-  return iswhexnumber(ch);
-#else
-  return iswdigit(ch) || ((ch >= 'a' && ch <= 'f') && (ch >= 'A' && ch <= 'F'));
-#endif
-}
-
-/** @pred  code_type_graph( Code )
-
-    Holds true if Code outputs a mark.
-*/
-static Int code_type_graph(USES_REGS1) {
-  Int ch = get_code(ARG1);
-  return iswgraph(ch);
-}
-
-/** @pred  code_type_lower( Code )
-
-    Holds true if Code is lower case.
-*/
-static Int code_type_lower(USES_REGS1) {
-  int ch = get_code(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == LC;
-}
-
-/** @pred  code_type_upper( Code )
-
-    Holds true if Code is upper case.
-*/
-static Int code_type_upper(USES_REGS1) {
-  int ch = get_code(ARG1);
-  char_kind_t k = Yap_wide_chtype(ch);
-  return k == UC;
-}
-
-/** @pred  code_type_punct( Code )
-
-    Holds true if Code is a punctuation codeacter.
-*/
-static Int code_type_punct(USES_REGS1) {
-  int ch = get_code(ARG1);
-  if (ch < 256) {
-    char_kind_t k = Yap_chtype[ch];
-    return k >= QT && k <= BK;
-  }
-  return false;
-}
-
-/** @pred  code_type_space( Code )
-
-    Holds true if Code only moves the output.
-*/
-static Int code_type_space(USES_REGS1) {
-  int ch = get_code(ARG1);
-  if (ch < 256 && ch!='\n') {
-    char_kind_t k = Yap_chtype[ch];
-    return k == BS;
-  }
-  utf8proc_category_t ct = utf8proc_category(ch);
-  return ct == UTF8PROC_CATEGORY_ZS;
-}
 
 /** @pred  code_type_end_of_file( Code )
 
@@ -947,6 +870,9 @@ static Int code_type_prolog_identifier_continue(USES_REGS1) {
   int ch = get_code(ARG1);
   char_kind_t k = Yap_wide_chtype(ch);
   return k >= UC && k <= NU;
+
+
+
 }
 
 /** @pred  code_type_prolog_symbol( Code )

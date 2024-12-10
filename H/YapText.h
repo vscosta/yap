@@ -608,7 +608,7 @@ static inline Term Yap_CharsToDiffListOfCodes(const char *s, Term tail,
   inp.enc = enc;
   inp.type = YAP_STRING_CHARS;
   out.val.uc = NULL;
-  out.type = YAP_STRING_DIFF | YAP_STRING_CODES;
+  out.type = YAP_STRING_DIFF | YAP_STRING_CHARS;
   out.dif = tail;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0;

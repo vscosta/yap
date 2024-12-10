@@ -14,6 +14,7 @@
 :- use_module(library(system)).
 :- use_module(library(matrix)).
 :- use_module(library(readutil)).
+:- use_module(library(lineutils)).
 
 valid_suffix('.yap').
 valid_suffix('.pl').
@@ -80,6 +81,7 @@ entry(S,O) :-
     (
       T == end_of_file
       ->
+      O = directive(end_of_file, Comments, Vs),
       !
       ;
       T = ( :- Directive )
@@ -165,45 +167,62 @@ insert_module_tail.
 
 out_comment(true,C) :-
     string_chars(C,Cs),
-    trl(Cs,Cf),
-    !,
+    writeln(C),
+    trl_comm(Cs,Cf), 
+   !,
     format('~s~n',[Cf]).
-out_comment(_,C) :-
-    format('~s~n',[C  ]).
+out_comment(_,_C).
 
-trl( ['/','*','<',C|L],['/','*','<',C|NL]) :-
+trl_comm( ['/','*','<',C|L],['/','*','<',C|NL]) :-
     sp(C),
     !,
-    trl_in(L,NL).
-trl( ['/','*','*',C|L],['/','*','*',C|NL]) :-
+    trl_pred(L,NL).
+trl_comm( ['/','*','*',C|L],['/','*','*',C|NL]) :-
     sp(C),
     !,
-    trl_in(L,NL).
-trl( ['%','%','<',C|L],['/','/','/','<',C|NL]) :-
+    trl_pred(L,NL).
+trl_comm( ['%','%','<',C|L],['/','/','/','<',C|NL]) :-
     sp(C),
+    %ntrl_extend(Ext, []),
+    %append(L,['\n'|Ext],ExtL),
     !,
-    trl_in(L,NL).
-trl( ['%','%',C|L],['/','/','/',C|NL]) :-
+    trl_lines(L,LL),
+    trl_pred(LL,NL).
+trl_comm( ['%','%',C|L],['/','/','/',C|NL]) :-
     sp(C),
+    %rl_extend(Ext,[]),
+    % append(L,['\n'|Ext],ExtL),
     !,
-    trl_in(L,NL).
-trl( L,L).
+    trl_lines(L,LL),
+    trl_pred(LL,NL).
+trl_comm(L,L).
+
 
 sp(' ').
 sp('\t').
 sp('\n').
 
-trl_in(RL,NL) :-
-    (
-      append(Start,['@',p,r,e,d|Decl0],RL)
-      ->
-      scan_line(Decl0,Line,Rest),
-      skip_blanks(Line,Decl),
-      decl(Decl,DL),
-      append([Start,DL,['\n'|Rest]],NL)
-      ;
-      NL=RL
-    ).
+trl_pred(RL,NL) :-
+    append(Start,['@',p,r,e,d|Decl],RL),
+    !,
+    decl(Decl,DL),
+    append(Start,DL,NL).
+trl_pred(RL,RL).
+
+trl_lines(RL,NL) :-
+    split(RL,['\n'],Lines),
+    maplist(rcomm, Lines, RLines),
+    append(RLines,NL).
+
+rcomm(['%','%',C|L],['\n','/','/','/',C|L]) :-
+    sp(C),
+    !.
+rcomm(['%','%','<',C|L],['\n','/','/','/','<',C|L]) :-
+    sp(C),
+    !.
+rcomm(['%'|L],['\n','/','/','/',' '|L]) :-
+    !.
+rcomm(L,L).
 
 scan_line([],[],[]).
 
@@ -226,14 +245,16 @@ decl(D,F) :-
     append(Info,[')'|R1],D1),
     foldl(arity,Info,1,Arity),
 %    foldl(csafe,Name,TName,[]),
-    format(chars(F),'@class YAP~s [~s/~d](@ref YAP~s)~n @brief  <b>~s(~s)</b> ~s~n ',  [Name,Name,Arity,Name,Name,Info,R1]).
+    format(chars(F,R1F),'@class YAP~s [~s/~d](@ref YAP~s)~n @brief  <b>~s(~s)</b>',  [Name,Name,Arity,Name,Name,Info]),
+    trl_pred(R1,R1F).
 decl(D,F) :-
-    append(Name,[C|D1],D),
+    append(Name,[C|R1],D),
     sp(C),
     Name = [_|_],
     !,
     %foldl(csafe,Name,TName,[]),
-    format(chars(F,D1),'@class YAP~s [~s/0](@ref YAP~s)~n @brief <b>~s()</b>~n ~s~n',[Name,Name,Name,Name,[C|D1]]).
+    format(chars(F,R1F),'@class YAP~s [~s/0](@ref YAP~s)~n @brief <b>~s()</b>~n ~s~n',[Name,Name,Name,Name,C]),
+    trl_pred(R1,R1F).
 
     /* This routine generates two streams from the comment:
  * - the class text.
@@ -269,7 +290,9 @@ addcomm(_N/A,N0/A,false) :-
     format('~n~n/**   @class YAP~s [~s/~d](@ref YAP~s)~n @brief <b>~w</b>  (undocumented)  **/~n~n~n~n',[N0,N0,A,N0,T]).
 addcomm(_,_,_).
 
-:- initialization(main).
+%:- initialization(main).
+
+
 
 dxpand(module(M,Gs)) :-
     module(M),
@@ -296,7 +319,7 @@ is_exported(N,_) :-
     !,
     fail.
 is_exported(_,_) :-
-    current_source_module(_,user),
+    current_source_module(user,user),
     !.
 is_exported(N,A) :-
     exported(N,A).

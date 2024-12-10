@@ -218,3 +218,4 @@ string_concat(Xs,At) :-
 /**
 @}
 */
+

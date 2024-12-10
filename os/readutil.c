@@ -426,7 +426,8 @@ static Int read_file_to_string(USES_REGS1) {
 void Yap_InitReadUtil(void) {
   CACHE_REGS
 
-  Term cm = CurrentModule;
+
+    Term cm = CurrentModule;
   CurrentModule = READUTIL_MODULE;
   Yap_InitCPred("read_line_to_string", 2, read_line_to_string, SyncPredFlag);
   Yap_InitCPred("read_line_to_codes", 3, read_line_to_codes, SyncPredFlag);

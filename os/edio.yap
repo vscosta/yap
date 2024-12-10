@@ -1,9 +1,9 @@
 %
-% Edinburgh IO.
 /**
  * @file   edio.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Jan 20 01:07:02 2016
+ % @brief Edinburgh IO.
  *
  */
 
@@ -133,6 +133,26 @@ tell(F) :-
 
 
   */
+append(user) :- !, set_output(user_output).
+append(F) :- var(F), !,
+	throw_error(instantiation_error,append(F)).
+append(F) :-
+	current_output(Stream),
+	stream_property(Stream,file_name(F)),
+	!.
+append(F) :-
+	current_stream(_,write,Stream),
+	'$user_file_name'(Stream, F),  !,
+	set_output(Stream).
+append(Stream) :-
+	'$stream'(Stream),
+	current_stream(_,write,Stream), !,
+	set_output(Stream).
+append(F) :-
+	open(F,write,Stream),
+	set_output(Stream).
+
+
 /** @pred  telling(- _S_)
 
 

@@ -34,7 +34,7 @@
 
 /** @defgroup CompilerAnalysis Internal Clause Rewriting
     @ingroup YAPCompilerSettings
-
+    @{
   YAP supports several clause optimisation mechanisms, that
   are designed to improve execution of arithmetic
   and term construction built-ins. In other words, during the
@@ -57,7 +57,6 @@
 
 */
 
-%% @{
 
 /** @pred expand_exprs(- _O_,+ _N_)
 	Control term expansion during compilation.
@@ -387,7 +386,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
     callable(NT),
     atom(Mod).
 
-%%	contains_illegal_dcgnt(+Term) is semidet.
+%% @pred contains_illegal_dcgnt(+Term) is semidet.
 %
 %	True if Term contains a non-terminal   we cannot deal with using
 %	goal-expansion. The test is too general approximation, but safe.
