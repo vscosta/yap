@@ -6,7 +6,7 @@
 %:- dynamic group/8, predicate/8, show/0.
 
 :- multifile extrabrief/2.
-:- dynamic group/2, sub_predicate/2, sub_class/2, class/1, predicate/1, subclass/2.
+:- dynamic group/2, sub_predicate/2, sub_class/2, class/1, predicate/1, subclass/2, predicate/2.
 
 main :-
     unix(argv([Input,_Output])),
@@ -68,6 +68,11 @@ deref(Link, Link).
 %    members(Members, Ref),
 
 run_task(P,compound([[refid(Ref),kind(Kind)|_],name([[],Name])|_Members])) -->
+    { sub_string(Ref,0,_,_,`class__PyaP__`) },
+    !,
+    add_task(Kind,Ref,P,Name),
+    sub_tasks(Kind,Ref).
+run_task(P,compound([[refid(Ref),kind(Kind)|_],name([[],Name])|_Members])) -->
     !,
     add_task(Kind,Ref,P,Name),
     sub_tasks(Kind,Ref).
@@ -95,10 +100,6 @@ inner_tasks(Parent,sectiondef([_|L])) -->
     !,
     foldl(inner_tasks(Parent),L).
 inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
-    {  sub_string(Ref,0,_Sz,_,`class`) }, 
-    !,
-    add_task(`predicate`,Ref,Parent,Name).
-inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
     !,
     add_task(`class`,Ref,Parent,Name).
 inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
@@ -114,6 +115,18 @@ inner_tasks(Parent,innergroup([[refid(Ref)|_],Name|_])) -->
     add_task(`group`,Ref,Parent,Name).
 inner_tasks(_,_) --> [].
 
+name2pi(Name,PI) :-
+    sub_string(Name,R,_,L,`::_PyaP_`),
+    sub_string(Name,0,R,_,Module),
+    sub_string(Name,_,R,0,NA),
+    tofunctor(NA,N,A),
+    string_concat([Module,`:`,N,`/`,A],PI).
+name2pi(Name,PI) :-
+    sub_string(Name,3,_,1,N), 
+    tofunctor(Name,N,A),
+    string_concat([N,`/`,A],PI).
+
+to_
 
  true_name([],[]).
 true_name(['_','_',C],['/',C]) :-
@@ -169,7 +182,7 @@ members([_|Members],FromRef)-->
 fetch(G) :-
     writeln(G),
     fail.
-fetch(class(`class__`,_ ) ) :-
+fetch(class(`class__PyaP__`,_ ) ) :-
     !.
 fetch(T) :-
     T=..[_,K,_],
@@ -180,16 +193,17 @@ fetch(T) :-
       fail
     ).
 
-fetch(class(Ref,_)) :-
-    sub_string(Ref,_,2,1,'@@'),
+fetch(class(Ref,Name)) :-
+    sub_string(Ref,_,_,N,`class__PyaP__`),
+    N>2,
     !,
+    retract(class(Ref,X)),
+    assert(predicate(Ref,X)),
+    writeln(predicate:Ref),
     assert(predicate(Ref)),
-    sub_string(Ref,Sz,_,0,SafeName),
-    string_chars(SafeName,CharsSafeName),
-    true_name(CharsSafeName,CharsName),
-    string_chars(Name,CharsName) ,
     functor(Descriptor,predicate,8),
-    fill(Descriptor,Ref,Name).
+    name2pi(Name,PI),
+    fill(Descriptor,Ref,PI).
 fetch(class(Ref,Name)) :-
     !,
     writeln(class:Ref),
@@ -200,6 +214,17 @@ fetch(group(Ref,Name)) :-
     !,
     functor(Descriptor,group,8),
     fill(Descriptor,Ref,Name).
+fetch(concept(Ref,Name)) :-
+    sub_string(Ref,0,_,N,`concept__PyaP__`),
+    N>2,
+    !,
+    retract(concept(Ref,X)),
+    assert(predicate(Ref,X)),
+    writeln(predicate:Ref),
+    assert(predicate(Ref)),
+    functor(Descriptor,predicate,8),
+    name2pi(Name,PI),
+    fill(Descriptor,Ref,PI).
 /*fetch(enum(Ref,Name)) :-
     !,
     functor(Descriptor,enum,8),

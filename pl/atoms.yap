@@ -228,6 +228,27 @@ string_concat(Xs,At) :-
 	Follow is Next+Sz,
 	 '$process_string_holes'(Unbound).
 
+string_char(I,S,C) :-
+must_be_string(S),
+(var(I) ->
+ string_length(S,L),
+ between(1,L,I)
+ ;
+true
+),
+ '$string_char'(I,S,C).
+
+string_char(I,S,C) :-
+must_be_string(S),
+(var(I) ->
+ string_length(S,L),
+ between(1,L,I)
+ ;
+true
+),
+ '$string_char'(I,S,C).
+
+
 /**
 @}
 */

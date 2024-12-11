@@ -147,8 +147,13 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
       ;
       T =.. [N1|NIs]
     ),
-    
-    format(' class  YAP~s { ~n YAP~w;~n};~n~n~n',[ N,T]).
+    (
+      is_exported(N,A)
+      ->
+      format(' class  _PyaP_~s~d { ~n _PyaP_~w;~n};~n~n~n',[ N,A,T])
+      ;
+      true
+    ) .
 
 insert_module_header :-
 %    format('class Predicate;~n~n',[]),
@@ -194,7 +199,7 @@ trl_comm( ['%','%',C|L],['/','/','/',C|NL]) :-
     !,
     trl_lines(L,LL),
     trl_pred(LL,NL).
-trl_comm(L,L).
+trl_comm(_L,[]).
 
 
 sp(' ').
@@ -202,14 +207,17 @@ sp('\t').
 sp('\n').
 
 trl_pred(RL,NL) :-
-    append(Start,['@',p,r,e,d|Decl],RL),
+    append(Start,['@',p,r,e,d,' '|Decl],RL),
     !,
-    decl(Decl,DL),
+skip_blanks(Decl,TDecl),
+    word(TDecl,W,Args),
+    decl(W,Args,DL),
     append(Start,DL,NL).
 trl_pred(RL,RL).
 
 trl_lines(RL,NL) :-
     split(RL,['\n'],Lines),
+    !,
     maplist(rcomm, Lines, RLines),
     append(RLines,NL).
 
@@ -236,23 +244,24 @@ skip_blanks([C|Cs], R) :-
     skip_blanks(Cs,R).
 skip_blanks(Cs,Cs).
 
+word([C|Cs],[C|W],R) :-
+    alphanum(C),
+    !,
+    word(Cs,W,R).
+word(R,[],R).
 
-decl(D,F) :-
-    append(Name,['('|D1],D),
-    Name = [_|_],
+decl(Name,['('|D1],F) :-
     !,
     append(Info,[')'|R1],D1),
     foldl(arity,Info,1,Arity),
 %    foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@class YAP~s [~s/~d](@ref YAP~s)~n @brief  <b>~s(~s)</b>',  [Name,Name,Arity,Name,Name,Info]),
+    format(chars(F,R1F),'@class _PyaP_~s~d [~s/~d](@ref _PyaP_~s~D)~n @brief  <b>~s(~s)</b>',  [Name,Arity,Name,Arity,Name,Arity,Name,Info]),
     trl_pred(R1,R1F).
-decl(D,F) :-
-    append(Name,[C|R1],D),
+decl(Name,[C|R1],F) :-
     sp(C),
-    maplist(Name,alphanum),
     !,
     %foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@class YAP~s [~s/0](@ref YAP~s)~n @brief <b>~s()</b>~n ~s~n',[Name,Name,Name,Name,C]),
+    format(chars(F,R1F),'@class _PyaP_~s0 [~s/0](@ref _PyaP_~s0)~n @brief <b>~s()</b>~n ~s~n',[Name,Name,Name,Name,C]),
     trl_pred(R1,R1F).
 
     /* This routine generates two streams from the comment:
@@ -270,7 +279,9 @@ csafe(C,LF,L0) :-
 csafe(C,[C|L],L).
 
 alphanum(A) :-
-    char_type(A,alphanum).
+    char_type(A,csym),
+    !.
+alphanum(':').
 
 char_to_safe('=',['_',e,q|L],L).
 char_to_safe('<',['_',l,t|L],L).
@@ -283,16 +294,16 @@ char_to_safe('*',['_',s,t|L],L).
 char_to_safe('/',['_',s,l|L],L).
 char_to_safe('$',['_',d,l|L],L).
 
-addcomm(_N/A,N0/A,false) :-
-    is_exported(N0,A),
+addcomm(N/A,N0/A,false) :-
+    is_exported(N,A),
     !,
     length(L,A),
     maplist(=('?'),L),
     T =.. [N0|L],
-    format('~n~n/**   @class YAP~s [~s/~d](@ref YAP~s)~n @brief <b>~w</b>  (undocumented)  **/~n~n~n~n',[N0,N0,A,N0,T]).
+    format('~n~n/**   @class _PyaP_~s~d [~s/~d](@ref _PyaP_~s~d)~n @brief <b>~w</b>  (undocumented)  **/~n~n~n~n',[N0,A,N0,A,N0,A,T]).
 addcomm(_,_,_).
 
-%:- initialization(main).
+:- initialization(main).
 
 
 

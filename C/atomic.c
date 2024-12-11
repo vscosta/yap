@@ -2912,6 +2912,41 @@ static Int deterministic_sub_string(USES_REGS1) { return deterministic_sub_atomi
     Accepts both atoms and strings */
 static Int deterministic_sub_text(USES_REGS1) { return deterministic_sub_atomic(false, false PASS_REGS); }
 
+static Int string_char(USES_REGS1)
+{
+  must_be_integer(ARG1);
+  pos = IntegerOfTerm(ARG1);
+  if (pos < 0) {
+          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
+  return false;
+  }
+  const unsigned char *s=UStringOfTerm(Deref(ARG2));
+  int i, chr='\0';
+  for (i=1;i<=pos;i++) {
+    s += get_utf8(s, -1, &chr);
+    if (chr=='\0')
+      return false;
+  }
+  return Yap_unify(ARG3,MkCharTerm(chr));
+}
+
+static Int string_code(USES_REGS1)
+{
+  must_be_integer(ARG1);
+  pos = IntegerOfTerm(ARG1);
+  if (pos < 0) {
+          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
+  return false;
+  }
+  const unsigned char *s=UStringOfTerm(Deref(ARG2));
+  int i, chr='\0';
+  for (i=1;i<=pos;i++) {
+    s += get_utf8(s, -1, &chr);
+    if (chr=='\0')
+      return false;
+  }
+  return Yap_unify(ARG3,MkIntTerm(chr));
+}
 
 static Int cont_current_atom(USES_REGS1) {
   Atom catom;
@@ -3014,7 +3049,8 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("string_to_atomic", 2, string_to_atomic, 0);
   Yap_InitCPred("atomic_to_string", 2, atomic_to_string, 0);
   Yap_InitCPred("string_to_list", 2, string_to_list, 0);
-  Yap_InitCPred("char_code", 2, char_code, SafePredFlag);
+  Yap_InitCPred("$string_code", 2, string_code, SafePredFlag);
+  Yap_InitCPred("$string_char", 2, string_char, SafePredFlag);
   Yap_InitCPred("atom_chars", 2, atom_chars, 0);
   Yap_InitCPred("atom_codes", 2, atom_codes, 0);
   Yap_InitCPred("atom_string", 2, atom_string, 0);
