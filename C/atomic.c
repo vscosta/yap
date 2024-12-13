@@ -2941,14 +2941,16 @@ static Int deterministic_sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
     if (!(mask & SUB_ATOM_HAS_AFTER))
       after = sz - (len + minv);
   }
-backtrackable:
+ backtrackable:
+  {
     Term ts[5];
     ts[0] = MkIntegerTerm(mask);
 ts[1] = MkIntegerTerm(minv);
 ts[2] = MkIntegerTerm(len);
 ts[3] = MkIntegerTerm(after);
 ts[4] = MkIntegerTerm(sz);
- Yap_unify(ARG6,Yap_MkApplTerm( FunctorSub5,5,ts));
+Yap_unify(ARG6,Yap_MkApplTerm( FunctorSub5,5,ts));
+  }
  return true;
 }
 

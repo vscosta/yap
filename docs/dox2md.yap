@@ -155,6 +155,7 @@ tofunctor(S,N,FA) :-
         to_big_functor(_L, S, As, N, FA)  :-
     length(As,LA),
     string_chars(FA,As),
+
     sub_string(S,4,_,LA,N).
 
 
@@ -221,7 +222,7 @@ fetch(T) :-
 
 fetch_(class(Ref,Name)) :-
     sub_string(Ref,_,_,N,`classPyaP`),
-    N>1,
+    N>3,
     !,
     retractall(class(Ref,_X)),
     assert(predicate(Ref)),
@@ -245,7 +246,8 @@ fetch_(concept(Ref,Name)) :-
     N>2,
     !,
      functor(Descriptor,predicate,8),
-   retract(concept(Ref,X)),
+     retractallyes
+     (concept(Ref,+X)),
     writeln(predicate:Ref),
     assert(predicate(Ref)),
     name2pi(Name,PI),
@@ -971,9 +973,10 @@ rel_id(MyId,Info,Id) :-
 rel_id(Id,_Info,Id).
 
 
-mkunsafe(LF,Unsafe):-
-    string_chars(Unsafe,U),
-    foldl(char_to_save,U,LF,[]).
+mkunsafe(LF,UF):-
+    string_chars(LF,U),
+    foldl(char_to_save,U,Unsafe,[]),
+    string_chars(UF,Unsafe).
 
 cunsafe(C,LF,L0) :-
     char_to_safe(C,LF,L0),
