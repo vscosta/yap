@@ -116,15 +116,15 @@ doxygen_add_docs(
   	${CMAKE_BINARY_DIR}/INSTALL.md
 	${CMAKE_SOURCE_DIR}/docs/md
      ${CMAKE_SOURCE_DIR}/docs/extra
-    # ${CMAKE_SOURCE_DIR}/C
-    # ${CMAKE_SOURCE_DIR}/H
-    # ${CMAKE_SOURCE_DIR}/include
-    # ${CMAKE_SOURCE_DIR}/CXX
+    ${CMAKE_SOURCE_DIR}/C
+     ${CMAKE_SOURCE_DIR}/H
+     ${CMAKE_SOURCE_DIR}/include
+     ${CMAKE_SOURCE_DIR}/CXX
      ${CMAKE_SOURCE_DIR}/pl
      ${CMAKE_SOURCE_DIR}/library
-  #  ${CMAKE_SOURCE_DIR}/os
+    ${CMAKE_SOURCE_DIR}/os
   #      ${CMAKE_SOURCE_DIR}/packages
-   # #${CMAKE_SOURCE_DIR}/OPTYap
+    ${CMAKE_SOURCE_DIR}/OPTYap
     COMMENT "Generating Xmls"
 )
 

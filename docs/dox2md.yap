@@ -1,3 +1,4 @@
+
 :- use_module(library(maplist)).
 :- use_module(library(lists)).
 :- use_module(library(system)).
@@ -9,6 +10,16 @@
 :- dynamic group/2, sub_predicate/2, sub_class/2, class/1, predicate/1, subclass/2, predicate/2.
 
 main :-
+    retractall(visited(_)),
+    retractall(group(_,_)),
+    retractall(sub_predicate(_,_)),
+    retractall(predicate(_)),
+    retractall(predicate(_,_)),
+    retractall(sub_class(_,_)),
+    retractall(class(_)),
+    abolish(class/8),
+    abolish(group/8),
+    abolish(predicate/8),
     unix(argv([Input,_Output])),
     atom_concat(Input,'/index.xml',Index),
     xml_load(Index,[doxygenindex([_|XMLTasks])]),
@@ -68,7 +79,7 @@ deref(Link, Link).
 %    members(Members, Ref),
 
 run_task(P,compound([[refid(Ref),kind(Kind)|_],name([[],Name])|_Members])) -->
-    { sub_string(Ref,0,_,_,`class__PyaP__`) },
+    { sub_string(Ref,0,_,_,`classPyaP`) },
     !,
     add_task(Kind,Ref,P,Name),
     sub_tasks(Kind,Ref).
@@ -116,19 +127,40 @@ inner_tasks(Parent,innergroup([[refid(Ref)|_],Name|_])) -->
 inner_tasks(_,_) --> [].
 
 name2pi(Name,PI) :-
-    sub_string(Name,R,_,L,`::_PyaP_`),
-    sub_string(Name,0,R,_,Module),
-    sub_string(Name,_,R,0,NA),
-    tofunctor(NA,N,A),
-    string_concat([Module,`:`,N,`/`,A],PI).
+    sub_string(Name,R,_,L,`::PyaP`),
+    sub_string(Name,0,R,_,Module0),
+    mkunsafe(Module0,Module),
+    sub_string(Name,_,L,0,NA),
+    tofunctor(NA,NB,A),
+    mkunsafe(NB,NameF),
+    string_concat([Module,`:`,NameF,`/`,A],PI).
 name2pi(Name,PI) :-
-    sub_string(Name,3,_,1,N), 
-    tofunctor(Name,N,A),
+    tofunctor(Name,N0,A),
+    mkunsafe(N0,N),
     string_concat([N,`/`,A],PI).
 
-to_
+tofunctor(S,N,FA) :-
+    string_length(S,L),
+    string_char(L,S,Pt),
+    char_type(Pt, digit),
+    L1 is L-1,
+    to_big_functor(L1, S, [Pt], N, FA).
 
- true_name([],[]).
+    to_big_functor(L, S, As, N, FA)  :-
+    string_char(L,S,Pt),
+    char_type(Pt, digit),
+    L1 is L-1,
+    !,
+    to_big_functor(L1, S, [Pt|As], N, FA).
+        to_big_functor(_L, S, As, N, FA)  :-
+    length(As,LA),
+    string_chars(FA,As),
+    sub_string(S,4,_,LA,N).
+
+
+
+
+true_name([],[]).
 true_name(['_','_',C],['/',C]) :-
     !.
 true_name(['_',e,q|L],['='|NL]) :-
@@ -179,66 +211,60 @@ members([_|Members],FromRef)-->
     
 
 :- dynamic visited/1.
-fetch(G) :-
-    writeln(G),
-    fail.
-fetch(class(`class__PyaP__`,_ ) ) :-
-    !.
 fetch(T) :-
     T=..[_,K,_],
     (
-      visited(K) -> !;
+    visited(K) -> !;
       assert(visited(K)),
-      writeln(K),
-      fail
+      fetch_(T)
     ).
 
-fetch(class(Ref,Name)) :-
-    sub_string(Ref,_,_,N,`class__PyaP__`),
-    N>2,
+fetch_(class(Ref,Name)) :-
+    sub_string(Ref,_,_,N,`classPyaP`),
+    N>1,
     !,
-    retract(class(Ref,X)),
-    assert(predicate(Ref,X)),
-    writeln(predicate:Ref),
+    retractall(class(Ref,_X)),
     assert(predicate(Ref)),
     functor(Descriptor,predicate,8),
     name2pi(Name,PI),
+    assert(predicate(Ref,PI)),
+    writeln(predicate:PI),
     fill(Descriptor,Ref,PI).
-fetch(class(Ref,Name)) :-
+fetch_(class(Ref,Name)) :-
     !,
     writeln(class:Ref),
     assert(class(Ref)),
     functor(Descriptor,class,8),
     fill(Descriptor,Ref,Name).
-fetch(group(Ref,Name)) :-
+fetch_(group(Ref,Name)) :-
     !,
     functor(Descriptor,group,8),
     fill(Descriptor,Ref,Name).
-fetch(concept(Ref,Name)) :-
-    sub_string(Ref,0,_,N,`concept__PyaP__`),
+fetch_(concept(Ref,Name)) :-
+    sub_string(Ref,0,_,N,`conceptPyaP`),
     N>2,
     !,
-    retract(concept(Ref,X)),
-    assert(predicate(Ref,X)),
+     functor(Descriptor,predicate,8),
+   retract(concept(Ref,X)),
     writeln(predicate:Ref),
     assert(predicate(Ref)),
-    functor(Descriptor,predicate,8),
     name2pi(Name,PI),
+    assert(predicate(Ref,PI)),
     fill(Descriptor,Ref,PI).
-/*fetch(enum(Ref,Name)) :-
+/*fetch_(enum(Ref,Name)) :-
     !,
     functor(Descriptor,enum,8),
      fill(Descriptor,Ref,Name ).
-fetch(struct(Ref,Name)) :-
+fetch_(struct(Ref,Name)) :-
     !,
     functor(Descriptor,struct,8),
      fill(Descriptor,Ref,Name).
-fetch(union(Ref,Name)) :-
+fetch_(union(Ref,Name)) :-
     !,
     functor(Descriptor,union,8),
     fill(Descriptor,Ref,Name).
 */
-fetch(_).
+fetch_(_).
 
 sub_class(Parent,Child) :-
     class(Child,Parent),
@@ -337,7 +363,7 @@ par(U0,Info,sectiondef([[kind(`public-func`)|_Opts]|Paras])) -->
     }.
 par(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) -->
     !.
-par(_U0,_Info,sectiondef([[kind(`def`)|_]|_])) -->
+par(_U0,_Info,sectiondef([[kind(`private-attrib`)|_]|_])) -->
     !.
 par(_U0,_Info,sectiondef([[kind(`enum`)|_]|_])) -->
     !.
@@ -944,4 +970,24 @@ rel_id(MyId,Info,Id) :-
     !.
 rel_id(Id,_Info,Id).
 
+
+mkunsafe(LF,Unsafe):-
+    string_chars(Unsafe,U),
+    foldl(char_to_save,U,LF,[]).
+
+cunsafe(C,LF,L0) :-
+    char_to_safe(C,LF,L0),
+    !.
+csafe(C,[C|L],L).
+
+char_to_safe('=',['_',e,q|L],L).
+char_to_safe('<',['_',l,t|L],L).
+char_to_safe('>',['_',g,t|L],L).
+char_to_safe('_',['_','_'|L],L).
+char_to_safe('!',['_',c,t|L],L).
+char_to_safe('-',['_',m,n|L],L).
+char_to_safe('+',['_',p,l|L],L).
+char_to_safe('*',['_',s,t|L],L).
+char_to_safe('/',['_',s,l|L],L).
+char_to_safe('$',['_',d,l|L],L).
 

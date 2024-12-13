@@ -12,7 +12,6 @@
  * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
  *************************************************************************/
 
-
 ///
 /// @file YapError.h
 ///
@@ -94,10 +93,10 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
   }
 
 //INLINE_ONLY 
- static Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
-                                   Term in) {
-  Term t = Deref(in);
-  // Term Context = Deref(ARG2);
+ static YAP_Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
+                                   YAP_Term in) {
+  YAP_Term t = Deref(in);
+  // YAP_Term Context = Deref(ARG2);
   if (!IsVarTerm(t) && IsAtomTerm(t))
     return t;
   if (IsVarTerm(t)) {
@@ -315,8 +314,18 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
 						    yap_error_descriptor_t *new_error, yap_error_descriptor_t *old);
  extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass, yap_error_descriptor_t *);
 
- extern void Yap_must_be_list0(YAP_Term t);
- extern bool Yap_must_be_callable(YAP_Term t, YAP_Term m);
+extern YAP_Term Yap_MkErrorYAP_Term(struct s_yap_error_descriptor *t);
+extern bool Yap_Warning(const char *s, ...);
+extern bool Yap_PrintWarning(YAP_Term t, YAP_Term level);
+extern bool Yap_HandleError__(const char *file, const char *function, int lineno,
+                       const char *s, ...);
+#define Yap_HandleError(...)                                                   \
+  Yap_HandleError__(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__)
+extern int Yap_SWIHandleError(const char *, ...);
+extern void Yap_InitErrorPreds(void);
+extern bool Yap_callable(YAP_Term t);
+ extern bool Yap_must_be_callable(YAP_Term t, YAP_Term mod);
+
 #include "ScannerTypes.h"
      
  extern char *Yap_syntax_error__(const char *file, const char *function, int lineno, YAP_Term t, int sno, TokEntry *start,
@@ -324,5 +333,4 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
 
 #endif
 
-  
 /// @}

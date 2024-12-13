@@ -35,8 +35,6 @@ This is useful to construct complex BDDs quickly, but does not mean
 CUDD will generate better/faster code.
 
 
-2.
-
  */
 #include <stdio.h>
 

@@ -982,15 +982,21 @@ nb_setval('$spy_on',ignore),
     ;
     '$ilgl'(s)				%
     ).
-'$action'(t,P,CallNumber,_,_,_) :- !,		% 't		fast skip
-    ( '$scan_number'(ScanNumber) -> Goal = ScanNumber ; Goal = CallNumber ),
-    ( (P=call; P=redo) ->
-      nb_setval(creep,zip),
-nb_setval('$spy_on',ignore),
-    nb_setval('$spy_target',Goal)
-    ;
-    '$ilgl'(t)				%
-    ).
+'$action'(t,_P,CallNumber,_,_,_) :-
+    !,		% 't		fast skip
+    (
+      '$scan_number'(ScanNumber)
+      ->
+      Goal = ScanNumber
+      ; Goal = CallNumber
+    ),
+    % ( (P=call; P=redo) ->
+    nb_setval(creep,zip),
+    nb_setval('$spy_on',ignore),
+    nb_setval('$spy_target',Goal).
+   % ;
+   % '$ilgl'(t)				%
+   % ).
 '$action'(q,P,CallNumber,_,_,_) :- !,		% qst skip
     ( '$scan_number'(ScanNumber) -> Goal = ScanNumber ; Goal = CallNumber ),
     ( (P=call; P=redo) ->

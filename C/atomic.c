@@ -205,14 +205,14 @@ static Int unhide_atom(USES_REGS1) { /* unhide_atom(+Atom)		 */
   return (TRUE);
 }
 
-/** @pred  char_code(? _A_,? _I_) is iso
+/** @pred  string_code(? _A_,? _I_) is iso
 
     The built-in succeeds with  _A_ bound to character represented as an
     atom, and  _I_ bound to the character code represented as an
     integer. At least, one of either  _A_ or  _I_ must be bound before
     the call.
 */
-static Int char_code(USES_REGS1) {
+static Int get_string_code(USES_REGS1) {
   Int t0 = Deref(ARG1);
   if (!Yap_IsGroundTerm(t0)) {
     Term t1 = Deref(ARG2);
@@ -275,6 +275,86 @@ static Int char_code(USES_REGS1) {
     if (!v)
       return false;
     tf = MkIntTerm(v);
+    Term t1 = Deref(ARG2);
+      if (!IsVarTerm(t1)&&!IsIntTerm(t1)) {
+	Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "char_code/2");
+	return (FALSE);
+      }
+    return Yap_unify(t1, tf);
+  }
+
+}
+
+/** @pred  string_char(? _A_,? _I_) is iso
+
+    The built-in succeeds with  _A_ bound to character represented as an
+    atom, and  _I_ bound to the character char represented as an
+    integer. At least, one of either  _A_ or  _I_ must be bound before
+    the call.
+*/
+static Int get_string_char3(USES_REGS1) {
+  Int t0 = Deref(ARG1);
+  if (!Yap_IsGroundTerm(t0)) {
+    Term t1 = Deref(ARG2);
+    if (!Yap_IsGroundTerm(t1)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, t0, "char_char/2");
+      return (FALSE);
+    } else if (!IsIntegerTerm(t1)) {
+      if (IsBigIntTerm(t1)) {
+        Yap_ThrowError(REPRESENTATION_ERROR_INT, t1, "char_char/2");
+        return (FALSE);
+      }
+      Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "char_char/2");
+      return (FALSE);
+    } else {
+      Int code = IntegerOfTerm(t1);
+      Term tout;
+
+      if (code < 0) {
+        Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER_CODE, t1, "char_code/2");
+        return (FALSE);
+      }
+      if (code > 127) {
+        unsigned char codes[10];
+
+        if (code > CHARCODE_MAX) {
+          Yap_ThrowError(REPRESENTATION_ERROR_INT, t1, "char_code/2");
+          return (FALSE);
+        }
+        size_t n = put_utf8(codes, code);
+        codes[n] = '\0';
+        tout = MkAtomTerm(Yap_ULookupAtom(codes));
+      } else {
+        char codes[2];
+
+        codes[0] = code;
+        codes[1] = '\0';
+        tout = MkAtomTerm(Yap_LookupAtom(codes));
+      }
+      if (!IsVarTerm(t0)&&!IsAtomTerm(t0)) {
+	Yap_ThrowError(TYPE_ERROR_CHARACTER, t0, "char_code/2");
+	return (FALSE);
+      }
+      return Yap_unify(ARG1, tout);
+    }
+  } else if (!IsAtomTerm(t0)) {
+    Yap_ThrowError(TYPE_ERROR_CHARACTER, t0, "char_code/2");
+    return (FALSE);
+  } else {
+    Atom at = AtomOfTerm(t0);
+    Term tf;
+    unsigned char *c = RepAtom(at)->UStrOfAE;
+     char *sc = RepAtom(at)->StrOfAE;
+    int32_t v;
+
+    int n = get_utf8(c, strlen(sc), &v);
+    if (n!=strlen(sc)) {
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");
+      return false;
+    }
+    if (!v)
+      return false;
+    tf = MkCharTerm(v);
     Term t1 = Deref(ARG2);
       if (!IsVarTerm(t1)&&!IsIntTerm(t1)) {
 	Yap_ThrowError(TYPE_ERROR_INTEGER, t1, "char_code/2");
@@ -2914,37 +2994,38 @@ static Int deterministic_sub_text(USES_REGS1) { return deterministic_sub_atomic(
 
 static Int string_char(USES_REGS1)
 {
-  must_be_integer(ARG1);
-  pos = IntegerOfTerm(ARG1);
+  int chr='\0';
+  Term indxt = Deref(ARG1);
+  must_be_integer(indxt);
+  int pos = IntegerOfTerm(indxt);
   if (pos < 0) {
-          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
+    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,ARG1, "sub_text/5");
   return false;
   }
   const unsigned char *s=UStringOfTerm(Deref(ARG2));
-  int i, chr='\0';
-  for (i=1;i<=pos;i++) {
-    s += get_utf8(s, -1, &chr);
-    if (chr=='\0')
-      return false;
-  }
+  s=skip_utf8(s,pos-1);
+  get_utf8(s, -1, &chr);
+  if (chr=='\0')
+    return false;
+
   return Yap_unify(ARG3,MkCharTerm(chr));
 }
 
 static Int string_code(USES_REGS1)
 {
-  must_be_integer(ARG1);
-  pos = IntegerOfTerm(ARG1);
+  int chr='\0';
+  Term indxt = Deref(ARG1);
+  must_be_integer(indxt);
+  int pos = IntegerOfTerm(indxt);
   if (pos < 0) {
-          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tbef, "sub_string/5");
+          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, ARG1, "sub_string/5");
   return false;
   }
   const unsigned char *s=UStringOfTerm(Deref(ARG2));
-  int i, chr='\0';
-  for (i=1;i<=pos;i++) {
-    s += get_utf8(s, -1, &chr);
-    if (chr=='\0')
+  s=skip_utf8(s,pos-1);
+  get_utf8(s, -1, &chr);
+  if (chr=='\0')
       return false;
-  }
   return Yap_unify(ARG3,MkIntTerm(chr));
 }
 
@@ -3049,8 +3130,9 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("string_to_atomic", 2, string_to_atomic, 0);
   Yap_InitCPred("atomic_to_string", 2, atomic_to_string, 0);
   Yap_InitCPred("string_to_list", 2, string_to_list, 0);
-  Yap_InitCPred("$string_code", 2, string_code, SafePredFlag);
-  Yap_InitCPred("$string_char", 2, string_char, SafePredFlag);
+  Yap_InitCPred("get_string_code", 3, get_string_code3, SafePredFlag);
+  Yap_InitCPred("$string_code", 3, string_code, SafePredFlag);
+  Yap_InitCPred("$string_char", 3, string_char, SafePredFlag);
   Yap_InitCPred("atom_chars", 2, atom_chars, 0);
   Yap_InitCPred("atom_codes", 2, atom_codes, 0);
   Yap_InitCPred("atom_string", 2, atom_string, 0);
@@ -3072,7 +3154,8 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("atomic_concat", 2, atomic_concat2, 0);
   Yap_InitCPred("atomics_to_string", 2, atomics_to_string2, 0);
   Yap_InitCPred("atomics_to_string", 3, atomics_to_string3, 0);
-  Yap_InitCPred("get_string_code", 3, get_string_code3, 0);
+  Yap_InitCPred("$get_string_code", 3, string_code, 0);
+  Yap_InitCPred("$get_string_char", 3, string_char, 0);
 
   Yap_InitCPred("downcase_text_to_atom", 2, downcase_text_to_atom, 0);
   Yap_InitCPred("downcase_atom", 2, downcase_text_to_atom, 0);
