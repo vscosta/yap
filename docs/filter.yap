@@ -45,12 +45,9 @@ main :-
     insert_module_tail,
     halt.
 main :-
-    halt.
-/*    unix(argv([File])),
+    unix(argv([File])),
     read_file_to_string(File,Text),
-    format('~s',[Text]),
-halt.
-*/
+    format('~s',[Text]).
 
 /*
 atom_concat('cat ',File,Command),

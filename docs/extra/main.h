@@ -9,9 +9,9 @@
 
 The manual is organised as follows:
 
-- @ref INSTALL.md
+- @page INSTALL.md
 
-- @ref CALLING_YAP.md
+- @page CALLING_YAP.md
 
 - @ref Builtins
 

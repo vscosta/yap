@@ -1,6 +1,6 @@
 
 
-# run Executing  YAP Programs
+# CALLING_YAP Executing  YAP Programs
 
 
 We next describe how to invoke YAP in Unix systems.

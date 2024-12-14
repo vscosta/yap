@@ -1,28 +1,112 @@
-# @YAP_FULL_VERSION@ Reference Manual
 
-![The YAP Logo](images/yap_256x256x32.png)
+
+/** @mainpage The  @YAP_FULL_VERSION@ User and Reference Manual
+@{
+*[The YAP Logo](images/yap_256x256x32.png)
 
 NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
 
-## Introduction
-
-This document provides User information on version @YAP_FULL_VERSION@
+@section Introduction This document provides User information on version @YAP_FULL_VERSION@
 of YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
 high-performance Prolog compiler developed at Universidade do Porto.
 
-- [Installing YAP](INSTALL.md).
+- @subpage INSTALL.md
 
-- [CALLING_YAP](CALLING_YAP.md)
+- @subpage CALLING_YAP.md
 
-- [YAP to Prolog](group__Builtins.md).
+- @subpage Builtins.md
 
-- [The YAP Library](group__YAPLibrary.md).
+- @subpage YAPLibrary.md
 
-- [Programming in YAP](group__YAPProgramming.md).
+- @subpage YAPProgramming.md
 
-- [YAP Supported Extensions to Prolog](group__YapExtensions.md).
+- @subpage YapExtensions.md
 
-- [YAP Packages](group__YAPPackages.md).
+- @subpage YAPAPI.md
+Some general info.
 
-- [YAP Foreign Interfaces](group__YAPAPI.md).
+@}
+*/
+
+//-----------------------------------------------------------
+
+/** @page INSTALL Installing  YAP
+
+*/
+
+//-----------------------------------------------------------
+
+//-----------------------------------------------------------
+
+/** @page CALLING_YAP   Calling and Executing YAP
+This page introduces the user to the options available for calling YAP from the command line.
+*/
+
+/** @page Builtins Core Prolog YAP
+
+@brief Describes the main core features of the Prolog engine
+
+@tableofcontents
+
+
+*/
+
+/** @page InputOutput YAP  support for InputOutput
+@{
+@brief Describes how to input and output data in YAP.
+
+@tableofcontents
+@}
+
+*/
+
+
+/** @page YAPLibrary he YAP Library Useful Utities
+@brief Describes a number of useful modules.
+
+@tableofcontents
+*/
+
+
+/** @page YAPProgramming Developing Programs in YAP
+
+	- @subpage YAPConsulting
+we present the main predicates and directives available to load
+  files and to control the Prolog environment.
+
+@tableofcontents
+
+*/
+
+/** @page YAPConsulting Loading and Organising YAP Programs
+@brief we present the main predicates and directives available to load
+   files and to control the Prolog environment.
+*/
+
+/** @page YapExtensions Beyond core Prolog
+
+@brief Describes major changes to the original Prolog engine
+@tableofcontents
+
+*/
+
+/** @page YAPPackages 
+blabla
+@tableofcontents
+*/
+
+
+
+
+/** @page YAPAPI The YAP Foreign Language
+
+@brief The Foreign Language Interfaces
+@tableofcontents
+
+YAP provides the user with three facilities for writing
+predicates in a language other than Prolog. Under Unix systems,
+most language implementations were linkable to `C`, and the first interface exported  the YAP machinery to the C language. YAP also implements most of the SWI-Prolog foreign language interface.
+This gives portability with a number of SWI-Prolog packages and avoids garbage collection by using @ref slotInterface. Last, a new C++ based interface is
+being designed to work with the swig (www.swig.org) interface compiler.
+*/
 

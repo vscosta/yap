@@ -1,5 +1,7 @@
 # Installing YAP {#INSTALL}
 
+This page give pointers on where to download YAP binaries or sources, and how to compile it.
+
 ## Downloading YAP           {#download}
 
 The latest development version of Yap-@YAP_MAJOR_VERSION@ is available source-only

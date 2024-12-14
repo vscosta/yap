@@ -5,8 +5,8 @@
 
 %:- dynamic group/8, predicate/8, show/0.
 
-:- multifile extrabrief/2.
-:- dynamic group/2, sub_predicate/2, sub_class/2, class/1, predicate/1, subclass/2, predicate/2.
+:- multifile extrabrief/2, class/8, predicate/8.
+:- dynamic group/2, sub_predicate/2,class/2, sub_class/2, class/1, predicate/1, subclass/2, predicate/2, v/2, f/2.
 
 main :-
     unix(argv([Input,_Output])),
@@ -67,6 +67,11 @@ deref(Link, Link).
 %run_task(_,compound(Compound)) --> {writeln(Compound),fail}.
 %    members(Members, Ref),
 
+run_task(P,compound([[refid(Ref),kind(`page`)|_],name([[],Name])|_Members])) -->
+    !,
+    { Kind=`group` },
+    add_task(Kind,Ref,P,Name),
+    sub_tasks(Kind,Ref).
 run_task(P,compound([[refid(Ref),kind(Kind)|_],name([[],Name])|_Members])) -->
     { sub_string(Ref,0,_,_,`class__PyaP__`) },
     !,
@@ -74,10 +79,12 @@ run_task(P,compound([[refid(Ref),kind(Kind)|_],name([[],Name])|_Members])) -->
     sub_tasks(Kind,Ref).
 run_task(P,compound([[refid(Ref),kind(Kind)|_],name([[],Name])|_Members])) -->
     !,
-    add_task(Kind,Ref,P,Name),
-    sub_tasks(Kind,Ref).
+    add_task(Kind,Ref,P,Name).
 run_task(_,compound(_)) -->
     !.
+run_task(P,compounddef([[id(Ref),`page`|More]|Members])) -->
+    !,
+    run_task(P,compound([[refid(Ref),`group`|More]|Members])).
 run_task(P,compounddef([[id(Ref),Kind|More]|Members])) -->
     !,
     run_task(P,compound([[refid(Ref),Kind|More]|Members])).
@@ -113,10 +120,13 @@ inner_tasks(Parent,innerclass([[refid(Ref)|_],Name|_])) -->
 inner_tasks(Parent,innergroup([[refid(Ref)|_],Name|_])) -->
     !,
     add_task(`group`,Ref,Parent,Name).
+inner_tasks(Parent,innerpage([[refid(Ref)|_],Name|_])) -->
+    !,
+    add_task(`group`,Ref,Parent,Name).
 inner_tasks(_,_) --> [].
 
 name2pi(Name,PI) :-
-    sub_string(Name,R,_,L,`::_PyaP_`),
+    sub_string(Name,R,_,_L,`::_PyaP_`),
     sub_string(Name,0,R,_,Module),
     sub_string(Name,_,R,0,NA),
     tofunctor(NA,N,A),
@@ -126,9 +136,7 @@ name2pi(Name,PI) :-
     tofunctor(Name,N,A),
     string_concat([N,`/`,A],PI).
 
-to_
-
- true_name([],[]).
+true_name([],[]).
 true_name(['_','_',C],['/',C]) :-
     !.
 true_name(['_',e,q|L],['='|NL]) :-
@@ -168,6 +176,11 @@ true_name([C|L],[C|NL]) :-
 %    {writeln(M),fail}.
 
 members([],_) --> [].
+members([member([[refid(Ref),kind(`page`)],name([[],Name])|InnerMembers])|Members], FromRef) -->
+    add_task(`group`,Ref,FromRef,Name),
+    !,
+    members(InnerMembers,Ref),
+    members(Members,FromRef).
 members([member([[refid(Ref),kind(Kind)],name([[],Name])|InnerMembers])|Members], FromRef) -->
     add_task(Kind,Ref,FromRef,Name),
     !,
@@ -380,6 +393,10 @@ par(U0,Info,sect3([[id(Id)],title([[],Title])|Paras])) -->
     foldl(par(U0,Info),Paras),
     add_nl(0).
 par(_U0,Info,innergroup([[refid(Ref)],Name])) -->
+    { arg(1, Info, Parent) },
+    !,
+    extra_task(`group`,Ref,Parent,Name).
+par(_U0,Info,innerpage([[refid(Ref)],Name])) -->
     { arg(1, Info, Parent) },
     !,
     extra_task(`group`,Ref,Parent,Name).
@@ -904,7 +921,7 @@ friend_member(U0,Info,memberdef([[kind(_Kind),id(MyId)|_]|Text])) -->
     cstr(St),
     add_comments(U0,Text).
 
-function_member(U0,Info,memberdef([[kind(_),id(MyId)|_]|Text])) -->
+function_member(U0,Info,memberdef([[kindqq(_),id(MyId)|_]|Text])) -->
     {
       member(definition([[],Def]), Text),
       ( member(argsstring([[],As]), Text) -> true ; As = ``),

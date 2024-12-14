@@ -1,8 +1,7 @@
+/**
+@page  The YAP C-interface 
 
-@defgroup fli_c The YAP C-interface 
-@ingroup YAPAPI
-
-
+@{
 
 Before describing in full detail how to interface to C code, we will examine
 a brief example.
@@ -1495,5 +1494,5 @@ space for your program.
 + You can generate your own saved states. Look at  the
   `boot.yap` and `init.yap` files.
 
-
+@}
 

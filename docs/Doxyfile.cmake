@@ -78,7 +78,7 @@ set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/assets/css/solarized
   set(DOXYGEN_XML_PROGRAMLISTING NO)
   set(DOXYGEN_GENERATE_MAN NO)
   set(DOXYGEN_SHOW_FILES NO)
-  # set(DOXYGEN_FILTER_SOURCE_FILES NO)
+   set(DOXYGEN_FILTER_SOURCE_FILES NO)
  set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C NO)
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_PROLOG YES)
   set(DOXYGEN_SHOW_NAMESPACES YES)
@@ -95,7 +95,6 @@ set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ix
 set(DOXYGEN_INPUT_FILTER ${CMAKE_SOURCE_DIR}/docs/filter.yap)
 set(DOXYGEN_EXTENSION_MAPPING yap=C++ pl=C++)
 set(DOXYGEN_ALIASES "pred{2/}=@class YAP\\1 [\\1/\\2](\\1)" Bold{1}="<b>\\1</b>" )
-set(DOXYGEN_INLINE_GROUPED_CLASSES  YES)
 set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${CMAKE_SOURCE_DIR}/H/generated  ${CMAKE_SOURCE_DIR}/H  ${CMAKE_SOURCE_DIR}/include   ${CMAKE_SOURCE_DIR}/os   ${CMAKE_SOURCE_DIR}/OPTYap   ${CMAKE_SOURCE_DIR}/CXX)
 set(DOXYGEN_EXAMPLE_PATH  ${CMAKE_SOURCE_DIR}/docs/md)
 set(DOXYGEN_SOURCE_BROWSER NO)
@@ -113,18 +112,18 @@ file( COPY ${DOX_MD_FILES} DESTINATION ${CMAKE_BINARY_DIR}/mkdocs/docs )
 
 doxygen_add_docs(
   dox
-  	${CMAKE_BINARY_DIR}/INSTALL.md
-	${CMAKE_SOURCE_DIR}/docs/md
-     ${CMAKE_SOURCE_DIR}/docs/extra
-    # ${CMAKE_SOURCE_DIR}/C
-    # ${CMAKE_SOURCE_DIR}/H
-    # ${CMAKE_SOURCE_DIR}/include
-    # ${CMAKE_SOURCE_DIR}/CXX
-     ${CMAKE_SOURCE_DIR}/pl
-     ${CMAKE_SOURCE_DIR}/library
-  #  ${CMAKE_SOURCE_DIR}/os
-  #      ${CMAKE_SOURCE_DIR}/packages
-   # #${CMAKE_SOURCE_DIR}/OPTYap
+  	${CMAKE_BINARY_DIR}/yap.md
+     	${CMAKE_BINARY_DIR}/INSTALL.md
+     	${CMAKE_SOURCE_DIR}/docs/md
+    #  ${CMAKE_SOURCE_DIR}/C
+    #  ${CMAKE_SOURCE_DIR}/H
+    #  ${CMAKE_SOURCE_DIR}/include
+    #  ${CMAKE_SOURCE_DIR}/CXX
+    #  ${CMAKE_SOURCE_DIR}/pl
+    #  ${CMAKE_SOURCE_DIR}/library
+    # ${CMAKE_SOURCE_DIR}/os
+    # #    ${CMAKE_SOURCE_DIR}/packages
+    # ${CMAKE_SOURCE_DIR}/OPTYap
     COMMENT "Generating Xmls"
 )
 
