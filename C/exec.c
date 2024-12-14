@@ -1107,33 +1107,33 @@ static Int creep_step(USES_REGS1)
                        pe->cs.p_code.TrueCodeOfPred PASS_REGS);
   }
   else
-  {
-    rc = CallPredicate(pe, B,
-                       pe->CodeOfPred PASS_REGS);
-  }
+    {
+      rc = CallPredicate(pe, B,
+			 pe->CodeOfPred PASS_REGS);
+    }
   if (!LOCAL_InterruptsDisabled &&
       (!(pe->PredFlags & (AsmPredFlag | CPredFlag)) ||
        pe->OpcodeOfPred == Yap_opcode(_call_bfunc_xx)))
-  {
-    Yap_signal(YAP_CREEP_SIGNAL);
-  }
+    {
+      Yap_signal(YAP_CREEP_SIGNAL);
+    }
   return rc;
 }
 
 static Int execute_nonstop(USES_REGS1)
-{ /* '$execute_nonstop'(Goal,Mod)
-                                          */
+{ /* '$execute_nonstop'(Mod:Goal)
+   */
   Term t = Deref(ARG1);
   PredEntry *pe = Yap_get_pred(t, ARG2, "c_exec(G)");
-    register Functor f = FunctorOfTerm(t);
-    register arity_t arity = pe->ArityOfPE, i;
+  register Functor f = FunctorOfTerm(t);
+  register arity_t arity = pe->ArityOfPE, i;
 
-    register CELL *pt;
+  register CELL *pt;
 
-    if (IsExtensionFunctor(f))
-      return false;
+  if (IsExtensionFunctor(f))
+    return false;
 
-     /* I cannot use the standard macro here because
+      /* I cannot use the standard macro here because
            otherwise I would dereference the argument and
            might skip a svar */
     pt = RepAppl(t) + 1;
@@ -1149,9 +1149,8 @@ static Int execute_nonstop(USES_REGS1)
       XREGS[i] = *pt++;
 #endif
     }
-  
-    return CallPredicate(pe, B,
-                         pe->cs.p_code.TrueCodeOfPred PASS_REGS);
+    PP = pe;
+    return CallPredicate(pe, B, pe->cs.p_code.TrueCodeOfPred  PASS_REGS);
 }
 
 
@@ -1404,7 +1403,8 @@ bool done=false;
       // but we should inform the caller on what happened.
 
       out = false;
-//    Yap_CloseTemporaryStreams(top_stream);
+
+      //    Yap_CloseTemporaryStreams(top_stream);
       lval=0;
       continue;
     }

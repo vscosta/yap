@@ -142,8 +142,8 @@ SetHeapRegs(bool copying_threads USES_REGS)
     LCL0 = PtoLocAdjust(LCL0);
   if (HR)
     HR = PtoGloAdjust(HR);
-  if (Yap_REGS.CUT_C_TOP)
-    Yap_REGS.CUT_C_TOP = CutCAdjust(Yap_REGS.CUT_C_TOP);
+//  if (Yap_REGS.CUT_C_TOP)
+//    Yap_REGS.CUT_C_TOP = CutCAdjust(Yap_REGS`.CUT_C_TOP);
   if (HB)
     HB = PtoGloAdjust(HB);
   if (LOCAL_OpenArray)

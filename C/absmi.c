@@ -747,6 +747,7 @@ static void spy_goal(USES_REGS1) {
     PELOCK(14, pe);
     PP = pe;
   }
+
 #endif
   if (!(pe->PredFlags & IndexedPredFlag) && pe->cs.p_code.NOfClauses > 1) {
     /* update ASP before calling IPred */

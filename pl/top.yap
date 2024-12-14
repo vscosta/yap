@@ -180,14 +180,13 @@ AVs = [],
 
 
 				
-'$query'(G,[]) :-
-    '$query'(G,[],_Port).
-
+%'$query'(G,[],_Port) :-
+%    '$query'(G,[],_Port).
 '$query'([],_Vs,_Port) :-
     !.
 '$query'(G0,_Vs,Port) :-
     current_prolog_flag(debug,true),
-   current_prolog_flag(trace,true),
+    current_prolog_flag(trace,true),
     !,
     expand_goal(G0,G),
     nb_setval(creep,creep),
@@ -268,18 +267,19 @@ true
 
 % enable creeping
 '$enable_debugging':-
-current_prolog_flag(debug, false), !.
+    current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
     current_prolog_flag(trace,true),
     !,
     nb_setval(creep,creep),
-    	       nb_setval('$spy_on',stop),
+    nb_setval('$spy_start', 0),
+    nb_setval('$spy_on',stop),
     nb_setval('$spy_target',0),
     '$creep'.
 '$enable_debugging' :-
     nb_setval(creep,zip),
-            nb_setval(creep,creep),
-    	       nb_setval('$spy_on',stop),
+    nb_setval('$spy_start', 0),
+    nb_setval('$spy_on',stop),
     nb_setval('$spy_target',0).
 
 

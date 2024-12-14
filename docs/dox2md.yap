@@ -128,15 +128,15 @@ inner_tasks(_,_) --> [].
 
 name2pi(Name,PI) :-
     sub_string(Name,R,_,L,`::PyaP`),
-    sub_string(Name,0,R,_,Module0),
-    mkunsafe(Module0,Module),
+    sub_string(Name,0,R,_,Module),
+%    mkunsafe(Module0,Module),
     sub_string(Name,_,L,0,NA),
-    tofunctor(NA,NB,A),
-    mkunsafe(NB,NameF),
+    tofunctor(NA,NameF,A),
+%    mkunsafe(NB,NameF),
     string_concat([Module,`:`,NameF,`/`,A],PI).
 name2pi(Name,PI) :-
-    tofunctor(Name,N0,A),
-    mkunsafe(N0,N),
+    tofunctor(Name,N,A),
+%    mkunsafe(N0,N),
     string_concat([N,`/`,A],PI).
 
 tofunctor(S,N,FA) :-
@@ -223,11 +223,11 @@ fetch(T) :-
 fetch_(class(Ref,Name)) :-
     sub_string(Ref,_,_,N,`classPyaP`),
     N>3,
+    name2pi(Name,PI),
     !,
     retractall(class(Ref,_X)),
     assert(predicate(Ref)),
     functor(Descriptor,predicate,8),
-    name2pi(Name,PI),
     assert(predicate(Ref,PI)),
     writeln(predicate:PI),
     fill(Descriptor,Ref,PI).
@@ -244,13 +244,12 @@ fetch_(group(Ref,Name)) :-
 fetch_(concept(Ref,Name)) :-
     sub_string(Ref,0,_,N,`conceptPyaP`),
     N>2,
+    name2pi(Name,PI),
     !,
      functor(Descriptor,predicate,8),
-     retractallyes
      (concept(Ref,+X)),
     writeln(predicate:Ref),
     assert(predicate(Ref)),
-    name2pi(Name,PI),
     assert(predicate(Ref,PI)),
     fill(Descriptor,Ref,PI).
 /*fetch_(enum(Ref,Name)) :-
@@ -366,6 +365,8 @@ par(U0,Info,sectiondef([[kind(`public-func`)|_Opts]|Paras])) -->
 par(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) -->
     !.
 par(_U0,_Info,sectiondef([[kind(`private-attrib`)|_]|_])) -->
+    !.
+par(_U0,_Info,sectiondef([[kind(`private-func`)|_]|_])) -->
     !.
 par(_U0,_Info,sectiondef([[kind(`enum`)|_]|_])) -->
     !.
@@ -975,7 +976,7 @@ rel_id(Id,_Info,Id).
 
 mkunsafe(LF,UF):-
     string_chars(LF,U),
-    foldl(char_to_save,U,Unsafe,[]),
+    foldl(char_to_safe,U,Unsafe,[]),
     string_chars(UF,Unsafe).
 
 cunsafe(C,LF,L0) :-

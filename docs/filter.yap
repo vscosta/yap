@@ -1,4 +1,4 @@
-#!/Users/vsc/github/yap/build/yap -L --
+#!/home/vsc/github/yap/build/yap -L --
 
 /** @file filter.yap
  *
