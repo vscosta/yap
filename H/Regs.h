@@ -145,7 +145,6 @@ typedef struct regstore_t
 #endif /* YAPOR_SBA */
 #endif /* YAPOR || THREADS */
     yamop *ARITH_EXCEPTION_;
-    struct cut_c_str *CUT_C_TOP;
     tr_fr_ptr   CurrentTrailTop_;	/* 10 Auxiliary stack top                     */
     ADDR   AuxBase_;		/* 9 Auxiliary base  pointer                  */
     CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */

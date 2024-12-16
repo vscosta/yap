@@ -1900,7 +1900,7 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
   } else if (ap->PredFlags &
              (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
+    ap->CodeOfPred = 
         (yamop *)(&(ap->OpcodeOfPred));
   } else {
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;

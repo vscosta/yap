@@ -67,6 +67,7 @@
   */
 init_prolog :-
     % do catch as early as possible
+    nb_setval('$spy_start',-1),
     '$init_consult',
     '$version',
     '$init_preds',

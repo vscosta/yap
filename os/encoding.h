@@ -22,7 +22,6 @@
 #include "YapConfig.h"
 #include "YapIOConfig.h"
 #include <string.h>
-#include "YapError.h"
 
 
 typedef enum YAP_encoding {

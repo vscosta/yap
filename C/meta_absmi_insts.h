@@ -1,3 +1,4 @@
+#ifdef UNDEFINED
 
 #ifdef INDENT_CODE
 {
@@ -196,7 +197,7 @@
 	  if (pen->FunctorOfPred == (Functor)AtomCut) {
 	    if (b_ptr != B) {
 	      saveregs();
-	      prune(b_ptr PASS_REGS);
+	      prune(b_ptr, B PASS_REGS);
 	      setregs();
 	    }
 	  }
@@ -277,4 +278,5 @@
     }
   }
 }
+#endif
 #endif

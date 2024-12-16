@@ -1,4 +1,4 @@
-#!/home/vsc/.local/bin/yap -L --
+#!/home/vsc/github/yap/build/yap -L --
 
 /** @file filter.yap
  *
@@ -127,27 +127,29 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
 	   Preds, [comments(Comments), head_body(Head, Body, Vs)|L0]) :-
     predicates(More,N/A,Preds,L0).
 
+
 output(command([comments(Comments) |_])) :-
     maplist(out_comment(_),Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
-%    atom_chars(N,Ns),
+    atom_chars(N,Ns),
 %    foldl(csafe,Ns,SNs,[]),
     %    format(atom(N1),'~s/~d',[SNs,A]),
-    N1=N,
+    foldl(csafe,Ns,N1,[]),
+    atom_chars(N2,N1),
     maplist(out_comment(Found),Comments),
-    addcomm(N1/A,N/A,Found),
+    addcomm(N2/A,N/A,Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
     (
       A==0 ->
-      T = N()
+      T = N2()
       ;
-      T =.. [N1|NIs]
+      T =.. [N2|NIs]
     ),
     (
       is_exported(N,A)
       ->
-      format(' class  _PyaP_~s~d { ~n _PyaP_~w;~n};~n~n~n',[ N,A,T])
+true %      format(' class  ~s { ~n ~w;~n};~n~n~n',[ N2,A,T])
       ;
       true
     ) .
@@ -166,7 +168,7 @@ insert_module_tail :-
 insert_module_tail.
 
 
-
+%out_comment(_,H) :- writeln(H),fail.
 out_comment(true,C) :-
     string_chars(C,Cs),
     trl_comm(Cs,Cf), 
@@ -206,7 +208,7 @@ sp('\n').
 trl_pred(RL,NL) :-
     append(Start,['@',p,r,e,d,' '|Decl],RL),
     !,
-skip_blanks(Decl,TDecl),
+    skip_blanks(Decl,TDecl),
     word(TDecl,W,Args),
     decl(W,Args,DL),
     append(Start,DL,NL).
@@ -250,15 +252,15 @@ word(R,[],R).
 decl(Name,['('|D1],F) :-
     !,
     append(Info,[')'|R1],D1),
-    foldl(arity,Info,1,Arity),
+%    foldl(arity,Info,1,Arity),
 %    foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@class _PyaP_~s~d [~s/~d](@ref _PyaP_~s~D)~n @brief  <b>~s(~s)</b>',  [Name,Arity,Name,Arity,Name,Arity,Name,Info]),
+    format(chars(F,R1F),'@concept ~s  ~n @brief  <b>~s(~s)</b>',  [Name,Name,Info]),
     trl_pred(R1,R1F).
 decl(Name,[C|R1],F) :-
     sp(C),
     !,
-    %foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@class _PyaP_~s0 [~s/0](@ref _PyaP_~s0)~n @brief <b>~s()</b>~n ~s~n',[Name,Name,Name,Name,C]),
+%    foldl(csafe,Name,TName,[]),
+    format(chars(F,R1F),'@concept ~s  ~n @brief  <b>~s</b>',  [Name,Name]),
     trl_pred(R1,R1F).
 
     /* This routine generates two streams from the comment:
@@ -297,7 +299,7 @@ addcomm(N/A,N0/A,false) :-
     length(L,A),
     maplist(=('?'),L),
     T =.. [N0|L],
-    format('~n~n/**   @class _PyaP_~s~d [~s/~d](@ref _PyaP_~s~d)~n @brief <b>~w</b>  (undocumented)  **/~n~n~n~n',[N0,A,N0,A,N0,A,T]).
+    format('~n~n/**   @concept  ~sn @brief <b>~w</b>  (undocumented)  **/~n~n~n~n',[N0,T]).
 addcomm(_,_,_).
 
 :- initialization(main).

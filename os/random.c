@@ -305,7 +305,7 @@ static void init_rand_generator(void) {
 static unsigned int current_seed;
 
 /**
-   @groupdef YAPRandom Interface to the OS number rg.
+   @defgroup YAPRandom Interface to the OS number rg.
    @ingroup InputOutput
 `   
    @{

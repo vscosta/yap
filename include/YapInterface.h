@@ -41,6 +41,8 @@ The following routines export the YAP internals and architecture.
 
 #include "YapDefs.h"
 
+#include "YapError.h"
+
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif

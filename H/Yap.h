@@ -386,6 +386,24 @@ typedef volatile int lockvar;
 
 #include "Regs.h"
 
+#include "YapError.h"
+extern bool must_be_arity__(const char *file, const char *function, int lineno,YAP_Term t USES_REGS );
+extern bool must_be_atom__(const char *file, const char *function, int lineno,YAP_Term t USES_REGS );
+extern bool must_be_char__(const char *file, const char *function, int lineno,YAP_Term t USES_REGS );
+extern bool must_be_code__(const char *file, const char *function, int lineno,YAP_Term t USES_REGS );
+extern bool must_be_integer__(const char *file, const char *function, int lineno,YAP_Term t USES_REGS );
+extern bool must_be_list__(const char *file, const char *function, int lineno,YAP_Term t USES_REGS );
+extern bool must_be_string__(const char *file, const char *function, int lineno,YAP_Term t USES_REGS );
+
+#define must_be_arity(t ) must_be_arity__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_atom(t ) must_be_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_char(t ) must_be_char__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_code(t ) must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_integer(t ) must_be_integer__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_list(t ) must_be_list__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_string(t ) must_be_string__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+
+
 #include "Yapproto.h"
 
 
@@ -431,14 +449,6 @@ typedef volatile int lockvar;
 
 #include "gprof.h"
   
-#include "YapError.h"
-
-INLINE_ONLY Term must_be_integer(Term t) {
-  t = Deref(t);
-  if (IsVarTerm(t)) Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
-  if (!IsIntegerTerm(t)) Yap_ThrowError(TYPE_ERROR_INTEGER, t, NULL);
-  return t;
-}
 INLINE_ONLY Term must_be_module(Term t) {
   t = Deref(t);
   if (IsVarTerm(t)) Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);

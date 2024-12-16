@@ -1,3 +1,4 @@
+
 :- use_module(library(maplist)).
 :- use_module(library(lists)).
 :- use_module(library(system)).
@@ -6,9 +7,16 @@
 %:- dynamic group/8, predicate/8, show/0.
 
 :- multifile extrabrief/2, class/8, predicate/8.
-:- dynamic group/2, sub_predicate/2,class/2, sub_class/2, class/1, predicate/1, subclass/2, predicate/2, v/2, f/2.
+:- dynamic parent/2, class/1, predicate/1, v/2, f/2, c/2.
 
 main :-
+    retractall(visited(_)),
+    retractall(parent(_,_)),
+    retractall(predicate(_)),
+    retractall(class(_)),
+    abolish(class/8),
+    abolish(group/8),
+    abolish(predicate/8),
     unix(argv([Input,_Output])),
     atom_concat(Input,'/index.xml',Index),
     xml_load(Index,[doxygenindex([_|XMLTasks])]),
@@ -23,11 +31,10 @@ xml(XMLTasks) :-
 
 add_task(Kind, A,B,Name0) -->
     { string_atom(Kind,Atom),
-      Linkage =.. [Atom, A, B],
+      Linkage =.. [parent, A, B],
       AnyLinkage =.. [Atom,A,_],
-      BaseLinkage =.. [Atom, A, ``],
       Name =.. [Atom,A,Name0] },
-    add_kind_of_task(Name, Linkage, BaseLinkage,AnyLinkage).
+    add_kind_of_task(Name, Linkage,AnyLinkage).
 
 extra_task(Kind,Ref,Parent,Name) -->
     { add_task(Kind,Ref,Parent,Name,[], Tasks),
@@ -38,11 +45,11 @@ extra_task(Kind,Ref,Parent,Name) -->
       true
     }.
 
-add_kind_of_task(Name, Linkage, BaseLinkage,_) -->
-    {retract(BaseLinkage),assert(Linkage)},
+add_kind_of_task(Name, Linkage,_) -->
+    {assert(Linkage)},
     [Name].
-add_kind_of_task(_,_,_,AnyLinkage) --> {AnyLinkage}, !.
-add_kind_of_task(Name,Linkage,_,_) --> {assert(Linkage)}, [Name].
+add_kind_of_task(_,_,AnyLinkage) --> {AnyLinkage}, !.
+add_kind_of_task(Name,Linkage,_) --> {assert(Linkage)}, [Name].
 
 xml2tasks(Tasks, NewTasks) :-
     foldl( run_task(``), Tasks, NewTasks, []).
@@ -73,7 +80,7 @@ run_task(P,compound([[refid(Ref),kind(`page`)|_],name([[],Name])|_Members])) -->
     add_task(Kind,Ref,P,Name),
     sub_tasks(Kind,Ref).
 run_task(P,compound([[refid(Ref),kind(Kind)|_],name([[],Name])|_Members])) -->
-    { sub_string(Ref,0,_,_,`class__PyaP__`) },
+    { sub_string(Ref,0,_,_,`class`) },
     !,
     add_task(Kind,Ref,P,Name),
     sub_tasks(Kind,Ref).
@@ -126,15 +133,39 @@ inner_tasks(Parent,innerpage([[refid(Ref)|_],Name|_])) -->
 inner_tasks(_,_) --> [].
 
 name2pi(Name,PI) :-
-    sub_string(Name,R,_,_L,`::_PyaP_`),
+    sub_string(Name,R,_,L,`::`),
     sub_string(Name,0,R,_,Module),
-    sub_string(Name,_,R,0,NA),
-    tofunctor(NA,N,A),
-    string_concat([Module,`:`,N,`/`,A],PI).
+%    mkunsafe(Module0,Module),
+    sub_string(Name,_,L,0,NA),
+    tofunctor(NA,NameF,A),
+%    mkunsafe(NB,NameF),
+    string_concat([Module,`:`,NameF,`/`,A],PI).
 name2pi(Name,PI) :-
-    sub_string(Name,3,_,1,N), 
     tofunctor(Name,N,A),
+%    mkunsafe(N0,N),
     string_concat([N,`/`,A],PI).
+
+tofunctor(S,N,FA) :-
+    string_length(S,L),
+    string_char(L,S,Pt),
+    char_type(Pt, digit),
+    L1 is L-1,
+    to_big_functor(L1, S, [Pt], N, FA).
+
+    to_big_functor(L, S, As, N, FA)  :-
+    string_char(L,S,Pt),
+    char_type(Pt, digit),
+    L1 is L-1,
+    !,
+    to_big_functor(L1, S, [Pt|As], N, FA).
+        to_big_functor(_L, S, As, N, FA)  :-
+    length(As,LA),
+    string_chars(FA,As),
+
+    sub_string(S,4,_,LA,N).
+
+
+
 
 true_name([],[]).
 true_name(['_','_',C],['/',C]) :-
@@ -192,66 +223,45 @@ members([_|Members],FromRef)-->
     
 
 :- dynamic visited/1.
-fetch(G) :-
-    writeln(G),
-    fail.
-fetch(class(`class__PyaP__`,_ ) ) :-
-    !.
 fetch(T) :-
     T=..[_,K,_],
     (
-      visited(K) -> !;
+    visited(K) -> !;
       assert(visited(K)),
-      writeln(K),
-      fail
+      fetch_(T)
     ).
 
-fetch(class(Ref,Name)) :-
-    sub_string(Ref,_,_,N,`class__PyaP__`),
-    N>2,
-    !,
-    retract(class(Ref,X)),
-    assert(predicate(Ref,X)),
-    writeln(predicate:Ref),
-    assert(predicate(Ref)),
-    functor(Descriptor,predicate,8),
-    name2pi(Name,PI),
-    fill(Descriptor,Ref,PI).
-fetch(class(Ref,Name)) :-
+fetch_(class(Ref,Name)) :-
     !,
     writeln(class:Ref),
     assert(class(Ref)),
     functor(Descriptor,class,8),
     fill(Descriptor,Ref,Name).
-fetch(group(Ref,Name)) :-
+fetch_(group(Ref,Name)) :-
     !,
     functor(Descriptor,group,8),
+    assert(group(Ref)),
     fill(Descriptor,Ref,Name).
-fetch(concept(Ref,Name)) :-
-    sub_string(Ref,0,_,N,`concept__PyaP__`),
-    N>2,
+fetch_(concept(Ref,Name)) :-
     !,
-    retract(concept(Ref,X)),
-    assert(predicate(Ref,X)),
+     functor(Descriptor,predicate,8),
     writeln(predicate:Ref),
     assert(predicate(Ref)),
-    functor(Descriptor,predicate,8),
-    name2pi(Name,PI),
-    fill(Descriptor,Ref,PI).
-/*fetch(enum(Ref,Name)) :-
+    fill(Descriptor,Ref,Name).
+/*fetch_(enum(Ref,Name)) :-
     !,
     functor(Descriptor,enum,8),
      fill(Descriptor,Ref,Name ).
-fetch(struct(Ref,Name)) :-
+fetch_(struct(Ref,Name)) :-
     !,
     functor(Descriptor,struct,8),
      fill(Descriptor,Ref,Name).
-fetch(union(Ref,Name)) :-
+fetch_(union(Ref,Name)) :-
     !,
     functor(Descriptor,union,8),
     fill(Descriptor,Ref,Name).
 */
-fetch(_).
+fetch_(_).
 
 sub_class(Parent,Child) :-
     class(Child,Parent),
@@ -350,7 +360,9 @@ par(U0,Info,sectiondef([[kind(`public-func`)|_Opts]|Paras])) -->
     }.
 par(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) -->
     !.
-par(_U0,_Info,sectiondef([[kind(`def`)|_]|_])) -->
+par(_U0,_Info,sectiondef([[kind(`private-attrib`)|_]|_])) -->
+    !.
+par(_U0,_Info,sectiondef([[kind(`private-func`)|_]|_])) -->
     !.
 par(_U0,_Info,sectiondef([[kind(`enum`)|_]|_])) -->
     !.
@@ -376,7 +388,13 @@ par(_U0,_Info,exceptions(_)) -->
 par(_U0,_Info,initializexbr(_)) -->
     !.
 par(U0,Info,sect1([[id(Id)],title([[],Title])|Paras])) -->
+    !,
     mcstr([`## `,Title,`               {#`,Id,`};`]),
+    add_nl(U0),
+    foldl(par(U0,Info),Paras),
+    add_nl(0).
+par(U0,Info,sect1([[id(Id)]|Paras])) -->
+    mcstr([`## `,Id,`               {#`,Id,`};`]),
     add_nl(U0),
     foldl(par(U0,Info),Paras),
     add_nl(0).
@@ -477,10 +495,6 @@ par(_,GT,title([[],Title])) -->
     !,
     {arg(8,GT,Title) }.
 par(_,_GT,initializer([[]|_L])) -->
-    !.
-par(_,_GT,listofallmembers([[]|_L])) -->
-    !.
-par(_,_GT,templateparamlist([[]|_L])) -->
     !.
 par(_,_GT,includes(_)) --> !.
 par(U0,Info,memberdef([_|Seq]))-->
@@ -610,8 +624,16 @@ par(U0,Item, itemizedlist([[]|L])) -->
 par(U0,Item,orderedlist([[]|L])) -->
     !,
     foldl(oitem(U0,Item),L).
+par(_,_GT,listofallmembers([[]|_L])) -->
+    !.
+par(_,_GT,templateparamlist([[]|_L])) -->
+    !.
 par(_U0, _, parameterlist(_)) -->
     !.
+par(U0, Item, variablelist([[],varlistentry([[]|Text])|Items])) -->
+    !,
+    foldl(par(U0,Item),Text),
+    foldl(item(U0,Item),Items).
 par(_U0, _, bodystart(_)) -->
     !.
 par(_U0, _, bodylist(_)) -->
@@ -632,6 +654,9 @@ par(U0,_Item, par(_,Par)) -->
     foldl(parameteritem(U0),Par).
 par(U,_Info, parameterlist([[_|_]|Seq])) -->
     foldl(par(U),Seq).
+par(U0,Item, term([[]|Par])) -->
+    !,
+    foldl(par(U0,Item),Par).
 par(_U,_Info,ref([[refid(`classT`),kindref(`compound`)],true])) -->
     !.
 par(_U,_Info, ref([[refid(R)|_],Name])) -->
@@ -685,6 +710,11 @@ item(U0,Item,listitem([[]|Seq]),S0,SF) :-
     U is U0+4,
     foldl(par(U,Item),Seq,S1,SF).
 
+ventry(U0,Item,varlistentry([[]|Seq]),S0,SF) :-
+    string_concat(S0,`- `,S1),
+    U is U0+4,
+    foldl(par(U,Item),Seq,S1,SF).
+
 oitem(U0,Item,listitem([[]|Seq]),S0,SF) :-
     string_concat(S0,`1. `,S1),
     U is U0+4,
@@ -734,10 +764,6 @@ add_nl(U,S0,SF) :-
     add_space(U,S0,SI),
     string_concat(SI,`\n\n`,SF).
 
-is_parent(P) :-
-    group(_Id,P).
-is_parent(P) :-
-    class(_Id,P).
 
 ent(Id,class,Name, File,Line,Column,Brief,Text,Title) :-
     class(Id,Name, File,Line,Column,Brief,Text,Title).
@@ -750,9 +776,12 @@ merge_nodes :-
     unix(argv([_Input,Output])),
     ent(Id,Type,Name, File,Line,Column,Brief,Text,Title),
     atomic_concat([Output,'/',Id,'.md'],F),
+    writeln(Id),
+    setup_call_cleanup(
     open(F,write,S,[alias(Type)]),
-    ignore(one(Type,S,Id,Name, File,Line,Column,Brief,Text,Title)),
-    close(S),
+one(Type,S,Id,Name, File,Line,Column,Brief,Text,Title),
+    close(S)
+    ),
     fail.
  merge_nodes.
 
@@ -773,6 +802,16 @@ one(group, S,Id, _Name, File,Line,Column,Brief,Text,Title) :-
     subgroups(S,Id),
     process_group(S,Id,File,Line,Column,Text).
 
+group(I,N) :-
+    parent(I,N),
+    group(I).
+class(I,N) :-
+    parent(I,N),
+    class(I).
+predicate(I,N) :-
+    parent(I,N),
+    predicate(I).
+
 subgroups(S,Id) :-
     group(_,Id),
     !,
@@ -781,11 +820,11 @@ subgroups(S,Id) :-
 subgroups(_S,_Id).
 
 process_group(S,Id,_File,_Line,_Column,_Text) :-
-    once(sub_predicate(Id,_Pred)),
+    once(predicate(_Pred,Id)),
     format(S,'## Predicates\n\n', []), 
     format(S,'|Predicate~t|~20|Description~t|~40|\n', []), 
     format(S,'|:---|:---~|\n', []), 
-    forall(sub_predicate(Id,Ref),(addsubp(S,Ref))),
+    forall(predicate(Ref,Id),(addsubp(S,Ref))),
     format(S,'\n\n',[]),
     fail.
     %format(S,'~s\n',[Brief]),
@@ -795,7 +834,7 @@ process_group(S,Id,_File,_Line,_Column,_Text) :-
     format(S,'## Classes\n\n', []), 
     format(S,'|Class~t|~20|Description~t|~40|\n', []), 
     format(S,'|:---|:---~|\n', []), 
-    forall(sub_class(Id,Ref),(addsubc(S,Ref))),
+    forall(class(Ref,Id),(addsubc(S,Ref))),
     format(S,'\n\n',[]),
     fail.
     %format(S,'~s\n',[Brief]),
@@ -823,7 +862,7 @@ process_class(S,GId,File,Line,Column,Text) :-
 load_all_text(GId,Text,AllText) :-
     findall(T,collect_txt(GId,Text,T),Ts),
     maplist(strip_late_blanks,Ts,NTs),
-    drop_dups(NTs,RTs),
+    sort(NTs,RTs),
     string_concat(RTs,AllText).
 
 collect_txt(Id,_,Text) :-
@@ -961,4 +1000,25 @@ rel_id(MyId,Info,Id) :-
     !.
 rel_id(Id,_Info,Id).
 
+
+mkunsafe(LF,UF):-
+    string_chars(LF,U),
+    foldl(char_to_safe,U,Unsafe,[]),
+    string_chars(UF,Unsafe).
+
+cunsafe(C,LF,L0) :-
+    char_to_safe(C,LF,L0),
+    !.
+csafe(C,[C|L],L).
+
+char_to_safe('=',['_',e,q|L],L).
+char_to_safe('<',['_',l,t|L],L).
+char_to_safe('>',['_',g,t|L],L).
+char_to_safe('_',['_','_'|L],L).
+char_to_safe('!',['_',c,t|L],L).
+char_to_safe('-',['_',m,n|L],L).
+char_to_safe('+',['_',p,l|L],L).
+char_to_safe('*',['_',s,t|L],L).
+char_to_safe('/',['_',s,l|L],L).
+char_to_safe('$',['_',d,l|L],L).
 
