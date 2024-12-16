@@ -26,7 +26,7 @@ file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION  mkdoc
 file( COPY_FILE ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/images/favicon.ico)
 file( MAKE_DIRECTORY mkdocs/docs/javascripts)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js DESTINATION  mkdocs/docs/javascripts)
-configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/index.md)
+configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/index.h)
 configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/INSTALL.md)
 
   find_host_package(Doxygen
@@ -113,19 +113,19 @@ set(DOXYGEN_SOURCE_BROWSER NO)
 
 doxygen_add_docs(
   dox
-  ${CMAKE_BINARY_DIR}/mkdocs/md/index.md
+  ${CMAKE_BINARY_DIR}/mkdocs/md/index.h
   ${CMAKE_BINARY_DIR}/mddocs/md/INSTALL.md
   ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
   ${CMAKE_SOURCE_DIR}/docs/md  
-  ${CMAKE_SOURCE_DIR}/C
-      ${CMAKE_SOURCE_DIR}/H
-      ${CMAKE_SOURCE_DIR}/include
-      ${CMAKE_SOURCE_DIR}/CXX
+  # ${CMAKE_SOURCE_DIR}/C
+  #     ${CMAKE_SOURCE_DIR}/H
+  #     ${CMAKE_SOURCE_DIR}/include
+  #     ${CMAKE_SOURCE_DIR}/CXX
      ${CMAKE_SOURCE_DIR}/pl
-    ${CMAKE_SOURCE_DIR}/library
-    ${CMAKE_SOURCE_DIR}/os
-    #   ${CMAKE_SOU0RCE_DIR}/packages
-    ${CMAKE_SOURCE_DIR}/OPTYap
+    # ${CMAKE_SOURCE_DIR}/library
+    # ${CMAKE_SOURCE_DIR}/os
+    # #   ${CMAKE_SOU0RCE_DIR}/packages
+    # ${CMAKE_SOURCE_DIR}/OPTYap
     COMMENT "Generating Xmls"
 )
 
