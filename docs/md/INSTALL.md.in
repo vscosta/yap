@@ -1,0 +1,129 @@
+# Installing YAP {#INSTALL}
+
+This page give pointers on where to download YAP binaries or sources, and how to compile it.
+
+## Downloading YAP           {#download}
+
+The latest development version of Yap-@YAP_MAJOR_VERSION@ is available source-only
+through GIT repositories. The main reference repository is at
+
+  + [github](https://github.com/vscosta/yap)
+
+Please just use `git clone` to obtain the distribution. Ie, to download YAP from the command line please type:
+
+```
+git clone https://github.com/vscosta/yap
+```
+
+The first argument is the repository, the last argument is the (optional) target directory.
+
+ There are a variety of graphical interfaces to `git`, including GitHub's own [GitHub Desktop](https://desktop.github.com/) that supports Microsoft Windows and Apple OSX. A list with GUI applications, editor integration,  and much more can be found at the  [git Wiki](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools),
+
+### Download Options
+
+It may be useful to know:
+
+   + If you are have limited bandwith or disk space, consider using
+     `git clone --depth XX` to only include the last `XX` commits.
+
+	+ Older versions of YAP were distributed with modules. YAP-@YAP_FULL_VERSION@xs is
+     a single package, and it does not need `git submodule`.
+
+   + The GitHub site includes a number of companion packages for YAP,
+   including [doxygen-yap](https://github.com/vscosta/doxygen-yap), a
+   version of doxygen adapted to Prolog that was used to generate
+   these documents.
+
+## Compiling and Installing YAP {#CompilingYAP}
+-------------
+
+YAP-@YAP_FULL_VERSION@ is a [cmake](https://www.cmake.org) based
+system. We use `cmake` because it supports mosts popular software, can
+generate Makefiles, Ninja, Apple's XCode, VisualStudio and ANdroid
+Studio, and because it includes packaging suppport. The steps required
+to install core YAP under `cmake`/Linux or cmake/OSX/brew are:
+
+1. Make sure you have a C/C++ compiler installed.
+
+2. Make sure you have readline and GMP compilation support:
+   - in debian, ubuntu and related you need the corresponding dev packages:
+```
+apt install libgmp-dev libreadline-dev
+```
+   - in RedHat, fedora you need the devel packages.
+   - arch, gentoo should have it
+   - brew: just install the packages.
+
+
+3. Make a directory where you will compile YAP. Mote that `cmake` does not allow compiling on the `yap` main directory, and most often we use a sub-directory. An example:
+```
+mkdir yap/build
+cd yap/build
+```
+
+4. Configure yap:
+```
+cmake ..
+```
+	Note that YAP searches for the libraries required by every package in the distribution. If  package libraries are missing, YAP should be able to still compile the rest of the system.
+	
+	A number of flags are useful:
+	- `-DCMAKE_BUILD_TYPE=` tells how to compile, say `Debug` or `Release`;
+	- `-DCMAKE_INSTALL_PREFIX=` says where to install, say `/usr` for a system distribution, or `$HOME/.local` for a personal distribution.
+	- `-G` to use a different builder, such as `ninja`.
+
+5. Compile:
+```
+make
+```
+	Useful flags include `-j` for parallel execution, and `-C` for setting a build directory.
+	
+6. Install:
+```
+make install
+```
+	In most systems you will need to be superuser in order to do `make install`  on the standard directories.
+   
+## YAP Packages
+
+We include a number of packages that are useful extensions to
+Prolog. Of these `xml2yap`, a proof of concept interface to XML data,
+and `yap-lbfgs`, an interface to LBFGS search, should just compile.
+
+The `myddas` database-interface includes the SQLite3 code-base, so it should always compile.
+
+### Compiling and Installing the Python3 interface
+
+You will need to first install `python3-dev` or `devel` and the interface generator `swig`. They are available in every Linux distribution and in `brew`.
+
+The YAP to Python bridge should just build. The Python to YAP package needs to be compiled using:
+```
+pip install packages/python/yap4py
+```
+Recent Python forces you to use a virtual environment to install extra packages.
+
+### Compiling and Installing the GECODE interface.
+
+`GECODE` is a constraint solving system, that supports constraints
+ over integers, booleans, floats and sets. You need to install the
+ corresponding library. In debian you will need to do: 
+ ```
+ apt install libgecode-dev 
+ ``` 
+ YAP should detect gecode and compile and install the interface.
+
+### Compiling and Installing Problog-1
+
+This is an old version of Problog, which has some improvements in inference and in search. You will need `cudd`, a BDD library to do probabilistic inference. If not available in your distribution, you may have to download and compile it, say:
+```
+git clone https://github.com/ivmai/cudd.git
+cd cudd
+./configure --enable-shared --enable-dddmp --enable-obj --prefix=/usr
+make
+make install
+```
+
+### Compiling and Installing the R interface
+
+
+

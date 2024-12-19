@@ -30,9 +30,7 @@ static char SccsId[] = "%W% %G%";
 ///{@
 
 /**
- * @defgroup CharTypes Character Types
- * @ingroup InputOutput
- * @brief Character Types and formats
+ * @addtogroup CharacterCodes
  * @{
  */
 

@@ -27,7 +27,7 @@
 
 /**
  @defgroup ErrorBuiltins Error generating type-checking
-@ingroup YAPError
+@ingroup YAPErrors
 
 
 

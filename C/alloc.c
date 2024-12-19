@@ -133,7 +133,7 @@ if (DEBUG_DIRECT ||Yap_do_low_level_trace)
 /// @}
 ///
 /// @defgroup USE_SYSTEM_MALLOC Use system malloc
-/// @ingroup MALLOC_Providers
+/// @ingroup MemAlloc
 /// @{
 /// 
 ///
@@ -1654,7 +1654,7 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 /// @}
 ///
 /// @defgroup MALLOC_Wrapper  Stack allocated objects
-/// @ingroup AllocProviders
+/// @ingroup MemAlloc
 /// @{
 ///  The purpose of this wrapper is to be able to release heap data
 /// automatically when  a function segment terminates.

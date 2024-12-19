@@ -1867,6 +1867,59 @@ bool DumpStack(USES_REGS1) {
     return true;
 }
 
+typedef struct yami_position {
+  PredEntry *pred;
+  ClausePointer cl;
+  Atom owner;
+  char *file;
+  int line;
+  Term goal;
+} yami_position_t;
+  
+
+
+/**
+ * Used for debugging.
+ *
+ */
+bool Yap_code_location(find_pred_type where_from, struct yami_position *p) {
+  //Atom pred_name;
+  //  UInt pred_arity;
+  // Term pred_module;
+    PredEntry *pred;
+    ClausePointer cl;
+    switch (where_from) {
+    case FIND_PRED_FROM_ENV:
+      pred = Yap_PredForCode(CP, where_from,&cl);
+      break;
+    case FIND_PRED_FROM_CP:
+      pred = Yap_PredForCode(B->cp_ap, where_from,&cl);
+      break;
+    case FIND_PRED_FROM_ANYWHERE:
+    case FIND_PRED_FROM_CLAUSE:
+            pred = Yap_PredForCode(P, where_from,&cl);
+      //      gc_entry_info t;
+    }
+    if (pred) {
+      char *source;
+      Atom owner = pred->src.OwnerFile;
+      if (owner) {
+	p->file = RepAtom(owner)->StrOfAE;
+      } else {
+	p->file = "user_input";
+      }
+      p->line =  get_clause_line(pred,cl);
+    }
+    //	  fprintf(f, "%s:%d:0  %s: %s:%s/%lu\n", source, line,why, RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+    //               RepAtom(pred_name)->StrOfAE, (unsigned long int) pred_arity);
+    //        }
+	//	char *s=o+strlen(o);
+	//char *top = o+1023;
+	//Yap_show_goal(o, RepAtom(pred_name)->StrOfAE,  pred_arity,RepAtom(AtomOfTerm(pred_module))->StrOfAE,XREGS+1,&o,s,&top);
+    return true;
+}
+
+
 static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,
                                                 ClausePointer cl,
 						PredEntry *pe) {

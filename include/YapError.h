@@ -269,6 +269,9 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     const char *prologStack;
      char *errorMsg;
     size_t errorMsgLen;
+    const char *currentGoal;
+    const char *alternativeGoal;
+    const char *continuationGoal;
     struct s_yap_error_descriptor *top_error;
   } yap_error_descriptor_t;
 

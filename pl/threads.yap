@@ -66,7 +66,7 @@
         '$thread_local'/2]).
 
 /**
-  @defgroup Threads Threads
+  @defgroup Threads Threads Support in YAP
   @ingroup YapExtensions
   @{
 

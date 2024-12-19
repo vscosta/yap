@@ -117,7 +117,7 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
    }
 }
 /**
-   read_line_to_codes( +_Stream_, -_Codes_)
+   @pred read_line_to_codes( +_Stream_, -_Codes_)
 
    If _Stream_ is a readable text stream, unify _Codes_ with
    the sequence of character codes forming the first line of the stream.
@@ -126,7 +126,7 @@ static Int read_line_to_codes2(USES_REGS1) {
   return rl_to_codes(TermNil, FALSE, true PASS_REGS);
 }
 /**
-   read_line_to_chars( +_Stream_, -_Codes_)
+   @pred read_line_to_chars( +_Stream_, -_Codes_)
 
    If _Stream_ is a readable text stream, unify _Codes_ with
    the sequence of character atoms forming the first line of the stream.
@@ -137,7 +137,7 @@ static Int read_line_to_chars2(USES_REGS1) {
 
 
 /**
-   read_line_to_codes( +_Stream_, -_Codes_-_Tail_)
+   @pred read_line_to_codes( +_Stream_, -_Codes_-_Tail_)
 
    If _Stream_ is a readable text stream, unify _Codes_ with
    the sequence of character codes available from the first line.
@@ -149,7 +149,7 @@ static Int read_line_to_codes(USES_REGS1) {
 }
 
 /**
-   read_line_to_chars( +_Stream_, -_Codes_-_Tail_)
+  @pred read_line_to_chars( +_Stream_, -_Codes_-_Tail_)
 
    If _Stream_ is a readable text stream, unify _Codes_ with
    the sequence of characters available from the stream.

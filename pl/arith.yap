@@ -405,6 +405,8 @@ expand_expr(Op, X, Y, O, Q, P) :-
 
 
 :- set_prolog_flag(optimise,true).
+
 /**
   @}
 */
+

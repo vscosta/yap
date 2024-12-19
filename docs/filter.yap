@@ -1,4 +1,4 @@
-#!/home/vsc/github/yap/build/yap -L --
+#!/home/vsc/.local/bin/yap -L --
 
 /** @file filter.yap
  *
@@ -16,6 +16,8 @@
 :- use_module(library(readutil)).
 :- use_module(library(lineutils)).
 
+:- initialization(main).
+
 valid_suffix('.yap').
 valid_suffix('.pl').
 valid_suffix('.prolog').
@@ -28,10 +30,11 @@ valid_suffix('.P').
 */
 
 main :-
-    unix(argv([File])),
+       unix(argv([File])),
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
-    valid_suffix(ValidSuffix),
-    sub_atom(Y,_,_,0,ValidSuffix),
+    
+%    valid_suffix(ValidSuffix),
+%    sub_atom(Y,_,_,0,ValidSuffix),
     !,
     file_directory_name(File, Dir),
     working_directory(OldD,Dir),
@@ -44,10 +47,7 @@ main :-
     working_directory(_,OldD),
     insert_module_tail,
     halt.
-main :-
-    unix(argv([File])),
-    read_file_to_string(File,Text),
-    format('~s',[Text]).
+main.
 
 /*
 atom_concat('cat ',File,Command),
@@ -102,9 +102,9 @@ A is Arity+2,
     ).
 
 %% initial directive
-% predicates([H|_],_,_,_) :-
-%     writeln(H),
-%     fail.
+ % predicates([H|_],_,_,_) :-
+ %     writeln(H),
+ %     fail.
 predicates([],_,[],[]).
 predicates([directive(Directive,Comments,Vs)|More],Ctx,
 	   [command([comments(Comments),  body(Directive, Vs,Ctx),[]])|Preds], L0) :-
@@ -127,29 +127,26 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
 	   Preds, [comments(Comments), head_body(Head, Body, Vs)|L0]) :-
     predicates(More,N/A,Preds,L0).
 
-
 output(command([comments(Comments) |_])) :-
     maplist(out_comment(_),Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
-    atom_chars(N,Ns),
+    atom_chars(N,SNs),
 %    foldl(csafe,Ns,SNs,[]),
-    %    format(atom(N1),'~s/~d',[SNs,A]),
-    foldl(csafe,Ns,N1,[]),
-    atom_chars(N2,N1),
+    format(atom(N1),'P~s~d',[SNs,A]),
     maplist(out_comment(Found),Comments),
-    addcomm(N2/A,N/A,Found),
+    addcomm(N1/A,N/A,Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
     (
       A==0 ->
-      T = N2()
+      T = N()
       ;
-      T =.. [N2|NIs]
+      T =.. [N1|NIs]
     ),
     (
       is_exported(N,A)
       ->
-true %      format(' class  ~s { ~n ~w;~n};~n~n~n',[ N2,A,T])
+      format(' class  ~s { ~w;~n};~n~n~n',[ N1,T])
       ;
       true
     ) .
@@ -168,7 +165,7 @@ insert_module_tail :-
 insert_module_tail.
 
 
-%out_comment(_,H) :- writeln(H),fail.
+
 out_comment(true,C) :-
     string_chars(C,Cs),
     trl_comm(Cs,Cf), 
@@ -208,7 +205,7 @@ sp('\n').
 trl_pred(RL,NL) :-
     append(Start,['@',p,r,e,d,' '|Decl],RL),
     !,
-    skip_blanks(Decl,TDecl),
+skip_blanks(Decl,TDecl),
     word(TDecl,W,Args),
     decl(W,Args,DL),
     append(Start,DL,NL).
@@ -252,15 +249,15 @@ word(R,[],R).
 decl(Name,['('|D1],F) :-
     !,
     append(Info,[')'|R1],D1),
-%    foldl(arity,Info,1,Arity),
+    foldl(arity,Info,1,Arity),
 %    foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@concept ~s  ~n @brief  <b>~s(~s)</b>',  [Name,Name,Info]),
+    format(chars(F,R1F),'@class P~s~d		~n	@brief **~s**~n',  [Name,Arity,Info]),
     trl_pred(R1,R1F).
 decl(Name,[C|R1],F) :-
     sp(C),
     !,
-%    foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@concept ~s  ~n @brief  <b>~s</b>',  [Name,Name]),
+    %foldl(csafe,Name,TName,[]),
+    format(chars(F,R1F),'@class P~s0		~n	@brief **~s** ~n',[Name,Name]),
     trl_pred(R1,R1F).
 
     /* This routine generates two streams from the comment:
@@ -299,7 +296,7 @@ addcomm(N/A,N0/A,false) :-
     length(L,A),
     maplist(=('?'),L),
     T =.. [N0|L],
-    format('~n~n/**   @concept  ~sn @brief <b>~w</b>  (undocumented)  **/~n~n~n~n',[N0,T]).
+    format('~n~n/**   @class P~s~d	~n	@brief **~w**  (undocumented)  **/~n~n~n~n',[N0,A,T]).
 addcomm(_,_,_).
 
 :- initialization(main).

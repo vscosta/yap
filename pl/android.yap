@@ -24,4 +24,6 @@ query_( Mod:String, Status, Bindings ) :-
 
 
 user:file_search_path(data, '/data/data/pt.up.yap/files/Yap/myddas').
+
+
 %% @} 

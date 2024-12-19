@@ -1,7 +1,12 @@
 ///
 /// @file YapErrors.h
+/// 
 ///
-/// @addtogroup YapError
+/// @defgroup YapErrorCodes YAP Supported Error Codes
+///
+/// @ingroup ErrorC
+///
+/// @{
 ///
 /// The file  YapErrors.h contains a list with all the error classes known
 /// internally to the YAP system.
@@ -234,3 +239,5 @@ E(USER_DEFINED_EVENT, EVENT, "user_defined")
 
 //E0(FILLER_ERROR, FILLER_ERROR_CLASS, NULL) /// default state
 END_ERRORS();
+
+/// @}

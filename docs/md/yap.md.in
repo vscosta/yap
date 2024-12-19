@@ -1,0 +1,27 @@
+# mainpage   @YAP_FULL_VERSION@ User and Reference Manual
+
+This document provides User information on version @YAP_FULL_VERSION@
+of YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
+high-performance Prolog compiler developed at Universidade do Porto.
+
+
+*[The YAP Logo](images/yap_256x256x32.png)
+
+NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
+
+- [Installing and Configuring YAP](INSTALL.md)
+
+- [Executing YAP Programs](CALLING_YAP.md)
+
+- [Core Prolog](group__Builtins.md)
+
+- [The Library](group__YAPLibrary.md)
+
+- [Program Development](group__YAPProgramming.md)
+
+- [EXtensions](group__YapExtensions.md)
+
+- [The Foreign Interface](group__YAPAPI.md)
+
+
+Some general info.

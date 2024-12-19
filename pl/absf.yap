@@ -12,9 +12,13 @@
 
  @file absf.yap
  @author L.Damas, V.S.Costa
+*/
 
+/**
  @defgroup absf File Name Resolution
  @ingroup InputOutput
+
+@{
 
  Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that
@@ -22,7 +26,6 @@
   plus user-defined directories, directories based on environment
   variables and registry information to search for files.
 
-@{
 
 */
 :-  module( '$absf', [
@@ -501,20 +504,23 @@ file_exists(File) :-
     absolute_file_name( File, _, [access(exist),
 				 file_errors(fail)]).
 
-%%	exists_source(+Source) is semidet.
-%
-%	True if Source (a term  valid   for  load_files/2) exists. Fails
-%	without error if this is not the case. The predicate is intended
-%	to be used with  :-  if,  as   in  the  example  below. See also
-%	source_exports/2.
-%
-% ```
-%	:- if(exists_source(library(error))).
-%	:- use_module_library(error).
-%	:- endif.
-% ```
+/**	exists_source(+Source) is semidet.
+
+	True if Source (a term  valid   for  load_files/2) exists. Fails
+	without error if this is not the case. The predicate is intended
+	to be used with  :-  if,  as   in  the  example  below. See also
+	source_exports/2.
+
+```
+	:- if(exists_source(library(error))).
+	:- use_module_library(error).
+	:- endif.
+```
+*/
 
 exists_source(Source) :-
 	exists_source(Source, _Path).
 
 /** @} */
+
+

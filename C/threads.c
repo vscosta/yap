@@ -21,7 +21,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 /**
-   @ingroup Threads 
+   @addtogroup Threads 
    @{
 */
 

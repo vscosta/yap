@@ -20,8 +20,9 @@
    @file errors.c
 
    @brief low-level error handling..
+*/
 
-   
+/*   
 @defgroup YAPErrors Error Handling
 
 @ingroup YAPControl
@@ -160,6 +161,9 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   set_key_t(culprit_t, "culprit_t", q, i, t);
   set_key_t(errorUserTerm, "errorUserTerm", q, i, t);
   set_key_s(prologStack, "prologStack", q, i, t);
+  set_key_s(currentGoal, "currentGoal", q, i, t);
+  set_key_s(continuationGoal, "continuationGoal", q, i, t);
+  set_key_s(alternativeGoal, "alternativeGoal", q, i, t);
   set_key_s(errorMsg, "errorMsg", q, i, t);
   set_key_i(errorMsgLen, "errorMsgLen", q, i, t);
   return false;
@@ -224,6 +228,9 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_b(parserReadingCode, "parserReadingCode", q, i);
   query_key_b(prologConsulting, "prologConsulting", q, i);
   query_key_s(prologStack, "prologStack", q, i);
+  query_key_s(currentGoal, "prologGoal", q, i);
+  query_key_s(continuationGoal, "continuationGoal", q, i);
+  query_key_s(alternativeGoal, "alternativeGoal", q, i);
   query_key_t(culprit_t, "culprit_t", q, i);
   query_key_t(errorUserTerm, "errorUserTerm", q, i);
   Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, MkAtomTerm(Yap_LookupAtom(q)), "Bad error parameter  %s in error query", q);
@@ -290,6 +297,9 @@ static void printErr(yap_error_descriptor_t *i, FILE *out) {
   print_key_b(out, "prologConsulting", i->prologConsulting);
   print_key_t(out, "culprit_t", i->culprit_t);
   print_key_s(out, "prologStack", i->prologStack);
+  print_key_s(out, "currentGoal", i->currentGoal);
+  print_key_s(out, "continuationGoal", i->continuationGoal);
+  print_key_s(out, "alternativeGoal", i->alternativeGoal);
   print_key_t(out, "errorUserterm", i->errorUserTerm);
   print_key_s(out, "errorMsg", (i->errorMsgLen == 0 ? "no message" : i->errorMsg));
   print_key_i(out, "errorMsgLen", i->errorMsgLen);
@@ -371,6 +381,9 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_b("prologConsulting", i->prologConsulting, o);
   o = add_key_t("culprit_t", i->culprit_t, o);
   o = add_key_s("prologStack", i->prologStack, o);
+  o = add_key_s("currentGoal", i->currentGoal, o);
+  o = add_key_s("continuationGoal", i->continuationGoal, o);
+  o = add_key_s("alternativeGoal", i->alternativeGoal, o);
   o = add_key_t("errorUserTerm", i->errorUserTerm, o);
   o = add_key_s("errorMsg", i->errorMsg, o);
   o = add_key_i("errorMsgLen", i->errorMsgLen, o);
@@ -847,10 +860,14 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
                        Term where, Term extra, const char *s) {
   CACHE_REGS
+    #if 0
     if (type!= EVALUATION_ERROR_UNDEFINED ) { //&& LOCAL_Undef_CP == NULL) {
-    if (!Yap_pc_add_location(r, P, B, ENV))
-      Yap_env_add_location(r, CP, B, ENV, 0);
-  } 
+      //gc_entry_info_t *i = v;
+      if (Yap_pc_add_location(r, P, B, ENV)) {
+	Yap_env_add_location(r, CP, B, ENV, 0);
+      }
+  }
+  #endif
  r->errorNo = type;
  if (type != USER_DEFINED_EVENT &&
      type != USER_DEFINED_ERROR ) {
@@ -2123,6 +2140,6 @@ void Yap_InitErrorPreds(void) {
  Yap_InitCPred("is_list", 1, is_list1, TestPredFlag);
 }  
 
-/**
-@}
-*/
+/// @}
+
+

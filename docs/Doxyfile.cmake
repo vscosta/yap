@@ -6,6 +6,7 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 set(DOX_MD_FILES
  ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
 )
+file( COPY ${CMAKE_SOURCE_DIR}/docs/filter.yap DESTINATION .)
 
 file( MAKE_DIRECTORY sphinx )
 file( MAKE_DIRECTORY sphinx/source)
@@ -26,7 +27,7 @@ file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION  mkdoc
 file( COPY_FILE ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/images/favicon.ico)
 file( MAKE_DIRECTORY mkdocs/docs/javascripts)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js DESTINATION  mkdocs/docs/javascripts)
-configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/index.h)
+configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/index.md)
 configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/INSTALL.md)
 
   find_host_package(Doxygen
@@ -65,7 +66,7 @@ set( DOXYGEN_EXCLUDE
     */.hg/*
     */CMakeFiles/*
      ${CMAKE_SOURCE_DIR}/H/Tags_24*
-     ${CMAKE_SOURCE_DIR}/C/Tags_32*
+-     ${CMAKE_SOURCE_DIR}/C/Tags_32*
     */_CPack_Packages/*
     packages/sat/*-*/*
     )
@@ -100,40 +101,46 @@ set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/assets/css/solarized
     set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
 set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
-set(DOXYGEN_INPUT_FILTER ${CMAKE_SOURCE_DIR}/docs/filter.yap)
+set(DOXYGEN_INPUT_FILTER ${CMAKE_BINARY_DIR}/filter)
 set(DOXYGEN_EXTENSION_MAPPING yap=C++ pl=C++)
-set(DOXYGEN_ALIASES "pred{2/}=@concept \\1" Bold{1}="<b>\\1</b>" )
-set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${CMAKE_SOURCE_DIR}/H/generated  ${CMAKE_SOURCE_DIR}/H  ${CMAKE_SOURCE_DIR}/include   ${CMAKE_SOURCE_DIR}/os   ${CMAKE_SOURCE_DIR}/OPTYap   ${CMAKE_SOURCE_DIR}/CXX)
+#set(DOXYGEN_ALIASES "pred{2(}=@class P\\10  P\\1\\2" Bold{1}="<b>\\1</b>" )
+set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${CMAKE_SOURCE_DIR}/H/generated  ${CMAKE_SOURCE_DIR}/H  ${CMAKE_SOURCE_DIR}/include   ${CMAKE_SOURCE_DIR}/os   ${CMAKE_SOURCE_DIR}/OPTYap   ${CMAKE_SOURCE_DIR}/CXX ${CMAKE_BINARY_DIR})
 set(DOXYGEN_EXAMPLE_PATH  ${CMAKE_SOURCE_DIR}/docs/md)
 set(DOXYGEN_SOURCE_BROWSER NO)
   #set(DOXYGEN_VERBATIM_HEADERS NO)
 
 
+add_executable(filter-bin docs/filter.c)
+
+  set_target_properties(filter-bin PROPERTIES OUTPUT_NAME filter )
+  set_property( TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS YAPBIN="${CMAKE_BINARY_DIR}/yap")
+  set_property( TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS PLFILTER="${CMAKE_CURRENT_SOURCE_DIR}/docs/filter.yap")
+
 
 
 doxygen_add_docs(
   dox
-  ${CMAKE_BINARY_DIR}/mkdocs/md/index.h
-  ${CMAKE_BINARY_DIR}/mddocs/md/INSTALL.md
-  ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
+  ${CMAKE_BINARY_DIR}/mkdocs/docs/index.md
+  ${CMAKE_BINARY_DIR}/mddocs/docs/INSTALL.md
+  ${CMAKE_SOURCE_DIR}/docs/extra
   ${CMAKE_SOURCE_DIR}/docs/md  
-  # ${CMAKE_SOURCE_DIR}/C
-  #     ${CMAKE_SOURCE_DIR}/H
-  #     ${CMAKE_SOURCE_DIR}/include
-  #     ${CMAKE_SOURCE_DIR}/CXX
+  ${CMAKE_SOURCE_DIR}/C
+      ${CMAKE_SOURCE_DIR}/H
+      ${CMAKE_SOURCE_DIR}/include
+      ${CMAKE_SOURCE_DIR}/CXX
      ${CMAKE_SOURCE_DIR}/pl
-    # ${CMAKE_SOURCE_DIR}/library
-    # ${CMAKE_SOURCE_DIR}/os
-    # #   ${CMAKE_SOU0RCE_DIR}/packages
-    # ${CMAKE_SOURCE_DIR}/OPTYap
-    COMMENT "Generating Xmls"
+${CMAKE_SOURCE_DIR}/library
+    ${CMAKE_SOURCE_DIR}/os
+    #   ${CMAKE_SOURCE_DIR}/packages
+    ${CMAKE_SOURCE_DIR}/OPTYap
+COMMENT "Generating Xmls"
 )
 
 
 
 add_custom_target( docs2md
-  COMMAND ./yap -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main -- xml mkdocs/docs
-DEPENDS dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
+  COMMAND yap-bin -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main -- xml mkdocs/docs
+DEPENDS filter-bin dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
    )
 
     add_custom_target(mkdocs
