@@ -46,11 +46,9 @@ int main(int argc, char *argv[]) {
 	  if (code_comment &&
 	      ((pred = strstr(line,"@pred"))!=NULL) )      {
 	    int arity=0, i;
-	    char *p0, *args;
-	    pred[0]='\0';
-	fprintf(stdout,"%s",line);
-	pred[0]='@';
-	    
+	    char *start,*p0, *args;
+start =pred;;
+       	    
 		pred +=5;
 		while(isblank(*pred++));
 		p0=--pred;
@@ -71,15 +69,15 @@ int main(int argc, char *argv[]) {
 			
 		  }
 		  arity++;
+		  
 		}
-		int ochar = pred[i],c;
-		args[0]='\0';
-		if (arity)
-		  c='(';
-		else
-		  c=' ';
-		fprintf(stdout,"@class P%s%d	\n	@brief **%s%c%s**\n",p0,arity,p0,c,args+1);
-		args[0]=ochar;
+		
+		fprintf(stdout,"%.*s@class P%.*s%d	@brief **%.*s** %s",
+			(int)(start-line),line,
+			(int)(args-p0),p0,arity,
+			i+(int)(args-p0),p0,
+			args+i
+			);
 		line=NULL;
 	      }
 	      while (code_comment &&
@@ -92,15 +90,9 @@ int main(int argc, char *argv[]) {
 		  while (pi0 >= line && (pi0[0]=='_'|| isalnum(pi0[0])))
 		    pi0--;
 		  pi0++;
-		  if (pi > line) {
-		    int o = pi0[0];
-		    pi0[0]='\0';
-		    fprintf(stdout,"%s",line);
-		    pi0[0]=o;
-		  }
-		  pi[0]='\0';
-		  fprintf(stdout,"[%s/%c](@ref classP%s%c.md) }",pi0,pi[1],pi0,pi[1] );
-		  pi[0]='/';
+		  fprintf(stdout,"%.*s@ref P%.*s%c   \"%.*s/%c\""  ,(int)(pi0-line),line,
+			  (int)(pi-pi0),pi0,pi[1] ,
+			  (int)(pi-pi0),pi0,pi[1] );
 		  line = pi+2;
 		  if (!line[0])
 		    line = NULL;

@@ -134,7 +134,7 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
 %    foldl(csafe,Ns,SNs,[]),
     format(atom(N1),'P~s~d',[SNs,A]),
     maplist(out_comment(Found),Comments),
-    addcomm(N1/A,N/A,Found),
+    addcomm(N/A,Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
     (
@@ -290,14 +290,14 @@ char_to_safe('*',['_',s,t|L],L).
 char_to_safe('/',['_',s,l|L],L).
 char_to_safe('$',['_',d,l|L],L).
 
-addcomm(N/A,N0/A,false) :-
+addcomm(N/A,false) :-
     is_exported(N,A),
     !,
     length(L,A),
     maplist(=('?'),L),
-    T =.. [N0|L],
-    format('~n~n/**   @class P~s~d	~n	@brief **~w**  (undocumented)  **/~n~n~n~n',[N0,A,T]).
-addcomm(_,_,_).
+    T =.. [N|L],
+    format('~n~n/**   @class P~s~d	~n	@brief **~w**  (undocumented)  **/~n~n~n~n',[N,A,T]).
+addcomm(_,_).
 
 :- initialization(main).
 

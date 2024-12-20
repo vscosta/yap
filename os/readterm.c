@@ -31,7 +31,7 @@ static char SccsId[] = "%W% %G%";
  *
  * @defgroup ReadTerm Read Term From A Stream
  * @ingroup InputOutput
-
+ *  @{
  */
 
 #include "Yap.h"
@@ -2084,3 +2084,6 @@ void Yap_InitReadTPreds(void) {
   Yap_InitCPred("$style_checker", 1, style_checker,
                 SyncPredFlag | HiddenPredFlag);
 }
+
+/// @}
+
