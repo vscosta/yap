@@ -26,15 +26,15 @@ valid_suffix('.P').
 /**
  * @pred main
  *
- * Call the filter.
+4* Call the filter.
 */
 
 main :-
-       unix(argv([File])),
+    unix(argv([File])),
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
     
-%    valid_suffix(ValidSuffix),
-%    sub_atom(Y,_,_,0,ValidSuffix),
+    %    valid_suffix(ValidSuffix),
+    %    sub_atom(Y,_,_,0,ValidSuffix),
     !,
     file_directory_name(File, Dir),
     working_directory(OldD,Dir),
@@ -90,7 +90,7 @@ entry(S,O) :-
       T = (( Grammar --> Expansion ))
       ->
       functor(Grammar,Name,Arity),      
-A is Arity+2,
+      A is Arity+2,
       O = clause(Name/A, Grammar, Expansion, Comments, Vs)
       ;
       T = (( Head :- Body ))
@@ -131,7 +131,7 @@ output(command([comments(Comments) |_])) :-
     maplist(out_comment(_),Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
     atom_chars(N,SNs),
-%    foldl(csafe,Ns,SNs,[]),
+    %    foldl(csafe,Ns,SNs,[]),
     format(atom(N1),'P~s~d',[SNs,A]),
     maplist(out_comment(Found),Comments),
     addcomm(N/A,Found),
@@ -152,7 +152,7 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
     ) .
 
 insert_module_header :-
-%    format('class Predicate;~n~n',[]),
+    %    format('class Predicate;~n~n',[]),
     defines_module(M),
     !,
     format('namespace ~s~n{~n',[M]).
@@ -169,32 +169,30 @@ insert_module_tail.
 out_comment(true,C) :-
     string_chars(C,Cs),
     trl_comm(Cs,Cf), 
-   !,
+    !,
     format('~s~n',[Cf]).
 out_comment(_,_C).
 
 trl_comm( ['/','*','<',C|L],['/','*','<',C|NL]) :-
     sp(C),
     !,
-    trl_pred(L,NL).
+    trl_pred(L,star,L).
 trl_comm( ['/','*','*',C|L],['/','*','*',C|NL]) :-
     sp(C),
     !,
-    trl_pred(L,NL).
+    trl_pred(L,star,NL).
 trl_comm( ['%','%','<',C|L],['/','/','/','<',C|NL]) :-
     sp(C),
     %ntrl_extend(Ext, []),
     %append(L,['\n'|Ext],ExtL),
     !,
-    trl_lines(L,LL),
-    trl_pred(LL,NL).
+    trl_pred(L,lines,NL).
 trl_comm( ['%','%',C|L],['/','/','/',C|NL]) :-
     sp(C),
     %rl_extend(Ext,[]),
     % append(L,['\n'|Ext],ExtL),
     !,
-    trl_lines(L,LL),
-    trl_pred(LL,NL).
+    trl_pred(L,lines,NL).
 trl_comm(_L,[]).
 
 
@@ -202,10 +200,14 @@ sp(' ').
 sp('\t').
 sp('\n').
 
+trl_pred(L,_,NL) :-
+    trl_pred(L,LL),
+    trl_lines(LL,NL).
+
 trl_pred(RL,NL) :-
     append(Start,['@',p,r,e,d,' '|Decl],RL),
     !,
-skip_blanks(Decl,TDecl),
+    skip_blanks(Decl,TDecl),
     word(TDecl,W,Args),
     decl(W,Args,DL),
     append(Start,DL,NL).
@@ -214,21 +216,63 @@ trl_pred(RL,RL).
 trl_lines(RL,NL) :-
     split(RL,['\n'],Lines),
     !,
-    maplist(rcomm, Lines, RLines),
+    maplist(rcomm, RLines, Lines,_),
     append(RLines,NL).
 
-rcomm(['%','%',C|L],['\n','/','/','/',C|L]) :-
-    sp(C),
-    !.
-rcomm(['%','%','<',C|L],['\n','/','/','/','<',C|L]) :-
-    sp(C),
-    !.
-rcomm(['%'|L],['\n','/','/','/',' '|L]) :-
-    !.
-rcomm(L,L).
+rcomm(    ['/','/','/',C|L]) -->
+    ['%','%',C],
+    {sp(C)},
+    !,
+    r_id(L).
+    rcomm(['/','/','/','<',C|L]) -->
+['%','%',C],
+    {sp(C)},
+    !,
+    
+    r_id(L).
+rcomm(  ['/','/',C|L]) -->
+   ['%',C],
+{sp(C)},
+!,
+    r_id(L).
+
+rcomm(L) -->
+    r_id(L).
+
+
+
+
+%before atom
+                                                                                          
+r_id(Cs) -->
+    [A],
+    {char_type_lower(A)},                 
+    !,
+    r_id_atom(At),
+    r_id2(Cs,[A|At],RCs),
+    r_id(RCs).
+r_id([A|Cs]) -->
+    [A],
+    r_id(Cs).
+r_id([]) --> [].
+ 
+r_id2(Cs,A0,RCS) -->
+    ['/',D],
+    {char_type_digit(D)},
+    !,
+    { format(chars(Cs,RCS),' @ref P~s~s \"~s/~s\" ',[A0,[D],A0,[D]]) }.
+r_id2(Cs, A0,Left) -->
+    {append(A0,Left,Cs)}.
+
+
+r_id_atom([A|A0]) -->
+    [A],
+    { char_type_csym(A) },
+    !,
+    r_id_atom(A0).
+r_id_atom([]) --> [].
 
 scan_line([],[],[]).
-
 scan_line(['\n'|R],[],R) :-
     !.
 scan_line([C|Cs],[C|M],R) :-
@@ -304,8 +348,8 @@ addcomm(_,_).
 
 
 dxpand(module(M,Gs)) :-
-    module(M),
-    assert(defines_module(M)),
+%   module(M),
+%    assert(defines_module(M)),
     maplist(dxpand,Gs).
 dxpand(op(M,Gs,Y)) :-
     op(M,Gs,Y).
@@ -332,3 +376,4 @@ is_exported(_,_) :-
     !.
 is_exported(N,A) :-
     exported(N,A).
+

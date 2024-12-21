@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -60,7 +61,7 @@ typedef struct jmp_buff_struct {
 } JMPBUFF;
 
 static void GNextToken(CACHE_TYPE1);
-static void checkfor(Term, JMPBUFF *, encoding_t CACHE_TYPE);
+static void checkfor(Term, JMPBUFF *, TokEntry *tokstart, encoding_t CACHE_TYPE);
 static Term ParseArgs(Atom, Term, JMPBUFF *, Term, encoding_t, Term CACHE_TYPE);
 static Term ParseList(JMPBUFF *, encoding_t, Term CACHE_TYPE);
 static Term ParseTerm(int, JMPBUFF *, encoding_t, Term CACHE_TYPE);
@@ -398,13 +399,17 @@ inline static void GNextToken(USES_REGS1) {
 }
 
 inline static void checkfor(Term c, JMPBUFF *FailBuff,
+TokEntry *tokstart,
                             encoding_t enc USES_REGS) {
   if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok) || LOCAL_tokptr->TokInfo != c) {
     char s[1024];
     strncpy(s, Yap_tokText(LOCAL_tokptr), 1023);
-    syntax_msg("line %d: expected to find "
-               "\'%c....................................\', found %s",
-               LOCAL_tokptr->TokLine, c, s);
+    syntax_msg("%s:%d:%d syntax error, while trying to close term st %d:%d\nexpected %c got %s",
+               RepAtom(LOCAL_SourceFileName)->StrOfAE,
+               LOCAL_tokptr->TokLine,
+               LOCAL_tokptr->TokLinePos,
+               tokstart->TokLine,
+               tokstart->TokLinePos, c, s);
     FAIL;
   }
   NextToken;
@@ -474,6 +479,7 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
 #ifdef SFUNC
   SFEntry *pe = (SFEntry *)Yap_GetAProp(a, SFProperty);
 #endif
+TokEntry *      tokstart = LOCAL_tokptr;
 
   NextToken;
     p = LOCAL_ParserAuxSp-LOCAL_ParserAuxBase;
@@ -501,7 +507,7 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
     }
   }
   while (1) {
-    Term *tp = LOCAL_ParserAuxSp;
+  Term *tp = LOCAL_ParserAuxSp;
     if (LOCAL_ParserAuxSp + 1 >= LOCAL_ParserAuxMax) {
         size_t sz = LOCAL_ParserAuxMax-LOCAL_ParserAuxBase, off = LOCAL_ParserAuxSp-LOCAL_ParserAuxBase;
         sz += 4096;
@@ -551,7 +557,7 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
     FAIL;
   }
   /* check for possible overflow against local stack */
-  checkfor(close, FailBuff, enc PASS_REGS);
+  checkfor(close, FailBuff, tokstart, enc PASS_REGS);
   return t;
 }
 
@@ -613,6 +619,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
   Volatile VarEntry *varinfo;
   Volatile int curprio = 0, opprio, oplprio, oprprio;
   Volatile Atom opinfo;
+  TokEntry *tokstart;
 
   switch (LOCAL_tokptr->Tok) {
   case Name_tok:
@@ -717,16 +724,18 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     FAIL;
 
   case Ponctuation_tok:
-
+         tokstart = LOCAL_tokptr;
     switch (RepAtom(AtomOfTerm(LOCAL_tokptr->TokInfo))->StrOfAE[0]) {
     case '(':
     case 'l': /* non solo ( */
+      tokstart = LOCAL_tokptr;
       NextToken;
       t = ParseTerm(GLOBAL_MaxPriority, FailBuff, enc, cmod PASS_REGS);
-      checkfor(TermEndBracket, FailBuff, enc PASS_REGS);
+      checkfor(TermEndBracket, FailBuff, tokstart, enc PASS_REGS);
       break;
     case '[':
-      NextToken;
+         tokstart = LOCAL_tokptr;
+   NextToken;
       if (LOCAL_tokptr->Tok == Ponctuation_tok &&
           LOCAL_tokptr->TokInfo == TermEndSquareBracket) {
         t = TermNil;
@@ -734,9 +743,11 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
         break;
       }
       t = ParseList(FailBuff, enc, cmod PASS_REGS);
-      checkfor(TermEndSquareBracket, FailBuff, enc PASS_REGS);
+      checkfor(TermEndSquareBracket, FailBuff, tokstart, enc PASS_REGS);
       break;
     case '{':
+{
+  tokstart = LOCAL_tokptr;
       NextToken;
       if (LOCAL_tokptr->Tok == Ponctuation_tok &&
           (int)LOCAL_tokptr->TokInfo == TermEndCurlyBracket) {
@@ -751,7 +762,8 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
         syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
         FAIL;
       }
-      checkfor(TermEndCurlyBracket, FailBuff, enc PASS_REGS);
+      checkfor(TermEndCurlyBracket, FailBuff, tokstart, enc PASS_REGS);
+}
       break;
     default:
       syntax_msg("line %d: unexpected ponctuation signal %s",
@@ -946,11 +958,13 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
                  IsPosfixOp(AtomEmptySquareBrackets, &opprio, &oplprio,
                             cmod PASS_REGS) &&
                  opprio <= prio && oplprio >= curprio) {
+        TokEntry *tokstart = LOCAL_tokptr;
         Term tl[2];
+
       NextToken;
       tl[0] =ParseList(FailBuff, enc, cmod PASS_REGS);
 	  tl[1] = t;					    
-      checkfor(TermEndSquareBracket, FailBuff, enc PASS_REGS);
+      checkfor(TermEndSquareBracket, FailBuff, tokstart, enc PASS_REGS);
       t = Yap_MkApplTerm(FunctorEmptySquareBrackets,2,tl);
         curprio = opprio;
         continue;
