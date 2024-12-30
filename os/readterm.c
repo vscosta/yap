@@ -415,7 +415,7 @@ static Int scan_stream(USES_REGS1) {
  * Implicit arguments:
  *    +
  */
-char *Yap_syntax_error__(const char *file, const char *function, int lineno, Term t, int sno, TokEntry *start,
+char * Yap_syntax_error__(const char *file, const char *function, int lineno,Term t, int sno, TokEntry *start,
                        TokEntry *err, char *s,  ...) {
   CACHE_REGS
 #if HAVE_FTELLO
@@ -424,57 +424,62 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
   long opos;
 #endif
 
-
+  va_list ap;
   char  o[MSG_SIZE+1];
+  va_start(ap,s);
+  if (s) {
+    vsnprintf(o, MSG_SIZE,s,ap);
+  }
+  va_end(ap);
   TokEntry *tok = start, *end = err;
-  StreamDesc *st = GLOBAL_Stream+sno;
+  StreamDesc
+    *st = GLOBAL_Stream+sno;
   yap_error_descriptor_t *e;
   if (LOCAL_ActiveError) {
     e = LOCAL_ActiveError;
   } else {
     LOCAL_ActiveError = e = calloc(1,  sizeof(yap_error_descriptor_t));
   }
-   if (sno < 0) {
+  if (!start) {
+    //    Yap_JumpToEnv();   if (sno < 0 || start == NULL) {
     e->parserPos = 0;
     e->parserSize = 0;
     e->parserFile = "Prolog term";
-    e->errorMsg = s;
-    //    Yap_JumpToEnv();
-    return NULL;
+    e->errorMsg = malloc(strlen(o)+1);
+    strcpy(e->errorMsg,o);
+    Yap_MkErrorRecord(e, file, function, lineno,SYNTAX_ERROR,t,TermEmpty,s);
    } else {
      const char *s =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
-     e->parserFile = strcpy(malloc(strlen(s)+1),s);
-   }
-  
-   if (err->TokNext) {
-     while (end->TokNext && end->Tok != eot_tok) {
-       end = end->TokNext;
+     e->parserFile = strcpy(malloc(strlen(s)+1),s);  
+     if (err  && err->TokNext) {
+       while (end->TokNext && end->Tok != eot_tok) {
+	 end = end->TokNext;
+       }
+     }else {
+       end = err;
      }
-   }else {
-     end = err;
-   }
-  Int start_line = tok->TokLine;
-  Int err_line = err->TokLine;
-  Int end_line = end->TokLine;
-  Int startpos = tok_pos(tok);
-  Int errpos = tok_pos(err);
-  Int errsize = err->TokSize;
-  Int endpos = tok_pos(end);
-  Int startlpos = tok->TokOffset;
-  Int errlpos = err->TokOffset;
-  Int endlpos = end->TokOffset+end->TokSize;
-  if (endpos < errpos && st > 0) {
-    endpos = errpos;
-    endlpos = errlpos;
-   end_line = endlpos;
-  }
-    o[0] = '\0';
-    Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno,SYNTAX_ERROR, MkIntTerm(err_line), TermNil, NULL);
-  // const char *p1 =
-  e->prologConsulting = LOCAL_consult_level > 0;
-  e->parserReadingCode = true;
-  e->parserFirstLine = start_line;
-  e->parserLine = err_line;
+     Int start_line = tok->TokLine;
+     Int err_line = err->TokLine;
+     Int end_line = end->TokLine;
+     Int startpos = tok_pos(tok);
+     Int errpos = tok_pos(err);
+     Int errsize = err->TokSize;
+     Int endpos = tok_pos(end);
+     Int startlpos = tok->TokOffset;
+     Int errlpos = err->TokOffset;
+     Int endlpos = end->TokOffset+end->TokSize;
+     if (endpos < errpos && st > 0) {
+       endpos = errpos;
+       endlpos = errlpos;
+       end_line = endlpos;
+     }
+     o[0] = '\0';
+     Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno,SYNTAX_ERROR, MkIntTerm(err_line), TermNil, NULL);
+     // const char *p1 =
+     e->prologConsulting = LOCAL_consult_level > 0;
+     e->parserReadingCode = true;
+     e->parserFirstLine = start_line;
+     e->parserLine = err_line;
   e->parserLastLine = end_line;
   e->parserSize = errsize;
   e->parserPos = errpos;
@@ -493,7 +498,9 @@ char *Yap_syntax_error__(const char *file, const char *function, int lineno, Ter
     } else {
     const char *s =  RepAtom(Yap_source_file_name())->StrOfAE;
      e->parserFile = strcpy(malloc(strlen(s)+1),s);
-  
+
+
+     
     }
   }
   e->culprit = s;
@@ -583,8 +590,9 @@ opos=	ftell(GLOBAL_Stream[sno].file);
       }
   e->parserTextB = realloc(buf, strlen(buf)+1);
 }
+  }
 
-    if (st->status & Past_Eof_Stream_f) {
+    if (st>= 0 && st->status & Past_Eof_Stream_f) {
       Yap_CloseStream(sno);
     }
       /* 0:  strat, error, end line */
@@ -1075,7 +1083,7 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream, TokEntry *tokstart) {
 static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
                                  bool clause) {
   CACHE_REGS
-      
+    fe->t0=fe->t=0;
   fe->user_file_name = Yap_StreamUserName(inp_stream);
   fe->tp = StreamPosition(inp_stream);
   fe->reading_clause = clause;
@@ -1228,11 +1236,11 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
                      fe->msg);
   Term action = re->sy;
   if (action == TermFail || action == TermDec10) {
-   Term sc[2];
-   sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
-   sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
-   sc[1] = MkSysError(LOCAL_ActiveError);
-   Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc),TermError);
+    Term sc[2];
+    sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
+    sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
+    sc[1] = MkSysError(LOCAL_ActiveError);
+    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc),TermError);
    if (action == TermFail)
      return  YAP_PARSING_FINISHED;   else
      return  YAP_START_PARSING;
@@ -1382,11 +1390,11 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       CACHE_REGS
       bool done;
       if (clause) {
-  if (fe->t && fe->reading_clause &&
+	if (fe->t && fe->reading_clause &&
       !is_goal(fe->t)  &&
       trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
   }
-    warn_singletons(fe, sno, LOCAL_tokptr);
+  warn_singletons(fe, sno, LOCAL_tokptr);
   if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
     return false;
         if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
@@ -1396,9 +1404,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       else
         done = complete_processing(fe, sno, LOCAL_tokptr);
       if (!done) {
-        state = YAP_PARSING_ERROR;
         rc = fe->t = 0;
-        break;
       }
 #if EMACS
       first_char = tokstart->TokPos;

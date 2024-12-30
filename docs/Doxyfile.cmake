@@ -29,6 +29,8 @@ file( MAKE_DIRECTORY mkdocs/docs/javascripts)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js DESTINATION  mkdocs/docs/javascripts)
 configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/index.md)
 configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/INSTALL.md)
+file( COPY ${DOX_MD_FILES} DESTINATION mkdocs/docs)
+
 
   find_host_package(Doxygen
     OPTIONAL_COMPONENTS dot dia)
@@ -120,10 +122,7 @@ add_executable(filter-bin docs/filter.c)
 
 doxygen_add_docs(
   dox
-  ${CMAKE_BINARY_DIR}/mkdocs/docs/index.md
-  ${CMAKE_BINARY_DIR}/mddocs/docs/INSTALL.md
   ${CMAKE_SOURCE_DIR}/docs/extra
-  ${CMAKE_SOURCE_DIR}/docs/md  
   ${CMAKE_SOURCE_DIR}/C
       ${CMAKE_SOURCE_DIR}/H
       ${CMAKE_SOURCE_DIR}/include

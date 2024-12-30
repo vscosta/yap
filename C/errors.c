@@ -659,7 +659,10 @@ static char tmpbuf[YAP_BUF_SIZE];
 
 #define ES(A, B, C)                                                            \
   case A: {                                                                    \
-    Term nt = MkAtomTerm(Yap_LookupAtom(i->culprit));			\
+    Term nt;\
+    if (i->culprit) nt = MkAtomTerm(Yap_LookupAtom(i->culprit));		\
+    else if (i->culprit_t) nt = i->culprit_t;\
+    else nt = TermEmpty;\
     ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(i->classAsText), 1), 1, &nt);        \
   }break;
 
@@ -765,15 +768,20 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 
     LOCAL_PrologMode = UserMode;
   }
-  Yap_RestartYap(5);
+  //if (LCL0-(CELL*)B <LOCAL_CBorder)
+  Yap_ThrowExistingError();
 }
 
 /// complete delayed error.
 
 void Yap_ThrowExistingError(void) {
   CACHE_REGS
-  P=FAILCODE;
+    
+    if (  Yap_JumpToEnv( )) {
   Yap_RestartYap(5);
+  return;
+    } else
+  Yap_RestartYap(6);
 }
 
 /// Wrap the error descriptor as exception/2
@@ -931,14 +939,6 @@ Term Yap_MkFullError(yap_error_descriptor_t *i, yap_error_number type) {
   }
 
 
- if (type == SYNTAX_ERROR) {
-    i->errorClass = SYNTAX_ERROR_CLASS;
-    //      Yap_syntax_error(r, LOCAL_tokptr, LOCAL_toktide);
-  } else if (type == SYNTAX_ERROR_NUMBER) { // Yap_syntax_error(r, LOCAL_tokptr,
-                                            // LOCAL_toktide);
-    i->errorClass = SYNTAX_ERROR_CLASS;
-    type = SYNTAX_ERROR;
-  }
   if (type == INTERRUPT_EVENT) {
     fprintf(stderr, "%% YAP exiting: cannot handle signal\n");
     Yap_exit(1);
@@ -1070,6 +1070,12 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
       LOCAL_PrologMode |= AbortMode;
     }
     break;
+  case SYNTAX_ERROR_NUMBER: { // Yap_syntax_error(r, LOCAL_tokptr,
+    LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
+    LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
+    LOCAL_ActiveError->culprit_t = Yap_SaveTerm(where);
+    break;
+  }
   case CALL_COUNTER_UNDERFLOW_EVENT:
     // Do a long jump
     LOCAL_ReductionsCounterOn = FALSE;
@@ -1474,8 +1480,13 @@ static Int drop_exception(USES_REGS1) {
       }
       }
     } else {
-      tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
-      rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
+      if (LOCAL_ActiveError->culprit) {
+	tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
+	rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
+      } else  if (LOCAL_ActiveError->culprit_t) {
+	tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
+	rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
+      }
     }
     memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
   } else {
@@ -1773,7 +1784,8 @@ bool must_be_integer__(const char *file, const char *function, int lineno,
      (
       f=FunctorOfTerm(t)) == FunctorLongInt
      ||
-     f == FunctorBigInt && RepAppl(t)[1] == BIG_INT
+     (f == FunctorBigInt && RepAppl(t)[1] == BIG_INT
+     )
      );
 }
 

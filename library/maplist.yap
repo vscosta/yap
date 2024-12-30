@@ -91,6 +91,7 @@
   * @ingroup YAPLibrary
   * @{
   *
+  * @brief
   * This library provides a set of utilities for applying a predicate to
   * all elements of a list. They allow one to easily perform the most common do-loop constructs in Prolog.
   *  To avoid performance degradation, each call creates an

@@ -25,7 +25,7 @@ static char SccsId[] = "%W% %G%";
 
 /**
    @defgroup arithmetic_predicates Predicates that perform arithmetic
-   @ingroup arithmetic
+   @ingroup Arithmetic
 @{
 */
 #include "Yap.h"
@@ -153,6 +153,10 @@ Term Yap_Eval__(Term t USES_REGS) {
     }
   } /* else if (IsPairTerm(t)) */
   {
+  if (IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t,   "X is VAR");
+    return false;
+  }
     if (TailOfTerm(t) != TermNil) {
       Yap_ThrowError(TYPE_ERROR_EVALUABLE, t,
                             "string must contain a single character to be "
@@ -203,6 +207,10 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
   Term out;
 
   Term t = Deref(ARG2);
+  if (IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t,   "X is VAR");
+    return false;
+  }
   if (IsNumTerm(t)) {
     return Yap_unify(ARG1, t);
   }

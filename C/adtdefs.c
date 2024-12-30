@@ -159,7 +159,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   /* compute hash */
   p = atom;
   //printf("(%d)--> %s\n",iv++,atom);
-  if (atom==NULL) return NULL;
+  if (atom==NULL) Yap_ThrowError(TYPE_ERROR_ATOM,TermNil,NULL);
   if (atom[0]==0) return AtomEmpty;
     hash = HashFunction(p);
     hash = hash % sz;

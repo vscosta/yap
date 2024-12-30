@@ -78,7 +78,7 @@
 
 
 
-  @defgroup YAPConsulting Loading files into YAP
+  @defgroup YAPConsulting Loading and Organising YAP Programs
   @ingroup  YAPProgramming
 
   @{

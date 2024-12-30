@@ -27,17 +27,12 @@ Last rev: $Id: range_list.h,v 1.1 2008-03-26 23:05:22 nunofonseca Exp $
  *
  *  range list core data-structures.
  *
- * @ingroup rltree
+ * @defgroup rltree
+ * @ingroup YapExtensions
  *
- */
-
-/*
-  Leaf
-  Each leaf uses 16 bits ( each bit represents one number )
-
- */
-#define NUM unsigned long
-/*
+ * @brief range list trees
+ *
+ *
   Node
   Each node (non leaf) uses 8 bits.
   - 8 bits are used to represent the state of the 4 subtrees ( subranges ).
@@ -50,6 +45,13 @@ Last rev: $Id: range_list.h,v 1.1 2008-03-26 23:05:22 nunofonseca Exp $
 
   An extra byte is used to keep the number of nodes in the subtrees.
  */
+
+/*
+  Leaf
+  Each leaf uses 16 bits ( each bit represents one number )
+
+ */
+#define NUM unsigned long
 struct s_node {
   // short quadrant;
   unsigned short int quadrant_1 : 2; //

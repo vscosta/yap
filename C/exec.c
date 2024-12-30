@@ -1136,7 +1136,7 @@ static Int execute_nonstop(USES_REGS1)
       /* I cannot use the standard macro here because
            otherwise I would dereference the argument and
            might skip a svar */
-    pt = RepAppl(t) + 1;
+  pt = RepAppl(t) + 1;
     for (i = 1; i <= arity; ++i)
     {
 #if YAPOR_SBA
@@ -1324,7 +1324,7 @@ static Int execute_depth_limit(USES_REGS1)
 
 static int exec_absmi(ex_handler_t handle_ints, yap_reset_t reset_mode USES_REGS)
 {
-  int lval, out;
+  volatile int lval, out;
 
    Int OldBorder = LOCAL_CBorder;
    LOCAL_CBorder = LCL0 - (CELL *)B;
@@ -1336,15 +1336,16 @@ static int exec_absmi(ex_handler_t handle_ints, yap_reset_t reset_mode USES_REGS
   if (handle_ints) {
       CalculateStackGap(PASS_REGS1);
   }
-    lval = sigsetjmp(signew, 0);
-bool done=false;
-    while(!done) {
+  lval = sigsetjmp(signew, 0);
+  volatile bool done=false;
+  while(!done) {
     switch (lval)
     {
     case 0:
     { /* restart */
       out = Yap_absmi(0);
       done=true;
+      lval=0;
     }
     break;
     case 1:
@@ -1391,30 +1392,30 @@ bool done=false;
       LOCAL_RestartEnv = sigoldp;
       return false;
     }
-    case 5:
-         Yap_JumpToEnv();
-   if (handle_ints==THROW_EX) {
-      if (LCL0-(CELL*)B >= LOCAL_CBorder) {
-	Yap_RestartYap(6);
-      }
-      }
     case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
 
-      out = false;
 
       //    Yap_CloseTemporaryStreams(top_stream);
-      lval=0;
+      
+      done = Yap_JumpToEnv();
+    case 5:
+      P=FAILCODE;
+      //   LOCAL_Error_TYPE = YAP_NO_ERROR;
+      out = false;
+      lval = 0;
+      // Yap_absmi(0);
       continue;
     }
     }
     }
-    LOCAL_CBorder = OldBorder;
-    LOCAL_RestartEnv = sigoldp;
 
     //if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
     //   Yap_RestartYap(6);
+    LOCAL_CBorder = OldBorder;
+    LOCAL_RestartEnv = sigoldp;
+
     LOCAL_PrologMode &= ~(AbortMode|InErrorMode);
     return out;
 

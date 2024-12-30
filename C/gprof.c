@@ -49,7 +49,7 @@
 
 
 /** @defgroup Tick_Profiler Tick Profiler
-@ingroup Profiling
+@ingroup Builtins
 @{
 
 The tick profiler works by interrupting the Prolog code every so often

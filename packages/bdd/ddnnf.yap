@@ -1,3 +1,14 @@
+/** @defgroup ddnnf
+    @brief converting from CNF (used by SAT solvers) to DNF.
+    
+
+This is a straightforward translator from generic boolean expressions
+ and CNFs to DNFs (used by BDDs). Call it as:
+
+```
+:- use_module(library(ddnnf)).
+```
+*/
 
 :- module(ddnnf,
 	[cnf_to_ddnnf/3,
@@ -11,6 +22,7 @@
 :- use_module(library(cnf)).
 :- use_module(library(simpbool)).
 
+%% @pred cnf_to_ddnnf( +_CNF_ , +_Vars_, ?_DDNNF_ )
 %
 % convert a CNF as list with Variables Vars and Existential variables
 % in DDNNF, Exs \in LVars into DDNNF with extra existential vars
@@ -93,6 +105,7 @@ disj(A*B, NO) --> !,
 disj(A, NO) -->
 	[[NO,A]].
 
+%% @pred(+_CNF_,+_Vs,-_DDNNF_)
 %
 % convert a boolean expression with Variables Vars and Existential variables
 % in DDNNF, Exs \in LVars into DDNNF with extra existential vars
@@ -231,10 +244,12 @@ propagate_constants(0, 0, Lines, Lines) :- !.
 propagate_constants(1, 1, Lines, Lines) :- !.
 propagate_constants(Exp, A, Lines, [(A=Exp)|Lines]).
 
+%% @pred ddnf_is(+_DDNNF_,-_Bool_)
 %
 % compute the value of a SP
 %
 %
+
 ddnnf_is(ddnnf(F, Vs, Out), Out) :-
 	term_variables(Vs,LVs),
 	ones(LVs),

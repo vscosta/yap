@@ -1241,7 +1241,7 @@ GLOBAL_VFS = NULL;
     LOCAL_consult_level = -1;
     __android_log_print(
 			ANDROID_LOG_INFO, "YAPDroid", "init %s ", Yap_BOOTSTRAP);
-    char *dir = Malloc(MAX_PATH);
+    char *dir = malloc(MAX_PATH+1);
     if (yap_init->install) {
       strcpy(dir,((char*)Yap_SOURCEBOOT));
       Yap_ChDir(dirname(dir));
@@ -1256,7 +1256,7 @@ GLOBAL_VFS = NULL;
       setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
 				MkAtomTerm(Yap_LookupAtom(Yap_BOOTSTRAP)));
     }
-
+    free(dir);
     CurrentModule = LOCAL_SourceModule = TermUser;
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
   } else {

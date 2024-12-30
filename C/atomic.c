@@ -889,7 +889,7 @@ static Int number_chars(USES_REGS1) {
     t2 = Yap_ListToNumber(t2 PASS_REGS);
     if (!t2) {
       Yap_ThrowError(SYNTAX_ERROR,ARG2,"number_chars/2");
-      return false;
+      Yap_RaiseException();
     }
   } else if (v2) {
     if (!IsNumTerm(t1) &&  !IsFloatTerm(t1) &&  !IsBigIntTerm(t1))
@@ -903,7 +903,7 @@ static Int number_chars(USES_REGS1) {
     t2=  Yap_ListToNumber(t2 PASS_REGS);
     if ( !t2) {
        Yap_ThrowError(SYNTAX_ERROR,ARG2,"number_chars/2");
-    return false;
+      Yap_RaiseException();
     }
   }
     return Yap_unify(t1,t2);
@@ -938,9 +938,11 @@ static Int number_codes(USES_REGS1) {
       Yap_ThrowError(TYPE_ERROR_LIST,ARG2,"number_chars/2");
       return false;
     }
+    
     t2 = Yap_ListToNumber(t2 PASS_REGS);
     if (!t2) {
-      Yap_ThrowError(SYNTAX_ERROR,ARG2,"number_chars/2");
+      Yap_syntax_error(t2,-1,NULL,NULL,"error detected in Yap_ListToNUmber" );
+      Yap_RaiseException();
       return false;
     }
   } else if (v2) {
@@ -954,8 +956,9 @@ static Int number_codes(USES_REGS1) {
     // v1 bound
     t2=  Yap_ListToNumber(t2 PASS_REGS);
     if ( !t2) {
-       Yap_ThrowError(SYNTAX_ERROR,ARG2,"number_chars/2");
-    return false;
+      Yap_syntax_error(t2,-1,NULL,NULL,"error detected in Yap_ListToNUmber" );
+      Yap_RaiseException();
+      return false;
     }
   }
     return Yap_unify(t1,t2);
@@ -992,10 +995,10 @@ static Int number_atom(USES_REGS1) {
   if (v1) {
     // ARG1 unbound: convert second argument to atom
     t2 = Yap_AtomToNumber(t2 PASS_REGS);
-     pop_text_stack(l);
+    pop_text_stack(l);
     if (!t2) {
-      Yap_syntax_error(ARG2,-1,NULL,NULL,NULL) ;
-    return false;
+       Yap_syntax_error(ARG2,-1,NULL,NULL,"Error detected in Yap_AtomToNumber"    ) ;
+      Yap_RaiseException();
     }
   } else if (v2) {
     t1 = Yap_NumberToString(t1 PASS_REGS);
@@ -1043,8 +1046,8 @@ static Int number_string(USES_REGS1) {
     t2 =( Yap_StringToNumber(t2 PASS_REGS) );
     pop_text_stack(l);
     if (!t2) {
-      Yap_syntax_error(ARG2,-1,NULL,NULL,NULL);
-    return false;
+      Yap_syntax_error(ARG2,-1,NULL,NULL,"error detected in Yap_StringToNumber"  );
+      Yap_RaiseException();
     }
   } else if (v2) {
     t1 = Yap_NumberToString(t1 PASS_REGS);
@@ -2438,8 +2441,7 @@ restart_aux:
       return Yap_unify(ARG2, tf);
     }
     pop_text_stack(l);
-    Yap_syntax_error(ARG1,-1,NULL,NULL,NULL);
-    return false;
+    Yap_syntax_error(ARG1,-1,NULL,NULL,"error detected in Yap_AtomToNumber" );
   } else {
     /* ARG1 unbound */
     Term t = Deref(ARG2);
@@ -2482,8 +2484,8 @@ restart_aux:
       return Yap_unify(ARG2, tf);
     }
     pop_text_stack(l);
-    Yap_syntax_error(ARG1,-1,NULL,NULL,NULL);
-    return false;
+    Yap_syntax_error(ARG1,-1,NULL,NULL," error detected in Yap_GroundTerm"  );
+    Yap_RaiseException();
   } else {
     /* ARG1 unbound */
     Term t = Deref(ARG2);
@@ -2591,29 +2593,30 @@ static Int cont_sub_atomic(USES_REGS1) {
   if (mask & SUB_ATOM_HAS_VAL) {
     bool found = false;
       while (!found) {
-	int chr;
-	const unsigned char * p0=p;
+	const unsigned char * p0=skip_utf8(p,minv);
 	if (sz-minv <  len) {
 	  break;
 	}
-	found = cmpn_utf8(p0, p5, len) == 0;
-        p += get_utf8((unsigned char *)p, -1, &chr);
-        after--;
-        minv++;
-        	if (found) {
-          Yap_unify(ARG2, MkIntegerTerm(minv-1));
-	  Yap_unify(ARG3, MkIntegerTerm(len));
-          Yap_unify(ARG4, MkIntegerTerm(after+1));
+        if ( cmpn_utf8(p0, p5, len) == 0 ) {
+	  found = true;
 	  break;
 	}
+        after--;
+        minv++;
 	}
     if (found) {
+         Yap_unify(ARG2, MkIntegerTerm(minv));
+	  Yap_unify(ARG3, MkIntegerTerm(len));
+          Yap_unify(ARG4, MkIntegerTerm(after));
       if (minv > sz - len){
         cut_succeed();
       }
+      tbase[2] = MkIntegerTerm(minv+1);
+      tbase[4] = MkIntegerTerm(after-1);
+      return true;
     } else {
       cut_fail();
-      }
+    }
  } else if (mask & SUB_ATOM_HAS_SIZE) {
     Term nat = build_new_atomic(mask, p, minv, len, sz PASS_REGS);
     Yap_unify(ARG2, MkIntegerTerm(minv));
@@ -2660,11 +2663,11 @@ static Int cont_sub_atomic(USES_REGS1) {
     }
   }
   Term* ts = RepAppl(Deref(ARG6));
-    ts[0] = MkIntegerTerm(mask);
-ts[1] = MkIntegerTerm(minv);
-ts[2] = MkIntegerTerm(len);
-ts[3] = MkIntegerTerm(after);
-ts[4] = MkIntegerTerm(sz);
+    ts[1] = MkIntegerTerm(mask);
+ts[2] = MkIntegerTerm(minv);
+ts[3] = MkIntegerTerm(len);
+ts[4] = MkIntegerTerm(after);
+ts[5] = MkIntegerTerm(sz);
 
   return TRUE;
   }
@@ -2940,8 +2943,12 @@ static Int deterministic_sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
       len = 0;
     if (!(mask & SUB_ATOM_HAS_AFTER))
       after = sz - (len + minv);
+    return false;
   }
  backtrackable:
+    if (sz<len+minv+after) {
+      return false;
+    }
   {
     Term ts[5];
     ts[0] = MkIntegerTerm(mask);
@@ -2969,10 +2976,15 @@ Yap_unify(ARG6,Yap_MkApplTerm( FunctorSub5,5,ts));
     through all possible sub-strings of  _A_.
 
 */
-static Int  deterministic_sub_atom(USES_REGS1) { return (deterministic_sub_atomic(true, false PASS_REGS)); }
+static Int  deterministic_sub_atom(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  if (!IsVarTerm(t1))
+    must_be_atom( t1
+		  );
+  return (deterministic_sub_atomic(true, false PASS_REGS)); }
 
 /** @pred  sub_string(+ _S_,? _Bef_, ? _Size_, ? _After_, ?
-    _S_out_) is iso
+   _S_out_) is iso
 
 
     True when  _S_ and  _S_out_ are strings such that the
@@ -2986,7 +2998,9 @@ static Int  deterministic_sub_atom(USES_REGS1) { return (deterministic_sub_atomi
     all possible sub-strings of  _S_.
 
 */
-static Int deterministic_sub_string(USES_REGS1) { return deterministic_sub_atomic(false, true PASS_REGS); }
+static Int deterministic_sub_string(USES_REGS1) {
+  must_be_string(ARG1);
+  return deterministic_sub_atomic(false, true PASS_REGS); }
 
 /** @pred  sub_text(+ _S_,? _Bef_, ? _Size_, ? _After_, ?
     _S_out_)
@@ -2995,7 +3009,7 @@ static Int deterministic_sub_string(USES_REGS1) { return deterministic_sub_atomi
 static Int deterministic_sub_text(USES_REGS1) { return deterministic_sub_atomic(false, false PASS_REGS); }
 
 static Int string_char(USES_REGS1)
-{
+ {
   int chr='\0';
   Term indxt = Deref(ARG1);
   must_be_integer(indxt);

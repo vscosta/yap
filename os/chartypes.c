@@ -313,7 +313,7 @@ static bool to_lower( Term t, Term t2)
   
 }
 
-/** @pred  toupper(?LowC, ?LUpC)
+/** @pred  to_upper(?LowC, ?LUpC)
 
     UpC is the upper case bersion of LowC, or LowC is the lower case version of UpC.
  */
@@ -329,7 +329,7 @@ static Int toupper2(USES_REGS1) {
   return false;
 }
 
-/** @pred  toLOer( ?LUpC, ?LowC)
+/** @pred  to_lower( ?LUpC, ?LowC)
 
       LowC is the lower case version of UpC., or UpC is the upper case bersion of LowC,
  */
@@ -883,6 +883,41 @@ static Int code_type_prolog_prolog_symbol(USES_REGS1) {
   return k == SL || k == SY;
 }
 
+
+/** @pred  code_type_prolog_symbol( Code )
+    Holds true if Code  can be used as a symbol.
+    
+*/
+static Int code_char(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  if (IsVarTerm(t1)) {
+    if (t1 == TermEof)
+      return Yap_unify(ARG2,MkIntTerm(-1));      
+    int ch = get_char(t2);
+    return Yap_unify(ARG2,MkIntTerm(ch));
+  }
+  int ch = get_code(t1);
+  if (ch < 0)
+    return Yap_unify(ARG1,TermEof);
+  return Yap_unify(ARG1,MkCharTerm(ch));
+}
+
+static Int char_code(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);
+  if (IsVarTerm(t1)) {
+    if (t2 == TermEof)
+      return Yap_unify(ARG1,MkIntTerm(-1));      
+    int ch = get_code(t2);
+    return Yap_unify(ARG1,MkCharTerm(ch));
+  }
+  int ch = get_char(t1);
+  if (ch < 0)
+    return Yap_unify(ARG2,MkIntTerm(-1));
+  return Yap_unify(ARG2,MkIntTerm(ch));
+}
+
 int ISOWGetc(int sno) {
   int ch = GLOBAL_Stream[sno].stream_wgetc(sno);
   if (ch != EOF && GLOBAL_CharConversionTable != NULL) {
@@ -1158,6 +1193,8 @@ void Yap_InitChtypes(void) {
                 code_type_prolog_identifier_continue, SafePredFlag);
   Yap_InitCPred("code_type_prolog_prolog_symbol", 1,
                 code_type_prolog_prolog_symbol, SafePredFlag);
+  Yap_InitCPred("char_code", 2,char_code, SafePredFlag);
+  Yap_InitCPred("code_char", 2,code_char, SafePredFlag);
   CurrentModule = PROLOG_MODULE;
 }
 

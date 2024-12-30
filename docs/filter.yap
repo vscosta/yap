@@ -38,7 +38,7 @@ main :-
     !,
     file_directory_name(File, Dir),
     working_directory(OldD,Dir),
-    open(Y,read,S),
+    open(Y,read,S,[alias(loop_stream)]),
     script(S),
     findall(O, entry(S,O), Info),
     predicates(Info, _, Preds, _),
@@ -176,7 +176,7 @@ out_comment(_,_C).
 trl_comm( ['/','*','<',C|L],['/','*','<',C|NL]) :-
     sp(C),
     !,
-    trl_pred(L,star,L).
+    trl_pred(L,star,NL).
 trl_comm( ['/','*','*',C|L],['/','*','*',C|NL]) :-
     sp(C),
     !,
@@ -243,7 +243,7 @@ rcomm(L) -->
 
 
 %before atom
-                                                                                          
+
 r_id(Cs) -->
     [A],
     {char_type_lower(A)},                 
@@ -254,7 +254,7 @@ r_id(Cs) -->
 r_id([A|Cs]) -->
     [A],
     r_id(Cs).
-r_id([]) --> [].
+r_id(['\n']) --> [].
  
 r_id2(Cs,A0,RCS) -->
     ['/',D],
@@ -295,13 +295,13 @@ decl(Name,['('|D1],F) :-
     append(Info,[')'|R1],D1),
     foldl(arity,Info,1,Arity),
 %    foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@class P~s~d		~n	@brief **~s**~n',  [Name,Arity,Info]),
+    format(chars(F,R1F),'@class P~s~d		~n \"~s(~s)\"',  [Name,Arity,Name,Info]),
     trl_pred(R1,R1F).
 decl(Name,[C|R1],F) :-
     sp(C),
     !,
     %foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@class P~s0		~n	@brief **~s** ~n',[Name,Name]),
+    format(chars(F,R1F),'@class P~s0		~n ~s',[Name,Name]),
     trl_pred(R1,R1F).
 
     /* This routine generates two streams from the comment:
@@ -340,14 +340,14 @@ addcomm(N/A,false) :-
     length(L,A),
     maplist(=('?'),L),
     T =.. [N|L],
-    format('~n~n/**   @class P~s~d	~n	@brief **~w**  (undocumented)  **/~n~n~n~n',[N,A,T]).
+    format('~n~n/**   @class Pf~s~d	~n ~w  @details (undocumented)  **/~n~n~n~n',[N,A,T]).
 addcomm(_,_).
 
 :- initialization(main).
 
 
 
-dxpand(module(M,Gs)) :-
+dxpand(module(_M,Gs)) :-
 %   module(M),
 %    assert(defines_module(M)),
     maplist(dxpand,Gs).

@@ -43,8 +43,6 @@ extra_task(Kind,Ref,Parent,Name) -->
       ;
       true
     }.
-%xiaomi red mi a3 105
-%honor x8a wifi 95
 
 /* add_kind_of_task(Name, Linkage,_) -->
     {assert(Linkage)},
@@ -357,7 +355,7 @@ par(U0,Info,sectiondef([[kind(`var`)|_]|Paras])) -->
     !,
     {
       arg(1,Info,Id),
-      foldl(var_member(U0,Info),Paras, ``, Desc),
+      foldl(var_member(U0,Info),Paras, `##Vars##`, Desc),
       assert(v(Id,Desc))
     }.
 par(U0,Info,sectiondef([[kind(`friend`)|_]|Paras])) -->
@@ -368,32 +366,69 @@ par(U0,Info,sectiondef([[kind(`friend`)|_]|Paras])) -->
       foldl(friend_member(U0,Info),Paras, S, Desc),
       assert(v(Id,Desc))
     }.
-par(U0,Info,sectiondef([[kind(Kind)|_Opts]|Paras])) -->
+par(U0,Info,sectiondef([[kind(`define`)|_Opts]|Paras])) -->
     !,
     {
       arg(1,Info,Id),
-      string_concat([`\n#### `,Kind, `.\n`], S0),
+      string_concat([`\n##Defines:##.\n`], S0),
+      foldl(function_member(U0,Info),Paras, S0, Desc),
+      assert(f(Id,Desc))
+    }.
+par(U0,Info,sectiondef([[kind(`private-func`)|_Opts]|Paras])) -->
+    !,
+    {
+      arg(1,Info,Id),
+      string_concat([`\n##Private Functions##:\n`], S0),
       foldl(function_member(U0,Info),Paras, S0, Desc),
       assert(f(Id,Desc))
     }.
 par(U0,Info,sectiondef([[kind(`public-func`)|_Opts]|Paras])) -->
-    !,{
+    !,
+    {
       arg(1,Info,Id),
-      foldl(function_member(U0,Info),Paras, `\n##### Public Functions:\n`, Desc),
+      string_concat([`\n##Public Functions##:\n`], S0),
+      foldl(function_member(U0,Info),Paras, S0, Desc),
       assert(f(Id,Desc))
     }.
-par(_U0,_Info,sectiondef([[kind(`define`)|_]|_])) -->
-    !.
-par(_U0,_Info,sectiondef([[kind(`private-attrib`)|_]|_])) -->
-    !.
-par(_U0,_Info,sectiondef([[kind(`private-func`)|_]|_])) -->
-    !.
-par(_U0,_Info,sectiondef([[kind(`enum`)|_]|_])) -->
-    !.
-    par(_U0,_Info,sectiondef([[kind(`struct`)|_]|_])) -->
-    !.
-par(_U0,_Info,sectiondef([[kind(`typedef`)|_]|_])) -->
-    !.
+par(U0,Info,sectiondef([[kind(`func`)|_Opts]|Paras])) -->
+    !,
+    {
+      arg(1,Info,Id),
+      string_concat([`\n##Functions##:\n`], S0),
+      foldl(function_member(U0,Info),Paras, S0, Desc),
+      assert(f(Id,Desc))
+    }.
+par(U0,Info,sectiondef([[kind(`private-attr`)|_Opts]|Paras])) -->
+    !,
+    {
+      arg(1,Info,Id),
+      string_concat([`\n##atributes(private)##.\n`], S0),
+      foldl(function_member(U0,Info),Paras, S0, Desc),
+      assert(f(Id,Desc))
+    }.
+par(U0,Info,sectiondef([[kind(`enum`)|_Opts]|Paras])) -->
+    !,
+    {
+      arg(1,Info,Id),
+      string_concat([`\n##enums##:\n`], S0),
+      foldl(function_member(U0,Info),Paras, S0, Desc),
+      assert(f(Id,Desc))
+    }.
+par(U0,Info,sectiondef([[kind(`struct`)|_Opts]|Paras])) -->
+    !,
+    {
+      arg(1,Info,Id),
+      string_concat([`\n##C-structs## `,`.\n`], S0),
+      foldl(function_member(U0,Info),Paras, S0, Desc),
+      assert(f(Id,Desc))
+    }.
+par(U0,Info,sectiondef([[kind(`typedef`)|_Opts]|Paras])) -->
+    !,{
+      arg(1,Info,Id),
+      string_concat([`\n##Types## `,`.\n`], S0),
+      foldl(function_member(U0,Info),Paras, S0, Desc),
+      assert(f(Id,Desc))
+    }.
 par(U,Info,sectiondef([[kind(_)]|Text])) -->
     !,
     foldl(par(U,Info),Text).
@@ -447,17 +482,9 @@ par(_U0,_Info,ref([[refid(`structF`),kindref(`compound`)],false ])) -->
 par(_U0,_Info,basecompoundref([[_|_],_])) -->
     !.
 par(_U0,Info,innerclass([[refid(Ref),_],Name])) -->
-    {  sub_string(Ref,0,_,_End,`class`) },
     !,
     {  arg(1, Info, Parent)},
     extra_task(`class`,Ref,Parent,Name).
-par(_U0,Info,innerclass([[refid(Ref),_],Name])) -->
-    {  sub_string(Ref,0,_,_End,`concept`) },
-    !,
-    {  arg(1, Info, Parent)},
-    extra_task(`concept`,Ref,Parent,Name).
-par(_U0,_Info,innerclass([[refid(_Ref),_],_Name])) -->
-    !.
 par(_U0,_Info,image([[type(`html`),name(File),alt(Alt),inline(true)]])) -->
     !,
     mcstr([`![`,Alt,`](`,File,`)`]).
@@ -692,11 +719,17 @@ par(_U,_Info, ref([[refid(R)|_],Name])) -->
       deref(R,DR) },
     !,
     mcstr([`[`,Name,`](`,DR,`)`]).
-par(_U,_Info, basecompoundref([[refid(R)|_],Name])) -->
+par(_U,_Info, ref([[refid(R)|_],Name])) -->
     { string(Name),
       deref(R,DR) },
     !,
-    mcstr([`[`,Name,`](`,DR,`#)`]).
+    mcstr([`[`,Name,`](`,DR,`)`]).
+par(_U,_Info, qualifiedname([[],Name)) -->
+    { string(Name),
+      sub_string(Name,L,`::`,R,'::`),
+      deref(R,DR) },
+    !,
+    mcstr([DR]).
 par(_U,_Info, basecompoundref([[refid(R)|_],Name])) -->
     { string(Name),
       deref(R,DR) },
@@ -843,27 +876,18 @@ sub_predicate(I,N) :-
 
 subgroups(S,Id) :-
     sub_group(_,Id),
-    !,
-    format(S,'### SubGroups\n\n' ,[]),
+    !, 
+   format(S,'### SubGroups\n\n' ,[]),
     forall(sub_group(Ref,Id),(addsubg(S,Ref))).
 subgroups(_S,_Id).
 
 process_group(S,Id,_File,_Line,_Column,_Text) :-
     once(sub_predicate(_Pred,Id)),
+    
     format(S,'## Predicates\n\n', []), 
     format(S,'|Predicate~t|~20|Description~t|~40|\n', []), 
     format(S,'|:---|:---~|\n', []), 
     forall(sub_predicate(Ref,Id),(addsubp(S,Ref))),
-    format(S,'\n\n',[]),
-    fail.
-    %format(S,'~s\n',[Brief]),
-
-process_group(S,Id,_File,_Line,_Column,_Text) :-
-    once(sub_class(_,Id)),
-    format(S,'## Classes\n\n', []), 
-    format(S,'|Class~t|~20|Description~t|~40|\n', []), 
-    format(S,'|:---|:---~|\n', []), 
-    forall(sub_class(Ref,Id),(addsubc(S,Ref))),
     format(S,'\n\n',[]),
     fail.
     %format(S,'~s\n',[Brief]),
@@ -872,7 +896,19 @@ process_group(S,Id,File,Line,Column,Text) :-
     load_all_text(Id,Text,AllText),
     format(S,'~s',[AllText]),
     nl(S),
-    footer(S,File,Line,Column).
+    footer(S,File,Line,Column),
+    fail.
+process_group(S,Id,_File,_Line,_Column,_Text) :-
+    \+ sub_predicate(_Pred,Id),
+    once(sub_class(_,Id)),
+    format(S,'## Classes\n\n', []), 
+    format(S,'|Class~t|~20|Description~t|~40|\n', []), 
+    format(S,'|:---|:---~|\n', []), 
+    forall(sub_class(Ref,Id),(addsubc(S,Ref))),
+    format(S,'\n\n',[]),
+    fail.
+    %format(S,'~s\n',[Brief]),
+process_group(_S,_Id,_File,_Line,_Column,_Text).
 
 process_predicate(S,Id,File,Line,Column,Text) :-
     %format(S,'~s\n',[Brief]),
@@ -901,9 +937,29 @@ collect_txt(Id,_,Text) :-
 collect_txt(Id,_,Text) :-
     f(Id,Text).
 
+load_brief(GId,Text,AllText) :-
+    findall(T,(T=Text;extrabrief(GId,T)),Ts),
+    string_concat(Ts,S1),
+    string_chars(S1,Cs1),
+    take_blanks(Cs1,Cs2),
+    string_chars(S2,Cs2),
+    (
+      sub_string(S2,Prefix,1,_,`\n`)
+      ->
+      sub_string(S2, 0, Prefix,_,AllText)
+;
+      S2 = AllText
+    ).
+
+take_blanks([C|Cs],NCs) :-
+    char_type_space(C),
+    !,
+    take_blanks(Cs,NCs).
+take_blanks(Cs,Cs).
+
+
 drop_dups([],[]).
 drop_dups([X,X|L],NL) :-
-    !,
     drop_dups([X|L],NL).
 drop_dups([X|L],[X|NL]) :-
     drop_dups(L,NL).
@@ -919,25 +975,27 @@ preds(Id, S) :-
 
 addsubg(S,Id) :-
     group(Id,_Name,_File,_Line,_Column,Brief,_Text, Title),
-    strip_late_blanks(Brief,Brieffer),
+    load_brief(Id,Brief,Brieffer),
     deref(Id,Link),
-    format(S,'###### [*~s*](~s).          ~s\n',[Title,Link,Brieffer]).
+    format(S,'###### [**~s**](~s).          ~s\n',[Title,Link,Brieffer]).
+
 
 addsubp(S,Id) :-
     predicate(Id,_Name,_File,_Line,_Column,Brief,_Text,Title),
-    strip_late_blanks(Brief,Brieffer),
     deref(Id,Link),
-    format(S,'|*[~s](~s)*      |    ~s|\n',[Title,Link,Brieffer]).
+    load_brief(Id,Brief,Brieffer),
+    format(S,'|**[~s](~s)**      |    **~s**|~n',[Title,Link,Brieffer]).
 
 addsubc(S,Id) :-
     class(Id,_Name,_File,_Line,_Column,Brief,_Text,Title),
-    strip_late_blanks(Brief,Brieffer),
+    load_brief(Id,Brief,Brieffer),
     deref(Id,Link),
-    format(S,'|*[~s](~s)*      |    ~s|\n',[Title,Link,Brieffer]).
+    format(S,'|**[~s](~s)**      |    ~s|\n',[Title,Link,Brieffer]).
 
 output_predicate(S,Id) :-
     predicate(Id,Name,_F,_L,_C,Brief,Text,_),
-    format(S,'### ~s          {#~s}\n~s\n',[Name,Link,Brief]),	
+    load_briefs(Id,Brief,Brieffer),
+    format(S,'### ~s          {#~s}\n~s\n',[Name,Link,Brieffer]),	
     format(S,'\n~s\n',[Text]),
     deref(Id,Link),
     forall(extra(Id,Extra) ,  format(S,'~s',[Extra])).

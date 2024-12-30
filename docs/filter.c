@@ -47,11 +47,11 @@ int main(int argc, char *argv[]) {
 	      ((pred = strstr(line,"@pred"))!=NULL) )      {
 	    int arity=0, i;
 	    char *start,*p0, *args;
-start =pred;;
+	    start =pred;
        	    
 		pred +=5;
 		while(isblank(*pred++));
-		p0=--pred;
+		p0=pred-1;
 		// predicate name
 		if (pred[0]=='\'') {
 		  while(*pred++ != '\'');
@@ -71,12 +71,10 @@ start =pred;;
 		  arity++;
 		  
 		}
-		
-		fprintf(stdout,"%.*s@class P%.*s%d	@brief **%.*s** %s",
+		fprintf(stdout,"%.*s@class P%.*s%d\n",
 			(int)(start-line),line,
-			(int)(args-p0),p0,arity,
-			i+(int)(args-p0),p0,
-			args+i
+			(int)(args-p0),p0,arity);
+		fprintf(stdout,"@brief %s",		        p0
 			);
 		line=NULL;
 	      }
@@ -90,7 +88,7 @@ start =pred;;
 		  while (pi0 >= line && (pi0[0]=='_'|| isalnum(pi0[0])))
 		    pi0--;
 		  pi0++;
-		  fprintf(stdout,"%.*s@ref P%.*s%c   \"%.*s/%c\""  ,(int)(pi0-line),line,
+		  fprintf(stdout,"%.*s @ref P%.*s%c \"%.*s/%c\""  ,(int)(pi0-line),line,
 			  (int)(pi-pi0),pi0,pi[1] ,
 			  (int)(pi-pi0),pi0,pi[1] );
 		  line = pi+2;

@@ -18,7 +18,7 @@
 /// @brief The file  YapErrors.h defines the internal error handling API.
 ///
 /// @defgroup ErrorC C API/Implementation of error handling
-/// @ingroup YapError
+/// @ingroup YAPError
 ///
 /// @{
 ///
@@ -75,8 +75,9 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 #define Yap_ThrowError(id, inp, ...)					\
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
-#define Yap_syntax_error(t,sno, inp, ...)					\
-  Yap_syntax_error__(__FILE__, __FUNCTION__, __LINE__,t,sno,LOCAL_tokptr, LOCAL_toktide, inp,  __VA_ARGS__)
+
+#define Yap_syntax_error(sno, tokptr, toktide, msg, ...)			\
+  Yap_syntax_error__(__FILE__, __FUNCTION__, __LINE__,sno,tokptr, toktide,msg, __VA_ARGS__ )
 
 
 

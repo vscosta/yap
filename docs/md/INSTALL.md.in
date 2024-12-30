@@ -1,8 +1,10 @@
-# Installing YAP {#INSTALL}
+# Installing YAP
 
 This page give pointers on where to download YAP binaries or sources, and how to compile it.
 
-## Downloading YAP           {#download}
+[TOC]
+
+## Downloading YAP 
 
 The latest development version of Yap-@YAP_MAJOR_VERSION@ is available source-only
 through GIT repositories. The main reference repository is at
@@ -34,7 +36,7 @@ It may be useful to know:
    version of doxygen adapted to Prolog that was used to generate
    these documents.
 
-## Compiling and Installing YAP {#CompilingYAP}
+## Compiling and Installing YAP
 -------------
 
 YAP-@YAP_FULL_VERSION@ is a [cmake](https://www.cmake.org) based

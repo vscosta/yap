@@ -1,4 +1,4 @@
-# mainpage   @YAP_FULL_VERSION@ User and Reference Manual
+#  YAP @YAP_FULL_VERSION@ User and Reference Manual         {#mainpage}
 
 This document provides User information on version @YAP_FULL_VERSION@
 of YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
@@ -19,9 +19,11 @@ NOTE: this version of YAP is still experimental, documentation may be missing or
 
 - [Program Development](group__YAPProgramming.md)
 
-- [EXtensions](group__YapExtensions.md)
+- [Extensions](group__YapExtensions.md)
 
 - [The Foreign Interface](group__YAPAPI.md)
+
+- [The Packages](group__packages.md)
 
 
 Some general info.

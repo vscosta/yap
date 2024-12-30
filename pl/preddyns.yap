@@ -4,7 +4,7 @@
 /** @file preddyns.yap */
 
 /**
- * @adefgroup DatabasePredDyns
+ * @defgroup DatabasePredDyns Dynamic Predicates
  * @ingroup Builtins
 
 

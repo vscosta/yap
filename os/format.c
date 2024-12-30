@@ -313,7 +313,7 @@ static int format_print_str(int sno, Int size, bool has_size, Term args,
     Term arghd;
   if (IsStringTerm(args)) {
     const unsigned char *pt = UStringOfTerm(args);
-    while (*pt && (!has_size || size > 0)) {
+    while ((!has_size || size > 0) && pt && *pt ) {
       utf8proc_int32_t ch;
 
       if ((pt += get_utf8(pt, -1, &ch)) > 0) {
@@ -333,7 +333,10 @@ static int format_print_str(int sno, Int size, bool has_size, Term args,
     int off;
     const unsigned char *pt = RepAtom(AtomOfTerm(args))->UStrOfAE;
     utf8proc_int32_t ch;
-    while ((off=get_utf8(pt, -1, &ch)>0 && ch != '\0') && (!has_size || size > 0) )  {
+    while ( (!has_size || size > 0) &&
+	   pt && *pt &&
+	    (off=get_utf8(pt, -1, &ch)>0 && ch != '\0') )
+      {
       if (off > 0) {
 	f_putc(sno, ch);
 	pt += off;
@@ -481,7 +484,7 @@ static bool tabulated(const unsigned char *fptr)
 #endif
 
 #define TOO_FEW_ARGUMENTS(Needs, Has_Repeats)				\
-  if (targ+Needs > tnum || Has_Repeats) {				\
+  if (!targs||targ+Needs > tnum || Has_Repeats) {			\
     Yap_CloseStream(sno);						\
     Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, MkIntTerm(fptr-fstr), "command %c in format string %s has no arguments %s", ch, \
 		   fstr, fptr);						\
@@ -572,6 +575,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     targs[0] = args;
   } else {
     tnum = 0;
+    targs = NULL;
   }
   sno =  Yap_open_buf_write_stream(-1, LOCAL_encoding);
   if (sno < 0) {
@@ -591,6 +595,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       /* start command */
       fptr += get_utf8(fptr, -1, &ch);
       if (ch == '*') {
+	if (!targs)
+	  return false;
 	fptr += get_utf8(fptr, -1, &ch);
 	has_repeats = TRUE;
 	repeats = fetch_index_from_args(targs[targ++]);
@@ -1011,6 +1017,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 				sno = format_synch(sno, sno0, finfo);
 				break;
 				case 'N':
+
 				  if (!has_repeats)
 				    repeats = 1;
 				  if (GLOBAL_Stream[sno].linestart !=

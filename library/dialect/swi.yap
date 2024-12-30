@@ -11,8 +11,8 @@
 
 /**
 
-@defgroup YAP_System SWI Dialect Support
-@ingroup YAP_SWI
+@defgroup YAP_SWI SWI Dialect Support
+@ingroup YAPProgramming
 
 @{
 

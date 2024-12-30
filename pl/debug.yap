@@ -634,7 +634,7 @@ Port,
 '$meta_hook'(MG,MG).
 
 /**
- * @Pred '$enter_trace'(+L, 0:G, +Module, +Info)
+ * @pred '$enter_trace'(+L, 0:G, +Module, +Info)
  *
  * call goal: prelims
  *

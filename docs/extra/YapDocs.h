@@ -1,7 +1,7 @@
 /**
- @defgroup mainpage YAP
+@defgroup mainpage YAP User Manual
 
- */
+*/
 
 /**
 
@@ -55,7 +55,7 @@ we present the main predicates and directives available to load
 
 /**
 
- @defgroup YapExtensions Beyond core Prolog
+@defgroup YapExtensions YAP Supported Extensions to Prolog
 @ingroup mainpage
 
 @brief Describes major changes to the original Prolog engine
@@ -70,8 +70,35 @@ we present the main predicates and directives available to load
 
 @brief Describes a number of packages that can be used from YAP.
 
-*/
+  + @subpage realxplxc
 
+  + @subpage BDDs
+
+  + @subpage  gecode
+
+  + @subpage  myddas
+
+  + @ref PFL
+
+  + @subpage ProbLog1
+
+  + @ref Python
+
+  + @subpage raptor
+
+  + @subpage SAT
+
+  + @subpage XML2PL
+
+  + @ref YAP-LBFGS
+
+  + @subpage yap-udi-indexers
+
+  Leuven packages ported from SWI-Prolog:
+
+  + @subpage chr
+
+  + @subpage clpqr
 
 
 /**

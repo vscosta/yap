@@ -18,12 +18,12 @@ markdown_extensions:
 nav:
    - Home: index.md
    - INSTALL: INSTALL.md
-   - run: CALLING_YAP.md
+   - Calling YAP: CALLING_YAP.md
    - Core Built-ins: group__Builtins.md
    - Programming: group__YAPProgramming.md
    - Extensions: group__YapExtensions.md
    - Library: group__YAPLibrary.md
-   - packages: group__YAPPackages.md
+   - Available Packages: group__YAPPackages.md
    - Foreign Language Interface : group__YAPAPI.md
 
 

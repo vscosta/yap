@@ -217,25 +217,6 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
 }
 
 
-int bad_nl_error(int quote, const char *TokImage, struct stream_desc *st) {
-  CACHE_REGS
-    if (trueGlobalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG) && ! trueGlobalPrologFlag(ISO_FLAG)) {
-      return 10;
-    }
-    if (st->status & RepClose_Prolog_f) {
-      Yap_CloseStream(st-GLOBAL_Stream);
-      return EOF;
-    }
-    if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
-      LOCAL_Error_TYPE = SYNTAX_ERROR;
-    } else {
-      LOCAL_Error_TYPE = SYNTAX_WARNING;
-    }
-    LOCAL_ErrorMessage=malloc(2048);
-    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text %s", TokImage);
-    return 10;
-}
-
 
 extern double atof(const char *);
 
@@ -271,23 +252,43 @@ static Term float_send(char *s, int sign) {
  * @param ch
  * @param code
  * @param st
- * @param s
+ * @param sat
  * @returnppp
  */
 static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st)
 {
-  CACHE_REGS
-  if ((st->status & RepError_Prolog_f) || trueGlobalPrologFlag(ISO_FLAG)) {
-      LOCAL_Error_TYPE = SYNTAX_ERROR;
-    LOCAL_ErrorMessage=malloc(2048);
-    Yap_ThrowError(SYNTAX_ERROR,TermNil,"character encoding error: code so far %d scanned %d",code,ch);
-} else if(st->status & RepClose_Prolog_f) {
-    Yap_CloseStream(st-GLOBAL_Stream);
-    return EOF;
-  }
-return ch;
-
+      CACHE_REGS
+	Yap_syntax_error(TermNil, st-GLOBAL_Stream,NULL,NULL,"character encoding error: encountered %c(%d) with context %d",ch,ch,code,NULL);
+      if (falseGlobalPrologFlag(ISO_FLAG)) {
+      if(st->status & (RepClose_Prolog_f|RepError_Prolog_f)) {
+	Term sc[2];
+	if (LOCAL_ActiveError->culprit) {
+	  sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
+	}  else if (LOCAL_ActiveError->culprit_t) {
+	  sc[0] =LOCAL_ActiveError->culprit_t ;
+	} else {
+	  sc[0] = TermNil;
+	}
+	sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
+	sc[1] = MkSysError(LOCAL_ActiveError);
+	Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc),TermWarning);
+	if(st->status & (RepClose_Prolog_f)) {
+	  Yap_CloseStream(st-GLOBAL_Stream);
+	  return EOF;
+	} else {
+	  return ch;
+	}
+      }
+      }
+      Yap_RaiseException();
+      return '\0';
 }
+
+int bad_nl_error(int quote, const char *TokImage, struct stream_desc *st) {
+  CACHE_REGS
+    return number_encoding_error(10, quote , st);
+}
+
 
 Term read_int_overflow(const char *s, Int base, Int val, int sign) {
 #ifdef USE_GMP

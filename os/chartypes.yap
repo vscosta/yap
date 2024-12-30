@@ -49,7 +49,7 @@ but are strict in argument checking.
 
 */
 
-/** @predicate char_type(?_Char_ , ?Type)
+/** @pred char_type(?_Char_ , ?Type)
 
 The character _Char_ has type _Type_. The types included here are
 based on SWI-Prolog's documentation, and they include several types
@@ -1917,5 +1917,6 @@ paren_paren( 0xFF5F, 0xFF60).
 paren_paren( 0xFF60, 0xFF5F).
 paren_paren( 0xFF62, 0xFF63).
 paren_paren( 0xFF63, 0xFF62).
+
 
 /** @} */

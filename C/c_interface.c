@@ -2175,7 +2175,7 @@ X_API Term YAP_ReadFromStream(int sno) {
       cause = MkAtomTerm(Yap_LookupAtom("  "));
     }
     RECOVER_MACHINE_REGS();
-    Yap_syntax_error(cause, -1, NULL, NULL, cause, "while parsing atom");
+    Yap_syntax_error(cause, -1, NULL, NULL, "while parsing atom");
     return 0;
   } else {
     o = Yap_read_term(sno, TermNil, false);

@@ -27,7 +27,7 @@ static char     SccsId[] = "%W% %G%";
 
 /**
    @defgroup arithmetic_operators Arithmetic Functions
-   @ingroup arithmetic
+   @ingroup Arithmetic
 
    YAP implements several arithmetic functions, they are defined as
    fields in three enumerations, such that there is one enumeration

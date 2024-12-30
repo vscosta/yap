@@ -1,14 +1,16 @@
-@file bdd.md
 
-@defgroup BDDs Boolean Decision Making in YAP
-@ingroup YAPPackages
+# Boolean Decision Making in YAP
+
 @brief low-level support for using BDDs from BDDs
 
 This is an experimental interface to BDD libraries. It is not as
-sophisticated as simplecudd, but it should be fun to play around with bdds.
+sophisticated as simplecudd, but it provides a way to play around with bdds.
 
 It currently works with cudd only, although it should be possible to
-port to other libraries. It requires the ability to dynamically link
+port to other libraries. Binary instances of CUDD are available in Fedora Linux an Homebrew.The sources for CUDD can be found at the [unofficial git mirror](https://github.com/ivmai/cudd.git). 
+
+
+It requires the ability to dynamically link
 with cudd binaries. This works:
 
 - in fedora with standard package

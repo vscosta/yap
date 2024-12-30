@@ -1,6 +1,6 @@
 /**
  @defgroup pathconf Configuration of the Prolog file search path
- @ingroup AbsoluteFileName
+ @ingroup absf
 
   Prolog systems search follow a complex search on order to track down files.
 

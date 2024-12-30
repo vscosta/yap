@@ -23,7 +23,7 @@
 
 
 /**
- * @defgroup YAPOsSignals
+ * @defgroup YAPOsSignals Unix Signal Handling
  * @ingroup InputOutput
  * @brief YAP interface to Unix style signals.
  * @{

@@ -996,10 +996,10 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
     LOCAL_ActiveError->errorMsgLen=0;
   Volatile Term t = 0;
 JMPBUFF FailBuff;
-  sigjmp_buf *sigold = LOCAL_RestartEnv;
-  if (!sigold)
-    LOCAL_TopRestartEnv = &(FailBuff.JmpBuff);
-  LOCAL_RestartEnv = &FailBuff.JmpBuff;
+//  sigjmp_buf *sigold = LOCAL_RestartEnv;
+//  if (!sigold)
+//  LOCAL_TopRestartEnv = &(FailBuff.JmpBuff);
+//  LOCAL_RestartEnv = &FailBuff.JmpBuff;
   yhandle_t sls = Yap_StartSlots();
   LOCAL_ErrorMessage = NULL;
   LOCAL_toktide = LOCAL_tokptr;
@@ -1030,7 +1030,7 @@ JMPBUFF FailBuff;
 #endif
     Yap_CloseSlots(sls);
   }
-    LOCAL_RestartEnv = sigold;
+  //LOCAL_RestartEnv = sigold;
   if ((LOCAL_tokptr == NULL || LOCAL_tokptr->TokInfo == TermEof ||LOCAL_tokptr->Tok == Ord(eot_tok)) &&
        t != 0) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;

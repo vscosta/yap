@@ -36,7 +36,7 @@
 % @{
 
 /*!
- * @pred load_mega_clause( +Stream ) is detail
+ * @pred load_mega_clause( +Stream ) is det
  * Load a single predicare composed of facts with the same size.
  */
 load_mega_clause( Stream ) :-
@@ -51,7 +51,7 @@ load_mega_clause( Stream ) :-
 
 /*!
  * @pred load_db( +Files ) is det
- * Load files each one containing as single predicare composed of facts with the same size.
+ * Load files each one containing as single predicate composed of facts with the same size.
  */
 load_db(Fs) :-
         '$current_module'(M0),

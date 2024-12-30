@@ -25,7 +25,7 @@
     - multifile,
     - meta_predicate.
     
-      @ingroup predimpl
+      @ingroup Builtins
 
 @{
 

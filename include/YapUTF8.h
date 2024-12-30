@@ -186,23 +186,14 @@ inline static utf8proc_ssize_t strnlen_ucs2_utf8(const wchar_t *pt,
 inline static int cmpn_utf8(const utf8proc_uint8_t *pt1,
 			    const utf8proc_uint8_t *pt2, utf8proc_ssize_t n) {
   utf8proc_ssize_t i;
-  utf8proc_int32_t b;
+  utf8proc_int32_t b1, b2;
   for (i = 0; i < n; i++) {
-    if (pt1[0] != pt2[0])
-      return pt1[0] - pt2[0];
-    utf8proc_ssize_t l = utf8proc_iterate(pt1, -1, &b);
-    if (l == 2) {
-      if (pt1[1] != pt2[1])
-	return pt1[1] - pt2[1];
-    } else if (l == 3) {
-      if (pt1[2] != pt2[2])
-	return pt1[2] - pt2[2];
-    } else if (l == 4) {
-      if (pt1[3] != pt2[3])
-	return pt1[3] - pt2[3];
-    }
-    pt1 += l;
-    pt2 += l;
+    utf8proc_ssize_t l1 = utf8proc_iterate(pt1, -1, &b1);
+    utf8proc_ssize_t l2 = utf8proc_iterate(pt2, -1, &b2);
+    if (b1!=b2)
+      return b1-b2;
+    pt1 += l1;
+    pt2 += l2;
   }
   return 0;
 }

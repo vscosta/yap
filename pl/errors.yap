@@ -22,7 +22,7 @@
 */
 
 
-/** @defgroup YAPErrors Error Handling
+/** @defgroup YAPError Error Handling
 @ingroup Builtins
 @brief Top-level Prolog code to support error-handling.
 @{

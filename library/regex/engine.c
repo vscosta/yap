@@ -49,7 +49,7 @@
  *
  * regex interpeter.
  *
- * @ingroup regexp
+ * @defgroup regexp
  * @{
  */
 

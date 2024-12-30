@@ -48,10 +48,10 @@ static char SccsId[] = "%W% %G%";
  *
  * predefined stream aliases are:
  *  + user: special alias, initially refers to all the three standard streams.
- *  + `user_input: initially refers to the stdandard input stream;
- *  + `user_output: initially refers to the stdandard output stream;
- *  + `user_error: initially refers to the stdandard error stream. Often this is the same device
- *    as `stderr`, just accessed in different ways.
+ *  + `user_input`: initially refers to the stdandard input stream;
+ *  + `user_output`: initially refers to the stdandard output stream;
+ *  + `user_error`: initially refers to the stdandard error stream. Often this is the same device
+ *    as `stderr`
  *  + `loop_stream`: refers to the stream for the file or object being current consulted
  *  + `debugger_input`: refers to the stream used to send debugger commands, by default `user_input`.
  *  + `debugger_output`: refers to the stream used to output debugging, by default `user_error`.

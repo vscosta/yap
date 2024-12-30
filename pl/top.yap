@@ -531,9 +531,9 @@ live__ :-
     '$run_toplevel_hooks',
      prompt1(' ?- '),
     '$prompt',
-    read_term(user_input,
+    catch(read_term(user_input,
 		    Goal,
-		    [variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]),
+		    [variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]),_Error,error_handler),
     (
 	Goal == end_of_file
     ->

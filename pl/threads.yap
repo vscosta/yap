@@ -1236,7 +1236,7 @@ tthread_peek_message(Queue, Term) :-
 %% @}
 
 /** @defgroup Signalling_Threads Signalling Threads
-@ingroup Threadas
+@ingroup Threads
 
 @{
 
