@@ -227,7 +227,7 @@ xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno,
       if (!na) {
         Yap_ThrowError__(file, function, lineno, err, hd, "no match");
       }
-          na->tvalue = ArgOfTerm(1, listl);
+          na->tvalue = ArgOfTerm(1, hd);
 }
       na->used = true;
       na->source = hd;
