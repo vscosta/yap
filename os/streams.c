@@ -1039,6 +1039,8 @@ static Int set_stream(USES_REGS1) { /* Init current_stream */
 void Yap_CloseStreams(void) {
   int sno;
   fflush(NULL);
+  if (!GLOBAL_Stream)
+    return;
   for (sno = 3; sno < MaxStreams; ++sno) {
     if (GLOBAL_Stream[sno].status & Free_Stream_f)
       continue;
