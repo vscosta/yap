@@ -286,7 +286,8 @@ static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st
 
 int bad_nl_error(int quote, const char *TokImage, struct stream_desc *st) {
   CACHE_REGS
-    return number_encoding_error(10, quote , st);
+     number_encoding_error(10, quote , st);
+  return quote;
 }
 
 

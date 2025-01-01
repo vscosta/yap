@@ -416,7 +416,7 @@ static Int scan_stream(USES_REGS1) {
  *    +
  */
 char * Yap_syntax_error__(const char *file, const char *function, int lineno,Term t, int sno, TokEntry *start,
-                       TokEntry *err, char *s,  ...) {
+                       TokEntry *err, char *msg,  ...) {
   CACHE_REGS
 #if HAVE_FTELLO
   offset_t opos;
@@ -426,9 +426,10 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
 
   va_list ap;
   char  o[MSG_SIZE+1];
-  va_start(ap,s);
-  if (s) {
-    vsnprintf(o, MSG_SIZE,s,ap);
+  o[ 0] = '\0';
+  va_start(ap,msg);
+  if (msg) {
+    vsnprintf(o, MSG_SIZE,msg,ap);
   }
   va_end(ap);
   TokEntry *tok = start, *end = err;
@@ -440,14 +441,32 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
   } else {
     LOCAL_ActiveError = e = calloc(1,  sizeof(yap_error_descriptor_t));
   }
-  if (!start) {
+  if (sno<0) {
     //    Yap_JumpToEnv();   if (sno < 0 || start == NULL) {
     e->parserPos = 0;
     e->parserSize = 0;
     e->parserFile = "Prolog term";
-    e->errorMsg = malloc(strlen(o)+1);
-    strcpy(e->errorMsg,o);
-    Yap_MkErrorRecord(e, file, function, lineno,SYNTAX_ERROR,t,TermEmpty,s);
+    Yap_MkErrorRecord(e, file, function, lineno,SYNTAX_ERROR,t,TermEmpty,o   );
+  }
+  if (st->stream_getc ==  Yap_popChar)
+    st->stream_wgetc(sno);
+  if (!err) {
+    //    Yap_JumpToEnv();   if (sno < 0 || start == NULL) {
+    e->parserPos = 0;
+     e->prologConsulting = LOCAL_consult_level > 0;
+     e->parserReadingCode = true;
+     e->parserFirstLine =
+       e->parserLine =  e->parserLastLine =st->linecount;
+  e->parserSize = 1;
+  e->parserFirstPos = 
+    e->parserPos = st->charcount- 1; 
+  e->parserLastPos = st->charcount;
+  e->parserFirstLinePos = 
+    e->parserLinePos = e->parserPos-st->linestart;
+  e->parserLastLinePos = e->parserLastPos-st->linestart;
+      const char *s =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
+    e->parserFile = strcpy(malloc(strlen(s)+1),s);  
+    Yap_MkErrorRecord(e, file, function, lineno,SYNTAX_ERROR,t,TermEmpty,o);
    } else {
      const char *s =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
      e->parserFile = strcpy(malloc(strlen(s)+1),s);  
@@ -713,7 +732,13 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   }
   if (args && args[READ_SINGLETONS].used) {
     fe->sp = args[READ_SINGLETONS].tvalue;
-  } else {
+    Term *tp;
+    if (!IsVarTerm(fe->sp) &&
+	(Yap_SkipList(&fe->sp, &tp)<1 || *tp != TermNil)) {
+      Yap_ThrowError(DOMAIN_ERROR_READ_OPTION, Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("singletons"),1),1,&fe->sp),
+                     "type error in singletons/1");
+    }
+ } else {
     fe->sp = 0;
   }
   if (args && args[READ_SYNTAX_ERRORS].used) {
@@ -723,11 +748,23 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   }
   if (args && args[READ_VARIABLES].used) {
     fe->vprefix = args[READ_VARIABLES].tvalue;
+    Term *tp;
+    if (!IsVarTerm(fe->vprefix) &&
+	(Yap_SkipList(&fe->vprefix, &tp)<1 || *tp != TermNil)) {
+      Yap_ThrowError(DOMAIN_ERROR_READ_OPTION, Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("variables"),1),1,&fe->vprefix),
+                     "type error in variables/1");
+    }
   } else {
     fe->vprefix = 0;
   }
   if (args && args[READ_VARIABLE_NAMES].used) {
     fe->np = args[READ_VARIABLE_NAMES].tvalue;
+    Term *tp;
+    if (!IsVarTerm(fe->np) &&
+	(Yap_SkipList(&fe->np,&tp)<1 || *tp != TermNil)) {
+      Yap_ThrowError(DOMAIN_ERROR_READ_OPTION, Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("variable_names"),1),1,&fe->np),
+                     "type error in variable_names/1");
+      }
   } else {
     fe->np = 0;
   }
@@ -2092,4 +2129,3 @@ void Yap_InitReadTPreds(void) {
 }
 
 /// @}
-
