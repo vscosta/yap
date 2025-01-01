@@ -1276,6 +1276,15 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
       /* first tell variable names */
       if (args && args[WRITE_VARIABLE_NAMES].used) {
 	tnames = args[WRITE_VARIABLE_NAMES].tvalue;
+	if (IsVarTerm(tnames))
+	  {
+	  xarg *  entry = &args[WRITE_VARIABLE_NAMES];
+	  Yap_ThrowError(INSTANTIATION_ERROR, entry->tvalue, "on parameter %s", NameOfFunctor(FunctorOfTerm(entry->source)));
+	  }
+	Term *tp;
+	if (Yap_SkipList(&tnames,&tp)<1 || *tp != TermNil) {
+	      badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_VARIABLE_NAMES]);
+      }
 	  ynames = Yap_InitHandle(tnames);
 	  flags  |= Named_vars_f|Number_vars_f;
       }
