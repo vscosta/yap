@@ -69,7 +69,10 @@ xml2tasks(Tasks, NewTasks) :-
     foldl( run_task(``), Tasks, NewTasks, []).
 
 
-
+deref(Link, Link) :-
+    \+ string(Link),
+    !,
+    fail.
 deref(Link, Link) :-
     sub_string(Link,_,_,0,`.md`),
     !.
@@ -724,9 +727,9 @@ par(_U,_Info, ref([[refid(R)|_],Name])) -->
       deref(R,DR) },
     !,
     mcstr([`[`,Name,`](`,DR,`)`]).
-par(_U,_Info, qualifiedname([[],Name)) -->
+par(_U,_Info, qualifiedname([[],Name])) -->
     { string(Name),
-      sub_string(Name,L,`::`,R,'::`),
+      sub_string(Name,_L,2,R,`::`),
       deref(R,DR) },
     !,
     mcstr([DR]).
