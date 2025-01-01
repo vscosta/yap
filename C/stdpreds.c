@@ -412,7 +412,6 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
   register Term tin;
   Term twork, t2;
   Atom at;
-  static int count;
 
 
   tin = Deref(ARG1);
@@ -1312,7 +1311,7 @@ static Int p_dump_active_goals(USES_REGS1) {
   return (TRUE);
 }
 #endif
-
+//Y#define INES 1
 #ifdef INES
 static Int p_euc_dist(USES_REGS1) {
   Term t1 = Deref(ARG1);
@@ -1327,7 +1326,7 @@ static Int p_euc_dist(USES_REGS1) {
   return (Yap_unify(ARG3, MkIntegerTerm(result)));
 }
 
-volatile int loop_counter = 0;
+volatile static int loop_counter = 0;
 
 static Int p_loop(USES_REGS1) {
   while (loop_counter == 0)
@@ -1434,10 +1433,6 @@ void Yap_InitCPreds(void) {
 #ifdef YAP_JIT
   Yap_InitCPred("$jit_init", 1, p_jit, SafePredFlag | SyncPredFlag);
 #endif /* YAPOR */
-#ifdef INES
-  Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
-  Yap_InitCPred("loop", 0, p_loop, SafePredFlag);
-#endif
 #if QSAR
   Yap_InitCPred("in_range", 8, p_in_range, TestPredFlag | SafePredFlag);
   Yap_InitCPred("in_range", 4, p_in_range2, TestPredFlag | SafePredFlag);
@@ -1511,6 +1506,10 @@ void Yap_InitCPreds(void) {
 
     Yap_InitForeignPreds();
   }
+#endif
+#ifdef INES
+  Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
+  Yap_InitCPred("loop", 0, p_loop, SafePredFlag);
 #endif
 #if APRIL
   {

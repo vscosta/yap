@@ -104,7 +104,7 @@ p_euc_dist( USES_REGS1 ) {
 }
 
 #if DEBUG
-volatile int loop_counter = 0;
+volatile static int loop_counter = 0;
 
 static Int
 p_loop( USES_REGS1 ) {

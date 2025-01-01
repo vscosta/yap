@@ -447,6 +447,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
     e->parserSize = 0;
     e->parserFile = "Prolog term";
     Yap_MkErrorRecord(e, file, function, lineno,SYNTAX_ERROR,t,TermEmpty,o   );
+    return NULL;
   }
   if (st->stream_getc ==  Yap_popChar)
     st->stream_wgetc(sno);
