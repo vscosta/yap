@@ -6,7 +6,7 @@
 
 %:- dynamic group/8, predicate/8, show/0.
 
-:- multifile extrabrief/2, class/8, predicate/8 , v/2, f/2, c/2,extra/2.
+:- multifile extrabrief/2, class/8, predicate/8 , v/2, f/3, c/2,extra/2.
 :- dynamic parent/2.
 
 main :-
@@ -354,13 +354,6 @@ top_par(_U0,_Info,C) -->
 %     {writeln(C),
 %     fail}.
 par(_,_,[]) --> !.
-par(U0,Info,sectiondef([[kind(`var`)|_]|Paras])) -->
-    !,
-    {
-      arg(1,Info,Id),
-      foldl(var_member(U0,Info),Paras, `##Vars##`, Desc),
-      assert(v(Id,Desc))
-    }.
 par(U0,Info,sectiondef([[kind(`friend`)|_]|Paras])) -->
     !,
     {
@@ -369,68 +362,13 @@ par(U0,Info,sectiondef([[kind(`friend`)|_]|Paras])) -->
       foldl(friend_member(U0,Info),Paras, S, Desc),
       assert(v(Id,Desc))
     }.
-par(U0,Info,sectiondef([[kind(`define`)|_Opts]|Paras])) -->
+par(U0,Info,sectiondef([[kind(Funs)|_Opts]|Paras])) -->
+    {fmember(Funs,_FType)},
     !,
     {
       arg(1,Info,Id),
-      string_concat([`\n##Defines:##.\n`], S0),
-      foldl(function_member(U0,Info),Paras, S0, Desc),
-      assert(f(Id,Desc))
-    }.
-par(U0,Info,sectiondef([[kind(`private-func`)|_Opts]|Paras])) -->
-    !,
-    {
-      arg(1,Info,Id),
-      string_concat([`\n##Private Functions##:\n`], S0),
-      foldl(function_member(U0,Info),Paras, S0, Desc),
-      assert(f(Id,Desc))
-    }.
-par(U0,Info,sectiondef([[kind(`public-func`)|_Opts]|Paras])) -->
-    !,
-    {
-      arg(1,Info,Id),
-      string_concat([`\n##Public Functions##:\n`], S0),
-      foldl(function_member(U0,Info),Paras, S0, Desc),
-      assert(f(Id,Desc))
-    }.
-par(U0,Info,sectiondef([[kind(`func`)|_Opts]|Paras])) -->
-    !,
-    {
-      arg(1,Info,Id),
-      string_concat([`\n##Functions##:\n`], S0),
-      foldl(function_member(U0,Info),Paras, S0, Desc),
-      assert(f(Id,Desc))
-    }.
-par(U0,Info,sectiondef([[kind(`private-attr`)|_Opts]|Paras])) -->
-    !,
-    {
-      arg(1,Info,Id),
-      string_concat([`\n##atributes(private)##.\n`], S0),
-      foldl(function_member(U0,Info),Paras, S0, Desc),
-      assert(f(Id,Desc))
-    }.
-par(U0,Info,sectiondef([[kind(`enum`)|_Opts]|Paras])) -->
-    !,
-    {
-      arg(1,Info,Id),
-      string_concat([`\n##enums##:\n`], S0),
-      foldl(function_member(U0,Info),Paras, S0, Desc),
-      assert(f(Id,Desc))
-    }.
-par(U0,Info,sectiondef([[kind(`struct`)|_Opts]|Paras])) -->
-    !,
-    {
-      arg(1,Info,Id),
-      string_concat([`\n##C-structs## `,`.\n`], S0),
-      foldl(function_member(U0,Info),Paras, S0, Desc),
-      assert(f(Id,Desc))
-    }.
-par(U0,Info,sectiondef([[kind(`typedef`)|_Opts]|Paras])) -->
-    !,{
-      arg(1,Info,Id),
-      string_concat([`\n##Types## `,`.\n`], S0),
-      foldl(function_member(U0,Info),Paras, S0, Desc),
-      assert(f(Id,Desc))
+      foldl(function_member(U0,Info),Paras, ``, Desc),
+      assert(f(Funs,Id,Desc))
     }.
 par(U,Info,sectiondef([[kind(_)]|Text])) -->
     !,
@@ -729,10 +667,13 @@ par(_U,_Info, ref([[refid(R)|_],Name])) -->
     mcstr([`[`,Name,`](`,DR,`)`]).
 par(_U,_Info, qualifiedname([[],Name])) -->
     { string(Name),
-      sub_string(Name,_L,2,R,`::`),
+      sub_string(Name,_,_,R,`::P`),
       deref(R,DR) },
     !,
     mcstr([DR]).
+par(_U,_Info, qualifiedname([[],Name])) -->
+    !,
+    cstr(Name).
 par(_U,_Info, basecompoundref([[refid(R)|_],Name])) -->
     { string(Name),
       deref(R,DR) },
@@ -911,8 +852,24 @@ process_group(S,Id,_File,_Line,_Column,_Text) :-
     format(S,'\n\n',[]),
     fail.
     %format(S,'~s\n',[Brief]),
-process_group(_S,_Id,_File,_Line,_Column,_Text).
+process_group(S,Id,_File,_Line,_Column,_Text) :-
 
+    \+ sub_predicate(_Pred,Id),
+    once(sub_class(_,Id)),
+    format(S,'## Classes\n\n', []), 
+    format(S,'|Class~t|~20|Description~t|~40|\n', []), 
+    format(S,'|:---|:---~|\n', []), 
+    forall(sub_class(Ref,Id),(addsubc(S,Ref))),
+    format(S,'\n\n',[]),
+    fail.
+    %format(S,'~s\n',[Brief]),
+process_group(S,Id,_File,_Line,_Column,_Text) :-
+    forall(
+(fmember(Type,TName),once(f(Type,Id,_))),
+(format(S,TName,[]),
+    forall(f(Type,Id,Text),format(S,'~s',[Text])))).
+    
+    
 process_predicate(S,Id,File,Line,Column,Text) :-
     %format(S,'~s\n',[Brief]),
     load_all_text(Id,Text,AllText),
@@ -937,8 +894,6 @@ collect_txt(Id,_,Text) :-
     extra(Id,Text), Text \= ``.
 collect_txt(Id,_,Text) :-
     v(Id,Text), Text \= ``.
-collect_txt(Id,_,Text) :-
-    f(Id,Text).
 
 load_brief(GId,Text,AllText) :-
     findall(T,(T=Text;extrabrief(GId,T)),Ts),
@@ -1044,6 +999,18 @@ add_comments(U,Text) -->
     rpar(U,InBody),
     rpar(U,Detailed).
 
+ 
+
+fmember(`define`,`### C-Preprocessor define::\n`).
+fmember(`enum`,`### enum:\n`).
+fmember(`friend`,`### friend:\n`).
+fmember(`private-attr`,`### private attr:\n`).
+fmember(`private-func`,`### private method:\n`).
+fmember(`func`,`### function:\n`).
+fmember(`public-func`,`### public method<:\n`).
+fmember(`struct`,`### struct:\n`).
+fmember(`var`,`### variable:\n`).
+fmember(`typedef`,`### type:\n`).
 
 friend_member(U0,Info,memberdef([[kind(_Kind),id(MyId)|_]|Text])) -->
     { member(definition([[],Def]), Text),

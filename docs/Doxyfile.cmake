@@ -5,6 +5,20 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 
 set(DOX_MD_FILES
  ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
+  ${CMAKE_SOURCE_DIR}/packages/bdd/bdd.md
+${CMAKE_SOURCE_DIR}/packages/chr/chr.md
+${CMAKE_SOURCE_DIR}/packages/clpqr/clpqr.md
+${CMAKE_SOURCE_DIR}/packages/gecode/gecode.md
+${CMAKE_SOURCE_DIR}/packages/myddas/myddas.md
+${CMAKE_SOURCE_DIR}/packages/ProbLog/problog.md
+${CMAKE_SOURCE_DIR}/packages/python/python.md
+${CMAKE_SOURCE_DIR}/packages/raptor/raptor.md
+${CMAKE_SOURCE_DIR}/packages/real/real.md
+${CMAKE_SOURCE_DIR}/packages/udi/udi.md
+${CMAKE_SOURCE_DIR}/packages/xml2yap/xml2yap.md
+${CMAKE_SOURCE_DIR}/packages/yap-lbfgs/yap-lbfgs.md
+
+
 )
 file( COPY ${CMAKE_SOURCE_DIR}/docs/filter.yap DESTINATION .)
 
@@ -130,7 +144,7 @@ doxygen_add_docs(
      ${CMAKE_SOURCE_DIR}/pl
 ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
-    #   ${CMAKE_SOURCE_DIR}/packages
+       ${CMAKE_SOURCE_DIR}/packages
     ${CMAKE_SOURCE_DIR}/OPTYap
 COMMENT "Generating Xmls"
 )

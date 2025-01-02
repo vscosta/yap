@@ -67,32 +67,29 @@ we present the main predicates and directives available to load
 
  @defgroup YAPPackages The Prolog packages
 @ingroup mainpage
-
+@{
 @brief Describes a number of packages that can be used from YAP.
 
-  + @subpage realxplxc
 
-  + @subpage BDDs
-
-  + @subpage  gecode
+  + @subpage bdd
 
   + @subpage  myddas
 
   + @ref PFL
 
-  + @subpage ProbLog1
+  + @subpage problog
 
-  + @ref Python
+  + @ref python
 
   + @subpage raptor
 
-  + @subpage SAT
+  + @subpage sat
 
-  + @subpage XML2PL
+  + @subpage xml2pl
 
-  + @ref YAP-LBFGS
+  + @ref yap-lgbfs
 
-  + @subpage yap-udi-indexers
+  + @subpage udi
 
   Leuven packages ported from SWI-Prolog:
 
@@ -100,9 +97,10 @@ we present the main predicates and directives available to load
 
   + @subpage clpqr
 
+@}
+*/
 
 /**
-
 
 
  @defgroup YAPAPI The YAP Foreign Language
