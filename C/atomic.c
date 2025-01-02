@@ -204,7 +204,7 @@ static Int unhide_atom(USES_REGS1) { /* unhide_atom(+Atom)		 */
   WRITE_UNLOCK(atom->ARWLock);
   return (TRUE);
 }
-
+#if 0
 /** @pred  string_code(? _A_,? _I_) is iso
 
     The built-in succeeds with  _A_ bound to character represented as an
@@ -363,6 +363,7 @@ static Int get_string_char3(USES_REGS1) {
     return Yap_unify(t1, tf);
   }
 }
+#endif
 
 /** @pred name( _A_, _L_)
 
@@ -2673,12 +2674,12 @@ ts[5] = MkIntegerTerm(sz);
   }
 
 
-/** @Pred  sub_atomic(+ _Atomic_,? _Bef_, ? _Size_, ? _After_, ?
+/** @pred  sub_atomic(+ _Atomic_,? _Bef_, ? _Size_, ? _After_, ?
     _At_out_) is iso
 
 Similar to sub_atom/5, but the first argument can be any atomic.
 */
-/** @Pred  sub_atomic(+ _Atomic_,? _Bef_, ? _Size_, ? _After_, ?
+/** @pred  sub_atomic(+ _Atomic_,? _Bef_, ? _Size_, ? _After_, ?
     _At_out_) is iso
 
 Similar to sub_atom/5, but the first argument can be any atomic.
