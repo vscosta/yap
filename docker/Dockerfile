@@ -51,8 +51,8 @@ RUN     cd /app/yap/build &&\
      apt install -y mkdocs &&\
      ninja  mkdocs
 
-#RUN cd /app/yap/build  &&\
-#cpack --config CPackConfig.cmake -G DEB                                             
+RUN cd /app/yap/build  &&\
+cpack --config CPackConfig.cmake -G DEB                                             
 
 #R extras
 
