@@ -29,36 +29,30 @@ RUN apt update && apt -y upgrade && \
     r-cran-rcpp \
     libraptor2-dev 
 
-
-
-RUN git clone https://github.com/vscosta/doxygen.git /app/doxygen &&\
-     cd /app/doxygen &&\
-     mkdir -p build&&\
-     cd build&&\
-     cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/usr && cmake --build . --target install        
+    
 
 #yap binary
 
 # BDD library
-RUN  git clone https://github.com/vscosta/cudd.git /app/cudd \
+RUN  git clone https://github.com/ivmai/cudd.git /app/cudd \
     && cd /app/cudd \
     && aclocal\
     && automake\
     && ./configure --prefix=/usr --enable-shared --enable-obj --enable-dddmp&& make -j install&& cd ..
 
-RUN  git clone https://github.com/vscosta/yap /app/yap --depth=6\
+RUN  git clone https://github.com/vscosta/yap /app/yap --depth=3\
     && mkdir -p /app/yap/build\
     && cd /app/yap/build\
     && cmake .. -DWITH_DOXYGEN=1 -DCMAKE_BUILD_TYPE=Release -DWITH_PACKAGES=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja \
     && cmake --build .  --target install
 
 ##RUN  mkdir -p /app/yap/build &&\
-3     cd /app/yap/build &&\
+RUN     cd /app/yap/build &&\
      apt install -y mkdocs &&\
      ninja  mkdocs
 
-RUN cd /app/yap/build  &&\
-cpack --config CPackConfig.cmake -G DEB                                             
+#RUN cd /app/yap/build  &&\
+#cpack --config CPackConfig.cmake -G DEB                                             
 
 #R extras
 
