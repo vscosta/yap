@@ -1901,7 +1901,6 @@ bool Yap_code_location(find_pred_type	 where_from, struct yami_position *p) {
     //      gc_entry_info t;
   }
   if (pred) {
-    char *source;
     Atom	owner = pred->src.OwnerFile;
     if (owner) {
       p->file	      = RepAtom(owner)->StrOfAE;

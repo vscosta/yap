@@ -404,9 +404,15 @@ par(U0,Info,sect2([[id(Id)],title([[],Title])|Paras])) -->
     add_nl(U0),
     foldl(par(U0,Info),Paras),
     add_nl(0).
-par(U0,Info,sect3([[id(Id)],title([[],Title])|Paras])) -->
+par(U0,Info,sect2([[id(Id)],title([[],Title])|Paras])) -->
     !,
-    mcstr([`#### `,Title,`               {#`,Id,`};`]),
+    mcstr([`### `,Title,`               {#`,Id,`};`]),
+    add_nl(U0),
+    foldl(par(U0,Info),Paras),
+    add_nl(0).
+par(U0,Info,sect3([[id(Id)]|Paras])) -->
+    !,
+    mcstr([`###               {#`,Id,`};`]),
     add_nl(U0),
     foldl(par(U0,Info),Paras),
     add_nl(0).
@@ -462,15 +468,8 @@ par(_U, _Info, detaileddescription([[]])) -->
 par(U0,Info,detaileddescription([[]|Paras]))-->
     !,
     {
-      arg(7,Info, D0),
       foldl(par(U0,[]),Paras,``,Desc),
-      (
-	var(D0)
-	->
-	D0=Desc;
-	true
-      ),
-      (Desc == ``  ->
+         (Desc == ``  ->
        true
        ;
        arg(1,Info,Id),
@@ -500,6 +499,10 @@ par(U0,Info,memberdef([_|Seq]))-->
     cstr(`* ` ),
     foldl(par(U,Info),Seq),
     add_nl(U).
+par(U0,Info,member([refid(ID),kind(`variable`)],name([[],Name])))-->
+    !,
+    mcstr([`* [`,ID,`](`,Name,`)`] ),
+    add_nl(U0).
 par(U,Info,lsquo(_)) -->
     !,
     par(U,Info,`\``).
@@ -1007,7 +1010,7 @@ fmember(`friend`,`### friend:\n`).
 fmember(`private-attr`,`### private attr:\n`).
 fmember(`private-func`,`### private method:\n`).
 fmember(`func`,`### function:\n`).
-fmember(`public-func`,`### public method<:\n`).
+fmember(`public-func`,`### public method:\n`).
 fmember(`struct`,`### struct:\n`).
 fmember(`var`,`### variable:\n`).
 fmember(`typedef`,`### type:\n`).
@@ -1021,13 +1024,13 @@ friend_member(U0,Info,memberdef([[kind(_Kind),id(MyId)|_]|Text])) -->
     cstr(St),
     add_comments(U0,Text).
 
-function_member(U0,Info,memberdef([[kindqq(_),id(MyId)|_]|Text])) -->
+function_member(U0,Info,memberdef([[kind(_),id(MyId)|_]|Text])) -->
     {
       member(definition([[],Def]), Text),
       ( member(argsstring([[],As]), Text) -> true ; As = ``),
 
       rel_id(MyId,Info,Id),
-      format(string(St),`###### ~s~s  {#~s}\n`,[Def,As,Id])
+      format(string(St),`##### ~s~s  {#~s}\n`,[Def,As,Id])
     },
     cstr(St),
     add_comments(U0,Text),

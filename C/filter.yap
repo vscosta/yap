@@ -347,9 +347,9 @@ addcomm(_,_).
 
 
 
-dxpand(module(_M,Gs)) :-
-%   module(M),
-%    assert(defines_module(M)),
+dxpand(module(M,Gs)) :-
+   module(M),
+    assert(defines_module(M)),
     maplist(dxpand,Gs).
 dxpand(op(M,Gs,Y)) :-
     op(M,Gs,Y).

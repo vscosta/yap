@@ -22,6 +22,7 @@ valid_suffix('.yap').
 valid_suffix('.pl').
 valid_suffix('.prolog').
 valid_suffix('.P').
+valid_suffix('.ypp').
 
 /**
  * @pred main

@@ -30,11 +30,8 @@
 	    dgraph_compose/3,
 	    dgraph_transitive_closure/2,
 	    dgraph_symmetric_closure/2,
-`	    dgraph_top_sort/2,
+	    dgraph_top_sort/2,
 	    dgraph_top_sort/3,
-	    dgraph_min_path/5,
-	    dgraph_max_path/5,
-	    dgraph_min_paths/3,
 	    dgraph_isomorphic/4,
 	    dgraph_path/3,
 	    dgraph_path/4,
@@ -55,19 +52,9 @@ from that vertex through an edge (ie, a list of edges).
 */
 
 
-/** @pred dgraph_new(+ _Graph_) 
-
-
-Create a new directed graph. This operation must be performed before
-trying to use the graph.
-
- 
-*/
-:- reexport(library(rbtrees),
-	[rb_new/1 as dgraph_new]).
 
 :- use_module(library(rbtrees),
-	[rb_new/1,
+	[
 	 rb_empty/1,
 	 rb_lookup/3,
 	 rb_apply/4,
@@ -76,7 +63,7 @@ trying to use the graph.
 	 rb_keys/2,
 	 rb_delete/3,
 	 rb_map/3,
-	 rb_clone/3,
+	 rb_clone/4,
 	 ord_list_to_rbtree/2]).
 
 :- use_module(library(ordsets),
@@ -86,27 +73,25 @@ trying to use the graph.
 	 ord_del_element/3,
 	 ord_memberchk/2]).
 
-:- use_module(library(wdgraphs),
-	[dgraph_to_wdgraph/2,
-	 wdgraph_min_path/5,
-	 wdgraph_max_path/5,
-	 wdgraph_min_paths/3]).
+
+/** @pred dgraph_new(+ _Graph_) 
 
 
-/** @pred dgraph_add_edge(+ _Graph_, + _N1_, + _N2_, - _NewGraph_) 
-
-
-Unify  _NewGraph_ with a new graph obtained by adding the edge
- _N1_- _N2_ to the graph  _Graph_.
+Create a new directed graph. This operation must be performed before
+trying to use the graph.
 
  
 */
+dgraph_new(Graph) :-
+	rb_empty(Graph).
+
+/** @pred dgraph_add_edge(+ _Graph_, + _N1_, + _N2_, - _NewGraph_) */
 dgraph_add_edge(Vs0,V1,V2,Vs2) :-
 	dgraph_new_edge(V1,V2,Vs0,Vs1),
 	dgraph_add_vertex(Vs1,V2,Vs2).
 	
 
-/** @pred dgraph_add_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
+ /** @pred dgraph_add_edges(+ _Graph_, + _Edges_, - _NewGraph_) 
 
 
 Unify  _NewGraph_ with a new graph obtained by adding the list of
@@ -468,7 +453,7 @@ dgraph_top_sort(G, Q, RQ0) :-
 	% O(E)
 	invert_and_link(Vs, Links, UnsortedInvertedEdges, AllVs, Q),
 	% O(V)
-	rb_clone(G, LinkedG, Links),
+	rb_clone(G, LinkedG, Links, _),
 	% O(Elog(E))
 	sort(UnsortedInvertedEdges, InvertedEdges),
 	% O(E)
@@ -545,45 +530,6 @@ Edge  _N1_- _N2_ is an edge in directed graph  _Graph_.
 dgraph_edge(N1, N2, G) :-
 	rb_lookup(N1, Ns, G),
 	ord_memberchk(N2, Ns).
-
-/** @pred dgraph_min_path(+ _V1_, + _V1_, + _Graph_, - _Path_, ? _Costt_) 
-
-
-Unify the list  _Path_ with the minimal cost path between nodes
- _N1_ and  _N2_ in graph  _Graph_. Path  _Path_ has cost
- _Cost_.
-
- 
-*/
-dgraph_min_path(V1, V2, Graph, Path, Cost) :-
-	dgraph_to_wdgraph(Graph, WGraph),
-	wdgraph_min_path(V1, V2, WGraph, Path, Cost).
-
-/** @pred dgraph_max_path(+ _V1_, + _V1_, + _Graph_, - _Path_, ? _Costt_) 
-
-
-Unify the list  _Path_ with the maximal cost path between nodes
- _N1_ and  _N2_ in graph  _Graph_. Path  _Path_ has cost
- _Cost_.
-
- 
-*/
-dgraph_max_path(V1, V2, Graph, Path, Cost) :-
-	dgraph_to_wdgraph(Graph, WGraph),
-	wdgraph_max_path(V1, V2, WGraph, Path, Cost).
-
-/** @pred dgraph_min_paths(+ _V1_, + _Graph_, - _Paths_) 
-
-
-Unify the list  _Paths_ with the minimal cost paths from node
- _N1_ to the nodes in graph  _Graph_.
-
- 
-*/
-dgraph_min_paths(V1, Graph, Paths) :-
-	dgraph_to_wdgraph(Graph, WGraph),
-	wdgraph_min_paths(V1, WGraph, Paths).
-
 /** @pred dgraph_path(+ _Vertex_, + _Vertex1_, + _Graph_, ? _Path_)
 
 The path  _Path_ is a path starting at vertex  _Vertex_ in graph
@@ -592,7 +538,7 @@ The path  _Path_ is a path starting at vertex  _Vertex_ in graph
  
 */
 dgraph_path(V1, V2, Graph, Path) :-
-	rb_new(E0),
+	rb_empty(E0),
 	rb_lookup(V1, Children, Graph),
 	dgraph_path_children(Children, V2, E0, Graph, Path).
 
@@ -642,7 +588,7 @@ vertices in  _Vs_ map to vertices in  _NewVs_.
  
 */
 dgraph_isomorphic(Vs, Vs2, G1, G2) :-
-	rb_new(Map0),
+	rb_empty(Map0),
 	mapping(Vs,Vs2,Map0,Map),
 	dgraph_edges(G1,Edges),
 	translate_edges(Edges,Map,TEdges),

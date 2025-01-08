@@ -3,9 +3,12 @@
  @author V Santos Costa
 
  @defgroup XML4PL XML to Prolog parser
- @ingroup packages
+ @ingroup YAPPackages
 
- Load XML files using the YAP C++ interface and the PUGI library.
+ @brief Load XML files using the YAP C++ interface and the PUGI library.
+
+This library imports a XML file as a Prolog term.
+
 */
 :- module( xml4yap, [load_xml/2,
 		     xml_load/2,
@@ -27,7 +30,7 @@ xml_pretty_print(S) :-
     load_xml(S,Gs),
     maplist(pp(0),Gs).
 
-pp(D,Node) :-
+Xpp(D,Node) :-
     Node=..[Name,[L|Tree]],
     format(',~n~*c~q( ~q ',[D,0' ,Name,L]),
     D1 is D+1,

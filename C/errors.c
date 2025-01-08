@@ -1782,10 +1782,11 @@ bool must_be_integer__(const char *file, const char *function, int lineno,
     (
      IsApplTerm(t) &&
      (
-      f=FunctorOfTerm(t)) == FunctorLongInt
+      (f=FunctorOfTerm(t)) == FunctorLongInt
      ||
      (f == FunctorBigInt && RepAppl(t)[1] == BIG_INT
      )
+      )
      );
 }
 

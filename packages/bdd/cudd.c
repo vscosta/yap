@@ -1,6 +1,6 @@
 /**
     @defgroup CUDD CUDD Interface
-@ingroup bdd
+@ingroup BDDs
 
    @brief Interface to the CUDD Library
    @{

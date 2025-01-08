@@ -27,7 +27,7 @@ Last rev: $Id: range_list.h,v 1.1 2008-03-26 23:05:22 nunofonseca Exp $
  *
  *  range list core data-structures.
  *
- * @defgroup rltree
+ * @defgroup rltree An implementation of range lists for YAP
  * @ingroup YapExtensions
  *
  * @brief range list trees

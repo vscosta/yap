@@ -19,7 +19,6 @@
 
 :- module( wdgraphs,
 	   [
-	    wdgraph_new/1,
 	    wdgraph_add_edge/5,
 	    wdgraph_add_edges/3,
 	    wdgraph_add_vertices_and_edges/4,
@@ -45,24 +44,28 @@
 	    wdgraph_reachable/3]).
 
 
-:- reexport(library(dgraphs),
-	    [dgraph_add_vertex/3 as wdgraph_add_vertex,
-	     dgraph_add_vertices/3 as wdgraph_add_vertices,
-	     dgraph_vertices/2 as wdgraph_vertices,
-	     dgraph_edges/2 as wdgraph_edges
-	    ]).
+
+:- reexport(library(rbtrees),
+	[rb_empty/1 as wdgraph_new]).
 
 
 :- use_module(library(dgraphs),
 	[
 	dgraph_top_sort/2,
-	dgraph_path/3
+	dgraph_path/3,
+	dgraph_edges/2
 	]
     ).
 
+:- reexport(library(dgraphs),
+	    [dgraph_add_vertex/3 as wdgraph_add_vertex,
+	    dgraph_new/3 as wdgraph_new,
+	     dgraph_vertices/2 as wdgraph_vertices,
+	     dgraph_edges/2 as wdgraph_edges
+	    ]).
+
 :- use_module(library(rbtrees),
-	[rb_new/1,
-	 rb_empty/1,
+	[rb_empty/1,
 	 rb_lookup/3,
 	 rb_apply/4,
 	 rb_insert/4,
@@ -70,7 +73,6 @@
 	 rb_keys/2,
 	 rb_delete/3,
 	 rb_map/3,
-	 rb_clone/3,
 	 rb_clone/4,
 	 rb_update/5,
 	 ord_list_to_rbtree/2]).
@@ -85,17 +87,41 @@
 	 get_from_heap/4
      ]).
 
-wdgraph_new(Vertices) :-
-	rb_new(Vertices).
-
 wdgraph_add_vertices_and_edges(Vs0,Vertices,Edges,Vs2) :-
 	wdgraph_add_vertices(Vs0, Vertices, Vs1),
 	wdgraph_add_edges(Vs1, Edges, Vs2).
 
 
+/** @pred dgraph_add_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
+
+
+Unify  _NewGraph_ with a new graph obtained by adding the list of
+vertices  _Vertices_ to the graph  _Graph_.
+
+ 
+*/
+wdgraph_add_vertices(G, [], G).
+wdgraph_add_vertices(G0, [V|Vs], GF) :-
+	wdgraph_add_vertex(G0, V, G1),
+	wdgraph_add_vertices(G1, Vs, GF).
+
+
+/** @pred wdgraph_add_vertex(+ _Graph_, + _Vertex_, - _NewGraph_) 
+
+Unify  _NewGraph_ with a new graph obtained by adding
+vertex  _Vertex_ to the graph  _Graph_.
+
+ 
+*/
+wdgraph_add_vertex(Vs0, V, Vs0) :-
+	rb_lookup(V,_,Vs0), !.
+wdgraph_add_vertex(Vs0, V, Vs) :-
+	rb_insert(Vs0, V, [], Vs).
+
+
 wdgraph_add_edge(Vs0,V1,V2,Weight,Vs2) :-
 	wdgraph_new_edge(V1,V2,Weight,Vs0,Vs1),
-	dgraph_add_vertex(Vs1,V2,Vs2).
+	wdgraph_add_vertex(Vs1,V2,Vs2).
 
 wdgraph_add_edges(V0, Edges, VF) :-
 	rb_empty(V0), !,
@@ -312,7 +338,7 @@ wdgraph_wneighbours(V, WG, Neighbors) :-
 
 wdgraph_transpose(Graph, TGraph) :-
 	rb_visit(Graph, Edges),
-	rb_clone(Graph, TGraph, NewNodes),
+	rb_clone(Graph, TGraph, NewNodes,_),
 	wtedges(Edges,UnsortedTEdges),
 	sort(UnsortedTEdges,TEdges),
 	fill_nodes(NewNodes,TEdges).
@@ -372,7 +398,7 @@ invert_wedges([V1-(V2-W)|WEdges], [V2-(V1-W)|InvertedWEdges]) :-
 	invert_wedges(WEdges, InvertedWEdges).
 
 wdgraph_min_path(V1, V2, WGraph, Path, Cost) :-
-	rb_new(Status0),
+	rb_empty(Status0),
 	rb_lookup(V1, Edges, WGraph),
 	rb_insert(Status0, V1, V2, Status),
 	empty_heap(H0),
@@ -428,7 +454,7 @@ backtrace([_|EPath], V1, Path0, Path, Cost0, Cost) :-
 
 
 wdgraph_min_paths(V1, WGraph, T) :-
-	rb_new(Status0),
+	rb_empty(Status0),
 	rb_lookup(V1, Edges, WGraph),
 	rb_insert(Status0, V1, V1, Status),
 	empty_heap(H0),

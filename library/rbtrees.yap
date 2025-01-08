@@ -116,7 +116,8 @@ rb_new(K,V,t(Nil,black(Nil,K,V,Nil))) :- Nil = black('',_,_,'').
 Succeeds if tree  _Tree_ is empty.
 
 
-*/rb_empty(t(Nil,Nil)) :- Nil = black('',_,_,'').
+*/
+rb_empty(t(Nil,Nil)) :- Nil = black('',_,_,'').
 
 /** @pred rb_lookup(+ _Key_,- _Value_,+ _Tree_)
 

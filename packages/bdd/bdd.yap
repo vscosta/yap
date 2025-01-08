@@ -4,16 +4,19 @@
  */
 
 /**
- *   @defgroup YAP_BDDsPL Binary Decision Diagrams and Friends
+ *   @defgroup BDDs Binary Decision Diagrams and Friends
  * @ingroup  YAPPackages
  * @{
  * @toc
  * 
- * This library provides an interface to the BDD package CUDD. It requires
- * CUDD compiled as a dynamic library. In Linux this is available out of
- * box in Fedora, but can easily be ported to other Linux
- * distributions. CUDD is available in the ports OSX package, and in
- * cygwin. To use it, call
+ * @brief This package provides an interface to the BDD package CUDD.
+ *
+ *  The BDD code requires the
+ * CUDD library compiled as a dynamic library. In Linux cudd is available out of
+ * box in Fedora, and is an AUR user support package in the AUR. In distributions such as Debian or Ubuntu you will have to compile from source. A pre-compiled library is available as a MacPorts OSX package, and in
+ * cygwin.
+ *
+ * To use the bdd library, call
  * 
  * ~~~
  * :-use_module(library(bdd))`.

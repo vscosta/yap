@@ -175,7 +175,7 @@ in_stack(G, [_|T], End) :- in_stack(G, T, End).
 
 writeG_val(G_var) :- 
   b_getval(G_var, G_val),
->  write(G_var), write(' ==> '), write(G_val), nl.
+  write(G_var), write(' ==> '), write(G_val), nl.
 
 %-----------------------------------------------------
 

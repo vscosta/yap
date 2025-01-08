@@ -1,4 +1,7 @@
-
+/**
+  * @file xml2pl.c reads an XML document
+  *
+  */
 #include "yapi.hh"
 #include "pugixml.hpp"
 
@@ -9,7 +12,7 @@ extern "C"  bool xml_load();
 
 /**
  *
- * XML2YAP implements a non-validating XML to Prolog parser.
+ * The class XML2YAP demonstrates  a non-validating XML to Prolog parser.
  */
 class XML2YAP {
   YAPTerm inpt;
@@ -21,7 +24,8 @@ public:
   bool strings_to_atoms = false;
   bool interpret_strings = false;
 
-  
+
+/// This code manages the translation process.
 XML2YAP(Term t)
 {
 
@@ -197,7 +201,9 @@ CACHE_REGS
 
 };
 
- 
+/**
+  * @pred load_xml(_XML_,_Graph_)
+
  bool xml_load()
 {
   CACHE_REGS

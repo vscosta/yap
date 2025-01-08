@@ -49,7 +49,7 @@
  *
  * regex interpeter.
  *
- * @defgroup regexp
+ * @defgroup regexp Interface to a regular expression interpreter
  * @{
  */
 

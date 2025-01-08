@@ -225,7 +225,7 @@ bst(insert, Item, Val, Left-A, T, Right-B, n(Item0, Val, Left, Right)) :-
 % the current node is a leaf, or the required item is the left son of
 % the current node. Depending upon the Op, the appropriate action is
 % taken:
-bst(access(Null), Item, _, Left-L, n(X, VX, null, B), Right-B, n(X, VX, Left, Right)) :-
+bst(access(Null), Item, _, Left-_L, n(X, VX, null, B), Right-B, n(X, VX, Left, Right)) :-
 	Item @< X, !, Null = null.
 bst(Op, Item, Val, Left, n(X, VX, n(Item, Val, A1, A2), B), R-n(X, VX, NR,B), New):-
 	Item @< X, !,

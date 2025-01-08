@@ -70,37 +70,11 @@ we present the main predicates and directives available to load
 
 
  @defgroup YAPPackages The Prolog packages
+ 
 @ingroup mainpage
 @{
-@brief Describes a number of packages that can be used from YAP.
-
-
-  + @subpage bdd
-
-  + @subpage  myddas
-
-  + @ref PFL
-
-  + @subpage problog
-
-  + @ref python
-
-  + @subpage raptor
-
-  + @subpage sat
-
-  + @subpage xml2pl
-
-  + @ref yap-lgbfs
-
-  + @subpage udi
-
-  Leuven packages ported from SWI-Prolog:
-
-  + @subpage chr
-
-  + @subpage clpqr
-
+ YAP also distributes the output of number of projects that were originally built or eventually ported to YAP.
+ 
 @}
 */
 
