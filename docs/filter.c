@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
     char *line=NULL, *start, *pred;
     bool in_star = false, in_lcomm=false;
     if (strstr(argv[1],".yap" ) ||
+	strstr(argv[1],".ypp" ) ||
 	strstr(argv[1],".pl" )) {
       char s[2048];
       //      execl(YAPBIN, "-L",  PLFILTER, "--", argv[1], NULL);

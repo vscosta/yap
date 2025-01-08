@@ -16,22 +16,20 @@ The Prolog library includes a set of built-in predicates designed to
 support manipulation of sequences of text, represented either as
 lists, atoms or strings.
 
-The char_type family of predicates support manipulation of individual characters, represented either as numbers (codes) or atoms (chars).
+The char_type family of predicates support manipulation of individual
+characters, represented either as numbers (codes) or atoms (chars).
+Earlier versions of YAP were designed to operate with ASCII characters (in the range `-1`--`127`) as other Prolog. ISO-LATIN-1 support was the first access to non-american text in YAP. UNICODE support has been incrementally added to YAP. The code uses  the Operating system wide character support when available. Otherwise, YAP relies the library utf8proc, maintained by the Julia community.
 
-YAP supports UNICODE through the library utf8proc for compatibility
-across operating systems. The implementation extends the original
-(ASCII-based) character classification used by early Prologs, but
-supports UNICODE.As usual, YAP tried to follow SWI-Prolog as much as
-possible:
+As usual, the YAP API tried to follow SWI-Prolog as much as possible:
 
-  + char_type/2 and code_type/2 support all documented SWI-Prolog flags,
+  + char_type/2 and code_type/2 support documented SWI-Prolog flags,
 but are strict in argument checking.
 
   + letters with no case are considered as lower-case. Hence, a
   variable can only start with an underscore or a unicode point in
   category LU.
 
-  + number letters are consideed numbers.
+  + number letters are considered numbers.
 
   + connectors, dashes, are considered solo characters.
 
@@ -40,21 +38,14 @@ but are strict in argument checking.
   + Symbols are processed as Prolog symbols, exception are modifiers
   that are handled as lower-case letters.
 
-  Predicates are:
+  + the code for end of file is -1; the char for end of file is `end_of_file`.
+  Two key predicates are:
 
   + @ref char_type/2
   + @ref code_type/2
 
-
-
-*/
-
-/** @pred char_type(?_Char_ , ?Type)
-
-The character _Char_ has type _Type_. The types included here are
-based on SWI-Prolog's documentation, and they include several types
-from the C-library. It it is possible for a character to have
-different types.
+Next we present the different types for text elements. It it is
+possible for a character to have different types.
 
   + alnum
   Char is a letter (upper- or lowercase) or digit.
@@ -142,7 +133,17 @@ Char is an uppercase version of Lower. Only true if Char is uppercase and Lower 
 
   + prolog_prolog_symbol
   Char is a Prolog symbol character. Sequences of Prolog symbol characters glue together to form an unquoted atom. Examples are =.., \=, etc.
+
+
 */
+
+/** @pred char_type(?_Char_ , ?Type)
+
+The character _Char_ has type _Type_. The types included here are
+based on SWI-Prolog's documentation. This built-in can enumerate all
+types for a certain character, and all characters that have a type.
+
+ */
 
 char_type( CH, TYPE) :-
 	(nonvar( CH )
@@ -223,6 +224,14 @@ p_char_type( PROLOG_IDENTIFIER_CONTINUE , prolog_identifier_continue) :-
 p_char_type( PROLOG_PROLOG_SYMBOL , prolog_prolog_symbol) :-
     char_type_prolog_prolog_symbol( PROLOG_PROLOG_SYMBOL ).
 
+
+/** @pred code_type(?_Char_ , ?_Type_)
+
+The character _Code_ has type _Type_. The types included here are
+based on SWI-Prolog's documentation. This built-in can enumerate all
+types for a certain code, and all codes that have a type.
+
+ */
 prolog:code_type(CH, TYPE) :-
 		(nonvar( CH )
 		->
