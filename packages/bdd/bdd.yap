@@ -5,7 +5,7 @@
 
 /**
  *   @defgroup YAP_BDDsPL Binary Decision Diagrams and Friends
- * @ingroup BDDs
+ * @ingroup  YAPPackages
  * @{
  * @toc
  * 

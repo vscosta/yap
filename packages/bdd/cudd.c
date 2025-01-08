@@ -1,6 +1,6 @@
 /**
     @defgroup CUDD CUDD Interface
-@ingroup YAPPackages
+@ingroup bdd
 
    @brief Interface to the CUDD Library
    @{
