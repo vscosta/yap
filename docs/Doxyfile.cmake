@@ -30,6 +30,7 @@ file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION  mkdoc
 file( COPY_FILE ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/images/favicon.ico)
 file( MAKE_DIRECTORY mkdocs/docs/javascripts)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js DESTINATION  mkdocs/docs/javascripts)
+
 configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/index.md)
 configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/INSTALL.md)
 file( COPY ${DOX_MD_FILES} DESTINATION mkdocs/docs)
@@ -86,7 +87,7 @@ set( DOXYGEN_EXCLUDE
   list (APPEND PREDEFINED "YAP_FLAG(A,B,C,D,E,F)=B"  )
   set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
   set(DOXYGEN_PREDEFINED ${PREDEFINED} )
- set(DOXYGEN_HIDE_SCOPE_NAMES YES)
+ set(DOXYGEN_HIDE_SCOPE_NAMES NO)
   set(DOXYGEN_HIDE_COMPOUND_REFERENCE NO)
 set (DOXYGEN_REFERENCES_LINK_SOURCE NO)
 set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/assets/css/solarized-light.css)

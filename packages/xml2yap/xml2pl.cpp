@@ -100,46 +100,54 @@ CACHE_REGS
 	    if (t!=TermEmpty)
 	      children.push_back(t);
 	  }
-	  if (children.size())
-	    return YAPListTerm( children ).pop_t();
-	  else
-	    return TermNil;
+	  if (children.size()) {
+	      return YAPListTerm( children ).pop_t();
+	  } else {
+	      return TermNil;
+	  }
 	}
        case pugi::node_element:
 	{
 	  Term out;
 	  YAPTerm m = YAPTerm();
 	  std::vector <Term> args = {};
+	  std::vector <Term> atts = {};
 	  std::vector <Term> children = {};
 	  for (pugi::xml_attribute attr = node.first_attribute(); attr; attr = attr.next_attribute())
 	  {
 	    if (attr.name()[0] != '\0') {
 	      if (attr.value()[0] != '\0') {
 		Term el = val2term(attr.value());
-		args.push_back(YAPApplTerm(attr.name(), el).gt());
+	        atts.push_back(YAPApplTerm(attr.name(), el).gt());
 	      } else {
-		args.push_back(YAPAtomTerm(std::string(attr.name())).gt());
+		atts.push_back(YAPAtomTerm(std::string(attr.name())).gt());
 	      }
 	    } else {
 	      if (attr.value()[0] != '\0') {
 		Term el = val2term(attr.value());
-		args.push_back(el);
+		if (el!= TermNil)
+		atts.push_back(el);
 	      }
 	    }
 	  }
-	out = YAPListTerm(args).gt();
-	children.push_back(out);
-		for (pugi::xml_node n = node.first_child(); n; n = n.next_sibling()) {
+	for (pugi::xml_node n = node.first_child(); n; n = n.next_sibling()) {
 
 		  if (n.type() == pugi::node_null) {
-		    break;
+		    continue;
 		  }
 		  Term  u= visitor(n);
-		  children.push_back(u);
-		}    
-	Term o= YAPApplTerm(node.name(), YAPListTerm(children).gt(	  )).gt();
-       	m.reset();
-	return o;
+		  if (u!= TermNil)
+		    children.push_back(u);
+	}
+	if (atts.empty() && children.empty()) {
+	  m.reset();
+	  return TermNil;
+	}
+	args.push_back(YAPListTerm(atts).gt());
+		args.push_back(YAPListTerm(children).gt());
+        out = YAPApplTerm(std::string(node.name()),args).gt();
+	  m.reset();
+	  return out;
 	}
 	case pugi::node_pcdata:
 	  {
@@ -156,13 +164,13 @@ CACHE_REGS
 	return TermEmpty;
 
       }
-    // end::code[]
-      }
+     // end::code[]
     return TermEmpty;
+ }
 };
 
 
-  Term pltree()
+Term pltree()
   {
     return visitor(doc);
   };
@@ -203,7 +211,7 @@ CACHE_REGS
 
 /**
   * @pred load_xml(_XML_,_Graph_)
-
+  */
  bool xml_load()
 {
   CACHE_REGS

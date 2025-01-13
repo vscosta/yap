@@ -568,8 +568,8 @@ static void write_string(const unsigned char *s,
                          struct write_globs *wglb) /* writes an integer	 */
 {
     CACHE_REGS
-  StreamDesc *stream = wglb->stream;
-  utf8proc_int32_t chr, qt;
+      StreamDesc *stream = wglb->stream;
+                        utf8proc_int32_t chr, qt;
   unsigned char *ptr = (unsigned char *)s;
 
   if (wglb->Write_strings)
@@ -680,13 +680,23 @@ static void putString(Term string, struct write_globs *wglb)
 
 {
   wrf stream = wglb->stream;
-  wrputc('`', stream);
-  while (string != TermNil) {
-    wchar_t ch = IntOfTerm(HeadOfTerm(string));
-    write_quoted(ch, '`', stream);
-    string = TailOfTerm(string);
+  int sep;
+  if (getAtomicGlobalPrologFlag(DOUBLE_QUOTES_FLAG)==TermString)
+    sep = '"';
+  else if (getAtomicGlobalPrologFlag(BACK_QUOTES_FLAG)==TermString)
+    sep = '`';
+  else if (getAtomicGlobalPrologFlag(SINGLE_QUOTES_FLAG)==TermString)
+    sep = '\'';
+  else {
+    Yap_ThrowError(DOMAIN_ERROR_WRITE_OPTION, TermNil, "no delimiter for strings");
   }
-  wrputc('`', stream);
+    wrputc(sep, stream);
+    while (string != TermNil) {
+      wchar_t ch = IntOfTerm(HeadOfTerm(string));
+      write_quoted(ch, '`', stream);
+      string = TailOfTerm(string);
+    }
+    wrputc(sep, stream);
   lastw = alphanum;
 }
 

@@ -30,7 +30,7 @@ xml_pretty_print(S) :-
     load_xml(S,Gs),
     maplist(pp(0),Gs).
 
-Xpp(D,Node) :-
+pp(D,Node) :-
     Node=..[Name,[L|Tree]],
     format(',~n~*c~q( ~q ',[D,0' ,Name,L]),
     D1 is D+1,

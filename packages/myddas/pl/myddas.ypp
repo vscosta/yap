@@ -318,7 +318,6 @@ db_is_database_predicate(Module,PredName,Arity):-
     c_db_check_if_exists_pred(PredName,Arity,Module).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-#if MYDDAS_STATS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_stats(+,-)
 %
@@ -350,7 +349,6 @@ db_stats_time(Reference,Time):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #endif /* DEBUG */
 
-#endif /* MYDDAS_STATS */
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

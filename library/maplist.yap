@@ -104,7 +104,7 @@
   * `use_module(library(maplist))` command.
   * Examples:
   * 
-  * ~~~~
+  * ```
   * plus(X,Y,Z) :- Z is X + Y.
   * 
   * plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
@@ -131,7 +131,7 @@
   *   ?- sumlist(plus, [1,2,3,4], 1, 11).
   * 
   *   ?- maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
-  * ~~~~
+  * ```
   * 
   **/
 
