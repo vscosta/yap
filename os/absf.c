@@ -233,6 +233,14 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
     if (hFind == INVALID_HANDLE_VALUE) {
       return TermNil;
     } else {
+      if (ASP-HR < 1024) {
+	FindClose(hFind);
+	if (!Yap_dogc(PASS_REGS1)) {
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+	  return false;
+	}
+          hFind = FindFirstFile(u, &find);
+}
       tf = AbsPair(HR);
       _makepath(u, drive, dir, find.cFileName, NULL);
       HR[0] = MkAtomTerm(Yap_LookupAtom(u));
@@ -337,6 +345,14 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
   const char *tmp;
   Term tf = TermNil;
   for (j = 0; j < pathcount; j++) {
+    if (ASP-HR<1024) {
+      if (!Yap_dogc(PASS_REGS1)) {
+	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+	return false;
+      }
+      j = 0;
+      continue;q
+    }
     const char *s = ss[pathcount - (j + 1)];
     tmp = s;
     // if (!exists(s))
