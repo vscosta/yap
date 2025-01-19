@@ -84,7 +84,7 @@ do_compound_d(_N2,_InputDir,_OutputDir,XMLTask) :-
       State = [id=Id,kind="class",name=OName],
       Children=[compoundname([],[Name])|Ch2],
 writeln(OName),
-    compounddef(State,Ch2,[],AllRaw),
+     foldl(process_(State),Ch2,[],AllRaw),
     split_domains(AllRaw,[Brief],[Details],FullText),
     string_concat(["# ",Name, "   ", Brief,"\n\n",Details,"\n\n",FullText],All),
    atom_concat([ODir,"/",Id,'.md'],OFile),
@@ -98,14 +98,17 @@ do_compound(1,IDir,_ODir,compound(OAtts,OProps)) :-
     in(refid(Id),OAtts),
     atom_concat([IDir,'/',Id,'/','.xml'], IFile),
     catch(xml_load(IFile,XML),Error,(printf("failed while processsing ~w: ~w",[OName,                   Error]), fail)),
+    writeln(OName),
     XML = [doxygen(_,XMLData)],
     XMLData = [compounddef(_Atts,Children)],
     ( in(briefdescription(BArgs,Paras),Children) ->
-      briefs([briefdescription(BArgs,Paras)|_],[],"",Brief)
+      writeln(OName),
+      briefs([briefdescription(BArgs,Paras)|_],[],"",Brief),
+      writeln(Brief),
+    assert_static(brief(Id,Brief))
       ;
       true
-    ),
-    assert_static(brief(Id,Brief)).
+    ).
 do_compound(2,IDir,ODir,compound(OAtts,OProps)) :-
     in(kind("group"),OAtts),
     in(name([],[OName]),OProps),
@@ -114,7 +117,10 @@ do_compound(2,IDir,ODir,compound(OAtts,OProps)) :-
     atom_concat([IDir,Id,'.xml'], IFile),
     catch(xml_load(IFile,XML),Error,(printf("failed while processsing ~w: ~w",[OName,                      Error]), fail)),
     XML = [doxygen(_,XMLData)],
-    XMLData = [compounddef(Atts,Children)],
+    XMLData = [compounddef(Atts,[_|Children])],
+    State = [id=Id,kind="group",name=OName],
+    process_(State,Children,[],AllRaw),
+    split_domains(AllRaw,[Brief],[Details],FullText),
     compounddef([id=Id,kind="group",name=OName],Atts,Children,_Id,Name,[],AllRaw),
     split_domains(AllRaw,[Brief],[Details],FullText),
     string_concat(["# ",Name, "   ", Brief,"\n\n",Details,"\n\n",FullText],All),
@@ -126,69 +132,26 @@ do_compound(_,_,_,_).
 
 
 
-
-split_domains([],[],[],[]).
-split_domains([briefdescription-A|All],[A|Bs],Ds,Ts):-
-    !,
-    split_domains(All,Bs,Ds,Ts).
-split_domains([detailddescription-A|All],Bs,[A|Ds],Ts):-
-    !,
-    split_domains(All,Bs,Ds,Ts).
-split_domains([_-A|All],Bs,Ds,[A|Ts]):-
-    !,
-    split_domains(All,Bs,Ds,Ts).
-
-
-
-ref(S,W) -->
-    {string_chars(S,Cs),
-     length(Pos,34),
-     append(_Prefix,['_'|Pos],Cs),
-     maplist(char_type_alnum, Pos),
-     !,
-     string_chars(P,Pos)
-    },
-    mcstr(["[",W,"](#",P,")"]).
-ref(S,W) -->
-    mcstr(["[",W,"](",S,")"]).
-
- defref(S,W) -->
-    {string_chars(S,Cs),
-     length(Pos,34),
-     append(_Prefix,['_'|Pos],Cs),
-     maplist(char_type_alnum, Pos)
-    },
-    !,
-    {string_chars(BS,Pos)},
-    mcstr(["()[]{#",BS,"} ",W]).
- defref(S,W) -->
-    mcstr(["()[]{",S,"} ",W]).
    
-    
-   
-
-compounddef(State, Children ) -->
-    {
-     foldl(process_(State),Children)
-    }.
 
 process_(State,Op) -->
-    { process(State,Op,"",St),
-      functor(Op,N,_)
+    {
+      functor(Op,N,_),
+      writeln(N),
+      process(State,Op,"",St)
+     , writeln(N)
     },
     [N-St],
     !.
-
-process(_State,Op) -->
-    {functor(Op,N,_),writeln(N),fail}.
+/*
 process(State,basecompoundref(Atts,Children)) -->
     !,
-    seq(State,basecompoundref(Atts,Children)).
+    (State,basecompoundref(Atts,Children)).
 process(State,derivedcompoundref(Atts,Children)) -->
     !,
     seq(State,derivedcompoundref(Atts,Children)).
-    % incType
-    % ignoreseq(NState,includes(_,_),Derivedcompoundref,Includes),
+  */  % incType
+    % ignoreseq(NState,includes(_,_),Derivedmpoundref,Includes),
     % ignoreseq(NState,includedby(_,_),Includes,Includedby),
     % graphType
     % ignoreseq(NState,incdepgraph(_,_),Includedby,Incdepgraph),
@@ -215,7 +178,7 @@ process(_,briefdescription(Atts,Children)) -->
 process(_,detaileddescription(Atts,Children)) -->
     !,
     detaileds(detaileddescription(Atts,Children)).
-    % ignoreseq(NState,exports(_,_),Detaileddescription,Exports),
+    % ignoreseq(NState,exports(_,_),Detammmmtrnnmmmjjjjjileddescription,Exports),
     % ignoreseq(NState,inheritancegraph(_,_),Exports,Inheritancegraph),
     % ignoreseq(NState,collaborationgraph(_,_),Inheritancegraph,Collaborationgraph),
     % ignoreseq(NState,programlisting(_,_),Collaborationgraph,Programlisting),
@@ -229,7 +192,7 @@ sectiondef(sectiondef(Atts,Els)) -->
     {
       in(kind(Kind),Atts)
     },
-    { top_sectiondef_name(Kind,Name)
+    { top_sectiondef_name(Kind,Name),writeln(Name)
     },
     !,
     mcstr(["## ",Name,":\n"]),
@@ -242,41 +205,34 @@ sectdef(header([],[Text]))-->
   mcstr(["\n",Text,"\n"]).
 sectdef(member(Atts,Children))-->
     {      in(refid(Ref),Atts),
-      in(name(_,[Name] ),Children)
+      in(name(_,[Name] ),Children),writeln(Name)
     },
+    
     !,
     ref(Ref,Name).
-sectdef(memberdef(Atts,Children))-->
+sectdef(memberdef,Children))-->
     {
-      in(id(Ref),Atts)
- %     in(name(_,[Name] ),Children)
+      in(id(Ref),Atts),
+      in(defname(_,[Name] ),Children),writeln(Name)
     },
     !,
-    defref(Ref,""),
-    cstr("\n- "),
-    /*    (
-      { in(type([],Type),Children) }
-      ->
-      paras([" "|Type])
-      ;
-      true
-    ),    
-  */  (
+    defref(Ref,Name),
+   (
     { in(definition([],Def),Children) }
     ->
-    descriptions([" "|Def])
+    descriptions([" ",Def])
     ;
-    true    
-  ),    
-      (
-	{ in(argsstring([],Args),Children) }
-	->
-	descriptions(Args)
-	;
-	true
-      ),
-      (
-	{ in(briefdescription([],Brief),Children) }
+    ({ in(type([],Type),Children),
+     in(argsstring([],Args),Children) }
+      )
+      ->
+      paras([" ",Type,Name,Args])
+      ;
+    true
+      
+    ),
+
+   (	{ in(briefdescription([],Brief),Children) }
 	->
 	cstr(": "),
 	descriptions(Brief)
@@ -406,19 +362,20 @@ description(para([],S)) -->
 description(S) -->
     para(S).
 
- seq(State,G0) -->
+seq(State,G0) -->
     {
-      G0=..[_N,Atts,[Name]],
+      G0=..[_N,Atts,[[[],Name]|Els]],
       in(refid(Ref),Atts),
       !,
       seqhdr(State,Type)
     } ,
     mcstr(["## ",Type,": "]),
     ref(Ref,Name),
+    foldl(seqdef,Els),
     cstr("\n").
- seq(State,G0) -->
+seq(State,G0) -->
     {
-      arg(2,G0,[Name]),
+      arg(2,G0,Name),
       !,
       seqhdr(State,Type)
     } ,
@@ -1740,4 +1697,44 @@ cstr(A,S0,SF) :-
 mcstr(A,S0,SF) :-
     string_concat([S0|A], SF).
 
+
+
+split_domains([],[],[],[]).
+split_domains([briefdescription-A|All],[A|Bs],Ds,Ts):-
+    !,
+    split_domains(All,Bs,Ds,Ts).
+split_domains([detaileddescription-A|All],Bs,[A|Ds],Ts):-
+    !,
+    split_domains(All,Bs,Ds,Ts).
+split_domains([_-A|All],Bs,Ds,[A|Ts]):-
+    !,
+    split_domains(All,Bs,Ds,Ts).
+
+
+
+ref(S,W) -->
+    {string_chars(S,Cs),
+     length(Pos,34),
+     append(_Prefix,['_'|Pos],Cs),
+     maplist(char_type_alnum, Pos),
+     !,
+     string_chars(P,Pos)
+    },
+    mcstr(["[",W,"](#",P,")"]).
+ref(S,W) -->
+    mcstr(["[",W,"](",S,")"]).
+
+ defref(S,W) -->
+    {string_chars(S,Cs),
+     length(Pos,34),
+     append(_Prefix,['_'|Pos],Cs),
+     maplist(char_type_alnum, Pos)
+    },
+    !,
+    {string_chars(BS,Pos)},
+    mcstr(["\n - ()[]{#",BS,"} ",W]).
+defref(S,W) -->
+    mcstr(["\n - ()[]{",S,"} ",W]).
+   
+    
 
