@@ -351,7 +351,7 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
 	return false;
       }
       j = 0;
-      continue;q
+      continue;
     }
     const char *s = ss[pathcount - (j + 1)];
     tmp = s;

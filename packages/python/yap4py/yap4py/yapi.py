@@ -62,9 +62,9 @@ class EngineArgs( YAPEngineArgs ):
 
 
 
-class v(YAPVarTerm,v0):
+class v(YAPVarTerm):
     def __init__(self):
-        YAPVarTerm.__init__()
+        YAPVarTerm()
 
     def binding(self):
         return self.term()
@@ -93,7 +93,7 @@ class YAPShell:
         g = None
         #import pdb; pdb.set_trace()
         #
-        # construct a query from a one-line string
+b# construct a query from a one-line string
         # q is opaque to Python
         #
         # q = engine.query(python_query(self, s))

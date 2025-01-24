@@ -1,4 +1,4 @@
-
+%
 
 :- use_module(library(maplist)).
 :- use_module(library(lists)).
@@ -12,9 +12,9 @@
 :- multifile extrabrief/2, class/8, predicate/8 , v/2, f/3, c/2,extra/2, brief/2.
 :- dynamic parent/2.
 
-in(X,[X|_]) :- !.
-in(X,[_|L]) :-
-    in(X,L).
+key_in(X,[X|_]) :- !.
+key_in(X,[_|L]) :-
+    key_in(X,L).
 
 main :-
     unix(argv(Params)),
@@ -39,118 +39,67 @@ main_process([IDir,ODir]) :-
       ;
       atom_concat(ODir,'/',OutputDir)
     ),
-    classes(XMLTasks,InputDir,OutputDir),
-    groups(XMLTasks,InputDir,OutputDir).
+   foreach(group(XMLTasks,ID),scan(ID,InputDir,OutputDir),
 
-main_process([File ,_]) :-
-    atom_concat(Input,'.xml',File),
-    xml_load(File,XML),
-    XML = [doxygen(_,XMLData)],
-    XMLData = [compounddef(Atts,Children)],
-    compounddef([input=Input,ofile=user_output],Atts,Children,_Id,Name,"[].",AllRaw),
-    split_domains(AllRaw,[Brief],[Details],FullText),
-    string_concat(["# ",Name, "   ", Brief,"\n\n",Details,"\n\n",FullText],All),
-    atom_concat(Input,'.md',OFile),
-    open(OFile,write,O),
-    format(O,'~s',[All]),
-    close(O).
+foreach(member(ID,XMLTasks),trl( ID,InputDir,OutputDir)).
 
 
-classes(XMLTasks,InputDir,OutputDir) :-
-    maplist(do_compound_d(1,InputDir,OutputDir),XMLTasks).
 
-groups(XMLTasks,InputDir,OutputDir) :-
-    maplist(do_compound_d(2,InputDir,OutputDir),XMLTasks).
 
-do_compound_d(N2,InputDir,OutputDir,XMLTask) :-
-    catch(
-do_compound(N2, InputDir,OutputDir,XMLTask),
-Error,
- format(user_error,'ERROR :- ~w crashed with error ~w',[XMLTask,Error])
-    ),
-    !.
-do_compound_d(_N2,_InputDir,_OutputDir,XMLTask) :-
-    format(user_error,'ERROR :- ~w failed.~n', [XMLTask]).
 
- do_compound(1,IDir,ODir,compound(OAtts,OProps)) :-
-    in(kind("class"),OAtts),
-    in(name([],[OName]),OProps),
-    !,
-    in(refid(Id),OAtts),
+scan(compound( OAtts,OProps),compound( OAtts,OProps)) :-
+    (
+key_in(kind("group"),OAtts)
+;
+key_in(kind("page"),OAtts)
+    ).
+OAtts,OProps)) :-
+prepare(compound(OAtts,OProps) , IDir,_ODir) :-
+    key_in(name([],[OName]),OProps),
+    key_in(refid(Id),OAtts),
+    atom_concat([IDir,'/',Id,'/','.xml'], IFile),
+    catch(xml_load(IFile,XML),Error,(printf("failed while processsing ~w: ~w",[OName,                   Error]), fail)),
+     XML = [doxygen(_,XMLData)],
+    XMLData = [compounddef(_Atts,Children)],
+    key_in(briefdescription(BArgs,Paras),Children),
+      briefs([briefdescription(BArgs,Paras)],[],"",Brief),
+    assert_static(brief(Id,Brief)).
+trl(compound(OAtts,OProps) ,,IDir,ODir,OAtts,OProps) :-
+    key_in(name([],[OName]),OProps),
+   key_in(refid(Id),OAtts),
     atom_concat([IDir,Id,'.xml'], IFile),
     catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]), fail)),
     XML = [doxygen(_,XMLData)],
     XMLData = [compounddef(_Atts,Children)],
-      State = [id=Id,kind="class",name=OName],
+
       Children=[compoundname([],[Name])|Ch2],
-writeln(OName),
-     foldl(process_(State),Ch2,[],AllRaw),
-    split_domains(AllRaw,[Brief],[Details],FullText),
-    string_concat(["# ",Name, "   ", Brief,"\n\n",Details,"\n\n",FullText],All),
+      State = [id=Id,kind="class",name=Name],
+ writeln(OName),
+ foldl(process_all(State),Ch2,"",AllRaw),
+%    split_domains(AllRaw,[Brief],[Details],FullText),
+ !,    string_concat(["# ",Name, "   ",AllRaw],All), %XSxbxuxbxMBrief,"\n\n",Details,"\n\n",FullText],All),
    atom_concat([ODir,"/",Id,'.md'],OFile),
     open(OFile,write,O),
     format(O,'~s',[All]),
     close(O).
-do_compound(1,IDir,_ODir,compound(OAtts,OProps)) :-
-    in(kind("group"),OAtts),
-    in(name([],[OName]),OProps),
-    !,
-    in(refid(Id),OAtts),
-    atom_concat([IDir,'/',Id,'/','.xml'], IFile),
-    catch(xml_load(IFile,XML),Error,(printf("failed while processsing ~w: ~w",[OName,                   Error]), fail)),
-    writeln(OName),
-    XML = [doxygen(_,XMLData)],
-    XMLData = [compounddef(_Atts,Children)],
-    ( in(briefdescription(BArgs,Paras),Children) ->
-      writeln(OName),
-      briefs([briefdescription(BArgs,Paras)|_],[],"",Brief),
-      writeln(Brief),
-    assert_static(brief(Id,Brief))
-      ;
-      true
-    ).
-do_compound(2,IDir,ODir,compound(OAtts,OProps)) :-
-    in(kind("group"),OAtts),
-    in(name([],[OName]),OProps),
-    !,
-    in(refid(Id),Atts),
-    atom_concat([IDir,Id,'.xml'], IFile),
-    catch(xml_load(IFile,XML),Error,(printf("failed while processsing ~w: ~w",[OName,                      Error]), fail)),
-    XML = [doxygen(_,XMLData)],
-    XMLData = [compounddef(Atts,[_|Children])],
-    State = [id=Id,kind="group",name=OName],
-    process_(State,Children,[],AllRaw),
-    split_domains(AllRaw,[Brief],[Details],FullText),
-    compounddef([id=Id,kind="group",name=OName],Atts,Children,_Id,Name,[],AllRaw),
-    split_domains(AllRaw,[Brief],[Details],FullText),
-    string_concat(["# ",Name, "   ", Brief,"\n\n",Details,"\n\n",FullText],All),
-    atom_concat([ODir,"/",Id,'.md'],OFile),
-    open(OFile,write,O),
-    format(O,'~s',[All]),
-    close(O).
-do_compound(_,_,_,_).
 
-
-
-   
-
-process_(State,Op) -->
-    {
+process_all(State,Op,S0,String) :-
       functor(Op,N,_),
       writeln(N),
-      process(State,Op,"",St)
-     , writeln(N)
-    },
-    [N-St],
-    !.
-/*
+      process(State,Op,Strings,[]),
+      writeln(Strings),
+      
+string_concat([S0|Strings],String),
+  !.
+
+
 process(State,basecompoundref(Atts,Children)) -->
     !,
-    (State,basecompoundref(Atts,Children)).
+    seq(State,basecompoundref(Atts,Children)).
 process(State,derivedcompoundref(Atts,Children)) -->
     !,
     seq(State,derivedcompoundref(Atts,Children)).
-  */  % incType
+    % incType
     % ignoreseq(NState,includes(_,_),Derivedmpoundref,Includes),
     % ignoreseq(NState,includedby(_,_),Includes,Includedby),
     % graphType
@@ -168,7 +117,7 @@ process(State,derivedcompoundref(Atts,Children)) -->
     % ignoreseq(NState,templateparamlist(_,_),Qualifier,Templateparamlist),
 process(_,sectiondef(Atts,Children)) -->
     !,
-    sectiondef(sectiondef(Atts,Children)).
+    sectiondef(Atts,Children).
     % ignoreseq(NState,tableofcontents(_,_),Sectiondef,Tableofcontents),
     % ignoreseq(NState,requiresclause(_,_),Tableofcontents,Requiresclause),
     % ignoreseq(NState,initializer(_,_),Requiresclause,Initializer),
@@ -180,83 +129,75 @@ process(_,detaileddescription(Atts,Children)) -->
     detaileds(detaileddescription(Atts,Children)).
     % ignoreseq(NState,exports(_,_),Detammmmtrnnmmmjjjjjileddescription,Exports),
     % ignoreseq(NState,inheritancegraph(_,_),Exports,Inheritancegraph),
-    % ignoreseq(NState,collaborationgraph(_,_),Inheritancegraph,Collaborationgraph),
+
+% ignoreseq(NState,collaborationgraph(_,_),Inheritancegraph,Collaborationgraph),
     % ignoreseq(NState,programlisting(_,_),Collaborationgraph,Programlisting),
     % ignoreseq(NState,location(_,_),Programlisting,Location),
     % ignoreseq(NState,listofallmembers(_,_),Location,[]).
 
 process(_,_)--> [].
 
-    %sectiondef(A,Remainder-) --> {writeln(A),fail}.
-sectiondef(sectiondef(Atts,Els)) -->
+sectiondef(Atts,Els) -->
     {
-      in(kind(Kind),Atts)
+      key_in(kind(Kind),Atts)
     },
-    { top_sectiondef_name(Kind,Name),writeln(Name)
+    { top_sectiondef_name(Kind,Name)
     },
     !,
-    mcstr(["## ",Name,":\n"]),
+    ["## ",Name,":\n"],
     foldl(sectdef,Els).
 
+v(Msg,S0,S0) :-
+    writeln(Msg:S0).
 
-sectdef(description(_,Ds))-->
-  descriptions(Ds).
+
+
 sectdef(header([],[Text]))-->
-  mcstr(["\n",Text,"\n"]).
+  ["\n",Text,"\n"].
 sectdef(member(Atts,Children))-->
-    {      in(refid(Ref),Atts),
-      in(name(_,[Name] ),Children),writeln(Name)
+    %v(memb:Atts:Children),
+    {      key_in(refid(Ref),Atts),
+      key_in(defname(_,[Name] ),Children)
     },
-    
-    !,
-    ref(Ref,Name).
-sectdef(memberdef,Children))-->
+       !,
+    defref(Ref,Name).
+sectdef(memberdef(Atts,Children))-->
+    %>v(def:Atts:Children),
     {
-      in(id(Ref),Atts),
-      in(defname(_,[Name] ),Children),writeln(Name)
+      key_in(id(Ref),Atts),
+      key_in(name(_,[Name] ),Children),
+     key_in(definition([],[Def]),Children) 
     },
-    !,
-    defref(Ref,Name),
-   (
-    { in(definition([],Def),Children) }
-    ->
-    descriptions([" ",Def])
-    ;
-    ({ in(type([],Type),Children),
-     in(argsstring([],Args),Children) }
-      )
-      ->
-      paras([" ",Type,Name,Args])
-      ;
-    true
-      
-    ),
+  [Def],			  
 
-   (	{ in(briefdescription([],Brief),Children) }
+    ref(Ref,Name),
+
+
+  (	{ key_in(briefdescription([],Brief),Children) }
 	->
-	cstr(": "),
+[": "],
 	descriptions(Brief)
 	;
-	true
+[]
       ),
       (
-	{ in(inbodydescription([],InBody),Children) }
+	{ key_in(inbodydescription([],InBody),Children) }
 	->
-	cstr("\n  "),
+	[ "\n  "],
 	descriptions(InBody)
 	;
-	true
+[]
       ),
       (
-	{ in(detaileddescription([],Detailed),Children)}
+	{ key_in(detaileddescription([],Detailed),Children)}
 	->
-	cstr("\n\n"),
+	[ "\n\n"],
 	descriptions(Detailed)
 	;
-	true
-      ),
+[]
+        ),
       !,
-      cstr("\n").
+      [ "\n"].
 
 %sectiondef(A,Remainder) --> {writeln(A),fail}.
 briefs(briefdescription(_Atts,Els)) -->
@@ -265,34 +206,39 @@ briefs(briefdescription(_Atts,Els)) -->
 
 detaileds(detaileddescription(_Atts,Els)) -->
     !,
-    cstr("\n"),
+    [ "\n"],
     separatedescriptions(Els),
-    cstr("\n").
+    [ "\n"].
 
 separatedescriptions([]) --> [].
 separatedescriptions([D|Detailed]) -->
     %    {writeln(D)},
     description(D),
-    cstr("\n\n"),
+    [ "\n\n"],
     separatedescriptions( Detailed).
 
 descriptions([]) --> [].
 descriptions([D|Detailed]) -->
     %    {writeln(D)},
-    description(D),
+    !,
+    descriptions(D),
     descriptions( Detailed).
+descriptions(D) -->
+    %    {writeln(D)},
+    description(D).
 
-toraw(Items) -->
-    cstr("~~~\n"),
-    foldl(mkraw,Items),
-    cstr("\n~~~\n").
 
 mkraw(codeline(_,Line)) -->
-    cstr("\n"),
+    [ "\n"],
     foldl(raw,Line).
     
     raw(highlight(_,Text)) -->
-    mcstr(Text).
+    !,
+    [ Text].
+
+    raw(Text) -->
+    [ Text].
+    %  foldl(para).
    
 doxolist(_Pars,Items) -->
     foldl(item("1"),Items).
@@ -301,60 +247,64 @@ itemlist(_Pars,Items) -->
     foldl(item("i"),Items).
 
 item(Type,listitem(_,Para)) -->
-    cstr("\n"),
+    [ "\n"],
     typel(Type),
     descriptions(Para),
-    cstr("\n").
-cstr("\n").
+    [ "\n"],
+[ "\n"].
 
 typel("1") -->
-    cstr( "1. ").
+    [  "1. "].
 typel("a") -->
-    cstr( "a. ").
+    [  "a. "].
 typel("A") -->
-    cstr( "A. ").
+    [  "A. "].
 typel("i") -->
-    cstr( "- ").
+    [  "- "].
 typel("I") -->
-    cstr( "* ").
+    [  "* "].
 
 description(para([],S)) -->
     {string(S)},
     !,
-    cstr(S).
+    [ S].
 description(S) -->
     { string(S) },
     !,
-    cstr(S).
+    [S].
 description(title([],S)) -->
     { string(S) },
     !,
-    cstr(S).
+    [S].
 description(sect1([],S)) -->
-    cstr("### "),
+    ["### "],
     (
-      in(title(_,T),S)
+      key_in(title(_,T),S)
       ->
-      mcstr([T,"\n"]);
-      cstr("\n")
+      [T],["\n"]
+	  ;
+      ["\n"]
     ),
     descriptions(S).
 description(sect2([],S)) -->
-    cstr("#### "),
+    [ "#### "],
     (
-      in(title(_,T),S)
+      key_in(title(_,T),S)
       ->
-      mcstr([T,"\n"]);
-      cstr("\n")
+      [T],["\n"]
+    ;
+      ["\n"]
     ),
     descriptions(S).
 description(sect3([],S)) -->
-    cstr("##### "),
+    [ "##### "],
     (
-      in(title(_,T),S)
+      key_in(title(_,T),S)
       ->
-      mcstr([T,"\n"]);
-      cstr("\n")
+      [T],
+      ["\n"];
+	  
+      ["\n"]
     ),
     descriptions(S).
 description(para([],S)) -->
@@ -363,26 +313,27 @@ description(S) -->
     para(S).
 
 seq(State,G0) -->
+    v(G0),
     {
-      G0=..[_N,Atts,[[[],Name]|Els]],
-      in(refid(Ref),Atts),
+      G0=..[_N,Atts,[[[],[Name]]|Els]],
+       key_in(id(Ref),Atts),
       !,
       seqhdr(State,Type)
     } ,
-    mcstr(["## ",Type,": "]),
+    ["## ",Type,": "],
     ref(Ref,Name),
     foldl(seqdef,Els),
-    cstr("\n").
+    ["\n"].
 seq(State,G0) -->
     {
-      arg(2,G0,Name),
+      arg(2,G0,[Name]),
       !,
       seqhdr(State,Type)
     } ,
-    mcstr(["## ",Type,": ",Name,"\n"]).
+     ["## ",Type,": ",Name,"\n"].
 
 seqhdr(State,Name) :-
-    in(kind=Kind, State),
+    key_in(kind=Kind, State),
     top_seq_name( Kind, Name).
 
 top_seq_name( "class", "Class" ).
@@ -448,68 +399,52 @@ top_sectiondef_name( "func", "Func" ).
 top_sectiondef_name(   "var", "Var" ).
 
 
+bd(blockquote,"\n~~~\n").
+bd(bold,"**").
+bd(cstrike, "~~").
+bd(computeroutput, "\`").
+bd(emphasis, "__").
+bd(quot, "\`").
+lbd(verbatim, "\`").
+bd(s, "~~").
+bd(sp, "~~").
+bd(underline, "<ins>").
+
+para(P) -->
+    {
+    P=..[N,_,A],
+    bd(N,H)
+    },
+    !,
+    [H],
+    descriptions(A),
+    [H].
 
 
-
-para(bold([],Text)) -->
-    {string(Text)},
-    !,
-    mcstr(["**", Text,"**"]).
-para(bold([],Text)) -->
-    cstr("**"), para(Text), cstr("**").
-para(s([],Text)) -->
-    {string(Text)},
-    !,
-    mcstr(["~~",Text,"~~"]).
-para(s([],Text)) -->
-    cstr("~~"), para(Text), cstr("~~").
-para(cstrike([],Text)) -->
-    {string(Text)},
-    !,
-    mcstr(["~~",Text,"~~"]).
-para(cstrike([],Text)) -->
-    !,
-    cstr("~~"), para(Text), cstr("~~").
-para(underline([],Text)) -->
-    {string(Text)},
-    !,
-    mcstr(["<ins>",Text,"<ins>"]).
-    para(underline([],Text)) -->
-    cstr("<ins>"),
-    para(Text),
-    cstr("</ins>").
-para(emphasis([],Text)) -->
-    {string(Text)},
-    !,
-    mcstr(["__", Text, "__"]).
-para(emphasis([],Text)) -->
-    cstr("__"), para(Text), cstr("__").
 para(hruler([],_)) -->
-    cstr("\n- - -\n").
+    [ "\n- - -\n"].
 para(preformatted([],Text)) -->
     unimpl(preformatted,Text). % docMarkupType
 para(programlisting([],Text)) -->
-    toraw(Text). % listingType
-para(verbatim([],Text)) -->
-    {string(Text)},
-    !,
-    mcstr(["`",Text,"`"]).
-para(verbatim([],Text)) -->
-    cstr("`"),
-    para(Text),
-    cstr("`"). % 
+
+    [ "~~~\n"],
+    foldl(mkraw,Text),
+    ["\n~~~\n"].
+
+
 para(javadocliteral([],Text)) -->
     unimpl(javadocliteral,Text). % xsd:unimpling
 para(javadoccode([],Text)) -->
     unimpl(javadoccode,Text). % xsd:unimpling
-para(indexentry([],Text)) -->
+para(indexentry
+([],Text)) -->
     unimpl(indexentry,Text). % docIndexEntryType
 para(orderedlist(Atts,Text)) -->
     doxolist(Atts,Text). % docListType
 para(itemizedlist(Atts,Text)) -->
     itemlist(Atts,Text). % docListType
 para(simplesect([],Text)) -->
-    unimpl(simplesect,Text). % docSimpleSectType
+                             bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb    unimpl(simplesect,Text). % docSimpleSectType
 para(title([],Text)) -->
     unimpl(title,Text). % docTitleType
 para(variablelist([],Text)) -->
@@ -536,612 +471,547 @@ para(copydoc([],Text)) -->
     unimpl(copydoc,Text). % docCopyType
 para(details([],Text)) -->
     unimpl(details,Text). % docDetailsType
-para(blockquote([],Text)) -->
-    cstr("\n~~~\n"),
-    descriptions(Text),
-    cstr("\n~~~\n"). % docBlockQuoteType
 para(parblock([],Text))-->
     paras(Text). % docParBlockType         
-para(computeroutput([],Text)) -->
-    string(Text),
-    !,
-    mcstr(["`", Text, "`"]).
-para(computeroutput([],Text)) -->
-    cstr("`"), para(Text), cstr("`").
-para(subscript([],Text)) -->
-    string(Text),
-    !,
-    mcstr(["<sub>", Text, "<sub>"]).
-para(subscript([],Text)) -->
-    cstr("<sub>"), para(Text), cstr("</sub>").
 para(superscript([],Text)) -->
-    string(Text),
+    {string(Text)},
     !,
-    mcstr(["<sup>", Text, "<sup>"]).
+     ["<sup>"], [Text], ["<sup>]".
 para(superscript([],Text)) -->
-    cstr("<sup>"), para(Text), cstr("</sup>").
+    ["<sup>"], para(Text), [ "</sup>"].
 para(center([],Text)) --> % unsupported
     para(Text). % docMarkupType
 para(small([],Text)) -->
-    cstr("<small>"), para(Text), cstr("</small>").
+    [ "<small>"], para(Text), [ "</small>"].
 para(cite([],Text)) -->
     para(Text). % docMarkupType
 para(del([],Text)) -->
-    cstr("<del>"), para(Text), cstr("</del>").
+    [ "<del>"], para(Text), [ "</del>"].
 para(ins([],Text)) -->
-    cstr("<ins>"), para(Text), cstr("</ins>").
-para(htmlonly([],_Text)) -->
-    []. % docHtmlOnlyType
-para(manonly([],_Text)) -->
-    [].
-para(xmlonly([],Text)) -->
-    para(Text). % xsd:cstring
-para(rtfonly([],_Text)) -->
-    []. % xsd:cstring
-para(latexonly([],_Text)) -->
-    []. % xsd:cstring
-para(docbookonly([],_Text)) -->
-    []. % xsd:cstring
-para(image([],_Text)) -->
-    para(_Text). % docImageType
-para(dot([],_Text)) -->
-    []. % docDotMscType
-para(msc([],_Text)) -->
-    []. % docDotMscType
-para(plantuml([],_Text)) -->
-    []. % docPlantumlType
-para(anchor([],Text)) -->
-    para(Text). % docAnchorType
-para(ref(Atts,[Name])) -->
-    {
-  once(in(refid(Ref),Atts))
-    },
-    ref(Ref,Name).
-para(linebreak([],_)) -->
-    cstr("<br>"). % docEmptyType
+    [ "<ins>"], para(Text), [ "</ins>"].
 para(nonbreakablespace([],_)) -->
-    cstr(     "<nonbreakablespace/>").
+    [      "<nonbreakablespace/>"].
 para('iexcl'(_,_))  -->
-    cstr(    "<iexcl/>").
+    [     "<iexcl/>"].
 para('cent'(_,_))  -->
-    cstr(     "<cent/>").
+    [      "<cent/>"].
 para('pound'(_,_))  -->
-    cstr(    "<pound/>").
+    [     "<pound/>"].
 para('curren'(_,_))  -->
-    cstr(   "<curren/>").
+    [    "<curren/>"].
 para('yen'(_,_))  -->
-    cstr(      "<yen/>").
+    [       "<yen/>"].
 para('brvbar'(_,_))  -->
-    cstr(   "<brvbar/>").
+    [    "<brvbar/>"].
 para('sect'(_,_))  -->
-    cstr(     "<sect/>").
+    [      "<sect/>"].
 para('uml'(_,_))  -->
-    cstr(      "<umlaut/>").
+    [       "<umlaut/>"].
 para('copy'(_,_))  -->
-    cstr(     "<copy/>").
+    [      "<copy/>"].
 para('ordf'(_,_))  -->
-    cstr(     "<ordf/>").
+    [      "<ordf/>"].
 para('laquo'(_,_))  -->
-    cstr(    "<laquo/>").
-para('not'(_,_))  -->
-    cstr(      "<not/>").
-para('shy'(_,_))  -->
-    cstr(      "<shy/>").
-para('reg'(_,_))  -->
-    cstr(      "<registered/>").
-para('macr'(_,_))  -->
-    cstr(     "<macr/>").
-para('deg'(_,_))  -->
-    cstr(      "<deg/>").
-para('plusmn'(_,_))  -->
-    cstr(   "<plusmn/>").
-para('sup2'(_,_))  -->
-    cstr(     "<sup2/>").
+    [     "<laquo/>"].
 para('sup3'(_,_))  -->
-    cstr(     "<sup3/>").
+    [      "<sup3/>"].
 para('acute'(_,_))  -->
-    cstr(    "<acute/>").
+    [     "<acute/>"].
 para('micro'(_,_))  -->
-    cstr(    "<micro/>").
+    [     "<micro/>"].
 para('para'(_,_))  -->
-    cstr(     "<para/>").
+    [      "<para/>"].
 para('middot'(_,_))  -->
-    cstr(   "<middot/>").
+    [    "<middot/>"].
 para('cedil'(_,_))  -->
-    cstr(    "<cedil/>").
+    [     "<cedil/>"].
 para('sup1'(_,_))  -->
-    cstr(     "<sup1/>").
+    [      "<sup1/>"].
 para('ordm'(_,_))  -->
-    cstr(     "<ordm/>").
+    [      "<ordm/>"].
 para('raquo'(_,_))  -->
-    cstr(    "<raquo/>").
+    [     "<raqUo/>"].
 para('frac14'(_,_))  -->
-    cstr(   "<frac14/>").
+    [    "<frac14/>"].
 para('frac12'(_,_))  -->
-    cstr(   "<frac12/>").
+    [    "<frac12/>"].
 para('frac34'(_,_))  -->
-    cstr(   "<frac34/>").
+    [    "<frac34/>"].
 para('iquest'(_,_))  -->
-    cstr(   "<iquest/>").
+    [    "<iquest/>"].
 para('Agrave'(_,_))  -->
-    cstr(   "<Agrave/>").
+    [    "<Agrave/>"].
 para('Aacute'(_,_))  -->
-    cstr(   "<Aacute/>").
+    [    "<Aacute/>"].
 para('Acirc'(_,_))  -->
-    cstr(    "<Acirc/>").
+    [     "<Acirc/>"].
 para('Atilde'(_,_))  -->
-    cstr(   "<Atilde/>").
+    [    "<Atilde/>"].
 para('Auml'(_,_))  -->
-    cstr(     "<Aumlaut/>").
+    [      "<Aumlaut/>"].
 para('Aring'(_,_))  -->
-    cstr(    "<Aring/>").
+    [     "<Aring/>"].
 para('AElig'(_,_))  -->
-    cstr(    "<AElig/>").
+    [     "<AElig/>"].
 para('Ccedil'(_,_))  -->
-    cstr(   "<Ccedil/>").
+    [    "<Ccedil/>"].
 para('Egrave'(_,_))  -->
-    cstr(   "<Egrave/>").
+    [    "<Egrave/>"].
 para('Eacute'(_,_))  -->
-    cstr(   "<Eacute/>").
+    [    "<Eacute/>"].
 para('Ecirc'(_,_))  -->
-    cstr(    "<Ecirc/>").
+    [     "<Ecirc/>"].
 para('Euml'(_,_))  -->
-    cstr(     "<Eumlaut/>").
+    [      "<Eumlaut/>"].
 para('Igrave'(_,_))  -->
-    cstr(   "<Igrave/>").
+    [    "<Igrave/>"].
 para('Iacute'(_,_))  -->
-    cstr(   "<Iacute/>").
+    [    "<Iacute/>"].
 para('Icirc'(_,_))  -->
-    cstr(    "<Icirc/>").
+    [     "<Icirc/>"].
 para('Iuml'(_,_))  -->
-    cstr(     "<Iumlaut/>").
+    [      "<Iumlaut/>"].
 para('ETH'(_,_))  -->
-    cstr(      "<ETH/>").
+    [       "<ETH/>"].
 para('Ntilde'(_,_))  -->
-    cstr(   "<Ntilde/>").
+    [    "<Ntilde/>"].
 para('Ograve'(_,_))  -->
-    cstr(   "<Ograve/>").
+    [    "<Ograve/>"].
 para('Oacute'(_,_))  -->
-    cstr(   "<Oacute/>").
+    [    "<Oacute/>"].
 para('Ocirc'(_,_))  -->
-    cstr(    "<Ocirc/>").
+    [     "<Ocirc/>"].
 para('Otilde'(_,_))  -->
-    cstr(   "<Otilde/>").
+    [    "<Otilde/>"].
 para('Ouml'(_,_))  -->
-    cstr(     "<Oumlaut/>").
+    [      "<Oumlaut/>"].
 para('times'(_,_))  -->
-    cstr(    "<times/>").
+    [     "<times/>"].
 para('Oslash'(_,_))  -->
-    cstr(   "<Oslash/>").
+    [    "<Oslash/>"].
 para('Ugrave'(_,_))  -->
-    cstr(   "<Ugrave/>").
+    [    "<Ugrave/>"].
 para('Uacute'(_,_))  -->
-    cstr(   "<Uacute/>").
+    [    "<Uacute/>"].
 para('Ucirc'(_,_))  -->
-    cstr(    "<Ucirc/>").
+    [     "<Ucirc/>"].
 para('Uuml'(_,_))  -->
-    cstr(     "<Uumlaut/>").
+    [      "<Uumlaut/>"].
 para('Yacute'(_,_))  -->
-    cstr(   "<Yacute/>").
+    [    "<Yacute/>"].
 para('THORN'(_,_))  -->
-    cstr(    "<THORN/>").
+    [     "<THORN/>"].
 para('szlig'(_,_))  -->
-    cstr(    "<szlig/>").
+    [     "<szlig/>"].
 para('agrave'(_,_))  -->
-    cstr(   "<agrave/>").
+    [    "<agrave/>"].
 para('aacute'(_,_))  -->
-    cstr(   "<aacute/>").
+    [    "<aacute/>"].
 para('acirc'(_,_))  -->
-    cstr(    "<acirc/>").
+    [     "<acirc/>"].
 para('atilde'(_,_))  -->
-    cstr(   "<atilde/>").
+    [    "<atilde/>"].
 para('auml'(_,_))  -->
-    cstr(     "<aumlaut/>").
+    [      "<aumlaut/>"].
 para('aring'(_,_))  -->
-    cstr(    "<aring/>").
+    [     "<aring/>"].
 para('aelig'(_,_))  -->
-    cstr(    "<aelig/>").
+    [     "<aelig/>"].
 para('ccedil'(_,_))  -->
-    cstr(   "<ccedil/>").
+    [    "<ccedil/>"].
 para('egrave'(_,_))  -->
-    cstr(   "<egrave/>").
+    [    "<egrave/>"].
 para('eacute'(_,_))  -->
-    cstr(   "<eacute/>").
+    [    "<eacute/>"].
 para('ecirc'(_,_))  -->
-    cstr(    "<ecirc/>").
+    [     "<ecirc/>"].
 para('euml'(_,_))  -->
-    cstr(     "<eumlaut/>").
+    [      "<eumlaut/>"].
 para('igrave'(_,_))  -->
-    cstr(   "<igrave/>").
+    [    "<igrave/>"].
 para('iacute'(_,_))  -->
-    cstr(   "<iacute/>").
+    [    "<iacute/>"].
 para('icirc'(_,_))  -->
-    cstr(    "<icirc/>").
+    [     "<icirc/>"].
 para('iuml'(_,_))  -->
-    cstr(     "<iumlaut/>").
+    [      "<iumlaut/>"].
 para('eth'(_,_))  -->
-    cstr(      "<eth/>").
+    [       "<eth/>"].
 para('ntilde'(_,_))  -->
-    cstr(   "<ntilde/>").
+    [    "<ntilde/>"].
 para('ograve'(_,_))  -->
-    cstr(   "<ograve/>").
+    [    "<ograve/>"].
 para('oacute'(_,_))  -->
-    cstr(   "<oacute/>").
+    [    "<oacute/>"].
 para('ocirc'(_,_))  -->
-    cstr(    "<ocirc/>").
+    [     "<ocirc/>"].
 para('otilde'(_,_))  -->
-    cstr(   "<otilde/>").
+    [    "<otilde/>"].
 para('ouml'(_,_))  -->
-    cstr(     "<oumlaut/>").
+    [      "<oumlaut/>"].
 para('divide'(_,_))  -->
-    cstr(   "<divide/>").
+    [    "<divide/>"].
 para('oslash'(_,_))  -->
-    cstr(   "<oslash/>").
+    [    "<oslash/>"].
 para('ugrave'(_,_))  -->
-    cstr(   "<ugrave/>").
+    [    "<ugrave/>"].
 para('uacute'(_,_))  -->
-    cstr(   "<uacute/>").
+    [    "<uacute/>"].
 para('ucirc'(_,_))  -->
-    cstr(    "<ucirc/>").
+    [     "<ucirc/>"].
 para('uuml'(_,_))  -->
-    cstr(     "<uumlaut/>").
+    [      "<uumlaut/>"].
 para('yacute'(_,_))  -->
-    cstr(   "<yacute/>").
+    [    "<yacute/>"].
 para('thorn'(_,_))  -->
-    cstr(    "<thorn/>").
+    [     "<thorn/>"].
 para('yuml'(_,_))  -->
-    cstr(     "<yumlaut/>").
+    [      "<yumlaut/>"].
 para('fnof'(_,_))  -->
-    cstr(     "<fnof/>").
+    [      "<fnof/>"].
 para('Alpha'(_,_))  -->
-    cstr(    "<Alpha/>").
+    [     "<Alpha/>"].
 para('Beta'(_,_))  -->
-    cstr(     "<Beta/>").
+    [      "<Beta/>"].
 para('Gamma'(_,_))  -->
-    cstr(    "<Gamma/>").
+    [     "<Gamma/>"].
 para('Delta'(_,_))  -->
-    cstr(    "<Delta/>").
+    [     "<Delta/>"].
 para('Epsilon'(_,_))  -->
-    cstr(  "<Epsilon/>").
+    [   "<Epsilon/>"].
 para('Zeta'(_,_))  -->
-    cstr(     "<Zeta/>").
+    [      "<Zeta/>"].
 para('Eta'(_,_))  -->
-    cstr(      "<Eta/>").
+    [       "<Eta/>"].
 para('Theta'(_,_))  -->
-    cstr(    "<Theta/>").
+    [     "<Theta/>"].
 para('Iota'(_,_))  -->
-    cstr(     "<Iota/>").
+    [      "<Iota/>"].
 para('Kappa'(_,_))  -->
-    cstr(    "<Kappa/>").
+    [     "<Kappa/>"].
 para('Lambda'(_,_))  -->
-    cstr(   "<Lambda/>").
+    [    "<Lambda/>"].
 para('Mu'(_,_))  -->
-    cstr(       "<Mu/>").
+    [        "<Mu/>"].
 para('Nu'(_,_))  -->
-    cstr(       "<Nu/>").
+    [        "<Nu/>"].
 para('Xi'(_,_))  -->
-    cstr(       "<Xi/>").
+    [        "<Xi/>"].
 para('Omicron'(_,_))  -->
-    cstr(  "<Omicron/>").
+    [   "<Omicron/>"].
 para('Pi'(_,_))  -->
-    cstr(       "<Pi/>").
+    [        "<Pi/>"].
 para('Rho'(_,_))  -->
-    cstr(      "<Rho/>").
+    [       "<Rho/>"].
 para('Sigma'(_,_))  -->
-    cstr(    "<Sigma/>").
+    [     "<Sigma/>"].
 para('Tau'(_,_))  -->
-    cstr(      "<Tau/>").
+    [       "<Tau/>"].
 para('Upsilon'(_,_))  -->
-    cstr(  "<Upsilon/>").
+    [   "<Upsilon/>"].
 para('Phi'(_,_))  -->
-    cstr(      "<Phi/>").
+    [       "<Phi/>"].
 para('Chi'(_,_))  -->
-    cstr(      "<Chi/>").
+    [       "<Chi/>"].
 para('Psi'(_,_))  -->
-    cstr(      "<Psi/>").
+    [       "<Psi/>"].
 para('Omega'(_,_))  -->
-    cstr(    "<Omega/>").
+    [     "<Omega/>"].
 para('alpha'(_,_))  -->
-    cstr(    "<alpha/>").
+    [     "<alpha/>"].
 para('beta'(_,_))  -->
-    cstr(     "<beta/>").
+    [      "<beta/>"].
 para('gamma'(_,_))  -->
-    cstr(    "<gamma/>").
+    [     "<gamma/>"].
 para('delta'(_,_))  -->
-    cstr(    "<delta/>").
+    [     "<delta/>"].
 para('epsilon'(_,_))  -->
-    cstr(  "<epsilon/>").
+    [   "<epsilon/>"].
 para('zeta'(_,_))  -->
-    cstr(     "<zeta/>").
+    [      "<zeta/>"].
 para('eta'(_,_))  -->
-    cstr(      "<eta/>").
+    [       "<eta/>"].
 para('theta'(_,_))  -->
-    cstr(    "<theta/>").
+    [     "<theta/>"].
 para('iota'(_,_))  -->
-    cstr(     "<iota/>").
+    [      "<iota/>"].
 para('kappa'(_,_))  -->
-    cstr(    "<kappa/>").
+    [     "<kappa/>"].
 para('lambda'(_,_))  -->
-    cstr(   "<lambda/>").
+    [    "<lambda/>"].
 para('mu'(_,_))  -->
-    cstr(       "<mu/>").
+    [        "<mu/>"].
 para('nu'(_,_))  -->
-    cstr(       "<nu/>").
+    [        "<nu/>"].
 para('xi'(_,_))  -->
-    cstr(       "<xi/>").
+    [        "<xi/>"].
 para('omicron'(_,_))  -->
-    cstr(  "<omicron/>").
+    [   "<omicron/>"].
 para('pi'(_,_))  -->
-    cstr(       "<pi/>").
+    [        "<pi/>"].
 para('rho'(_,_))  -->
-    cstr(      "<rho/>").
+    [       "<rho/>"].
 para('sigmaf'(_,_))  -->
-    cstr(   "<sigmaf/>").
+    [    "<sigmaf/>"].
 para('sigma'(_,_))  -->
-    cstr(    "<sigma/>").
+    [     "<sigma/>"].
 para('tau'(_,_))  -->
-    cstr(      "<tau/>").
+    [       "<tau/>"].
 para('upsilon'(_,_))  -->
-    cstr(  "<upsilon/>").
+    [   "<upsilon/>"].
 para('phi'(_,_))  -->
-    cstr(      "<phi/>").
+    [       "<phi/>"].
 para('chi'(_,_))  -->
-    cstr(      "<chi/>").
+    [       "<chi/>"].
 para('psi'(_,_))  -->
-    cstr(      "<psi/>").
+    [       "<psi/>"].
 para('omega'(_,_))  -->
-    cstr(    "<omega/>").
+    [     "<omega/>"].
 para('thetasym'(_,_))  -->
-    cstr( "<thetasym/>").
+    [  "<thetasym/>"].
 para('upsih'(_,_))  -->
-    cstr(    "<upsih/>").
+    [     "<upsih/>"].
 para('piv'(_,_))  -->
-    cstr(      "<piv/>").
+    [       "<piv/>"].
 para('bull'(_,_))  -->
-    cstr(     "<bull/>").
+    [      "<bull/>"].
 para('hellip'(_,_))  -->
-    cstr(   "<hellip/>").
+    [    "<hellip/>"].
 para('prime'(_,_))  -->
-    cstr(    "<prime/>").
+    [     "<prime/>"].
 para('Prime'(_,_))  -->
-    cstr(    "<Prime/>").
+    [     "<Prime/>"].
 para('oline'(_,_))  -->
-    cstr(    "<oline/>").
+    [     "<oline/>"].
 para('frasl'(_,_))  -->
-    cstr(    "<frasl/>").
+    [     "<frasl/>"].
 para('weierp'(_,_))  -->
-    cstr(   "<weierp/>").
+    [    "<weierp/>"].
 para('image'(_,_))  -->
-    cstr(    "<imaginary/>").
+    [     "<imaginary/>"].
 para('real'(_,_))  -->
-    cstr(     "<real/>").
+    [      "<real/>"].
 para('trade'(_,_))  -->
-    cstr(    "<trademark/>").
+    [     "<trademark/>"].
 para('alefsym'(_,_))  -->
-    cstr(  "<alefsym/>").
+    [   "<alefsym/>"].
 para('larr'(_,_))  -->
-    cstr(     "<larr/>").
+    [      "<larr/>"].
 para('uarr'(_,_))  -->
-    cstr(     "<uarr/>").
+    [      "<uarr/>"].
 para('rarr'(_,_))  -->
-    cstr(     "<rarr/>").
+    [      "<rarr/>"].
 para('darr'(_,_))  -->
-    cstr(     "<darr/>").
+    [      "<darr/>"].
 para('harr'(_,_))  -->
-    cstr(     "<harr/>").
+    [      "<harr/>"].
 para('crarr'(_,_))  -->
-    cstr(    "<crarr/>").
+    [     "<crarr/>"].
 para('lArr'(_,_))  -->
-    cstr(     "<lArr/>").
+    [      "<lArr/>"].
 para('uArr'(_,_))  -->
-    cstr(     "<uArr/>").
+    [      "<uArr/>"].
 para('rArr'(_,_))  -->
-    cstr(     "<rArr/>").
+    [      "<rArr/>"].
 para('dArr'(_,_))  -->
-    cstr(     "<dArr/>").
+    [      "<dArr/>"].
 para('hArr'(_,_))  -->
-    cstr(     "<hArr/>").
+    [      "<hArr/>"].
 para('forall'(_,_))  -->
-    cstr(   "<forall/>").
+    [    "<forall/>"].
 para('part'(_,_))  -->
-    cstr(     "<part/>").
+    [      "<part/>"].
 para('exist'(_,_))  -->
-    cstr(    "<exist/>").
+    [     "<exist/>"].
 para('empty'(_,_))  -->
-    cstr(    "<empty/>").
+    [     "<empty/>"].
 para('nabla'(_,_))  -->
-    cstr(    "<nabla/>").
+    [     "<nabla/>"].
 para('isin'(_,_))  -->
-    cstr(     "<isin/>").
+    [      "<isin/>"].
 para('notin'(_,_))  -->
-    cstr(    "<notin/>").
+    [     "<notin/>"].
 para('ni'(_,_))  -->
-    cstr(       "<ni/>").
+    [        "<ni/>"].
 para('prod'(_,_))  -->
-    cstr(     "<prod/>").
+    [      "<prod/>"].
 para('sum'(_,_))  -->
-    cstr(      "<sum/>").
+    [       "<sum/>"].
 para('minus'(_,_))  -->
-    cstr(    "<minus/>").
+    [     "<minus/>"].
 para('lowast'(_,_))  -->
-    cstr(   "<lowast/>").
+    [    "<lowast/>"].
 para('radic'(_,_))  -->
-    cstr(    "<radic/>").
+    [     "<radic/>"].
 para('prop'(_,_))  -->
-    cstr(     "<prop/>").
+    [      "<prop/>"].
 para('infin'(_,_))  -->
-    cstr(    "<infin/>").
+    [     "<infin/>"].
 para('ang'(_,_))  -->
-    cstr(      "<ang/>").
+    [       "<ang/>"].
 para('and'(_,_))  -->
-    cstr(      "<and/>").
+    [       "<and/>"].
 para('or'(_,_))  -->
-    cstr(       "<or/>").
+    [        "<or/>"].
 para('cap'(_,_))  -->
-    cstr(      "<cap/>").
+    [       "<cap/>"].
 para('cup'(_,_))  -->
-    cstr(      "<cup/>").
+    [       "<cup/>"].
 para('int'(_,_))  -->
-    cstr(      "<int/>").
+    [       "<int/>"].
 para('there4'(_,_))  -->
-    cstr(   "<there4/>").
+    [    "<there4/>"].
 para('sim'(_,_))  -->
-    cstr(      "<sim/>").
+    [       "<sim/>"].
 para('cong'(_,_))  -->
-    cstr(     "<cong/>").
+    [      "<cong/>"].
 para('asymp'(_,_))  -->
-    cstr(    "<asymp/>").
+    [     "<asymp/>"].
 para('ne'(_,_))  -->
-    cstr(       "<ne/>").
+    [        "<ne/>"].
 para('equiv'(_,_))  -->
-    cstr(    "<equiv/>").
+    [     "<equiv/>"].
 para('le'(_,_))  -->
-    cstr(       "<le/>").
+    [        "<le/>"].
 para('ge'(_,_))  -->
-    cstr(       "<ge/>").
+    [        "<ge/>"].
 para('sub'(_,_))  -->
-    cstr(      "<sub/>").
+    [       "<sub/>"].
 para('sup'(_,_))  -->
-    cstr(      "<sup/>").
+    [       "<sup/>"].
 para('nsub'(_,_))  -->
-    cstr(     "<nsub/>").
+    [      "<nsub/>"].
 para('sube'(_,_))  --> 
-    cstr(     "<sube/>").
+    [      "<sube/>"].
 para('supe'(_,_))  -->
-    cstr(     "<supe/>").
+    [      "<supe/>"].
 para('oplus'(_,_))  -->
-    cstr(    "<oplus/>").
+    [     "<oplus/>"].
 para('otimes'(_,_))  -->
-    cstr(   "<otimes/>").
+    [    "<otimes/>"].
 para('perp'(_,_))  -->
-    cstr(     "<perp/>").
+    [      "<perp/>"].
 para('sdot'(_,_))  -->
-    cstr(     "<sdot/>").
+    [      "<sdot/>"].
 para('lceil'(_,_))  -->
-    cstr(    "<lceil/>").
+    [     "<lceil/>"].
 para('rceil'(_,_))  -->
-    cstr(    "<rceil/>").
+    [     "<rceil/>"].
 para('lfloor'(_,_))  -->
-    cstr(   "<lfloor/>").
+    [    "<lfloor/>"].
 para('rfloor'(_,_))  -->
-    cstr(   "<rfloor/>").
+    [    "<rfloor/>"].
 para('lang'(_,_))  -->
-    cstr(     "<lang/>").
+    [      "<lang/>"].
 para('rang'(_,_))  -->
-    cstr(     "<rang/>").
+    [      "<rang/>"].
 para('loz'(_,_))  -->
-    cstr(      "<loz/>").
+    [       "<loz/>"].
 para('spades'(_,_))  -->
-    cstr(   "<spades/>").
+    [    "<spades/>"].
 para('clubs'(_,_))  -->
-    cstr(    "<clubs/>").
+    [     "<clubs/>"].
 para('hearts'(_,_))  -->
-    cstr(   "<hearts/>").
+    [    "<hearts/>"].
 para('diams'(_,_))  -->
-    cstr(    "<diams/>").
+    [     "<diams/>"].
 para('quot'(_,_))  -->
-    cstr("&quot;").
+    [ "&quot;"].
 para('amp'(_,_))  -->
-    cstr(      "&amp;").
+    [       "&amp;"].
 para('lt'(_,_))  -->
-    cstr(       "&lt;").
+    [        "&lt;"].
 para('gt'(_,_))  -->
-    cstr(       "&gt;").
+    [        "&gt;"].
 para('OElig'(_,_))  -->
-    cstr(    "<OElig/>").
+    [     "<OElig/>"].
 para('oelig'(_,_))  -->
-    cstr(    "<oelig/>").
+    [     "<oelig/>"].
 para('Scaron'(_,_))  -->
-    cstr(   "<Scaron/>").
+    [    "<Scaron/>"].
 para('scaron'(_,_))  -->
-    cstr(   "<scaron/>").
+    [    "<scaron/>"].
 para('Yuml'(_,_))  -->
-    cstr(     "<Yumlaut/>").
+    [      "<Yumlaut/>"].
 para('circ'(_,_))  -->
-    cstr(     "<circ/>").
+    [      "<circ/>"].
 para('tilde'(_,_))  -->
-    cstr(    "<tilde/>").
+    [     "<tilde/>"].
 para(ensp(_,_)) -->
-    cstr("<ensp/>").
+    [ "<ensp/>"].
 para('emsp'(_,_))  -->
-    cstr("<emsp/>").
+    [ "<emsp/>"].
 para('thinsp'(_,_))  -->
-    cstr(  "<thinsp/>").
+    [   "<thinsp/>"].
 para('zwnj'(_,_))  -->
-    cstr( "<zwnj/>").
+    [  "<zwnj/>"].
 para('zwj'(_,_)) -->
-    cstr("<zwj/>").
+    [ "<zwj/>"].
 para('lrm'(_,_)) -->
-    cstr("<lrm/>").
+    [ "<lrm/>"].
 para('rlm'(_,_)) -->
-    cstr("<rlm/>").
+    [ "<rlm/>"].
 para('ndash'(_,_)) -->
-    cstr("<ndash/>").
+    [ "<ndash/>"].
 para('mdash'(_,_)) -->
-    cstr("<mdash/>").
+    [ "<mdash/>"].
 para('lsquo'(_,_)) -->
-    cstr("<lsquo/>").
+    [ "<lsquo/>"].
 para('rsquo'(_,_)) -->
-    cstr("<rsquo/>").
+    [ "<rsquo/>"].
 para('sbquo'(_,_)) -->
-    cstr("<sbquo/>").
+    [ "<sbquo/>"].
 para('ldquo'(_,_)) -->
-    cstr("<ldquo/>").
+    [ "<ldquo/>"].
 para('rdquo'(_,_)) -->
-    cstr("<rdquo/>").
+    [ "<rdquo/>"].
 para('bdquo'(_,_)) -->
-    cstr("<bdquo/>").
+    [ "<bdquo/>"].
 para('dagger'(_,_)) -->
-    cstr("<dagger/>").
+    [ "<dagger/>"].
 para('Dagger'(_,_)) -->
-    cstr("<Dagger/>").
+    [ "<Dagger/>"].
 para('permil'(_,_)) -->
-    cstr("<permil/>").
+    [ "<permil/>"].
 para('lsaquo'(_,_)) -->
-    cstr("<lsaquo/>").
+    [ "<lsaquo/>"].
 para('rsaquo'(_,_)) -->
-    cstr("<rsaquo/>").
+    [ "<rsaquo/>"].
 para('euro'(_,_)) -->
-    cstr("<euro/>").
+    [ "<euro/>"].
 %  // doxygen extension to the HTML4 table of HTML entities
 para('tm'(_,_))  -->
-    cstr(   "<tm/>").
+    [    "<tm/>"].
 para('apos'(_,_))  -->
-    cstr("&apos;").
+    [ "&apos;"].
 
 %  // doxygen commands represented as HTML entities
 para('BSlash'(_,_)) -->
-    cstr("\\").
+    [ "\\"].
 para('BSlash'(_,_)) -->
-    cstr("@").
+    [ "@"].
 para('Less'(_,_)) -->
-    cstr("&lt;").
+    [ "&lt;"].
 para('Greater'(_,_)) -->
-    cstr("&lt;").
+    [ "&lt;"].
 %<!-- end workaround for xsd.exe -->
-para(computeroutput([],Text)) -->
-    cstr("`"), para(Text), cstr("`").
-para(subscript([],Text)) -->
-    cstr("<sub>"), para(Text), cstr("</sub>").
-para(superscript([],Text)) -->
-    cstr("<sup>"), para(Text), cstr("</sup>").
 para(center([],Text)) --> % unsupported
     para(Text). % docMarkupType
 para(small([],Text)) -->
-    cstr("<small>"), para(Text), cstr("</small>").
+    [ "<small>"], para(Text), [ "</small>"].
 para(cite([],Text)) -->
     para(Text). % docMarkupType
 para(del([],Text)) -->
-    cstr("<del>"), para(Text), cstr("</del>").
+    [ "<del>"], para(Text), [ "</del>"].
 para(ins([],Text)) -->
-    cstr("<ins>"), para(Text), cstr("</ins>").
+    [ "<ins>"], para(Text), [ "</ins>"].
 para(htmlonly([],_Text)) -->
     []. % docHtmlOnlyType
 para(manonly([],_Text)) -->
     [].
 para(xmlonly([],Text)) -->
-    para(Text). % xsd:cstring
-para(rtfonly([],_Text)) -->
+    para(Text).
+xsd:[ para(rtfonly([],_Text)) -->
     []. % xsd:cstring
 para(latexonly([],_Text)) -->
     []. % xsd:cstring
@@ -1159,548 +1029,496 @@ para(anchor([],Text)) -->
     para(Text). % docAnchorType
 para(ref(Atts,[Name])) -->
     {
-  once(in(refid(Ref),Atts))
+            key_in(refid(Ref),Atts)
     },
     ref(Ref,Name).
 para(linebreak([],_)) -->
-    cstr("<br>"). % docEmptyType
-para(nonbreakablespace([],_)) -->
-    cstr(     "<nonbreakablespace/>").
-para('iexcl'(_,_))  -->
-    cstr(    "<iexcl/>").
-para('cent'(_,_))  -->
-    cstr(     "<cent/>").
-para('pound'(_,_))  -->
-    cstr(    "<pound/>").
-para('curren'(_,_))  -->
-    cstr(   "<curren/>").
-para('yen'(_,_))  -->
-    cstr(      "<yen/>").
-para('brvbar'(_,_))  -->
-    cstr(   "<brvbar/>").
-para('sect'(_,_))  -->
-    cstr(     "<sect/>").
-para('uml'(_,_))  -->
-    cstr(  "<umlaut/>").
-para('copy'(_,_))  -->
-    cstr(     "<copy/>").
-para('ordf'(_,_))  -->
-    cstr(     "<ordf/>").
-para('laquo'(_,_))  -->
-    cstr(    "<laquo/>").
+    ["<br>"]. % docEmptyType
 para('not'(_,_))  -->
-    cstr(      "<not/>").
+    [       "<not/>"].
 para('shy'(_,_))  -->
-    cstr(      "<shy/>").
+    [       "<shy/>"].
 para('reg'(_,_))  -->
-    cstr(      "<registered/>").
+    [       "<registered/>"].
 para('macr'(_,_))  -->
-    cstr(     "<macr/>").
+    [      "<macr/>"].
 para('deg'(_,_))  -->
-    cstr(      "<deg/>").
+    [       "<deg/>"].
 para('plusmn'(_,_))  -->
-    cstr(   "<plusmn/>").
+    [    "<plusmn/>"].
 para('sup2'(_,_))  -->
-    cstr(     "<sup2/>").
-para('sup3'(_,_))  -->
-    cstr(     "<sup3/>").
-para('acute'(_,_))  -->
-    cstr(    "<acute/>").
-para('micro'(_,_))  -->
-    cstr(    "<micro/>").
-para('para'(_,_))  -->
-    cstr(     "<para/>").
-para('middot'(_,_))  -->
-    cstr(   "<middot/>").
-para('cedil'(_,_))  -->
-    cstr(    "<cedil/>").
-para('sup1'(_,_))  -->
-    cstr(     "<sup1/>").
-para('ordm'(_,_))  -->
-    cstr(     "<ordm/>").
 para('raquo'(_,_))  -->
-    cstr(    "<raquo/>").
+    [     "<raquo/>"].
 para('frac14'(_,_))  -->
-    cstr(   "<frac14/>").
+    [    "<frac14/>"].
 para('frac12'(_,_))  -->
-    cstr(   "<frac12/>").
+    [    "<frac12/>"].
 para('frac34'(_,_))  -->
-    cstr(   "<frac34/>").
+    [    "<frac34/>"].
 para('iquest'(_,_))  -->
-    cstr(   "<iquest/>").
+    [    "<iquest/>"].
 para('Agrave'(_,_))  -->
-    cstr(   "<Agrave/>").
+    [    "<Agrave/>"].
 para('Aacute'(_,_))  -->
-    cstr(   "<Aacute/>").
+    [    "<Aacute/>"].
 para('Acirc'(_,_))  -->
-    cstr(    "<Acirc/>").
+    [     "<Acirc/>"].
 para('Atilde'(_,_))  -->
-    cstr(   "<Atilde/>").
+    [    "<Atilde/>"].
 para('Auml'(_,_))  -->
-    cstr(     "<Aumlaut/>").
+    [      "<Aumlaut/>"].
 para('Aring'(_,_))  -->
-    cstr(    "<Aring/>").
+    [     "<Aring/>"].
 para('AElig'(_,_))  -->
-    cstr(    "<AElig/>").
+    [     "<AElig/>"].
 para('Ccedil'(_,_))  -->
-    cstr(   "<Ccedil/>").
+    [    "<Ccedil/>"].
 para('Egrave'(_,_))  -->
-    cstr(   "<Egrave/>").
+    [    "<Egrave/>"].
 para('Eacute'(_,_))  -->
-    cstr(   "<Eacute/>").
+    [    "<Eacute/>"].
 para('Ecirc'(_,_))  -->
-    cstr(    "<Ecirc/>").
+    [     "<Ecirc/>"].
 para('Euml'(_,_))  -->
-    cstr(     "<Eumlaut/>").
+    [      "<Eumlaut/>"].
 para('Igrave'(_,_))  -->
-    cstr(   "<Igrave/>").
+    [    "<Igrave/>"].
 para('Iacute'(_,_))  -->
-    cstr(   "<Iacute/>").
+    [    "<Iacute/>"].
 para('Icirc'(_,_))  -->
-    cstr(    "<Icirc/>").
+    [     "<Icirc/>"].
 para('Iuml'(_,_))  -->
-    cstr(     "<Iumlaut/>").
+    [      "<Iumlaut/>"].
 para('ETH'(_,_))  -->
-    cstr(      "<ETH/>").
+    [       "<ETH/>"].
 para('Ntilde'(_,_))  -->
-    cstr(   "<Ntilde/>").
+    [    "<Ntilde/>"].
 para('Ograve'(_,_))  -->
-    cstr(   "<Ograve/>").
+    [    "<Ograve/>"].
 para('Oacute'(_,_))  -->
-    cstr(   "<Oacute/>").
+    [    "<Oacute/>"].
 para('Ocirc'(_,_))  -->
-    cstr(    "<Ocirc/>").
+    [     "<Ocirc/>"].
 para('Otilde'(_,_))  -->
-    cstr(   "<Otilde/>").
+    [    "<Otilde/>"].
 para('Ouml'(_,_))  -->
-    cstr(     "<Oumlaut/>").
+    [      "<Oumlaut/>"].
 para('times'(_,_))  -->
-    cstr(    "<times/>").
+    [     "<times/>"].
 para('Oslash'(_,_))  -->
-    cstr(   "<Oslash/>").
+    [    "<Oslash/>"].
 para('Ugrave'(_,_))  -->
-    cstr(   "<Ugrave/>").
+    [    "<Ugrave/>"].
 para('Uacute'(_,_))  -->
-    cstr(   "<Uacute/>").
+    [    "<Uacute/>"].
 para('Ucirc'(_,_))  -->
-    cstr(    "<Ucirc/>").
+    [     "<Ucirc/>"].
 para('Uuml'(_,_))  -->
-    cstr(     "<Uumlaut/>").
+    [      "<Uumlaut/>"].
 para('Yacute'(_,_))  -->
-    cstr(   "<Yacute/>").
+    [    "<Yacute/>"].
 para('THORN'(_,_))  -->
-    cstr(    "<THORN/>").
+    [     "<THORN/>"].
 para('szlig'(_,_))  -->
-    cstr(    "<szlig/>").
+    [     "<szlig/>"].
 para('agrave'(_,_))  -->
-    cstr(   "<agrave/>").
+    [    "<agrave/>"].
 para('aacute'(_,_))  -->
-    cstr(   "<aacute/>").
+    [    "<aacute/>"].
 para('acirc'(_,_))  -->
-    cstr(    "<acirc/>").
+    [     "<acirc/>"].
 para('atilde'(_,_))  -->
-    cstr(   "<atilde/>").
+    [    "<atilde/>"].
 para('auml'(_,_))  -->
-    cstr(     "<aumlaut/>").
+    [      "<aumlaut/>"].
 para('aring'(_,_))  -->
-    cstr(    "<aring/>").
+    [     "<aring/>"].
 para('aelig'(_,_))  -->
-    cstr(    "<aelig/>").
+    [     "<aelig/>"].
 para('ccedil'(_,_))  -->
-    cstr(   "<ccedil/>").
+    [    "<ccedil/>"].
 para('egrave'(_,_))  -->
-    cstr(   "<egrave/>").
+    [    "<egrave/>"].
 para('eacute'(_,_))  -->
-    cstr(   "<eacute/>").
+    [    "<eacute/>"].
 para('ecirc'(_,_))  -->
-    cstr(    "<ecirc/>").
+    [     "<ecirc/>"].
 para('euml'(_,_))  -->
-    cstr(     "<eumlaut/>").
+    [      "<eumlaut/>"].
 para('igrave'(_,_))  -->
-    cstr(   "<igrave/>").
+    [    "<igrave/>"].
 para('iacute'(_,_))  -->
-    cstr(   "<iacute/>").
+    [    "<iacute/>"].
 para('icirc'(_,_))  -->
-    cstr(    "<icirc/>").
+    [     "<icirc/>"].
 para('iuml'(_,_))  -->
-    cstr(     "<iumlaut/>").
+    [      "<iumlaut/>"].
 para('eth'(_,_))  -->
-    cstr(      "<eth/>").
+    [       "<eth/>"].
 para('ntilde'(_,_))  -->
-    cstr(   "<ntilde/>").
+    [    "<ntilde/>"].
 para('ograve'(_,_))  -->
-    cstr(   "<ograve/>").
+    [    "<ograve/>"].
 para('oacute'(_,_))  -->
-    cstr(   "<oacute/>").
+    [    "<oacute/>"].
 para('ocirc'(_,_))  -->
-    cstr(    "<ocirc/>").
+    [     "<ocirc/>"].
 para('otilde'(_,_))  -->
-    cstr(   "<otilde/>").
+    [    "<otilde/>"].
 para('ouml'(_,_))  -->
-    cstr(     "<oumlaut/>").
+    [      "<oumlaut/>"].
 para('divide'(_,_))  -->
-    cstr(   "<divide/>").
+    [    "<divide/>"].
 para('oslash'(_,_))  -->
-    cstr(   "<oslash/>").
+    [    "<oslash/>"].
 para('ugrave'(_,_))  -->
-    cstr(   "<ugrave/>").
+    [    "<ugrave/>"].
 para('uacute'(_,_))  -->
-    cstr(   "<uacute/>").
+    [    "<uacute/>"].
 para('ucirc'(_,_))  -->
-    cstr(    "<ucirc/>").
+    [     "<ucirc/>"].
 para('uuml'(_,_))  -->
-    cstr(     "<uumlaut/>").
+    [      "<uumlaut/>"].
 para('yacute'(_,_))  -->
-    cstr(   "<yacute/>").
+    [    "<yacute/>"].
 para('thorn'(_,_))  -->
-    cstr(    "<thorn/>").
+    [     "<thorn/>"].
 para('yuml'(_,_))  -->
-    cstr(     "<yumlaut/>").
+    [      "<yumlaut/>"].
 para('fnof'(_,_))  -->
-    cstr(     "<fnof/>").
+    [      "<fnof/>"].
 para('Alpha'(_,_))  -->
-    cstr(    "<Alpha/>").
+    [     "<Alpha/>"].
 para('Beta'(_,_))  -->
-    cstr(     "<Beta/>").
+    [      "<Beta/>"].
 para('Gamma'(_,_))  -->
-    cstr(    "<Gamma/>").
+    [     "<Gamma/>"].
 para('Delta'(_,_))  -->
-    cstr(    "<Delta/>").
+    [     "<Delta/>"].
 para('Epsilon'(_,_))  -->
-    cstr(  "<Epsilon/>").
+    [   "<Epsilon/>"].
 para('Zeta'(_,_))  -->
-    cstr(     "<Zeta/>").
+    [      "<Zeta/>"].
 para('Eta'(_,_))  -->
-    cstr(      "<Eta/>").
+    [       "<Eta/>"].
 para('Theta'(_,_))  -->
-    cstr(    "<Theta/>").
+    [     "<Theta/>"].
 para('Iota'(_,_))  -->
-    cstr(     "<Iota/>").
+    [      "<Iota/>"].
 para('Kappa'(_,_))  -->
-    cstr(    "<Kappa/>").
+    [     "<Kappa/>"].
 para('Lambda'(_,_))  -->
-    cstr(   "<Lambda/>").
+    [    "<Lambda/>"].
 para('Mu'(_,_))  -->
-    cstr(       "<Mu/>").
+    [        "<Mu/>"].
 para('Nu'(_,_))  -->
-    cstr(       "<Nu/>").
+    [        "<Nu/>"].
 para('Xi'(_,_))  -->
-    cstr(       "<Xi/>").
+    [        "<Xi/>"].
 para('Omicron'(_,_))  -->
-    cstr(  "<Omicron/>").
+    [   "<Omicron/>"].
 para('Pi'(_,_))  -->
-    cstr(       "<Pi/>").
+    [        "<Pi/>"].
 para('Rho'(_,_))  -->
-    cstr(      "<Rho/>").
+    [       "<Rho/>"].
 para('Sigma'(_,_))  -->
-    cstr(    "<Sigma/>").
+    [     "<Sigma/>"].
 para('Tau'(_,_))  -->
-    cstr(      "<Tau/>").
+    [       "<Tau/>"].
 para('Upsilon'(_,_))  -->
-    cstr(  "<Upsilon/>").
+    [   "<Upsilon/>"].
 para('Phi'(_,_))  -->
-    cstr(      "<Phi/>").
+    [       "<Phi/>"].
 para('Chi'(_,_))  -->
-    cstr(      "<Chi/>").
+    [       "<Chi/>"].
 para('Psi'(_,_))  -->
-    cstr(      "<Psi/>").
+    [       "<Psi/>"].
 para('Omega'(_,_))  -->
-    cstr(    "<Omega/>").
+    [     "<Omega/>"].
 para('alpha'(_,_))  -->
-    cstr(    "<alpha/>").
+    [     "<alpha/>"].
 para('beta'(_,_))  -->
-    cstr(     "<beta/>").
+    [      "<beta/>"].
 para('gamma'(_,_))  -->
-    cstr(    "<gamma/>").
+    [     "<gamma/>"].
 para('delta'(_,_))  -->
-    cstr(    "<delta/>").
+    [     "<delta/>"].
 para('epsilon'(_,_))  -->
-    cstr(  "<epsilon/>").
+    [   "<epsilon/>"].
 para('zeta'(_,_))  -->
-    cstr(     "<zeta/>").
+    [      "<zeta/>"].
 para('eta'(_,_))  -->
-    cstr(      "<eta/>").
+    [       "<eta/>"].
 para('theta'(_,_))  -->
-    cstr(    "<theta/>").
+    [     "<theta/>"].
 para('iota'(_,_))  -->
-    cstr(     "<iota/>").
+    [      "<iota/>"].
 para('kappa'(_,_))  -->
-    cstr(    "<kappa/>").
+    [     "<kappa/>"].
 para('lambda'(_,_))  -->
-    cstr(   "<lambda/>").
+    [    "<lambda/>"].
 para('mu'(_,_))  -->
-    cstr(       "<mu/>").
+    [        "<mu/>"].
 para('nu'(_,_))  -->
-    cstr(       "<nu/>").
+    [        "<nu/>"].
 para('xi'(_,_))  -->
-    cstr(       "<xi/>").
+    [        "<xi/>"].
 para('omicron'(_,_))  -->
-    cstr(  "<omicron/>").
+    [   "<omicron/>"].
 para('pi'(_,_))  -->
-    cstr(       "<pi/>").
+    [        "<pi/>"].
 para('rho'(_,_))  -->
-    cstr(      "<rho/>").
+    [       "<rho/>"].
 para('sigmaf'(_,_))  -->
-    cstr(   "<sigmaf/>").
+    [    "<sigmaf/>"].
 para('sigma'(_,_))  -->
-    cstr(    "<sigma/>").
+    [     "<sigma/>"].
 para('tau'(_,_))  -->
-    cstr(      "<tau/>").
+    [       "<tau/>"].
 para('upsilon'(_,_))  -->
-    cstr(  "<upsilon/>").
+    [   "<upsilon/>"].
 para('phi'(_,_))  -->
-    cstr(      "<phi/>").
+    [       "<phi/>"].
 para('chi'(_,_))  -->
-    cstr(      "<chi/>").
+    [       "<chi/>"].
 para('psi'(_,_))  -->
-    cstr(      "<psi/>").
+    [       "<psi/>"].
 para('omega'(_,_))  -->
-    cstr(    "<omega/>").
+    [     "<omega/>"].
 para('thetasym'(_,_))  -->
-    cstr( "<thetasym/>").
+    [  "<thetasym/>"].
 para('upsih'(_,_))  -->
-    cstr(    "<upsih/>").
+    [     "<upsih/>"].
 para('piv'(_,_))  -->
-    cstr(      "<piv/>").
+    [       "<piv/>"].
 para('bull'(_,_))  -->
-    cstr(     "<bull/>").
+    [      "<bull/>"].
 para('hellip'(_,_))  -->
-    cstr(   "<hellip/>").
+    [    "<hellip/>"].
 para('prime'(_,_))  -->
-    cstr(    "<prime/>").
+    [     "<prime/>"].
 para('Prime'(_,_))  -->
-    cstr(    "<Prime/>").
+    [     "<Prime/>"].
 para('oline'(_,_))  -->
-    cstr(    "<oline/>").
+    [     "<oline/>"].
 para('frasl'(_,_))  -->
-    cstr(    "<frasl/>").
+    [     "<frasl/>"].
 para('weierp'(_,_))  -->
-    cstr(   "<weierp/>").
+    [    "<weierp/>"].
 para('image'(_,_))  -->
-    cstr(    "<imaginary/>").
+    [     "<imaginary/>"].
 para('real'(_,_))  -->
-    cstr(     "<real/>").
+    [      "<real/>"].
 para('trade'(_,_))  -->
-    cstr(    "<trademark/>").
+    [     "<trademark/>"].
 para('alefsym'(_,_))  -->
-    cstr(  "<alefsym/>").
+    [   "<alefsym/>"].
 para('larr'(_,_))  -->
-    cstr(     "<larr/>").
+    [      "<larr/>"].
 para('uarr'(_,_))  -->
-    cstr(     "<uarr/>").
+    [      "<uarr/>"].
 para('rarr'(_,_))  -->
-    cstr(     "<rarr/>").
+    [      "<rarr/>"].
 para('darr'(_,_))  -->
-    cstr(     "<darr/>").
+    [      "<darr/>"].
 para('harr'(_,_))  -->
-    cstr(     "<harr/>").
+    [      "<harr/>"].
 para('crarr'(_,_))  -->
-    cstr(    "<crarr/>").
+    [     "<crarr/>"].
 para('lArr'(_,_))  -->
-    cstr(     "<lArr/>").
+    [      "<lArr/>"].
 para('uArr'(_,_))  -->
-    cstr(     "<uArr/>").
+    [      "<uArr/>"].
 para('rArr'(_,_))  -->
-    cstr(     "<rArr/>").
+    [      "<rArr/>"].
 para('dArr'(_,_))  -->
-    cstr(     "<dArr/>").
+    [      "<dArr/>"].
 para('hArr'(_,_))  -->
-    cstr(     "<hArr/>").
+    [      "<hArr/>"].
 para('forall'(_,_))  -->
-    cstr(   "<forall/>").
+    [    "<forall/>"].
 para('part'(_,_))  -->
-    cstr(     "<part/>").
+    [      "<part/>"].
 para('exist'(_,_))  -->
-    cstr(    "<exist/>").
+    [     "<exist/>"].
 para('empty'(_,_))  -->
-    cstr(    "<empty/>").
+    [     "<empty/>"].
 para('nabla'(_,_))  -->
-    cstr(    "<nabla/>").
+    [     "<nabla/>"].
 para('isin'(_,_))  -->
-    cstr(     "<isin/>").
+    [      "<isin/>"].
 para('notin'(_,_))  -->
-    cstr(    "<notin/>").
+    [     "<notin/>"].
 para('ni'(_,_))  -->
-    cstr(       "<ni/>").
+    [        "<ni/>"].
 para('prod'(_,_))  -->
-    cstr(     "<prod/>").
+    [      "<prod/>"].
 para('sum'(_,_))  -->
-    cstr(      "<sum/>").
+    [       "<sum/>"].
 para('minus'(_,_))  -->
-    cstr(    "<minus/>").
+    [     "<minus/>"].
 para('lowast'(_,_))  -->
-    cstr(   "<lowast/>").
+    [    "<lowast/>"].
 para('radic'(_,_))  -->
-    cstr(    "<radic/>").
+    [     "<radic/>"].
 para('prop'(_,_))  -->
-    cstr(     "<prop/>").
+    [      "<prop/>"].
 para('infin'(_,_))  -->
-    cstr(    "<infin/>").
+    [     "<infin/>"].
 para('ang'(_,_))  -->
-    cstr(      "<ang/>").
+    [       "<ang/>"].
 para('and'(_,_))  -->
-    cstr(      "<and/>").
+    [       "<and/>"].
 para('or'(_,_))  -->
-    cstr(       "<or/>").
+    [        "<or/>"].
 para('cap'(_,_))  -->
-    cstr(      "<cap/>").
+    [       "<cap/>"].
 para('cup'(_,_))  -->
-    cstr(      "<cup/>").
+    [       "<cup/>"].
 para('int'(_,_))  -->
-    cstr(      "<int/>").
+    [       "<int/>"].
 para('there4'(_,_))  -->
-    cstr(   "<there4/>").
+    [    "<there4/>"].
 para('sim'(_,_))  -->
-    cstr(      "<sim/>").
+    [       "<sim/>"].
 para('cong'(_,_))  -->
-    cstr(     "<cong/>").
+    [      "<cong/>"].
 para('asymp'(_,_))  -->
-    cstr(    "<asymp/>").
+    [     "<asymp/>"].
 para('ne'(_,_))  -->
-    cstr(       "<ne/>").
+    [        "<ne/>"].
 para('equiv'(_,_))  -->
-    cstr(    "<equiv/>").
+    [     "<equiv/>"].
 para('le'(_,_))  -->
-    cstr(       "<le/>").
+    [        "<le/>"].
 para('ge'(_,_))  -->
-    cstr(       "<ge/>").
+    [        "<ge/>"].
 para('sub'(_,_))  -->
-    cstr(      "<sub/>").
+    [       "<sub/>"].
 para('sup'(_,_))  -->
-    cstr(      "<sup/>").
+    [       "<sup/>"].
 para('nsub'(_,_))  -->
-    cstr(     "<nsub/>").
+    [      "<nsub/>"].
 para('sube'(_,_))  --> 
-    cstr(     "<sube/>").
+    [      "<sube/>"].
 para('supe'(_,_))  -->
-    cstr(     "<supe/>").
+    [      "<supe/>"].
 para('oplus'(_,_))  -->
-    cstr(    "<oplus/>").
+    [     "<oplus/>"].
 para('otimes'(_,_))  -->
-    cstr(   "<otimes/>").
+    [    "<otimes/>"].
 para('perp'(_,_))  -->
-    cstr(     "<perp/>").
+    [      "<perp/>"].
 para('sdot'(_,_))  -->
-    cstr(     "<sdot/>").
+    [      "<sdot/>"].
 para('lceil'(_,_))  -->
-    cstr(    "<lceil/>").
+    [     "<lceil/>"].
 para('rceil'(_,_))  -->
-    cstr(    "<rceil/>").
+    [     "<rceil/>"].
 para('lfloor'(_,_))  -->
-    cstr(   "<lfloor/>").
+    [    "<lfloor/>"].
 para('rfloor'(_,_))  -->
-    cstr(   "<rfloor/>").
+    [    "<rfloor/>"].
 para('lang'(_,_))  -->
-    cstr(     "<lang/>").
+    [      "<lang/>"].
 para('rang'(_,_))  -->
-    cstr(     "<rang/>").
+    [      "<rang/>"].
 para('loz'(_,_))  -->
-    cstr(      "<loz/>").
+    [       "<loz/>"].
 para('spades'(_,_))  -->
-    cstr(   "<spades/>").
+    [    "<spades/>"].
 para('clubs'(_,_))  -->
-    cstr(    "<clubs/>").
+    [     "<clubs/>"].
 para('hearts'(_,_))  -->
-    cstr(   "<hearts/>").
+    [    "<hearts/>"].
 para('diams'(_,_))  -->
-    cstr(    "<diams/>").
-para('quot'(_,_))  -->
-    cstr("&quot;").
+    [     "<diams/>"].
 para('amp'(_,_))  -->
-    cstr(      "&amp;").
+    [       "&amp;"].
 para('lt'(_,_))  -->
-    cstr(       "&lt;").
+    [        "&lt;"].
 para('gt'(_,_))  -->
-    cstr(       "&gt;").
+    [        "&gt;"].
 para('OElig'(_,_))  -->
-    cstr(    "<OElig/>").
+    [     "<OElig/>"].
 para('oelig'(_,_))  -->
-    cstr(    "<oelig/>").
+    [     "<oelig/>"].
 para('Scaron'(_,_))  -->
-    cstr(   "<Scaron/>").
+    [    "<Scaron/>"].
 para('scaron'(_,_))  -->
-    cstr(   "<scaron/>").
+    [    "<scaron/>"].
 para('Yuml'(_,_))  -->
-    cstr(     "<Yumlaut/>").
+    [      "<Yumlaut/>"].
 para('circ'(_,_))  -->
-    cstr(     "<circ/>").
+    [      "<circ/>"].
 para('tilde'(_,_))  -->
-    cstr(    "<tilde/>").
+    [     "<tilde/>"].
 para(ensp(_,_)) -->
-    cstr("<ensp/>").
+    [ "<ensp/>"].
 para('emsp'(_,_))  -->
-    cstr("<emsp/>").
+    [ "<emsp/>"].
 para('thinsp'(_,_))  -->
-    cstr(  "<thinsp/>").
+    [   "<thinsp/>"].
 para('zwnj'(_,_))  -->
-    cstr( "<zwnj/>").
+    [  "<zwnj/>"].
 para('zwj'(_,_)) -->
-    cstr("<zwj/>").
+    [ "<zwj/>"].
 para('lrm'(_,_)) -->
-    cstr("<lrm/>").
+    [ "<lrm/>"].
 para('rlm'(_,_)) -->
-    cstr("<rlm/>").
+    [ "<rlm/>"].
 para('ndash'(_,_)) -->
-    cstr("<ndash/>").
+    [ "<ndash/>"].
 para('mdash'(_,_)) -->
-    cstr("<mdash/>").
+    [ "<mdash/>"].
 para('lsquo'(_,_)) -->
-    cstr("<lsquo/>").
+    [ "<lsquo/>"].
 para('rsquo'(_,_)) -->
-    cstr("<rsquo/>").
+    [ "<rsquo/>"].
 para('sbquo'(_,_)) -->
-    cstr("<sbquo/>").
+    [ "<sbquo/>"].
 para('ldquo'(_,_)) -->
-    cstr("<ldquo/>").
+    [ "<ldquo/>"].
 para('rdquo'(_,_)) -->
-    cstr("<rdquo/>").
+    [ "<rdquo/>"].
 para('bdquo'(_,_)) -->
-    cstr("<bdquo/>").
+    [ "<bdquo/>"].
 para('dagger'(_,_)) -->
-    cstr("<dagger/>").
+    [ "<dagger/>"].
 para('Dagger'(_,_)) -->
-    cstr("<Dagger/>").
+    [ "<Dagger/>"].
 para('permil'(_,_)) -->
-    cstr("<permil/>").
+    [ "<permil/>"].
 para('lsaquo'(_,_)) -->
-    cstr("<lsaquo/>").
+    [ "<lsaquo/>"].
 para('rsaquo'(_,_)) -->
-    cstr("<rsaquo/>").
+    [ "<rsaquo/>"].
 para('euro'(_,_)) -->
-    cstr("<euro/>").
+    [ "<euro/>"].
 
 %  // doxygen extension to the HTML4 table of HTML entities
 para('tm'(_,_))  -->
-    cstr(   "<tm/>").
+    [    "<tm/>"].
 para('apos'(_,_))  -->
-    cstr("&apos;").
+    [ "&apos;"].
 
 %  // doxygen commands represented as HTML entities
 para('BSlash'(_,_)) -->
-    cstr("\\").
+    [ "\\"].
 para('BSlash'(_,_)) -->
-    cstr("@").
+    [ "@"].
 para('Less'(_,_)) -->
-    cstr("&lt;").
+    [ "&lt;"].
 para('Greater'(_,_)) -->
-    cstr("&lt;").
+    [ "&lt;"].
 %<!-- end workaround for xsd.exe -->
 unimpl(Cmd,Arg) -->
     { format(user_error,'unimplemented: ~w (called with ~w)',[Cmd,Arg]) }.
 
 
-    
- 
-cstr(A,S0,SF) :-
-    string_concat(S0,A, SF).
 
-mcstr(A,S0,SF) :-
-    string_concat([S0|A], SF).
-
-
-
-split_domains([],[],[],[]).
-split_domains([briefdescription-A|All],[A|Bs],Ds,Ts):-
+split_domains([,,,]).
+split_domains([briefdescription-A|All,A|Bs],Ds,Ts):-
     !,
     split_domains(All,Bs,Ds,Ts).
 split_domains([detaileddescription-A|All],Bs,[A|Ds],Ts):-
@@ -1713,28 +1531,30 @@ split_domains([_-A|All],Bs,Ds,[A|Ts]):-
 
 
 ref(S,W) -->
-    {string_chars(S,Cs),
+   {string_chars(S,Cs), fail,
+
      length(Pos,34),
      append(_Prefix,['_'|Pos],Cs),
      maplist(char_type_alnum, Pos),
      !,
      string_chars(P,Pos)
     },
-    mcstr(["[",W,"](#",P,")"]).
+    ["["].
+%[W,"](#",P,"])"].
 ref(S,W) -->
-    mcstr(["[",W,"](",S,")"]).
-
- defref(S,W) -->
-    {string_chars(S,Cs),
+    ["[",W,"[](",S,")"].
+/* defre`f(S,W) -->
+    {fail,
+string_chars(S,Cs),
      length(Pos,34),
      append(_Prefix,['_'|Pos],Cs),
      maplist(char_type_alnum, Pos)
     },
     !,
     {string_chars(BS,Pos)},
-    mcstr(["\n - ()[]{#",BS,"} ",W]).
+    ["\n - ()[]{#",BS,"} ",W]. */
 defref(S,W) -->
-    mcstr(["\n - ()[]{",S,"} ",W]).
+    ["\n - ()[]{",S,"} ",W].
    
     
 

@@ -69,31 +69,9 @@ comma(X,Y,Z,A,B,C) :-
     call(Y),
     call(Z),
     call(A),
-    call(B),
-    call(C).
-    
-comma(X,Y,Z,A,B,C,D) :-
-    call(X),
-    call(Y),
-    call(Z),
-    call(A),
-    call(B),
-    call(C),
-    call(D).
-     
-comma(X,Y,Z,A,B,C,D,E) :-
-    call(X),
-    call(Y),
-    call(Z),
-    call(A),
-    call(B),
-    call(C),
-    call(D),
-    call(E).
-     
-            
-    /** @pred   0:P ; 0:Q  is iso
-Disjuncjtion of goals (or).
+               /** @pred   ';'( 0:P , 0:Q)  is iso
+
+@brief Disjunction of goals (or).
 
 Example:
 

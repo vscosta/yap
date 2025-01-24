@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     FILE *f = fopen(argv[1],"r");
 
     while ((getline(&line,&n,f)) >0) {
-      bool code_comment;
+      bool code_comment=false;
       char *line0 = start = line;
       if (!in_star) {
 	if ((start = strstr(line, "//"))) {

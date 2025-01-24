@@ -143,7 +143,6 @@ YAPTerm(Term tn) { mk(tn); }; ///< private method to convert from Term (internal
     mk(Yap_MkApplTerm(f,arity,nts.data()));
     };
 YAP_tag_t tag();
- 
 
 
   Term deepCopy(); ///< copy the term ( term copy )
