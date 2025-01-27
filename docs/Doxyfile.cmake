@@ -67,6 +67,9 @@ set( DOXYGEN_EXCLUDE
      ${CMAKE_SOURCE_DIR}/packages/cuda
      ${CMAKE_SOURCE_DIR}/packages/meld
      ${CMAKE_SOURCE_DIR}/packages/cplint
+     ${CMAKE_SOURCE_DIR}/packages/swig
+     ${CMAKE_SOURCE_DIR}/packages/myddas
+     ${CMAKE_SOURCE_DIR}/packages/python
      ${CMAKE_SOURCE_DIR}/include/SWI-Prolog.h
      ${CMAKE_SOURCE_DIR}/C/absmi_insts.i)
 
@@ -106,7 +109,7 @@ set (DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/assets/css/solarized
   set(DOXYGEN_MARKDOWN_SUPPORT YES)
   set(DOXYGEN_TOC_INCLUDE_HEADINGS 5  )
   set(DOXYGEN_AUTOLINK_SUPPORT YES  )
-  set(DOXYGEN_CASE_SENSE_NAMES NO)
+  set(DOXYGEN_CASE_SENSE_NAMES YES)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
@@ -138,8 +141,7 @@ doxygen_add_docs(
      ${CMAKE_SOURCE_DIR}/pl
 ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
-       ${CMAKE_SOURCE_DIR}/packages
-       ${CMAKE_SOURCE_DIR}/OPTYap
+{CMAKE_SOURCE_DIR}/OPTYap
 COMMENT "Generating Xmls"
 )
 

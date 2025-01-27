@@ -94,15 +94,16 @@ trl(compound( OAtts,_OProps) ,IDir,ODir) :-
     
     XML = [doxygen(_,XMLData)],
     XMLData = [compounddef(_Atts,Children)],
-
       Children=[compoundname([],[Name])|Ch2],
-      State = [id=Id,kind="class",name=Name],
+      State = [classes=_,groups=_,pages=_,id=Id,kind="class",name=Name],
       writeln(Id),
  (
-foldl(process_all(State),Ch2,[],AllRaw)
+foldl(process_all(State),Ch2,[]-[]-[],AllRaw-Briefs-Details)
 ->
-%    split_domains(AllRaw,[Brief],[Details],FullText),
-     string_concat(["# ",Name, "   ",AllRaw],All),
+string_concat(AllRaw,Info),
+string_concat(Briefs,Bs),
+string_concat(Details,Ds),
+     string_concat(["# ",Name, "\n\n",Bs,"\n\n\n",Ds,"\n\n",Info],All),
  %brief,"\n\n",Details,"\n\n",FullText],All),
        atom_concat([ODir,"/",Id,'.md'],OFile),
     open(OFile,write,O),
@@ -112,11 +113,17 @@ foldl(process_all(State),Ch2,[],AllRaw)
     true
     ).
 
-process_all(State,Op,S0,String) :-
+process_all(State,Op,S0s,SFs) :-
       functor(Op,_N,_),
       process(State,Op,Strings,[]),
-string_concat([S0|Strings],String),
-  !.
+string_concat(Strings,SC),
+add2strings(Op,SC,S0s,SFs).
+
+add2strings(briefdescription(_,_),Strings,S-Sb-Sd,S-[Strings|Sb]-Sd) :-
+!.
+add2strings(detaileddescription(_,_),Strings,S-Sb-Sd,S-Sb-[Strings|Sd]) :-
+!.
+add2strings(_Op,Strings,S-Sb-Sd,[Strings|S]-Sb-Sd).
 
 
 process(State,basecompoundref(Atts,Children)) -->
@@ -136,9 +143,15 @@ process(State,derivedcompoundref(Atts,Children)) -->
     % ignoreseq(NState,innerdir(_,_),Innermodule,Innerdir),
     % ignoreseq(NState,innerfile(_,_),Innerdir,Innerfile),
     % ignoreseq(NState,innerclass(_,_),Innerfile,Innerclass),
-    % ignoreseq(NState,innernamespace(_,_),Innerclass,Innernamespace),
-    % ignoreseq(NState,innerpage(_,_),Innernamespace,Innerpage),
-    % ignoreseq(NState,innergroup(_,_),Innerpage,Innergroup),
+process(State,innerclass(Atts,Children)) -->
+    !,
+    innerclass(State,Atts,Children).    % ignoreseq(NState,innernamespace(_,_),Innerclass,Innernamespace),
+process(State,innerpage(Atts,Children)) -->
+    !,
+    innerpage(State,Atts,Children).
+process(State,innergroup(Atts,Children)) -->
+    !,
+    innergroup(State,Atts,Children).
     % ignoreseq(NState,qualifier(_,_),Innergroup,Qualifier),
     % ignoreseq(NState,templateparamlist(_,_),Qualifier,Templateparamlist),
 process(_,sectiondef(Atts,Children)) -->
@@ -160,8 +173,78 @@ process(_,detaileddescription(Atts,Children)) -->
     % ignoreseq(NState,programlisting(_,_),Collaborationgraph,Programlisting),
     % ignoreseq(NState,location(_,_),Programlisting,Location),
     % ignoreseq(NState,listofallmembers(_,_),Location,[]).
-
 process(_,_)--> [].
+
+
+innerclass(Status,[refid(Ref)],[Label]) -->
+    {
+      key_in(classes=Found,Status),
+      var(Found),
+      !,
+      Found=found
+    },
+    ["\n\n### Predicates and/or Classes:\n"],
+    ["\n\n1. "],
+    ref(Ref,Label),
+    ["\n."].
+innerclass(_Status,[refid(Ref)],[Label]) -->
+    ["\n1. "],
+    ref(Ref,Label),
+    ["\n."].
+
+
+innergroup(Status,[refid(Ref)],[Label]) -->
+    {
+      key_in(groups=Found,Status),
+      var(Found),
+      !,
+      Found=found
+    },
+    ["\n\n### Groups:\n"],
+    ["\n\n1. "],
+    ref(Ref,Label),
+    ["\n."].
+innergroup(_Status,[refid(Ref)],[Label]) -->
+    ["\n\n1. "],
+    ref(Ref,Label),
+    ["\n"].
+
+innerpage(Status,[refid(Ref)],[Label]) -->
+    {
+      key_in(pages=Found,Status),
+      var(Found),
+      !,
+      Found=found
+    },
+    ["\n\n\n### Pages:\n"],
+    ["\n1. "],
+    ref(Ref,Label),
+    ["\n."].
+innerpage(_Status,[refid(Ref)],[Label]) -->
+    ["\n1. "],
+    ref(Ref,Label),
+    ["\n."].
+
+
+innermodule(Status,[refid(Ref)],[Label]) -->
+    {
+      key_in(modules=Found,Status),
+      var(Found),
+      !,
+      Found=found
+    },
+    ["\n\n\n### Modules:\n"],
+    ["\n1. "],
+    ref(Ref,Label),
+    ["\n."].
+innermodule(_Status,[refid(Ref)],[Label]) -->
+    ["\n1. "],
+    ref(Ref,Label),
+    ["\n."].
+
+
+
+
 
 sectiondef(Atts,Els) -->
     {
@@ -268,15 +351,25 @@ separatedescription([D|Detailed]) -->
 
 
 mkraw(codeline(_,Line)) -->
-    [ "\n"],
-    raw(Line).
-    
-     raw([A|Text]) -->
+   [ "\n"],
+    rawl(Line).
+
+     rawl([]) -->
+!.
+     rawl([A|Text]) -->
     foldl(raw,[A|Text]).
  
     raw(highlight(_,Text)) -->
     !,
-    raw( Text).
+    rawl( Text).
+
+
+
+    raw(Text) -->
+{string(Text)},
+!,
+    [ Text].
+    %  foldl(para).
 
     raw(Text) -->
     para( Text).
@@ -308,7 +401,9 @@ typel("I") -->
 
 description(para([],S)) -->
     !,
-    description(S).
+    ["\n\n"],
+    description(S),
+      ["\n\n"].
 description(S) -->
     { string(S) },
     !,
@@ -318,8 +413,8 @@ description(title([],S)) -->
     !,
     [S].
 description(sect1([],S)) -->
-    !,
-    ["### "],
+    !, 
+   ["### "],
     (
       key_in(title(_,T),S)
       ->
@@ -1587,31 +1682,69 @@ inner(S,P) :-
       !,
    string_chars(P,Pos).
 
+%% ref(+Link,+Name)
+% translate a ref to mkdocs
+%
 ref(S,W) -->
    { inner(S,P)
    },
    !,
-    ["[",W,"](#",P,"])"].
+   { to_predicate(W,L)
+   },
+
+  { format(string(Str),'[~s][~s]' ,[P,L]) },
+   [Str].
 ref(S,W) -->
+   { to_predicate(W,L)
+   },
+   { format(string(Str),'[~s](~s)' ,[S,L]) },
+    [Str].
     
-    ["[",W,"](",S,")"].
-
- defref(S,W) -->
+%% ref(+Link,+Name)
+% create a new target
+%
+defref(S,_W) -->
    { inner(S,P)
    },
    !,
-    [" ()[]{#",P,"} ",W].
-defref(S,W) -->
-    {var(S)  -> S = ""; true},
-    {var(W)  -> W = ""; true},
-    [" ()[]{",S,"} ",W].
-   
-
-
-
+   {format(string(Str),'[](){~s}' ,[P]) },
+   [Str].
+defref(S,_W) -->
+   {format(string(Str),'[](){~s}' ,[S]) },
+  [Str].
+    
+  
 
   key_in(X,[X|_]) :- !.
   key_in(X,[_|L]) :-
       key_in(X,L).
+
+to_predicate(S,P) :-
+ sub_string(S,_,1,0,EOS),
+ string_chars(EOS, [EOC]),
+char_type_digit(EOC),
+ sub_string(S,0,_,1,ROS),
+ strip_module_from_pred(ROS,EOS,P),
+!.
+to_predicate(P,P).
+
+ strip_module_from_pred(ROS,EOS,Final) :-
+    sub_string(ROS,Left,3,Right,"::P"),
+    !,
+    sub_string(ROS,0,Left,_,Mod),
+    sub_string(ROS,_,Right,0,Name),
+    string_concat([Mod,":",Name,"/",EOS],Final).
+ strip_module_from_pred(ROS,EOS,Final) :-
+    sub_string(ROS,0,1,Left,"P"),
+    !,
+    sub_string(ROS,1,Left,0,Name),
+    string_concat([Name,"/",EOS],Final).
+ strip_module_from_pred(ROS,EOS,Final) :-
+    sub_string(ROS,Left,_,Right,"::"),
+    sub_string(ROS,0,Left,_,NMod),
+    sub_string(ROS,_,Right,0,NPred),
+    strip_module_from_pred(NPred,EOS,SemiFinal),
+    !,
+    string_concat([NMod,":",SemiFinal],Final).
 
 
