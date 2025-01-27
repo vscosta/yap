@@ -176,8 +176,14 @@ process(_,detaileddescription(Atts,Children)) -->
     % ignoreseq(NState,listofallmembers(_,_),Location,[]).
 process(_,_)--> [].
 
+xtract_label([_,[Label]],Label) :-
+!.
+xtract_label([Label],Label) :-
+!.
+xtract_label(Label,Label).
 
-innerclass(Status,[refid(Ref)],[Label]) -->
+innerclass(Status,[refid(Ref)],AllLabel) -->
+{xtract_label(AllLabel,Label)},
     {
       key_in(classes=Found,Status),
       var(Found),
@@ -188,13 +194,15 @@ innerclass(Status,[refid(Ref)],[Label]) -->
     ["\n\n1. "],
     ref(Ref,Label),
     ["\n."].
-innerclass(_Status,[refid(Ref)],[Label]) -->
+innerclass(_Status,[refid(Ref)],AllLabel) -->
+{xtract_label(AllLabel,Label)},
     ["\n1. "],
     ref(Ref,Label),
     ["\n."].
 
 
-innergroup(Status,[refid(Ref)],[Label]) -->
+innergroup(Status,[refid(Ref)],AllLabel) -->
+{xtract_label(AllLabel,Label)},
     {
       key_in(groups=Found,Status),
       var(Found),
@@ -205,12 +213,14 @@ innergroup(Status,[refid(Ref)],[Label]) -->
     ["\n\n1. "],
     ref(Ref,Label),
     ["\n."].
-innergroup(_Status,[refid(Ref)],[Label]) -->
+innergroup(_Status,[refid(Ref)],AllLabel) -->
+{xtract_label(AllLabel,Label)},
     ["\n\n1. "],
     ref(Ref,Label),
     ["\n"].
 
-innerpage(Status,[refid(Ref)],[Label]) -->
+innerpage(Status,[refid(Ref)],AllLabel) -->
+{xtract_label(AllLabel,Label)},
     {
       key_in(pages=Found,Status),
       var(Found),
@@ -221,13 +231,15 @@ innerpage(Status,[refid(Ref)],[Label]) -->
     ["\n1. "],
     ref(Ref,Label),
     ["\n."].
-innerpage(_Status,[refid(Ref)],[Label]) -->
+innerpage(_Status,[refid(Ref)],AllLabel) -->
+{xtract_label(AllLabel,Label)},
     ["\n1. "],
     ref(Ref,Label),
     ["\n."].
 
 
-innermodule(Status,[refid(Ref)],[Label]) -->
+innermodule(Status,[refid(Ref)],AllLabel) -->
+{xtract_label(AllLabel,Label)},
     {
       key_in(modules=Found,Status),
       var(Found),
@@ -238,7 +250,8 @@ innermodule(Status,[refid(Ref)],[Label]) -->
     ["\n1. "],
     ref(Ref,Label),
     ["\n."].
-innermodule(_Status,[refid(Ref)],[Label]) -->
+innermodule(_Status,[refid(Ref)],AllLabel) -->
+{xtract_label(AllLabel,Label)},
     ["\n1. "],
     ref(Ref,Label),
     ["\n."].
@@ -265,31 +278,41 @@ v(Msg,S0,S0) :-
 sectdef(header([],[Text]))-->
   ["\n",Text,"\n"].
 sectdef(member(Atts,Children))-->
-    %v(memb:Atts:Children),
     {
-      key_in(refid(Ref),Atts),
-      (
+      key_in(refid(Ref),Atts)
+    },
+    {
+  (
 key_in(defname(_,[Name] ),Children)
 ->
 true
 ;
 key_in(name(_,[Name] ),Children)
 ;
-writeln(Children)
+Name = "" %writeln(Children)
 )
-    },
-    defref(Ref,Name).
+},
+{writeln(Children:PName)},
+["%- " ], ref(Ref,Name).
+
 sectdef(memberdef(Atts,Children))-->
+{writeln(Children:Atts)},
     %>v(def:Atts:Children),
     {
-      key_in(id(Ref),Atts) },
+      key_in(id(Ref),Atts)
+    },
       (
 	{ key_in(qualifiedname(_,[Name] ),Children) }
 	->
-	[]
+    {to_predicate(Name, PName) }
 	;
-	{ key_in(name(_,[Name] ),Children) }
+	{key_in(name(_,[Name] ),Children) } ->
+   { to_predicate(Name, PName) };
+{ PName = "" }
       ),
+{short_ref(Ref, PRef) },
+format(string(Header), '\n* ~s:              {#}\n', [PRef,PName])
+[Header],
       (
 	{key_in(definition([],[Def]),Children)}
 	
@@ -297,12 +320,7 @@ sectdef(memberdef(Atts,Children))-->
 	;
 	[]
       ),
-
-
-
-
-    ref(Ref,Name),
-
+                                                     
 
   (	{ key_in(briefdescription([],Brief),Children) }
 
@@ -1683,10 +1701,15 @@ inner(S,P) :-
       !,
    string_chars(P,Pos).
 
+
+short_ref(Ref,Short) :-
+inner(Ref,Short).
+
 %% ref(+Link,+Name)
 % translate a ref to mkdocs
 %
 ref(S,W) -->
+    {writeln(S:W)},
    { inner(S,P)
    },
    !,
@@ -1704,15 +1727,7 @@ ref(S,W) -->
 %% ref(+Link,+Name)
 % create a new target
 %
-defref(S,_W) -->
-   { inner(S,P)
-   },
-   !,
-   {format(string(Str),'[](){~s}' ,[P]) },
-   [Str].
-defref(S,_W) -->
-   {format(string(Str),'[](){~s}' ,[S]) },
-  [Str].
+
     
   
 

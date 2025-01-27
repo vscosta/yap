@@ -145,6 +145,7 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
       T =.. [N1|NIs]
     ),
     (
+      false,
       is_exported(N,A)
       ->
       format(' class  ~s { ~w;~n};~n~n~n',[ N1,T])
@@ -341,7 +342,7 @@ addcomm(N/A,false) :-
     length(L,A),
     maplist(=('?'),L),
     T =.. [N|L],
-    format('~n~n/**   @class Pf~s~d	~n ~w  @details (undocumented)  **/~n~n~n~n',[N,A,T]).
+    format('~n~n/**   @class P~s~d	~n ~w  @details (undocumented)  **/~n~n~n~n',[N,A,T]).
 addcomm(_,_).
 
 :- initialization(main).
