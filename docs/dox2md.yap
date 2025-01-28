@@ -13,34 +13,34 @@
 /* #t4970 nE44T This program first */
 :- set_prolog_flag(double_quotes, string).
 
-:- multifile  brief/2.
+:- multifile  brief/2, visited/1.
 
-  main :-
-      unix(argv(Params)),
-      main_process(Params).
+main :-
+    unix(argv(Params)),
+    main_process(Params).
 
-  main_process([IDir,ODir]) :-
-      exists_directory(IDir),
-      !,
+main_process([IDir,ODir]) :-
+    exists_directory(IDir),
+    !,
     (
-      sub_atom(IDir,_,1,0,'/')
-      ->
-      IDir= InputDir
-      ;
-      atom_concat(IDir,'/',InputDir)
+	sub_atom(IDir,_,1,0,'/')
+    ->
+    IDir= InputDir
+    ;
+    atom_concat(IDir,'/',InputDir)
     ),
     atom_concat(InputDir,'index.xml',Index),
     xml_load(Index,[doxygenindex(_,XMLTasks)]),
     (
-      sub_atom(ODir,_,1,0,'/')
-      ->
-      ODir= OutputDir
-      ;
-      atom_concat(ODir,'/',OutputDir)
+	sub_atom(ODir,_,1,0,'/')
+    ->
+    ODir= OutputDir
+    ;
+    atom_concat(ODir,'/',OutputDir)
     ),
     forall((enum(XMLTasks,ID),group(ID)),(scan(ID,InputDir,OutputDir))),
     forall((enum(XMLTasks,ID),group(ID)),(trl( ID,InputDir,OutputDir))),
-  forall((enum(XMLTasks,ID),class(ID)),(trl( ID,InputDir,OutputDir))).
+    forall((enum(XMLTasks,ID),class(ID)),(trl( ID,InputDir,OutputDir))).
 
 enum([_|XMLTasks],ID) :-
     member(ID,XMLTasks).
@@ -49,19 +49,19 @@ enum([_|XMLTasks],ID) :-
 group(compound( OAtts,_OProps)) :-
     key_in(kind(Kind),OAtts),
     (
- Kind == "group"
-      ->
-      true
-      ;
- Kind == "page"
+	Kind == "group"
+    ->
+    true
+    ;
+    Kind == "page"
     
     ).
 
 class(compound( OAtts,_OProps)) :-
-       key_in(kind(Kind),OAtts),
+    key_in(kind(Kind),OAtts),
     (
-      Kind == "class"
-     
+	Kind == "class"
+    
     ).
 
 scan(compound(OAtts,_OProps) , IDir,_ODir) :-
@@ -69,22 +69,28 @@ scan(compound(OAtts,_OProps) , IDir,_ODir) :-
     writeln(Id),
     atom_concat([IDir,Id,'.xml'], IFile),
     catch(xml_load(IFile,XML),Error,(printf("failed while processsing ~w: ~w",[Id,Error]), fail)),
-     XML = [doxygen(_,XMLData)],
-      XMLData = [compounddef(_Atts,Children)],
-      (
+    XML = [doxygen(_,XMLData)],
+    XMLData = [compounddef(_Atts,Children)],
+    (
 	key_in(briefdescription(BArgs,Paras),Children),
 	briefs([briefdescription(BArgs,Paras)],Brief,[]),
 	assert_static(brief(Id,Brief))
-	;
-	true
-      ).
+    ;
+    true
+    ).
 
 trl(compound( OAtts,_OProps) ,IDir,ODir) :-
-   key_in(refid(Id),OAtts),
+    key_in(refid(Id),OAtts),
+    visited(Id),
+    !.
+
+trl(compound( OAtts,_OProps) ,IDir,ODir) :-
+    key_in(refid(Id),OAtts),
+    assert_static(visited(Id)),
     writeln(Id),
     atom_concat([IDir,Id,'.xml'], IFile),
     (
-    catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]),fail))
+	catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]),fail))
     ->
     true
     ;
@@ -94,19 +100,19 @@ trl(compound( OAtts,_OProps) ,IDir,ODir) :-
     
     XML = [doxygen(_,XMLData)],
     XMLData = [compounddef(_Atts,Children)],
-      Children=[compoundname([],[Name])|Ch2],
-      State = [classes=_,groups=_,pages=_,id=Id,kind="class",name=Name],
-      writeln(Id),
- (
-foldl(process_all(State),Ch2,[]-[]-[],AllRaw-Briefs-Details)
-->
-string_concat(AllRaw,Info),
-string_concat(Briefs,Bs),
-string_concat(Details,Ds),
-to_predicate(Name,PName),
-     string_concat(["# ",PName, "\n\n",Bs,"\n\n\n",Ds,"\n\n",Info],All),
- %brief,"\n\n",Details,"\n\n",FullText],All),
-       atom_concat([ODir,"/",Id,'.md'],OFile),
+    Children=[compoundname([],[Name])|Ch2],
+    State = [idir=IDir,odir=ODir,classes=_,groups=_,pages=_,id=Id,kind="class",name=Name],
+    writeln(Id),
+    (
+	foldl(process_all(State),Ch2,[]-[]-[],AllRaw-Briefs-Details)
+    ->
+    string_concat(AllRaw,Info),
+    string_concat(Briefs,Bs),
+    string_concat(Details,Ds),
+    to_predicate(Name,PName),
+    string_concat(["# ",PName, "\n\n",Bs,"\n\n\n",Ds,"\n\n",Info],All),
+    %brief,"\n\n",Details,"\n\n",FullText],All),
+    atom_concat([ODir,"/",Id,'.md'],OFile),
     open(OFile,write,O),
     format(O,'~s',[All]),
     close(O)
@@ -115,15 +121,15 @@ to_predicate(Name,PName),
     ).
 
 process_all(State,Op,S0s,SFs) :-
-      functor(Op,_N,_),
-      process(State,Op,Strings,[]),
-string_concat(Strings,SC),
-add2strings(Op,SC,S0s,SFs).
+    functor(Op,_N,_),
+    process(State,Op,Strings,[]),
+    string_concat(Strings,SC),
+    add2strings(Op,SC,S0s,SFs).
 
 add2strings(briefdescription(_,_),Strings,S-Sb-Sd,S-[Strings|Sb]-Sd) :-
-!.
+    !.
 add2strings(detaileddescription(_,_),Strings,S-Sb-Sd,S-Sb-[Strings|Sd]) :-
-!.
+    !.
 add2strings(_Op,Strings,S-Sb-Sd,[Strings|S]-Sb-Sd).
 
 
@@ -133,17 +139,17 @@ process(State,basecompoundref(Atts,Children)) -->
 process(State,derivedcompoundref(Atts,Children)) -->
     !,
     seq(State,derivedcompoundref(Atts,Children)).
-    % incType
-    % ignoreseq(NState,includes(_,_),Derivedmpoundref,Includes),
-    % ignoreseq(NState,includedby(_,_),Includes,Includedby),
-    % graphType
-    % ignoreseq(NState,incdepgraph(_,_),Includedby,Incdepgraph),
-    % ignoreseq(NState,invincdepgraph(_,_),Incdepgraph,Invincdepgraph),
-    % refType
-    % ignoreseq(NState,innermodule(_,_),Invincdepgraph,Innermodule),
-    % ignoreseq(NState,innerdir(_,_),Innermodule,Innerdir),
-    % ignoreseq(NState,innerfile(_,_),Innerdir,Innerfile),
-    % ignoreseq(NState,innerclass(_,_),Innerfile,Innerclass),
+% incType
+% ignoreseq(NState,includes(_,_),Derivedmpoundref,Includes),
+% ignoreseq(NState,includedby(_,_),Includes,Includedby),
+% graphType
+% ignoreseq(NState,incdepgraph(_,_),Includedby,Incdepgraph),
+% ignoreseq(NState,invincdepgraph(_,_),Incdepgraph,Invincdepgraph),
+% refType
+% ignoreseq(NState,innermodule(_,_),Invincdepgraph,Innermodule),
+% ignoreseq(NState,innerdir(_,_),Innermodule,Innerdir),
+% ignoreseq(NState,innerfile(_,_),Innerdir,Innerfile),
+% ignoreseq(NState,innerclass(_,_),Innerfile,Innerclass),
 process(State,innerclass(Atts,Children)) -->
     !,
     innerclass(State,Atts,Children).    % ignoreseq(NState,innernamespace(_,_),Innerclass,Innernamespace),
@@ -153,105 +159,115 @@ process(State,innerpage(Atts,Children)) -->
 process(State,innergroup(Atts,Children)) -->
     !,
     innergroup(State,Atts,Children).
-    % ignoreseq(NState,qualifier(_,_),Innergroup,Qualifier),
-    % ignoreseq(NState,templateparamlist(_,_),Qualifier,Templateparamlist),
+% ignoreseq(NState,qualifier(_,_),Innergroup,Qualifier),
+% ignoreseq(NState,templateparamlist(_,_),Qualifier,Templateparamlist),
 process(_,sectiondef(Atts,Children)) -->
     !,
     sectiondef(Atts,Children).
-    % ignoreseq(NState,tableofcontents(_,_),Sectiondef,Tableofcontents),
-    % ignoreseq(NState,requiresclause(_,_),Tableofcontents,Requiresclause),
-    % ignoreseq(NState,initializer(_,_),Requiresclause,Initializer),
+% ignoreseq(NState,tableofcontents(_,_),Sectiondef,Tableofcontents),
+% ignoreseq(NState,requiresclause(_,_),Tableofcontents,Requiresclause),
+% ignoreseq(NState,initializer(_,_),Requiresclause,Initializer),
 process(_,briefdescription(Atts,Children)) -->
     !,
     briefs(briefdescription(Atts,Children)).
 process(_,detaileddescription(Atts,Children)) -->
     %!,
     detaileds(detaileddescription(Atts,Children)),!.
-    % ignoreseq(NState,exports(_,_),Detammmmtrnnmmmjjjjjileddescription,Exports),
-    % ignoreseq(NState,inheritancegraph(_,_),Exports,Inheritancegraph),
+% ignoreseq(NState,exports(_,_),Detammmmtrnnmmmjjjjjileddescription,Exports),
+% ignoreseq(NState,inheritancegraph(_,_),Exports,Inheritancegraph),
 
 % ignoreseq(NState,collaborationgraph(_,_),Inheritancegraph,Collaborationgraph),
-    % ignoreseq(NState,programlisting(_,_),Collaborationgraph,Programlisting),
-    % ignoreseq(NState,location(_,_),Programlisting,Location),
-    % ignoreseq(NState,listofallmembers(_,_),Location,[]).
+% ignoreseq(NState,programlisting(_,_),Collaborationgraph,Programlisting),
+% ignoreseq(NState,location(_,_),Programlisting,Location),
+% ignoreseq(NState,listofallmembers(_,_),Location,[]).
 process(_,_)--> [].
 
 xtract_label([_,[Label]],Label) :-
-!.
+    !.
 xtract_label([Label],Label) :-
-!.
+    !.
 xtract_label(Label,Label).
 
-innerclass(Status,[refid(Ref)],AllLabel) -->
-{xtract_label(AllLabel,Label)},
+innerclass(Status,Atts,AllLabel) -->
+    {key_in(refid(Ref),Atts),
+     xtract_label(AllLabel,Label)},
     {
-      key_in(classes=Found,Status),
-      var(Found),
-      !,
-      Found=found
+	key_in(classes=Found,Status),
+	var(Found),
+	!,
+	Found=found
     },
     ["\n\n### Predicates and/or Classes:\n"],
-    ["\n\n1. "],
-    ref(Ref,Label),
-    ["\n."].
-innerclass(_Status,[refid(Ref)],AllLabel) -->
-{xtract_label(AllLabel,Label)},
-    ["\n1. "],
-    ref(Ref,Label),
-    ["\n."].
+    ["\n\n1. "], 
+    link_inner(Status,Ref,Label).
+innerclass(Status,Atts,AllLabel) -->
+    {key_in(refid(Ref),Atts),
+     xtract_label(AllLabel,Label)},
+    link_inner(Status,Ref,Label).
 
-
-innergroup(Status,[refid(Ref)],AllLabel) -->
-{xtract_label(AllLabel,Label)},
+innergroup(Status,Atts,AllLabel) -->
+    {key_in(refid(Ref),Atts),
+     xtract_label(AllLabel,Label)},
     {
-      key_in(groups=Found,Status),
-      var(Found),
-      !,
-      Found=found
+	key_in(groups=Found,Status),
+	var(Found),
+	!,
+	Found=found
     },
     ["\n\n### Groups:\n"],
-    ["\n\n1. "],
-    ref(Ref,Label),
-    ["\n."].
-innergroup(_Status,[refid(Ref)],AllLabel) -->
-{xtract_label(AllLabel,Label)},
-    ["\n\n1. "],
-    ref(Ref,Label),
-    ["\n"].
+    link_inner(Status,Ref,Label).
+innergroup(Status,Atts,AllLabel) -->
+    {key_in(refid(Ref),Atts),
+     xtract_label(AllLabel,Label)},
+    link_inner(Status,Ref,Label).
 
-innerpage(Status,[refid(Ref)],AllLabel) -->
-{xtract_label(AllLabel,Label)},
+link_inner(Status,Ref,Label) -->
+    ["\n1. "],
+    ref(Ref,Label),
+    ["\n"],
     {
-      key_in(pages=Found,Status),
-      var(Found),
-      !,
-      Found=found
+	key_in(idir=IDir,Status),
+	key_in(odir=ODir,Status),
+	trl(compound([refid(Ref)],[]),IDir,ODir)
+    }.
+
+innerpage(Status,Atts,AllLabel) -->
+    {key_in(refid(Ref),Atts),
+     xtract_label(AllLabel,Label)},
+    {
+	key_in(pages=Found,Status),
+	var(Found),
+	!,
+	Found=found
     },
     ["\n\n\n### Pages:\n"],
     ["\n1. "],
     ref(Ref,Label),
     ["\n."].
-innerpage(_Status,[refid(Ref)],AllLabel) -->
-{xtract_label(AllLabel,Label)},
+innerpage(_Status,Atts,AllLabel) -->
+    {key_in(refid(Ref),Atts),
+     xtract_label(AllLabel,Label)},
     ["\n1. "],
     ref(Ref,Label),
     ["\n."].
 
 
-innermodule(Status,[refid(Ref)],AllLabel) -->
-{xtract_label(AllLabel,Label)},
+innermodule(Status,Atts,AllLabel) -->
+    {key_in(refid(Ref),Atts),
+     xtract_label(AllLabel,Label)},
     {
-      key_in(modules=Found,Status),
-      var(Found),
-      !,
-      Found=found
+	key_in(modules=Found,Status),
+	var(Found),
+	!,
+	Found=found
     },
     ["\n\n\n### Modules:\n"],
     ["\n1. "],
     ref(Ref,Label),
     ["\n."].
-innermodule(_Status,[refid(Ref)],AllLabel) -->
-{xtract_label(AllLabel,Label)},
+innermodule(_Status,Atts,AllLabel) -->
+    {key_in(refid(Ref),Atts),
+     xtract_label(AllLabel,Label)},
     ["\n1. "],
     ref(Ref,Label),
     ["\n."].
@@ -262,7 +278,7 @@ innermodule(_Status,[refid(Ref)],AllLabel) -->
 
 sectiondef(Atts,Els) -->
     {
-      key_in(kind(Kind),Atts)
+	key_in(kind(Kind),Atts)
     },
     { top_sectiondef_name(Kind,Name)
     },
@@ -276,78 +292,73 @@ v(Msg,S0,S0) :-
 
 
 sectdef(header([],[Text]))-->
-  ["\n",Text,"\n"].
+    ["\n",Text,"\n"].
 sectdef(member(Atts,Children))-->
     {
-      key_in(refid(Ref),Atts)
-    },
-    {
-  (
-key_in(defname(_,[Name] ),Children)
-->
-true
-;
-key_in(name(_,[Name] ),Children)
-;
-Name = "" %writeln(Children)
-)
-},
-{writeln(Children:PName)},
-["%- " ], ref(Ref,Name).
+	key_in(refid(Ref),Atts),
+	(
+	    key_in(defname(_,[Name] ),Children)
+	->
+	true
+	;
+	key_in(name(_,[Name] ),Children)
+	->
+	true
+	;
+	Name = "" %writeln(Children)
+	),
+        writeln(Children:Name)
+    } ,
+    ["%- " ],
+    ref(Ref,Name).
+
 
 sectdef(memberdef(Atts,Children))-->
-{writeln(Children:Atts)},
-    %>v(def:Atts:Children),
     {
-      key_in(id(Ref),Atts)
+
+	( key_in(argsstring(A),Atts) -> true ; A = ""),
+	key_in(id(Ref),Atts),
+	get_name(Children,Name),
+	to_predicate(Name, PName),
+	short_ref(Ref, PRef),
+	format(string(Header), '\n[](){#~s}\n#### **~s~s**: \n', [PRef,PName,A])
     },
-      (
-	{ key_in(qualifiedname(_,[Name] ),Children) }
-	->
-    {to_predicate(Name, PName) }
-	;
-	{key_in(name(_,[Name] ),Children) } ->
-   { to_predicate(Name, PName) };
-{ PName = "" }
-      ),
-{short_ref(Ref, PRef) },
-format(string(Header), '\n* ~s:              {#}\n', [PRef,PName])
-[Header],
-      (
+    [Header],
+    (
 	{key_in(definition([],[Def]),Children)}
-	
-	-> [Def]
-	;
-	[]
-      ),
-                                                     
+    
+    -> [Def]
+    ;
+    []
+    ),
+    
 
-  (	{ key_in(briefdescription([],Brief),Children) }
+    (	{ key_in(briefdescription([],Brief),Children) }
 
-	->
-[": "],
-	description(Brief)
-	;
-[]
-      ),
-      (
+    ->
+    [": "],
+    description(Brief)
+    ;
+    []
+    ),
+    (
 	{ key_in(inbodydescription([],InBody),Children) }
-	->
-	[ "\n  "],
-	description(InBody)
-	;
-[]
-      ),
-      (
+    ->
+    [ "\n  "],
+    description(InBody)
+    ;
+    []
+    ),
+    (
 	{ key_in(detaileddescription([],Detailed),Children)}
-	->
-	[ "\n\n"],
-	description(Detailed)
-	;
-[]
-        ),
-      !,
-      [ "\n"].
+    ->
+    [ "\n\n"],
+    description(Detailed)
+    ;
+    []
+    ),
+    !,
+    [ "\n"].
 
 %sectiondef(A,Remainder) --> {writeln(A),fail}.
 briefs(briefdescription(_Atts,Els)) -->
@@ -370,30 +381,30 @@ separatedescription([D|Detailed]) -->
 
 
 mkraw(codeline(_,Line)) -->
-   [ "\n"],
+    [ "\n"],
     rawl(Line).
 
-     rawl([]) -->
-!.
-     rawl([A|Text]) -->
+rawl([]) -->
+    !.
+rawl([A|Text]) -->
     foldl(raw,[A|Text]).
- 
-    raw(highlight(_,Text)) -->
+
+raw(highlight(_,Text)) -->
     !,
     rawl( Text).
 
 
 
-    raw(Text) -->
-{string(Text)},
-!,
+raw(Text) -->
+    {string(Text)},
+    !,
     [ Text].
-    %  foldl(para).
+%  foldl(para).
 
-    raw(Text) -->
+raw(Text) -->
     para( Text).
-    %  foldl(para).
-   
+%  foldl(para).
+
 doxolist(_Pars,Items) -->
     foldl(item("1"),Items).
 
@@ -405,7 +416,7 @@ item(Type,listitem(_,Para)) -->
     typel(Type),
     description(Para),
     [ "\n"],
-[ "\n"].
+    [ "\n"].
 
 typel("1") -->
     [  "1. "].
@@ -422,7 +433,7 @@ description(para([],S)) -->
     !,
     ["\n\n"],
     description(S),
-      ["\n\n"].
+    ["\n\n"].
 description(S) -->
     { string(S) },
     !,
@@ -433,54 +444,55 @@ description(title([],S)) -->
     [S].
 description(sect1([],S)) -->
     !, 
-   ["### "],
+    ["### "],
     (
-      key_in(title(_,T),S)
-      ->
-      [T],["\n"]
-	  ;
-      ["\n"]
+	key_in(title(_,T),S)
+    ->
+    [T],["\n"]
+    ;
+    ["\n"]
     ),
     description(S).
 description(sect2([],S)) -->
     !,
     [ "#### "],
     (
-      key_in(title(_,T),S)
-      ->
-      [T],["\n"]
+	key_in(title(_,T),S)
+    ->
+    [T],["\n"]
     ;
-      ["\n"]
+    ["\n"]
     ),
     description(S).
 description(sect3([],S)) -->
     !,
     [ "##### "],
     (
-      key_in(title(_,T),S)
-      ->
-      [T],
-      ["\n"];
-	  
-      ["\n"]
+	key_in(title(_,T),S)
+    ->
+    [T],
+    ["\n"];
+	
+	["\n"]
     ),
     description(S).
-    description([]) -->
+description([]) -->
     !.
 description([G|S]) -->
-     !,
-     description(G),
-          description(S).
+    !,
+    description(G),
+    description(S).
 description(S) -->
     para(S).
 
 seq(State,G0) -->
-%    v(G0),
+    %    v(G0),
     {
-      G0=..[_N,Atts,[[[],[Name]]|Els]],
-       key_in(id(Ref),Atts),
-      !,
-      seqhdr(State,Type)
+	G0=..[_N,Atts,[NameS|Els]],
+	get_name(NameS, Name),
+	key_in(id(Ref),Atts),
+	!,
+	seqhdr(State,Type)
     } ,
     ["## ",Type,": "],
     ref(Ref,Name),
@@ -488,11 +500,12 @@ seq(State,G0) -->
     ["\n"].
 seq(State,G0) -->
     {
-      arg(2,G0,[Name]),
-      !,
-      seqhdr(State,Type)
+	arg(2,G0,NameS),
+	!,
+	get_name(NameS, Name),
+	seqhdr(State,Type)
     } ,
-     ["## ",Type,": ",Name,"\n"].
+    ["## ",Type,": ",Name,"\n"].
 
 seqhdr(State,Name) :-
     key_in(kind=Kind, State),
@@ -574,12 +587,18 @@ bd(underline, "<ins>").
 
 para(P) -->
     {
-    P=..[N,_,A],
-    bd(N,H)
+	P=..[N,_,A],
+	bd(N,H)
     },
     !,
     [H],
-    description(A),
+    (
+	{string(A)}
+    ->
+    [A]
+    ;
+    description(A)
+    ),
     [H].
 
 
@@ -599,46 +618,46 @@ para(javadocliteral([],Text)) -->
 para(javadoccode([],Text)) -->
     unimpl(javadoccode,Text). % xsd:unimpling
 para(indexentry
-([],Text)) -->
+     ([],Text)) -->
     unimpl(indexentry,Text). % docIndexEntryType
 para(orderedlist(Atts,Text)) -->
     doxolist(Atts,Text). % docListType
 para(itemizedlist(Atts,Text)) -->
     itemlist(Atts,Text). % docListType
-para(simplesect([],Text)) -->
+para(simplesect(_,Text)) -->
     unimpl(simplesect,Text). % docSimpleSectType
-para(title([],Text)) -->
+para(title(_,Text)) -->
     unimpl(title,Text). % docTitleType
-para(variablelist([],Text)) -->
+para(variablelist(_,Text)) -->
     unimpl(variablelist,Text). % docVariableListType
-para(table([],Text)) -->
+para(table(_,Text)) -->
     unimpl(table,Text). % docTableType
-para(heading([],Text)) -->
+para(heading(_,Text)) -->
     unimpl(heading,Text). % docHeadingType
-para(dotfile([],Text)) -->
+para(dotfile(_,Text)) -->
     unimpl(dotfile,Text). % docImageFileType
-para(mscfile([],Text)) -->
+para(mscfile(_,Text)) -->
     unimpl(mscfile,Text). % docImageFileType
-para(diafile([],Text)) -->
+para(diafile(_,Text)) -->
     unimpl(diafile,Text). % docImageFileType
-para(toclist([],Text)) -->
+para(toclist(_,Text)) -->
     unimpl(toclist,Text). % docTocListType
-para(language([],Text)) -->
+para(language(_,Text)) -->
     unimpl(language,Text). % docLanguageType
-para(parameterlist([],Text)) -->
-    unimpl(eterlist,Text). % docParamListType
-para(xrefsect([],Text)) -->
+para(parameterlist(_,Text)) -->
+    unimpl(parameterlist,Text). % docParamListType
+para(xrefsect(_,Text)) -->
     unimpl(xrefsect,Text). % docXRefSectType
-para(copydoc([],Text)) -->
+para(copydoc(_,Text)) -->
     unimpl(copydoc,Text). % docCopyType
-para(details([],Text)) -->
+para(details(_,Text)) -->
     unimpl(details,Text). % docDetailsType
-para(parblock([],Text))-->
+para(parblock(_,Text))-->
     paras(Text). % docParBlockType         
-para(superscript([],Text)) -->
+para(superscript(_,Text)) -->
     {string(Text)},
     !,
-     ["<sup>"], [Text], ["<sup>"].
+    ["<sup>"], [Text], ["<sup>"].
 para(superscript([],Text)) -->
     ["<sup>"], para(Text), [ "</sup>"].
 para(center([],Text)) --> % unsupported
@@ -1191,9 +1210,9 @@ para(anchor([],Text)) -->
     para(Text). % docAnchorType
 para(ref(Atts,[Name])) -->
     {
-            key_in(refid(Ref),Atts)
+        key_in(refid(Ref),Atts)
     },
-!,
+    !,
     ref(Ref,Name).
 para(linebreak([],_)) -->
     ["<br>"]. % docEmptyType
@@ -1694,68 +1713,71 @@ split_domains([_-A|All],Bs,Ds,[A|Ts]):-
 
 inner(S,P) :-
     string_chars(S,Cs),
-     append(_Prefix,['_'|Pos],Cs),
-     maplist(char_type_xdigit, Pos),
-     length(Pos,Len),
-     Len> 30,
-      !,
-   string_chars(P,Pos).
+    append(_Prefix,['_'|Pos],Cs),
+    maplist(char_type_xdigit, Pos),
+    length(Pos,Len),
+    Len> 30,
+    !,
+    string_chars(P,Pos).
 
 
 short_ref(Ref,Short) :-
-inner(Ref,Short).
+    inner(Ref,Short),
+    !.
+short_ref(Ref,Ref).
+
 
 %% ref(+Link,+Name)
 % translate a ref to mkdocs
 %
 ref(S,W) -->
     {writeln(S:W)},
-   { inner(S,P)
-   },
-   !,
-   { to_predicate(W,L)
-   },
+    { inner(S,P)
+    },
+    !,
+    { to_predicate(W,L)
+    },
 
-  { format(string(Str),'[~s][~s]' ,[P,L]) },
-   [Str].
-ref(S,W) -->
-   { to_predicate(W,L)
-   },
-   { format(string(Str),'[~s](~s)' ,[S,L]) },
+    { format(string(Str),'[~s][~s]' ,[L,P]) },
     [Str].
-    
+ref(S,W) -->
+    { to_predicate(W,L)
+    },
+    { format(string(Str),'[~s](~s.md)' ,[L,S]) },
+    [Str].
+
 %% ref(+Link,+Name)
 % create a new target
 %
 
-    
-  
 
-  key_in(X,[X|_]) :- !.
-  key_in(X,[_|L]) :-
-      key_in(X,L).
+
+
+key_in(X,[X|_]) :- !.
+key_in(X,[_|L]) :-
+    key_in(X,L).
 
 to_predicate(S,P) :-
- sub_string(S,_,1,0,EOS),
- string_chars(EOS, [EOC]),
-char_type_digit(EOC),
- sub_string(S,0,_,1,ROS),
- strip_module_from_pred(ROS,EOS,P),
-!.
+    sub_string(S,_,1,0,EOS),
+    string_chars(EOS, [EOC]),
+    char_type_digit(EOC),
+    sub_string(S,0,_,1,ROS),
+    strip_module_from_pred(ROS,EOS,P),
+    !.
 to_predicate(P,P).
 
- strip_module_from_pred(ROS,EOS,Final) :-
+strip_module_from_pred(ROS,EOS,Final) :-
     sub_string(ROS,Left,3,Right,"::P"),
     !,
     sub_string(ROS,0,Left,_,Mod),
     sub_string(ROS,_,Right,0,Name),
     string_concat([Mod,":",Name,"/",EOS],Final).
- strip_module_from_pred(ROS,EOS,Final) :-
+strip_module_from_pred(ROS,EOS,Final) :-
     sub_string(ROS,0,1,Left,"P"),
     !,
     sub_string(ROS,1,Left,0,Name),
     string_concat([Name,"/",EOS],Final).
- strip_module_from_pred(ROS,EOS,Final) :-
+strip_module_from_pred(ROS,EOS,Final) :-
     sub_string(ROS,Left,_,Right,"::"),
     sub_string(ROS,0,Left,_,NMod),
     sub_string(ROS,_,Right,0,NPred),
@@ -1764,3 +1786,25 @@ to_predicate(P,P).
     string_concat([NMod,":",SemiFinal],Final).
 
 
+get_name(Children,Name) :-
+    key_in(qualifiedname(_,NameS ),Children),
+    (
+	NameS = [_,[Name]]
+    ;
+    NameS = [Name]
+    ;
+    NameS = Name
+    ),
+    string(Name),
+    !.
+get_name(Children,Name) :-
+    key_in(name(_,NameS ),Children),
+    (
+	NameS = [_,[Name]]
+    ;
+    NameS = [Name]
+    ;
+    NameS = Name
+    ),
+    string(Name),
+    !.
