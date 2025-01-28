@@ -198,7 +198,7 @@ innerclass(Status,Atts,AllLabel) -->
 	Found=found
     },
     ["\n\n### Predicates and/or Classes:\n"],
-    ["\n\n1. "], 
+    ["\n\n "], 
     link_inner(Status,Ref,Label).
 innerclass(Status,Atts,AllLabel) -->
     {key_in(refid(Ref),Atts),
@@ -222,7 +222,6 @@ innergroup(Status,Atts,AllLabel) -->
     link_inner(Status,Ref,Label).
 
 link_inner(Status,Ref,Label) -->
-    ["\n1. "],
     ref(Ref,Label),
     ["\n"],
     {
@@ -241,13 +240,11 @@ innerpage(Status,Atts,AllLabel) -->
 	Found=found
     },
     ["\n\n\n### Pages:\n"],
-    ["\n1. "],
     ref(Ref,Label),
     ["\n."].
 innerpage(_Status,Atts,AllLabel) -->
     {key_in(refid(Ref),Atts),
      xtract_label(AllLabel,Label)},
-    ["\n1. "],
     ref(Ref,Label),
     ["\n."].
 
@@ -262,13 +259,11 @@ innermodule(Status,Atts,AllLabel) -->
 	Found=found
     },
     ["\n\n\n### Modules:\n"],
-    ["\n1. "],
     ref(Ref,Label),
     ["\n."].
 innermodule(_Status,Atts,AllLabel) -->
     {key_in(refid(Ref),Atts),
      xtract_label(AllLabel,Label)},
-    ["\n1. "],
     ref(Ref,Label),
     ["\n."].
 

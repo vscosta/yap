@@ -15,15 +15,5 @@ markdown_extensions:
   - md_in_html
   - toc:
       permalink: true
-nav:
-   - Home: index.md
-   - INSTALL: INSTALL.md
-   - Calling YAP: CALLING_YAP.md
-   - Core Built-ins: group__Builtins.md
-   - Programming: group__YAPProgramming.md
-   - Extensions: group__YapExtensions.md
-   - Library: group__YAPLibrary.md
-   - Available Packages: group__YAPPackages.md
-   - Foreign Language Interface : group__YAPAPI.md
-
+ 
 
