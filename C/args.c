@@ -13,7 +13,6 @@
 
 #include "Yap.h"
 #include "Yatom.h"
-#include "amiops.h"
 
 /**
  * Scan a list of arguments and output results to a pre-processed vector.
@@ -63,9 +62,10 @@ static void handle_entry(Term hd,const char *file, const char *function, int lin
     }
     if (IsAtomTerm(hd)) {
       na = matchKey(AtomOfTerm(hd), a, n, def);
-      if (!na)
+      if (!na) {
         Yap_ThrowError__(file, function, lineno, err, hd, "bad match in list");
-      na->tvalue = TermNil;
+        return;
+      }
     } else if (IsApplTerm(hd)) {
       Functor f = FunctorOfTerm(hd);
       if (IsExtensionFunctor(f)) {
@@ -83,6 +83,7 @@ static void handle_entry(Term hd,const char *file, const char *function, int lin
            na->tvalue = ArgOfTerm(1, hd);
     } else {
         Yap_ThrowError__(file, function, lineno, err, hd, "bad compound");
+        return;
     }
       na->used = true;
       na->source = hd;
@@ -152,8 +153,9 @@ static void handle_entry2(Term hd,const char *file, const char *function, int li
     }
     if (IsAtomTerm(hd)) {
       na = matchKey2(AtomOfTerm(hd),a, n,  def);
-      if (!na)
+    if (!na) {
         Yap_ThrowError__(file, function, lineno, err, hd, "bad match in list");
+    }
       na->tvalue = TermNil;
     } else if (IsApplTerm(hd)) {
       Functor f = FunctorOfTerm(hd);
@@ -172,6 +174,7 @@ static void handle_entry2(Term hd,const char *file, const char *function, int li
            na->tvalue = ArgOfTerm(1, hd);
     } else {
         Yap_ThrowError__(file, function, lineno, err, hd, "bad compound");
+        return;
     }
       na->used = true;
       na->source = hd;
@@ -211,6 +214,7 @@ xarg *    a = calloc(n, sizeof(xarg));
     return a;
   } else if (IsPairTerm(listl)) {
     Yap_ThrowError__(file, function, lineno, TYPE_ERROR_LIST, TermNil,NULL );
+    return NULL;
   } else {
       handle_entry2( listl,file, function,  lineno,
 		    def, n,a,

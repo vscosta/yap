@@ -27,8 +27,8 @@ int main(int argc, char *argv[]) {
 	
     FILE *f = fopen(argv[1],"r");
 
+    bool code_comment=false, allocate_block=false;
     while ((getline(&line,&n,f)) >0) {
-      bool code_comment=false;
       char *line0 = start = line;
       if (!in_star) {
 	if ((start = strstr(line, "//"))) {
@@ -39,9 +39,15 @@ int main(int argc, char *argv[]) {
 	  code_comment=(start[2]=='*' || start[2]=='?') && isspace(start[3]);
 		       	}
       }  
-	  else if (in_lcomm) {
+      else if (in_lcomm) {
 	    in_lcomm = start[0]=='\n' || (start[1] && start[0]=='/' && start[1]=='/');
-	  }
+	    if (!in_lcomm && allocate_block) {
+	      fprintf(stdout, "/** @{ @} */");
+	    }
+	    
+		fprintf(stdout,"%s",start);
+		continue;
+      }
     
 	  char *pi;
 	  if (code_comment &&
@@ -49,7 +55,7 @@ int main(int argc, char *argv[]) {
 	    int arity=0, i;
 	    char *start,*p0, *args;
 	    start =pred;
-       	    
+       	    allocate_block=true;
 		pred +=5;
 		while(isblank(*pred++));
 		p0=pred-1;
@@ -59,7 +65,7 @@ int main(int argc, char *argv[]) {
 		} else {
 		  while(!isblank(*pred) && pred[0] != '(') {
 		    pred++;
-		}
+		  }
 		}
 		args = pred;
 		i=0;
@@ -72,12 +78,12 @@ int main(int argc, char *argv[]) {
 		  arity++;
 		  
 		}
-		fprintf(stdout,"%.*s@class P%.*s%d\n",
+		fprintf(stdout,"%.*s @class P%.*s%d ",
 			(int)(start-line),line,
 			(int)(args-p0),p0,arity);
-		fprintf(stdout,"@brief %s",		        p0
-			);
+		fprintf(stdout,"%s",  p0);
 		line=NULL;
+		allocate_block=true;
 	      }
 	      while (code_comment &&
 		     line &&
@@ -100,10 +106,9 @@ int main(int argc, char *argv[]) {
 	      if (line && (pi=strstr(line,"*/"))) {
 			  code_comment = false;
 		  in_star=false;
-		  int ch=pi[2];
-		  fprintf(stdout,"%s",line);
-		  line[2]=ch;
-		  line = pi+2;
+		  fprintf(stdout,"%.*s @{ @} %.*s",pi-line,line,2,pi);
+	       	    allocate_block=false;
+	  line = pi+2;
 		}
 		
       if (line) {

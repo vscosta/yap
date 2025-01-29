@@ -27,7 +27,8 @@
 */
 
 /** @pred  0:P,0:Q   is iso, meta
-Conjunction of goals (and).
+
+The comma represents the Conjunction of goals (and).
 
 The conjunction is a fundamental construct of Prolog. Example:
 

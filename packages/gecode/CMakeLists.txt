@@ -35,7 +35,7 @@ if (GECODE_FOUND)
     ) # WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
   # create a startup.yss on the top directory.
-  add_custom_command (TARGET gecodeyap
+  add_custom_command (TARGET gecodeyap PRE_BUILD
     COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/gecode${GECODE_MAJOR}_yap_hand_written.yap ${CMAKE_CURRENT_SOURCE_DIR}/${GECODE_VERSION}/gecode_yap_auto_generated.yap > gecode.yap
     VERBATIM
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
