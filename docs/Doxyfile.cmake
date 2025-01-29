@@ -112,7 +112,7 @@ if (DOXYGEN_FOUND)
 
   add_executable(filter-bin docs/filter.c)
 
-  set_target_properties(filter-bin PROPERTIES OUTPUT_NAME filt)
+  set_target_properties(filter-bin PROPERTIES OUTPUT_NAME filter)
   set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS YAPBIN="${CMAKE_BINARY_DIR}/yap")
   set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS PLFILTER="${CMAKE_CURRENT_SOURCE_DIR}/docs/filter.yap")
 
@@ -154,7 +154,7 @@ if (DOXYGEN_FOUND)
   add_custom_target(mkdocs
     COMMAND mkdocs build
     WORKING_DIRECTORY mkdocs
-    DEPENDS docs2md
+    DEPENDS filter-bin docs2md
   ) 
 
   add_custom_target(sphinx

@@ -13,7 +13,7 @@
 
 int main(int argc, char *argv[]) {
     size_t n;
-    char *line=NULL, *start, *pred;
+    char *line=NULL;
     bool in_star = false, in_lcomm=false;
     if (strstr(argv[1],".yap" ) ||
 	strstr(argv[1],".ypp" ) ||
@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
 
     bool code_comment=false, allocate_block=false;
     while ((getline(&line,&n,f)) >0) {
+      char *start, *pred;
       char *line0 = start = line;
       if (!in_star) {
 	if ((start = strstr(line, "//"))) {
@@ -42,10 +43,10 @@ int main(int argc, char *argv[]) {
       else if (in_lcomm) {
 	    in_lcomm = start[0]=='\n' || (start[1] && start[0]=='/' && start[1]=='/');
 	    if (!in_lcomm && allocate_block) {
-	      fprintf(stdout, "/** @{ @} */");
+	      fprintf(stdout, "/**  /");
 	    }
 	    
-		fprintf(stdout,"%s",start);
+	fprintf(stdout,"%s",start);
 		continue;
       }
     
@@ -71,19 +72,20 @@ int main(int argc, char *argv[]) {
 		i=0;
 		if (pred[i] == '(') {
 		  int ch;
+		  arity=1;
 		  while((ch=pred[i++])!=')') {
 		    if (ch==',') arity++;
 			
 		  }
-		  arity++;
-		  
 		}
+		pred +=i;
 		fprintf(stdout,"%.*s @class P%.*s%d ",
 			(int)(start-line),line,
 			(int)(args-p0),p0,arity);
-		fprintf(stdout,"%s",  p0);
+		fprintf(stdout,"<b>%.*s</b>%s\n", (int)(pred-p0), p0, pred);
 		line=NULL;
 		allocate_block=true;
+		continue;
 	      }
 	      while (code_comment &&
 		     line &&
@@ -106,7 +108,7 @@ int main(int argc, char *argv[]) {
 	      if (line && (pi=strstr(line,"*/"))) {
 			  code_comment = false;
 		  in_star=false;
-		  fprintf(stdout,"%.*s @{ @} %.*s",pi-line,line,2,pi);
+		  fprintf(stdout,"%.*s  %.*s",(int)(pi-line),line,2,pi);
 	       	    allocate_block=false;
 	  line = pi+2;
 		}
