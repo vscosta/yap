@@ -79,7 +79,7 @@ scan(compound(OAtts,_OProps) , IDir,_ODir) :-
     true
     ).
 
-trl(compound( OAtts,_OProps) ,IDir,ODir) :-
+trl(compound( OAtts,_OProps) ,_IDir,_ODir) :-
     key_in(refid(Id),OAtts),
     visited(Id),
     !.
@@ -87,30 +87,32 @@ trl(compound( OAtts,_OProps) ,IDir,ODir) :-
 trl(compound( OAtts,_OProps) ,IDir,ODir) :-
     key_in(refid(Id),OAtts),
     assert_static(visited(Id)),
-    writeln(Id),
+       key_in(kind(Kind),OAtts),
+ writeln(Id),
     atom_concat([IDir,Id,'.xml'], IFile),
     (
-	catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]),fail))
+    	catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]),fail))
     ->
-    true
+    XML = [doxygen(_,XMLData)],
+    XMLData = [compounddef(_Atts,Children)]
+
     ;
-    Name=``,
-    Ch2=[]
+    Children=[]
     ),
     
-    XML = [doxygen(_,XMLData)],
-    XMLData = [compounddef(_Atts,Children)],
-    Children=[compoundname([],[Name])|Ch2],
-    State = [idir=IDir,odir=ODir,classes=_,groups=_,pages=_,id=Id,kind="class",name=Name],
+get_name(Children,Name),
+as_title(Name,Children,Title),
+    State = [idir=IDir,odir=ODir,id=Id,kind=Kind,name=Name],
     writeln(Id),
     (
-	foldl(process_all(State),Ch2,[]-[]-[],AllRaw-Briefs-Details)
+	foldl(process_all(State),Children,[]-[]-[]-[]-[],AllRaw-Briefs-Details-Groups-Predicates)
     ->
     string_concat(AllRaw,Info),
     string_concat(Briefs,Bs),
     string_concat(Details,Ds),
-    to_predicate(Name,PName),
-    string_concat(["# ",PName, "\n\n",Bs,"\n\n\n",Ds,"\n\n",Info],All),
+    string_concat(Groups,Gs),
+    string_concat(Predicates,Ps),
+    string_concat(["# ",Title, "\n\n",Bs,"\n\n\n",Gs,"\n\n\n",Ds,"\n\n\n",Ps,"\n\n",Info],All),
     %brief,"\n\n",Details,"\n\n",FullText],All),
     atom_concat([ODir,"/",Id,'.md'],OFile),
     open(OFile,write,O),
@@ -126,11 +128,15 @@ process_all(State,Op,S0s,SFs) :-
     string_concat(Strings,SC),
     add2strings(Op,SC,S0s,SFs).
 
-add2strings(briefdescription(_,_),Strings,S-Sb-Sd,S-[Strings|Sb]-Sd) :-
+add2strings(briefdescription(_,_),Strings,S-Sb-Sd-Sg-Sp,S-[Strings|Sb]-Sd-Sg-Sp) :-
     !.
-add2strings(detaileddescription(_,_),Strings,S-Sb-Sd,S-Sb-[Strings|Sd]) :-
+add2strings(detaileddescription(_,_),Strings,S-Sb-Sd-Sg-Sp,S-Sb-[Strings|Sd]-Sg-Sp) :-
     !.
-add2strings(_Op,Strings,S-Sb-Sd,[Strings|S]-Sb-Sd).
+add2strings(innerclass(_,_),Strings,S-Sb-Sd-Sg-Sp,S-Sb-Sd-Sg-[Strings|Sp]) :-
+    !.
+add2strings(innergroup(_,_),Strings,S-Sb-Sd-Sg-Sp,S-Sb-Sd-[Strings|Sg]-Sp) :-
+    !.
+add2strings(_Op,Strings,S-Sb-Sd-Sg-Sp,[Strings|S]-Sb-Sd-Sg-Sp).
 
 
 process(State,basecompoundref(Atts,Children)) -->
@@ -189,45 +195,25 @@ xtract_label([Label],Label) :-
 xtract_label(Label,Label).
 
 innerclass(Status,Atts,AllLabel) -->
-    {key_in(refid(Ref),Atts),
-     xtract_label(AllLabel,Label)},
-    {
-	key_in(classes=Found,Status),
-	var(Found),
-	!,
-	Found=found
-    },
-    ["\n\n### Predicates and/or Classes:\n"],
-    ["\n\n "], 
-    link_inner(Status,Ref,Label).
-innerclass(Status,Atts,AllLabel) -->
+    ["\n"], 
     {key_in(refid(Ref),Atts),
      xtract_label(AllLabel,Label)},
     link_inner(Status,Ref,Label).
 
 innergroup(Status,Atts,AllLabel) -->
     {key_in(refid(Ref),Atts),
+     key_in(kind(Kind),Atts),
      xtract_label(AllLabel,Label)},
-    {
-	key_in(groups=Found,Status),
-	var(Found),
-	!,
-	Found=found
-    },
-    ["\n\n### Groups:\n"],
-    link_inner(Status,Ref,Label).
-innergroup(Status,Atts,AllLabel) -->
-    {key_in(refid(Ref),Atts),
-     xtract_label(AllLabel,Label)},
-    link_inner(Status,Ref,Label).
+    link_inner([kind=Kind|Status],Ref,Label).
 
 link_inner(Status,Ref,Label) -->
     ref(Ref,Label),
-    ["\n"],
+    ["\n\n#### "],
     {
 	key_in(idir=IDir,Status),
 	key_in(odir=ODir,Status),
-	trl(compound([refid(Ref)],[]),IDir,ODir)
+	key_in(kind=Kind,Status),
+	trl(compound([refid(Ref),kind(Kind)],[]),IDir,ODir)
     }.
 
 innerpage(Status,Atts,AllLabel) -->
@@ -568,6 +554,10 @@ top_sectiondef_name( "enum", "Enum" ).
 top_sectiondef_name( "func", "Func" ).
 top_sectiondef_name(   "var", "Var" ).
 
+as_title(_,Props,Title) :-
+key_in(title(_,[Title]), Props),
+!.
+as_title(Name,_,Name).
 
 bd(blockquote,"\n~~~\n").
 bd(bold,"**").
@@ -1783,6 +1773,17 @@ strip_module_from_pred(ROS,EOS,Final) :-
 
 get_name(Children,Name) :-
     key_in(qualifiedname(_,NameS ),Children),
+    (
+	NameS = [_,[Name]]
+    ;
+    NameS = [Name]
+    ;
+    NameS = Name
+    ),
+    string(Name),
+    !.
+get_name(Children,Name) :-
+    key_in(compoundname(_,NameS ),Children),
     (
 	NameS = [_,[Name]]
     ;

@@ -9,7 +9,6 @@ theme:
   logo: 'images/favicon.ico'
 plugins:
   - search
-  - autorefs
 markdown_extensions:
   - admonition
   - attr_list

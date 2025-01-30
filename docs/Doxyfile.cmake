@@ -141,7 +141,7 @@ if (DOXYGEN_FOUND)
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  ${CMAKE_BINARY_DIR}/INSTALL.md ${DOCS_MD_FILES}  mkdocs/docs
+#     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  ${CMAKE_BINARY_DIR}/INSTALL.md ${DOCS_MD_FILES}  mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/images
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/images
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/images/favicon.ico
