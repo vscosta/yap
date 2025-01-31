@@ -55,7 +55,7 @@ group(compound( OAtts,_OProps)) :-
     ;
     Kind == "page"
     
-1    ).
+    ).
 
 class(compound( OAtts,_OProps)) :-
     key_in(kind(Kind),OAtts),
@@ -87,10 +87,10 @@ trl(compound( OAtts,_OProps) ,_IDir,_ODir) :-
 trl(compound( OAtts,_OProps) ,IDir,ODir) :-
     key_in(refid(Id),OAtts),
     assert_static(visited(Id)),
-    key_in(kind(Kind),OAtts),
     writeln(Id),
-    get_xml(IDir,Id, Children),
-children2page(Children,All),
+    get_xml(IDir,Id, Atts,Children),
+    key_in(kind(Kind),Atts),
+    children2page([idir=IDir,odir=ODir,kind=Kind],Children,All),
     key_in(refid(Id),OAtts),
     writeln(Id-done),
     atom_concat([ODir,"/",Id,'.md'],OFile),
@@ -98,13 +98,13 @@ children2page(Children,All),
     format(O,'~s',[All]),
     close(O).
 
-get_xml(IDir,Id,Children) :-
+get_xml(IDir,Id,Atts,Children) :-
     atom_concat([IDir,Id,'.xml'], IFile),
-    catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]),fail))
+    catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]),fail)),
     XML = [doxygen(_,XMLData)],
-	XMLData = [compounddef(_Atts,Children)].
+    XMLData = [compounddef(Atts,Children)].
 
-children2page(Children,All) :-
+children2page(State,Children,All) :-
     get_name(Children,Name),
 as_title(Name,Children,Title),
 	foldl(process_all(State),Children,[]-[]-[]-[]-[],AllRaw-Briefs-Details-Groups-Predicates),
@@ -113,7 +113,7 @@ as_title(Name,Children,Title),
     string_concat(Details,Ds),
     string_concat(Groups,Gs),
     string_concat(Predicates,Ps),
-    string_concat(["# ",Title, "\n\n",Bs,"\n\n\n",Gs,"\n\n\n",Ds,"\n\n\n",Ps,"\n\n",Info],All),
+    string_concat(["# ",Title, "\n\n",Bs,"\n\n\n",Gs,"\n\n\n",Ds,"\n\n\n",Ps,"\n\n",Info],All).
  
 
 process_all(State,Op,S0s,SFs) :-
