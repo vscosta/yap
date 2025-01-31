@@ -55,7 +55,7 @@ group(compound( OAtts,_OProps)) :-
     ;
     Kind == "page"
     
-    ).
+1    ).
 
 class(compound( OAtts,_OProps)) :-
     key_in(kind(Kind),OAtts),
@@ -87,40 +87,34 @@ trl(compound( OAtts,_OProps) ,_IDir,_ODir) :-
 trl(compound( OAtts,_OProps) ,IDir,ODir) :-
     key_in(refid(Id),OAtts),
     assert_static(visited(Id)),
-       key_in(kind(Kind),OAtts),
- writeln(Id),
-    atom_concat([IDir,Id,'.xml'], IFile),
-    (
-    	catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]),fail))
-    ->
-    XML = [doxygen(_,XMLData)],
-    XMLData = [compounddef(_Atts,Children)]
-
-    ;
-    Children=[]
-    ),
-    
-get_name(Children,Name),
-as_title(Name,Children,Title),
-    State = [idir=IDir,odir=ODir,id=Id,kind=Kind,name=Name],
+    key_in(kind(Kind),OAtts),
     writeln(Id),
-    (
-	foldl(process_all(State),Children,[]-[]-[]-[]-[],AllRaw-Briefs-Details-Groups-Predicates)
-    ->
+    get_xml(IDir,Id, Children),
+children2page(Children,All),
+    key_in(refid(Id),OAtts),
+    writeln(Id-done),
+    atom_concat([ODir,"/",Id,'.md'],OFile),
+    open(OFile,write,O),
+    format(O,'~s',[All]),
+    close(O).
+
+get_xml(IDir,Id,Children) :-
+    atom_concat([IDir,Id,'.xml'], IFile),
+    catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]),fail))
+    XML = [doxygen(_,XMLData)],
+	XMLData = [compounddef(_Atts,Children)].
+
+children2page(Children,All) :-
+    get_name(Children,Name),
+as_title(Name,Children,Title),
+	foldl(process_all(State),Children,[]-[]-[]-[]-[],AllRaw-Briefs-Details-Groups-Predicates),
     string_concat(AllRaw,Info),
     string_concat(Briefs,Bs),
     string_concat(Details,Ds),
     string_concat(Groups,Gs),
     string_concat(Predicates,Ps),
     string_concat(["# ",Title, "\n\n",Bs,"\n\n\n",Gs,"\n\n\n",Ds,"\n\n\n",Ps,"\n\n",Info],All),
-    %brief,"\n\n",Details,"\n\n",FullText],All),
-    atom_concat([ODir,"/",Id,'.md'],OFile),
-    open(OFile,write,O),
-    format(O,'~s',[All]),
-    close(O)
-    ;
-    true
-    ).
+ 
 
 process_all(State,Op,S0s,SFs) :-
     functor(Op,_N,_),
