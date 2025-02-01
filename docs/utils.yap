@@ -1,0 +1,102 @@
+:- dynamic exported/2, defines_module/1.
+
+%:- use_module(library(lists)).
+append([], L, L).
+append([H|T], L, [H|R]) :-
+       append(T, L, R).
+append(ListOfLists, List) :-
+%	must_be_list( ListOfLists),
+	append_(ListOfLists, List).
+
+append_([], []).
+append_([L], L).
+append_([L1,L2|Ls], L) :-
+	append(L1,L2,LI),
+	append_([LI|Ls],L).
+
+%:- use_module(library(maplist)).
+foldl(Goal, List, V0, V) :-
+    foldl_(List, Goal, V0, V).
+
+foldl_([], _, V, V).
+foldl_([H|T], Goal, V0, V) :-
+    call(Goal, H, V0, V1),
+    foldl_(T, Goal, V1, V).
+
+maplist(_, []).
+maplist(Pred, [In|ListIn]) :-
+    call(Pred, In),
+    maplist(Pred, ListIn).
+
+maplist(_, [], []).
+maplist(Pred, [In|ListIn], [Out|ListOut]) :-
+    call(Pred, In, Out),
+    maplist(Pred, ListIn, ListOut).
+
+maplist(_, [], [], []).
+maplist(Pred, [A1|L1], [A2|L2], [A3|L3]) :-
+    call(Pred, A1, A2, A3),
+    maplist(Pred, L1, L2, L3).
+
+%:- use_module(library(system)).
+%:- use_module(library(matrix)).
+%:- use_module(library(readutil)).
+%:- use_module(library(lineutils)).
+
+/** @pred split(+ _Line_,- _Split_)
+
+Unify  _Words_ with a set of strings obtained from  _Line_ by
+using the blank characters  as separators.
+*/
+split(String, Strings) :-
+	split_at_blank(" 	", Strings, String, []).
+
+/** @pred split(+ _Line_,+ _Separators_,- _Split_)
+
+
+
+Unify  _Words_ with a set of strings obtained from  _Line_ by
+using the character codes in  _Separators_ as separators. As an
+example, consider:
+
+```
+?- split("Hello * I am free"," *",S).
+
+S = ["Hello","I","am","free"] ?
+
+no
+```
+
+*/
+split(String, SplitCodes, Strings) :-
+	split_at_blank(SplitCodes, Strings, String, []).
+
+split_at_blank(SplitCodes, More) -->
+	[C],
+	{ member(C, SplitCodes) }, !,
+	split_at_blank(SplitCodes, More).
+split_at_blank(SplitCodes, [[C|New]| More]) -->
+	[C], !,
+	split_(SplitCodes, New, More).
+split_at_blank(_, []) --> [].
+
+split_(SplitCodes, [], More) -->
+	[C],
+	{ member(C, SplitCodes) }, !,
+	split_at_blank(SplitCodes, More).
+split_(SplitCodes, [C|New], Set) -->
+	[C], !,
+	split_(SplitCodes, New, Set).
+split_(_, [], []) --> [].
+
+
+split(Text, SplitCodes, DoubleQs, SingleQs, Strings) :-
+	split_element(SplitCodes, DoubleQs, SingleQs, Strings, Text, []).
+
+split_element(SplitCodes,  DoubleQs, SingleQs, Strings) -->
+    [C],
+    !,
+    split_element(SplitCodes,  DoubleQs, SingleQs, Strings, C).
+split_element(_SplitCodes,  _DoubleQs, _SingleQs, []) --> !.
+split_element(_SplitCodes,  _DoubleQs, _SingleQs, [[]]) --> [].
+
