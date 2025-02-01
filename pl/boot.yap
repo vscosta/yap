@@ -113,6 +113,7 @@ system_module_(_,_,_).
 '$vmember'(V,[_|LV0]) :-
 	'$vmember'(V,LV0).
 
+:-  nb_setval(parent_directory, '').
 
 :- c_compile('predtypes.yap').
 

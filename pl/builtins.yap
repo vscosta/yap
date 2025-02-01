@@ -70,7 +70,10 @@ comma(X,Y,Z,A,B,C) :-
     call(Y),
     call(Z),
     call(A),
-               /** @pred   ';'( 0:P , 0:Q)  is iso
+    call(B),
+    call(C).
+
+    /** @pred   ';'( 0:P , 0:Q)  is iso
 
 @brief Disjunction of goals (or).
 

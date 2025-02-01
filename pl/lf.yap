@@ -375,11 +375,13 @@ readutil:read_line_to_string(Stream,_),
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
     file_directory_name(File, Dir),
     working_directory(OldD,OldD),
+    b_getval(parent_directory, PD),
+    b_setval(parent_directory,OldD),
     !,
     prompt1(': '), prompt(_,'     '),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
-    '$conditional_compilation_get_state'(State),
+                                                                                                                                                   '$conditional_compilation_get_state'(State),
     (
      '$memberchk'(consult(Reconsult0), Opts)
       ->
@@ -429,6 +431,7 @@ readutil:read_line_to_string(Stream,_),
    ;
    InnerModule=OldM),
     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
+    b_setval(parent_directory,PD),
  '$end_consult'(OldD),
  '$exec_initialization_goals'(File),
     !.

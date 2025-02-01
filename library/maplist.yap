@@ -318,6 +318,7 @@ maplist(Pred, [In|ListIn], [Out|ListOut]) :-
     call(Pred, In, Out),
     maplist(Pred, ListIn, ListOut).
 
+
 /**
   @pred  maplist(: Pred, ? L1, ? L2, ? L3)
   _L1_,   _L2_, and  _L3_ are such that

@@ -495,6 +495,8 @@ log_event( String, Args ) :-
 
 
 live  :-
+    working_directory(D,D),
+    nb_setval(parent_directory,D),
     repeat,
     '$top_level',
     live__,
@@ -513,7 +515,7 @@ live__ :-
     ;
     format(user_error,'[~w]~n', [Module])
     ),
-% reset alarms when entering top-level.
+    % reset alarms when entering top-level.
     alarm(0, 0, _, _),
     '$top_level',
     nb_setval(creep,zip),
@@ -522,7 +524,7 @@ live__ :-
     (
 	GA \= []
     ->
-    set_Value('$top_level_goal',[]),
+    set_value('$top_level_goal',[]),
     ignore('$run_atom_goal'(GA))
     ;
     true

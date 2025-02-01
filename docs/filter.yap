@@ -6,17 +6,11 @@
  *
  */
 
-
-:- dynamic exported/2, defines_module/1.
-
-:- use_module(library(lists)).
-:- use_module(library(maplist)).
-:- use_module(library(system)).
-:- use_module(library(matrix)).
-:- use_module(library(readutil)).
-:- use_module(library(lineutils)).
+:- include(utils).
 
 :- initialization(main).
+
+:- add_to_path('../pl').
 
 valid_suffix('.yap').
 valid_suffix('.pl').
@@ -65,7 +59,7 @@ unix(system(Command)).
 script(S) :-
     peek_char(S,'#'),
     !,
-    read_line_to_string(S,_),
+     readline:read_line_to_string(S,_),
     script(S).
 script(_).
 
@@ -77,7 +71,7 @@ entry(S,O) :-
     repeat,
     read_clause(S,T,[comments(Comments),variable_names(Vs)]),
     (
-      T == end_of_file
+       T == end_of_file
       ->
       O = directive(end_of_file, Comments, Vs),
       !
@@ -140,7 +134,7 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
     maplist(atomic_concat('int ARG'),Is,NIs),
     (
       A==0 ->
-      T = N()
+      T = N
       ;
       T =.. [N1|NIs]
     ),

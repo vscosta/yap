@@ -3,23 +3,25 @@
  * @brief parse a XNL generated directory to
  * a MD directpry/
   */ 
-%
-
-:- use_module(library(maplist)).
-:- use_module(library(lists)).
-:- use_module(library(system)).
-:- use_module(library(xml2yap)).
 
 /* #t4970 nE44T This program first */
 :- set_prolog_flag(double_quotes, string).
 
+:- include(utils).
+
 :- multifile  brief/2, visited/1.
+
+
+:- 
+    unix(argv([_,_,D])),
+   path_concat([D,'packages/xml2yap/libYAPxml'],Lib),
+   load_foreign_files([Lib],[],libxml_yap_init).
 
 main :-
     unix(argv(Params)),
     main_process(Params).
 
-main_process([IDir,ODir]) :-
+main_process([IDir,ODir,_]) :-
     exists_directory(IDir),
     !,
     (
@@ -91,12 +93,13 @@ trl(compound( OAtts,_OProps) ,IDir,ODir) :-
     get_xml(IDir,Id, Atts,Children),
     key_in(kind(Kind),Atts),
     children2page([idir=IDir,odir=ODir,kind=Kind],Children,All),
-    key_in(refid(Id),OAtts),
+    !,
     writeln(Id-done),
     atom_concat([ODir,"/",Id,'.md'],OFile),
     open(OFile,write,O),
     format(O,'~s',[All]),
     close(O).
+trl(_,_,_).
 
 get_xml(IDir,Id,Atts,Children) :-
     atom_concat([IDir,Id,'.xml'], IFile),

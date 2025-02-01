@@ -382,6 +382,8 @@ initialization(_G,_OPT).
 % reconsult at startup...
 %
 '$do_startup_reconsult'(_X) :-
+    working_directory(D,D),
+    nb_setval(parent_directory,D),
     '$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
@@ -454,6 +456,11 @@ source_file_property( F, load_context(M,OldF:Line,Opts)) :-
   + `directory`  (prolog_load_context/2 option)
 
   Full name for the directory where YAP 		is currently consulting the
+  file.
+
+  + `parent_directory`  (prolog_load_context/2 option)
+
+  Full name for the directory from where YAP consulted the
   file.
 
   + file  (prolog_load_context/2 option)
