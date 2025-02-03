@@ -1698,6 +1698,7 @@ static Int must_be_atom1(USES_REGS1) {
 bool must_be_string__(const char *file, const char *function, int lineno,
                     Term t USES_REGS) {
   // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  t=Deref(t);
   if (IsVarTerm(t)) {
     Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, "is string");
     return false;

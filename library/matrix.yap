@@ -42,7 +42,6 @@
 	op(790, fx, (matrix)),
 	op(790, fx, array),
 	op(780, xfx, of),
-
 is_matrix/1,
 	matrix_new/2,
 	matrix_new/3,
@@ -108,7 +107,7 @@ is_matrix/1,
 
 :- multifile rhs_opaque/1, array_extension/2.
 
-/**
+/** 
 
 @defgroup YAPMatrix Matrix Operations in YAP.
 @ingroup YAPLibrary
@@ -128,7 +127,6 @@ contact the YAP maintainers if you require extra functionality.
 */
 
 
-
 :- multifile rhs_opaque/1, array_extension/2.
 
 :- use_module(library(maplist)).
@@ -144,12 +142,6 @@ contact the YAP maintainers if you require extra functionality.
 :- meta_predicate matrix_foldl(3,?,?,?).
 :- meta_predicate matrix_foldl(4,?,?,?,?).
 
-%term_expansion((M[I] := P), [(eval(M.[I],V) :- is_matrix(M), matrix:matrix_get(M,[I],V))]) :-
-%    !.
-%
-%term_expansion((M.Op() := P), (eval(M.Op(),V) :- is_matrix(M), matrix:op(M,Op,V))] :-
-%
-%		   abstract_mat(M) :- is_matrix(M), !.
 
 /** @pred ?_LHS_ <==  ?_RHS_ is semidet
 
@@ -1460,3 +1452,11 @@ matrix_new_set(floats,Dims,Base,C,O) :-
     new_floats_matrix_set(Dims,Base,C,O).
 
 %% @}
+
+
+%term_expansion((M[I] := P), [(eval(M.[I],V) :- is_matrix(M), matrix:matrix_get(M,[I],V))]) :-
+%    !.
+%
+%term_expansion((M.Op() := P), (eval(M.Op(),V) :- is_matrix(M), matrix:op(M,Op,V))] :-
+%
+%		   abstract_mat(M) :- is_matrix(M), !.

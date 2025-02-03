@@ -17,6 +17,8 @@
    path_concat([D,'packages/xml2yap/libYAPxml'],Lib),
    load_foreign_files([Lib],[],libxml_yap_init).
 
+:-  initialization(main).
+
 main :-
     unix(argv(Params)),
     main_process(Params).
@@ -68,7 +70,7 @@ class(compound( OAtts,_OProps)) :-
 
 scan(compound(OAtts,_OProps) , IDir,_ODir) :-
     key_in(refid(Id),OAtts),
-    writeln(Id),
+%    writeln(Id),
     atom_concat([IDir,Id,'.xml'], IFile),
     catch(xml_load(IFile,XML),Error,(printf("failed while processsing ~w: ~w",[Id,Error]), fail)),
     XML = [doxygen(_,XMLData)],
@@ -89,17 +91,17 @@ trl(compound( OAtts,_OProps) ,_IDir,_ODir) :-
 trl(compound( OAtts,_OProps) ,IDir,ODir) :-
     key_in(refid(Id),OAtts),
     assert_static(visited(Id)),
-    writeln(Id),
     get_xml(IDir,Id, Atts,Children),
     key_in(kind(Kind),Atts),
     children2page([idir=IDir,odir=ODir,kind=Kind],Children,All),
     !,
-    writeln(Id-done),
     atom_concat([ODir,"/",Id,'.md'],OFile),
     open(OFile,write,O),
     format(O,'~s',[All]),
     close(O).
-trl(_,_,_).
+trl(compound( OAtts,_OProps),_,_):-
+    key_in(refid(Id),OAtts),
+    writeln(failed:Id).
 
 get_xml(IDir,Id,Atts,Children) :-
     atom_concat([IDir,Id,'.xml'], IFile),
@@ -110,32 +112,42 @@ get_xml(IDir,Id,Atts,Children) :-
 children2page(State,Children,All) :-
     get_name(Children,Name),
 as_title(Name,Children,Title),
-	foldl(process_all(State),Children,[]-[]-[]-[]-[],AllRaw-Briefs-Details-Groups-Predicates),
+	foldl(process_all(State),Children,[]-[]-[]-[]-[]-[],AllRaw-Briefs-Details-Pages-Groups-Predicates),
     string_concat(AllRaw,Info),
     string_concat(Briefs,Bs),
     string_concat(Details,Ds),
     string_concat(Groups,Gs),
+    string_concat(Pages,As),
     string_concat(Predicates,Ps),
-    string_concat(["# ",Title, "\n\n",Bs,"\n\n\n",Gs,"\n\n\n",Ds,"\n\n\n",Ps,"\n\n",Info],All).
+    string_concat(["# ",Title, "\n\n",Bs,"\n\n\n",As,Gs,"\n\n\n",Ds,"\n\n\n",Ps,"\n\n",Info],All).
  
 
 process_all(State,Op,S0s,SFs) :-
     functor(Op,_N,_),
     process(State,Op,Strings,[]),
     string_concat(Strings,SC),
-    add2strings(Op,SC,S0s,SFs).
-
-add2strings(briefdescription(_,_),Strings,S-Sb-Sd-Sg-Sp,S-[Strings|Sb]-Sd-Sg-Sp) :-
-    !.
-add2strings(detaileddescription(_,_),Strings,S-Sb-Sd-Sg-Sp,S-Sb-[Strings|Sd]-Sg-Sp) :-
-    !.
-add2strings(innerclass(_,_),Strings,S-Sb-Sd-Sg-Sp,S-Sb-Sd-Sg-[Strings|Sp]) :-
-    !.
-add2strings(innergroup(_,_),Strings,S-Sb-Sd-Sg-Sp,S-Sb-Sd-[Strings|Sg]-Sp) :-
-    !.
-add2strings(_Op,Strings,S-Sb-Sd-Sg-Sp,[Strings|S]-Sb-Sd-Sg-Sp).
+    add2strings(Op,SC,S0s,SFs),!.
 
 
+
+add2strings(briefdescription(_,_),Strings,S-Sb-Sd-Sa-Sg-Sp,S-[Strings|Sb]-Sd-Sa-Sg-Sp) :-
+    !.
+add2strings(detaileddescription(_,_),Strings,S-Sb-Sd-Sa-Sg-Sp,S-Sb-[Strings|Sd]-Sa-Sg-Sp) :-
+    !.
+add2strings(innerclass(_,_),Strings,S-Sb-Sd-Sa-Sg-Sp,S-Sb-Sd-Sa-Sg-[Strings|Sp]) :-
+    !.
+add2strings(innergroup(_,_),Strings,S-Sb-Sd-Sa-Sg-Sp,S-Sb-Sd-Sa-[Strings|Sg]-Sp) :-
+    !.
+add2strings(innerpage(_,_),Strings,S-Sb-Sd-Sa-Sg-Sp,S-Sb-Sd-[Strings|Sa]-Sg-Sp) :-
+    !.
+add2strings(_Op,Strings,S-Sb-Sd-Sa-Sg-Sp,[Strings|S]-Sb-Sd-Sa-Sg-Sp).
+
+process(_State,compoundname(_Atts,_Children)) -->
+!.
+process(_State,title(_Atts,_Children)) -->
+!.
+process(_State,location(_Atts,_Children)) -->
+!.
 process(State,basecompoundref(Atts,Children)) -->
     !,
     seq(State,basecompoundref(Atts,Children)).
@@ -155,13 +167,13 @@ process(State,derivedcompoundref(Atts,Children)) -->
 % ignoreseq(NState,innerclass(_,_),Innerfile,Innerclass),
 process(State,innerclass(Atts,Children)) -->
     !,
-    innerclass(State,Atts,Children).    % ignoreseq(NState,innernamespace(_,_),Innerclass,Innernamespace),
+    innerclass([kind="class"|State],Atts,Children).    % ignoreseq(NState,innernamespace(_,_),Innerclass,Innernamespace),
 process(State,innerpage(Atts,Children)) -->
     !,
-    innerpage(State,Atts,Children).
+    innerpage([kind="page"|State],Atts,Children).
 process(State,innergroup(Atts,Children)) -->
     !,
-    innergroup(State,Atts,Children).
+    innergroup([kind="group"|State],Atts,Children).
 % ignoreseq(NState,qualifier(_,_),Innergroup,Qualifier),
 % ignoreseq(NState,templateparamlist(_,_),Qualifier,Templateparamlist),
 process(_,sectiondef(Atts,Children)) -->
@@ -174,7 +186,7 @@ process(_,briefdescription(Atts,Children)) -->
     !,
     briefs(briefdescription(Atts,Children)).
 process(_,detaileddescription(Atts,Children)) -->
-    %!,
+    !,
     detaileds(detaileddescription(Atts,Children)),!.
 % ignoreseq(NState,exports(_,_),Detammmmtrnnmmmjjjjjileddescription,Exports),
 % ignoreseq(NState,inheritancegraph(_,_),Exports,Inheritancegraph),
@@ -183,7 +195,7 @@ process(_,detaileddescription(Atts,Children)) -->
 % ignoreseq(NState,programlisting(_,_),Collaborationgraph,Programlisting),
 % ignoreseq(NState,location(_,_),Programlisting,Location),
 % ignoreseq(NState,listofallmembers(_,_),Location,[]).
-process(_,_)--> [].
+process(_,_)-->  [].
 
 xtract_label([_,[Label]],Label) :-
     !.
@@ -192,44 +204,31 @@ xtract_label([Label],Label) :-
 xtract_label(Label,Label).
 
 innerclass(Status,Atts,AllLabel) -->
-    ["\n"], 
+    ["\n\n* "], 
+    {key_in(refid(Ref),Atts),
+     xtract_label(AllLabel,Label)},
+    link_inner(Status,Ref,Label).
+
+innerpage(Status,Atts,AllLabel) -->
+    ["\n\n* "], 
     {key_in(refid(Ref),Atts),
      xtract_label(AllLabel,Label)},
     link_inner(Status,Ref,Label).
 
 innergroup(Status,Atts,AllLabel) -->
+    ["\n\n* "], 
     {key_in(refid(Ref),Atts),
-     key_in(kind(Kind),Atts),
      xtract_label(AllLabel,Label)},
-    link_inner([kind=Kind|Status],Ref,Label).
+    link_inner(Status,Ref,Label).
 
 link_inner(Status,Ref,Label) -->
     ref(Ref,Label),
-    ["\n\n#### "],
     {
 	key_in(idir=IDir,Status),
 	key_in(odir=ODir,Status),
 	key_in(kind=Kind,Status),
 	trl(compound([refid(Ref),kind(Kind)],[]),IDir,ODir)
     }.
-
-innerpage(Status,Atts,AllLabel) -->
-    {key_in(refid(Ref),Atts),
-     xtract_label(AllLabel,Label)},
-    {
-	key_in(pages=Found,Status),
-	var(Found),
-	!,
-	Found=found
-    },
-    ["\n\n\n### Pages:\n"],
-    ref(Ref,Label),
-    ["\n."].
-innerpage(_Status,Atts,AllLabel) -->
-    {key_in(refid(Ref),Atts),
-     xtract_label(AllLabel,Label)},
-    ref(Ref,Label),
-    ["\n."].
 
 
 innermodule(Status,Atts,AllLabel) -->
@@ -267,8 +266,6 @@ sectiondef(Atts,Els) -->
 v(Msg,S0,S0) :-
     writeln(Msg:S0).
 
-
-
 sectdef(header([],[Text]))-->
     ["\n",Text,"\n"].
 sectdef(member(Atts,Children))-->
@@ -284,8 +281,8 @@ sectdef(member(Atts,Children))-->
 	true
 	;
 	Name = "" %writeln(Children)
-	),
-        writeln(Children:Name)
+	)
+%         writeln(Children:Name)
     } ,
     ["%- " ],
     ref(Ref,Name).
@@ -299,7 +296,7 @@ sectdef(memberdef(Atts,Children))-->
 	get_name(Children,Name),
 	to_predicate(Name, PName),
 	short_ref(Ref, PRef),
-	format(string(Header), '\n[](){#~s}\n#### **~s~s**: \n', [PRef,PName,A])
+	format(string(Header), '\n[](){#~s}\n1. **~s~s**: \n', [PRef,PName,A])
     },
     [Header],
     (
@@ -433,13 +430,13 @@ description(sect1([],S)) -->
     description(S).
 description(sect2([],S)) -->
     !,
-    [ "#### "],
+    [ "\n\n#### "],
     (
 	key_in(title(_,T),S)
     ->
-    [T],["\n"]
+    [T]
     ;
-    ["\n"]
+    []
     ),
     description(S).
 description(sect3([],S)) -->
@@ -551,9 +548,12 @@ top_sectiondef_name( "enum", "Enum" ).
 top_sectiondef_name( "func", "Func" ).
 top_sectiondef_name(   "var", "Var" ).
 
-as_title(_,Props,Title) :-
+as_title(_,Props,PredTitle) :-
 key_in(title(_,[Title]), Props),
-!.
+writeln(Title),
+
+!,
+to_predicate(Title, PredTitle).
 as_title(Name,_,Name).
 
 bd(blockquote,"\n~~~\n").
@@ -599,8 +599,7 @@ para(javadocliteral([],Text)) -->
     unimpl(javadocliteral,Text). % xsd:unimpling
 para(javadoccode([],Text)) -->
     unimpl(javadoccode,Text). % xsd:unimpling
-para(indexentry
-     ([],Text)) -->
+para(indexentry([],Text)) -->
     unimpl(indexentry,Text). % docIndexEntryType
 para(orderedlist(Atts,Text)) -->
     doxolist(Atts,Text). % docListType
@@ -1037,7 +1036,7 @@ para('equiv'(_,_))  -->
 para('le'(_,_))  -->
     [        "<le/>"].
 para('ge'(_,_))  -->
-    [        "<ge/>"].
+b    [        "<ge/>"].
 para('sub'(_,_))  -->
     [       "<sub/>"].
 para('sup'(_,_))  -->
@@ -1713,7 +1712,7 @@ short_ref(Ref,Ref).
 % translate a ref to mkdocs
 %
 ref(S,W) -->
-    {writeln(S:W)},
+%     {writeln(S:W)},
     { inner(S,P)
     },
     !,
@@ -1768,6 +1767,9 @@ strip_module_from_pred(ROS,EOS,Final) :-
     string_concat([NMod,":",SemiFinal],Final).
 
 
+get_name([Name],Name) :-
+string(Name),
+!.
 get_name(Children,Name) :-
     key_in(qualifiedname(_,NameS ),Children),
     (

@@ -43,15 +43,12 @@
 :- use_module(library(arg),
 	      [genarg/3]).
    
-/** <module> occur check support
-  @ingroup YAP_swi
-*/
-
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/** @defgroup Occurs occur check support
+  @ingroup YAPLibrary
+@{
 This  is  a  SWI-Prolog  implementation  of  the  corresponding  Quintus
 library, based on the generalised arg/3 predicate of SWI-Prolog.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+*/
 
 %%	contains_term(+Sub, +Term) is semidet.
 %
@@ -142,4 +139,6 @@ count(Goal, Count) :-
 	    fail
 	;   arg(1, State, Count)
 	).
+
+%% @}
 

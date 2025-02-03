@@ -59,7 +59,7 @@ unix(system(Command)).
 script(S) :-
     peek_char(S,'#'),
     !,
-     readline:read_line_to_string(S,_),
+     readutil:read_line_to_string(S,_),
     script(S).
 script(_).
 
@@ -123,12 +123,12 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
     predicates(More,N/A,Preds,L0).
 
 output(command([comments(Comments) |_])) :-
-    maplist(out_comment(_),Comments ).
+    maplist(out_comment,Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
     atom_chars(N,SNs),
     %    foldl(csafe,Ns,SNs,[]),
     format(atom(N1),'P~s~d',[SNs,A]),
-    maplist(out_comment(Found),Comments),
+    maplist(out_comment,Comments),
     addcomm(N/A,Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
@@ -162,12 +162,12 @@ insert_module_tail.
 
 
 
-out_comment(true,C) :-
+out_comment(C) :-
     string_chars(C,Cs),
     trl_comm(Cs,Cf), 
     !,
     format('~s~n',[Cf]).
-out_comment(_,_C).
+out_comment(_C).
 
 trl_comm( ['/','*','<',C|L],['/','*','<',C|NL]) :-
     sp(C),
@@ -194,6 +194,7 @@ trl_comm(_L,[]).
 
 sp(' ').
 sp('\t').
+sp('\j').
 sp('\n').
 
 trl_pred(L,_,NL) :-
@@ -344,12 +345,12 @@ addcomm(_,_).
 
 
 dxpand(module(M,Gs)) :-
-   module(M),
+%   module(M),
     assert(defines_module(M)),
     maplist(dxpand,Gs).
 dxpand(op(M,Gs,Y)) :-
     op(M,Gs,Y).
-dxpand(use_module(M,Gs)) :-
+dxpand(use_module(M,Gs)). % :-
     (:-use_module(M,Gs)).
 dxpand(module(user)) :- !.
 dxpand(module(M)) :-

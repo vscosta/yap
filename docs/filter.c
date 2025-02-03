@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 	strstr(argv[1],".pl" )) {
       char s[2048];
       //      execl(YAPBIN, "-L",  PLFILTER, "--", argv[1], NULL);
-      snprintf(s, 2047, "%s startup.yss -L %s -- %s", YAPBIN, PLFILTER, argv[1]);
+      snprintf(s, 2047, "%s %s -L %s -- %s", YAPBIN, YAPSTARTUP, PLFILTER, argv[1]);
       system(s);
       exit(0);
 	}
@@ -37,6 +37,9 @@ int main(int argc, char *argv[]) {
 	  code_comment=(start[2]=='/' ) && isblank(start[3]);
 	} else  if ((start = strstr(line, "/*"))) {
 	  in_star = true;
+
+
+
 	  code_comment=(start[2]=='*' || start[2]=='?') && isspace(start[3]);
 	}
       }  

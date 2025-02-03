@@ -80,7 +80,8 @@
 /**
 
 
-@addtogroup YAPControl
+@defgroup YAPControl
+@ingroup Builtins
 
 @{
 

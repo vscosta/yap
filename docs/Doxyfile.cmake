@@ -113,7 +113,8 @@ if (DOXYGEN_FOUND)
   add_executable(filter-bin docs/filter.c)
 
   set_target_properties(filter-bin PROPERTIES OUTPUT_NAME filter)
-  set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS YAPBIN="${CMAKE_BINARY_DIR}/yap")
+  set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS YAPSTARTUP="${CMAKE_BINARY_DIR}/startup.yss")
+set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS YAPBIN="${CMAKE_BINARY_DIR}/yap")
   set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS PLFILTER="${CMAKE_CURRENT_SOURCE_DIR}/docs/filter.yap")
 
 
@@ -141,16 +142,17 @@ if (DOXYGEN_FOUND)
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
-#     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  ${CMAKE_BINARY_DIR}/INSTALL.md ${DOCS_MD_FILES}  mkdocs/docs
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  ${CMAKE_BINARY_DIR}/INSTALL.md ${DOCS_MD_FILES}  mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/images
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/images
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/images/favicon.ico
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  mkdocs/docs/javascripts
-    COMMAND yap-bin startup.yss -l ${CMAKE_SOURCE_DIR}/docs/dox2md -z main -- xml mkdocs/docs ${CMAKE_BINART_DIR}
+    COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md  -- xml mkdocs/docs ${CMAKE_BINARY_DIR}
     DEPENDS STARTUP filter-bin dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
   )
-
+add_dependencies(filter-bin STARTUP)
+add_dependencies(dox filter-bin STARTUP)
   add_custom_target(mkdocs
     COMMAND mkdocs build
     WORKING_DIRECTORY mkdocs

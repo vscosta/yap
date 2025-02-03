@@ -1211,6 +1211,10 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
   } else
      tokstart=tokstart->TokNext;
  }
+ 
+ if (comms != TermNil) {
+   *VarOfTerm((comms))= TermNil;
+ }
  // LOCAL_tokptr=tokstart;
  
      if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
