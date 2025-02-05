@@ -211,7 +211,7 @@ double cumulative_normal_dsigma(double low, double high,double mu,double sigma) 
 density_integral parse_density_integral_string(char *input, const char *variablename) {
   density_integral result;
   int i;
-  char garbage[64], s1[64],s2[64],s3[64],s4[64];
+  char garbage[65], s1[65],s2[65],s3[65],s4[65];
 
   if(sscanf(input, "%64[^;];%64[^;]", s1,s2) != 2) {
     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);

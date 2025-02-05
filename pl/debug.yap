@@ -588,6 +588,11 @@ Port,
     '$cleanup_on_exit'(CP0, TaskF).
 
 
+'$creep_run_sources'(_Setup, _M, true, _CP0, _GoalNumber, _Catcher, _Ctx, _Cleanup) :-
+    !.
+'$creep_run_sources'(_Setup, _M, fail, _CP0, _GoalNumber, _Catcher, _Ctx, _Cleanup) :-
+    !,
+    fail.
 '$creep_run_sources'(Setup, M, B, CP0, GoalNumber, Catcher, Ctx, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
     Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
@@ -724,7 +729,7 @@ Port,
 
 %        
 % last.first
-%'$ports_to_port'(P, _) :- writeln(P), fail. 
+'$ports_to_port'(P, _) :- writeln(P), fail. 
 '$ports_to_port'([answer], exit).
 '$ports_to_port'([answer,exit], exit).
 '$ports_to_port'([answer,answer], exit).

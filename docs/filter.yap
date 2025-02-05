@@ -8,9 +8,13 @@
 
 :- include(utils).
 
+:-dynamic pred_found/2.
+
 :- initialization(main).
 
 :- add_to_path('../pl').
+
+:- set_prolog_flag(double_quotes, string).
 
 valid_suffix('.yap').
 valid_suffix('.pl').
@@ -21,7 +25,7 @@ valid_suffix('.ypp').
 /**
  * @pred main
  *
-4* Call the filter.
+ * Call the filter.
 */
 
 main :-
@@ -78,8 +82,12 @@ entry(S,O) :-
       ;
       T = ( :- Directive )
       ->
-      dxpand(Directive),
-      O = directive(Directive, Comments, Vs)
+      (
+	dxpand(Directive),
+	fail
+	;
+	O = directive(Directive, Comments, Vs)
+      )
       ;
 
       T = (( Grammar --> Expansion ))
@@ -129,7 +137,7 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
     %    foldl(csafe,Ns,SNs,[]),
     format(atom(N1),'P~s~d',[SNs,A]),
     maplist(out_comment,Comments),
-    addcomm(N/A,Found),
+    addcomm(N/A,_Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
     (
@@ -160,155 +168,201 @@ insert_module_tail :-
     format('}~n',[]).
 insert_module_tail.
 
-
-
 out_comment(C) :-
-    string_chars(C,Cs),
-    trl_comm(Cs,Cf), 
+    trl(C,Cf), 
     !,
     format('~s~n',[Cf]).
-out_comment(_C).
 
-trl_comm( ['/','*','<',C|L],['/','*','<',C|NL]) :-
-    sp(C),
+trl( C,NC) :-
+    sub_string(C,0,3,_,"/*<"),
+    sub_string(C,3,1,_,Space),
+    sp(Space),
     !,
-    trl_pred(L,star,NL).
-trl_comm( ['/','*','*',C|L],['/','*','*',C|NL]) :-
-    sp(C),
+    trl_lines(C,star,NC).
+trl( C,NC) :-
+    sub_string(C,0,3,_,"/**"),
+    sub_string(C,3,1,_,Space),
+    sp(Space),
     !,
-    trl_pred(L,star,NL).
-trl_comm( ['%','%','<',C|L],['/','/','/','<',C|NL]) :-
-    sp(C),
-    %ntrl_extend(Ext, []),
-    %append(L,['\n'|Ext],ExtL),
+    trl_lines(C,star,NC).
+trl( C,NC) :-
+    sub_string(C,0,2,_,"%<"),
+    sub_string(C,2,1,Comm,Space),
+    sp(Space),
     !,
-    trl_pred(L,lines,NL).
-trl_comm( ['%','%',C|L],['/','/','/',C|NL]) :-
-    sp(C),
-    %rl_extend(Ext,[]),
-    % append(L,['\n'|Ext],ExtL),
+    sub_string(C,_,Comm,0,L),
+    trl_lines(L,star,NL),
+    string_concat(["///<",C,NL],NC).
+trl( C,NC) :-
+    sub_string(C,0,2,_,"%%"),
+    sub_string(C,2,1,Comm,Space),
+    sp(Space),
     !,
-    trl_pred(L,lines,NL).
-trl_comm(_L,[]).
+    sub_string(C,_,Comm,0,L),
+    trl_lines(L,star,NL),
+    string_concat(["///",C,NL],NC).
+trl( _C, "").
 
+sp(" ").
+sp("\t").
+sp("\n").
 
-sp(' ').
-sp('\t').
-sp('\j').
-sp('\n').
+ws(" ").
+ws("\t").
 
-trl_pred(L,_,NL) :-
-    trl_pred(L,LL),
-    trl_lines(LL,NL).
+trl_lines(L,_,NL) :-
+    (trl_lines(L,NL)).
+
+trl_lines(Lines, O) :-
+    sub_string(Lines,Left,1,Right,"\n"),
+    !,
+    sub_string(Lines,0,Left,_,C),
+    trl_line(C,NC),
+    sub_string(Lines,_,Right,0, R),
+    trl_lines(R,NL),
+    string_concat([NC,"\n",NL],O).
+trl_lines( Lines, O) :-
+    trl_line( Lines,O).
+
+trl_line(  "","\n") :-
+    !.
+trl_line(  L,LF) :-
+    trl_prefix(L,L1),
+    trl_pred(L1,L2),
+    trl_pi(L2,LF).
+
+trl_prefix(C,NC) :-
+    sub_string(C,0,2,_Len,Pref),
+(Pref == "%%" -> true ;Pref == "%!"), 
+     sub_string(C,2,1,_Comm,Space),
+    sp(Space),
+!,
+    sub_string(C,2,_,0,B),
+    string_concat("///",B,NC).
+trl_prefix(C,C).
 
 trl_pred(RL,NL) :-
-    append(Start,['@',p,r,e,d,' '|Decl],RL),
+    sub_string(RL,Bef,5,After,"@pred"),
+    After1 is After-1,
+    sub_string(RL,_,1,After1,WS),
+    ws(WS),
+    sub_string(RL,_,After1,0,Line0),
+    strip_whitespace(Line0,0,Line),
+    detect_name(Line,Name,Args,Arity,Extra),
     !,
-    skip_blanks(Decl,TDecl),
-    word(TDecl,W,Args),
-    decl(W,Args,DL),
-    append(Start,DL,NL).
+    number_string(Arity,A),
+    atom_string(At,Name),
+    assert(pred_found(At,Arity)),
+    sub_string(RL,0,Bef,_, Prefix),
+    string_concat([Prefix,"@class P",Name,A,"       **\"",Name,Args,"\"** ",Extra],NL).
+trl_pred(RL,NL) :-
+    sub_string(RL,Bef,5,After,"@infixpred"),
+    After1 is After-1,
+    sub_string(RL,_,1,After1,WS),
+    ws(WS),
+    sub_string(RL,_,After1,0,Line0),
+    skip_whitespace(After1,RL,A1),
+    block(A1,RL,B1),
+		skip_whitespace(B1,RL,A2),
+		block(A2,RL,B2),
+		skip_whitespace(B2,RL,A3),
+		block(A3,RL,B3),
+			    !,
+			    L2 is B2-A2,
+			    L1 is B3-A1,
+			    sub_string(RL,A2,L2,_,Name),
+			    sub_string(RL,A1,L1,_,NameArgs),
+			    sub_string(RL,B3,_,0.Extra),
+			    Arity=2,
+    number_string(Arity,A),
+    atom_string(At,Name),
+    assert(pred_found(At,Arity)),
+    sub_string(RL,0,Bef,_, Prefix),
+    string_concat([Prefix,"@class P",Name,A,"       **\"",NameArgs,"\"** ",Extra],NL).
 trl_pred(RL,RL).
 
-trl_lines(RL,NL) :-
-    split(RL,['\n'],Lines),
+    strip_whitespace(Line0,I0,Line) :-
+    sub_string(Line0,I0,1,_,WS),
+    ws(WS),
     !,
-    maplist(rcomm, RLines, Lines,_),
-    append(RLines,NL).
-
-rcomm(    ['/','/','/',C|L]) -->
-    ['%','%',C],
-    {sp(C)},
-    !,
-    r_id(L).
-    rcomm(['/','/','/','<',C|L]) -->
-['%','%',C],
-    {sp(C)},
-    !,
-    
-    r_id(L).
-rcomm(  ['/','/',C|L]) -->
-   ['%',C],
-{sp(C)},
-!,
-    r_id(L).
-
-rcomm(L) -->
-    r_id(L).
-
-
-
-
-%before atom
-
-r_id(Cs) -->
-    [A],
-    {char_type_lower(A)},                 
-    !,
-    r_id_atom(At),
-    r_id2(Cs,[A|At],RCs),
-    r_id(RCs).
-r_id([A|Cs]) -->
-    [A],
-    r_id(Cs).
-r_id(['\n']) --> [].
- 
-r_id2(Cs,A0,RCS) -->
-    ['/',D],
-    {char_type_digit(D)},
-    !,
-    { format(chars(Cs,RCS),' @ref P~s~s \"~s/~s\" ',[A0,[D],A0,[D]]) }.
-r_id2(Cs, A0,Left) -->
-    {append(A0,Left,Cs)}.
-
-
-r_id_atom([A|A0]) -->
-    [A],
-    { char_type_csym(A) },
-    !,
-    r_id_atom(A0).
-r_id_atom([]) --> [].
-
-scan_line([],[],[]).
-scan_line(['\n'|R],[],R) :-
+    I is I0+1,
+    strip_whitespace(Line0,I,Line).
+    strip_whitespace(Line,0,Line) :-
     !.
-scan_line([C|Cs],[C|M],R) :-
-    scan_line(Cs,M, R).
+    strip_whitespace(Line0,I0,Line) :-
+    sub_string(Line0,I0,_,0,Line).
 
-skip_blanks([C|Cs], R) :-
-    sp(C),
+    skip_whitespace(Line,I0,IF) :-
+    sub_string(Lin,I0,1,_,WS),
+    ws(WS),
     !,
-    skip_blanks(Cs,R).
-skip_blanks(Cs,Cs).
+    I is I0+1,
+    skip_whitespace(Line,I,IF).
+    skip_whitespace(Line,I,IF) :-
+    !.
+    strip_whitespace(Line,I,I).
 
-word([C|Cs],[C|W],R) :-
-    alphanum(C),
+    block(Line,I0,IF) :-
+    sub_string(Lin,I0,1,_,WS),
+    \+ws(WS),
     !,
-    word(Cs,W,R).
-word(R,[],R).
+    I is I0+1,
+    block(Line,I,IF).
+    block(Line,I,IF) :-
+    !.
+    strip_whitespace(Line,I,I).
 
-decl(Name,['('|D1],F) :-
-    !,
-    append(Info,[')'|R1],D1),
-    foldl(arity,Info,1,Arity),
-%    foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@class P~s~d		~n \"~s(~s)\"',  [Name,Arity,Name,Info]),
-    trl_pred(R1,R1F).
-decl(Name,[C|R1],F) :-
-    sp(C),
-    !,
-    %foldl(csafe,Name,TName,[]),
-    format(chars(F,R1F),'@class P~s0		~n ~s',[Name,Name]),
-    trl_pred(R1,R1F).
+    detect_name(Line,Name,Args,Arity,Extra) :-
+    sub_string(Line,Bef,1,_,"("),
+    sub_string(Line,_,1,After,")"),
+    sub_string(Line,0,Bef,_,Name),
+    sub_string(Line,Bef,_Sz,After,Args),
+    sub_string(Line,_,After,0,Extra),
+    findall(I,sub_string(Args,I,1,_,","),Is),
+    length([_|Is],Arity).
 
-    /* This routine generates two streams from the comment:
- * - the class text.
- * - The source
- */
-arity(',',I, I1) :-
+
+trl_pi(RL,NL) :-
+    sub_string(RL,Left,1,Right,"/"),
+    Left1 is Left+1,
+    sub_string(RL,Left1,1,Right,D),
+    digit(D),
+    back(Left,RL,Prefix,Name),
+    Name \= "",
     !,
-    I1 is I+1.
-arity(_,I,I).
+    sub_string(RL,_,Right,0,RR),
+    trl_pi(RR,NR),
+    string_concat([Prefix,Name,"/",NR],NL).
+trl_pi(L,L).
+    
+
+back(0,L,L,"") :-
+    !.
+back(I0,S,Prefix,Name) :-
+    sub_string(S,I0,1,_,WS),
+    ws(WS),
+    !,
+    I is I0+1,
+     sub_string(S,0,I,_,Prefix),
+     sub_string(S,I0,_,0,Name).
+    back(I0,S,L,R) :-
+     I is I0-1,
+    back(I,S,L,R).
+   
+
+digit("0").
+digit("1").
+digit("2").
+digit("3").
+digit("4").
+digit("5").
+digit("6").
+digit("7").
+digit("8").
+digit("9").
+    
+
+
 
 csafe(C,LF,L0) :-
     char_to_safe(C,LF,L0),
@@ -333,6 +387,7 @@ char_to_safe('$',['_',d,l|L],L).
 
 addcomm(N/A,false) :-
     is_exported(N,A),
+    \+ pred_found(N,A),
     !,
     length(L,A),
     maplist(=('?'),L),
@@ -345,12 +400,12 @@ addcomm(_,_).
 
 
 dxpand(module(M,Gs)) :-
-%   module(M),
+   module(M),
     assert(defines_module(M)),
     maplist(dxpand,Gs).
 dxpand(op(M,Gs,Y)) :-
     op(M,Gs,Y).
-dxpand(use_module(M,Gs)). % :-
+dxpand(use_module(M,Gs)) :-
     (:-use_module(M,Gs)).
 dxpand(module(user)) :- !.
 dxpand(module(M)) :-

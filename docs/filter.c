@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 		    pred++;
 		  }
 		  if  (isblank(pred[0])) {
-		fprintf(stdout,"%.*s @class P%.*s0  <b>%.*s</b>%s",
+		fprintf(stdout,"%.*s @class P%.*s0  ** \"%.*s\" **%s",
 			(int)(start-line),line,
 			(int)(pred-p0),p0,
 			(int)(pred-p0),p0,
@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
 		fprintf(stdout,"%.*s @class P%.*s%d ",
 			(int)(start-line),line,
 			(int)(args-p0),p0,arity);
-		fprintf(stdout,"<b> %.*s</b>%s\n", (int)(pred-p0), p0, pred);
+		fprintf(stdout,"** \"%.*s\" ** %s \n", (int)(pred-p0), p0, pred);
 		line=NULL;
 		allocate_block=true;
 		continue;

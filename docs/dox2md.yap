@@ -291,23 +291,23 @@ sectdef(member(Atts,Children))-->
 sectdef(memberdef(Atts,Children))-->
     {
 
-	( key_in(argsstring(A),Atts) -> true ; A = ""),
+	( key_in(argsstring([],[Args]),Children) -> true ; Args = ""),
 	key_in(id(Ref),Atts),
 	get_name(Children,Name),
 	to_predicate(Name, PName),
-	short_ref(Ref, PRef),
-	format(string(Header), '\n[](){#~s}\n1. **~s~s**: \n', [PRef,PName,A])
+	short_ref(Ref, PRef)
     },
-    [Header],
     (
 	{key_in(definition([],[Def]),Children)}
     
-    -> [Def]
-    ;
-    []
-    ),
-    
 
+    ->
+
+	{format(string(Header), '\n[](){#~s}\n1. **~s~s**: \n', [PRef,Def,Args])}
+    ;
+{format(string(Header), '\n[](){#~s}\n1. **~s~s**: \n', [PRef,PName,Args])}
+    ),
+    [Header],
     (	{ key_in(briefdescription([],Brief),Children) }
 
     ->
@@ -381,9 +381,11 @@ raw(Text) -->
 %  foldl(para).
 
 doxolist(_Pars,Items) -->
+["\n\n"],
     foldl(item("1"),Items).
 
 itemlist(_Pars,Items) -->
+["\n\n"],
     foldl(item("i"),Items).
 
 item(Type,listitem(_,Para)) -->
@@ -406,9 +408,8 @@ typel("I") -->
 
 description(para([],S)) -->
     !,
-    ["\n\n"],
     description(S),
-    ["\n\n"].
+ ["\n\n"].
 description(S) -->
     { string(S) },
     !,
@@ -545,7 +546,7 @@ top_sectiondef_name( "define", "Define" ).
 top_sectiondef_name( "prototype", "Prototype" ).
 top_sectiondef_name( "typedef", "Typedef" ).
 top_sectiondef_name( "enum", "Enum" ).
-top_sectiondef_name( "func", "Func" ).
+top_sectiondef_name( "func", "Functions" ).
 top_sectiondef_name(   "var", "Var" ).
 
 as_title(_,Props,PredTitle) :-
@@ -605,8 +606,11 @@ para(orderedlist(Atts,Text)) -->
     doxolist(Atts,Text). % docListType
 para(itemizedlist(Atts,Text)) -->
     itemlist(Atts,Text). % docListType
-para(simplesect(_,Text)) -->
-    unimpl(simplesect,Text). % docSimpleSectType
+para(simplesect([kind(Kind),Text)) -->
+["\n\n"],
+[Kind]
+[" "],
+description(Text).
 para(title(_,Text)) -->
     unimpl(title,Text). % docTitleType
 para(variablelist(_,Text)) -->
@@ -1036,7 +1040,7 @@ para('equiv'(_,_))  -->
 para('le'(_,_))  -->
     [        "<le/>"].
 para('ge'(_,_))  -->
-b    [        "<ge/>"].
+    [        "<ge/>"].
 para('sub'(_,_))  -->
     [       "<sub/>"].
 para('sup'(_,_))  -->
@@ -1103,7 +1107,7 @@ para(ensp(_,_)) -->
     [ "<ensp/>"].
 para('emsp'(_,_))  -->
     [ "<emsp/>"].
-para('thinsp'(_,_))  -->
+ara('thinsp'(_,_))  -->
     [   "<thinsp/>"].
 para('zwnj'(_,_))  -->
     [  "<zwnj/>"].

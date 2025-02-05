@@ -744,6 +744,12 @@ static ClausePointer cl_code_in_pred(PredEntry	*pp, yamop *codeptr) {
   } else if (&codeptr->opc == &pp->cs.p_code.ExpandCode) {
     out.pe	   = pp;
     /* check if the codeptr comes from the indexing code */
+  } else if (codeptr == FAILCODE) {
+    out.pe	   = PredFail;
+    /* check if the codeptr comes from the indexing code */
+  } else if (codeptr == TRUSTFAILCODE) {
+    out.pe	   = PredFail;
+    /* check if the codeptr comes from the indexing code */
   } else if (pp->PredFlags & IndexedPredFlag) {
     if (pp->PredFlags & LogUpdatePredFlag) {
       out.lui  = ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred);
@@ -1640,7 +1646,13 @@ b_ptr = b_ptr->cp_b;
 
 
 static bool outputep(FILE *f, bool	 ignore_sys, yamop *my_cp, CELL *ep, int depth) {
-  PredEntry				*pe = (((yamop *)((CODEADDR)(my_cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p0);
+  PredEntry				*pe;
+  if (my_cp == FAILCODE||
+      my_cp == TRUSTFAILCODE) {
+    pe = PredFail;
+} else {
+  pe = (((yamop *)((CODEADDR)(my_cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->y_u.Osbpp.p0);
+  }
   if (ignore_sys && pe && !pe->ModuleOfPred) {
     fprintf(f, "...\n");
     return false;
