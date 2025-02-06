@@ -256,29 +256,26 @@ trl_pred(RL,NL) :-
     sub_string(RL,0,Bef,_, Prefix),
     string_concat([Prefix,"@class P",Name,A,"       **\"",Name,Args,"\"** ",Extra],NL).
 trl_pred(RL,NL) :-
-    sub_string(RL,Bef,5,After,"@infixpred"),
-    After1 is After-1,
-    sub_string(RL,_,1,After1,WS),
-    ws(WS),
-    sub_string(RL,_,After1,0,Line0),
-    skip_whitespace(After1,RL,A1),
+    sub_string(RL,Bef,10,After,"@infixpred"),
+    A0 is Bef+10,
+    skip_whitespace(A0,RL,A1),
+    A1>A0,
     block(A1,RL,B1),
 		skip_whitespace(B1,RL,A2),
+	A2>A1,	
 		block(A2,RL,B2),
 		skip_whitespace(B2,RL,A3),
-		block(A3,RL,B3),
+		A3>A2,block(A3,RL,B3),
 			    !,
 			    L2 is B2-A2,
 			    L1 is B3-A1,
 			    sub_string(RL,A2,L2,_,Name),
 			    sub_string(RL,A1,L1,_,NameArgs),
-			    sub_string(RL,B3,_,0.Extra),
-			    Arity=2,
-    number_string(Arity,A),
+			    sub_string(RL,B3,_,0,Extra),
     atom_string(At,Name),
-    assert(pred_found(At,Arity)),
+    assert(pred_found(At,2)),
     sub_string(RL,0,Bef,_, Prefix),
-    string_concat([Prefix,"@class P",Name,A,"       **\"",NameArgs,"\"** ",Extra],NL).
+    string_concat([Prefix,"@class P",Name,"2       **\"",NameArgs,"\"** ",Extra],NL).
 trl_pred(RL,RL).
 
     strip_whitespace(Line0,I0,Line) :-
@@ -292,26 +289,24 @@ trl_pred(RL,RL).
     strip_whitespace(Line0,I0,Line) :-
     sub_string(Line0,I0,_,0,Line).
 
-    skip_whitespace(Line,I0,IF) :-
-    sub_string(Lin,I0,1,_,WS),
+    skip_whitespace(I0,Line,IF) :-
+    sub_string(Line,I0,1,_,WS),
     ws(WS),
     !,
     I is I0+1,
-    skip_whitespace(Line,I,IF).
-    skip_whitespace(Line,I,IF) :-
-    !.
-    strip_whitespace(Line,I,I).
+    skip_whitespace(I,Line,IF).
+    skip_whitespace(I,_Line,I).
 
-    block(Line,I0,IF) :-
-    sub_string(Lin,I0,1,_,WS),
-    \+ws(WS),
+  
+    block(I0,Line,IF) :-
+    sub_string(Line,I0,1,_,WS),
+\+    ws(WS),
     !,
     I is I0+1,
-    block(Line,I,IF).
-    block(Line,I,IF) :-
-    !.
-    strip_whitespace(Line,I,I).
+    block(I,Line,IF).
+    block(I,_Line,I).
 
+  
     detect_name(Line,Name,Args,Arity,Extra) :-
     sub_string(Line,Bef,1,_,"("),
     sub_string(Line,_,1,After,")"),
@@ -325,29 +320,29 @@ trl_pred(RL,RL).
 trl_pi(RL,NL) :-
     sub_string(RL,Left,1,Right,"/"),
     Left1 is Left+1,
-    sub_string(RL,Left1,1,Right,D),
+    sub_string(RL,Left1,1,_Right,D),
     digit(D),
-    back(Left,RL,Prefix,Name),
-    Name \= "",
+    back(Left,RL,NPrefix),
+NPrefix \= Left,
     !,
+    sub_string(RL,0,NPrefix,_,Prefix),
+    sub_string(RL,NPrefix,_,Right,Name),
     sub_string(RL,_,Right,0,RR),
     trl_pi(RR,NR),
     string_concat([Prefix,Name,"/",NR],NL).
 trl_pi(L,L).
     
 
-back(0,L,L,"") :-
+back(0,_L,0) :-
     !.
-back(I0,S,Prefix,Name) :-
-    sub_string(S,I0,1,_,WS),
+back(I0,S,I0) :-
+    I is I0-1.
+    sub_string(S,I,1,_,WS),
     ws(WS),
     !,
-    I is I0+1,
-     sub_string(S,0,I,_,Prefix),
-     sub_string(S,I0,_,0,Name).
-    back(I0,S,L,R) :-
+    back(I0,S,P) :-
      I is I0-1,
-    back(I,S,L,R).
+    back(I,S,P).
    
 
 digit("0").

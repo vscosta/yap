@@ -143,7 +143,7 @@ contact the YAP maintainers if you require extra functionality.
 :- meta_predicate matrix_foldl(4,?,?,?,?).
 
 
-/** @pred ?_LHS_ <==  ?_RHS_ is semidet
+/** @infixpred ?_LHS_ <==  ?_RHS_ is semidet
 
 
 General matrix assignment operation. It evaluates the right-hand side
@@ -154,7 +154,7 @@ left-hand side and to the matrix:
 perform non-backtrackable assignment.
 + other unify left-hand side and right-hand size.
 
-@begin{verbatim}
+
 
  High Level Interface to Matrix evaluation.
 
@@ -274,7 +274,7 @@ as  an interval ` _Base_.. _Limit_`. In the latter case,
 matrices of integers and of floating-point numbers should have the same
     _Base_ on every dimension.
 
-@end{verbatim}
+
 */
 
 
