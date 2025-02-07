@@ -145,3 +145,55 @@ split_element(SplitCodes,  DoubleQs, SingleQs, Strings) -->
 split_element(_SplitCodes,  _DoubleQs, _SingleQs, []) --> !.
 split_element(_SplitCodes,  _DoubleQs, _SingleQs, [[]]) --> [].
 
+
+encode(P,S) :-
+    pred2dox(P,S),
+    !.
+encode(S,S).
+
+decode(P,S) :-
+    dox2pred(P,S),
+    !.
+decode(S,S).
+
+pi2dox(P/A, String) :-
+    format(string(Pred),'~w',[P/A]),
+    pred2dox(Pred, String).
+
+pred2dox(Pred, String) :-
+    string_chars(Pred,Cs),
+    foldl(csafe,Cs,PCs,[]),
+    string_chars(String,['P'|PCs]).
+
+dox2pred(String,Pred) :-
+    string_chars(String,['P'|Cs]),
+    rcov(Cs,PCs),
+    string_chars(Pred,PCs).
+    
+    
+csafe(C,LF,L0) :-
+    char_to_safe(C,LF,L0),
+    !.
+csafe(C,[C|L],L).
+
+rcov(['_',s,l,D],['/',D]) :-
+    char_type(D,digit).
+rcov(L,[C|NL]) :-
+    char_to_safe(C,L,L0),
+    !,
+    rcov(L0,NL).
+rcov([C|L0],[C|NL]) :-
+    rcov(L0,NL).
+
+
+char_to_safe('=',['_',e,q|L],L).
+char_to_safe('<',['_',l,t|L],L).
+char_to_safe('>',['_',g,t|L],L).
+%char_to_safe('_',['_','_'|L],L).
+char_to_safe('!',['_',c,t|L],L).
+char_to_safe('-',['_',m,n|L],L).
+char_to_safe('+',['_',p,l|L],L).
+char_to_safe('*',['_',s,t|L],L).
+char_to_safe('/',['_',s,l|L],L).
+char_to_safe('$',['_',d,l|L],L).
+

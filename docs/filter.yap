@@ -133,24 +133,23 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
 output(command([comments(Comments) |_])) :-
     maplist(out_comment,Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
-    atom_chars(N,SNs),
-    %    foldl(csafe,Ns,SNs,[]),
-    format(atom(N1),'P~s~d',[SNs,A]),
+    encode(N/A,S1),
+    atom_string(A1,S1),
     maplist(out_comment,Comments),
-    addcomm(N/A,_Found),
+    addcomm(N/A,S1,_Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
     (
       A==0 ->
       T = N
       ;
-      T =.. [N1|NIs]
+      T =.. [A1|NIs]
     ),
     (
       false,
       is_exported(N,A)
       ->
-      format(' class  ~s { ~w;~n};~n~n~n',[ N1,T])
+      format(' class  ~s {        ~w;~n};~n~n~n',[ S1,T])
       ;
       true
     ) .
@@ -217,6 +216,7 @@ trl_lines(Lines, O) :-
     sub_string(Lines,Left,1,Right,"\n"),
     !,
     sub_string(Lines,0,Left,_,C),
+    writeln(C),
     trl_line(C,NC),
     sub_string(Lines,_,Right,0, R),
     trl_lines(R,NL),
@@ -254,9 +254,10 @@ trl_pred(RL,NL) :-
     atom_string(At,Name),
     assert(pred_found(At,Arity)),
     sub_string(RL,0,Bef,_, Prefix),
-    string_concat([Prefix,"@class P",Name,A,"       **\"",Name,Args,"\"** ",Extra],NL).
+    string_concat([Name,"/",A],DoxName),
+    string_concat([Prefix,"@class ",DoxName,"       **\"",Name,Args,"\"** ",Extra],NL).
 trl_pred(RL,NL) :-
-    sub_string(RL,Bef,10,After,"@infixpred"),
+    sub_string(RL,Bef,10,_After,"@infixpred"),
     A0 is Bef+10,
     skip_whitespace(A0,RL,A1),
     A1>A0,
@@ -272,10 +273,12 @@ trl_pred(RL,NL) :-
 			    sub_string(RL,A2,L2,_,Name),
 			    sub_string(RL,A1,L1,_,NameArgs),
 			    sub_string(RL,B3,_,0,Extra),
-    atom_string(At,Name),
-    assert(pred_found(At,2)),
+			    string_concat([Name,"/2"],PI),
+			    encode(PI,DoxName),
+			    atom_string( At, Name),
+			    assert(pred_found(At,2)),
     sub_string(RL,0,Bef,_, Prefix),
-    string_concat([Prefix,"@class P",Name,"2       **\"",NameArgs,"\"** ",Extra],NL).
+    string_concat([Prefix,"@class ",DoxName,"       **\"",NameArgs,"\"** ",Extra],NL).
 trl_pred(RL,RL).
 
     strip_whitespace(Line0,I0,Line) :-
@@ -329,17 +332,19 @@ NPrefix \= Left,
     sub_string(RL,NPrefix,_,Right,Name),
     sub_string(RL,_,Right,0,RR),
     trl_pi(RR,NR),
-    string_concat([Prefix,Name,"/",NR],NL).
+    string_concat([Name,"/",D],PI),
+    encode(PI,DoxName),
+    string_concat([Prefix,"@ref{",DoxName,"}[\"",PI,"\"]",NR],NL).
 trl_pi(L,L).
     
 
 back(0,_L,0) :-
     !.
 back(I0,S,I0) :-
-    I is I0-1.
+    I is I0-1,
     sub_string(S,I,1,_,WS),
     ws(WS),
-    !,
+    !.
     back(I0,S,P) :-
      I is I0-1,
     back(I,S,P).
@@ -357,37 +362,19 @@ digit("8").
 digit("9").
     
 
-
-
-csafe(C,LF,L0) :-
-    char_to_safe(C,LF,L0),
-    !.
-csafe(C,[C|L],L).
-
 alphanum(A) :-
     char_type(A,csym),
     !.
 alphanum(':').
 
-char_to_safe('=',['_',e,q|L],L).
-char_to_safe('<',['_',l,t|L],L).
-char_to_safe('>',['_',g,t|L],L).
-%char_to_safe('_',['_','_'|L],L).
-char_to_safe('!',['_',c,t|L],L).
-char_to_safe('-',['_',m,n|L],L).
-char_to_safe('+',['_',p,l|L],L).
-char_to_safe('*',['_',s,t|L],L).
-char_to_safe('/',['_',s,l|L],L).
-char_to_safe('$',['_',d,l|L],L).
-
-addcomm(N/A,false) :-
+addcomm(N/A,S,false) :-
     is_exported(N,A),
     \+ pred_found(N,A),
     !,
     length(L,A),
     maplist(=('?'),L),
     T =.. [N|L],
-    format('~n~n/**   @class P~s~d	~n ~w  @details (undocumented)  **/~n~n~n~n',[N,A,T]).
+    format('~n~n/**   @class ~s	 **~w**\n     (undocumented)  **/~n~n',[S,T]).
 addcomm(_,_).
 
 :- initialization(main).
@@ -423,4 +410,5 @@ is_exported(_,_) :-
     !.
 is_exported(N,A) :-
     exported(N,A).
+
 
