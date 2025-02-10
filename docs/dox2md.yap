@@ -222,6 +222,7 @@ innergroup(Status,Atts,AllLabel) -->
     link_inner(Status,Ref,Label).
 
 link_inner(Status,Ref,Label) -->
+{ decode(Label,PLabel) },
     ref(Ref,Label),
     {
 	key_in(idir=IDir,Status),
@@ -267,7 +268,8 @@ v(Msg,S0,S0) :-
     writeln(Msg:S0).
 
 sectdef(header([],[Text]))-->
-    ["\n",Text,"\n"].
+{to_predicate(Text,PText)},
+    ["\n",PText,"\n"].
 sectdef(member(Atts,Children))-->
     {
 	key_in(refid(Ref),Atts),
@@ -285,7 +287,8 @@ sectdef(member(Atts,Children))-->
 %         writeln(Children:Name)
     } ,
     ["%- " ],
-    ref(Ref,Name).
+{to_predicate(Name,PName)},
+    ref(Ref,PName).
 
 
 sectdef(memberdef(Atts,Children))-->
@@ -415,16 +418,18 @@ description(S) -->
     !,
     [S].
 description(title([],S)) -->
-    { string(S) },
+    { string(S),
+      as_title(S,T) },
     !,
-    [S].
+    [T].
 description(sect1([],S)) -->
     !, 
     ["### "],
     (
 	key_in(title(_,T),S)
     ->
-    [T],["\n"]
+{as_title(T,TT)},
+    [TT],["\n"]
     ;
     ["\n"]
     ),
@@ -435,7 +440,8 @@ description(sect2([],S)) -->
     (
 	key_in(title(_,T),S)
     ->
-    [T]
+{as_title(T,TT)},
+    [TT]
     ;
     []
     ),
@@ -446,7 +452,8 @@ description(sect3([],S)) -->
     (
 	key_in(title(_,T),S)
     ->
-    [T],
+{as_title(T,TT)},
+    [TT],
     ["\n"];
 	
 	["\n"]
@@ -554,7 +561,7 @@ key_in(title(_,[Title]), Props),
 writeln(Title),
 
 !,
-to_predicate(Title, PredTitle).
+decode(Title, PredTitle).
 as_title(Name,_,Name).
 
 bd(blockquote,"\n~~~\n").
@@ -606,13 +613,11 @@ para(orderedlist(Atts,Text)) -->
     doxolist(Atts,Text). % docListType
 para(itemizedlist(Atts,Text)) -->
     itemlist(Atts,Text). % docListType
-para(simplesect([kind(Kind),Text)) -->
+para(simplesect([kind(Kind)|Text])) -->
 ["\n\n"],
-[Kind]
+[Kind],
 [" "],
 description(Text).
-para(title(_,Text)) -->
-    unimpl(title,Text). % docTitleType
 para(variablelist(_,Text)) -->
     unimpl(variablelist,Text). % docVariableListType
 para(table(_,Text)) -->
@@ -1107,7 +1112,7 @@ para(ensp(_,_)) -->
     [ "<ensp/>"].
 para('emsp'(_,_))  -->
     [ "<emsp/>"].
-ara('thinsp'(_,_))  -->
+para('thinsp'(_,_))  -->
     [   "<thinsp/>"].
 para('zwnj'(_,_))  -->
     [  "<zwnj/>"].
@@ -1770,7 +1775,9 @@ strip_module_from_pred(ROS,EOS,Final) :-
     !,
     string_concat([NMod,":",SemiFinal],Final).
 
-
+get_safe_name(S,N) :-
+get_name(S,N0),
+   decode(N0,N).
 get_name([Name],Name) :-
 string(Name),
 !.

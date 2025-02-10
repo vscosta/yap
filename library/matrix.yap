@@ -146,6 +146,9 @@ contact the YAP maintainers if you require extra functionality.
 /** @infixpred ?_LHS_ <==  ?_RHS_ is semidet
 
 
+ Dispatcher, with a special cases for matrices as the RH
+ may depend on the LHS.
+
 General matrix assignment operation. It evaluates the right-hand side
  according to the
 left-hand side and to the matrix:
@@ -232,27 +235,27 @@ style extension to `[]`). Examples include:
 
 The right-hand side supports the following operators:
 
-+ `[]/2`
++ `[]`
 
     written as  _M_[ _Offset_]: obtain an element or list of elements
 of matrix  _M_ at offset  _Offset_.
 
-+ `../2`
++ `..`
 
     _I_.. _J_ generates a list with all integers from  _I_ to
  _J_, included.
 
-+ `+/2`
++ `+`
 
     add two numbers, add two matrices element-by-element, or add a number to
 all elements of a matrix or list.
 
-+ `-/2 `
++ `- `
 
     subtract two numbers, subtract two matrices or lists element-by-element, or subtract a number from
 all elements of a matrix or list
 
-+ `* /2`
++ `* `
 
     multiply two numbers, multiply two matrices or lists
     element-by-element, or multiply a number from all elements of a
@@ -262,7 +265,7 @@ all elements of a matrix or list
 
     natural logarithm of a number, matrix or list
 
-+ `exp/1 `
+§§§§§§§§§§§§§§§§§§§§§§§§+ `exp/1 `
 
     natural exponentiation of a number, matrix or list
 
@@ -278,12 +281,6 @@ matrices of integers and of floating-point numbers should have the same
 */
 
 
-/**
- @pred <==(Inp, Out)
-
- Dispatcher, with a special cases for matrices as the RH
- may depend on the LHS.
-*/
 
 O <== V :-
     var(V),
@@ -725,7 +722,7 @@ compute(Cs,Exp) :-
 
     create a vector from a list
 
-+ `matrix/2`
++ `matrix`
 
     create a matrix from a list. Options are:
   + dim=
@@ -1324,7 +1321,7 @@ inc(I1, I, I1) :-
 %%% most often we can avoid meta-calls.
 
 /*
-:- multifile user:inline/2.
+:- multifile user:inline/.
 
 user:inline(matrix_map(P,A),
     (matrix:matrix_size(A,Size), MainCall)):-

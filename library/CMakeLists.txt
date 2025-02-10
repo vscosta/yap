@@ -25,6 +25,7 @@ INDEX.yap
   lists.yap
   log2md.yap
   nb.yap
+  occurs.yap
   ordsets.yap
   mapargs.yap
   maplist.yap

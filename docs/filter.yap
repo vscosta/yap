@@ -40,89 +40,90 @@ main :-
     open(Y,read,S,[alias(loop_stream)]),
     script(S),
     findall(O, entry(S,O), Info),
-    predicates(Info, _, Preds, _),
-    insert_module_header,
-    maplist(output,Preds),
-    working_directory(_,OldD),
-    insert_module_tail,
-    halt.
-main.
+%spy trl,
+     predicates(Info, _, Preds, _),
+     insert_module_header,
+     maplist(output,Preds),
+     working_directory(_,OldD),
+     insert_module_tail,
+     halt.
+ main.
 
-/*
-atom_concat('cat ',File,Command),
-unix(system(Command)).
+ /*
+ atom_concat('cat ',File,Command),
+ unix(system(Command)).
 
 
-    read_stream_to_string(S,Text),
-    format('~s',[Text]).
-*/
-
-%%
-%% @pred script(+S)
-%%
-script(S) :-
-    peek_char(S,'#'),
-    !,
-     readutil:read_line_to_string(S,_),
-    script(S).
-script(_).
-
-/**
- * @pred entry(+Stream, -Units).
- * Obtain text units
+     read_stream_to_string(S,Text),
+     format('~s',[Text]).
  */
-entry(S,O) :-
-    repeat,
-    read_clause(S,T,[comments(Comments),variable_names(Vs)]),
-    (
-       T == end_of_file
-      ->
-      O = directive(end_of_file, Comments, Vs),
-      !
-      ;
-      T = ( :- Directive )
-      ->
-      (
-	dxpand(Directive),
-	fail
-	;
-	O = directive(Directive, Comments, Vs)
-      )
-      ;
 
-      T = (( Grammar --> Expansion ))
-      ->
-      functor(Grammar,Name,Arity),      
-      A is Arity+2,
-      O = clause(Name/A, Grammar, Expansion, Comments, Vs)
-      ;
-      T = (( Head :- Body ))
-      ->
-      functor(Head,Name,Arity),
-      O = clause(Name/Arity,Head,Body,Comments,Vs)
-      ;
-      O=clause(Name/Arity,Head,true,Comments,Vs)
-    ).
+ %%
+ %% @pred script(+S)
+ %%
+ script(S) :-
+     peek_char(S,'#'),
+     !,
+      readutil:read_line_to_string(S,_),
+     script(S).
+ script(_).
 
-%% initial directive
- % predicates([H|_],_,_,_) :-
- %     writeln(H),
- %     fail.
-predicates([],_,[],[]).
-predicates([directive(Directive,Comments,Vs)|More],Ctx,
-	   [command([comments(Comments),  body(Directive, Vs,Ctx),[]])|Preds], L0) :-
-    !,
-    predicates(More,0,Preds,L0).
-% change of predicate
-predicates([clause(N/A,Head,Body,Comments,Vs)|More],Ctx,
-	   [predicate(N/A,[comments(Comments), head_body(Head, Body, Vs)|L0])|Preds], L0) :-
-    Ctx \= N/A,
-    !,
-    predicates(More,N/A,Preds,L0).
-% new predicate
-predicates([clause(N/A,Head,Body,Comments,Vs)|More],[],
+ /**
+  * @pred entry(+Stream, -Units).
+  * Obtain text units
+  */
+ entry(S,O) :-
+     repeat,
+     read_clause(S,T,[comments(Comments),variable_names(Vs)]),
+     (
+	T == end_of_file
+       ->
+       O = directive(end_of_file, Comments, Vs),
+       !
+       ;
+       T = ( :- Directive )
+       ->
+       (
+	 dxpand(Directive),
+	 fail
+	 ;
+	 O = directive(Directive, Comments, Vs)
+       )
+       ;
 
-	   [predicate(N/A,[comments(Comments), head_body(Head, Body, Vs)|L0])|Preds], L0) :-
+       T = (( Grammar --> Expansion ))
+       ->
+       functor(Grammar,Name,Arity),      
+       A is Arity+2,
+       O = clause(Name/A, Grammar, Expansion, Comments, Vs)
+       ;
+       T = (( Head :- Body ))
+       ->
+       functor(Head,Name,Arity),
+       O = clause(Name/Arity,Head,Body,Comments,Vs)
+       ;
+       O=clause(Name/Arity,Head,true,Comments,Vs)
+     ).
+
+ %% initial directive
+  % predicates([H|_],_,_,_) :-
+  %     writeln(H),
+  %     fail.
+ predicates([],_,[],[]).
+ predicates([directive(Directive,Comments,Vs)|More],Ctx,
+	    [command([comments(Comments),  body(Directive, Vs,Ctx),[]])|Preds], L0) :-
+     !,
+     predicates(More,0,Preds,L0).
+ % change of predicate
+ predicates([clause(N/A,Head,Body,Comments,Vs)|More],Ctx,
+	    [predicate(N/A,[comments(Comments), head_body(Head, Body, Vs)|L0])|Preds], L0) :-
+     Ctx \= N/A,
+     !,
+     predicates(More,N/A,Preds,L0).
+ % new predicate
+ predicates([clause(N/A,Head,Body,Comments,Vs)|More],[],
+
+	    [predicate(N/A,[comments(Comments), head_body(Head, Body, Vs)|L0])|Preds], L0) :-
     !,
     predicates(More,N/A,Preds,L0).
 % predicate continuation
@@ -170,37 +171,45 @@ insert_module_tail.
 out_comment(C) :-
     trl(C,Cf), 
     !,
-    format('~s~n',[Cf]).
+    string_concat(Cf,S),
+    format('~s~n',[S]).
 
-trl( C,NC) :-
-    sub_string(C,0,3,_,"/*<"),
-    sub_string(C,3,1,_,Space),
+trl( C,["/**<",Space|NC]) :-
+    sub_string(C,0,4,_,"/**<"),
+    sub_string(C,4,1,_,Space),
     sp(Space),
     !,
-    trl_lines(C,star,NC).
-trl( C,NC) :-
+    sub_string(C,5,_,0,Comm),
+    trl_comment(Comm,star,NC).
+trl( C,["/**",Space|NC]) :-
     sub_string(C,0,3,_,"/**"),
     sub_string(C,3,1,_,Space),
     sp(Space),
     !,
-    trl_lines(C,star,NC).
-trl( C,NC) :-
-    sub_string(C,0,2,_,"%<"),
-    sub_string(C,2,1,Comm,Space),
+    sub_string(C,4,_,0,Comm),
+    trl_comment(Comm,star,NC).
+trl( C,["///<",Space|NC]) :-
+    sub_string(C,0,3,_,"%%<"),
+    sub_string(C,3,1,_,Space),
     sp(Space),
     !,
-    sub_string(C,_,Comm,0,L),
-    trl_lines(L,star,NL),
-    string_concat(["///<",C,NL],NC).
-trl( C,NC) :-
+    sub_string(C,4,_,0,Comm),
+    trl_comment(Comm,star,NC).
+trl( C,["///",Space|NC]) :-
     sub_string(C,0,2,_,"%%"),
-    sub_string(C,2,1,Comm,Space),
+    sub_string(C,2,1,_,Space),
     sp(Space),
     !,
-    sub_string(C,_,Comm,0,L),
-    trl_lines(L,star,NL),
-    string_concat(["///",C,NL],NC).
-trl( _C, "").
+    sub_string(C,3,_,0,Comm),
+    trl_comment(Comm,star,NC).
+trl( C,["//!",Space|NC]) :-
+    sub_string(C,0,2,_,"%!"),
+    sub_string(C,2,1,_,Space),
+    sp(Space),
+    !,
+    sub_string(C,3,_0,Comm),
+    trl_comment(Comm,star,NC).
+trl( _C,[ ""]).
 
 sp(" ").
 sp("\t").
@@ -209,77 +218,83 @@ sp("\n").
 ws(" ").
 ws("\t").
 
-trl_lines(L,_,NL) :-
-    (trl_lines(L,NL)).
+trl_comment(L,_,NL) :-
+    trl_lines(L,NL,[]).
 
-trl_lines(Lines, O) :-
+trl_lines( "", L, L) :-
+    !.
+trl_lines(Lines, O, O0) :-
     sub_string(Lines,Left,1,Right,"\n"),
+    Right>0,
     !,
     sub_string(Lines,0,Left,_,C),
-    writeln(C),
-    trl_line(C,NC),
+    trl_line(C,O,["\n"|O1]),
     sub_string(Lines,_,Right,0, R),
-    trl_lines(R,NL),
-    string_concat([NC,"\n",NL],O).
-trl_lines( Lines, O) :-
-    trl_line( Lines,O).
+    trl_lines(R,O1,O0).
+trl_lines( Lines, O, O0) :-
+    trl_line( Lines, O, O0).
 
-trl_line(  "","\n") :-
+trl_line(  "",O,O) :-
     !.
-trl_line(  L,LF) :-
-    trl_prefix(L,L1),
-    trl_pred(L1,L2),
-    trl_pi(L2,LF).
+trl_line(  L,NL,NL3) :-
+    ((
+    trl_prefix(L,L1,NL,NL1),
+    trl_pred(L1,L2, NL1, NL2),
+    trl_pi(L2,NL2,NL3)
+    )).
 
-trl_prefix(C,NC) :-
+
+trl_prefix(C,RC,["///"|NC],NC) :-
     sub_string(C,0,2,_Len,Pref),
-(Pref == "%%" -> true ;Pref == "%!"), 
+    (Pref == "%%"
+     ->
+     true ;Pref == "%!"), 
      sub_string(C,2,1,_Comm,Space),
     sp(Space),
-!,
-    sub_string(C,2,_,0,B),
-    string_concat("///",B,NC).
-trl_prefix(C,C).
+    !,
+    sub_string(C,3,_,0,RC).
+trl_prefix(C,C,NC,NC).
 
-trl_pred(RL,NL) :-
-    sub_string(RL,Bef,5,After,"@pred"),
+trl_pred(L,RL,NL,NRL) :-
+    sub_string(L,Bef,5,After,"@pred"),
     After1 is After-1,
-    sub_string(RL,_,1,After1,WS),
+    sub_string(L,_,1,After1,WS),
     ws(WS),
-    sub_string(RL,_,After1,0,Line0),
+    sub_string(L,_,After1,0,Line0),
     strip_whitespace(Line0,0,Line),
-    detect_name(Line,Name,Args,Arity,Extra),
+    detect_name(Line,Name,Args,Arity,RL),
     !,
     number_string(Arity,A),
     atom_string(At,Name),
     assert(pred_found(At,Arity)),
-    sub_string(RL,0,Bef,_, Prefix),
-    string_concat([Name,"/",A],DoxName),
-    string_concat([Prefix,"@class ",DoxName,"       **\"",Name,Args,"\"** ",Extra],NL).
-trl_pred(RL,NL) :-
-    sub_string(RL,Bef,10,_After,"@infixpred"),
+    sub_string(L,0,Bef,_, Prefix),
+    string_concat([Name,"/",A],PI),
+			    encode(PI,DoxName),
+    NL=[Prefix,"@class ",DoxName,"\n       *",Name,Args,"* "|NRL].
+trl_pred(L,RL,NL,NRL) :-
+    sub_string(L,Bef,10,_After,"@infixpred"),
     A0 is Bef+10,
-    skip_whitespace(A0,RL,A1),
+    skip_whitespace(A0,L,A1),
     A1>A0,
-    block(A1,RL,B1),
-		skip_whitespace(B1,RL,A2),
+    block(A1,L,B1),
+	       skip_whitespace(B1,L,A2),
 	A2>A1,	
-		block(A2,RL,B2),
-		skip_whitespace(B2,RL,A3),
-		A3>A2,block(A3,RL,B3),
+		block(A2,L,B2),
+		skip_whitespace(B2,L,A3),
+		A3>A2,block(A3,L,B3),
 			    !,
 			    L2 is B2-A2,
 			    L1 is B3-A1,
-			    sub_string(RL,A2,L2,_,Name),
-			    sub_string(RL,A1,L1,_,NameArgs),
-			    sub_string(RL,B3,_,0,Extra),
+			    sub_string(L,A2,L2,_,Name),
+			    sub_string(L,A1,L1,_,NameArgs),
+			    sub_string(L,B3,_,0,RL),
 			    string_concat([Name,"/2"],PI),
 			    encode(PI,DoxName),
 			    atom_string( At, Name),
 			    assert(pred_found(At,2)),
-    sub_string(RL,0,Bef,_, Prefix),
-    string_concat([Prefix,"@class ",DoxName,"       **\"",NameArgs,"\"** ",Extra],NL).
-trl_pred(RL,RL).
+    sub_string(L,0,Bef,_, Prefix),
+    NL =  [Prefix,"@class ",DoxName,"\n       *",NameArgs,"* "|NRL].
+trl_pred(L,L,NL,NL).
 
     strip_whitespace(Line0,I0,Line) :-
     sub_string(Line0,I0,1,_,WS),
@@ -320,22 +335,22 @@ trl_pred(RL,RL).
     length([_|Is],Arity).
 
 
-trl_pi(RL,NL) :-
-    sub_string(RL,Left,1,Right,"/"),
+trl_pi(L,NL,NL0) :-
+    sub_string(L,Left,1,Right,"/"),
     Left1 is Left+1,
-    sub_string(RL,Left1,1,_Right,D),
+    sub_string(L,Left1,1,_Right,D),
     digit(D),
-    back(Left,RL,NPrefix),
+    back(Left,L,NPrefix),
 NPrefix \= Left,
-    !,
-    sub_string(RL,0,NPrefix,_,Prefix),
-    sub_string(RL,NPrefix,_,Right,Name),
-    sub_string(RL,_,Right,0,RR),
-    trl_pi(RR,NR),
-    string_concat([Name,"/",D],PI),
+!,
+    sub_string(L,0,NPrefix,_,Prefix),
+    sub_string(L,NPrefix,_,Right,Name),
+    sub_string(L,_,Right,0,RL),
+    string_concat([Name,D],PI),
     encode(PI,DoxName),
-    string_concat([Prefix,"@ref{",DoxName,"}[\"",PI,"\"]",NR],NL).
-trl_pi(L,L).
+    NL=[Prefix,"@ref{",DoxName,"}[\"",PI,"\"]"|NRL],
+    trl_pi(RL,NRL,NL0).
+trl_pi(S,[S|C],C).
     
 
 back(0,_L,0) :-
@@ -375,7 +390,7 @@ addcomm(N/A,S,false) :-
     maplist(=('?'),L),
     T =.. [N|L],
     format('~n~n/**   @class ~s	 **~w**\n     (undocumented)  **/~n~n',[S,T]).
-addcomm(_,_).
+addcomm(_,_,_).
 
 :- initialization(main).
 

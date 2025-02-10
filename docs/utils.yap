@@ -167,7 +167,7 @@ pred2dox(Pred, String) :-
 
 dox2pred(String,Pred) :-
     string_chars(String,['P'|Cs]),
-    rcov(Cs,PCs),
+    rcov(PCs,Cs),
     string_chars(Pred,PCs).
     
     
@@ -176,12 +176,13 @@ csafe(C,LF,L0) :-
     !.
 csafe(C,[C|L],L).
 
-rcov(['_',s,l,D],['/',D]) :-
+rcov([D],[D]) :-
+    !,
     char_type(D,digit).
-rcov(L,[C|NL]) :-
+rcov([C|NL],L) :-
     char_to_safe(C,L,L0),
     !,
-    rcov(L0,NL).
+    rcov(NL,L0).
 rcov([C|L0],[C|NL]) :-
     rcov(L0,NL).
 
@@ -189,11 +190,14 @@ rcov([C|L0],[C|NL]) :-
 char_to_safe('=',['_',e,q|L],L).
 char_to_safe('<',['_',l,t|L],L).
 char_to_safe('>',['_',g,t|L],L).
-%char_to_safe('_',['_','_'|L],L).
+%char_to_safe('_',['_','u','l'|L],L).
 char_to_safe('!',['_',c,t|L],L).
 char_to_safe('-',['_',m,n|L],L).
 char_to_safe('+',['_',p,l|L],L).
 char_to_safe('*',['_',s,t|L],L).
 char_to_safe('/',['_',s,l|L],L).
 char_to_safe('$',['_',d,l|L],L).
+char_to_safe('[',['_',o,s|L],L).
+char_to_safe(']',['_',l,s|L],L).
+char_to_safe('.',['_',d,t|L],L).
 

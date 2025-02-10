@@ -1306,7 +1306,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
       if (IsIntTerm( args[WRITE_NAME_VARIABLES].tvalue)) {
 	flags |= Name_vars_f|Number_vars_f;
       vstart = IntOfTerm( args[WRITE_NAME_VARIABLES].tvalue );
-    } else {
+      } else if ( args[WRITE_NAME_VARIABLES].tvalue != TermNil) {
 	      badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_NAME_VARIABLES]);
 	  }
     }

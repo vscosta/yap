@@ -12,7 +12,6 @@ INDEX.pl
   main.pl
   menu.pl
   nb_set.pl
-  occurs.yap
   operators.pl
   option.pl
   pairs.pl
