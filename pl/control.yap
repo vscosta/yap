@@ -67,7 +67,6 @@
         '$disable_debugging'/0,
         '$do_live'/0,
         '$enable_debugging'/0,
-        '$system_catch'/4,
         '$version'/0]).
 
 :- use_system_module( '$_debug', ['$init_debugger'/0]).
@@ -86,6 +85,336 @@
 @{
 
 */
+
+
+/** @infixpred  0:P , 0:Q   is iso, meta
+
+The comma represents the Conjunction of goals (and).
+
+The conjunction is a fundamental construct of Prolog. Example:
+
+```
+ p(X) :- q(X), r(X).
+```
+
+should be read as `p( _X_) if q( _X_) and r( _X_).
+
+
+*/
+','(X,Y) :-
+    call((X,Y)).
+    
+comma(X,Y) :-
+    call(X),
+    call(Y).
+
+comma(X,Y,Z) :-
+    call(X),
+    call(Y),
+    call(Z).
+    
+comma(X,Y,Z,A) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A).
+     
+comma(X,Y,Z,A,B) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A),
+    call(B).
+    
+comma(X,Y,Z,A,B,C) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A),
+    call(B),
+    call(C).
+
+    /** @infixpred    0:P ; 0:Q  is iso
+
+@brief Disjunction of goals (or).
+
+Example:
+
+```
+ p(X) :- q(X); r(X).
+```
+should be read as "p( _X_) if q( _X_) or r( _X_)".
+
+
+*/
+';'(X,Y) :-
+    current_choice_point(CP),
+    current_source_module(M),
+    (
+	X=(A->B)
+	      ->
+	      (
+		  call(A)
+	      ->
+	      '$call'(B,CP,(X;Y),M)
+    ;
+    '$call'(Y,CP,(X;Y),M)
+	      )
+    ; 	X=(A*->B)
+	      ->
+	      (
+		  call(A)
+	      *->
+	      '$call'(B,CP,(X;Y),M) ;
+		  '$call'(Y,CP,(X; Y),M)
+		  )
+    ;
+    '$call'(X,CP,(X; Y),M)
+    ;
+    '$call'(Y,CP,(X; Y),M)
+	      ).
+
+
+
+
+'|'(X,Y) :- ';'(X,Y).
+
+/** @infixpred   0:Condition -> 0:Action  is iso
+
+@short If _Condition__ has a solution, call _Action_;
+
+@long
+Read as "if-then-else" or "commit". This operator is similar to the
+conditional operator of imperative languages and can be used alone or
+with an else part as follows:
+
+
+```
+    +P -> +Q
+```
+
+"if P then Q".
+
+
+```
+  +P -> +Q; +R
+```
+
+"if P then Q else R".
+
+These two predicates could be defined respectively in Prolog as:
+
+```
+ (P -> Q) :- P, !, Q.
+```
+and
+
+```
+ (P -> Q; R) :- P, !, Q.
+ (P -> Q; R) :- R.
+```
+if there were no "cuts" in  _P_,  _Q_ and  _R_.
+
+vNote that the commit operator works by "cutting" any alternative
+solutions of  _P_.
+
+Note also that you can use chains of commit operators like:
+
+```
+    P -> Q ; R -> S ; T.
+```
+Note that ->/2 does not affect the scope of cuts in its
+arguments.
+
+
+*/
+'->'(X,Y) :-
+    (
+	'$execute'(X)
+    ->
+    '$execute'(Y)
+    ).
+
+
+
+/** @pred  ! is iso
+
+
+Read as "cut". Cuts any choices taken in the current procedure.
+When first found "cut" succeeds as a goal, but if backtracking should
+later return to it, the parent goal (the one which matches the head of
+the clause containing the "cut", causing the clause activation) will
+fail. This is an extra-logical predicate and cannot be explained in
+terms of the declarative semantics of Prolog.
+
+example:
+
+```
+ member(X,[X|_]).
+ member(X,[_|L]) :- member(X,L).
+```
+
+With the above definition
+
+```
+ ?- member(X,[1,2,3]).
+```
+
+will return each element of the list by backtracking. With the following
+definition:
+
+```
+ member(X,[X|_]) :- !.
+ member(X,[_|L]) :- member(X,L).
+```
+
+the same query would return only the first element of the
+list, since backtracking could not "pass through" the cut.
+
+*/
+! :- true.
+
+
+/** @pred   \+ 0:P   is iso, meta
+Negation by failure.
+
+Goal  _P_ is not provable. The execution of this predicate fails if
+and only if the goal  _P_ finitely succeeds. It is not a true logical
+negation, which is impossible in standard Prolog, but
+"negation-by-failure".
+
+This predicate might be defined as:
+
+```
+ \+(P) :- P, !, fail.
+ \+(_).
+```
+if  _P_ did not include "cuts".
+
+If _P_ includes cuts, the cuts are defined to be scoped by _P_: they cannot cut over the calling prredicate.
+
+ ~~~~~~~~~~~~
+  go(P).
+
+:- \+ P, !, fail.
+  \+(_).
+ ~~~~~~~~~~~~
+
+*/
+\+(G) :-     \+ '$execute'(G).
+
+not(G) :-    \+ '$execute'(G).
+
+
+
+
+/**
+
+@pred repeat is iso
+
+Succeeds repeatedly.
+
+In the next example, `repeat` is used as an efficient way to implement
+a loop. The next example reads all terms in a file:
+```{.prolog}
+ a :- repeat, read(X), write(X), nl, X=end_of_file, !.
+```
+the loop is effectively terminated by the cut-goal, when the test-goal
+`X=end` succeeds. While the test fails, the goals `read(X)`,
+`write(X)`, and `nl` are executed repeatedly, because
+backtracking is caught by the `repeat` goal.
+
+The built-in repeat/0 could be defined in Prolog by:
+
+```{.prolog}
+
+repeat.
+repeat :- repeat.
+```
+
+The predicate between/3 can be used to iterate for a pre-defined
+number of steps.
+
+*/
+ repeat :- '$repeat'.
+
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat'.
+ '$repeat' :- '$repeat'.
+
+/** @pred  + _P_ is nondet
+
+The same as `call( _P_)`. This feature has been kept to provide
+compatibility with C-Prolog. When compiling a goal, YAP
+generates a `call( _X_)` whenever a variable  _X_ is found as
+a goal.
+
+```{.prolog}
+ a(X) :- X.
+```
+is converted to:
+
+```{.prolog}
+ a(X) :- call(X).
+```
+
+
+*/
+
+/** @pred  call( 0:P ) is iso
+Meta-call predicate.
+
+If _P_ is instantiated to an atom or a compound term, the goal `call(
+_P_)` is executed as if the clause was originally written as _P_
+instead as call( _P_ ), except that any "cut" occurring in _P_ only
+cuts alternatives in the execution of _P_.
+
+Defined as if: 
+
+~~~
+call(G) :- '$execute'(G).
+~~~
+*/
+
+/** @pred  incore( 0:P )
+
+Alias for call/1
+
+*/
+
+/** @pred  once( 0:G) is iso
+
+
+Execute the goal  _G_ only once. The predicate is defined by:
+
+```{.prolog}
+ once(G) :- call(G), !.
+```
+
+Note that cuts inside once/1 can only cut the other goals inside
+once/1.
+
+
+*/
+once(!) :- !.
+once(G) :-
+	'$execute'(G), !.
+
+
+(:- G) :- '$execute'(G), !.
+
+(?- G) :- '$execute'(G).
+
+'$$!'(CP) :- '$cut_by'(CP).
+
+([]).
 
 /** @pred  forall(: _Cond_,: _Action_)
 
@@ -148,12 +477,12 @@ notrace(G) :-
 	'$debug_restart'( State ),
 	fail
     ).
-/** @pred  (G *-> H)
+/** @infixpred  G *-> H
 
 Call goal  _H_ once per each solution of goal  _G_.
 
-The built-in `*->3` is usually called from within a disjunction. It
-performs similar to `->/3`, with the difference that it will backtrack
+The built-in *->3 is usually called from within a disjunction. It
+performs similar to ->/3, with the difference that it will backtrack
 over the test goal. Consider the following small data-base:
 
 ```{.prolog}
@@ -181,8 +510,8 @@ Y = b ? ;
 no
 ```
 
-The system will backtrack over the two solutions for `a/1` and the
-two solutions for `b/1`, generating four solutions.
+The system will backtrack over the two solutions for a/1 and the
+two solutions for b/1, generating four solutions.
 
 Cuts are allowed inside the first goal  _G_, but they will only prune
 over  _G_.
@@ -200,7 +529,7 @@ it is both more efficient and more portable.
 Call goal  _H_ once per each solution of goal  _H_. If goal
  _H_ has no solutions, call goal  _I_.
 
-The built-in `if/3` is similar to `->/3`, with the difference
+The built-in if/3 is similar to `->/3`, with the difference
 that it will backtrack over the test goal. Consider the following
 small data-base:
 
@@ -229,7 +558,7 @@ Y = b ? ;
 no
 ```
 
-The system will backtrack over the two solutions for `a/1` and the
+The system will backtrack over the two solutions for a/1 and the
 two solutions for `b/1`, generating four solutions.
 
 Cuts are allowed inside the first goal  _G_, but they will only prune
@@ -255,7 +584,7 @@ between 0 and 10.
 /**
    @pred gated_call(0:Setup, 0:Goal, ?Port, 0:Handler)
 
-   This predicate watches over execution of _Goal_:
+   This predicate watches over execution of _Goal_
    - First, it calls `once(Setup)`;
    - Next, it executes `call(Goal)`;
    - if `call(Goal)` succeeds deterministically, it unifies _Port_ with `exit` and if unification succeeds calls _Handler_;
@@ -272,13 +601,9 @@ between 0 and 10.
    
 gated_call(Setup, Goal, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup), 
-    '$gated_call'( true , Goal, Catcher, Cleanup)  .
-
-'$gated_call'( All , Goal, Catcher, Cleanup) :-
-    Task0 = bottom( All, Catcher, Cleanup, Tag, true, CP0),
+    Task0 = bottom( true, Catcher, Cleanup, Tag, true, CP0),
     '$tag_cleanup'(CP0, Task0),
-    TaskF = top( All, Catcher, Cleanup, Tag, false, CP0),
-
+    TaskF = top( true, Catcher, Cleanup, Tag, false, CP0),
     strip_module(Goal,M,G),
     '$execute'( M:G ),
     '$cleanup_on_exit'(CP0, TaskF).
@@ -356,9 +681,9 @@ is responsible to capture uncaught exceptions.
 */
 
 catch(MG,E,G) :-
-    '$catch'(MG,E,G,_,_Done).
+    '$':catch(MG,E,G,_,_Done).
 
-'$catch'(MG,_E,_G,Marker,Done) :-
+'$':catch(MG,_E,_G,Marker,Done) :-
     '$marker'(Marker),
     current_choice_point(CP0),
     '$execute0'(MG),
@@ -366,7 +691,7 @@ catch(MG,E,G) :-
     current_choice_point(CP),
     (CP == CP0 -> !;true).
 
-'$catch'(_MG,E,G,_,_) :-    
+'$':catch(MG,E,G,_,_) :-    
     '$drop_exception'(E0,Info),
     nonvar(E0),
     (
@@ -382,7 +707,7 @@ catch(MG,E,G) :-
 	'$extend_info'(Info,U, NewInfo),
 	error_handler(error,error(K,NewInfo))
 	;
-	print_message(warning,error(existence_error(error_handler,E),catch)),
+	print_message(warning,error(existence_error(error_handler,E),catch(MG,E,G))),
 	fail
 	)
 	;

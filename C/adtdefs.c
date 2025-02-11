@@ -637,6 +637,8 @@ lookup atom in atom table */
       p->ModuleOfPred = 0L;
     } else
       p->ModuleOfPred = cur_mod;
+    if (!strcmp(fe->NameOfFE->StrOfAE,"$multifile"))
+      { extern void jmp_deb(int); jmp_deb(1);}
     // TRUE_FUNC_WRITE_LOCK(fe);
     INIT_LOCK(p->PELock);
     p->KindOfPE = PEProp;

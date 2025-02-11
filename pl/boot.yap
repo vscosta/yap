@@ -158,6 +158,7 @@ initialize_prolog :-
 
 :- c_compile('lf.yap').
 :- c_compile('consult.yap').
+
 :- compile('error.yap').
 
 
@@ -327,7 +328,7 @@ mksys(op(A,B,C)) :-
 
 also available  _CurrentModule_:term_expansion( _T_,- _X_),
 
-This user-defined predicate is called by `expand_term/3` to
+This user-defined predicate is called by expand_term/3 to
 preprocess all terms read when consulting a file. If it succeeds:
 
 +

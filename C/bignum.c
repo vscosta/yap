@@ -682,10 +682,6 @@ static Int p_rational(USES_REGS1) {
 #endif
 }
 
-static Int newlinize(USES_REGS1)
-{
-}
-
 
 void Yap_InitBigNums(void) {
   Yap_InitCPred("$has_bignums", 0, p_has_bignums, SafePredFlag);

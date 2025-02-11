@@ -3104,15 +3104,40 @@ static Int p_clean_up_dead_clauses(USES_REGS1) {
   return TRUE;
 }
 
-void Yap_HidePred(PredEntry *pe) {
+bool Yap_HidePred(PredEntry *pe) {
+  Prop p, *o;
+  if (pe->PredFlags & NumberDBPredFlag) {
+    // cannot remove these ones, makes no sense.
+    return false;
+  }
+  if (pe->PredFlags & AtomDBPredFlag ||
+       pe->ArityOfPE == 0 ) {
+     p = *(o=&RepAtom((Atom)pe->FunctorOfPred)->PropsOfAE);
+   } else {
+     p = *(o = &(pe->FunctorOfPred->PropsOfFE));
+  }
+  while (p) {
+      if (p == AbsPredProp(pe)) {
+          break;
+      } else {
+          o = &(p->NextOfPE);
+          p = p->NextOfPE;
+      }
+  }
+  if (o && p)
+      *o = p->NextOfPE;
+  p = NULL;
+    Yap_RemovePredFromModule(pe);
 
+    pe->NextOfPE = HIDDEN_PREDICATES;
+  HIDDEN_PREDICATES = AbsPredProp(pe);
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
+  return true ;
 }
 
 static Int /* $system_predicate(P) */
 p_stash_predicate(USES_REGS1) {
   PredEntry *pe;
-
   Term mod = TermCurrentModule;
   pe = Yap_get_pred(Deref(ARG1), mod , "stash");
   if (EndOfPAEntr(pe))
@@ -3130,28 +3155,7 @@ hide_predicate(USES_REGS1) {
 
   if (EndOfPAEntr(pe))
     return false;
-  Prop p, *o;
-  if (pe->ArityOfPE) {
-      p = *(o = &(pe->FunctorOfPred->PropsOfFE));
-  } else {
-      p = *(o=&RepAtom((Atom)pe->FunctorOfPred)->PropsOfAE);
-  }
-  while (p) {
-      if (p == AbsPredProp(pe)) {
-          break;
-      } else {
-          o = &(p->NextOfPE);
-          p = p->NextOfPE;
-      }
-  }
-  if (o && p)
-      *o = p->NextOfPE;
-  p = NULL;
-    Yap_RemovePredFromModule(pe);
-  pe->NextOfPE = HIDDEN_PREDICATES;
-  HIDDEN_PREDICATES = AbsPredProp(pe);
-  pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
-  return true;
+  return Yap_HidePred(pe);
 }
 
 static Int /* $hidden_predicate(P) */

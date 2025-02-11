@@ -60,7 +60,7 @@ prolog:'$protect'.
 % hide all atoms who start by '$'
 '$visible'('$').			/* not $VAR */
 '$visible'('$VAR').			/* not $VAR */
-'$visible'('$dbref').			/* not stream position */
+'$visible'('$dbref').			/* not streammu position */
 '$visible'('$stream').			/* not $STREAM */
 '$visible'('$stream_position').		/* not stream position */
 '$visible'('$hacks').

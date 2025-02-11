@@ -53,7 +53,7 @@ ensure_loaded/1 and the predicates
 consult/1 or reconsult/1. The
 non-public predicates of a module file are not supposed to be visible
 to other modules; they can, however, be accessed by prefixing the module
-name with the `:/2` operator.
+name with the :/2 operator.
 
 */
 

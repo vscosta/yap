@@ -444,7 +444,7 @@ generate_for_each_arg_in_block([V|L], (var(V),If), (nonvar(V);Whens)) :-
 /**
 
 @pred wait(_G_)
-The argument to `wait/1` is a predicate descriptor or a conjunction
+The argument to wait/1  is a predicate descriptor or a conjunction
 of these predicates. These predicates will suspend until their first
 argument is bound.
 

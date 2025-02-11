@@ -225,7 +225,7 @@ Succeeds when the  _Index_-th element of  _List_ unifies with
 
 Set environment variable.   _Name_ and  _Value_ should be
 instantiated to atoms or integers.  The environment variable will be
-passed to `shell/[0-2]` and can be requested using `getenv/2`.
+passed to `shell/[0-2]` and can be requested using getenv/2.
 They also influence expand_file_name/2.
 
 
@@ -270,7 +270,7 @@ counting from 0, and  _Rest_ with the other elements.  It can be used
 to select the Nth element of  _List_ (yielding  _Elem_ and  _Rest_), or to
 insert  _Elem_ before the Nth (counting from 1) element of  _Rest_, when
 it yields  _List_, e.g. `nth0(2, List, c, [a,b,d,e])` unifies List with
-`[a,b,c,d,e]`.  `nth/4` is the same except that it counts from 1.  `nth0/4`
+`[a,b,c,d,e]`.  nth/4 is the same except that it counts from 1.  nth0/4
 can be used to insert  _Elem_ after the Nth element of  _Rest_.
 */
 nth0(V, In, Element, Tail) :- var(V), !,

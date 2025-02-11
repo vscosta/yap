@@ -106,7 +106,7 @@ each activation found by the debugger.
 In the third field, the debugger shows the active port.
 +
 The fourth field is the goal. The goal is written by
-`write_term/3` on the standard error stream, using the options
+write_term/3 on the standard error stream, using the options
 given by debugger_print_options.
 
 
@@ -219,7 +219,7 @@ the active goal.
 
     sets the maximum write depth, both for composite terms and lists, that
 will be used by the debugger. For more
-information about `write_depth/2` ( (see Input/Output Control)).
+information about write_depth/2 ( (see Input/Output Control)).
 
 + `<` - full term
 

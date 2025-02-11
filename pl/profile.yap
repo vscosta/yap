@@ -159,7 +159,10 @@ Show profiling info for the top-most  _N_ predicates.
 
 
 
-The showprofres/0 and `showprofres/1` predicates call a user-defined multifile hook predicate, `user:prolog_predicate_name/2`, that can be used for converting a possibly explicitly-qualified callable term into an atom that will used when printing the profiling information.
+The showprofres/0 and showprofres/1 predicates call a user-defined
+multifile hook predicate, user:prolog_predicate_name/2, that can be
+used for converting a possibly explicitly-qualified callable term into
+an atom that will used when printing the profiling information.
 
 
  */

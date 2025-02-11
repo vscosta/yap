@@ -46,7 +46,7 @@ information. All message processing is performed through the builtin
 print_message/2, in two steps:
 
 + The message is processed into a list of commands
-+ The commands in the list are sent to the `format/3` builtin
++ The commands in the list are sent to the format/3 builtin
 in sequence.
 
 
@@ -1274,10 +1274,10 @@ a list of message elements.  The elements of this list are:
 
 + _Format_-_Args_
 Where  _Format_ is an atom and  _Args_ is a list
-of format argument.  Handed to `format/3`.
+of format argument.  Handed to format/3.
 + `flush`
 If this appears as the last element,  _stream_ is flushed
-(see `flush_output/1`) and no final newline is generated.
+(see flush_output/1) and no final newline is generated.
 + `at_same_line`
 If this appears as first element, no prefix is printed for
 the  line and the line-position is not forced to 0
@@ -1285,8 +1285,8 @@ the  line and the line-position is not forced to 0
 + `prefix`(_Prefix_)
 define a prefix_ for the next line, say `''` will be seen as an
 empty prefix.
-(see `format/1`, option `~N`)
-Handed to `format/3` as `format(Stream, Format, [])`, may get confused
+(see format/1, option `~N`)
+Handed to format/3 as `format(Stream, Format, [])`, may get confused
 with other commands.
 + nl
 A new line is started and if the message is not complete

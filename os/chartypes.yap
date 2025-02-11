@@ -41,8 +41,8 @@ but are strict in argument checking.
   + the code for end of file is -1; the char for end of file is `end_of_file`.
   Two key predicates are:
 
-  + @ref char_type/2
-  + @ref code_type/2
+  + char_type/2
+  + code_type/2
 
 Next we present the different types for text elements. It it is
 possible for a character to have different types.

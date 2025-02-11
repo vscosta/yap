@@ -106,7 +106,7 @@ choose a port number, which is unified with  _PORT_.
 Close socket  _SOCKET_. Note that sockets used in
 `socket_connect` (that is, client sockets) should not be closed with
 `socket_close`, as they will be automatically closed when the
-corresponding stream is closed with close/1 or `close/2`.
+corresponding stream is closed with close/1 or close/2.
 
  
 */

@@ -23,7 +23,7 @@ aq:- [library(hacks)].
 
 '$get_undefined_pred'(G,M,G,M0) :-
     predicate_property(M:G, imported_from(M0)), !.
-'$get_undefined_pred'(G,M,G,OM) :-
+'$get_undefined_pred'(G,_M,G,OM) :-
     functor(G,F,N),
     ( system_predicate(F/N), OM = prolog ; current_predicate(user:F/N), OM= user),  !.
 '$get_undefined_pred'(G,M,G,M0) :-

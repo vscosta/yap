@@ -136,7 +136,7 @@ Older versions of YAP would call this procedure  at every meta-call.
     user:term_expansion( _T_,- _X_)
 
 
-This user-defined predicate is called by `expand_term/3` to
+This user-defined predicate is called by expand_term/3 to
 preprocess all terms read when consulting a file. If it succeeds:
 
 +

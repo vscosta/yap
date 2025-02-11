@@ -27,7 +27,7 @@ log_table/2] ).
  *
  *  - Primitives include the ability to write a title, a Prolog clause or
  *  goal, and hooks for tracing calls. The log_goal/2 can be used to
- *  start a goal. Arguments of the form `<--/2` and `*->/2` can be used to
+ *  start a goal. Arguments of the form <--/2 and *->/2 can be used to
  *   track calls.
  *
  * - The output format is markdown.

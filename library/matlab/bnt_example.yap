@@ -49,7 +49,7 @@ do(Out,Out2) :-
 	mkevidence(N,[W-2]),
 	marg <-- marginal_nodes(engine, S),
 	matlab_get_variable( marg.'T', Out),
-v	add_evidence([R-2]),
+	add_evidence([R-2]),
 	marg <-- marginal_nodes(engine, S),
 	matlab_get_variable( marg.'T', Out2).
 

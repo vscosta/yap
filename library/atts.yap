@@ -134,7 +134,7 @@ on how they are prefixed:
 
    + +( _Attribute_ )
    Associate  _Var_ with  _Attribute_. A previous value for the
-   attribute is simply replace (like with `set_mutable/2`).
+   attribute is simply replace (like with set_mutable/2).
 
    + -( _Attribute_ )
    Remove the attribute with the same name. If no such attribute existed,

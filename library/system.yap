@@ -140,7 +140,7 @@ check_int(I, Inp) :-
 
 /** @pred delete_file(+ _File_,+ _Opts_)
 
-The `delete_file/2` procedure removes file  _File_ according to
+The delete_file/2 procedure removes file  _File_ according to
 options  _Opts_. These options are `directory` if one should
 remove directories, `recursive` if one should remove directories
 recursively, and `ignore` if errors are not to be reported.

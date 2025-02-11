@@ -66,7 +66,7 @@ clauses for static predicates compiled when source mode was `on`).
 
     + `listing(lists:append/_)` will do the same.
 
-    +  listing(lists:append/3)` will list the popular `append/3` predicate in the module lists.
+    +  listing(lists:append/3)` will list the popular append/3 predicate in the module lists.
 
 - listing/2 is similar to listing/1, but t he first argument is a stream reference.
 

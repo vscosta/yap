@@ -220,7 +220,7 @@ getenv(Na,Val) :-
 
 Set environment variable.   _Name_ and  _Value_ should be
 instantiated to atoms or integers.  The environment variable will be
-passed to `shell/[0-2]` and can be requested using `getenv/2`.
+passed to `shell/[0-2]` and can be requested using getenv/2.
 They also influence expand_file_name/2.
 
 

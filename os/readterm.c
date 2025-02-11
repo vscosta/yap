@@ -1213,7 +1213,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
  }
  
  if (comms != TermNil) {
-   *VarOfTerm((comms))= TermNil;
+   *(CELL*)((comms))= TermNil;
  }
  // LOCAL_tokptr=tokstart;
  

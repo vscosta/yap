@@ -680,7 +680,7 @@ static void putString(Term string, struct write_globs *wglb)
 
 {
   wrf stream = wglb->stream;
-  int sep;
+  int sep = '"';
   if (getAtomicGlobalPrologFlag(DOUBLE_QUOTES_FLAG)==TermString)
     sep = '"';
   else if (getAtomicGlobalPrologFlag(BACK_QUOTES_FLAG)==TermString)
@@ -1328,7 +1328,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	    badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_CYCLES]);
 	  }
     }
-    int depth;
+    int depth=10;
   if (args && args[WRITE_MAX_DEPTH].used) {
      Term v = args[WRITE_MAX_DEPTH].tvalue;
    if (IsIntegerTerm(v) && IntegerOfTerm(v)>=0) {

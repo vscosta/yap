@@ -131,9 +131,9 @@ limit_exceeded.
 
 yes
 ```
-Notice that we first compile the looping predicate `l/0` with
+Notice that we first compile the looping predicate l/0 with
 call_counting `on`. Next, we catch/3 to handle an
-exception when `l/0` performs more than 10000 reductions.
+exception when l/0 performs more than 10000 reductions.
 
 
  */

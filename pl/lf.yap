@@ -414,7 +414,7 @@ readutil:read_line_to_string(Stream,_),
    ->
    '$dry_loop'(Stream,Reconsult)
 ; 
-  '$loop'(Stream,Reconsult)
+  '$':loop(Stream,Reconsult)
  
    ),
    ( LC == 0 -> prompt(_,'   |: ') ; true),
@@ -464,18 +464,15 @@ readutil:read_line_to_string(Stream,_),
    )
     ).
 
-'$loop'(Stream,Status) :-
+'$':loop(Stream,Status) :-
     repeat,
    catch(
-    '$loop_'(Stream,Status),
+    '$':enter_compiler(Stream,Status),
 	 _Error,
 	 error_handler),
   !.
 
-'$loop_'(Stream,Status) :-
-	 enter_compiler(Stream,Status) .
-
-enter_compiler(Stream,Status) :-
+'$':enter_compiler(Stream,Status) :-
     prompt1(': '), prompt(_,'     '),
     Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     read_clause(Stream, Clause, Options),
@@ -653,7 +650,7 @@ include(Fs) :-
     ignore(recordzifnot('$includes', (Old ->Y),_)),
     set_stream(Stream, [alias(loop_stream),encoding(Encoding)] ),
     print_message(informational, loading(including, Y)),
-    '$loop'(Stream,reconsult),
+    '$':loop(Stream,reconsult),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     current_source_module(Mod,Mod),

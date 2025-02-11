@@ -161,6 +161,7 @@ pi2dox(P/A, String) :-
     pred2dox(Pred, String).
 
 pred2dox(Pred, String) :-
+
     string_chars(Pred,Cs),
     foldl(csafe,Cs,PCs,[]),
     string_chars(String,['P'|PCs]).
@@ -169,6 +170,7 @@ dox2pred(String,Pred) :-
     string_chars(String,['P'|Cs]),
     rcov(PCs,Cs),
     string_chars(Pred,PCs).
+
     
     
 csafe(C,LF,L0) :-
@@ -196,8 +198,23 @@ char_to_safe('-',['_',m,n|L],L).
 char_to_safe('+',['_',p,l|L],L).
 char_to_safe('*',['_',s,t|L],L).
 char_to_safe('/',['_',s,l|L],L).
+char_to_safe('\\',['_',b,k|L],L).
 char_to_safe('$',['_',d,l|L],L).
 char_to_safe('[',['_',o,s|L],L).
 char_to_safe(']',['_',l,s|L],L).
+char_to_safe('^',['_',h,t|L],L).
+char_to_safe('%',['_',p,c|L],L).
+char_to_safe('&',['_',t,e|L],L).
+char_to_safe('(',['_',o,b|L],L).
+char_to_safe(')',['_',l,b|L],L).
 char_to_safe('.',['_',d,t|L],L).
-
+char_to_safe(',',['_',c,m|L],L).
+char_to_safe(';',['_',s,c|L],L).
+char_to_safe('|',['_',v,b|L],L).
+char_to_safe('\'',['_',q,t|L],L).
+char_to_safe('\"',['_',d,q|L],L).
+char_to_safe('`',['_',b,q|L],L).
+char_to_safe('#',['_',s,q|L],L).
+char_to_safe('@',['_',a,t|L],L).
+char_to_safe('?',['_',q,m|L],L).
+char_to_safe(':',['_',c,o|L],L).

@@ -204,10 +204,11 @@ xtract_label([Label],Label) :-
 xtract_label(Label,Label).
 
 innerclass(Status,Atts,AllLabel) -->
-    ["\n\n* "], 
+    ["\n* "], 
     {key_in(refid(Ref),Atts),
-     xtract_label(AllLabel,Label)},
-    link_inner(Status,Ref,Label).
+     xtract_label(AllLabel,Label),
+     decode(Label,Pred)},
+    link_inner(Status,Ref,Pred).
 
 innerpage(Status,Atts,AllLabel) -->
     ["\n\n* "], 
@@ -1792,7 +1793,7 @@ get_name(Children,Name) :-
     ),
     string(Name),
     !.
-get_name(Children,Name) :-
+get_name(Children,PName) :-
     key_in(compoundname(_,NameS ),Children),
     (
 	NameS = [_,[Name]]
@@ -1802,6 +1803,7 @@ get_name(Children,Name) :-
     NameS = Name
     ),
     string(Name),
+decode(Name,PName),
     !.
 get_name(Children,Name) :-
     key_in(name(_,NameS ),Children),

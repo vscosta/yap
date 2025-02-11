@@ -470,7 +470,7 @@ file_filter(Inp, Out, Command) :-
 /** @pred file_filter_with_initialization(+ _FileIn_, + _FileOut_, + _Goal_, + _FormatCommand_,   + _Arguments_)
 
 Same as file_filter/3, but before starting the filter execute
-`format/3` on the output stream, using  _FormatCommand_ and
+format/3 on the output stream, using  _FormatCommand_ and
  _Arguments_.
 */
 file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-

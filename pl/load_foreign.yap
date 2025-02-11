@@ -144,10 +144,9 @@ File is the name of a shared object file (called dynamic load
 library in MS-Windows). This file is attached to the current process
 and  _Handle_ is unified with a handle to the library. Equivalent to
 `open_shared_object(File, [], Handle)`. See also
-load_foreign_library/1 and `load_foreign_library/2`.
+load_foreign_library/1 and load_foreign_library/2.
 
-On errors, an exception `shared_object`( _Action_,
- _Message_) is raised.  _Message_ is the return value from
+On errors, an exception `shared_object( _Action_, _Message_)` is raised.  _Message_ is the return value from
 dlerror().
 
 

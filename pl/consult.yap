@@ -60,9 +60,7 @@
 
 :- use_system_module( '$_boot', ['$clear_reconsulting'/0,
         '$init_system'/0,
-        '$init_win_graphics'/0,
-        '$loop'/2,
-        '$system_catch'/4]).
+        '$init_win_graphics'/0]).
 
 :- use_system_module( '$_errors', [throw_error/2]).
 
@@ -893,12 +891,10 @@ QEnd of cond  itional compilation.
     
 :- '$conditional_compilation_init'.
 
-'$if_call'(G) :-
-	catch('$eval_if'(G), _E, error_handler).
-
-'$eval_if'(Goal) :-
+'$if_call'(Goal) :-
 	expand_term(Goal,TrueGoal),
-	once(TrueGoal).
+	catch( TrueGoal, _E, error_handler),
+	!.
 
 '$if_directive'((if(_))).
 '$if_directive'((else)).

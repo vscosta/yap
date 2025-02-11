@@ -52,10 +52,6 @@ unified with a list that represents the attributes.  The goal
 `maplist(call, _Goals_)` can be called to recreate the
 attributes.
 
-`attribute_goals/1` in the module where the attribute is
-defined.
-
-
 */
 
 :- multifile woken_att_do/4.

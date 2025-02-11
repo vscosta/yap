@@ -70,8 +70,8 @@
 
 %:- '$multifile'( '$directive'/1, prolog ).
 %:- multifile prolog:'$exec_directive'/5, prolog:'$directive'/1.
-:- '$new_multifile'('$exec_directive'(_,_,_,_,_), prolog).
-:- '$new_multifile'('$directive'(_), prolog).
+:- '$multifile'('$exec_directive'(_,_,_,_,_), prolog).
+:- '$multifile'('$directive'(_), prolog).
 
 
 
@@ -118,23 +118,15 @@
     !,
     '$exec_directives'(G1, Mode, M, VL, Pos),
     '$exec_directives'(G2, Mode, M, VL, Pos).
-'$exec_directives'(M:G, Mode, _M, VL, Pos) :-
+'$exec_directives'(G, Mode, _M, VL, Pos) :-
+    strip_module(M:G, NM, NG),
+    M\=NM,
     !,
-    '$exec_directives'(G, Mode, M, VL, Pos).
+    '$exec_directives'(NG, Mode, NM, VL, Pos).
 '$exec_directives'(G, Mode, M, VL, Pos) :-
     '$exec_directive'(G, Mode, M, VL, Pos).
 
 
-'$exec_directive'(multifile(D), _, M, _, _) :-
-	'$system_catch'('$multifile'(D, M), M,
-	      Error,
-	      error_handler(Error, top)).
-'$exec_directive'(M:G, Mode, _M, VL, Pos) :-
-    !,
-
-    '$exec_directive'(G, Mode, M, VL, Pos).
-'$exec_directive'(discontiguous(D), _, M, _, _) :-
-	'$discontiguous'(D,M).
 /** @pred initialization(+ _G_) is iso
 
 Theu compiler will execute goals  _G_ after consulting the current

@@ -111,43 +111,26 @@ is_matrix/1,
 
 @defgroup YAPMatrix Matrix Operations in YAP.
 @ingroup YAPLibrary
-@brief The YAP Matrix library tries to provide an unified framework for matrcial operations. We support matrices as Prolog terms, as stack  opaque objects, as a `malloc` chunk, or foreign objects.
+@brief The YAP Matrix library tries to provide an unified framework for matricial operations.
+
+
 @{
  Matrices are available by loading the library
-`library(matrix)`. They are multimensional objects of type:
- + <tt>terms</tt>: Prolog terms
- + <tt>ints</tt>: bounded integers, represented as an opaque term. The
+```
+:- library(matrix).
+```
+
+Matrices are indexable objects formed with Prolog terms, or  opaque objects, or `malloc` chunk, or foreign objects.
+
+ They are multimensional objects providing entries of type:
+ + `terms</tt>: Prolog terms
+ + `ints</tt>: bounded integers, represented as an opaque term. The
 maximum integer depends on hardware, but should be obtained from the
 natural size of the machine.
- + <tt>floats</tt>: floating-point numbers, represented as an opaque term.
+ + `floats</tt>: floating-point numbers, represented as an opaque term.
 
     Notice that the library does not support all known matrix operations. Please
 contact the YAP maintainers if you require extra functionality.
-
-*/
-
-
-:- multifile rhs_opaque/1, array_extension/2.
-
-:- use_module(library(maplist)).
-:- use_module(library(mapargs)).
-
-:- use_module(library(lists)).
-:- use_module(library(ordsets)).
-
-:- meta_predicate matrix_map(1,+).
-:- meta_predicate matrix_map(2,+,+).
-:- meta_predicate matrix_map(3,+,+,+).
-
-:- meta_predicate matrix_foldl(3,?,?,?).
-:- meta_predicate matrix_foldl(4,?,?,?,?).
-
-
-/** @infixpred ?_LHS_ <==  ?_RHS_ is semidet
-
-
- Dispatcher, with a special cases for matrices as the RH
- may depend on the LHS.
 
 General matrix assignment operation. It evaluates the right-hand side
  according to the
@@ -207,12 +190,12 @@ perform non-backtrackable assignment.
 
   YAP also supports foreign matrices.
 
-Matrix elements can be accessed through the `matrix_get/2` predicate
-or through an <tt>R</tt>-inspired access notation (that uses the ciao
+Matrix elements can be accessed through the matrix_get/2 predicate
+or through an `R</tt>-inspired access notation (that uses the ciao
 style extension to `[]`). Examples include:
 
 
-  + Access the second row, third column of matrix <tt>X</tt>. Indices start from
+  + Access the second row, third column of matrix `X</tt>. Indices start from
 `0`,
 ```
  _E_ <==  _X_[2,3]
@@ -261,11 +244,11 @@ all elements of a matrix or list
     element-by-element, or multiply a number from all elements of a
     matrix or list
 
- + `log/1`
++ `log`
 
     natural logarithm of a number, matrix or list
 
-§§§§§§§§§§§§§§§§§§§§§§§§+ `exp/1 `
++ `exp`
 
     natural exponentiation of a number, matrix or list
 
@@ -273,9 +256,35 @@ all elements of a matrix or list
 
 The dimensions can be given as an integer, and the matrix will be
 indexed `C`-style from  `0..( _Max_-1)`, or can be given
-as  an interval ` _Base_.. _Limit_`. In the latter case,
+as  an interval  _Base_.. _Limit_. In the latter case,
 matrices of integers and of floating-point numbers should have the same
     _Base_ on every dimension.
+
+*/
+
+
+:- multifile rhs_opaque/1, array_extension/2.
+
+:- use_module(library(maplist)).
+:- use_module(library(mapargs)).
+
+:- use_module(library(lists)).
+:- use_module(library(ordsets)).
+
+:- meta_predicate matrix_map(1,+).
+:- meta_predicate matrix_map(2,+,+).
+:- meta_predicate matrix_map(3,+,+,+).
+
+:- meta_predicate matrix_foldl(3,?,?,?).
+:- meta_predicate matrix_foldl(4,?,?,?,?).
+
+
+/** @infixpred ?_LHS_ <==  ?_RHS_ is semidet
+
+
+ Dispatcher, with a special cases for matrices as the RH
+ may depend on the LHS.
+
 
 
 */
@@ -358,6 +367,11 @@ LHS <== RHS :-
     set__(LHS,Val),
     !.
 
+/*
+ @infixpred _LHS_  +== _RHS_
+
+  add  _RHS_ to _LHS_ and store the result over the previous RHS.
+ */
 ( LHS[Off|Offs] +== 1 ) :-
     maplist(compute,[Off|Offs],[EOff|EOffs]),
     compute(LHS,M),
@@ -369,13 +383,20 @@ LHS <== RHS :-
     compute(LHS,M),
     !,
     matrix_add_to_element(M,[EOff|EOffs],V).
+
+
+/*
+ @infixpred _LHS_  -= _RHS_
+
+  subtract  _RHS_ from _LHS_ and store the result over the previous RHS.
+ */
 ( LHS[Off|Offs] -== 1 ) :-
     !,
     maplist(compute,[Off|Offs],[EOff|EOffs]),
     compute(LHS,M),
     matrix_dec(M,[EOff|EOffs]).
 
-(LHS  -== RHS ) :-
+( LHS  -== RHS ) :-
     compute(RHS,V),
     !,
     matrix_op(LHS,V,1,LHS).
@@ -718,24 +739,25 @@ compute(Cs,Exp) :-
 
 
 /**
-+ `matrix/1`
++ matrix/1
 
     create a vector from a list
 
 + `matrix`
 
     create a matrix from a list. Options are:
-  + dim=
+
+    + dim=
     a list of dimensions
 
    + type=
     integers, floating-point or terms
 
-  + base=
+   + base=
     a list of base offsets per dimension (all must be the same for arrays of
 integers and floating-points
 
-+ `matrix/3`
++ matrix/3
 
     create matrix giving two options
 

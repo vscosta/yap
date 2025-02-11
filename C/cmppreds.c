@@ -748,9 +748,9 @@ static Int a_eq(Term t1, Term t2) {
   return out == 0;
 }
 
-/*q
-    @pred =\=( _X,_Y_ ) is iso 
-
+/**
+    @pred =\=( _X,_Y_ ) is iso
+    
     Difference of arithmetic expressions
 
    The value of the expression  _X_ is different from the value of expression
