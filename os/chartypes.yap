@@ -4,7 +4,7 @@
 			  code_type/2
 			 ]).
 
-:- discontiguous prolog:digit_weight/2, prolog:digit_weight/3.
+:- discontiguous digit_weight/2, digit_weight/3.
 
 
 /**

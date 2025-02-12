@@ -33,7 +33,7 @@ ISO standard by allowing module-specific behavior.
 + By using the unknown/2 built-in (this deprecated solution is
 compatible with previous releases of YAP).
 + By defining clauses for the hook predicate
-user:unknown_predicate_handler/3. This solution is compatible
+`user:unknown_predicate_handler/3`. This solution is compatible
 with SICStus Prolog.
 
 

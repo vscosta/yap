@@ -38,7 +38,6 @@
 
 :- use_system_module( '$_consult', ['$do_startup_reconsult'/1]).
 
-:- use_system_module( '$_control', ['$run_atom_goal'/1]).
 
 :- use_system_module( '$_errors', [throw_error/2]).
 

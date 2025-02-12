@@ -568,14 +568,14 @@ thread_exit(Term) :-
 
 
 Run  _Goal_ just before releasing the thread resources. This is to
-be compared to at_halt/1, but only for the current
+be compared to `at_halt/1`, but only for the current
 thread. These hooks are ran regardless of why the execution of the
 thread has been completed. As these hooks are run, the return-code is
 already available through thread_property/2 using the result of
 thread_self/1 as thread-identifier. If you want to guarantee the
 execution of an exit hook no matter how the thread terminates (the thread
 can be aborted before reaching the thread_at_exit/1 call), consider
-using instead the at_exit/1 option of thread_create/3.
+using instead the `at_exit/1` option of thread_create/3.
 
 
 */
@@ -793,7 +793,7 @@ threads :-
 /** @pred thread_statistics(+ _Id_, + _Key_, - _Value_)
 
 
-Obtains statistical information on thread  _Id_ as statistics/2
+Obtains statistical information on thread  _Id_ as `statistics/2`
 does in single-threaded applications.  This call returns all keys
 of `statistics/2`, although only information statistics about the
 stacks and CPU time yield different values for each thread.
@@ -840,7 +840,7 @@ can <em>hold</em> a mutex.
 Mutexes are used to realise related updates to the Prolog database.
 With `related', we refer to the situation where a `transaction' implies
 two or more changes to the Prolog database.  For example, we have a
-predicate address/2, representing the address of a person and we want
+predicate `address/2`, representing the address of a person and we want
 to change the address by retracting the old and asserting the new
 address.  Between these two operations the database is invalid: this
 person has either no address or two addresses, depending on the
@@ -979,8 +979,7 @@ threads to wait for data or conditions without using the CPU.
 
 Each thread has a message-queue attached to it that is identified
 by the thread. Additional queues are created using
-message_queue_create/2.
-
+`message_queue_create/2`.
 @{
 */
 
@@ -1018,7 +1017,7 @@ message_queue_create(Id, Options) :-
 
 
 If  _Queue_ is an atom, create a named queue.  To avoid ambiguity
-on thread_send_message/2, the name of a queue may not be in use
+on `thread_send_message/2`, the name of a queue may not be in use
 as a thread-name.  If  _Queue_ is unbound an anonymous queue is
 created and  _Queue_ is unified to its identifier.
 

@@ -7,7 +7,7 @@
  * @defgroup DatabasePredDyns Dynamic Predicates
  * @ingroup Builtins
 
-@{
+
 Next follow the main operations on dynamic predicates.
 
 */
@@ -112,7 +112,7 @@ assert(Clause) :-
 
 The same as `asserta(C)` but unifying  _R_ with
 the  database reference that identifies the new clause, in a
-one-to-one way. Note that asserta/2 only works for dynamic
+one-to-one way. Note that `asserta/2` only works for dynamic
 predicates. If the predicate is undefined, it will automatically be
 declared dynamic.
 
@@ -359,6 +359,3 @@ dynamic_predicate(P,Sem) :-
 '$bad_if_is_semantics'(Sem, Goal) :-
 	Sem \= immediate, Sem \= logical, !,
 	throw_error(domain_error(semantics_indicator,Sem),Goal).
-
-%% @}
-

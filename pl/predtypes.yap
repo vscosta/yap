@@ -231,7 +231,7 @@ multifile(P) :-
     strip_module(P, OM, Pred),
     '$multifile'(Pred, OM),
     fail.
- 
+multifile(_P).
 
 '$multifile'(V, _) :-
     var(V),

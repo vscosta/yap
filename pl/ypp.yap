@@ -37,8 +37,6 @@
 * @ingroup YAPLibrary
 *
 * @ Interface to the `C` preprocessor.
-*
-* @{
 */
 
 
@@ -153,5 +151,3 @@ ypp_file(File,PPFile):-
 :-set_state(on),
 	ypp_extcmd('cpp -P -E -w -o ').
 %	ypp_extcmd('gpp -o').
-
-%% @}

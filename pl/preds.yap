@@ -185,7 +185,7 @@ clause(V0,Q,R) :-
 
 
 '$clause'(exo_procedure,P,M,true,exo(P)) :-
-	'$execute0grep'(M:P).
+	'$execute0'(M:P).
 '$clause'(mega_procedure,P,M,true,mega(P)) :-
 	'$execute0'(M:P).
 '$clause'(updatable_procedure, P,M,Q,R) :-
@@ -206,14 +206,17 @@ clause(V0,Q,R) :-
 	      clause(M:P,Q,R)).
 				    
 '$init_preds' :-
-	once('$do_static_clause'(_,_,_,_,_)),
-	fail.
+    '$do_static_clause'(_,_,_,_,_)
+    ->
+    fail.
 '$init_preds' :-
-	once('$do_log_upd_clause'(_,_,_,_,_,_)),
-	fail.
+    '$do_log_upd_clause'(_,_,_,_,_,_)
+    ->
+    fail.
 '$init_preds' :-
-	once('$do_log_upd_clause_erase'(_,_,_,_,_,_)),
-	fail.
+    '$do_log_upd_clause_erase'(_,_,_,_,_,_)
+    ->
+    fail.
 '$init_preds'.
 
 /** @pred  nth_clause(+ _H_, _I_,- _R_)

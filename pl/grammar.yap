@@ -67,8 +67,7 @@ right hand side of a grammar rule
 Grammar related built-in predicates:
 
 */
-:- module_( '$_grammar', []).
-/*
+:- system_module( '$_grammar',[
 !/2,
          (',')/4,
          (->)/4,
@@ -81,9 +80,9 @@ Grammar related built-in predicates:
         phrase/2,
         phrase/3,
         {}/3,
-        ('|')/4]. [throw_error/2,
+        ('|')/4], [throw_error/2,
 t_body/6]).
-*/
+
 
 % :- meta_predicate ^(?,0,?).
 % ^(Xs, Goal, Xs) :- call(Goal).
@@ -99,7 +98,7 @@ t_body/6]).
     Also, phrase/2-3 check their first argument.
 a*/
 
-prolog:'$translate_rule'(Rule, (NH :- B) ) :-
+translate_rule(Rule, (NH :- B) ) :-
     current_source_module( SM, SM ),
     '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
     t_head(LP, NH0, NGs, S, SR, (LP-->SM:RP)),

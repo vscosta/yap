@@ -8,7 +8,7 @@
  *									 *
  *************************************************************************/
 
-
+/*
 :- system_module( '$os', [
 	       cd/0,
 	       cd/1,
@@ -21,6 +21,7 @@
 	       setenv/2
 	 ], [] ).
 :- use_system_module( '$_errors', [throw_error/2]).
+*/
 
 /**
 @defgroup YAPOS Access to Operating System Functionality

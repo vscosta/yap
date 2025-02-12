@@ -28,7 +28,7 @@
 
 
 */
-:-  module( '$absf', [
+:-  system_module( '$absf', [
         absolute_file_name/3,
         add_to_path/1,
         add_to_path/2,

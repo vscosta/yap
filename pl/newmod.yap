@@ -53,7 +53,7 @@ ensure_loaded/1 and the predicates
 consult/1 or reconsult/1. The
 non-public predicates of a module file are not supposed to be visible
 to other modules; they can, however, be accessed by prefixing the module
-name with the :/2 operator.
+name with the `:/2` operator.
 
 */
 
@@ -62,12 +62,7 @@ name with the :/2 operator.
     '$add_module_on_file'(DonorM, F, HostM, Ps, Loc),
     current_source_module(HostM,DonorM).
 
-
-
-'$declare_system_module'(HostM,N,Ps,Ss,Loc) :-
-    '$declare_module'(HostM,N,Ps,Loc),
-    '$mk_system_predicates'(Ss),
-    set_module_property(N,type(system)).
+system_module(_DonorM, _Ss, _Ps).
 
 '$mk_system_predicates'( Ps ) :-
     member(Name/A , Ps),

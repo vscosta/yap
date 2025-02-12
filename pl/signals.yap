@@ -28,6 +28,78 @@
 :- use_system_module( '$_debug', ['$trace'/1]).
 
 
+/** @pred  alarm(+ _Seconds_,+ _Callable_,+ _OldAlarm_)
+
+
+  Arranges for YAP to be interrupted in  _Seconds_ seconds, or in
+  [ _Seconds_| _MicroSeconds_]. When interrupted, YAP will execute
+  _Callable_ and then return to the previous execution. If
+  _Seconds_ is `0`, no new alarm is scheduled. In any event,
+  any previously set alarm is canceled.
+
+  The variable  _OldAlarm_ unifies with the number of seconds remaining
+  until any previously scheduled alarm was due to be delivered, or with
+  `0` if there was no previously scheduled alarm.
+
+  Note that execution of  _Callable_ will wait if YAP is
+  executing built-in predicates, such as Input/Output operations.
+
+  The next example shows how  _alarm/3_ can be used to implement a
+  simple clock:
+
+  ~~~~~
+  loop :- loop.
+
+  ticker :- write('.'), flush_output,
+  get_value(tick, yes),
+  alarm(1,ticker,_).
+
+  :- set_value(tick, yes), alarm(1,ticker,_), loop.
+  ~~~~~
+
+  The clock, `ticker`, writes a dot and then checks the flag
+  `tick` to see whether it can continue ticking. If so, it calls
+  itself again. Note that there is no guarantee that the each dot
+  corresponds a second: for instance, if the YAP is waiting for
+  user input, `ticker` will wait until the user types the entry in.
+
+  The next example shows how alarm/3 can be used to guarantee that
+  a certain procedure does not take longer than a certain amount of time:
+
+  ~~~~~
+  loop :- loop.
+
+  :-   catch((alarm(10, throw(ball), _),loop),
+  ball,
+  format('Quota exhausted.~n',[])).
+  ~~~~~
+  In this case after `10` seconds our `loop` is interrupted,
+  `ball` is thrown,  and the handler writes `Quota exhausted`.
+  Execution then continues from the handler.
+
+  Note that in this case `loop/0` always executes until the alarm is
+  sent. Often, the code you are executing succeeds or fails before the
+  alarm is actually delivered. In this case, you probably want to disable
+  the alarm when you leave the procedure. The next procedure does exactly so:
+
+  ~~~~~
+  once_with_alarm(Time,Goal,DoOnAlarm) :-
+  catch(execute_once_with_alarm(Time, Goal), alarm, DoOnAlarm).
+
+  execute_once_with_alarm(Time, Goal) :-
+  alarm(Time, alarm, _),
+  ( call(Goal) -> alarm(0, alarm, _) ; alarm(0, alarm, _), fail).
+  ~~~~~
+
+  The procedure `once_with_alarm/3` has three arguments:
+  the  _Time_ to wait before the alarm is
+  sent; the  _Goal_ to execute; and the goal  _DoOnAlarm_ to execute
+  if the alarm is sent. It uses catch/3 to handle the case the
+  `alarm` is sent. Then it starts the alarm, calls the goal
+  _Goal_, and disables the alarm on success or failure.
+
+
+*/
 /** @pred  on_signal(+ _Signal_,? _OldAction_,+ _Callable_)
 
 
@@ -200,78 +272,6 @@ on_signal(Signal,_OldAction,Action) :-
     assert(('$signal_handler'(Signal) :- Action)).
 
 
-/** @pred  alarm(+ _Seconds_,+ _Callable_,+ _OldAlarm_)
-
-
-  Arranges for YAP to be interrupted in  _Seconds_ seconds, or in
-  [ _Seconds_| _MicroSeconds_]. When interrupted, YAP will execute
-  _Callable_ and then return to the previous execution. If
-  _Seconds_ is `0`, no new alarm is scheduled. In any event,
-  any previously set alarm is canceled.
-
-  The variable  _OldAlarm_ unifies with the number of seconds remaining
-  until any previously scheduled alarm was due to be delivered, or with
-  `0` if there was no previously scheduled alarm.
-
-  Note that execution of  _Callable_ will wait if YAP is
-  executing built-in predicates, such as Input/Output operations.
-
-  The next example shows how  _alarm/3_ can be used to implement a
-  simple clock:
-
-  ~~~~~
-  loop :- loop.
-
-  ticker :- write('.'), flush_output,
-  get_value(tick, yes),
-  alarm(1,ticker,_).
-
-  :- set_value(tick, yes), alarm(1,ticker,_), loop.
-  ~~~~~
-
-  The clock, `ticker`, writes a dot and then checks the flag
-  `tick` to see whether it can continue ticking. If so, it calls
-  itself again. Note that there is no guarantee that the each dot
-  corresponds a second: for instance, if the YAP is waiting for
-  user input, `ticker` will wait until the user types the entry in.
-
-  The next example shows how alarm/3 can be used to guarantee that
-  a certain procedure does not take longer than a certain amount of time:
-
-  ~~~~~
-  loop :- loop.
-
-  :-   catch((alarm(10, throw(ball), _),loop),
-  ball,
-  format('Quota exhausted.~n',[])).
-  ~~~~~
-  In this case after `10` seconds our `loop` is interrupted,
-  `ball` is thrown,  and the handler writes `Quota exhausted`.
-  Execution then continues from the handler.
-
-  Note that in this case loop/0 always executes until the alarm is
-  sent. Often, the code you are executing succeeds or fails before the
-  alarm is actually delivered. In this case, you probably want to disable
-  the alarm when you leave the procedure. The next procedure does exactly so:
-
-```
-  once_with_alarm(Time,Goal,DoOnAlarm) :-
-  catch(execute_once_with_alarm(Time, Goal), alarm, DoOnAlarm).
-
-  execute_once_with_alarm(Time, Goal) :-
-  alarm(Time, alarm, _),
-  ( call(Goal) -> alarm(0, alarm, _) ; alarm(0, alarm, _), fail).
-```
-
-  The procedure once_with_alarm/3 has three arguments:
-  the  _Time_ to wait before the alarm is
-  sent; the  _Goal_ to execute; and the goal  _DoOnAlarm_ to execute
-  if the alarm is sent. It uses catch/3 to handle the case the
-  `alarm` is sent. Then it starts the alarm, calls the goal
-  _Goal_, and disables the alarm on success or failure.
-
-
-*/
 alarm(Interval, Goal, Left) :-
 	Interval == 0, !,
 	alarm(0, 0, Left0, _),

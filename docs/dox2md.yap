@@ -447,6 +447,10 @@ description(sect2([],S)) -->
     []
     ),
     description(S).
+description(simplesect(_,S)) -->
+    !,
+    [ "\n "],
+    description(S).
 description(sect3([],S)) -->
     !,
     [ "##### "],
@@ -593,6 +597,9 @@ para(P) -->
     [H].
 
 
+para(ulink([url(Title)],[URL|_]]) -->
+    !,
+   format(string(S),"[~s](~s)", [Title,URL]).
 para(hruler([],_)) -->
     [ "\n- - -\n"].
 para(preformatted([],Text)) -->
@@ -615,6 +622,7 @@ para(orderedlist(Atts,Text)) -->
 para(itemizedlist(Atts,Text)) -->
     itemlist(Atts,Text). % docListType
 para(simplesect([kind(Kind)|Text])) -->
+!,
 ["\n\n"],
 [Kind],
 [" "],
@@ -1816,3 +1824,10 @@ get_name(Children,Name) :-
     ),
     string(Name),
     !.
+
+gengroup(Ref0) :-
+abolish(visited/1),
+string_concat("group__",Ref0,Ref),
+Kind="group",
+unix(argv([IDir,ODir,_])),
+    	trl(compound([refid(Ref),kind(Kind)],[]),IDir,ODir)

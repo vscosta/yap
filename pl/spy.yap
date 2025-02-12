@@ -220,7 +220,7 @@ trace :-
 Ends tracing and exits the debugger. This is the same as
 nodebug/0.
  */
-notrace :
+notrace :-
     set_prolog_flag(trace,false),
     print_message(informational,debug(off)).
 

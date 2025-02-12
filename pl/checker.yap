@@ -67,7 +67,7 @@ By default, style checking is disabled in YAP unless we are in
 `sicstus` or `iso` language mode.
 
 The style_check/1 built-in is now deprecated. Please use
-set_prolog_flag/1 instead.
+`set_prolog_flag/1` instead.
 
   **/
 %
@@ -131,7 +131,7 @@ Turns off style checking according to the attribute specified by
  _X_, which have the same meaning as in style_check/1.
 
 The no_style_check/1 built-in is now deprecated. Please use
-set_prolog_flag/1 instead.
+`set_prolog_flag/1` instead.
 
 **/
 no_style_check(V) :- var(V), !, fail.

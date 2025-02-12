@@ -60,7 +60,9 @@
 
 :- use_system_module( '$_boot', ['$clear_reconsulting'/0,
         '$init_system'/0,
-        '$init_win_graphics'/0]).
+        '$init_win_graphics'/0,
+        '$loop'/2,
+        '$system_catch'/4]).
 
 :- use_system_module( '$_errors', [throw_error/2]).
 
@@ -312,17 +314,11 @@ last one, onto underscores.
 	fail.
 '$remove_multifile_clauses'(_).
 
-'$initialization'(G) :-
-    '$initialization'( G, after_load ).
+initialization(G) :-
+    initialization( G, after_load ).
 
 
-
-initialization(G,OPT) :-
-    '$initialization'(G, OPT),
-    fail.
-initialization(_G,_OPT).
-
-'$initialization'(G0,OPT) :-
+initialization(G0,OPT) :-
     must_be_callable( G0),
     expand_goal(G0, G),
     %   must_be_of_type(oneof([after_load, now, restore]),
@@ -359,9 +355,9 @@ initialization(_G,_OPT).
 % system goals must be performed first
 '$exec_initialization_goals'(LC) :-
     recorded('$initialization_queue',q(LC,G),R),
-	'$conditional_compilation_get_state'(State),
-	'$conditional_compilation_init',
-	 erase(R),
+    conditional_compilation_get_state(State),
+    conditional_compilation_init,
+    erase(R),
 	(catch(
 	 (G),
 	 _E,
@@ -372,7 +368,7 @@ initialization(_G,_OPT).
 	;
   	 format(user_error,':- ~q failed.~n',[G])
 	 ),
-	'$conditional_compilation_set_state'(State),
+	conditional_compilation_set_state(State),
 	fail.
 '$exec_initialization_goals'(_).
 
@@ -737,15 +733,6 @@ section_else.
 
 */
 
-'$if_directive'(if(Goal), M, _VL, _Pos, Option) :- 
-    '$if'(M:Goal, Option).
-'$if_directive'(elif(Goal), M, _VL, _Pos, Option) :-
-    '$elif'(M:Goal, Option).
-'$if_directive'(else, _M, _VL, _Pos, Option) :-
-    '$else'( Option).
-'$if_directive'(endif, _M, _VL, _Pos, Option) :-
-    '$endif'( Option).
-
 /** @pred    if( : _Goal_)
 
   Compile subsequent code only if  _Goal_ succeeds.  For enhanced
@@ -757,9 +744,9 @@ If an error occurs, the error is printed and processing proceeds as if
 %
 % This is complicated because of embedded ifs.
 %
-'$if'(Goal) :-
+if(Goal) :-
     must_be_callable(Goal),
-    '$conditional_compilation'(Inp),
+    conditional_compilation(Inp),
     (Inp == skip
    ->
        Mode=done
@@ -774,15 +761,15 @@ If an error occurs, the error is printed and processing proceeds as if
     ;
     Mode = skip
     ),
-    '$conditional_compilation_push'(Mode).
+    conditional_compilation_push(Mode).
 
 /**
 @pred    else
 Start `else' branch.
 
 */
-'$else' :-
-    '$conditional_compilation'(Inp),
+else :-
+    conditional_compilation(Inp),
     ( Inp == run
     ->
     Mode = done
@@ -793,7 +780,7 @@ Start `else' branch.
     ;
     Mode = done
     ),
-    '$conditional_compilation_set'(Mode).
+    conditional_compilation_set(Mode).
 
 
 
@@ -804,8 +791,8 @@ Equivalent to `:- else. :-if(Goal) ... :- endif.`  In a sequence
 as below, the section below the first matching elif is processed, If
 no test succeeds the else branch is processed.
 */
-'$elif'(Goal) :-
- 	 '$conditional_compilation'(Inp),
+elif(Goal) :-
+ 	 conditional_compilation(Inp),
    (
    Inp == run
     ->
@@ -822,38 +809,37 @@ no test succeeds the else branch is processed.
     ;
     Mode = skip
       ),
-    '$conditional_compilation_set'(Mode).
+    conditional_compilation_set(Mode).
 
 /** @pred    endif
 QEnd of cond  itional compilation.
-
 */
-'$endif' :-
-    '$conditional_compilation_pop'.
+endif :-
+    conditional_compilation_pop.
 
 %% base layer runs 
-'$conditional_compilation_init':-
+conditional_compilation_init:-
     nb_setval('$conditional_compilation_level',[run]).
 
-'$conditional_compilation_get_state'(state(LB)) :-
+conditional_compilation_get_state(state(LB)) :-
     catch(nb_getval('$conditional_compilation_level', LB), _Undef,
-('$conditional_compilation_init',
-'$conditional_compilation_get_state'(state(LB)) )
+(conditional_compilation_init,
+conditional_compilation_get_state(state(LB)) )
 ).
 
-'$conditional_compilation_set_state'(state(LB)) :-
+conditional_compilation_set_state(state(LB)) :-
     nb_setval('$conditional_compilation_level', LB).
 
-'$conditional_compilation_push'(Mode) :-
+conditional_compilation_push(Mode) :-
     '__NB_getval__'('$conditional_compilation_level', Levels,fail),
     nb_setval('$conditional_compilation_level', [Mode|Levels]).
 
 
-'$conditional_compilation'(Mode) :-
+conditional_compilation(Mode) :-
     '__NB_getval__'('$conditional_compilation_level', [Mode|_Levels], fail).
 
 
-'$conditional_compilation_skip'(V)  :-
+conditional_compilation_skip(V)  :-
     var(V),
     !,
     '__NB_getval__'('$conditional_compilation_level', [L|_Levels], fail),
@@ -861,40 +847,42 @@ QEnd of cond  itional compilation.
     ;
     L == done),
     !.
-'$conditional_compilation_skip'((:-if(G)))  :-
+conditional_compilation_skip((:-if(G)))  :-
       '$if'(G),
       !.
-'$conditional_compilation_skip'((:-elif(G)))  :-
+conditional_compilation_skip((:-elif(G)))  :-
       '$elif'(G),
 !.
-'$conditional_compilation_skip'((:-else))  :-
+conditional_compilation_skip((:-else))  :-
       '$else',
 !.
-'$conditional_compilation_skip'((:-endif))  :-
+conditional_compilation_skip((:-endif))  :-
       '$endif',
 !.
-'$conditional_compilation_skip'(_)  :-
+conditional_compilation_skip(_)  :-
     '__NB_getval__'('$conditional_compilation_level', [L|_Levels], fail),
     (L == skip
     ;
     L == done),
     !.
 
-'$conditional_compilation_set'(Mode) :-
+conditional_compilation_set(Mode) :-
     '__NB_getval__'('$conditional_compilation_level', [_Mode_|Levels], fail),
     nb_setval('$conditional_compilation_level', [Mode|Levels]).
 
 
-'$conditional_compilation_pop' :-
+conditional_compilation_pop :-
     '__NB_getval__'('$conditional_compilation_level', [_|Levels], fail),
     nb_setval('$conditional_compilation_level', Levels).
     
-:- '$conditional_compilation_init'.
+:- conditional_compilation_init.
 
-'$if_call'(Goal) :-
+'$if_call'(G) :-
+	catch('$eval_if'(G), _E, error_handler).
+
+'$eval_if'(Goal) :-
 	expand_term(Goal,TrueGoal),
-	catch( TrueGoal, _E, error_handler),
-	!.
+	once(TrueGoal).
 
 '$if_directive'((if(_))).
 '$if_directive'((else)).

@@ -84,7 +84,7 @@ main :-
        T = ( :- Directive )
        ->
        (
-	 dxpand(Directive),
+	 user:dxpand(Directive),
 	 fail
 	 ;
 	 O = directive(Directive, Comments, Vs)

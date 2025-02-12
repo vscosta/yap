@@ -76,12 +76,12 @@ assert_in_program(G0) :-
 
   - _Module_:`expand_term`( _T_ , _X_) is called first on the
   current source module _Module_ ; if i
-  - `user:expand_term`( _T_ , _X_ )` is available on every module.
+  - `user:expand_term`( _T_ , _X_ `)` is available on every module.
 
 This predicate is used by YAP for preprocessing each top level
 term read when consulting a file and before asserting or executing it.
 It rewrites a term  _T_ to a term  _X_ according to the following
-rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2. If this call fails then the translating process
+rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
 for DCG rules is applied, together with the arithmetic optimizer
 whenever the compilation of arithmetic expressions is in progress.
 
@@ -384,7 +384,7 @@ expand_clause(Term, Term, Term).
 % Grammar Rules expansion
 %
 '$expand_term_grammar'((A-->B), C) :-
-    prolog:'$translate_rule'((A-->B),C), !.
+    translate_rule((A-->B),C), !.
 '$expand_term_grammar'(A, A).
 
 %
@@ -398,6 +398,16 @@ expand_clause(Term, Term, Term).
 		     
 % makes sure we have an environment.
 '$true'.
+
+
+% system_catch is like catch, but it avoids the overhead of a full
+% meta-call by calling '$execute0' instead of execute.
+% This way it
+% also avoids module preprocessing and goal_expansion
+%
+'$system_catch'(G, M, C, A) :-
+    % check current trail
+    catch(M:G,C,A).
 
 
 
@@ -450,8 +460,8 @@ log_event( String, Args ) :-
 
 
 
-'$protected':'$goal'((:-G),VL,Pos) :-
-    !,			% allow user expansion
+goal((:-G),VL,Pos) :-
+   !,			% allow user expansion
     must_be_callable(G),
     expand_term((:- G), O, _ExpandedClause),
     '$yap_strip_module'(O, NM, NO),
@@ -460,13 +470,15 @@ log_event( String, Args ) :-
     ->
     '$process_directive'(G1, top , NM, VL, Pos)
     ;
-    '$protected':goal(NO,VL,Pos)
+    goal(NO,VL,Pos)
     ),
     fail.
- '$protected':goal((?-G), VL, Pos) :-
+
+
+goal((?-G), VL, Pos) :-
     !,
-     '$protected':goal(G, VL, Pos).
- '$protected':goal(G, Names, _Pos) :-
+    goal(G, VL, Pos).
+goal(G, Names, _Pos) :-
     expand_term(G, EC, _ExpandedClause),
     !,
      current_prolog_flag(prompt_alternatives_on, OPT),
@@ -513,7 +525,7 @@ live__ :-
 	GA \= []
     ->
     set_value('$top_level_goal',[]),
-    ignore('$run_atom_goal'(GA))
+    ignore(run_atom_goal(GA))
     ;
     true
     ),
@@ -532,7 +544,7 @@ live__ :-
     nb_setval('$spy_gn',0),
     % stop at spy-points if debugging is on.
     '$init_debugger_trace',
-    '$catch_hidden_goal'('$protected':goal(Goal,Bindings,Pos),_Error,error_handler),
+    catch(goal(Goal,Bindings,Pos),_Error,error_handler),
     fail
     ), 
     current_prolog_flag(break_level, BreakLevel),

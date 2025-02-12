@@ -106,13 +106,13 @@ init_prolog :-
 			get_value('$init_goal',GA),
 			GA \= [],
 			set_value('$init_goal',[]),
-			'$run_atom_goal'(GA),
+			run_atom_goal(GA),
 			fail.
 			'$startup_goals' :-
 				get_value('$top_level_goal',GA),
 				GA \= [],
 				set_value('$top_level_goal',[]),
-				'$run_atom_goal'(GA),
+				run_atom_goal(GA),
 				fail.
 '$startup_goals' :-
     recorded('$restore_flag', goal(Module:GA), R),
