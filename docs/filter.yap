@@ -8,7 +8,7 @@
 
 :- include(utils).
 
-:-dynamic pred_found/2.
+:-dynamic pred_found/3, exported/3, defines_module/1.
 
 :- initialization(main).
 
@@ -29,6 +29,7 @@ valid_suffix('.ypp').
 */
 
 main :-
+    retractall(pred_found(_,_,_)),
     unix(argv([File])),
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
     
@@ -39,7 +40,7 @@ main :-
     working_directory(OldD,Dir),
     open(Y,read,S,[alias(loop_stream)]),
     script(S),
-    findall(O, entry(S,O), Info),
+    findall(O, user:entry(S,O), Info),
 %spy trl,
      predicates(Info, _, Preds, _),
      insert_module_header,
@@ -72,7 +73,7 @@ main :-
   * @pred entry(+Stream, -Units).
   * Obtain text units
   */
- entry(S,O) :-
+ user:entry(S,O) :-
      repeat,
      read_clause(S,T,[comments(Comments),variable_names(Vs)]),
      (
@@ -266,10 +267,11 @@ trl_pred(L,RL,NL,NRL) :-
     !,
     number_string(Arity,A),
     atom_string(At,Name),
-    assert(pred_found(At,Arity)),
+    defines_module(M),
+    assert(pred_found(M,At,Arity)),
     sub_string(L,0,Bef,_, Prefix),
     string_concat([Name,"/",A],PI),
-			    encode(PI,DoxName),
+    encode(PI,DoxName),
     NL=[Prefix,"@class ",DoxName,"\n       *",Name,Args,"* "|NRL].
 trl_pred(L,RL,NL,NRL) :-
     sub_string(L,Bef,10,_After,"@infixpred"),
@@ -281,8 +283,9 @@ trl_pred(L,RL,NL,NRL) :-
 	A2>A1,	
 		block(A2,L,B2),
 		skip_whitespace(B2,L,A3),
-		A3>A2,block(A3,L,B3),
-			    !,
+		A3>A2,
+		block(A3,L,B3),
+			   !,
 			    L2 is B2-A2,
 			    L1 is B3-A1,
 			    sub_string(L,A2,L2,_,Name),
@@ -291,7 +294,8 @@ trl_pred(L,RL,NL,NRL) :-
 			    string_concat([Name,"/2"],PI),
 			    encode(PI,DoxName),
 			    atom_string( At, Name),
-			    assert(pred_found(At,2)),
+			    defines_module(Mod),
+			    assert(pred_found(Mod,At,2)),
     sub_string(L,0,Bef,_, Prefix),
     NL =  [Prefix,"@class ",DoxName,"\n       *",NameArgs,"* "|NRL].
 trl_pred(L,L,NL,NL).
@@ -348,7 +352,7 @@ NPrefix \= Left,
     sub_string(L,_,Right,0,RL),
     string_concat([Name,D],PI),
     encode(PI,DoxName),
-    NL=[Prefix,"@ref{",DoxName,"}[\"",PI,"\"]"|NRL],
+    NL=[Prefix,"@ref ",DoxName," \"",PI,"\""|NRL],
     trl_pi(RL,NRL,NL0).
 trl_pi(S,[S|C],C).
     
@@ -384,7 +388,7 @@ alphanum(':').
 
 addcomm(N/A,S,false) :-
     is_exported(N,A),
-    \+ pred_found(N,A),
+    \+ pred_found(_M,N,A),
     !,
     length(L,A),
     maplist(=('?'),L),
@@ -397,18 +401,21 @@ addcomm(_,_,_).
 
 
 dxpand(module(M,Gs)) :-
-   module(M),
     assert(defines_module(M)),
-    maplist(dxpand,Gs).
-dxpand(op(M,Gs,Y)) :-
-    op(M,Gs,Y).
-dxpand(use_module(M,Gs)) :-
-    (:-use_module(M,Gs)).
-dxpand(module(user)) :- !.
+    maplist(pxpand(M),Gs).
 dxpand(module(M)) :-
-    ensure_loaded(M).
-dxpand(A/B) :-assert(exported(A,B)).
-dxpand(A//B):- B2 is B+2, assert(exported(A,B2)) .
+    retractall(defines_module(_)),
+    assert(defines_module(M)).
+dxpand(use_module(_M,_Gs)).
+
+pxpand(Mod,op(M,Gs,Y)) :-
+    op(M,Gs,Mod:Y),
+    op(M,Gs,Y).
+pxpand(Mod,A/B) :-
+    assert(exported(Mod,A,B)).
+pxpand(Mod,A//B):-
+    B2 is B+2,
+    assert(exported(Mod,A,B2)) .
 
 is_exported(N,_) :-
     string(N),
@@ -424,6 +431,7 @@ is_exported(_,_) :-
     current_source_module(user,user),
     !.
 is_exported(N,A) :-
-    exported(N,A).
+    defines_module(Mod),
+    exported(Mod,N,A).
 
 

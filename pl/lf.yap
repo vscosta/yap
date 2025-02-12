@@ -569,17 +569,6 @@ call_compiler(SM:G, Where,_VL, Pos) :-
 
 
 
-'$csult'(Fs, _M) :-
-	 skip_list(_, Fs ,L),
-	 L \== [],
-	 !,
-	 python:python_proc( Fs ) .
-'$csult'(Fs, M) :-
-	'$extract_minus'(Fs, MFs), !,
-	load_files(M:MFs,[]).
-'$csult'(Fs, M) :-
-	load_files(M:Fs,[consult(consult)]).
-
 '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts) :-
     ( '$memberchk'('consulted_at'(Pos),Opts) -> true ; '$show_stream_position'(loop_stream,Pos) ),
     source_location(ParentF,_),

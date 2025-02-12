@@ -229,7 +229,7 @@ int main(int argc, char *argv[]) {
 	fprintf(stdout,"%.*s @class %s ",
 		(int)(start-line),line,
 		protect_class(buf,p0,(int)(args-p0),arity)),
-	  fprintf(stdout,"** \"%.*s\" ** %s \n",(int)(pred-p0),p0,pred);
+	  fprintf(stdout,"** \"%.*s\" **\n%s \n",(int)(pred-p0),p0,pred);
 	line=pred;
       }
     }
@@ -244,7 +244,7 @@ int main(int argc, char *argv[]) {
       while (pi0 >= line && (pi0[0]=='_'|| isalnum(pi0[0])))
 	pi0--;
       pi0++;
-      fprintf(stdout,"%.*s @ref{%s}[\"%.*s/%c\"]"  ,(int)(pi0-line),line,
+      fprintf(stdout,"%.*s @ref %s \"%.*s/%c\" ]"  ,(int)(pi0-line),line,
 	      protect_class(buf,pi0,(size_t)(pi-pi0),pi[1]),
 	      (int)(pi-pi0),pi0,pi[1]-'0' );
       line = pi+2;

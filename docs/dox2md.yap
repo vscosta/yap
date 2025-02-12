@@ -224,7 +224,7 @@ innergroup(Status,Atts,AllLabel) -->
 
 link_inner(Status,Ref,Label) -->
 { decode(Label,PLabel) },
-    ref(Ref,Label),
+    ref(Ref,PLabel),
     {
 	key_in(idir=IDir,Status),
 	key_in(odir=ODir,Status),
@@ -375,7 +375,7 @@ raw(highlight(_,Text)) -->
 
 
 raw(Text) -->
-    {string(Text)},
+    [" " ], {string(Text)},
     !,
     [ Text].
 %  foldl(para).
@@ -384,20 +384,42 @@ raw(Text) -->
     para( Text).
 %  foldl(para).
 
+parlist(_Pars,Items) -->
+["\n"],
+    foldl(paritem,Items).
+
+paritem(parameternamelist(_,parametername(_,[Name]))) -->
+["1. ",Name],
+( {key_in(parameterdescription(_Atts,Children))} ->
+  foldl(para,Children)
+;
+[]
+),
+["\n"].
+
 doxolist(_Pars,Items) -->
-["\n\n"],
+["\n"],
     foldl(item("1"),Items).
 
 itemlist(_Pars,Items) -->
 ["\n\n"],
     foldl(item("i"),Items).
 
-item(Type,listitem(_,Para)) -->
+varlist(_Pars,Items) -->
+["\n"],
+    foldl(varentry,Items).
+
+varentry(varlistentry(_,Terms)) -->
     [ "\n"],
+maplist(term,Terms).
+
+term(term(_,[S|_])) -->
+[S].
+
+item(Type,listitem(_,Para)) -->
     typel(Type),
     description(Para),
-    [ "\n"],
-    [ "\n"].
+    ["\n"].
 
 typel("1") -->
     [  "1. "].
@@ -597,9 +619,10 @@ para(P) -->
     [H].
 
 
-para(ulink([url(Title)],[URL|_]]) -->
+para(ulink([url(Title)],[URL|_])) -->
     !,
-   format(string(S),"[~s](~s)", [Title,URL]).
+{   format(string(S),"[~s](~s)", [Title,URL])},
+[S].
 para(hruler([],_)) -->
     [ "\n- - -\n"].
 para(preformatted([],Text)) -->
@@ -608,7 +631,7 @@ para(programlisting(_,Text)) -->
 
     [ "~~~\n"],
     foldl(mkraw,Text),
-    ["\n~~~\n"].
+j    ["\n~~~\n"].
 
 
 para(javadocliteral([],Text)) -->
@@ -619,16 +642,18 @@ para(indexentry([],Text)) -->
     unimpl(indexentry,Text). % docIndexEntryType
 para(orderedlist(Atts,Text)) -->
     doxolist(Atts,Text). % docListType
+para(parameterlist(Atts,Text)) -->
+    parlist(Atts,Text). % docParamListType
 para(itemizedlist(Atts,Text)) -->
     itemlist(Atts,Text). % docListType
+para(variablelist(Atts,Text)) -->
+    varlist(Atts,Text). % docVariableListType
 para(simplesect([kind(Kind)|Text])) -->
 !,
 ["\n\n"],
 [Kind],
 [" "],
 description(Text).
-para(variablelist(_,Text)) -->
-    unimpl(variablelist,Text). % docVariableListType
 para(table(_,Text)) -->
     unimpl(table,Text). % docTableType
 para(heading(_,Text)) -->
@@ -643,8 +668,6 @@ para(toclist(_,Text)) -->
     unimpl(toclist,Text). % docTocListType
 para(language(_,Text)) -->
     unimpl(language,Text). % docLanguageType
-para(parameterlist(_,Text)) -->
-    unimpl(parameterlist,Text). % docParamListType
 para(xrefsect(_,Text)) -->
     unimpl(xrefsect,Text). % docXRefSectType
 para(copydoc(_,Text)) -->
@@ -1827,7 +1850,14 @@ get_name(Children,Name) :-
 
 gengroup(Ref0) :-
 abolish(visited/1),
-string_concat("group__",Ref0,Ref),
+string_concat("/group__",Ref0,Ref),
 Kind="group",
 unix(argv([IDir,ODir,_])),
-    	trl(compound([refid(Ref),kind(Kind)],[]),IDir,ODir)
+    	trl(compound([refid(Ref),kind(Kind)],[]),IDir,ODir).
+
+genclass(Ref0) :-
+abolish(visited/1),
+Kind="class",
+unix(argv([IDir,ODir,_])),
+    	trl(compound([refid(Ref0),kind(Kind)],[]),IDir,ODir).
+
