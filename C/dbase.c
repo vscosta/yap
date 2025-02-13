@@ -2506,7 +2506,13 @@ restart_record:
   return Yap_unify(ARG3, TRef);
 }
 
-/* recordz(+Functor,+Term,-Ref) */
+/**
+   @pred recordz(+Key,+Term,-Ref)
+
+   store _Term_ in the i.d.b. The term will be placed as the last under key Key. Moreover, _Ref_ allows for direct access to the term.
+   
+*/
+
 Int Yap_Recordz(Atom at, Term t2) {
   CACHE_REGS
   PredEntry *pe;
@@ -2937,7 +2943,6 @@ static Int lu_nth_recorded(PredEntry *pe, Int Count USES_REGS) {
   return Yap_unify(MkDBRefTerm((DBRef)cl), ARG4);
 }
 
-/* Finds a term recorded under the key ARG1			 */
 static Int nth_recorded(DBProp AtProp, Int Count USES_REGS) {
   Register DBRef ref;
 

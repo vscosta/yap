@@ -130,7 +130,7 @@ set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS YAPBIN="${CMA
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/OPTYap
-    # ${CMAKE_SOURCE_DIR}/packages
+    ${CMAKE_SOURCE_DIR}/packages
     COMMENT "Generated XML files"
   )
 

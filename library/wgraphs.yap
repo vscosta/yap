@@ -50,6 +50,7 @@ SICStus compatible wgraphs.yap
  * @brief  Weighted  Graph Processing Utilities.
  * 
  * @{
+ This library mostly reexports the wdgraph library.
 */
 
 

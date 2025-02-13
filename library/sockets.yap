@@ -155,6 +155,13 @@ socket_bind(Socket, 'AF_INET'(Host,Port)) :-
 	),
 	tcp_bind(Socket, Port).
 
+/**
+ * @pred tcp_socket_connect(+Socket, +Address, -StreamPair)
+ *
+ * Connect to a server waiting at _Socket_ for host at _Address_. Receive an input and an
+ * output stream.
+ *
+ */
 tcp_socket_connect(Socket, Address, StreamPair) :-
     (   Address = 'AF_INET'(Host, Port)
     ->  true

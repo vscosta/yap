@@ -20,6 +20,8 @@
  * @defgroup Database The Clausal Data Base
  * @ingroup Builtins
 
+@{
+
 Predicates in YAP may be dynamic or static. By default, when
 consulting or reconsulting, predicates are assumed to be static:
 execution is faster and the code will probably use less space.

@@ -7,6 +7,7 @@
  * @defgroup DatabasePredDyns Dynamic Predicates
  * @ingroup Builtins
 
+@{
 
 Next follow the main operations on dynamic predicates.
 
@@ -359,3 +360,4 @@ dynamic_predicate(P,Sem) :-
 '$bad_if_is_semantics'(Sem, Goal) :-
 	Sem \= immediate, Sem \= logical, !,
 	throw_error(domain_error(semantics_indicator,Sem),Goal).
+%% @}

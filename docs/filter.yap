@@ -10,6 +10,8 @@
 
 :-dynamic pred_found/3, exported/3, defines_module/1.
 
+defines_module(prolog).
+
 :- initialization(main).
 
 :- add_to_path('../pl').
@@ -428,7 +430,7 @@ is_exported(N,_) :-
     !,
     fail.
 is_exported(_,_) :-
-    current_source_module(user,user),
+    defines_module(user),
     !.
 is_exported(N,A) :-
     defines_module(Mod),
