@@ -278,22 +278,20 @@ be lost.
    *
  */
 
-
-%'$trace'(G) :- write(user_error,'$spy'(G)), nl, fail.
 %
 /**
   * @pred $spy( +Goal )
   *(Goal)`
 */
 
-'$spy'(ModG) :-
-    '$spy'(ModG,outer).
+spy(ModG) :-
+    spy(ModG,outer).
 	
 
-'$spy'(ModG,Ctx) :-
+spy(ModG,Ctx) :-
     gated_call(
     strip_module(ModG,M,G),
-    (G == true -> true ; '$trace'(M:G, Ctx)),
+    (G == true -> true ; trace(M:G, Ctx)),
     Port,
     '$continue_debugging'(Port,Ctx)).
 
@@ -321,7 +319,7 @@ be lost.
 '$creep'(true) :-
     !.
 '$creep'(ModG) :-
-    '$spy'(ModG).
+    spy(ModG).
 
 /**
   * @pred $trace( +Goal, +Context )
@@ -336,11 +334,11 @@ be lost.
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'( MG, _Ctx) :-
+trace( MG, _Ctx) :-
     '$zip_at_port'( call, _GN0, MG),
     !,
     '$execute_non_stop'(MG).
-'$trace'(MG, Ctx) :-
+trace(MG, Ctx) :-
     strip_module(MG,M,G),
     !,
     nb_setval(creep,creep),
@@ -351,7 +349,7 @@ be lost.
     trace_goal(G, M, _, Ctx, CP0).
 /*'$trace'(M:G, Ctx) :- % system
     '$id_goal'(GoalNumberN),
-    '$meta_hook'(M:G,MNG),
+    meta_hook(M:G,MNG),
 catch(
     (current_choice_point(CP0),
     '$execute_non_stop'(MNG),
@@ -530,7 +528,7 @@ step_goal(G,M,GoalNumberN),
     % prepare and select matching clause
     '$creep_enumerate_sources'(
      (current_choice_point(CP),
-    '$meta_hook'(MG,NM:NG)), NM:NG,  B,
+    meta_hook(MG,NM:NG)), NM:NG,  B,
     Port0,
     true
     ),
@@ -545,7 +543,7 @@ inner,
     % prepare and select matching clause
     '$creep_enumerate_refs'(
      (current_choice_point(CP),
-    '$meta_hook'(MG,NMG)), NMG, N, Ref, Port0, true),
+    meta_hook(MG,NMG)), NMG, N, Ref, Port0, true),
 					       '$creep_run_refs'(
 true,
  MG,
@@ -557,7 +555,7 @@ Port,
 					       ).
 '$step'(   system_procedure,MG,GoalNumber) :-
     gated_call(    % debugging allowed.
-  '$meta_hook'(MG,NMG),
+  meta_hook(MG,NMG),
 	    call(NMG),
 	    Port,	
          '$interact'([Port], NMG, GoalNumber)
@@ -618,7 +616,7 @@ Port,
     '$cleanup_on_exit'(CP0, TaskF).
 
 
-'$meta_hook'(MG,M:NG) :-
+meta_hook(MG,M:NG) :-
     '$yap_strip_module'(MG,M,G),
     functor(G,N,A),    
     N\=throw,
@@ -636,7 +634,7 @@ Port,
 					     NG=..[N|NAs],
 					     G \== NG,
 					     !.
-'$meta_hook'(MG,MG).
+meta_hook(MG,MG).
 
 /**
  * @pred '$enter_trace'(+L, 0:G, +Module, +Info)

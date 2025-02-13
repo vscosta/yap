@@ -191,7 +191,7 @@ AVs = [],
     expand_goal(G0,G),
     nb_setval(creep,creep),
     current_choice_point(CP0),
-    '$spy'(G,top),
+    spy(G,top),
     current_choice_point(CPF),
     (CP0 == CPF
     ->
