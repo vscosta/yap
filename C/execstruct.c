@@ -40,8 +40,6 @@ static bool deterministic(Int BRef)
   return cutB == target;
   }
     
-    
-
 /**  
  * remove choice points created since a call to top-goal.
  *
@@ -153,9 +151,6 @@ static bool watch_cut(Term ext)
   CACHE_REGS
     // called after backtracking..
     //
-  yamop *oP = P, *oCP = CP;
-  Int oENV = LCL0 - ENV;
-  Int oYENV = LCL0 - YENV;
   Term task = Deref(TailOfTerm(ext));
   Term cleanup = ArgOfTerm(3, task);
   Term e = 0;
@@ -191,10 +186,6 @@ static bool watch_cut(Term ext)
     }
   gate(cleanup PASS_REGS);
 //    RESET_VARIABLE(port_pt);
-    P = oP;
-  CP = oCP;
-  ENV = LCL0 - oENV;
-  YENV = LCL0 - oYENV;
   if ( Yap_PeekException()) {
     Yap_JumpToEnv();
     return false;
@@ -213,22 +204,24 @@ static bool watch_retry(Term d0 )
 {
   CACHE_REGS
     Term task = TailOfTerm(d0);
-  yamop *oP = P, *oCP = CP;
-  Int oENV = LCL0 - ENV;
-  Int oYENV = LCL0 - YENV;
  CELL *port_pt = deref_ptr(RepAppl(task)+2);
   CELL *completion_pt = deref_ptr(RepAppl(task)+4);
   Term cleanup = ArgOfTerm(3, task);
  bool bottom = ArgOfTerm(5, task) == TermTrue;
-  Int BRef = IntOfTerm(ArgOfTerm(6, task));
-  bool det = deterministic(BRef);
-  Term e;
+ choiceptr myB = (choiceptr)(LCL0-IntOfTerm(ArgOfTerm(6, task)));
+   bool det = myB <B;
+   //   if (det  && !bottom)
+   //     return false;
+ RESET_VARIABLE(port_pt);
+
+
+ 
+Term e;
   if (IsNonVarTerm(*completion_pt))
     return true;
   CP = FAILCODE;
   bool ex_mode = false;
   //  choiceptr Bl = B;
-    
   // just do the simplest
   if ((ex_mode = Yap_PeekException()))
     {
@@ -240,7 +233,7 @@ static bool watch_retry(Term d0 )
 	  MaBind(port_pt,Yap_MkApplTerm(FunctorException, 1, &e));
 	}
       else
-	{
+        	{
 	  MaBind(port_pt, Yap_MkApplTerm(FunctorExternalException, 1, &e) );
 	}
       completion_pt[0] = TermException;
@@ -251,30 +244,486 @@ static bool watch_retry(Term d0 )
 	{
 	  MaBind(port_pt, TermFail);
 	  completion_pt[0] = TermFail;
+	  fprintf(stderr,"fail");
 	}
       else 
 	{
 	  MaBind(port_pt, TermRedo) ;
 	}
     }
-  gate(cleanup PASS_REGS);
+    gate(cleanup PASS_REGS);
   //RESET_VARIABLE(port_pt);
-  P = oP;
-  CP = oCP;
-  ENV = LCL0 - oENV;
-  YENV = LCL0 - oYENV;
-  if ( Yap_PeekException()) {
-    Yap_JumpToEnv();
-    return false;
-  }
-  if (Yap_may_creep(true)) {
-    return true;
-  }
+    if ( Yap_PeekException()) {
+      Yap_JumpToEnv();
+      return false;
+    }
+    if (Yap_may_creep(true)) {
+      return true;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
+  
   return true ;
 }
 
 /**
- * First call to non deterministic predicate. Just leaves a choice-point
+ *
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ aAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ First call to non deterministic predicate. Just leaves a choice-point
  * hanging about for the future.
  v *
  * @param  USES_REGS1    [env for threaded execution]

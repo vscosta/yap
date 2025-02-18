@@ -627,6 +627,7 @@ current_predicate(T0) :-
     functor_predicate(M,A,Ar,user)
 
     ;
+
     T = A//Ar, nonvar(A) -> atom_functor(A,Ar),
 	  functor_predicate(M,A,Ar0,user),
 	  Ar is Ar0-2

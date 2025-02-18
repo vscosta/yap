@@ -360,7 +360,8 @@ notrace(G) :-
 	   '$debug_stop'( State ),
 	   '$call'(G1, CP, G, M),
 	   current_choice_point(CP2),
-	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NState), fail ) ),
+	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NSta
+te), fail ) ),
 	   '$debug_restart'( State )
      ;
 	'$debug_restart'( State ),
@@ -438,8 +439,18 @@ notrace(G) :-
     ;
       GoalNo > TargetGoal
     ).      
-      
 
+'$leap_at_port'(Port,GoalNo,_) :-
+    nb_getval(creep,leap),
+    nb_getval('$spy_target', TargetGoal ),
+    number(GoalNo),
+    number(TargetGoal),
+    (Port == redo
+      ->
+      GoalNo > TargetGoal-1
+    ;
+      GoalNo > TargetGoal
+    ).      
 
 '$run_deb'(_Port,Ctx,_GN) :-
     '$continue_debugging'(Ctx).

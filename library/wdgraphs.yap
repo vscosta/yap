@@ -92,7 +92,7 @@ wdgraph_add_vertices_and_edges(Vs0,Vertices,Edges,Vs2) :-
 	wdgraph_add_edges(Vs1, Edges, Vs2).
 
 
-/** @pred dgraph_add_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
+/** @pred wdgraph_add_vertices(+ _Graph_, + _Vertices_, - _NewGraph_) 
 
 
 Unify  _NewGraph_ with a new graph obtained by adding the list of

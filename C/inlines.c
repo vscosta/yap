@@ -119,7 +119,7 @@ p_cut_by( USES_REGS1 )
 #endif /* YAPOR */
   /* find where to cut to */
     choiceptr b =B, ob=NULL;
-    if (pt0<=b)
+    if (pt0<=b || !b)
       return true;
     while (pt0 > b) {
     /* Wow, we're gonna cut!!! */
