@@ -68,16 +68,25 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
     gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
-  if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || op == _trust_fail
-      || ip == EXITCODE) {
-    op = Yap_op_from_opcode(P->opc);
+  if (op == _Ystop) {
+   op = Yap_op_from_opcode(P->opc);
     i->env = ENV; // YENV should be tracking ENV
     i->p = ip;
     i->p_env = ip;
     i->a = 0;
     i->env_size = EnvSizeInCells;
     i->caller = NULL;
-    return i->pe = ip == YESCODE ? PredTrue : PredFail;
+    return i->pe = PredTrue;
+}
+  if (op==_trust_fail||
+      op == _Nstop) {
+    i->env = ENV; // YENV should be tracking ENV
+    i->p = ip;
+    i->p_env = ip;
+    i->a = 0;
+    i->env_size = EnvSizeInCells;
+    i->caller = NULL;
+    return i->pe = PredFail;
   } else if (op == _op_fail) {
     i->env = ENV; // YENV should be tracking ENV
     i->p = ip;
