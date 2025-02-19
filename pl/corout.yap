@@ -33,7 +33,6 @@
 	      prolog:freeze/2 */
 		 ]).
 
-
 :-  op(1150, fx, prolog:block).
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
@@ -365,10 +364,10 @@ when_suspend(ground(X), G, Done) :-
 % choicepoint and make things a bit slower, but it's probably not as
 % significant as the remaining overheads.
 %
-prolog:block(Conds) :-
+prolog:'$block'(Conds) :-
     generate_blocking_code(Conds, _, Code),
     compile_clause(Code), fail.
-prolog:block(_).
+prolog:'$block'(_).
 
 generate_blocking_code(Conds, G, Code) :-
 	extract_head_for_block(Conds, G),
@@ -540,8 +539,6 @@ first_att(T, V) :-
 check_first_attvar([V|_Vs], V0) :- attvar(V), !, V == V0.
 check_first_attvar([_|Vs], V0) :-
 	check_first_attvar(Vs, V0).
-
-:- module(prolog).
 
 /**
   @}

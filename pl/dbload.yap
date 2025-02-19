@@ -36,7 +36,7 @@
 % @{
 
 /*!
- * @pred load_mega_clause( +Stream ) is det
+ * @pred load_mega_clause( +Stream ) is detail
  * Load a single predicare composed of facts with the same size.
  */
 load_mega_clause( Stream ) :-
@@ -51,15 +51,14 @@ load_mega_clause( Stream ) :-
 
 /*!
  * @pred load_db( +Files ) is det
- * Load files each one containing as single predicate composed of facts with the same size.
+ * Load files each one containing as single predicare composed of facts with the same size.
  */
 load_db(Fs) :-
         '$current_module'(M0),
- 	current_prolog_flag(agc_margin,Old,0),
- 	set_prolog_flag(agc_margin,0),
+	prolog_flag(agc_margin,Old,0),
 	dbload(Fs,M0,load_db(Fs)),
 	load_facts,
-	set_prolog_flag(agc_margin,Old),
+	prolog_flag(agc_margin,_,Old),
 	'$clean_up'.
 
 dbload(Fs, _, G) :-

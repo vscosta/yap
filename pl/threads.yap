@@ -66,7 +66,7 @@
         '$thread_local'/2]).
 
 /**
-  @defgroup Threads Threads Support in YAP
+  @defgroup Threads Threads
   @ingroup YapExtensions
   @{
 
@@ -1236,7 +1236,7 @@ tthread_peek_message(Queue, Term) :-
 %% @}
 
 /** @defgroup Signalling_Threads Signalling Threads
-@ingroup Threads
+@ingroup Threadas
 
 @{
 

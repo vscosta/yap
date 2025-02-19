@@ -27,10 +27,7 @@
 
 
 
-:- system_module( '$_setof', [(^)/2,
-op(50,xfx,same),
-
-
+:- system_module_( '$_setof', [(^)/2,
         all/3,
         bagof/3,
         findall/3,
@@ -56,7 +53,12 @@ post-process the result of the query in several different ways:
 
 */
 
+:- use_system_module( '$_boot', ['$catch'/3]).
+
+:- use_system_module( '$_errors', [throw_error/2]).
+
 % this is used by the all predicate
+
 :- op(50,xfx,same).
 
 

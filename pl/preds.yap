@@ -20,8 +20,6 @@
  * @defgroup Database The Clausal Data Base
  * @ingroup Builtins
 
-@{
-
 Predicates in YAP may be dynamic or static. By default, when
 consulting or reconsulting, predicates are assumed to be static:
 execution is faster and the code will probably use less space.
@@ -187,7 +185,7 @@ clause(V0,Q,R) :-
 
 
 '$clause'(exo_procedure,P,M,true,exo(P)) :-
-	'$execute0'(M:P).
+	'$execute0grep'(M:P).
 '$clause'(mega_procedure,P,M,true,mega(P)) :-
 	'$execute0'(M:P).
 '$clause'(updatable_procedure, P,M,Q,R) :-
@@ -208,17 +206,14 @@ clause(V0,Q,R) :-
 	      clause(M:P,Q,R)).
 				    
 '$init_preds' :-
-    '$do_static_clause'(_,_,_,_,_)
-    ->
-    fail.
+	once('$do_static_clause'(_,_,_,_,_)),
+	fail.
 '$init_preds' :-
-    '$do_log_upd_clause'(_,_,_,_,_,_)
-    ->
-    fail.
+	once('$do_log_upd_clause'(_,_,_,_,_,_)),
+	fail.
 '$init_preds' :-
-    '$do_log_upd_clause_erase'(_,_,_,_,_,_)
-    ->
-    fail.
+	once('$do_log_upd_clause_erase'(_,_,_,_,_,_)),
+	fail.
 '$init_preds'.
 
 /** @pred  nth_clause(+ _H_, _I_,- _R_)
@@ -627,7 +622,6 @@ current_predicate(T0) :-
     functor_predicate(M,A,Ar,user)
 
     ;
-
     T = A//Ar, nonvar(A) -> atom_functor(A,Ar),
 	  functor_predicate(M,A,Ar0,user),
 	  Ar is Ar0-2

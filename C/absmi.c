@@ -387,7 +387,7 @@ static PredEntry * interrupt_main(op_numbers op, yamop *pc USES_REGS) {
   }
   int v;
   PredEntry *pe;
-  pe = Yap_track_cpred( op, pc, 0, &info);
+  pe = Yap_track_cpred(  pc,0, &info);
   
   //if (LOCAL_PrologMode & InErrorMode) {
   //  CalculateStackGap(PASS_REGS1);
@@ -515,7 +515,7 @@ static void interrupt_delay(op_numbers op, yamop *pc USES_REGS) {
     PP =NULL;
   }
   PredEntry *pe;
-  pe = Yap_track_cpred( op, pc, 0, &info);
+  pe = Yap_track_cpred( pc, 0, &info);
   
   Term g;
   if (op == _allocate)

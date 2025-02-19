@@ -78,7 +78,7 @@
 
 
 
-  @defgroup YAPConsulting Loading and Organising YAP Programs
+  @defgroup YAPConsulting Loading files into YAP
   @ingroup  YAPProgramming
 
   @{
@@ -314,11 +314,17 @@ last one, onto underscores.
 	fail.
 '$remove_multifile_clauses'(_).
 
-initialization(G) :-
-    initialization( G, after_load ).
+'$initialization'(G) :-
+    '$initialization'( G, after_load ).
 
 
-initialization(G0,OPT) :-
+
+initialization(G,OPT) :-
+    '$initialization'(G, OPT),
+    fail.
+initialization(_G,_OPT).
+
+'$initialization'(G0,OPT) :-
     must_be_callable( G0),
     expand_goal(G0, G),
     %   must_be_of_type(oneof([after_load, now, restore]),
@@ -355,9 +361,9 @@ initialization(G0,OPT) :-
 % system goals must be performed first
 '$exec_initialization_goals'(LC) :-
     recorded('$initialization_queue',q(LC,G),R),
-    conditional_compilation_get_state(State),
-    conditional_compilation_init,
-    erase(R),
+	'$conditional_compilation_get_state'(State),
+	'$conditional_compilation_init',
+	 erase(R),
 	(catch(
 	 (G),
 	 _E,
@@ -368,7 +374,7 @@ initialization(G0,OPT) :-
 	;
   	 format(user_error,':- ~q failed.~n',[G])
 	 ),
-	conditional_compilation_set_state(State),
+	'$conditional_compilation_set_state'(State),
 	fail.
 '$exec_initialization_goals'(_).
 
@@ -376,8 +382,6 @@ initialization(G0,OPT) :-
 % reconsult at startup...
 %
 '$do_startup_reconsult'(_X) :-
-    working_directory(D,D),
-    nb_setval(parent_directory,D),
     '$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
@@ -450,11 +454,6 @@ source_file_property( F, load_context(M,OldF:Line,Opts)) :-
   + `directory`  (prolog_load_context/2 option)
 
   Full name for the directory where YAP 		is currently consulting the
-  file.
-
-  + `parent_directory`  (prolog_load_context/2 option)
-
-  Full name for the directory from where YAP consulted the
   file.
 
   + file  (prolog_load_context/2 option)
@@ -689,205 +688,6 @@ unload_file_(_).
 
 '$store_clause'('$source_location'(File, _Line,_,_),Clause, File) :-
 	assert_static(Clause).
-
-%% @}
-
-/**
-
-@defgroup Conditional_Compilation Conditional Compilation
-
-@ingroup  YAPConsulting
-
-@{
- Conditional compilation builds on the same principle as
-term_expansion/2, goal_expansion/2 and the expansion of
-grammar rules to compile sections of the source-code
-conditionally. One of the reasons for introducing conditional
-compilation is to simplify writing portable code.
-
-
-Note that these directives can only be appear as separate terms in the
-  input.  Typical usage scenarios include:
-
-
-    Load different libraries on different dialects
-
-    Define a predicate if it is missing as a system predicate
-
-    Realise totally different implementations for a particular
-part of the code due to different capabilities.
-
-    Realise different configuration options for your software.
-
-```
-:- if(test1).
-section_1.
-:- elif(test2).
-section_2.
-:- elif(test3).
-section_3.
-:- else.
-section_else.
-  :- endif.
-```
-
-*/
-
-/** @pred    if( : _Goal_)
-
-  Compile subsequent code only if  _Goal_ succeeds.  For enhanced
-portability,  _Goal_ is processed by `expand_goal/2` before execution.
-If an error occurs, the error is printed and processing proceeds as if
- _Goal_ has failed.
-
-*/
-%
-% This is complicated because of embedded ifs.
-%
-if(Goal) :-
-    must_be_callable(Goal),
-    conditional_compilation(Inp),
-    (Inp == skip
-   ->
-       Mode=done
-  ;
-    Inp == done
-    ->
-    Mode=done
-    ;
-	call(Goal)
-    ->
-    Mode = run
-    ;
-    Mode = skip
-    ),
-    conditional_compilation_push(Mode).
-
-/**
-@pred    else
-Start `else' branch.
-
-*/
-else :-
-    conditional_compilation(Inp),
-    ( Inp == run
-    ->
-    Mode = done
-    ;
-    Inp == skip
-    ->
-    Mode = run
-    ;
-    Mode = done
-    ),
-    conditional_compilation_set(Mode).
-
-
-
-/** @pred   elif(+ _Goal_)
-
-
-Equivalent to `:- else. :-if(Goal) ... :- endif.`  In a sequence
-as below, the section below the first matching elif is processed, If
-no test succeeds the else branch is processed.
-*/
-elif(Goal) :-
- 	 conditional_compilation(Inp),
-   (
-   Inp == run
-    ->
-    Mode = done
-    
-    ;
-	 Inp == done
-    ->
-    Mode = done
-    ;
-	call(Goal)
-    ->
-    Mode = run
-    ;
-    Mode = skip
-      ),
-    conditional_compilation_set(Mode).
-
-/** @pred    endif
-QEnd of cond  itional compilation.
-*/
-endif :-
-    conditional_compilation_pop.
-
-%% base layer runs 
-conditional_compilation_init:-
-    nb_setval('$conditional_compilation_level',[run]).
-
-conditional_compilation_get_state(state(LB)) :-
-    catch(nb_getval('$conditional_compilation_level', LB), _Undef,
-(conditional_compilation_init,
-conditional_compilation_get_state(state(LB)) )
-).
-
-conditional_compilation_set_state(state(LB)) :-
-    nb_setval('$conditional_compilation_level', LB).
-
-conditional_compilation_push(Mode) :-
-    '__NB_getval__'('$conditional_compilation_level', Levels,fail),
-    nb_setval('$conditional_compilation_level', [Mode|Levels]).
-
-
-conditional_compilation(Mode) :-
-    '__NB_getval__'('$conditional_compilation_level', [Mode|_Levels], fail).
-
-
-conditional_compilation_skip(V)  :-
-    var(V),
-    !,
-    '__NB_getval__'('$conditional_compilation_level', [L|_Levels], fail),
-    (L == skip
-    ;
-    L == done),
-    !.
-conditional_compilation_skip((:-if(G)))  :-
-      '$if'(G),
-      !.
-conditional_compilation_skip((:-elif(G)))  :-
-      '$elif'(G),
-!.
-conditional_compilation_skip((:-else))  :-
-      '$else',
-!.
-conditional_compilation_skip((:-endif))  :-
-      '$endif',
-!.
-conditional_compilation_skip(_)  :-
-    '__NB_getval__'('$conditional_compilation_level', [L|_Levels], fail),
-    (L == skip
-    ;
-    L == done),
-    !.
-
-conditional_compilation_set(Mode) :-
-    '__NB_getval__'('$conditional_compilation_level', [_Mode_|Levels], fail),
-    nb_setval('$conditional_compilation_level', [Mode|Levels]).
-
-
-conditional_compilation_pop :-
-    '__NB_getval__'('$conditional_compilation_level', [_|Levels], fail),
-    nb_setval('$conditional_compilation_level', Levels).
-    
-:- conditional_compilation_init.
-
-'$if_call'(G) :-
-	catch('$eval_if'(G), _E, error_handler).
-
-'$eval_if'(Goal) :-
-	expand_term(Goal,TrueGoal),
-	once(TrueGoal).
-
-'$if_directive'((if(_))).
-'$if_directive'((else)).
-'$if_directive'((elif(_))).
-'$if_directive'((endif)).
 
 
 '$comp_mode'( OldCompMode, CompMode) :-

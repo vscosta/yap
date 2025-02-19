@@ -38,6 +38,8 @@
     !.
 '$undefp0'(_:system_module(_,_,_)) :-
     !.
+'$undefp0'(_:private( _ )) :-
+    !.
 '$undefp0'(_:print_message(L,E )) :-
     format( user_error,
 	    '~w in bootstrap, namely ~w~n',[L,E]).
@@ -111,7 +113,6 @@ system_module_(_,_,_).
 '$vmember'(V,[_|LV0]) :-
 	'$vmember'(V,LV0).
 
-:-  nb_setval(parent_directory, '').
 
 :- c_compile('predtypes.yap').
 
@@ -291,6 +292,7 @@ mksys(op(A,B,C)) :-
 :- ensure_loaded('../os/edio.yap').
 
 :- ensure_loaded('spy.yap').
+:- ensure_loaded('if.yap').
 
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
 
@@ -372,7 +374,6 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- multifile user:exception/3.
 
 :- dynamic user:exception/3.
-
 
 :- module(user).
 

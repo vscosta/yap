@@ -242,7 +242,7 @@ use_module(User, I) :-
     !,
     user \= HostM,
     '$m_normalize'(I,HostM,NI),
-    forall(member(D,NI),do_import(D, user, HostM)).
+    forall(member(D,NI),'$do_import'(D, user, HostM)).
 
 use_module(F,Is) :-
     load_files(F, [if(not_loaded),must_be_module(true),imports(Is)] ).
@@ -467,24 +467,24 @@ export_list(Module, List) :-
 '$add_to_imports'([], _, _).
 % no need to import from the actual module
 '$add_to_imports'([T|_Tab], Module, ContextModule) :-
-    catch(do_import(T, Module, ContextModule),_,fail),
+    catch('$do_import'(T, Module, ContextModule),_,fail),
     fail.
 '$add_to_imports'([_T|Tab], Module, ContextModule) :-
     '$add_to_imports'(Tab, Module, ContextModule).
 
-do_import(op(Prio,Assoc,Name), Mod, ContextMod) :-
+'$do_import'(op(Prio,Assoc,Name), Mod, ContextMod) :-
 		!,
     op(Prio,Assoc,ContextMod:Name),
     op(Prio,Assoc,Mod:Name),
     fail.
-do_import( NDonor/K-NHost/K, MDonor, MHost) :-
+'$do_import'( NDonor/K-NHost/K, MDonor, MHost) :-
     functor(GDonor,NDonor,K),
     functor(GHost,NHost,K),
 \+ '$pred_exists'(GDonor,prolog),
 \+ '$pred_exists'(GHost,prolog),
     GDonor=..[NDonor|Args],
     GHost=..[NHost|Args],
-    once(check_import(MHost,MDonor,NHost,K)),
+    once('$check_import'(MHost,MDonor,NHost,K)),
     \+ '$import'(_,MHost,_,GHost,_,_),
     asserta('$import'(MDonor,MHost,GDonor,GHost,NHost,K)),
     %writeln((MHost:GHost :- MDonor:GDonor)),
@@ -512,26 +512,26 @@ do_import( NDonor/K-NHost/K, MDonor, MHost) :-
 	 '$tag_module'(Args, Mod, NVArs, NModVars).
 
 % trying to import Mod:N/K into ContextM
-check_import(prolog, _ContextM, _N, _K) :-
+'$check_import'(prolog, _ContextM, _N, _K) :-
 	!,
 	fail.
-check_import(M, M, _N, _K) :-
+'$check_import'(M, M, _N, _K) :-
 	!,
 	fail.
-check_import(_, _, N, K) :-
+'$check_import'(_, _, N, K) :-
 	system_predicate(N/K),
 	!,
 	fail.
-check_import(M0, M1, N, K) :-
+'$check_import'(M0, M1, N, K) :-
     '$import'(M2, M1, _, _, N,K),
     !,
     (M2 == M0
     ->
 	'$redefine_import'( M2, M1, M0, N/K)
     ;
-	check_import(M0, M2, N, K)
+	'$check_import'(M0, M2, N, K)
     ).
-check_import(_,_,_,_).
+'$check_import'(_,_,_,_).
 
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
     '__NB_getval__'('$lf_status', TOpts, fail),

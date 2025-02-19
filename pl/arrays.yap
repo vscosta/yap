@@ -119,5 +119,3 @@ static_array_properties(Name, Size, Type) :-
 	throw_error(type_error(atom,Name),static_array_properties(Name,Size,Type)).
 
 %% @}
-
-

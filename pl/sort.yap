@@ -31,12 +31,13 @@
 @defgroup Sorting Sorting Lists
 @ingroup Builtins
 
-@{
- YAP provides a C-based implementation of heap-sort for n-log(n) sorting
+@brief YAP provides a C-based implementation of heap-sort for nlogn sorting
 of lists.
+@{
+*/
 
 
- The three sorting routines are all variations of merge-sort, done by
+/*  The three sorting routines are all variations of merge-sort, done by
     bisecting the list, sorting the nearly equal halves, and merging the
     results.   The half-lists aren't actually constructed, the number of
     elements is counted instead (which is why 'length' is in this file).
@@ -115,12 +116,19 @@ keysort(L,O) :-
 
 :- meta_predicate predsort(2,+,-).
 
+%%	predsort(:Compare, +List, -Sorted) is det.
+%
+%	 Sorts similar to sort/2, but determines  the order of two terms
+%	 by calling Compare(-Delta, +E1,  +E2).   This  call  must unify
+%	 Delta with one of <, > or =. If built-in predicate compare/3 is
+%	 used, the result is the same as sort/2. See also keysort/2.
+
 /** @pred  predsort(+ _Pred_, + _List_, - _Sorted_)
 
 
 Sorts similar to sort/2, but determines the order of two terms by
 calling  _Pred_(- _Delta_, + _E1_, + _E2_) . This call must
-unify  _Delta_ with one of `<`, `>` or `=`. If the
+unify  _Delta_ with one of `<`, `>` or `=`. If
 built-in predicate compare/3 is used, the result is the same as
 sort/2.
 

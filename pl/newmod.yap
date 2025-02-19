@@ -62,7 +62,12 @@ name with the `:/2` operator.
     '$add_module_on_file'(DonorM, F, HostM, Ps, Loc),
     current_source_module(HostM,DonorM).
 
-system_module(_DonorM, _Ss, _Ps).
+
+
+'$declare_system_module'(HostM,N,Ps,Ss,Loc) :-
+    '$declare_module'(HostM,N,Ps,Loc),
+    '$mk_system_predicates'(Ss),
+    set_module_property(N,type(system)).
 
 '$mk_system_predicates'( Ps ) :-
     member(Name/A , Ps),

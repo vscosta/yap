@@ -38,6 +38,7 @@
 
 :- use_system_module( '$_consult', ['$do_startup_reconsult'/1]).
 
+:- use_system_module( '$_control', ['$run_atom_goal'/1]).
 
 :- use_system_module( '$_errors', [throw_error/2]).
 
@@ -227,13 +228,13 @@ qend_program :-
     throw_error(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
-'$x_prolog_flag'(language, V) :-
+'$x_sprolog_flag'(language, V) :-
 	current_prolog_flag(language, V).
 '$x_current_prolog_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
 '$x_current_prolog_flag'(X, V) :-
- 	prolog_flag_property(X, [access(read_write)]),
+	prolog_flag_property(X, [access(read_write)]),
 	atom(X),
 	X \= gc_margin, % different machines will have different needs,
 	X \= argv,
@@ -243,7 +244,6 @@ qend_program :-
 	X \= user_input,
 	X \= user_output,
 	X \= user_error,
-	X \= verbose,
 	X \= verbose_load,
 	current_prolog_flag(X, V),
 	fail.

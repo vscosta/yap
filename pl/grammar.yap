@@ -67,7 +67,8 @@ right hand side of a grammar rule
 Grammar related built-in predicates:
 
 */
-:- system_module( '$_grammar',[
+:- module_( '$_grammar', []).
+/*
 !/2,
          (',')/4,
          (->)/4,
@@ -80,9 +81,9 @@ Grammar related built-in predicates:
         phrase/2,
         phrase/3,
         {}/3,
-        ('|')/4], [throw_error/2,
+        ('|')/4]. [throw_error/2,
 t_body/6]).
-
+*/
 
 % :- meta_predicate ^(?,0,?).
 % ^(Xs, Goal, Xs) :- call(Goal).
@@ -98,7 +99,7 @@ t_body/6]).
     Also, phrase/2-3 check their first argument.
 a*/
 
-translate_rule(Rule, (NH :- B) ) :-
+prolog:'$translate_rule'(Rule, (NH :- B) ) :-
     current_source_module( SM, SM ),
     '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
     t_head(LP, NH0, NGs, S, SR, (LP-->SM:RP)),
@@ -291,9 +292,9 @@ prolog:!(S, S).
 
 prolog:true(S, S).
 
-prolog:'[]'(S, S).
+prolog:[](S, S).
 
-prolog:'[]'(H, T, S0, S) :- '$append'([H|T], S, S0).
+prolog:[](H, T, S0, S) :- '$append'([H|T], S, S0).
 
 prolog:'.'(H,T, S0, S) :-
 	'$append'([H|T], S, S0).
@@ -311,7 +312,7 @@ prolog:';'(A,B) -->
     call(B).
 
 
-gprolog:('|'(A,B, S0, S)) :-
+prolog:('|'(A,B, S0, S)) :-
 	 t_body((A|B), _, last, S0, S, Goal),
 	 '$execute'(Goal).
 

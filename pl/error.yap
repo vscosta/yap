@@ -27,7 +27,13 @@
 
 /**
  @defgroup ErrorBuiltins Error generating type-checking
-@ingroup YAPErrors
+@ingroup YAPError
+
+@beiwd\\\
+]]]]]
+
+
+]
 
 
 
@@ -148,7 +154,7 @@ must_bind_to_type(Type, X) :-
 	;   is_not(Type, X)
 	).
 
-%% @pred 	predicate is_not(+Type, :Term)
+%% @pred 	@predicate is_not(+Type, :Term)
 %
 %	Throws appropriate error. It is _known_ that Term is not of type
 %	Type.

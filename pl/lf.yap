@@ -41,62 +41,69 @@
 % register(true, false) => implemented
 %
 
-lf_option(derived_from, 2, false).
-lf_option(encoding, 3, default).
-lf_option(if, 5, true).
-lf_option(imports, 6, all).
-lf_option(qcompile, 7, Current) :-
+'$lf_option'(derived_from, 2, false).
+'$lf_option'(encoding, 3, default).
+'$lf_option'(if, 5, true).
+'$lf_option'(imports, 6, all).
+'$lf_option'(qcompile, 7, Current) :-
 	(
 	  '__NB_getval__'('$qcompile', Current, fail) ->
 	  true
 	;
 	  nb_setval('$qcompile',never)
 	).
-lf_option(silent, 8, D) :-
+'$lf_option'(silent, 8, D) :-
     current_prolog_flag(verbose_load,F),
     (F==true->D=false;D=true).
-lf_option(skip_unix_header, 9, false).
-lf_option(compilation_mode, 10, Flag) :-
+'$lf_option'(skip_unix_header, 9, Skip) :-
+    stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
+    ( Rep == true
+    ->
+	     (TTy = true   -> Skip = false ; Skip = true)
+      ;
+      Skip = false
+      ).
+'$lf_option'(compilation_mode, 10, Flag) :-
 	current_prolog_flag(source, YFlag),
 	( YFlag == false -> Flag = compact ; Flag = source ).
-lf_option(consult, 11, reconsult).
-lf_option(stream, 12, _).
-lf_option(register, 13, true).
-lf_option(dry_run, 14, _).
-lf_option('$call', 15, _).
-lf_option('$use_module', 16, _).
-lf_option('consulted_at', 17, _).
-lf_option('$options', 18, _).
-lf_option('$location', 19, _).
-lf_option(dialect, 20, yap).
-lf_option(format, 21, source).
-lf_option(redefine_module, 22, Warn) :-
+'$lf_option'(consult, 11, reconsult).
+'$lf_option'(stream, 12, _).
+'$lf_option'(register, 13, true).
+'$lf_option'(dry_run, 14, _).
+'$lf_option'('$call', 15, _).
+'$lf_option'('$use_module', 16, _).
+'$lf_option'('consulted_at', 17, _).
+'$lf_option'('$options', 18, _).
+'$lf_option'('$location', 19, _).
+'$lf_option'(dialect, 20, yap).
+'$lf_option'(format, 21, source).
+'$lf_option'(redefine_module, 22, Warn) :-
 	( var(Warn) ->	current_prolog_flag( redefine_warnings, Redefine ), Redefine = Warn ; true ).
-lf_option(reexport, 23, false).
-lf_option(build_def_map, 24, false).
-% lf_option(sandboxed, 24, false).
-lf_option(scope_settings, 25, false).
-lf_option(modified, 26, true).
-lf_option(source_module, 27, _).
-lf_option('$parent_topts', 28, _).
-lf_option(must_be_module, 29, false).
-lf_option('$source_pos', 30, _).
-lf_option('$from_stream', 31, false).
+'$lf_option'(reexport, 23, false).
+'$lf_option'(build_def_map, 24, false).
+% '$lf_option'(sandboxed, 24, false).
+'$lf_option'(scope_settings, 25, false).
+'$lf_option'(modified, 26, true).
+'$lf_option'(source_module, 27, _).
+'$lf_option'('$parent_topts', 28, _).
+'$lf_option'(must_be_module, 29, false).
+'$lf_option'('$source_pos', 30, _).
+'$lf_option'('$from_stream', 31, false).
 
 
-lf_option(last_opt, 32, end).
+'$lf_option'(last_opt, 32, end).
 
 '$lf_opt'( Op, TOpts, Val) :-
-	lf_option(Op, Id, _),
+	'$lf_option'(Op, Id, _),
 	arg( Id, TOpts, Val ).
 
 '$set_lf_opt'( Op, TOpts, Val) :-
-	lf_option(Op, Id, _),
+	'$lf_option'(Op, Id, _),
 	setarg( Id, TOpts, Val ).
 
 
 '$mk_opts'(Opts,File,Stream,_M,Call,TOpts) :-
-    lf_option(last_opt, LastOpt, _),
+    '$lf_option'(last_opt, LastOpt, _),
     functor( TOpts, opt, LastOpt ),
     (
 	'$nb_current'('$lf_status'),
@@ -220,7 +227,7 @@ lf_option(last_opt, 32, end).
 	I1 is I+1,
 	arg(I, TOpts, A),
 	( nonvar(A) -> true ;
-	 ignore( lf_option(_Name, I, A) )
+	 ignore( '$lf_option'(_Name, I, A) )
 	),
 	'$lf_default_opts'(I1, LastOpt, TOpts).
 
@@ -316,20 +323,7 @@ lf_option(last_opt, 32, end).
      close(Stream),
      !.
 
-  
-'$script'(_Stream,Opts) :-
-     '$memberchk'(skip_unix_header(false), Opts),
-!.
-'$script'(Stream,_Opts) :-
-     '$skip_script'(Stream).
-'$script'(_Stream,_Opts).
-
-'$skip_script'(Stream) :-
-peek_char(Stream,#),
-readutil:read_line_to_string(Stream,_),
-'$skip_script'(Stream).
-
-  
+    
 '$load_file__'(Type,File,Stream, Y, M, Opts, Call) :-
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
     '$mk_file_opts'(TOpts) ,
@@ -375,14 +369,11 @@ readutil:read_line_to_string(Stream,_),
 '$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
     file_directory_name(File, Dir),
     working_directory(OldD,OldD),
-    b_getval(parent_directory, PD),
-    b_setval(parent_directory,OldD),
     !,
-    prompt1(': '),
-    prompt(_,'     '),
+    prompt1(': '), prompt(_,'     '),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
-    conditional_compilation_get_state(State),
+    '$conditional_compilation_get_state'(State),
     (
      '$memberchk'(consult(Reconsult0), Opts)
       ->
@@ -392,7 +383,12 @@ readutil:read_line_to_string(Stream,_),
     unload_file(File),
     '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts),
    	'$start_consult'(Reconsult,File,Dir,Stream,LC),
- '$script'(Stream,Opts),
+    (
+     '$memberchk'(skip_unix_header(SkipUnixHeader), Opts)
+      ->
+       			  true ;
+      SkipUnixHeader = true
+    ),
     '$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,UserFile,Opts),
    (
 	'$memberchk'(source_module(M1),Opts)
@@ -413,7 +409,7 @@ readutil:read_line_to_string(Stream,_),
 ; 
        '$memberchk'(dry_run(true),Opts)
    ->
-   dry_loop(Stream,Reconsult)
+   '$dry_loop'(Stream,Reconsult)
 ; 
   '$loop'(Stream,Reconsult)
  
@@ -424,7 +420,7 @@ readutil:read_line_to_string(Stream,_),
     % back to include mode!
 %	'$memberchk'(must_be_module, Opts),
 %	'$bind_module'(InnerModule, UseModule),
-    conditional_compilation_set_state(State),
+    '$conditional_compilation_set_state'(State),
     ('$module'(File,InnerModule,_,_) ->
       '$import_module'(InnerModule, M1, File, Opts),
     '$check_module'(File,InnerModule)
@@ -432,12 +428,11 @@ readutil:read_line_to_string(Stream,_),
    ;
    InnerModule=OldM),
     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
-    b_setval(parent_directory,PD),
  '$end_consult'(OldD),
  '$exec_initialization_goals'(File),
     !.
-   
-dry_loop(Stream,_Status) :-
+
+'$dry_loop'(Stream,_Status) :-
     repeat,
   (
    at_end_of_stream(Stream)
@@ -453,7 +448,7 @@ dry_loop(Stream,_Status) :-
 
     !
     ;
-    conditional_compilation_skip(Clause)
+    '$conditional_compilation_skip'(Clause)
     ->
     fail
     ;
@@ -468,30 +463,29 @@ dry_loop(Stream,_Status) :-
 '$loop'(Stream,Status) :-
     repeat,
    catch(
-    loop_(Stream,Status),
+    '$loop_'(Stream,Status),
 	 _Error,
 	 error_handler),
   !.
 
-loop_(Stream,Status) :-
+'$loop_'(Stream,Status) :-
 	 enter_compiler(Stream,Status) .
 
 enter_compiler(Stream,Status) :-
     prompt1(': '), prompt(_,'     '),
     Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     read_clause(Stream, Clause, Options),
-    current_source_module(Mod,Mod),
     (
 	Clause == end_of_file
     ->
 
     !
     ;
-    conditional_compilation_skip(Mod:Clause)
+    '$conditional_compilation_skip'(Clause)
     ->
     fail
     ;
-    prolog:call_compiler(Mod:Clause, Status,Vars,Pos),
+    call_compiler(Clause, Status,Vars,Pos),
     fail
 	).
 
@@ -506,18 +500,17 @@ def_use_inner(Stream,File, Status) :-
     prompt1(': '), prompt(_,'     '),
     Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos), scan(Toks)],
     read_clause(Stream, Clause, Options),
-    current_source_module(Mod,Mod),
     (
 	Clause == end_of_file
     ->
     !
     ;
-    conditional_compilation_skip(Mod:Clause)
+    '$conditional_compilation_skip'(Clause)
     ->
     fail
     ;
-    scanner:add_def_use(Mod:Clause,File, Toks),
-    prolog:call_compiler(Mod:Clause, Status,Vars,Pos),
+    scanner:add_def_use(Clause,File, Toks),
+    call_compiler(Clause, Status,Vars,Pos),
     fail
 	).
 
@@ -533,10 +526,10 @@ def_use_inner(Stream,File, Status) :-
 % @param [in] _Pos_ the source-code position
 % @param [in] _N_  a flag telling whether to add first or last
 % @param [out] _Source_ the user-tranasformed clause
-call_compiler(Mod:(:-G),Status,VL,Pos) :-
+call_compiler((:-G),Status,VL,Pos) :-
     !,
     % allow user expansion
-    expand_term((:- Mod:G), O, _ExpandedClause),
+    expand_term((:- G), O, _ExpandedClause),
     '$yap_strip_module'(O, NM, NO),
     (
         NO = (:- G1)
@@ -544,11 +537,12 @@ call_compiler(Mod:(:-G),Status,VL,Pos) :-
     must_be_callable(NM:G1),
     '$process_directive'(G1, Status , NM, VL, Pos)
     ;
-    goal(G1,VL,Pos)).
-call_compiler(Mod:(?-G),_, VL, Pos) :-
+    '$goal'(G1,VL,Pos)).
+call_compiler((?-G),_, VL, Pos) :-
     !,
-    goal(Mod:G,VL, Pos).
-call_compiler(SM:G, Where,_VL, Pos) :-
+    '$goal'(G,VL, Pos).
+call_compiler(G, Where,_VL, Pos) :-
+    current_source_module(SM,SM),
     expand_term(G, Source,EC),
     '$head_and_body'(EC, MH, B ),
         strip_module( MH, Mod, H),
@@ -775,13 +769,12 @@ compile_clauses(Commands) :-
      fail;
     '$active_predicate'(P)
     ).
- 
+                
 
 compile_clause(Command) :-
     prolog_load_context(term_position, Pos),
     prolog_load_context(variable_names, Vs),
-    current_source_module(Mod,Mod),
-    call_compiler(Mod:Command, reconsult,Vs,Pos),
+    call_compiler(Command, reconsult,Vs,Pos),
     fail.
 compile_clause(_Command).
 

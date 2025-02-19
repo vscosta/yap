@@ -62,40 +62,29 @@ Term Yap_cp_as_integer(choiceptr cp)
   return cp_as_integer(cp PASS_REGS);
 }
 
-PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
+PredEntry *Yap_track_cpred( yamop *ip, size_t min, void *v)
 {
   CACHE_REGS
+    op_numbers op = Yap_op_from_opcode(ip->opc);
     gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
-  if (op == _Ystop) {
-   op = Yap_op_from_opcode(P->opc);
+  bool special_code = true;
+
+  if (ip == FAILCODE) i->pe = PredFail;
+  else if (ip == TRUSTFAILCODE) i->pe = PredFail;
+  else if (ip == NOCODE) i->pe = PredFail;
+  else if (ip == YESCODE) i->pe = PredTrue;
+  else special_code=false;
+  if (special_code) {
     i->env = ENV; // YENV should be tracking ENV
     i->p = ip;
     i->p_env = ip;
     i->a = 0;
     i->env_size = EnvSizeInCells;
     i->caller = NULL;
-    return i->pe = PredTrue;
+    return i->pe;
 }
-  if (op==_trust_fail||
-      op == _Nstop) {
-    i->env = ENV; // YENV should be tracking ENV
-    i->p = ip;
-    i->p_env = ip;
-    i->a = 0;
-    i->env_size = EnvSizeInCells;
-    i->caller = NULL;
-    return i->pe = PredFail;
-  } else if (op == _op_fail) {
-    i->env = ENV; // YENV should be tracking ENV
-    i->p = ip;
-    i->p_env = ip;
-    i->a = 0;
-    i->env_size = EnvSizeInCells;
-    i->caller = NULL;
-    return i->pe = PredFail;
-  }
   i->at_yaam = true;
   CalculateStackGap(PASS_REGS1);
   i->gc_min = 2 * MinStackGap;

@@ -845,7 +845,7 @@ PredEntry * Yap_PredForCode(yamop	*codeptr, find_pred_type hint,
     } else if (hint	== FIND_PRED_FROM_CP) {
       info.pe = Yap_PredForChoicePt(B);
     } else {
-      Yap_track_cpred( 0, codeptr, 0,   &info);
+      Yap_track_cpred(  codeptr, 0,   &info);
     }
     *c = code_in_pred(info.pe, codeptr);
     return (info.pe);
@@ -1731,7 +1731,7 @@ char * Yap_dump_stack(FILE *f) {
 #endif
     }
   Yap_output_bug_location(f, B, P, FIND_PRED_FROM_ANYWHERE, "caller:");
-  Yap_output_bug_location(f, B, CP, FIND_PRED_FROM_ENV, "continuation:");
+//  Yap_output_bug_location(f, B, CP, FIND_PRED_FROM_ENV, "continuation:");
   Yap_output_bug_location(f, B, B->cp_ap, FIND_PRED_FROM_CP, "choice point:");
    
   fputs("%% \n%%  -------------------------------------\n%%\n", f);

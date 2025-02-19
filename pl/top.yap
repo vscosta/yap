@@ -180,18 +180,19 @@ AVs = [],
 
 
 				
-%'$query'(G,[],_Port) :-
-%    '$query'(G,[],_Port).
+'$query'(G,[]) :-
+    '$query'(G,[],_Port).
+
 '$query'([],_Vs,_Port) :-
     !.
 '$query'(G0,_Vs,Port) :-
     current_prolog_flag(debug,true),
-    current_prolog_flag(trace,true),
+   current_prolog_flag(trace,true),
     !,
     expand_goal(G0,G),
     nb_setval(creep,creep),
     current_choice_point(CP0),
-    spy(G,top),
+    '$spy'(G,top),
     current_choice_point(CPF),
     (CP0 == CPF
     ->
@@ -267,19 +268,18 @@ true
 
 % enable creeping
 '$enable_debugging':-
-    current_prolog_flag(debug, false), !.
+current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
     current_prolog_flag(trace,true),
     !,
     nb_setval(creep,creep),
-    nb_setval('$spy_start', 0),
-    nb_setval('$spy_on',stop),
+    	       nb_setval('$spy_on',stop),
     nb_setval('$spy_target',0),
     '$creep'.
 '$enable_debugging' :-
     nb_setval(creep,zip),
-    nb_setval('$spy_start', 0),
-    nb_setval('$spy_on',stop),
+            nb_setval(creep,creep),
+    	       nb_setval('$spy_on',stop),
     nb_setval('$spy_target',0).
 
 
@@ -384,7 +384,7 @@ expand_clause(Term, Term, Term).
 % Grammar Rules expansion
 %
 '$expand_term_grammar'((A-->B), C) :-
-    translate_rule((A-->B),C), !.
+    prolog:'$translate_rule'((A-->B),C), !.
 '$expand_term_grammar'(A, A).
 
 %
@@ -460,7 +460,7 @@ log_event( String, Args ) :-
 
 
 
-goal((:-G),VL,Pos) :-
+'$goal'((:-G),VL,Pos) :-
    !,			% allow user expansion
     must_be_callable(G),
     expand_term((:- G), O, _ExpandedClause),
@@ -470,15 +470,15 @@ goal((:-G),VL,Pos) :-
     ->
     '$process_directive'(G1, top , NM, VL, Pos)
     ;
-    goal(NO,VL,Pos)
+    '$goal'(NO,VL,Pos)
     ),
     fail.
 
 
-goal((?-G), VL, Pos) :-
+'$goal'((?-G), VL, Pos) :-
     !,
-    goal(G, VL, Pos).
-goal(G, Names, _Pos) :-
+    '$goal'(G, VL, Pos).
+'$goal'(G, Names, _Pos) :-
     expand_term(G, EC, _ExpandedClause),
     !,
      current_prolog_flag(prompt_alternatives_on, OPT),
@@ -495,8 +495,6 @@ goal(G, Names, _Pos) :-
 
 
 live  :-
-    working_directory(D,D),
-    nb_setval(parent_directory,D),
     repeat,
     '$top_level',
     live__,
@@ -515,7 +513,7 @@ live__ :-
     ;
     format(user_error,'[~w]~n', [Module])
     ),
-    % reset alarms when entering top-level.
+% reset alarms when entering top-level.
     alarm(0, 0, _, _),
     '$top_level',
     nb_setval(creep,zip),
@@ -524,8 +522,8 @@ live__ :-
     (
 	GA \= []
     ->
-    set_value('$top_level_goal',[]),
-    ignore(run_atom_goal(GA))
+    set_Value('$top_level_goal',[]),
+    ignore('$run_atom_goal'(GA))
     ;
     true
     ),
@@ -533,9 +531,9 @@ live__ :-
     '$run_toplevel_hooks',
      prompt1(' ?- '),
     '$prompt',
-    catch(read_term(user_input,
+    read_term(user_input,
 		    Goal,
-		    [variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]),_Error,error_handler),
+		    [variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]),
     (
 	Goal == end_of_file
     ->
@@ -544,7 +542,7 @@ live__ :-
     nb_setval('$spy_gn',0),
     % stop at spy-points if debugging is on.
     '$init_debugger_trace',
-    catch(goal(Goal,Bindings,Pos),_Error,error_handler),
+    catch('$goal'(Goal,Bindings,Pos),_Error,error_handler),
     fail
     ), 
     current_prolog_flag(break_level, BreakLevel),

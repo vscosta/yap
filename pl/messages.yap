@@ -26,13 +26,12 @@
 */
 
 
-:- system_module('$messages',
-[	      % message//1,
+:- module('$messages',
+	      % message//1,
 	      % message_to_string/2,
 	      % print_message_lines/3,
 	      % print_message/2,
 	      % print_warning/1
-],
 	  [query_exception/3]).
 
 /**
@@ -1286,7 +1285,7 @@ the  line and the line-position is not forced to 0
 + `prefix`(_Prefix_)
 define a prefix_ for the next line, say `''` will be seen as an
 empty prefix.
-(see `format/1`, option `~N`)
+(see `format/1`, `~N`)+ `<Format>`
 Handed to `format/3` as `format(Stream, Format, [])`, may get confused
 with other commands.
 + nl
@@ -1404,7 +1403,7 @@ print_message_(Level, _Msg) :-
     !.
 print_message_(_, _Msg) :-
     % first step at hook processing
-    conditional_compilation_skip(true),
+    '$conditional_compilation_skip'(true),
     !.
 print_message_(force(_Severity), Msg) :- !,
     print(user_error,Msg).

@@ -49,7 +49,6 @@
 	W1 is W-1,
 	'$start_orp_threads'(W1).
 
-
 '$version' :-
 	'$version_specs'(Specs),
 	print_message(informational, Specs).
@@ -67,7 +66,6 @@
   */
 init_prolog :-
     % do catch as early as possible
-    nb_setval('$spy_start',-1),
     '$init_consult',
     '$version',
     '$init_preds',
@@ -106,13 +104,13 @@ init_prolog :-
 			get_value('$init_goal',GA),
 			GA \= [],
 			set_value('$init_goal',[]),
-			run_atom_goal(GA),
+			'$run_atom_goal'(GA),
 			fail.
 			'$startup_goals' :-
 				get_value('$top_level_goal',GA),
 				GA \= [],
 				set_value('$top_level_goal',[]),
-				run_atom_goal(GA),
+				'$run_atom_goal'(GA),
 				fail.
 '$startup_goals' :-
     recorded('$restore_flag', goal(Module:GA), R),

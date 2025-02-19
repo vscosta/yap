@@ -512,7 +512,7 @@ INLINE_ONLY  void restore_TR(void) {
 #else
 /** continuation   program counter: what to do when we exit the goal.         */
 #define CP         (Yap_REGS.CP_)	
-#define P          Yap_REGS.P_	/* prolog machine program counter */
+#define P          Yap_REGS .P_	/* prolog machine program counter */
 /** current environment (may be pointing at an enevironment frame before the neck sets ENV) */
 #define YENV       (Yap_REGS).YENV_ 
 #define S          Yap_REGS.S_	/* structure pointer                      */

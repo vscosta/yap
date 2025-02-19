@@ -23,6 +23,7 @@
 #include "YapTags.h"
 #include "Yapproto.h"
 #include "Yatom.h"
+#include <stdbool.h>
 #ifdef SCCS
 static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
@@ -2054,7 +2055,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
       Yap_ThrowError(  PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateIndicator(tf,modh), "trying to change a system predicate");
 	return false;
   }
-  Yap_track_cpred( 0, P, 0,   &info);
+  Yap_track_cpred(  P, 0,   &info);
 
   PELOCK(20, p);
 
@@ -2295,7 +2296,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
      in case the objs pointing to it are dead themselves */
   if (DeadMegaClauses != before) {
     gc_entry_info_t info;
-    Yap_track_cpred(0, P, 0,   &info);
+    Yap_track_cpred( P, 0,   &info);
     if (!Yap_gc(&info)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
@@ -3105,39 +3106,15 @@ static Int p_clean_up_dead_clauses(USES_REGS1) {
 }
 
 bool Yap_HidePred(PredEntry *pe) {
-  Prop p, *o;
-  if (pe->PredFlags & NumberDBPredFlag) {
-    // cannot remove these ones, makes no sense.
-    return false;
-  }
-  if (pe->PredFlags & AtomDBPredFlag ||
-       pe->ArityOfPE == 0 ) {
-     p = *(o=&RepAtom((Atom)pe->FunctorOfPred)->PropsOfAE);
-   } else {
-     p = *(o = &(pe->FunctorOfPred->PropsOfFE));
-  }
-  while (p) {
-      if (p == AbsPredProp(pe)) {
-          break;
-      } else {
-          o = &(p->NextOfPE);
-          p = p->NextOfPE;
-      }
-  }
-  if (o && p)
-      *o = p->NextOfPE;
-  p = NULL;
-    Yap_RemovePredFromModule(pe);
 
-    pe->NextOfPE = HIDDEN_PREDICATES;
-  HIDDEN_PREDICATES = AbsPredProp(pe);
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
-  return true ;
+  return true;
 }
 
 static Int /* $system_predicate(P) */
 p_stash_predicate(USES_REGS1) {
   PredEntry *pe;
+
   Term mod = TermCurrentModule;
   pe = Yap_get_pred(Deref(ARG1), mod , "stash");
   if (EndOfPAEntr(pe))
@@ -3155,7 +3132,28 @@ hide_predicate(USES_REGS1) {
 
   if (EndOfPAEntr(pe))
     return false;
-  return Yap_HidePred(pe);
+  Prop p, *o;
+  if (pe->ArityOfPE) {
+      p = *(o = &(pe->FunctorOfPred->PropsOfFE));
+  } else {
+      p = *(o=&RepAtom((Atom)pe->FunctorOfPred)->PropsOfAE);
+  }
+  while (p) {
+      if (p == AbsPredProp(pe)) {
+          break;
+      } else {
+          o = &(p->NextOfPE);
+          p = p->NextOfPE;
+      }
+  }
+  if (o && p)
+      *o = p->NextOfPE;
+  p = NULL;
+    Yap_RemovePredFromModule(pe);
+  pe->NextOfPE = HIDDEN_PREDICATES;
+  HIDDEN_PREDICATES = AbsPredProp(pe);
+  pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
+  return true;
 }
 
 static Int /* $hidden_predicate(P) */
@@ -3880,7 +3878,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  gc_entry_info_t info;
-	  Yap_track_cpred( 0, P, 0,&info);
+	  Yap_track_cpred( P, 0,&info);
 	  // p should be past the enbironment mang Obpp
           if (!Yap_dogc(PASS_REGS1)) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
