@@ -44,24 +44,32 @@ RUN  git clone https://github.com/vscosta/yap /app/yap --depth=3\
     && mkdir -p /app/yap/build\
     && cd /app/yap/build\
     && cmake .. -DWITH_DOXYGEN=1 -DCMAKE_BUILD_TYPE=Release -DWITH_PACKAGES=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja \
-    && cmake --build .  --target install
+    && ninja install
 
 ##RUN  mkdir -p /app/yap/build &&\
 RUN     cd /app/yap/build &&\
      apt install -y mkdocs &&\
      ninja  mkdocs
 
-RUN cd /app/yap/build  &&\
-cpack --config CPackConfig.cmake -G DEB                                             
+#Python extras
+
+RUN cd /app/yap/build \
+    && pip setup python/yap4y
 
 #R extras
 
-#RUN cd /app/yap/build \
-#    && cmake --build . --target YAP4R
-#RUN cd /app/yap/build \
-#    &&  R CMD INSTALL packages/real/yap4r
+RUN cd /app/yap/build \
+    && cmake --build . --target YAP4R
+RUN cd /app/yap/build \
+    &&  R CMD INSTALL packages/real/yap4r
 
-# Make port 80 available to the world outside this container
+
+RUN cd /app/yap/build  &&\
+cpack --config CPackConfig.cmake -G DEB                                             
+
+
+
+#    Make port 80 available to the world outside this container
 EXPOSE 22 80 8888
 
 # Define environment variable

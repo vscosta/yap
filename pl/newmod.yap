@@ -63,11 +63,13 @@ name with the `:/2` operator.
     current_source_module(HostM,DonorM).
 
 
+system_module(N,Ps) :-
+    '$declare_system_module'(_HostM,N,Ps,_Ss,_Loc).
 
-'$declare_system_module'(HostM,N,Ps,Ss,Loc) :-
-    '$declare_module'(HostM,N,Ps,Loc),
-    '$mk_system_predicates'(Ss),
-    set_module_property(N,type(system)).
+'$declare_system_module'(_HostM,_N,_Ps,_Ss,_Loc). % :-
+    % '$declare_module'(HostM,N,Ps,Loc),
+    % '$mk_system_predicates'(Ss),
+    % set_module_property(N,type(system)).
 
 '$mk_system_predicates'( Ps ) :-
     member(Name/A , Ps),
