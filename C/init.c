@@ -1429,10 +1429,10 @@ noreturn  void Yap_exit(int value) {
     remove("PROFPREDS");
     remove("PROFILING");
 #endif
-   Yap_CloseStreams();
-   run_halt_hooks(value);
+    run_halt_hooks(value);
     Yap_ShutdownLoadForeign();
   }
+  Yap_CloseStreams();
   Yap_CloseReadline();
 #if USE_SYSTEM_MALLOC
 #endif

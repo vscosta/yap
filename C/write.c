@@ -568,8 +568,8 @@ static void write_string(const unsigned char *s,
                          struct write_globs *wglb) /* writes an integer	 */
 {
     CACHE_REGS
-      StreamDesc *stream = wglb->stream;
-                        utf8proc_int32_t chr, qt;
+  StreamDesc *stream = wglb->stream;
+  utf8proc_int32_t chr, qt;
   unsigned char *ptr = (unsigned char *)s;
 
   if (wglb->Write_strings)
@@ -680,23 +680,13 @@ static void putString(Term string, struct write_globs *wglb)
 
 {
   wrf stream = wglb->stream;
-  int sep = '"';
-  if (getAtomicGlobalPrologFlag(DOUBLE_QUOTES_FLAG)==TermString)
-    sep = '"';
-  else if (getAtomicGlobalPrologFlag(BACK_QUOTES_FLAG)==TermString)
-    sep = '`';
-  else if (getAtomicGlobalPrologFlag(SINGLE_QUOTES_FLAG)==TermString)
-    sep = '\'';
-  else {
-    Yap_ThrowError(DOMAIN_ERROR_WRITE_OPTION, TermNil, "no delimiter for strings");
+  wrputc('`', stream);
+  while (string != TermNil) {
+    wchar_t ch = IntOfTerm(HeadOfTerm(string));
+    write_quoted(ch, '`', stream);
+    string = TailOfTerm(string);
   }
-    wrputc(sep, stream);
-    while (string != TermNil) {
-      wchar_t ch = IntOfTerm(HeadOfTerm(string));
-      write_quoted(ch, '`', stream);
-      string = TailOfTerm(string);
-    }
-    wrputc(sep, stream);
+  wrputc('`', stream);
   lastw = alphanum;
 }
 
@@ -812,12 +802,13 @@ static void writeTerm(Term t, int p, int depth , int rinfixarg,
   } else if (IsAtomTerm(t)) {
     putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb);
   } else if (IsPairTerm(t)) {
-    if (wglb->Ignore_ops && false) {
-      wrputs("'.'(", wglb->stream);
+    if (wglb->Ignore_ops) {
+      putAtom(AtomDot, wglb->Quote_illegal, wglb);                                                                                
+      wrputs("(", wglb->stream);
       if (wglb->Use_depth  && depth ==0) {
 	putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
-      wrclose_bracket(wglb, TRUE);
-      return;
+	wrclose_bracket(wglb, TRUE);
+	return;
       }
     lastw = separator;
       writeTerm(HeadOfTerm(t), 999, depth-1, FALSE, wglb);
@@ -881,7 +872,7 @@ static void writeTerm(Term t, int p, int depth , int rinfixarg,
       CELL *p = ArgsOfSFTerm(t);
       putAtom(atom, wglb->Quote_illegal, wglb);
       wropen_bracket(wglb, FALSE);
-      lastw = separator;
+eedddddda      lastw = separator;
       while (*p) {
         Int sl = 0;
 
@@ -891,9 +882,7 @@ static void writeTerm(Term t, int p, int depth , int rinfixarg,
         }
         *p++;
         lastw = separator;
-        /* cannot use the term directly with 
-
-ythe SBA */
+        /* cannot use the term directly with the SBA */
         PROTECT(t, writeTerm(*p, 999, depth-1 FALSE, wglb));
         if (*p)
           wrputc(',', wglb->stream);
@@ -959,7 +948,8 @@ ythe SBA */
       if (bracket_left) {
         wrclose_bracket(wglb, TRUE);
       }
-      if (Arity > 1) {
+      if (Arity > 1 &&
+	  !wglb->Ignore_ops) {
         if (atom == AtomEmptyBrackets) {
           wrputc('(', wglb->stream);
         } else if (atom == AtomEmptySquareBrackets) {
@@ -1286,16 +1276,6 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
       /* first tell variable names */
       if (args && args[WRITE_VARIABLE_NAMES].used) {
 	tnames = args[WRITE_VARIABLE_NAMES].tvalue;
-	if (IsVarTerm(tnames))
-	  {
-	  xarg *  entry = &args[WRITE_VARIABLE_NAMES];
-	  Yap_ThrowError(INSTANTIATION_ERROR, entry->tvalue, "on parameter %s", NameOfFunctor(FunctorOfTerm(entry->source)));
-	  }
-
-	Term *tp;
-	if (tnames != TermNil && (Yap_SkipList(&tnames,&tp)<1 || *tp != TermNil)) {
-	      badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_VARIABLE_NAMES]);
-      }
 	  ynames = Yap_InitHandle(tnames);
 	  flags  |= Named_vars_f|Number_vars_f;
       }
@@ -1306,7 +1286,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
       if (IsIntTerm( args[WRITE_NAME_VARIABLES].tvalue)) {
 	flags |= Name_vars_f|Number_vars_f;
       vstart = IntOfTerm( args[WRITE_NAME_VARIABLES].tvalue );
-      } else if ( args[WRITE_NAME_VARIABLES].tvalue != TermNil) {
+    } else {
 	      badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_NAME_VARIABLES]);
 	  }
     }
@@ -1328,16 +1308,17 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	    badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_CYCLES]);
 	  }
     }
-    int depth=10;
+    int depth = LOCAL_max_depth;
   if (args && args[WRITE_MAX_DEPTH].used) {
      Term v = args[WRITE_MAX_DEPTH].tvalue;
    if (IsIntegerTerm(v) && IntegerOfTerm(v)>=0) {
-      depth = IntegerOfTerm(v);
-    flags |=YAP_WRITE_ENABLE_DEPTH;
+     depth = IntegerOfTerm(v);
+     flags |=YAP_WRITE_ENABLE_DEPTH;     
    } else {
-     depth = 5;
-	    badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_MAX_DEPTH]);
-	  }
+     badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_MAX_DEPTH]);
+   }
+  } else {
+    flags |= (LOCAL_max_depth==0 ? 0 : YAP_WRITE_ENABLE_DEPTH);
   }
     
 
@@ -1364,10 +1345,9 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
       Yap_MkFunctor(AtomOfTerm(getAtomicLocalPrologFlag(NUMBERVARS_FUNCTOR_FLAG)),1);
   } else {
       wglb.FunctorNumberVars =
-  FunctorF = FunctorHiddenVar;
+	FunctorF = FunctorHiddenVar;
   }  
   if (flags  & Named_vars_f) {
-
     if ((*errp = bind_variable_names(tnames, ys, FunctorF PASS_REGS))!=YAP_NO_ERROR) {
       CLOSE_LOCAL_STACKS_AND_RETURN(ys,lvl);
      }

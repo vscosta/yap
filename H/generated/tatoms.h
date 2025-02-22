@@ -158,7 +158,6 @@ X_API EXTERNAL Atom AtomExit; X_API EXTERNAL Term TermExit;
 X_API EXTERNAL Atom AtomExoClause; X_API EXTERNAL Term TermExoClause;
 X_API EXTERNAL Atom AtomExoProcedure; X_API EXTERNAL Term TermExoProcedure;
 X_API EXTERNAL Atom AtomExpand; X_API EXTERNAL Term TermExpand;
-X_API EXTERNAL Atom AtomExpandGoal; X_API EXTERNAL Term TermExpandGoal;
 X_API EXTERNAL Atom AtomExpectedNumber; X_API EXTERNAL Term TermExpectedNumber;
 X_API EXTERNAL Atom AtomExtendFileSearchPath; X_API EXTERNAL Term TermExtendFileSearchPath;
 X_API EXTERNAL Atom AtomExtendsions; X_API EXTERNAL Term TermExtendsions;
@@ -689,8 +688,6 @@ X_API EXTERNAL  Functor FunctorExistenceError;
 
 X_API EXTERNAL  Functor FunctorExoClause;
 
-X_API EXTERNAL  Functor FunctorExoandGoal;
-
 X_API EXTERNAL  Functor FunctorExternalException;
 
 X_API EXTERNAL  Functor FunctorFloat;
@@ -878,8 +875,6 @@ X_API EXTERNAL  Functor FunctorString1;
 X_API EXTERNAL  Functor FunctorStyleCheck;
 
 X_API EXTERNAL  Functor FunctorSub;
-
-X_API EXTERNAL  Functor FunctorSub5;
 
 X_API EXTERNAL  Functor FunctorSum;
 

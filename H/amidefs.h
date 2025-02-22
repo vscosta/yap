@@ -341,7 +341,7 @@ typedef struct yami {
       CELL next;
     } fa;
     struct {
-      CELL    i[4];
+      CELL    i[3];
       CELL next;
     } i;
     struct {
@@ -1121,3 +1121,5 @@ typedef enum {
 
 #endif
 
+extern int Yap_IUnify( CELL d0,  CELL d1);
+extern void Yap_TrimTrail(void);

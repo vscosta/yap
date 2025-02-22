@@ -769,7 +769,7 @@ compile_clauses(Commands) :-
      fail;
     '$active_predicate'(P)
     ).
-                
+ 
 
 compile_clause(Command) :-
     prolog_load_context(term_position, Pos),

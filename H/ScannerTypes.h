@@ -43,8 +43,8 @@ typedef struct scanner_extra_params {
   YAP_Term tposINPUT, tposOUTPUT;
   YAP_Term backquotes, singlequotes, doublequotes;
   bool ce, vprefix, vn_asfl;
-  YAP_Term tcomms, ecomms;       /// Access to comments
-    YAP_Term cmod;         /// Access to commen
+    YAP_Term tcomms;       /// Access to comments
+    YAP_Term ecomms;;         /// Export comments by unifying tcomms and ecomms
   bool store_comments; //
   bool get_eot_blank;
   YAP_Term stored_scan;

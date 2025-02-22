@@ -19,17 +19,15 @@
   @file boot.yap
   @brief YAP bootstrap
 
- */
+  @defgroup YAPControl Control Predicates
+  @ingroup Builtins
 
-/**
-  @addtogroup YAPControl Control Predicates
 @{
 
 */
 
 /** @pred  0:P,0:Q   is iso, meta
-
-The comma represents the Conjunction of goals (and).
+Conjunction of goals (and).
 
 The conjunction is a fundamental construct of Prolog. Example:
 
@@ -73,10 +71,29 @@ comma(X,Y,Z,A,B,C) :-
     call(A),
     call(B),
     call(C).
-
-    /** @pred   ';'( 0:P , 0:Q)  is iso
-
-@brief Disjunction of goals (or).
+    
+comma(X,Y,Z,A,B,C,D) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A),
+    call(B),
+    call(C),
+    call(D).
+     
+comma(X,Y,Z,A,B,C,D,E) :-
+    call(X),
+    call(Y),
+    call(Z),
+    call(A),
+    call(B),
+    call(C),
+    call(D),
+    call(E).
+     
+            
+    /** @pred   0:P ; 0:Q  is iso
+Disjuncjtion of goals (or).
 
 Example:
 

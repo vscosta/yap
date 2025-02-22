@@ -23,7 +23,6 @@
 #include "YapTags.h"
 #include "Yapproto.h"
 #include "Yatom.h"
-#include <stdbool.h>
 #ifdef SCCS
 static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
@@ -1901,7 +1900,7 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
   } else if (ap->PredFlags &
              (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
-    ap->CodeOfPred = 
+    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
         (yamop *)(&(ap->OpcodeOfPred));
   } else {
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
@@ -2055,7 +2054,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
       Yap_ThrowError(  PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateIndicator(tf,modh), "trying to change a system predicate");
 	return false;
   }
-  Yap_track_cpred(  P, 0,   &info);
+  Yap_track_cpred( 0, P, 0,   &info);
 
   PELOCK(20, p);
 
@@ -2296,7 +2295,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
      in case the objs pointing to it are dead themselves */
   if (DeadMegaClauses != before) {
     gc_entry_info_t info;
-    Yap_track_cpred( P, 0,   &info);
+    Yap_track_cpred(0, P, 0,   &info);
     if (!Yap_gc(&info)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
@@ -3105,10 +3104,9 @@ static Int p_clean_up_dead_clauses(USES_REGS1) {
   return TRUE;
 }
 
-bool Yap_HidePred(PredEntry *pe) {
+void Yap_HidePred(PredEntry *pe) {
 
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
-  return true;
 }
 
 static Int /* $system_predicate(P) */
@@ -3878,7 +3876,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yhandle_t yth,
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  gc_entry_info_t info;
-	  Yap_track_cpred( P, 0,&info);
+	  Yap_track_cpred( 0, P, 0,&info);
 	  // p should be past the enbironment mang Obpp
           if (!Yap_dogc(PASS_REGS1)) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);

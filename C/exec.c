@@ -62,29 +62,31 @@ Term Yap_cp_as_integer(choiceptr cp)
   return cp_as_integer(cp PASS_REGS);
 }
 
-PredEntry *Yap_track_cpred( yamop *ip, size_t min, void *v)
+PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
 {
   CACHE_REGS
-    op_numbers op = Yap_op_from_opcode(ip->opc);
     gc_entry_info_t *i = v;
   if (ip == NULL)
     ip = P;
-  bool special_code = true;
-
-  if (ip == FAILCODE) i->pe = PredFail;
-  else if (ip == TRUSTFAILCODE) i->pe = PredFail;
-  else if (ip == NOCODE) i->pe = PredFail;
-  else if (ip == YESCODE) i->pe = PredTrue;
-  else special_code=false;
-  if (special_code) {
+  if (ip==YESCODE || ip== NOCODE || ip == FAILCODE || op == _trust_fail
+      || ip == EXITCODE) {
+    op = Yap_op_from_opcode(P->opc);
     i->env = ENV; // YENV should be tracking ENV
     i->p = ip;
     i->p_env = ip;
     i->a = 0;
     i->env_size = EnvSizeInCells;
     i->caller = NULL;
-    return i->pe;
-}
+    return i->pe = ip == YESCODE ? PredTrue : PredFail;
+  } else if (op == _op_fail) {
+    i->env = ENV; // YENV should be tracking ENV
+    i->p = ip;
+    i->p_env = ip;
+    i->a = 0;
+    i->env_size = EnvSizeInCells;
+    i->caller = NULL;
+    return i->pe = PredFail;
+  }
   i->at_yaam = true;
   CalculateStackGap(PASS_REGS1);
   i->gc_min = 2 * MinStackGap;
@@ -1105,43 +1107,36 @@ static Int creep_step(USES_REGS1)
                        pe->cs.p_code.TrueCodeOfPred PASS_REGS);
   }
   else
-    {
-      rc = CallPredicate(pe, B,
-			 pe->CodeOfPred PASS_REGS);
-    }
+  {
+    rc = CallPredicate(pe, B,
+                       pe->CodeOfPred PASS_REGS);
+  }
   if (!LOCAL_InterruptsDisabled &&
       (!(pe->PredFlags & (AsmPredFlag | CPredFlag)) ||
        pe->OpcodeOfPred == Yap_opcode(_call_bfunc_xx)))
-    {
-      Yap_signal(YAP_CREEP_SIGNAL);
-    }
+  {
+    Yap_signal(YAP_CREEP_SIGNAL);
+  }
   return rc;
 }
 
 static Int execute_nonstop(USES_REGS1)
-{ /* '$execute_nonstop'(Mod:Goal)
-   */
-  Term tmod = CurrentModule;
+{ /* '$execute_nonstop'(Goal,Mod)
+                                          */
   Term t = Deref(ARG1);
-  t = Yap_StripModule(t,&tmod);
-  PredEntry *pe = Yap_get_pred(t, tmod, "c_exec(G)");
-
-  if (!pe)
-    return false;
-  register arity_t arity = pe->ArityOfPE, i;
-
-  register CELL *pt = NULL;
-
-  if  (IsApplTerm(t)
-       ) {
+  PredEntry *pe = Yap_get_pred(t, ARG2, "c_exec(G)");
     register Functor f = FunctorOfTerm(t);
-  if (IsExtensionFunctor(f))
-    return false;
+    register arity_t arity = pe->ArityOfPE, i;
 
-      /* I cannot use the standard macro here because
+    register CELL *pt;
+
+    if (IsExtensionFunctor(f))
+      return false;
+
+     /* I cannot use the standard macro here because
            otherwise I would dereference the argument and
            might skip a svar */
-  pt = RepAppl(t) + 1;
+    pt = RepAppl(t) + 1;
     for (i = 1; i <= arity; ++i)
     {
 #if YAPOR_SBA
@@ -1154,13 +1149,9 @@ static Int execute_nonstop(USES_REGS1)
       XREGS[i] = *pt++;
 #endif
     }
-  } else if (IsPairTerm(t)) {
-    ARG1 = HeadOfTerm(t);
-    ARG2 = TailOfTerm(t);
-    pe = PredCsult;
-  }
-    PP = pe;
-    return CallPredicate(pe, B, pe->cs.p_code.TrueCodeOfPred  PASS_REGS);
+  
+    return CallPredicate(pe, B,
+                         pe->cs.p_code.TrueCodeOfPred PASS_REGS);
 }
 
 
@@ -1334,7 +1325,7 @@ static Int execute_depth_limit(USES_REGS1)
 
 static int exec_absmi(ex_handler_t handle_ints, yap_reset_t reset_mode USES_REGS)
 {
-  volatile int lval, out;
+  int lval, out;
 
    Int OldBorder = LOCAL_CBorder;
    LOCAL_CBorder = LCL0 - (CELL *)B;
@@ -1346,16 +1337,15 @@ static int exec_absmi(ex_handler_t handle_ints, yap_reset_t reset_mode USES_REGS
   if (handle_ints) {
       CalculateStackGap(PASS_REGS1);
   }
-  lval = sigsetjmp(signew, 0);
-  volatile bool done=false;
-  while(!done) {
+    lval = sigsetjmp(signew, 0);
+bool done=false;
+    while(!done) {
     switch (lval)
     {
     case 0:
     { /* restart */
       out = Yap_absmi(0);
       done=true;
-      lval=0;
     }
     break;
     case 1:
@@ -1402,30 +1392,29 @@ static int exec_absmi(ex_handler_t handle_ints, yap_reset_t reset_mode USES_REGS
       LOCAL_RestartEnv = sigoldp;
       return false;
     }
+    case 5:
+         Yap_JumpToEnv();
+   if (handle_ints==THROW_EX) {
+      if (LCL0-(CELL*)B >= LOCAL_CBorder) {
+	Yap_RestartYap(6);
+      }
+      }
     case 6:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
 
-
-      //    Yap_CloseTemporaryStreams(top_stream);
-      
-      done = Yap_JumpToEnv();
-    case 5:
-      P=FAILCODE;
-      //   LOCAL_Error_TYPE = YAP_NO_ERROR;
       out = false;
-      lval = 0;
-      // Yap_absmi(0);
+//    Yap_CloseTemporaryStreams(top_stream);
+      lval=0;
       continue;
     }
     }
     }
-
-    //if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
-    //   Yap_RestartYap(6);
     LOCAL_CBorder = OldBorder;
     LOCAL_RestartEnv = sigoldp;
 
+    //if (LOCAL_RestartEnv && LOCAL_PrologMode & AbortMode)
+    //   Yap_RestartYap(6);
     LOCAL_PrologMode &= ~(AbortMode|InErrorMode);
     return out;
 

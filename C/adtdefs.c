@@ -159,7 +159,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   /* compute hash */
   p = atom;
   //printf("(%d)--> %s\n",iv++,atom);
-  if (atom==NULL) Yap_ThrowError(TYPE_ERROR_ATOM,TermNil,NULL);
+  if (atom==NULL) return NULL;
   if (atom[0]==0) return AtomEmpty;
     hash = HashFunction(p);
     hash = hash % sz;
@@ -637,7 +637,6 @@ lookup atom in atom table */
       p->ModuleOfPred = 0L;
     } else
       p->ModuleOfPred = cur_mod;
-    if (!strcmp(fe->NameOfFE->StrOfAE,"module"))
     // TRUE_FUNC_WRITE_LOCK(fe);
     INIT_LOCK(p->PELock);
     p->KindOfPE = PEProp;

@@ -410,7 +410,6 @@ static Int read_file_to_string(USES_REGS1) {
     }
   Term t = MkStringTerm("");
   if (sz) {
-    GrowStringTerm(t, sz);
     s = (char*)StringOfTerm(t);
     if (read(fildes,s, sz) < 0) {
       Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "error %s while opening %s", strerror(errno), s); 

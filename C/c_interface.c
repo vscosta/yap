@@ -223,7 +223,7 @@ static int doexpand(UInt sz) {
   CACHE_REGS
 
   gc_entry_info_t info;
-  Yap_track_cpred( P, 0, &info);
+  Yap_track_cpred( 0, P, 0, &info);
   if (!Yap_gc(&info)) {
     return FALSE;
   }
@@ -553,7 +553,7 @@ X_API Term YAP_MkPairTerm(Term t1, Term t2) {
     RECOVER_H();
     return TermNil;
     gc_entry_info_t info;
-    Yap_track_cpred(P, 0, &info);
+    Yap_track_cpred(0, P, 0, &info);
     if (!Yap_gc(&info)) {
     }
     BACKUP_H();
@@ -2175,7 +2175,7 @@ X_API Term YAP_ReadFromStream(int sno) {
       cause = MkAtomTerm(Yap_LookupAtom("  "));
     }
     RECOVER_MACHINE_REGS();
-    Yap_syntax_error(cause, -1, NULL, NULL, "while parsing atom");
+    Yap_syntax_error( cause, -1, NULL, NULL, "while parsing atom");
     return 0;
   } else {
     o = Yap_read_term(sno, TermNil, false);

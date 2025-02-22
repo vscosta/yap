@@ -80,19 +80,19 @@
  * Evaluation generates the following _Call_
  * exceptions:
  * 
- *    @exception `error(instantiation_error, Call )1 if not ground
+ *    @exception`error(instantiation_error, Call )1 if not ground
  * 
- *    @exception `type_error(evaluable( V ), Call) ` if not evaluable term
- *    @exception `type_error(integer( V ), Call) ` if must be integer
- *    @exception `type_error(float( V ), Call) ` if must be float
+ *    @exception`type_error(evaluable( V ), Call)` if not evaluable term
+ *    @exception`type_error(integer( V ), Call)` if must be integer
+ *    @exception`type_error(float( V ), Call)` if must be float
  * 
- *    @exception `domain_error(out_of_range( V ), Call) ` if argument invalid
- *    @exception `domain_error(not_less_than_zero( V ), Call) ` if argument must be
+ *    @exception`domain_error(out_of_range( V ), Call)` if argument invalid
+ *    @exception`domain_error(not_less_than_zero( V ), Call)` if argument must be
  * positive or zero
  * 
- *    @exception `evaluation_error(undefined( V ), Call) ` result is not defined
+ *    @exception`evaluation_error(undefined( V ), Call)` result is not defined
  * (nan)
- *    @exception `evaluation_error(overflow( V ), Call)` result is arithmetic
+ *    @exception`evaluation_error(overflow( V ), Call)` result is arithmetic
  * overflow
  * 
  *  */

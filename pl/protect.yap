@@ -52,7 +52,7 @@ prolog:'$protect' :-
     current_atom(Name),
     sub_atom(Name,0,1,_, '$'),
     \+ '$visible'(Name),
- %   hide_atom(Name),
+    hide_atom(Name),
     fail.
 prolog:'$protect'.
 

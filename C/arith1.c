@@ -23,83 +23,83 @@ static char     SccsId[] = "%W% %G%";
 
    @addtogroup arithmetic_operators
 
-   - **exp( _X_) [ISO]**<p> @anchor exp_1
+   - <b>exp( _X_) [ISO]</b><p> @anchor exp_1
 
    Natural exponential.
 
-   - **log( _X_) [ISO]**<p> @anchor log_1
+   - <b>log( _X_) [ISO]</b><p> @anchor log_1
 
    Natural logarithm.
 
-   - **log10( _X_)**<p> @anchor log10_1
+   - <b>log10( _X_)</b><p> @anchor log10_1
 
    Decimal logarithm.
 
-   - **sqrt( _X_) [ISO]**<p> @anchor sqrt_1
+   - <b>sqrt( _X_) [ISO]</b><p> @anchor sqrt_1
 
    Square root.
 
-   - **sin( _X_) [ISO]**<p> @anchor sin_1
+   - <b>sin( _X_) [ISO]</b><p> @anchor sin_1
 
    Sine.
 
-   - **cos( _X_) [ISO]**<p> @anchor cos_1
+   - <b>cos( _X_) [ISO]</b><p> @anchor cos_1
 
    Cosine.
 
-   - **tan( _X_) [ISO]**<p> @anchor tan_1
+   - <b>tan( _X_) [ISO]</b><p> @anchor tan_1
 
    Tangent.
 
-   - **asin( _X_) [ISO]**<p> @anchor asin_1
+   - <b>asin( _X_) [ISO]</b><p> @anchor asin_1
 
    Arc sine.
 
-   - **acos( _X_) [ISO]**<p> @anchor acos_1
+   - <b>acos( _X_) [ISO]</b><p> @anchor acos_1
 
    Arc cosine.
 
-   - **atan( _X_) [ISO]**<p> @anchor atan_1
+   - <b>atan( _X_) [ISO]</b><p> @anchor atan_1
 
    Arc tangent.
 
-   - **sinh( _X_)**<p> @anchor sinh_1
+   - <b>sinh( _X_)</b><p> @anchor sinh_1
 
    Hyperbolic sine.
 
-   - **cosh( _X_)**<p> @anchor cosh_1
+   - <b>cosh( _X_)</b><p> @anchor cosh_1
 
    Hyperbolic cosine.
 
-   - **tanh( _X_)**<p> @anchor tanh_1
+   - <b>tanh( _X_)</b><p> @anchor tanh_1
 
    Hyperbolic tangent.
 
-   - **asinh( _X_)**<p> @anchor asinh_1
+   - <b>asinh( _X_)</b><p> @anchor asinh_1
 
    Hyperbolic arc sine.
 
-   - **acosh( _X_)**<p> @anchor acosh_1
+   - <b>acosh( _X_)</b><p> @anchor acosh_1
 
    Hyperbolic arc cosine.
 
-   - **atanh( _X_)**<p> @anchor atanh_1
+   - <b>atanh( _X_)</b><p> @anchor atanh_1
 
    Hyperbolic arc tangent.
 
-   - **lgamma( _X_)**<p> @anchor lgamma_1
+   - <b>lgamma( _X_)</b><p> @anchor lgamma_1
 
    Logarithm of gamma function.
 
-   - **erf( _X_)**<p> @anchor erf_1
+   - <b>erf( _X_)</b><p> @anchor erf_1
 
    Gaussian error function.
 
-   - **erfc( _X_)**<p> @anchor erfc_1
+   - <b>erfc( _X_)</b><p> @anchor erfc_1
 
    Complementary gaussian error function.
 
-   - **random( _X_) [ISO]**<p> @anchor random_1_op
+   - <b>random( _X_) [ISO]</b><p> @anchor random_1_op
 
    An integer random number between 0 and  _X_.
 
@@ -107,56 +107,56 @@ static char     SccsId[] = "%W% %G%";
    point-number, the result is an integer and it the float is equidistant
    it is rounded up, that is, to the least integer greater than  _X_.
 
-   - **integer( _X_)**<p> @anchor integer_1_op
+   - <b>integer( _X_)</b><p> @anchor integer_1_op
 
    If  _X_ evaluates to a float, the integer between the value of  _X_ and 0 closest to the value of  _X_, else if  _X_ evaluates to an
    integer, the value of  _X_.
 
-   - **float( _X_) [ISO]**<p> @anchor float_1_op
+   - <b>float( _X_) [ISO]</b><p> @anchor float_1_op
 
    If  _X_ evaluates to an integer, the corresponding float, else the float itself.
 
-   - **float_fractional_part( _X_) [ISO]**<p> @anchor float_fractional_part_1
+   - <b>float_fractional_part( _X_) [ISO]</b><p> @anchor float_fractional_part_1
 
    The fractional part of the floating point number  _X_, or `0.0` if  _X_ is an integer. In the `iso` language mode,  _X_ must be an integer.
 
-   - **float_integer_part( _X_) [ISO]**<p> @anchor float_integer_part_1
+   - <b>float_integer_part( _X_) [ISO]</b><p> @anchor float_integer_part_1
 
    The float giving the integer part of the floating point number  _X_, or  _X_ if  _X_ is an integer. In the `iso` language mode,  _X_ must be an integer.
 
-   - **abs( _X_) [ISO]**<p> @anchor abs_1
+   - <b>abs( _X_) [ISO]</b><p> @anchor abs_1
 
    The absolute value of  _X_.
 
-   - **ceiling( _X_) [ISO]**<p> @anchor ceiling_1
+   - <b>ceiling( _X_) [ISO]</b><p> @anchor ceiling_1
 
    The integer that is the smallest integral value not smaller than  _X_.
 
    In `iso` language mode the argument must be a floating point-number and the result is an integer.
 
-   - **floor( _X_) [ISO]**<p> @anchor floor_1
+   - <b>floor( _X_) [ISO]</b><p> @anchor floor_1
 
    The integer that is the greatest integral value not greater than  _X_.
 
    In `iso` language mode the argument must be a floating
    point-number and the result is an integer.
 
-   - **round( _X_) [ISO]**<p> @anchor round_1
+   - <b>round( _X_) [ISO]</b><p> @anchor round_1
 
    The nearest integral value to  _X_. If  _X_ is equidistant to two integers, it will be rounded to the closest even integral value.
 
    In `iso` language mode the argument must be a floating point-number, the result is an integer and it the float is equidistant it is rounded up, that is, to the least integer greater than  _X_.
 
-   - **sign( _X_) [ISO]**<p> @anchor sign_1
+   - <b>sign( _X_) [ISO]</b><p> @anchor sign_1
 
    Return 1 if the  _X_ evaluates to a positive integer, 0 it if evaluates to 0, and -1 if it evaluates to a negative integer. If  _X_
    evaluates to a floating-point number return 1.0 for a positive  _X_, 0.0 for 0.0, and -1.0 otherwise.
 
-   - **truncate( _X_) [ISO]**<p> @anchor truncate_1
+   - <b>truncate( _X_) [ISO]</b><p> @anchor truncate_1
 
    The integral value between  _X_ and 0 closest to _X_.
 
-   - **rational( _X_)**<p> @anchor rational_1_op
+   - <b>rational( _X_)</b><p> @anchor rational_1_op
 
    Convert the expression  _X_ to a rational number or integer. The function returns the input on integers and rational numbers. For
    floating point numbers, the returned rational number exactly represents
@@ -173,7 +173,7 @@ static char     SccsId[] = "%W% %G%";
    ?- A is rational(0.1).
    A = 3602879701896397 rdiv 36028797018963968
    ```
-   - **rationalize( _X_)**<p> @anchor rationalize_1
+   - <b>rationalize( _X_)</b><p> @anchor rationalize_1
 
    Convert the expression _X_ to a rational number or integer. The function is
    vvxu    similar to [rational/1](@ref rational_1), but the result is only accurate within the
@@ -188,23 +188,23 @@ static char     SccsId[] = "%W% %G%";
 
    A = 1 rdiv 10
    ```
-   - **\\  _X_ [ISO]**<p>
+   - <b>\\  _X_ [ISO]</b><p>
 
    Integer bitwise negation.
 
-   - **msb( _X_)**<p> @anchor msb_1
+   - <b>msb( _X_)</b><p> @anchor msb_1
 
    The most significant bit of the non-negative integer  _X_.
 
-   - **lsb( _X_)**<p> @anchor lsb_1
+   - <b>lsb( _X_)</b><p> @anchor lsb_1
 
    The least significant bit of the non-negative integer  _X_.
 
-   - **popcount( _X_)**<p> @anchor popcount_1
+   - <b>popcount( _X_)</b><p> @anchor popcount_1
 
    The number of bits set to `1` in the binary representation of the non-negative integer  _X_.
 
-   - **1[ _X_]**<p>
+   - <b>[ _X_]</b><p>
 
    Evaluates to  _X_ for expression  _X_. Useful because character
    strings in Prolog are lists of character codes.
@@ -452,13 +452,10 @@ eval1(Int fi, Term t USES_REGS)
   case op_log:
     {
       Float dbl = get_float(t);
-      if (dbl > 0) {
+      if (dbl > 0 || !!isoLanguageFlag()) {
 	RFLOAT(log(dbl));
       } else if (dbl==0.0) {
-	if ( isoLanguageFlag())
-	  Yap_ThrowError(EVALUATION_ERROR_FLOAT_OVERFLOW, t, "integer (%f)");
-	else
-	RFLOAT(log(dbl));	  
+	  Yap_ThrowError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer (%f)");
       } else {
 	  Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "log(%f)", dbl);
       }
@@ -466,15 +463,10 @@ eval1(Int fi, Term t USES_REGS)
   case op_log10:
     {
       Float dbl = get_float(t);
-      if (dbl > 0)  {
+      if (dbl >= 0) {
 	RFLOAT(log10(dbl));
-      } else if (dbl==0.0) {
-	if ( isoLanguageFlag())
-	  Yap_ThrowError(EVALUATION_ERROR_FLOAT_OVERFLOW, t, "integer (%f)");
-	else
-	RFLOAT(log10(dbl));	  
       } else {
-	  Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "log(%f)", dbl);
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "log10(%f)", dbl);
       }
     }
   case op_sqrt:
@@ -821,7 +813,6 @@ eval1(Int fi, Term t USES_REGS)
     case big_int_et:
       return Yap_gmp_lsb(t);
     }
-
   case op_popcount:
     switch (ETypeOfTerm(t)) {
     case long_int_et:

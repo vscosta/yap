@@ -220,7 +220,7 @@ trace :-
 Ends tracing and exits the debugger. This is the same as
 nodebug/0.
  */
-notrace :-
+notrace :
     set_prolog_flag(trace,false),
     print_message(informational,debug(off)).
 
@@ -420,11 +420,9 @@ notrace(G) :-
 '$zip_at_port'(_Port,_GoalNo,_) :-
     current_prolog_flag( debug, false),
     !.
-'$zip_at_port'(_,GoalNo,M:T) :-
+'$zip_at_port'(_,_GoalNo,M:T) :-
     nb_getval('$spy_on', stop),
     recorded('$spy','$spy'(T,M),_),
-    nb_getval('$spy_start',StartGoal),
-    StartGoal \= GoalNo,
     !,
     fail.
 '$zip_at_port'(Port,GoalNo,_) :-

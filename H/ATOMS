@@ -708,7 +708,6 @@ F	StreamPos		StreamPos	4
 F	String1			String		1
 F	StyleCheck		StyleCheck	3
 F	Sub			Sub		2
-F	Sub5			Sub		5
 F	Sum			Sum		2
 F	SyntaxError		SyntaxError	4
 F	ShortSyntaxError	SyntaxError	1

@@ -492,7 +492,7 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
 #include "alloc.h"
 #include "terms.h"
 
-extern  PredEntry * Yap_track_cpred( yamop *p, size_t min, void *i );
+extern  PredEntry * Yap_track_cpred( op_numbers opcode, yamop *p, size_t min, void *i );
 extern Term Yap_protect_goal(PredEntry **pe0, Term t,Term mod,  Term t0);
 extern bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_REGS);
 

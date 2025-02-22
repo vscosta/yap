@@ -39,10 +39,10 @@ shared_fail:
 fail : {
 
 
+  register tr_fr_ptr pt0 = TR;
   CACHE_Y_AS_ENV(YREG); 
   check_stack(NoStackFail, HR);
   ENDCACHE_Y_AS_ENV();
-tr_fr_ptr pt0;
   failing:
   pt0 = TR;
 #if defined(YAPOR) || defined(THREADS)

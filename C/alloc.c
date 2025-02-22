@@ -130,12 +130,6 @@ if (DEBUG_DIRECT ||Yap_do_low_level_trace)
   //    Yap_DebugPuts(stderr,"gof\n");
 }
 
-/// @}
-///
-/// @defgroup USE_SYSTEM_MALLOC Use system malloc
-/// @ingroup MemAlloc
-/// @{
-/// 
 ///
 /// Call c-library's malloc, realloc, free and friends. We provide:
 /// 1. 
@@ -1654,7 +1648,7 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 /// @}
 ///
 /// @defgroup MALLOC_Wrapper  Stack allocated objects
-/// @ingroup MemAlloc
+/// @ingroup AllocProviders
 /// @{
 ///  The purpose of this wrapper is to be able to release heap data
 /// automatically when  a function segment terminates.

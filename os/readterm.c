@@ -213,9 +213,13 @@ static int parse_quasi_quotations(ReadData _PL_rd ARG_LD) {
 
 #endif /*O_QUASIQUOTATIONS*/
 
+
+
 #undef PAR
 
-#define READ_DEFS()                                                            \
+
+
+ #define READ_DEFS()                                                            \
   PAR("comments", is_output_list, READ_COMMENTS),                                 \
       PAR("module", isatom, READ_MODULE), PAR("priority", nat, READ_PRIORITY), \
       PAR("output", filler, READ_OUTPUT),                                      \
@@ -238,7 +242,7 @@ static int parse_quasi_quotations(ReadData _PL_rd ARG_LD) {
 
 #define PAR(x, y, z) z
 
-typedef enum open_enum_choices { READ_DEFS() } read_choices_t;
+typedef enum read_enum_choices { READ_DEFS() } read_choices_t;
 
 #undef PAR
 
@@ -1516,40 +1520,23 @@ static Int read_term(
   return out != 0L;
 }
 
-#define READ_CLAUSE_COMMENTS READ_COMMENTS
-#define READ_CLAUSE_MODULE READ_MODULE
-#define READ_CLAUSE_SCAN READ_SCAN
-#define READ_CLAUSE_VARIABLE_NAMES READ_VARIABLE_NAMES
-#define READ_CLAUSE_VARIABLES READ_VARIABLES
-#define READ_CLAUSE_TERM_POSITION READ_TERM_POSITION
-#define READ_CLAUSE_SYNTAX_ERRORS READ_SYNTAX_ERRORS
-#define READ_CLAUSE_OUTPUT READ_OUTPUT
-
-#undef PAR
-
-#define PAR(x, y, z)                                                           \
-  { x, y, z }
-
-static const param_t read_clause_defs[] = {READ_DEFS()};
-#undef PAR
-
 static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
   CACHE_REGS
 
   LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;
   xarg *args = Malloc(sizeof(xarg) * READ_END);
   memset(args, 0, sizeof(xarg) * READ_END);
-  args = Yap_ArgListToVector(opts, read_clause_defs, READ_END, args,
-                             TYPE_ERROR_READ_TERM);
+  args = Yap_ArgListToVector(opts, read_defs, READ_END, args,
+                             DOMAIN_ERROR_READ_OPTION);
   memset(fe, 0, sizeof(*fe));
   fe->reading_clause = true;
-  if (args && args[READ_CLAUSE_OUTPUT].used) {
-    fe->t0 = args[READ_CLAUSE_OUTPUT].tvalue;
+  if (args && args[READ_OUTPUT].used) {
+    fe->t0 = args[READ_OUTPUT].tvalue;
   } else {
     fe->t0 = 0;
   }
-  if (args && args[READ_CLAUSE_MODULE].used) {
-    fe->cmod = args[READ_CLAUSE_MODULE].tvalue;
+  if (args && args[READ_MODULE].used) {
+    fe->cmod = args[READ_MODULE].tvalue;
   } else {
     fe->cmod = LOCAL_SourceModule;
     if (fe->cmod == TermProlog)
@@ -1561,37 +1548,37 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
   fe->enc = GLOBAL_Stream[sno].encoding;
   fe->sp = 0;
   fe->qq = 0;
-  if (args && args[READ_CLAUSE_TERM_POSITION].used) {
-    fe->tp = args[READ_CLAUSE_TERM_POSITION].tvalue;
+  if (args && args[READ_TERM_POSITION].used) {
+    fe->tp = args[READ_TERM_POSITION].tvalue;
   } else {
     fe->tp = 0;
   }
   fe->sp = 0;
-  if (args && args[READ_CLAUSE_COMMENTS].used) {
-    fe->scanner.store_comments = (args[READ_CLAUSE_COMMENTS].used);
+  if (args && args[READ_COMMENTS].used) {
+    fe->scanner.store_comments = (args[READ_COMMENTS].used);
     fe->scanner.ecomms = args[READ_COMMENTS].tvalue;
   } else {
     fe->scanner.store_comments = false;
      fe->scanner.ecomms = TermNil;
   }
-  if (args && args[READ_CLAUSE_SYNTAX_ERRORS].used) {
-    re->sy = args[READ_CLAUSE_SYNTAX_ERRORS].tvalue;
+  if (args && args[READ_SYNTAX_ERRORS].used) {
+    re->sy = args[READ_SYNTAX_ERRORS].tvalue;
   } else {
     re->sy = TermDec10;
   }
   fe->vprefix = 0;
-  if (args && args[READ_CLAUSE_VARIABLE_NAMES].used) {
-    fe->np = args[READ_CLAUSE_VARIABLE_NAMES].tvalue;
+  if (args && args[READ_VARIABLE_NAMES].used) {
+    fe->np = args[READ_VARIABLE_NAMES].tvalue;
   } else {
     fe->np = 0;
   }
-  if (args && args[READ_CLAUSE_VARIABLES].used) {
-    fe->vprefix = args[READ_CLAUSE_VARIABLES].tvalue;
+  if (args && args[READ_VARIABLES].used) {
+    fe->vprefix = args[READ_VARIABLES].tvalue;
   } else {
     fe->vprefix = 0;
   }
-  if (args && args[READ_CLAUSE_SCAN].used) {
-    fe->scan = args[READ_CLAUSE_SCAN].tvalue;
+  if (args && args[READ_SCAN].used) {
+    fe->scan = args[READ_SCAN].tvalue;
   } else {
     fe->scan = 0;
   }

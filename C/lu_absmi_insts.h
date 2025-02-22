@@ -649,8 +649,7 @@
   {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
     Term t;
-    op_numbers op;
-    
+
     SET_ASP(YREG, EnvSizeInCells);
     saveregs();
     while ((t = Yap_FetchTermFromDB(cl->lusl.ClSource)) == 0L) {
@@ -667,8 +666,7 @@
       } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	gc_entry_info_t info;
-	Yap_track_cpred( P, 0, &info);
-op = _copy_idb_term;
+	Yap_track_cpred(_copy_idb_term, P, 0, &info);
 	if (!Yap_gc(&info)) {
 	  Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
 	  FAIL();

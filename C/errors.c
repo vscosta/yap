@@ -20,9 +20,8 @@
    @file errors.c
 
    @brief low-level error handling..
-*/
 
-/*   
+   
 @defgroup YAPErrors Error Handling
 
 @ingroup YAPControl
@@ -161,9 +160,6 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   set_key_t(culprit_t, "culprit_t", q, i, t);
   set_key_t(errorUserTerm, "errorUserTerm", q, i, t);
   set_key_s(prologStack, "prologStack", q, i, t);
-  set_key_s(currentGoal, "currentGoal", q, i, t);
-  set_key_s(continuationGoal, "continuationGoal", q, i, t);
-  set_key_s(alternativeGoal, "alternativeGoal", q, i, t);
   set_key_s(errorMsg, "errorMsg", q, i, t);
   set_key_i(errorMsgLen, "errorMsgLen", q, i, t);
   return false;
@@ -228,9 +224,6 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_b(parserReadingCode, "parserReadingCode", q, i);
   query_key_b(prologConsulting, "prologConsulting", q, i);
   query_key_s(prologStack, "prologStack", q, i);
-  query_key_s(currentGoal, "prologGoal", q, i);
-  query_key_s(continuationGoal, "continuationGoal", q, i);
-  query_key_s(alternativeGoal, "alternativeGoal", q, i);
   query_key_t(culprit_t, "culprit_t", q, i);
   query_key_t(errorUserTerm, "errorUserTerm", q, i);
   Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, MkAtomTerm(Yap_LookupAtom(q)), "Bad error parameter  %s in error query", q);
@@ -297,9 +290,6 @@ static void printErr(yap_error_descriptor_t *i, FILE *out) {
   print_key_b(out, "prologConsulting", i->prologConsulting);
   print_key_t(out, "culprit_t", i->culprit_t);
   print_key_s(out, "prologStack", i->prologStack);
-  print_key_s(out, "currentGoal", i->currentGoal);
-  print_key_s(out, "continuationGoal", i->continuationGoal);
-  print_key_s(out, "alternativeGoal", i->alternativeGoal);
   print_key_t(out, "errorUserterm", i->errorUserTerm);
   print_key_s(out, "errorMsg", (i->errorMsgLen == 0 ? "no message" : i->errorMsg));
   print_key_i(out, "errorMsgLen", i->errorMsgLen);
@@ -381,9 +371,6 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_b("prologConsulting", i->prologConsulting, o);
   o = add_key_t("culprit_t", i->culprit_t, o);
   o = add_key_s("prologStack", i->prologStack, o);
-  o = add_key_s("currentGoal", i->currentGoal, o);
-  o = add_key_s("continuationGoal", i->continuationGoal, o);
-  o = add_key_s("alternativeGoal", i->alternativeGoal, o);
   o = add_key_t("errorUserTerm", i->errorUserTerm, o);
   o = add_key_s("errorMsg", i->errorMsg, o);
   o = add_key_i("errorMsgLen", i->errorMsgLen, o);
@@ -659,10 +646,7 @@ static char tmpbuf[YAP_BUF_SIZE];
 
 #define ES(A, B, C)                                                            \
   case A: {                                                                    \
-    Term nt;\
-    if (i->culprit) nt = MkAtomTerm(Yap_LookupAtom(i->culprit));		\
-    else if (i->culprit_t) nt = i->culprit_t;\
-    else nt = TermEmpty;\
+    Term nt = MkAtomTerm(Yap_LookupAtom(i->culprit));			\
     ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(i->classAsText), 1), 1, &nt);        \
   }break;
 
@@ -768,20 +752,15 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 
     LOCAL_PrologMode = UserMode;
   }
-  //if (LCL0-(CELL*)B <LOCAL_CBorder)
-  Yap_ThrowExistingError();
+  Yap_RestartYap(5);
 }
 
 /// complete delayed error.
 
 void Yap_ThrowExistingError(void) {
   CACHE_REGS
-    
-    if (  Yap_JumpToEnv( )) {
+  P=FAILCODE;
   Yap_RestartYap(5);
-  return;
-    } else
-  Yap_RestartYap(6);
 }
 
 /// Wrap the error descriptor as exception/2
@@ -868,14 +847,10 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
                        Term where, Term extra, const char *s) {
   CACHE_REGS
-    #if 0
     if (type!= EVALUATION_ERROR_UNDEFINED ) { //&& LOCAL_Undef_CP == NULL) {
-      //gc_entry_info_t *i = v;
-      if (Yap_pc_add_location(r, P, B, ENV)) {
-	Yap_env_add_location(r, CP, B, ENV, 0);
-      }
-  }
-  #endif
+    if (!Yap_pc_add_location(r, P, B, ENV))
+      Yap_env_add_location(r, CP, B, ENV, 0);
+  } 
  r->errorNo = type;
  if (type != USER_DEFINED_EVENT &&
      type != USER_DEFINED_ERROR ) {
@@ -939,6 +914,14 @@ Term Yap_MkFullError(yap_error_descriptor_t *i, yap_error_number type) {
   }
 
 
+ if (type == SYNTAX_ERROR) {
+    i->errorClass = SYNTAX_ERROR_CLASS;
+    //      Yap_syntax_error(r, LOCAL_tokptr, LOCAL_toktide);
+  } else if (type == SYNTAX_ERROR_NUMBER) { // Yap_syntax_error(r, LOCAL_tokptr,
+                                            // LOCAL_toktide);
+    i->errorClass = SYNTAX_ERROR_CLASS;
+    type = SYNTAX_ERROR;
+  }
   if (type == INTERRUPT_EVENT) {
     fprintf(stderr, "%% YAP exiting: cannot handle signal\n");
     Yap_exit(1);
@@ -1070,12 +1053,6 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
       LOCAL_PrologMode |= AbortMode;
     }
     break;
-  case SYNTAX_ERROR_NUMBER: { // Yap_syntax_error(r, LOCAL_tokptr,
-    LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
-    LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
-    LOCAL_ActiveError->culprit_t = Yap_SaveTerm(where);
-    break;
-  }
   case CALL_COUNTER_UNDERFLOW_EVENT:
     // Do a long jump
     LOCAL_ReductionsCounterOn = FALSE;
@@ -1480,13 +1457,8 @@ static Int drop_exception(USES_REGS1) {
       }
       }
     } else {
-      if (LOCAL_ActiveError->culprit) {
-	tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
-	rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
-      } else  if (LOCAL_ActiveError->culprit_t) {
-	tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
-	rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
-      }
+      tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
+      rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
     }
     memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
   } else {
@@ -1674,11 +1646,9 @@ static Int must_be_arity1(USES_REGS1) {
   Term t = Deref(ARG1);
   return must_be_arity__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
-
 bool must_be_atom__(const char *file, const char *function, int lineno,
                     Term t USES_REGS) {
   // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
-  t = Deref(t);
   if (IsVarTerm(t)) {
     Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, "is atom");
     return false;
@@ -1694,27 +1664,6 @@ bool must_be_atom__(const char *file, const char *function, int lineno,
 static Int must_be_atom1(USES_REGS1) {
   Term t = Deref(ARG1);
   return must_be_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
-}
-
-bool must_be_string__(const char *file, const char *function, int lineno,
-                    Term t USES_REGS) {
-  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
-  t=Deref(t);
-  if (IsVarTerm(t)) {
-    Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, "is string");
-    return false;
-  }
-  if (IsStringTerm(t))
-    return true;
-  else {
-    Yap_ThrowError__(file, function, lineno, TYPE_ERROR_STRING, t, "is string");
-    return false;
-  }
-}
-
-static Int must_be_string1(USES_REGS1) {
-  Term t = Deref(ARG1);
-  return must_be_string__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
 
 bool must_be_char__(const char *file, const char *function, int lineno,
@@ -1768,33 +1717,6 @@ bool must_be_code__(const char *file, const char *function, int lineno,
 static Int must_be_code1(USES_REGS1) {
   Term t = Deref(ARG1);
   return must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
-}
-
-
-bool must_be_integer__(const char *file, const char *function, int lineno,
-                    Term t USES_REGS) {
-  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
-     Functor f;
-  if (IsVarTerm(t)) {
-    Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, "is atom");
-    return false;
-  }
-  return
-    IsIntTerm(t) || 
-    (
-     IsApplTerm(t) &&
-     (
-      (f=FunctorOfTerm(t)) == FunctorLongInt
-     ||
-     (f == FunctorBigInt && RepAppl(t)[1] == BIG_INT
-     )
-      )
-     );
-}
-
-static Int must_be_integer1(USES_REGS1) {
-  Term t = Deref(ARG1);
-  return must_be_integer__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
 
 
@@ -2140,14 +2062,12 @@ void Yap_InitErrorPreds(void) {
 
   Yap_InitCPred("must_be_arity", 1, must_be_arity1, TestPredFlag);
   Yap_InitCPred("must_be_atom", 1, must_be_atom1, TestPredFlag);
-  Yap_InitCPred("must_be_string", 1, must_be_string1, TestPredFlag);
   Yap_InitCPred("must_be_boolean", 1, must_be_boolean1, TestPredFlag);
   Yap_InitCPred("must_be_bound", 1, must_be_bound1, TestPredFlag);
   Yap_InitCPred("must_be_callable", 1, must_be_callable1, TestPredFlag);
   Yap_InitCPred("must_be_char", 1, must_be_char1, TestPredFlag);
   Yap_InitCPred("must_be_code", 1, must_be_code1, TestPredFlag);
   Yap_InitCPred("must_be_ground", 1, must_be_ground1, TestPredFlag);
-  Yap_InitCPred("must_be_integer", 1, must_be_integer1, TestPredFlag);
   Yap_InitCPred("must_be_list", 1, must_be_list1, TestPredFlag);
 
   Yap_InitCPred("must_be_predicate_indicator", 4, must_be_predicate_indicator1,
@@ -2155,6 +2075,6 @@ void Yap_InitErrorPreds(void) {
  Yap_InitCPred("is_list", 1, is_list1, TestPredFlag);
 }  
 
-/// @}
-
-
+/**
+@}
+*/

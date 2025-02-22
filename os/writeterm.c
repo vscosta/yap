@@ -190,6 +190,8 @@ bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
   CLOSE_LOCAL_STACKS_AND_RETURN(y0,lvl) o;
 }
 
+
+
 /** @pred  write_term(+ _T_, + _Opts_) is iso
 
 
@@ -360,15 +362,14 @@ static Int write_canonical(USES_REGS1) {
 
 static Int writeq1(USES_REGS1) {
 
-  Term t = TermTrue, tf = TermFalse;
+  Term t = TermTrue;
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
   Term opts =
       MkPairTerm(Yap_MkApplTerm(FunctorCycles,1,&t),
-	       MkPairTerm(Yap_MkApplTerm(FunctorNumberVars,1,&tf),
 			  MkPairTerm(Yap_MkApplTerm(FunctorQuoted,1,&t),
-				     TermNil)));
+				     TermNil));
   return Yap_WriteTerm(output_stream, ARG1, opts PASS_REGS);
 }
 

@@ -413,73 +413,119 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
   Term twork, t2;
   Atom at;
 
-
+  //cnt++;
+  //if (cnt==5312800) jmp_deb(1);
+  
   tin = Deref(ARG1);
   t2 = Deref(ARG2);
   if (IsVarTerm(tin)) {
-    Term t = t2;
-    Term *tailp;
-    int length = Yap_SkipList(&t, &tailp);
-    
+    /* we need to have a list */
+    Term *Ar;
     if (IsVarTerm(t2)) {
       Yap_ThrowError(INSTANTIATION_ERROR, t2, "(=..)/2");
-      return false;
+      return (FALSE);
     }
-    if (*tailp != TermNil) {
-     if (IsVarTerm(*tailp)) {
-      Yap_ThrowError(INSTANTIATION_ERROR, *tailp, "(=..)/2");
-      return false;
-     } else {
-           Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "(=..)/2");
-      return false;
+    if (!IsPairTerm(t2)) {
+      if (t2 == TermNil)
+        Yap_ThrowError(DOMAIN_ERROR_NON_EMPTY_LIST, t2, "(=..)/2");
+      else
+        Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "(=..)/2");
+      return (FALSE);
     }
+    twork = HeadOfTerm(t2);
+    if (IsVarTerm(twork)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
+      return (FALSE);
     }
-    /* we have a list */
-     if (length==0){
-       Yap_ThrowError(DOMAIN_ERROR_NON_EMPTY_LIST, t2, "(=..)/2");
-      return false;
-     }
-     t = HeadOfTerm(t2);
-     if (IsVarTerm(t)) {
-      Yap_ThrowError(INSTANTIATION_ERROR, t, "(=..)/2");
-      return false;
-     }
-     if (length==1) {
-       if (IsAtomTerm(t) || IsNumTerm(t) ||
-	   (
-	    (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t)))))
-	 return Yap_unify(ARG1,t);
-        Yap_ThrowError(TYPE_ERROR_ATOMIC, t, "(=..)/2");
-	return false;
-     }
-     // size>1
-     if (!IsAtomTerm(t)) {
-        Yap_ThrowError(TYPE_ERROR_ATOM, t, "(=..)/2");
-	return false;
-     }
-     if (HR+length > ASP-1024) {
-       if (!Yap_dogc(PASS_REGS1)) {
+    if (IsNumTerm(twork)) {
+      Term tt = TailOfTerm(t2);
+      if (IsVarTerm(tt)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, tt, "(=..)/2");
+        return (FALSE);
+      }
+      if (tt != MkAtomTerm(AtomNil)) {
+        Yap_ThrowError(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
+        return (FALSE);
+      }
+      return (Yap_unify_constant(ARG1, twork));
+    }
+    if (!IsAtomTerm(twork)) {
+      Term tt = TailOfTerm(t2);
+      if (IsVarTerm(tt)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
+        return (FALSE);
+      } else if (tt == MkAtomTerm(AtomNil)) {
+        Yap_ThrowError(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
+        return (FALSE);
+      } else {
+        Yap_ThrowError(TYPE_ERROR_ATOM, twork, "(=..)/2");
+        return (FALSE);
+      }
+    }
+    at = AtomOfTerm(twork);
+    twork = TailOfTerm(t2);
+    if (IsVarTerm(twork)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
+      return (FALSE);
+    } else if (!IsPairTerm(twork)) {
+      if (twork != TermNil) {
+        Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "(=..)/2");
+        return (FALSE);
+      }
+      return (Yap_unify_constant(ARG1, MkAtomTerm(at)));
+    }
+  build_compound:
+    /* build the term directly on the heap */
+    Ar = HR;
+    HR++;
+
+    while (!IsVarTerm(twork) && IsPairTerm(twork)) {
+      *HR++ = HeadOfTerm(twork);
+      if (HR > ASP - 1024) {
+        /* restore space */
+        HR = Ar;
+        if (!Yap_dogc(PASS_REGS1)) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-          return false;
+          return FALSE;
         }
-       t2 = Deref(ARG2);
-       t = HeadOfTerm(t2);
-     }
-     if (length == 3 && t == TermDot) {
-       t2 = TailOfTerm(t2);
-       Term rc = MkPairTerm(HeadOfTerm(t2),HeadOfTerm(TailOfTerm(t2)));
-     return Yap_unify(ARG1,rc);
-     }
-     Term rc = AbsAppl(HR);
-     *HR++ = (CELL)Yap_MkFunctor(AtomOfTerm(t),length-1);
-     while (true) {
-       t2 = TailOfTerm(t2);
-       if (t2 == TermNil)
-	 return Yap_unify(ARG1,rc);
-       *HR++ = HeadOfTerm(t2);
-     }
+        twork = TailOfTerm(Deref(ARG2));
+        goto build_compound;
+      }
+      twork = TailOfTerm(twork);
+    }
+    if (IsVarTerm(twork)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
+      return (FALSE);
+    }
+    if (twork != TermNil) {
+      Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "(=..)/2");
+      return (FALSE);
+    }
+#ifdef SFUNC
+    DOES_NOT_WORK();
+    {
+      SFEntry *pe = (SFEntry *)Yap_GetAProp(at, SFProperty);
+      if (pe)
+        twork = MkSFTerm(Yap_MkFunctor(at, SFArity), arity, CellPtr(TR),
+                         pe->NilValue);
+      else
+        twork = Yap_MkApplTerm(Yap_MkFunctor(at, arity), arity, CellPtr(TR));
+    }
+#else
+    arity = HR - Ar - 1;
+    if (at == AtomDot && arity == 2) {
+      Ar[0] = Ar[1];
+      Ar[1] = Ar[2];
+      HR--;
+      twork = AbsPair(Ar);
+    } else {
+      *Ar = (CELL)(Yap_MkFunctor(at, arity));
+      twork = AbsAppl(Ar);
+    }
+#endif
+    return (Yap_unify(ARG1, twork));
   }
-     if (IsAtomicTerm(tin)) {
+  if (IsAtomicTerm(tin)) {
     twork = MkPairTerm(tin, MkAtomTerm(AtomNil));
     return (Yap_unify(twork, ARG2));
   }
@@ -1022,7 +1068,7 @@ void Yap_show_statistics(void) {
                (Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase))),
       Unsigned(sizeof(tr_fr_ptr) * (Unsigned(TR) - Unsigned(LOCAL_TrailBase))));
   fprintf(stderr, "Runtime: " UInt_FORMAT "\n", runtime(PASS_REGS1)/1000000);
-  fprintf(stderr, "Cputime:  " UInt_FORMAT "\n", Yap_cputime()/1000000);
+  fprintf(stderr, "Cputime:  %" PRIu64 "\n", Yap_cputime()/1000000);
 
   fprintf(stderr, "Walltime: %" PRIu64 ".\n", Yap_walltime() / (UInt)1000000);
 }
@@ -1311,7 +1357,7 @@ static Int p_dump_active_goals(USES_REGS1) {
   return (TRUE);
 }
 #endif
-//Y#define INES 1
+
 #ifdef INES
 static Int p_euc_dist(USES_REGS1) {
   Term t1 = Deref(ARG1);
@@ -1326,7 +1372,7 @@ static Int p_euc_dist(USES_REGS1) {
   return (Yap_unify(ARG3, MkIntegerTerm(result)));
 }
 
-volatile static int loop_counter = 0;
+volatile int loop_counter = 0;
 
 static Int p_loop(USES_REGS1) {
   while (loop_counter == 0)
@@ -1433,6 +1479,10 @@ void Yap_InitCPreds(void) {
 #ifdef YAP_JIT
   Yap_InitCPred("$jit_init", 1, p_jit, SafePredFlag | SyncPredFlag);
 #endif /* YAPOR */
+#ifdef INES
+  Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
+  Yap_InitCPred("loop", 0, p_loop, SafePredFlag);
+#endif
 #if QSAR
   Yap_InitCPred("in_range", 8, p_in_range, TestPredFlag | SafePredFlag);
   Yap_InitCPred("in_range", 4, p_in_range2, TestPredFlag | SafePredFlag);
@@ -1506,10 +1556,6 @@ void Yap_InitCPreds(void) {
 
     Yap_InitForeignPreds();
   }
-#endif
-#ifdef INES
-  Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
-  Yap_InitCPred("loop", 0, p_loop, SafePredFlag);
 #endif
 #if APRIL
   {

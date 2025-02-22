@@ -292,7 +292,6 @@ mksys(op(A,B,C)) :-
 :- ensure_loaded('../os/edio.yap').
 
 :- ensure_loaded('spy.yap').
-:- ensure_loaded('if.yap').
 
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
 

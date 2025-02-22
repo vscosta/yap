@@ -145,6 +145,7 @@ typedef struct regstore_t
 #endif /* YAPOR_SBA */
 #endif /* YAPOR || THREADS */
     yamop *ARITH_EXCEPTION_;
+    struct cut_c_str *CUT_C_TOP;
     tr_fr_ptr   CurrentTrailTop_;	/* 10 Auxiliary stack top                     */
     ADDR   AuxBase_;		/* 9 Auxiliary base  pointer                  */
     CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
@@ -512,7 +513,7 @@ INLINE_ONLY  void restore_TR(void) {
 #else
 /** continuation   program counter: what to do when we exit the goal.         */
 #define CP         (Yap_REGS.CP_)	
-#define P          Yap_REGS .P_	/* prolog machine program counter */
+#define P          Yap_REGS.P_	/* prolog machine program counter */
 /** current environment (may be pointing at an enevironment frame before the neck sets ENV) */
 #define YENV       (Yap_REGS).YENV_ 
 #define S          Yap_REGS.S_	/* structure pointer                      */

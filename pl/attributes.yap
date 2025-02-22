@@ -16,7 +16,11 @@
 *************************************************************************/
 /**
   @file attributes.yap
-*/
+
+  @addtogroup HPAtts
+
+  @{
+
 */	
 
 :- module(attributes,
@@ -25,11 +29,6 @@
 	      attvars_residuals/3]
 %	  [copy_term/3]
 	 ).
-/**
-  @addtogroup HPAtts
-
-  @{
-*/
 
 :- dynamic existing_attribute/4.
 :- dynamic modules_with_attributes/1.

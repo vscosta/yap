@@ -60,7 +60,8 @@
         setup_call_catcher_cleanup/4,
         setup_call_cleanup/3,
         version/0,
-        version/1], [  '$set_toplevel_hook'/1]).
+        version/1], ['$run_atom_goal'/1,
+        '$set_toplevel_hook'/1]).
 
 :- use_system_module( '$_boot', ['$call'/4,
         '$disable_debugging'/0,
@@ -79,8 +80,7 @@
 /**
 
 
-@defgroup YAPControl
-@ingroup Builtins
+@addtogroup YAPControl
 
 @{
 
@@ -691,7 +691,7 @@ halt(X) :-
 prolog_current_frame(Env) :-
 	Env is '$env'.
 
-run_atom_goal(GA) :-
+'$run_atom_goal'(GA) :-
 	'$current_module'(Module),
 	atom_to_term(GA, G, _),
 	catch(Module:G, _Error,error_handler),

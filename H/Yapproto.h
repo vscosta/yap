@@ -150,7 +150,7 @@ extern void Yap_BuildMegaClause(struct pred_entry *);
 extern void Yap_EraseMegaClause(yamop *, struct pred_entry *);
 extern void Yap_ResetConsultStack(void);
 extern void Yap_AssertzClause(struct pred_entry *, yamop *);
-extern bool Yap_HidePred(struct pred_entry *pe);
+extern void Yap_HidePred(struct pred_entry *pe);
 extern int Yap_SetNoTrace(char *name, UInt arity, Term tmod);
 extern bool Yap_unknown(Term tflagvalue);
 extern struct pred_entry *Yap_MkLogPred(struct pred_entry *pe);
@@ -178,8 +178,8 @@ extern void Yap_DebugPlWriteln(Term t);
 extern void Yap_InitCopyTerm(void);
 extern Term Yap_CopyTerm(Term);
 extern Term CopyTermToArena(Term t,
-                            bool share, bool copy_att_vars,yap_error_number *errp,
-                            Term *arenap, Term *bindp USES_REGS);
+       bool share, bool copy_att_vars,yap_error_number *errp,
+			    Term *arenap, Term *bindp USES_REGS);
 
 /* corout.c */
 extern void Yap_InitCoroutPreds(void);

@@ -1199,7 +1199,7 @@ static Int nb_beam(USES_REGS1) {
                 StackGap(PASS_REGS1) + (5 * hsize + HEAP_START + 1 + arena_sz);
 
         gc_entry_info_t info;
-        Yap_track_cpred(P, 0, &info);
+        Yap_track_cpred(0, P, 0, &info);
         // p should be past the environment minus Obpp
         if (!Yap_gc(&info)) {
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
