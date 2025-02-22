@@ -717,7 +717,7 @@ static int slot_to_sexp(term_t t, SEXP *ansP) {
   term_t tslot = PL_new_term_ref();
   char *s = NULL;
   SEXP tmp_R, name_R;
-//  int nprotect = 0;
+  int nprotect = 0;
   if (!PL_get_arg(2, t, tslot))
     return FALSE;
   if (PL_is_pair(tslot) || PL_is_functor(tslot, FUNCTOR_dot1)) {
