@@ -69,7 +69,7 @@ xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
        return NULL;
     }
      Term *tailp;
-     int len = Yap_SkipList(&listl, &tailp);
+     Yap_SkipList(&listl, &tailp);
      if (IsVarTerm(*tailp))  {
        Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, listl,
 			"tyring to open    listl = [...|_]");
@@ -83,7 +83,6 @@ xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
        a = calloc(n, sizeof(xarg));
      }
      
-     int i;
      while (listl!=TermNil) {
        Term  hd = HeadOfTerm(listl);
        Atom at;

@@ -365,7 +365,7 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- dynamic user:exception/3.
 
-:- module(user).
+x:- module(user).
 
 
 :- ensure_loaded('../pl/pathconf.yap').
