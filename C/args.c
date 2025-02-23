@@ -63,8 +63,35 @@ xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
 	 }
        }
      else if  (IsApplTerm(listl)) {
-       listl = MkPairTerm(listl,TermNil);
-     } else if (!IsPairTerm(listl)) {
+       Term hd = listl;
+	 Functor f = FunctorOfTerm(hd);
+	 if (IsExtensionFunctor(f)) {
+      Yap_ThrowError__(file, function, lineno, TYPE_ERROR_LIST, listl, "callable");
+       return NULL;
+ 	 }
+	 arity_t arity = ArityOfFunctor(f);
+	 if (arity != 1) {
+      Yap_ThrowError__(file, function, lineno, TYPE_ERROR_LIST, listl, "callable");
+       return NULL;
+     	 }
+	Atom at =	 NameOfFunctor(f);    
+         int pos =Yap_ArgKey(at, def, n);
+     if (pos < 0) {
+       Yap_ThrowError__(file, function, lineno, TYPE_ERROR_LIST, listl, "callable");
+       return NULL;
+     }
+       if (!a[pos].used) {
+	 if (IsApplTerm(hd)) {
+	   a[pos].tvalue = ArgOfTerm(1, hd);
+	 } else {
+	   a[pos].tvalue = TermNil;
+	 };
+	 a[pos].used = true;
+	 a[pos].source = hd;
+       }
+       return a;
+     }
+     else if (!IsPairTerm(listl)) {
        Yap_ThrowError__(file, function, lineno, TYPE_ERROR_LIST, listl, "callable");
        return NULL;
     }
@@ -91,6 +118,7 @@ xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
 			  "argument unbound");
 	 return NULL;
        } else if (IsApplTerm(hd)) {
+	
 	 Functor f = FunctorOfTerm(hd);
 	 if (IsExtensionFunctor(f)) {
            Yap_ThrowError__(file, function, lineno, err, hd, "bad compound");
@@ -105,6 +133,7 @@ xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,
        } else if (IsAtomTerm(hd)) {
 	 at = AtomOfTerm(hd);
        } else {
+          Yap_ThrowError__(file, function, lineno, err, hd,                                            "high arity");                                 
 	 return NULL;
        }
       int pos =Yap_ArgKey(at, def, n);
