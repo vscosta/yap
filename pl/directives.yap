@@ -135,6 +135,33 @@
     '$exec_directive'(G, Mode, M, VL, Pos).
 '$exec_directive'(discontiguous(D), _, M, _, _) :-
 	'$discontiguous'(D,M).
+/** @pred initialization(+ _G_) is iso
+
+Theu compiler will execute goals  _G_ after consulting the current
+file. Only the first answer is
+considered.
+
+Notice that the goal will execute in the calling context, not within the file context,
+In other words, the source module and execution directory will be the ones of the parent
+environment. Use initialization/2 for more flexible behavior.
+
+*/
+/** @pred initialization(+ _Goal_,+ _When_)
+
+Similar to initialization/1, but allows  specifying when
+ _Goal_ is executed while loading the program-text:
+
+
+    + now
+      Execute  _Goal_ immediately.
+
+    + after_load
+      Execute  _Goal_ after loading program-text. This is the same as initialization/1.
+
+    + restore
+      Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
+
+*/
 '$exec_directive'(M:A, Status, _M, VL, Pos) :-
 	'$exec_directives'(A, Status, M, VL, Pos).
 '$exec_directive'(initialization(D), _, M, _, _) :-

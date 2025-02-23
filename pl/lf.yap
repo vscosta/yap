@@ -317,11 +317,16 @@
     close(Stream).
 
 '$load_stream__'(Type,File,Stream, Y, M, Opts, Call) :-
-    '$lf'(always, Type, File, Y,  Stream, M, Call, Opts),
+    '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
+    b_setval('$opts',Opts),
+    '$lf'(always, Type, File, Y,  Stream, M, Call, Opts, TOpts),
      close(Stream),
      !.
 
+    
 '$load_file__'(Type,File,Stream, Y, M, Opts, Call) :-
+    '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
+    '$mk_file_opts'(TOpts) ,
     (
 	'$memberchk'(if(If), Opts)
     ->
@@ -329,27 +334,6 @@
     ;
     If = true
     ),
-    '$lf'(If, Type, File, Y,  Stream, M, Call, Opts).
-
-% consulting from a stream
-'$lf'(not_loaded, _Type,_UserFile,File, _Stream, HostM, _Call, Opts) :-
-    '$file_loaded'(File, HostM, DonorM), !,
-    '$import_module'(DonorM, HostM,File, Opts).
-'$lf'(unchanged, _Type,_UserFile,File,_Stream, HostM, _Call, Opts) :-
-    '$file_unchanged'(File, HostM, DonorM), !,
-    '$import_module'(DonorM, HostM,File, Opts).
-'$lf'(_, qly, _UserFile,File,Stream, OuterModule, _Call, Opts) :-
-    % check if there is a qly file
-    stream_property(Stream, file_name(Y)),
-    '$qload_file'(Stream, OuterModule, File, Y, _Imports, Opts).
-'$lf'(_, _Type, UserFile,File,Stream, OuterModule, Call, Opts) :-
-    file_directory_name(File, Dir),
-    working_directory(OldD,OldD),
-    !,
-    prompt1(': '), prompt(_,'     '),
-    '$mk_opts'(Opts,File,Stream,OuterModule,Call,TOpts),
-    b_setval('$opts',Opts),
-    '$mk_file_opts'(TOpts) ,
     (
 	'$memberchk'(qcompile(QCompiling), Opts)
     ->
@@ -359,6 +343,34 @@
     ),
     '__NB_getval__'('$qcompile', ContextQCompiling, (ContextQCompiling = never)),
     nb_setval('$qcompile', QCompiling),
+    '$lf'(If, Type, File, Y,  Stream, M, Call, Opts, TOpts),
+     nb_setval('$qcompile', ContextQCompiling).
+
+
+% consulting from a stream
+'$lf'(not_loaded, _Type,_UserFile,File, _Stream, HostM, _Call, Opts, _TOpts) :-
+    '$file_loaded'(File, HostM, DonorM), !,
+    '$import_module'(DonorM, HostM,File, Opts).
+'$lf'(unchanged, _Type,_UserFile,File,_Stream, HostM, _Call, Opts, _TOpts) :-
+    '$file_unchanged'(File, HostM, DonorM), !,
+    '$import_module'(DonorM, HostM,File, Opts).
+'$lf'(_, qly, _UserFile,File,Stream, OuterModule, _Call, _Opts, TOpts) :-
+    % check if there is a qly file
+		(
+	  '$q_header'( Stream, Type ),
+	 Type == file
+	->
+	 !
+	 ;
+	fail
+	),
+	stream_property(Stream, file_name(Y)),
+       '$qload_file'(Stream, OuterModule, File, Y, _Imports, TOpts).
+'$lf'(_, _Type, UserFile,File,Stream, OuterModule, _Call, Opts, TOpts) :-
+    file_directory_name(File, Dir),
+    working_directory(OldD,OldD),
+    !,
+    prompt1(': '), prompt(_,'     '),
     %	format( 'I=~w~n', [Verbosity=UserFile] ),
     % export to process
     '$conditional_compilation_get_state'(State),
@@ -398,15 +410,13 @@
        '$memberchk'(dry_run(true),Opts)
    ->
    '$dry_loop'(Stream,Reconsult)
-       ;
-       writeln(File),
+; 
   '$loop'(Stream,Reconsult)
  
    ),
    ( LC == 0 -> prompt(_,'   |: ') ; true),
     current_source_module(OldM,_M0),
-    nb_setval('$qcompile', ContextQCompiling),
- % surely, we were in run mode or we would not have included the file!
+    % surely, we were in run mode or we would not have included the file!
     % back to include mode!
 %	'$memberchk'(must_be_module, Opts),
 %	'$bind_module'(InnerModule, UseModule),
@@ -419,7 +429,7 @@
    InnerModule=OldM),
     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
  '$end_consult'(OldD),
- '$initialization_goals'(File),
+ '$exec_initialization_goals'(File),
     !.
 
 '$dry_loop'(Stream,_Status) :-
@@ -468,13 +478,14 @@ enter_compiler(Stream,Status) :-
     (
 	Clause == end_of_file
     ->
+
     !
     ;
     '$conditional_compilation_skip'(Clause)
     ->
     fail
-    ; 
-   call_compiler(Clause, Status,Vars,Pos),
+    ;
+    call_compiler(Clause, Status,Vars,Pos),
     fail
 	).
 

@@ -154,11 +154,9 @@ initialize_prolog :-
 :- c_compile('atoms.yap').
 
 :- c_compile('absf.yap').
+
 :- c_compile('lf.yap').
 :- c_compile('consult.yap').
-
-:- c_compile('if.yap').
-
 :- compile('error.yap').
 
 
@@ -256,33 +254,44 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 :- dynamic system:goal_expansion/3.
 
-:- ensure_loaded('messages.yap').
+:- use_module('messages.yap').
 
 
 :- ['undefined.yap'].
+
+export_from_prolog([]).
+export_from_prolog([P|Ps]) :-
+    mksys(P),
+    export_from_prolog(Ps).
+
+mksys(F/N) :-
+    '$new_system_predicate'(F,N,prolog).
+mksys(F/N) :-
+    N2 is N+2,
+    '$new_system_predicate'(F,N2,prolog).
+mksys(op(A,B,C)) :-
+    op(A,B,prolog:C).
 
 % system_module(M,PrologExports,MExports) :-
 %    export_from_prolog(PrologExports),
 %    '$declare_system_module'(_, prolog, M, MExports, []).
 
-:- ensure_loaded('hacks.yap').
+:- use_module('hacks.yap').
 
 %:- start_low_level_trace.
-:- ensure_loaded('attributes.yap').
+:- use_module('attributes.yap').
 %:- stop_low_level_trace.
-:- ensure_loaded('threads.yap').
+:- use_module('threads.yap').
 
-:- ensure_loaded('corout.yap').
+:- use_module('corout.yap').
 
-:- ensure_loaded('dialect.yap').
-:- ensure_loaded('dbload.yap').
-:- ensure_loaded('ypp.yap').
-:- ensure_loaded('../os/chartypes.yap').
+:- use_module('dialect.yap').
+:- use_module('dbload.yap').
+:- use_module('ypp.yap').
+:- use_module('../os/chartypes.yap').
 :- ensure_loaded('../os/edio.yap').
 
 :- ensure_loaded('spy.yap').
-
-
 
 :- '$change_type_of_char'(36,7). % Make $ a symbol character
 
@@ -365,7 +374,7 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- dynamic user:exception/3.
 
-x:- module(user).
+:- module(user).
 
 
 :- ensure_loaded('../pl/pathconf.yap').

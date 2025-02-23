@@ -231,8 +231,7 @@ qend_program :-
 '$x_sprolog_flag'(language, V) :-
 	current_prolog_flag(language, V).
 '$x_current_prolog_flag'(M:P, V) :-
-    current_module(M),
-    M\=swi,
+	current_module(M),
 	yap_flag(M:P, V).
 '$x_current_prolog_flag'(X, V) :-
 	prolog_flag_property(X, [access(read_write)]),
