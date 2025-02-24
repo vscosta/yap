@@ -147,9 +147,13 @@ split_element(_SplitCodes,  _DoubleQs, _SingleQs, [[]]) --> [].
 
 
 encode(P,S) :-
+    pi2dox(P,S),
+    !.
+
+encode(P,S) :-
     pred2dox(P,S),
     !.
-encode(S,S).
+    encode(S,S).
 
 decode(P,S) :-
     dox2pred(P,S),
@@ -164,7 +168,9 @@ pred2dox(Pred, String) :-
 
     string_chars(Pred,Cs),
     foldl(csafe,Cs,PCs,[]),
+    !,
     string_chars(String,['P'|PCs]).
+pred2dox(Pred,Pred).
 
 dox2pred(String,Pred) :-
     string_chars(String,['P'|Cs]),
@@ -188,33 +194,31 @@ rcov([C|NL],L) :-
 rcov([C|L0],[C|NL]) :-
     rcov(L0,NL).
 
-
-char_to_safe('=',['_',e,q|L],L).
-char_to_safe('<',['_',l,t|L],L).
-char_to_safe('>',['_',g,t|L],L).
-%char_to_safe('_',['_','u','l'|L],L).
-char_to_safe('!',['_',c,t|L],L).
-char_to_safe('-',['_',m,n|L],L).
-char_to_safe('+',['_',p,l|L],L).
-char_to_safe('*',['_',s,t|L],L).
-char_to_safe('/',['_',s,l|L],L).
-char_to_safe('\\',['_',b,k|L],L).
-char_to_safe('$',['_',d,l|L],L).
-char_to_safe('[',['_',o,s|L],L).
-char_to_safe(']',['_',l,s|L],L).
-char_to_safe('^',['_',h,t|L],L).
-char_to_safe('%',['_',p,c|L],L).
-char_to_safe('&',['_',t,e|L],L).
-char_to_safe('(',['_',o,b|L],L).
-char_to_safe(')',['_',l,b|L],L).
-char_to_safe('.',['_',d,t|L],L).
-char_to_safe(',',['_',c,m|L],L).
-char_to_safe(';',['_',s,c|L],L).
-char_to_safe('|',['_',v,b|L],L).
-char_to_safe('\'',['_',q,t|L],L).
-char_to_safe('\"',['_',d,q|L],L).
-char_to_safe('`',['_',b,q|L],L).
-char_to_safe('#',['_',s,q|L],L).
-char_to_safe('@',['_',a,t|L],L).
-char_to_safe('?',['_',q,m|L],L).
-char_to_safe(':',['_',c,o|L],L).
+/* translate >= to UNU */
+char_to_safe(C,['U',A,'U'|Next],Next) :-
+    var(C),
+    !,
+    char_code(A,IA),
+    CA is IA-0'0,
+    code_char(CA,C).
+char_to_safe(C,['U',A,B,'U'|Next],Next) :-
+    var(C),
+    !,
+    char_code(A,IA),
+    char_code(B,IB),
+    CA is (IA-0'0)*16+(IB-0'0),
+    code_char(CA,C).
+char_to_safe(C,[C|NL],NL) :-
+    var(C),
+    !.
+/* translate >= to UNU */
+char_to_safe('U',NL,L) :-
+    !,
+   format(chars(NL, L), 'U~16rU', [0'U]).
+char_to_safe(C,[C|L],L) :-
+    char_type(C,alnum),
+    !.
+char_to_safe(C,NL,L) :-
+    char_code(C,Code),
+   format(chars(NL, L), 'U~16rU', [Code]).
+    

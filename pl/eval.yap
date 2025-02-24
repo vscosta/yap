@@ -24,7 +24,7 @@
   *
   * @defgroup CompiledExpressions Compiled Form of Arithmetic Expressions in Prolog
   * @ingroup Directives
-  *
+  * @{
   *
 */
 :- system_module_( '$_eval', [], ['$full_clause_optimisation'/4]).
@@ -168,10 +168,10 @@ functor(P,_N,A),
 /**
  * @pred evaluable_property(P, Type)
  *
- * True if _P_ is an arithmetic functor;  _Yype_ in YAP always unifies with
+ * True if _P_ is an arithmetic functor;  _Type_ in YAP always unifies with
  *`static` and `built_in`.
  *
- * The main functor of _P_ must be instantiatted.
+ * The main functor of _P_ must be instantiated.
  */
 evaluable_property(P, Type) :-
 must_be_callable(P),
@@ -204,6 +204,4 @@ must_be_callable(P),
      between(0,100,I),
      ('$current_evaluable_property0'(I,P) -> true ; !, fail).
 
-
-    
-
+%% @}

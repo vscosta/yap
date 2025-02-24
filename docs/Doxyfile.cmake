@@ -7,8 +7,6 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 set(DOX_MD_FILES
   ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md)
 
-file( COPY ${CMAKE_SOURCE_DIR}/docs/filter.yap DESTINATION .)
-
 file( MAKE_DIRECTORY sphinx )
 file( MAKE_DIRECTORY sphinx/source)
 file( MAKE_DIRECTORY sphinx/source/images)

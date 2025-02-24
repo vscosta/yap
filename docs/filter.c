@@ -17,54 +17,12 @@ static char *protect_class( char where[], const char *what, size_t sz, int arity
   char *out = where+1;
   for (i=0;i<sz;i++) {
     int ch=what[i];
-    if (isalnum(ch)|| ch == '_') {
-	*out++=ch;
-    } else 
-      switch(ch) {
-      case '=':
-	out = stpcpy(out,"_eq");
-	break;
-      case '<':
-	out = stpcpy(out,"_lt");
-	break;
-      case '>':
-	out = stpcpy(out,"_gt");
-	break;
-      case '!':
-	out = stpcpy(out,"_ct");
-	break;
-      case '-':
-	out = stpcpy(out,"_eq");
-	break;
-      case '+':
-	out = stpcpy(out,"_pl");
-	break;
-      case '*':
-	out = stpcpy(out,"_st");
-	break;
-      case '/':
-	out = stpcpy(out,"_sl");
-	break;
-      case '$':
-	out = stpcpy(out,"_dl");
-	break;
-      case '[':
-	out = stpcpy(out,"_os");
-	break;
-      case ']':
-	out = stpcpy(out,"_ls");
-	break;
-      case '.':
-	out = stpcpy(out,"_dt");
-	break;
-      default:
-	fprintf(stderr, "ERROR:  missing suport for %c.n",ch);
-	return NULL;
-      }
+    if (isalnum(ch)&&ch!='U') {
+      *out++=ch;
+    } else {
+      sprintf(out,"U%xU",ch);
+    }
   }
-  out=stpcpy(out,"_sl");
-  out[0] = '0'+ arity;
-  out[1] = '\0';
   return where;
 }
 

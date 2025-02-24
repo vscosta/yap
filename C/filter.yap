@@ -1,4 +1,4 @@
-#!/home/vsc/.local/bin/yap -L --
+% #!/home/vsc/.local/bin/yap -L --
 
 /** @file filter.yap
  *
@@ -105,7 +105,8 @@ main :-
        functor(Head,Name,Arity),
        O = clause(Name/Arity,Head,Body,Comments,Vs)
        ;
-       O=clause(Name/Arity,Head,true,Comments,Vs)
+             functor(Head,Name,Arity),
+ O=clause(Name/Arity,Head,true,Comments,Vs)
      ).
 
  %% initial directive
@@ -264,7 +265,7 @@ trl_pred(L,RL,NL,NRL) :-
     sub_string(L,_,1,After1,WS),
     ws(WS),
     sub_string(L,_,After1,0,Line0),
-    strip_whitespace(Line0,0,Line),
+    skip_whitespace(Line0,0,Line),
     detect_name(Line,Name,Args,Arity,RL),
     !,
     number_string(Arity,A),
@@ -331,14 +332,24 @@ trl_pred(L,L,NL,NL).
     block(I,_Line,I).
 
   
-    detect_name(Line,Name,Args,Arity,Extra) :-
+detect_name(Line,Name,Args,Arity,Extra) :-
     sub_string(Line,Bef,1,_,"("),
+    !,
     sub_string(Line,_,1,After,")"),
     sub_string(Line,0,Bef,_,Name),
     sub_string(Line,Bef,_Sz,After,Args),
     sub_string(Line,_,After,0,Extra),
     findall(I,sub_string(Args,I,1,_,","),Is),
     length([_|Is],Arity).
+detect_name(Line,Name,'',0,Extra) :-
+    sub_string(Line,Bef,1,After,WS),
+    ws(WS),
+    !,
+    sub_string(Line,0,Bef,_,Name),
+    After0 is After+1,
+    sub_string(Line,_,After0,0,Extra).
+detect_name(Name,Name,"",0,"").
+
 
 
 trl_pi(L,NL,NL0) :-

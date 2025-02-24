@@ -892,15 +892,15 @@ static Int code_char(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   if (IsVarTerm(t1)) {
-    if (t1 == TermEof)
-      return Yap_unify(ARG2,MkIntTerm(-1));      
-    int ch = get_char(t2);
-    return Yap_unify(ARG2,MkIntTerm(ch));
+    if (t2 == TermEof)
+      return Yap_unify(ARG1,MkIntTerm(-1));      
+    int ch = get_char(t1);
+    return Yap_unify(ARG2,MkCharTerm(ch));
   }
   int ch = get_code(t1);
   if (ch < 0)
-    return Yap_unify(ARG1,TermEof);
-  return Yap_unify(ARG1,MkCharTerm(ch));
+    return Yap_unify(ARG2,TermEof);
+  return Yap_unify(ARG2,MkCharTerm(ch));
 }
 
 static Int char_code(USES_REGS1) {

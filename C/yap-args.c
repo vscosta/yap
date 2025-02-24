@@ -1258,10 +1258,7 @@ GLOBAL_VFS = NULL;
     CurrentModule = LOCAL_SourceModule = TermUser;
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
   } else {
-    if (yap_init->QuietMode) {
-      setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, false);
       setBooleanLocalPrologFlag(COMPILING_FLAG, true);
-    }
     __android_log_print(
 			ANDROID_LOG_INFO, "YAPDroid", "restore %s ",Yap_INPUT_STARTUP );
     Yap_Restore(Yap_INPUT_STARTUP);
@@ -1269,6 +1266,9 @@ GLOBAL_VFS = NULL;
     init_globals(yap_init);
 
     start_modules();
+    if (yap_init->QuietMode) {
+      setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, false);
+    }
     if (yap_init->install && Yap_OUTPUT_STARTUP) {
       setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
 				MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));

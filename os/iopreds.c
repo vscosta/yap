@@ -1896,7 +1896,7 @@ static int CheckStream__(const char *file, const char *f, int line, Term arg,
       sno = IntegerOfTerm(arg);
    }
   } else {
-        Yap_ThrowError__(file, f, line, TYPE_ERROR_STREAM, arg, msg);
+        Yap_ThrowError__(file, f, line, DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
 
   }
   if (sno < 0 || sno > MaxStreams) {
@@ -2082,9 +2082,6 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
   Term tlist;
   if (sno < 0)
     return (FALSE);
-  if (sno <= StdErrStream) {
-    return TRUE;
-  }
   xarg *args = Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END, NULL,
                                    DOMAIN_ERROR_CLOSE_OPTION);
   if (args == NULL) {
@@ -2093,8 +2090,20 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
     }
     return false;
   }
-  // if (args[CLOSE_FORCE].used) {
-  // }
+   if (args[CLOSE_FORCE].used) {
+  if (IsVarTerm(args[CLOSE_FORCE].tvalue)) {
+      Yap_ThrowError(INSTANTIATION_ERROR,args[CLOSE_FORCE].source,NULL);
+    }
+    if (args[CLOSE_FORCE].tvalue != TermTrue &&
+	args[CLOSE_FORCE].tvalue != TermFalse) {
+      Yap_ThrowError(DOMAIN_ERROR_CLOSE_OPTION,args[CLOSE_FORCE].source,NULL);
+    }
+
+   }
+   free(args);
+  if (sno <= StdErrStream) {
+    return TRUE;
+  }
   Yap_CloseStream(sno);
   return (TRUE);
 }

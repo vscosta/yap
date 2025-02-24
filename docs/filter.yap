@@ -1,4 +1,4 @@
-#!/home/vsc/.local/bin/yap -L --
+//%#!/home/vsc/.local/bin/yap -L --
 
 /** @file filter.yap
  *
@@ -32,7 +32,7 @@ valid_suffix('.ypp').
 
 main :-
     retractall(pred_found(_,_,_)),
-    unix(argv([File])),
+    unix(oargv([File])),
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
     
     %    valid_suffix(ValidSuffix),
@@ -137,6 +137,7 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
 output(command([comments(Comments) |_])) :-
     maplist(out_comment,Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
+    ((var(N);var(A))->unix(argv([File])),writeln(File:Comments);true),
     encode(N/A,S1),
     atom_string(A1,S1),
     maplist(out_comment,Comments),
@@ -258,14 +259,45 @@ trl_prefix(C,RC,["///"|NC],NC) :-
     sub_string(C,3,_,0,RC).
 trl_prefix(C,C,NC,NC).
 
+% arity > 0
 trl_pred(L,RL,NL,NRL) :-
-    sub_string(L,Bef,5,After,"@pred"),
+    % EL = Bef+"@pred"+After
+    (
+      sub_string(L,Bef,5,After,"@pred")
+      ->
+      true
+      ;
+      sub_string(L,Bef,5,After,"@Pred")
+      ),
     After1 is After-1,
+
     sub_string(L,_,1,After1,WS),
     ws(WS),
     sub_string(L,_,After1,0,Line0),
     strip_whitespace(Line0,0,Line),
+   sub_string(Line,_,1,_,"("),
     detect_name(Line,Name,Args,Arity,RL),
+    !,
+    number_string(Arity,A),
+    atom_string(At,Name),
+    defines_module(M),
+    assert(pred_found(M,At,Arity)),
+    sub_string(L,0,Bef,_, Prefix),
+    string_concat([Name,"/",A],PI),
+    encode(PI,DoxName),
+    NL=[Prefix,"@class ",DoxName,"\n       *",Name,Args,"* "|NRL].
+% arity == 0
+trl_pred(L,RL,NL,NRL) :-
+    (
+      sub_string(L,Bef,5,After,"@pred")
+      ->
+      true
+      ;
+      sub_string(L,Bef,5,After,"@Pred")
+      ),
+    sub_string(L,_,After,0,L1),
+    strip_whitespace(L1,0,L2),
+    detect_name(L2,Name,Args,Arity,RL),
     !,
     number_string(Arity,A),
     atom_string(At,Name),
@@ -313,7 +345,7 @@ trl_pred(L,L,NL,NL).
     strip_whitespace(Line0,I0,Line) :-
     sub_string(Line0,I0,_,0,Line).
 
-    skip_whitespace(I0,Line,IF) :-
+    strip_whitespace(I0,Line,IF) :-
     sub_string(Line,I0,1,_,WS),
     ws(WS),
     !,
@@ -331,8 +363,9 @@ trl_pred(L,L,NL,NL).
     block(I,_Line,I).
 
   
-    detect_name(Line,Name,Args,Arity,Extra) :-
+detect_name(Line,Name,Args,Arity,Extra) :-
     sub_string(Line,Bef,1,_,"("),
+    !,
     sub_string(Line,_,1,After,")"),
     sub_string(Line,0,Bef,_,Name),
     sub_string(Line,Bef,_Sz,After,Args),
@@ -340,9 +373,18 @@ trl_pred(L,L,NL,NL).
     findall(I,sub_string(Args,I,1,_,","),Is),
     length([_|Is],Arity).
 
+detect_name(Line,Name,"",0,Extra) :-
+    sub_string(Line,Bef,1,After,WS),
+    ws(WS),
+    !,
+    sub_string(Line,0,Bef,_,Name),
+    sub_string(Line,_,After,0,Extra).
+detect_name(Name,Name,"",0,"").
 
 trl_pi(L,NL,NL0) :-
     sub_string(L,Left,1,Right,"/"),
+    Left > 0,
+    Right > 0,
     Left1 is Left+1,
     sub_string(L,Left1,1,_Right,D),
     digit(D),
@@ -364,8 +406,7 @@ back(0,_L,0) :-
 back(I0,S,I0) :-
     I is I0-1,
     sub_string(S,I,1,_,WS),
-    ws(WS),
-    !.
+    ws(WS),    !.
     back(I0,S,P) :-
      I is I0-1,
     back(I,S,P).
@@ -398,6 +439,7 @@ addcomm(N/A,S,false) :-
     format('~n~n/**   @class ~s	 **~w**\n     (undocumented)  **/~n~n',[S,T]).
 addcomm(_,_,_).
 
+
 :- initialization(main).
 
 
@@ -414,6 +456,8 @@ pxpand(Mod,op(M,Gs,Y)) :-
     op(M,Gs,Mod:Y),
     op(M,Gs,Y).
 pxpand(Mod,A/B) :-
+    assert(exported(Mod,A,B)).
+pxpand(Mod,_ as A/B) :-
     assert(exported(Mod,A,B)).
 pxpand(Mod,A//B):-
     B2 is B+2,
