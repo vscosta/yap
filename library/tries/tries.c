@@ -172,7 +172,6 @@ static YAP_Bool p_close_all_tries(void) {
 }
 
 
-/* put_trie_entry(+Mode,+Trie,+Entry,-Ref) */
 /** @pred trie_put_entry(+Mode,+ _Trie_,+ _Term_,- _Ref_) 
 
 
@@ -286,7 +285,6 @@ static YAP_Bool p_trie_open(void) {
 #undef arg_trie
 
 
-/* trie_close(+Trie) */
 /** @pred trie_close(+ _Id_) 
 
 
@@ -308,7 +306,6 @@ static YAP_Bool p_trie_close(void) {
 #undef arg_trie
 
 
-/* trie_close_all() */
 /** @pred trie_close_all 
 
 
@@ -323,7 +320,6 @@ static YAP_Bool p_trie_close_all(void) {
 }
 
 
-/* trie_mode(?Mode) */
 /** @pred trie_mode(? _Mode_) 
 
 
@@ -385,7 +381,6 @@ static YAP_Bool p_trie_put_entry(void) {
 #undef arg_ref
 
 
-/* trie_check_entry(+Trie,+Entry,-Ref) */
 /** @pred trie_check_entry(+ _Trie_,+ _Term_,- _Ref_) 
 
 
@@ -515,7 +510,6 @@ static YAP_Bool p_trie_traverse_cont(void) {
 #undef arg_ref
 
 
-/* trie_remove_entry(+Ref) */
 /** @pred trie_remove_entry(+ _Ref_) 
 
 
@@ -537,7 +531,6 @@ static YAP_Bool p_trie_remove_entry(void) {
 #undef arg_ref
 
 
-/* trie_remove_subtree(+Ref) */
 /** @pred trie_remove_subtree(+ _Ref_) 
 
 
@@ -672,7 +665,7 @@ static YAP_Bool p_trie_save(void) {
 #undef arg_file
 
 
-/* trie_load(-Trie,+FileName) */
+
 /** @pred trie_load(- _Trie_,+ _FileName_) 
 
 
@@ -744,7 +737,6 @@ static YAP_Bool p_trie_stats(void) {
 #undef arg_nodes
 
 
-/* trie_max_stats(-Memory,-Tries,-Entries,-Nodes) */
 /** @pred trie_max_stats(- _Memory_,- _Tries_,- _Entries_,- _Nodes_) 
 
 
@@ -816,7 +808,6 @@ static YAP_Bool p_trie_usage(void) {
 #undef arg_virtualnodes
 
 
-/* trie_print(+Trie) */
 /** @pred trie_print(+ _Trie_) 
 
 

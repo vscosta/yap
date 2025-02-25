@@ -1,5 +1,5 @@
 
-# Boolean Decision Making in YAP
+# YAP2BDD Boolean Decision Making in YAP
 
 @brief low-level support for using BDDs from BDDs
 

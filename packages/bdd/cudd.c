@@ -1,6 +1,6 @@
 /**
     @defgroup CUDD CUDD Interface
-@ingroup BDDs
+@ingroup YAP2BDDs
 
    @brief Interface to the CUDD Library
    @{

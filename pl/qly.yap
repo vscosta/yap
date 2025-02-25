@@ -15,12 +15,16 @@
 *									 *
 *************************************************************************/
 
-%% @file qly.yap
+/**
+ @file qly.yap
+*/
 
 /**
+
 @defgroup QLY Creating and Using a saved state
 @ingroup YAPConsulting
 @{
+
 */
 
 :- system_module_( '$_qly', [qload_module/1,

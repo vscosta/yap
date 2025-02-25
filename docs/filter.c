@@ -88,7 +88,6 @@ int main(int argc, char *argv[]) {
 	}
       }
  
-
 	  if (code_comment &&
 	      ((pred = strstr(line,"@pred"))!=NULL) )      {
 	    int arity=0, i;

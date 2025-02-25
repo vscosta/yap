@@ -6,9 +6,9 @@
 /**
    @defgroup YAPModules The YAP Module system
 @ingroup YAPProgramming
+@{
 
 @brief The YAP Predicate Module System
-@{
 
 The YAP module system is based on the Quintus/SISCtus module
 system \cite quintus . In this design, modules are named collections of predicates,

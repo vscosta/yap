@@ -22,12 +22,13 @@ static char     SccsId[] = "%W% %G%";
    @file arith1.c
 
    @addtogroup arithmetic_operators
-
-   - <b>exp( _X_) [ISO]</b><p> @anchor exp_1
+   @anchor exp_1
+   - <b>exp( _X_) [ISO]</b>
 
    Natural exponential.
 
-   - <b>log( _X_) [ISO]</b><p> @anchor log_1
+    @anchor log_1
+   - <b>log( _X_) [ISO]</b><p>
 
    Natural logarithm.
 
