@@ -533,7 +533,7 @@ static YAP_Bool lbfgs_set_parameter(void) {
 }
 
 /** @pred lbfgs_get_parameter(+Name,-Value)</h3>
-Get the current Value for Name
+Get the current Value for parameter Name
 */
 
 static YAP_Bool lbfgs_get_parameter(void) {

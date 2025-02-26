@@ -7,7 +7,7 @@
 /* #t4970 nE44T This program first */
 :- set_prolog_flag(double_quotes, string).
 
-:- include(utils).
+:- include(docutils).
 
 :- multifile  brief/2, visited/1.
 
@@ -130,7 +130,8 @@ process_all(State,Op,S0s,SFs) :-
 
 
 
-add2strings(briefdescription(_,_),Strings,S-Sb-Sd-Sa-Sg-Sp-Sl,S-[Strings|Sb]-Sd-Sa-Sg-Sp-Sl) :-
+add2strings(briefdescription(_,_),Strings,S-Sb-Sd-Sa-Sg-Sp-Sl,S-[Strings|Sb]-Sd-Sa-Sg-Sp-Sl)
+ :-
     !.
 add2strings(detaileddescription(_,_),Strings,S-Sb-Sd-Sa-Sg-Sp-Sl,S-Sb-[Strings|Sd]-Sa-Sg-Sp-Sl) :-
     !.
@@ -178,7 +179,7 @@ process(State,innergroup(Atts,Children)) -->
     innergroup([kind="group"|State],Atts,Children).
 % ignoreseq(NState,qualifier(_,_),Innergroup,Qualifier),
 % ignoreseq(NState,templateparamlist(_,_),Qualifier,Templateparamlist),
-process(_,sectiondef(Atts,Children)) -->
+process(_,sectionrdef(Atts,Children)) -->
     !,
     sectiondef(Atts,Children).
 % ignoreseq(NState,tableofcontents(_,_),Sectiondef,Tableofcontents),
@@ -396,6 +397,8 @@ paritem(parameteritem(_,List)) -->
 foldl(parameternamelist,List).
 
 parameternamelist(parameternamelist(_,Args))  -->
+  foldl(parameterargs, Args).
+parameternamelist(parameterdescription(_,Args))  -->
   foldl(parameterargs, Args).
 
 parameterargs(parametername(_,[Name])) -->

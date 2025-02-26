@@ -17,12 +17,15 @@ static char *protect_class( char where[], const char *what, size_t sz, int arity
   char *out = where+1;
   for (i=0;i<sz;i++) {
     int ch=what[i];
-    if (isalnum(ch)&&ch!='U') {
+    if (ch=='_' || (isalnum(ch)&&ch!='U')) {
       *out++=ch;
     } else {
-      sprintf(out,"U%xU",ch);
+      out += sprintf(out,"U%xU",ch);
     }
   }
+ out+=sprintf(out,"U%xU",'/');
+ out+=sprintf(out,"U%xU",arity+'0');
+  *out = '\0';
   return where;
 }
 
@@ -123,7 +126,7 @@ int main(int argc, char *argv[]) {
 	  while(!isblank(*pred) && pred[0] != '(') {
 	    pred++;
 	  }
-	  if  (isblank(pred[0])) {
+	  if  (pred[0] == '\0' || isblank(pred[0])) {
 	    fprintf(stdout,"%.*s @class %s  ** \"%.*s\" **%s",
 		    (int)(start-line),line,
 		    protect_class(buf,p0,(pred-p0),0),
@@ -142,13 +145,32 @@ int main(int argc, char *argv[]) {
 			
 	  }
 	}
+	i--;
 	pred +=i;
 	fprintf(stdout,"%.*s @class %s ",
 		(int)(start-line),line,
 		protect_class(buf,p0,(int)(args-p0),arity)),
-	  fprintf(stdout,"** \"%.*s\" ** %s \n",(int)(pred-p0),p0,pred);
+	  fprintf(stdout,"\n@brief **\"%.*s\"** %s \n",(int)(pred-p0),p0,pred);
 	line=NULL;
       }
+    if (code_comment && line) {
+	if ((pred = strstr(line,"@infixpred"))!=NULL && (!end || pred <end) )       {
+	char *name;
+	char *start;
+	start =pred;
+	pred +=10;
+	while(isspace(*pred++));
+		//ard1
+	--pred;
+	name=pred;
+	while(!isspace(*pred++));
+	pred--;
+	fprintf(stdout,"q%.*s @class %s ",(int)(start-line),line,
+		protect_class(buf,name,(int)(pred-name),2)),
+	  fprintf(stdout,"\n@brief **\"%.*s\"** %s \n",(int)(pred-name),name, pred);
+	continue;
+    }
+  }
     char *pi;
     while (code_comment &&
 	   line &&
@@ -160,10 +182,10 @@ int main(int argc, char *argv[]) {
       while (pi0 >= line && (pi0[0]=='_'|| isalnum(pi0[0])))
 	pi0--;
       pi0++;
-      fprintf(stdout,"%.*s @ref{%s}[\"%.*s/%c\"]"  ,(int)(pi0-line),line,
+      fprintf(stdout,"%.*s @ref %s @\"%.*s/%c\""  ,(int)(pi0-line),line,
 
 	      protect_class(buf,pi0,(size_t)(pi-pi0),pi[1]),
-	      (int)(pi-pi0),pi0,pi[1]-'0' );
+	      (int)(pi-pi0),pi0,pi[1] );
       line = pi+2;
       if (!line[0])
 	line = NULL;

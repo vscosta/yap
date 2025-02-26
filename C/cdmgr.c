@@ -1488,7 +1488,7 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
   if ((mode != TermConsult && mode != TermReconsult)) {
     return false;
   }
-   if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag) ||
+   if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag|UndefPredFlag) ||
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
    return false;
   } 
@@ -2036,13 +2036,13 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
     if (mod!=0 && ( IsVarTerm(mod) || !IsAtomTerm(mod)) ) {
     return false;
     }
-
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorAssert)
     tf = ArgOfTerm(1, t);
   else
     tf = t;
   Term modh = mod;
   tf = Yap_StripModule(tf, &modh);
+    extern long long vsc_count;    vsc_count++;
   p = Yap_new_pred(tf,  modh, mklog, RepAtom(AtomOfTerm(t1))->StrOfAE);
   if (p &&
   	CurrentModule!=PROLOG_MODULE &&
@@ -2081,7 +2081,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
     }
     discontiguous = Yap_discontiguous(p, t1 PASS_REGS);
   if (discontiguous) {
-    StaticClause *cl = ClauseCodeToStaticClause(p->cs.p_code.LastClause);
+StaticClause *cl = ClauseCodeToStaticClause(p->cs.p_code.LastClause);
     if (cl->ClFlags & FactMask) {
       d_culprit =  MkIntTerm(cl->usc.ClLine);
     } else if (cl->ClFlags & SrcMask) {

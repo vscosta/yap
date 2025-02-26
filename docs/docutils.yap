@@ -128,7 +128,7 @@ split_at_blank(_, []) --> [].
 split_(SplitCodes, [], More) -->
 	[C],
 	{ member(C, SplitCodes) }, !,
-	split_at_blank(SplitCodes, More).
+	split_at_blank(SplitCodes,More).
 split_(SplitCodes, [C|New], Set) -->
 	[C], !,
 	split_(SplitCodes, New, Set).
@@ -217,6 +217,8 @@ char_to_safe('U',NL,L) :-
    format(chars(NL, L), 'U~16rU', [0'U]).
 char_to_safe(C,[C|L],L) :-
     char_type(C,alnum),
+    !.
+char_to_safe('_',['_'|L],L) :-
     !.
 char_to_safe(C,NL,L) :-
     char_code(C,Code),
