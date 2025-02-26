@@ -166,7 +166,8 @@ static YAP_Bool p_close_trie(void) {
 }
 
 
-/* close_all_tries() */
+/* close_all_tries
+ */
 static YAP_Bool p_close_all_tries(void) {
   return p_trie_close_all();
 }
