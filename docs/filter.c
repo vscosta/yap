@@ -13,8 +13,7 @@
 static char *protect_class( char where[], const char *what, size_t sz, int arity)
 {
   size_t i;
-  where[0] = 'P';
-  char *out = where+1;
+  char *out = where;
   for (i=0;i<sz;i++) {
     int ch=what[i];
     if (ch=='_' || (isalnum(ch)&&ch!='U')) {
@@ -23,8 +22,7 @@ static char *protect_class( char where[], const char *what, size_t sz, int arity
       out += sprintf(out,"U%xU",ch);
     }
   }
- out+=sprintf(out,"U%xU",'/');
- out+=sprintf(out,"U%xU",arity+'0');
+  out+=sprintf(out,"_%d",arity);
   *out = '\0';
   return where;
 }

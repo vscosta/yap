@@ -1510,6 +1510,66 @@ restart_aux:
 }
 
 /**
+@pred get_string_code(+Index,+String,?Code)
+
+Position _Index_ of _String_ is occuppied by _Code_.
+*/
+static Int get_string_char3(USES_REGS1) {
+  Term t1;
+  Term t2;
+  const unsigned char *s;
+restart_aux:
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  if (!Yap_IsGroundTerm(t2)) {
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+  } else if (!IsStringTerm(t2)) {
+    LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+  } else {
+    s = UStringOfTerm(t2);
+    t1 = Deref(ARG1);
+    if (!Yap_IsGroundTerm(t1)) {
+      LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+
+    } else if (!IsIntegerTerm(t1)) {
+      LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
+    } else {
+      const unsigned char *ns = s;
+      Int indx = IntegerOfTerm(t1);
+
+      if (indx <= 0) {
+        if (indx < 0) {
+          LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
+        } else {
+          return false;
+        }
+      } else {
+        indx -= 1;
+        ns = skip_utf8(ns, indx);
+        if (ns == NULL) {
+          return false;
+        }
+      }
+      utf8proc_int32_t chr;
+      get_utf8(ns, -1, &chr);
+      if (chr != '\0') {
+        return Yap_unify(ARG3, MkCharTerm(chr));
+      }
+      return false;
+    }
+  } // replace by error cod )e
+  /* Error handling */
+  if (LOCAL_Error_TYPE) {
+    if (Yap_HandleError("string_code/3")) {
+      goto restart_aux;
+    } else {
+      return false;
+    }
+  }
+  cut_fail();
+}
+
+/**
   @pred atom_concat(?ListOfAtoms,?Atom)
 
   If the first argument is bound, the second argument results from concatenating the lisT
@@ -3005,8 +3065,8 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("atomic_concat", 2, atomic_concat2, 0);
   Yap_InitCPred("atomics_to_string", 2, atomics_to_string2, 0);
   Yap_InitCPred("atomics_to_string", 3, atomics_to_string3, 0);
+  Yap_InitCPred("get_string_char", 3, get_string_char3, 0);
   Yap_InitCPred("get_string_code", 3, get_string_code3, 0);
-
   Yap_InitCPred("downcase_text_to_atom", 2, downcase_text_to_atom, 0);
   Yap_InitCPred("downcase_atom", 2, downcase_text_to_atom, 0);
   Yap_InitCPred("upcase_text_to_atom", 2, upcase_text_to_atom, 0);

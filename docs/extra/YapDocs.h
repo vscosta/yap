@@ -1,9 +1,4 @@
 /**
-@defgroup mainpage YAP User Manual
-
-*/
-
-/**
 
 @defgroup Builtins Core Prolog YAP
 @ingroup mainpage

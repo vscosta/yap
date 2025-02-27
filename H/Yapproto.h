@@ -219,11 +219,13 @@ extern bool must_be_atom__(const char *file, const char *function, int lineno,Te
 extern bool must_be_code__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_char__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_list__(const char *file, const char *function, int lineno,Term t USES_REGS );
+extern bool must_be_string__(const char *file, const char *function, int lineno,Term t USES_REGS );
 #define must_be_arity(t ) must_be_arity__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 #define must_be_atom(t ) must_be_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 #define must_be_char(t ) must_be_char__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 #define must_be_code(t ) must_be_code__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 #define must_be_list(t ) must_be_list__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+#define must_be_string(t ) must_be_string__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
 
 
  

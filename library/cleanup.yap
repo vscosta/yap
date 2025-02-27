@@ -206,7 +206,7 @@ arity_to_vars(N,L) :-
 arity_to_vars(N,L1,L2) :-
 	N > 0,
 	NN is N-1,
-	LT = [L|L1],
+	LT = [_L|L1],
 	arity_to_vars(NN,LT,L2).
 arity_to_vars(0,L,L).
 

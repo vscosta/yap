@@ -14,11 +14,13 @@
 	op(790, fx, (matrix)),
 	op(790, fx, array),
 	op(780, xfx, of),
-		  op(100, yf, []),
+	op(700, xfx, [?=]),
+	op(200, fx, (@)),
+	  op(100, yf, []),
                   op(760, yfx, #<==>),
                   op(750, xfy, #==>),
                   op(750, yfx, #<==),
-                  op(740, yfx, #\/),
+           op(740, yfx, #\/),
                   op(730, yfx, #\),
                   op(720, yfx, #/\),
                   op(710,  fy, #\),
@@ -165,52 +167,49 @@ pi2dox(P/A, String) :-
     pred2dox(Pred, String).
 
 pred2dox(Pred, String) :-
-
-    string_chars(Pred,Cs),
-    foldl(csafe,Cs,PCs,[]),
+    sub_string(Pred,0,LEN,2,Name), 
+    string_chars(Name,Cs),
+I is LEN+2,
+get_string_char(I,Pred,D),
+    foldl(char_to_safe,Cs,PCs,['_',D ]),
     !,
-    string_chars(String,['P'|PCs]).
+    string_chars(String,  PCs).
 pred2dox(Pred,Pred).
 
 dox2pred(String,Pred) :-
-    string_chars(String,['P'|Cs]),
-    rcov(PCs,Cs),
-    string_chars(Pred,PCs).
-
-    
-    
-csafe(C,LF,L0) :-
-    char_to_safe(C,LF,L0),
-    !.
-csafe(C,[C|L],L).
-
-rcov([D],[D]) :-
+    sub_string(String,0,LEN,2,Name),
+    string_chars(Name,PCs),
+I is LEN+2,
+get_string_char(I,String,D),
+   char_type(D,digit),
+   foldl(char_to_safe,ACs,PCs,[]),
+   append(ACs,['/',D],Cs),
     !,
-    char_type(D,digit).
-rcov([C|NL],L) :-
-    char_to_safe(C,L,L0),
-    !,
-    rcov(NL,L0).
-rcov([C|L0],[C|NL]) :-
-    rcov(L0,NL).
+    string_chars(Pred,  Cs).
+dox2pred(Pred,Pred).
 
 /* translate >= to UNU */
+char_to_safe(C,[],[]) :-
+    var(C),
+    !.
+char_to_safe(C,[D],[]) :-
+    var(C),
+    !,
+    C=D.
 char_to_safe(C,['U',A,'U'|Next],Next) :-
     var(C),
     !,
-    char_code(A,IA),
-    CA is IA-0'0,
-    code_char(CA,C).
+     number_chars(CA,['0',x,A]),
+    char_code(C,CA).
 char_to_safe(C,['U',A,B,'U'|Next],Next) :-
     var(C),
     !,
-    char_code(A,IA),
-    char_code(B,IB),
-    CA is (IA-0'0)*16+(IB-0'0),
-    code_char(CA,C).
-char_to_safe(C,[C|NL],NL) :-
+    number_chars(CA,['0',x,A,B]),
+    char_code(C,CA).
+char_to_safe(C,[D|NL],NL) :-
     var(C),
-    !.
+    !,
+    C=D.
 /* translate >= to UNU */
 char_to_safe('U',NL,L) :-
     !,

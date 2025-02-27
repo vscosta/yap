@@ -279,7 +279,7 @@ v(Msg,S0,S0) :-
     writeln(Msg:S0).
 
 sectdef(header([],[Text]))-->
-{to_predicate(Text,PText)},
+{decode(Text,PText)},
     ["\n",PText,"\n"].
 sectdef(member(Atts,Children))-->
     {
@@ -298,7 +298,7 @@ sectdef(member(Atts,Children))-->
 %         writeln(Children:Name)
     } ,
     ["%- " ],
-{to_predicate(Name,PName)},
+{decode(Name,PName)},
     ref(Ref,PName).
 
 
@@ -308,12 +308,13 @@ sectdef(memberdef(Atts,Children))-->
 	( key_in(argsstring([],[Args]),Children) -> true ; Args = ""),
 	key_in(id(Ref),Atts),
 	get_name(Children,Name),
-	to_predicate(Name, PName),
+	decode(Name, PName),
 	short_ref(Ref, PRef)
     },
     (
-	{key_in(definition([],[Def]),Children)}
-    
+	{key_in(definition([],[Def0]),Children),
+    	decode(Def0, Def)}
+
 
     ->
 
@@ -630,8 +631,9 @@ para(P) -->
 
 
 para(ulink([url(Title)],[URL|_])) -->
+{ decode(Title, DTitle) },
     !,
-{   format(string(S),"[~s](~s)", [Title,URL])},
+{   format(string(S),"[~s](~s)", [DTitle,URL])},
 [S].
 para(hruler([],_)) -->
     [ "\n- - -\n"].
@@ -1760,20 +1762,20 @@ short_ref(Ref,Ref).
 
 
 %% ref(+Link,+Name)
-% translate a ref to mkdocs
+% -translate a ref to mkdocs
 %
 ref(S,W) -->
 %     {writeln(S:W)},
     { inner(S,P)
     },
     !,
-    { to_predicate(W,L)
+    { decode(W,L)
     },
 
     { format(string(Str),'[~s][~s]' ,[L,P]) },
     [Str].
-ref(S,W) -->
-    { to_predicate(W,L)
+ref(S,W)-->
+    { decode(W,L)
     },
     { format(string(Str),'[~s](~s.md)' ,[L,S]) },
     [Str].
@@ -1782,40 +1784,31 @@ ref(S,W) -->
 % create a new target
 %
 
-
-
-
 key_in(X,[X|_]) :- !.
 key_in(X,[_|L]) :-
     key_in(X,L).
 
-to_predicate(S,P) :-
-    sub_string(S,_,1,0,EOS),
-    string_chars(EOS, [EOC]),
-    char_type_digit(EOC),
-    sub_string(S,0,_,1,ROS),
-    strip_module_from_pred(ROS,EOS,P),
-    !.
 to_predicate(P,P).
 
-strip_module_from_pred(ROS,EOS,Final) :-
+strip_module_from_pred(ROS,EOS,Final) :
     sub_string(ROS,Left,3,Right,"::P"),
     !,
     sub_string(ROS,0,Left,_,Mod),
     sub_string(ROS,_,Right,0,Name),
     string_concat([Mod,":",Name,"/",EOS],Final).
-strip_module_from_pred(ROS,EOS,Final) :-
+strip_module_from_pred(ROS,EOS,Final) :
     sub_string(ROS,0,1,Left,"P"),
     !,
     sub_string(ROS,1,Left,0,Name),
     string_concat([Name,"/",EOS],Final).
-strip_module_from_pred(ROS,EOS,Final) :-
+strip_module_from_pred(ROS,EOS,Final) :
     sub_string(ROS,Left,_,Right,"::"),
     sub_string(ROS,0,Left,_,NMod),
     sub_string(ROS,_,Right,0,NPred),
     strip_module_from_pred(NPred,EOS,SemiFinal),
     !,
     string_concat([NMod,":",SemiFinal],Final).
+
 
 get_safe_name(S,N) :-
 get_name(S,N0),
@@ -1871,3 +1864,4 @@ Kind="class",
 unix(argv([IDir,ODir,_])),
     	trl(compound([refid(Ref0),kind(Kind)],[]),IDir,ODir).
 
+ % 
