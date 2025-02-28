@@ -29,93 +29,94 @@ static char     SccsId[] = "%W% %G%";
    @defgroup arithmetic_operators Arithmetic Functions
    @ingroup arithmetic
 
+  @anchor arith0op
    YAP implements several arithmetic functions, they are defined as
    fields in three enumerations, such that there is one enumeration
    per each different arity:  
 
-    - #arith0_op defines constants and arity 0 arithmetic functions
+    - #arith0op defines constants and arity 0 arithmetic functions
 
-      @copydoc #arith0_op
+      @copydoc #arith0op
 
-    - #arith1_op defines single argument arithmetic functions
+    - #arith1op defines single argument arithmetic functions
 
-      @copydoc #arith1_op
+      @copydoc #arith1op
 
-    - #arith2_op defines binary arithmetic functions
+    - #arith2op defines binary arithmetic functions
 
-      @copydoc #arith2_op
+      @copydoc #arith2op
 
   Arithmetic expressions
   in YAP may use the following operators:
 
-  {#pi_0}
+  {#pi0}
    - <b>pi [ISO]</b><p> 
 
      An approximation to the value of <em>pi</em>, that is, the ratio of a circle's circumference to its diameter.
 
-     {#e_0}
+     {#e0}
    - <b>e</b><p>    
 
      Euler's number, the base of the natural logarithms.
 
 
-     <{#>epsilon</b><p> {#epsilon_0}
+     <{#>epsilon</b><p> {#epsilon0}
    -
 
      The difference between the float `1.0` and the next largest floating point number.
-{#inf_0}
+{#inf0}
      - `inf`  
 
      Infinity according to the IEEE Floating-Point standard. Note that evaluating this term will generate a domain error in the `iso` language mode.
 
      Note also that YAP supports `+inf` and  `-inf`
 
-      {#nan_0}
+      {#nan0}
    - <b>nan (not a number)</b><p>  
 
      Not-a-number according to the IEEE Floating-Point standard. Note that evaluating this term will generate a domain error in the `iso` language mode.
 
-   - <b>random</b><p>  @anchor random_0
+   - <b>random</b><p>  @anchor random0
 
      A pseudo-random floating point number between 0 and 1.
 
-   - <b>signed_integer_random</b><p>  @anchor random_i
+   - <b>signed/integer/random</b><p>  @anchor random/i
 
      A pseudo-random integer number with 32 bits.
 
-   - <b>unsigned_integer_random</b><p>  @anchor random_u
+   - <b>unsigned/integer/random</b><p>  @anchor random/u
 
      A pseudo-random unsigned integer number with 32 bits.
 
-   - <b>cputime</b><p>  @anchor cputime_0
+   - <b>cputime</b><p>  @anchor cputime0
 
      CPU time since YAP was invoked, in seconds.
 
-   - <b>heapused</b><p>  @anchor heapused_0
+   - <b>heapused</b><p>  @anchor heapused0
 
      Heap (data-base) space used, in bytes.
 
-   - <b>local</b><p>  @anchor local_0
+   - <b>local</b><p>  @anchor local0
 
      Local stack in use, in bytes
 
-   - <b>$b</b><p>  @anchor b_0
+   - <b>$b</b><p>  @anchor b0
 
      current choicepoint
 
-   - <b>$env</b><p>  @anchor env_0
+   - <b>$env</b><p>  @anchor env0
 
      Environment
 
-   - <b>$tr</b><p>  @anchor tr_0
+   - <b>$tr</b><p>  @anchor tr0
 
      Trail in use
 
-   - <b>$free_stack</b><p>  @anchor free_stack_0
+   - <b>$free/stack</b><p>  @anchor free/stack0
      
      Amount of free stack space, that is, free space between global and local stacks.
 
-   - <b>global</b><p>  @anchor global_0
+   - <b>global</b><p>  @anchor global0
 
      Global stack in use, in bytes.
  *

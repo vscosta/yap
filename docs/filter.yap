@@ -140,23 +140,22 @@ output(command([comments(Comments) |_])) :-
     maplist(out_comment,Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
     encode(N/A,S1),
+    atom_string(NA,S1),
     maplist(out_comment,Comments),
     addcomm(N/A,S1,_Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
     (
-      A==0 ->
-      T = N
-      ;
-      T =.. [N|NIs]
-    ),
-    (
-      false,
       is_exported(N,A)
       ->
-      format(' class  ~s {        ~w;~n};~n~n~n',[ S1,T])
+      (
+      A==0 ->
+      format(' class  ~s {        ~w();~n};~n~n~n',[ S1,NA])
       ;
-      true
+      T =.. [NA|NIs],
+      format(' class  ~s {        ~w();~n};~n~n~n',[ S1,T])
+      );
+    true
     ) .
 
 insert_module_header :-

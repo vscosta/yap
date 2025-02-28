@@ -179,7 +179,7 @@ process(State,innergroup(Atts,Children)) -->
     innergroup([kind="group"|State],Atts,Children).
 % ignoreseq(NState,qualifier(_,_),Innergroup,Qualifier),
 % ignoreseq(NState,templateparamlist(_,_),Qualifier,Templateparamlist),
-process(_,sectionrdef(Atts,Children)) -->
+process(_,sectiondef(Atts,Children)) -->
     !,
     sectiondef(Atts,Children).
 % ignoreseq(NState,tableofcontents(_,_),Sectiondef,Tableofcontents),
@@ -445,6 +445,35 @@ typel("i") -->
 typel("I") -->
     [  "* "].
 
+
+sect(Level, Parms, Args) -->
+    !, 
+     (
+	{ key_in(id(Id),Parms) }
+    ->
+    [Id,"  "]
+;
+[]
+    ),
+    [Level],
+    (
+	{ key_in(kind(Kind),Parms) }
+    ->
+    [Kind,":  "]
+;
+[]
+    ),
+    (
+	{ Args = [title(T)|Body] }
+    ->
+{as_title(T,TT)},
+    [TT],["\n"]
+    ;
+{Body = Args},
+    ["\n"]
+    ),
+    description(Body).
+
 description(para([],S)) -->
     !,
     description(S),
@@ -458,47 +487,28 @@ description(title([],S)) -->
       as_title(S,T) },
     !,
     [T].
-description(sect1([],S)) -->
-    !, 
-    ["### "],
+description(sect1(Parms,S)) -->
+!,
+    sect(Parms,S,"### ").
+description(sect2(Parms,S)) -->
+!,
+    sect(Parms,S,"#### ").
+description(sect3(Parms,S)) -->
+!,
+    sect(Parms,S,"##### ").
+description(simplesect([kind(Kind)])) -->
+!,
+[Kind,": "],
     (
-	key_in(title(_,T),S)
+	{ Args = [title(T)|Body] }
     ->
 {as_title(T,TT)},
     [TT],["\n"]
     ;
-    ["\n"]
-    ),
-    description(S).
-description(sect2([],S)) -->
-    !,
-    [ "\n\n#### "],
-    (
-	key_in(title(_,T),S)
-    ->
-{as_title(T,TT)},
-    [TT]
-    ;
-    []
-    ),
-    description(S).
-description(simplesect(_,S)) -->
-    !,
-    [ "\n "],
-    description(S).
-description(sect3([],S)) -->
-    !,
-    [ "##### "],
-    (
-	key_in(title(_,T),S)
-    ->
-{as_title(T,TT)},
-    [TT],
-    ["\n"];
-	
-	["\n"]
-    ),
-    description(S).
+{Body = Args}
+),
+description(Body).
+
 description([]) -->
     !.
 description([G|S]) -->
@@ -1790,18 +1800,18 @@ key_in(X,[_|L]) :-
 
 to_predicate(P,P).
 
-strip_module_from_pred(ROS,EOS,Final) :
+strip_module_from_pred(ROS,EOS,Final):-
     sub_string(ROS,Left,3,Right,"::P"),
     !,
     sub_string(ROS,0,Left,_,Mod),
     sub_string(ROS,_,Right,0,Name),
     string_concat([Mod,":",Name,"/",EOS],Final).
-strip_module_from_pred(ROS,EOS,Final) :
+strip_module_from_pred(ROS,EOS,Final) :-
     sub_string(ROS,0,1,Left,"P"),
     !,
     sub_string(ROS,1,Left,0,Name),
     string_concat([Name,"/",EOS],Final).
-strip_module_from_pred(ROS,EOS,Final) :
+strip_module_from_pred(ROS,EOS,Final) :-
     sub_string(ROS,Left,_,Right,"::"),
     sub_string(ROS,0,Left,_,NMod),
     sub_string(ROS,_,Right,0,NPred),

@@ -148,9 +148,10 @@ split_element(_SplitCodes,  _DoubleQs, _SingleQs, []) --> !.
 split_element(_SplitCodes,  _DoubleQs, _SingleQs, [[]]) --> [].
 
 
-encode(P,S) :-
-    pi2dox(P,S),
-    !.
+encode(P/A,String) :-
+    !,
+    format(string(Pred),'~w',[P/A]),
+    pred2dox(Pred, String).
 
 encode(P,S) :-
     pred2dox(P,S),
@@ -162,9 +163,6 @@ decode(P,S) :-
     !.
 decode(S,S).
 
-pi2dox(P/A, String) :-
-    format(string(Pred),'~w',[P/A]),
-    pred2dox(Pred, String).
 
 pred2dox(Pred, String) :-
     sub_string(Pred,0,LEN,2,Name), 
