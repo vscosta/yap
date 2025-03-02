@@ -67,7 +67,7 @@ if (WITH_R)
       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/mkdocs/docs
       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/mkdocs/docs/images
       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/mkdocs/docs/javascripts
-      COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/docs/custom/highlight.min.js ${CMAKE_CURRENT_BINARY_DIR}/mkdocs/docs/javascripts
+      COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/docs/assets/js/highlight.min.js ${CMAKE_CURRENT_BINARY_DIR}/mkdocs/docs/javascripts
       )
 
 

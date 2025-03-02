@@ -53,8 +53,8 @@ RUN     cd /app/yap/build &&\
 
 #Python extras
 
-RUN cd /app/yap/build \
-    && pip setup python/yap4y
+RUN cd /app/yap/build/packages/python/yap4py \
+    && python3 -m pip install --break-system-packages .
 
 #R extras
 
