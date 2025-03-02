@@ -70,7 +70,6 @@ class(compound( OAtts,_OProps)) :-
 
 scan(compound(OAtts,_OProps) , IDir,_ODir) :-
     key_in(refid(Id),OAtts),
-    writeln(Id),
     atom_concat([IDir,Id,'.xml'], IFile),
     catch(xml_load(IFile,XML),Error,(printf("failed while processsing ~w: ~w",[Id,Error]), fail)),
     XML = [doxygen(_,XMLData)],
@@ -112,14 +111,15 @@ get_xml(IDir,Id,Atts,Children) :-
 children2page(State,Children,All) :-
     get_name(Children,Name),
 as_title(Name,Children,Title),
-	foldl(process_all(State),Children,[]-[]-[]-[]-[]-[]-[],AllRaw-Briefs-Details-Pages-Groups-Predicates-Location),
+	foldl(process_all(State),Children,[]-[]-[]-[]-[]-[]-[],AllRaw-Briefs-Details-Pages-Groups-Predicates-Locations),
     string_concat(AllRaw,Info),
     string_concat(Briefs,Bs),
     string_concat(Details,Ds),
     string_concat(Groups,Gs),
-    string_concat(Pages,As),
     string_concat(Predicates,Ps),
-    string_concat(["# ",Title, "\n\n",Bs,"\n\n\n",As,Gs,"\n\n\n",Ds,"\n\n\n",Ps,"\n\n",Info,"\n\n",Location],All).
+    string_concat(Pages,As),
+    string_concat(Locations,Ls),
+    string_concat(["# ",Title, "\n\n",Bs,"\n\n\n",As,Gs,"\n\n\n",Ds,"\n\n\n",Ps,"\n\n",Info,"\n\n",Ls],All).
  
 
 process_all(State,Op,S0s,SFs) :-
@@ -148,9 +148,8 @@ add2strings(_Op,Strings,S-Sb-Sd-Sa-Sg-Sp-Sl,[Strings|S]-Sb-Sd-Sa-Sg-Sp-Sl).
 process(_State,compoundname(_Atts,_Children)) -->
 !.
 process(_State,title(_Atts,_Children)) -->
-!.
-process(_State,location(_Atts,_Children)) -->
-!.
+!
+.
 process(State,basecompoundref(Atts,Children)) -->
     !,
     seq(State,basecompoundref(Atts,Children)).
@@ -1244,8 +1243,8 @@ para(msc([],_Text)) -->
     []. % docDotMscType
 para(plantuml([],_Text)) -->
     []. % docPlantumlType
-para(anchor([],Text)) -->
-    para(Text). % docAnchorType
+para(anchor(Parms,Children))-->
+anchor(Parms,Children).
 para(ref(Atts,[Name])) -->
     {
         key_in(refid(Ref),Atts)
@@ -1854,6 +1853,10 @@ get_name(Children,Name) :-
     ),
     string(Name),
     !.
+
+
+anchor([id(Ref)],[]) -->
+  ["[](){#",Ref,"}\n"].
 
 gengroup(Ref0) :-
 abolish(visited/1),
