@@ -1,4 +1,4 @@
-//%#!/home/vsc/.local/bin/yap -L --
+%#!/home/vsc/.local/bin/yap -L --
 
 /** @file filter.yap
  *
@@ -6,7 +6,7 @@
  *
  */
 
-:- include(utils).
+:- include(docutils).
 
 :-dynamic pred_found/3, exported/3, defines_module/1.
 
@@ -14,7 +14,7 @@ defines_module(prolog).
 
 :- initialization(main).
 
-:- add_to_path('../pl').
+
 
 :- set_prolog_flag(double_quotes, string).
 
@@ -32,7 +32,7 @@ valid_suffix('.ypp').
 
 main :-
     retractall(pred_found(_,_,_)),
-    unix(oargv([File])),
+    unix(argv([File])),
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
     
     %    valid_suffix(ValidSuffix),
@@ -44,7 +44,7 @@ main :-
     script(S),
     findall(O, user:entry(S,O), Info),
 %spy trl,
-     predicates(Info, _, Preds, _),
+     predicates(Info, true/0, Preds, _),
      insert_module_header,
      maplist(output,Preds),
      working_directory(_,OldD),
@@ -105,6 +105,7 @@ main :-
        functor(Head,Name,Arity),
        O = clause(Name/Arity,Head,Body,Comments,Vs)
        ;
+       functor(T,Name,Arity),
        O=clause(Name/Arity,Head,true,Comments,Vs)
      ).
 
@@ -112,11 +113,12 @@ main :-
   % predicates([H|_],_,_,_) :-
   %     writeln(H),
   %     fail.
+% predicates([H|_],Ctx,_,_) :- writeln(Ctx:H),fail.
  predicates([],_,[],[]).
  predicates([directive(Directive,Comments,Vs)|More],Ctx,
-	    [command([comments(Comments),  body(Directive, Vs,Ctx),[]])|Preds], L0) :-
+	    [command([comments(Comments),  body(Directive, Vs,true/0),[]])|Preds], L0) :-
      !,
-     predicates(More,0,Preds,L0).
+     predicates(More,Ctx,Preds,L0).
  % change of predicate
  predicates([clause(N/A,Head,Body,Comments,Vs)|More],Ctx,
 	    [predicate(N/A,[comments(Comments), head_body(Head, Body, Vs)|L0])|Preds], L0) :-
@@ -132,31 +134,28 @@ main :-
 % predicate continuation
 predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
 	   Preds, [comments(Comments), head_body(Head, Body, Vs)|L0]) :-
-    predicates(More,N/A,Preds,L0).
+                        predicates(More,N/A,Preds,L0).
 
 output(command([comments(Comments) |_])) :-
     maplist(out_comment,Comments ).
 output(predicate(N/A,[comments(Comments) |_Clauses])) :-
-    ((var(N);var(A))->unix(argv([File])),writeln(File:Comments);true),
     encode(N/A,S1),
-    atom_string(A1,S1),
+    atom_string(NA,S1),
     maplist(out_comment,Comments),
     addcomm(N/A,S1,_Found),
     findall(I,between(1,A,I),Is),
     maplist(atomic_concat('int ARG'),Is,NIs),
     (
-      A==0 ->
-      T = N
-      ;
-      T =.. [A1|NIs]
-    ),
-    (
-      false,
       is_exported(N,A)
       ->
-      format(' class  ~s {        ~w;~n};~n~n~n',[ S1,T])
+      (
+      A==0 ->
+      format(' class  ~s {        ~w();~n};~n~n~n',[ S1,NA])
       ;
-      true
+      T =.. [NA|NIs],
+      format(' class  ~s {        ~w();~n};~n~n~n',[ S1,T])
+      );
+    true
     ) .
 
 insert_module_header :-
@@ -211,7 +210,7 @@ trl( C,["//!",Space|NC]) :-
     sub_string(C,2,1,_,Space),
     sp(Space),
     !,
-    sub_string(C,3,_0,Comm),
+    sub_string(C,3,_,0,Comm),
     trl_comment(Comm,star,NC).
 trl( _C,[ ""]).
 
@@ -256,7 +255,7 @@ trl_prefix(C,RC,["///"|NC],NC) :-
      sub_string(C,2,1,_Comm,Space),
     sp(Space),
     !,
-    sub_string(C,3,_,0,RC).
+    sub_string(C,3,_,0,RC). 
 trl_prefix(C,C,NC,NC).
 
 % arity > 0
@@ -345,7 +344,7 @@ trl_pred(L,L,NL,NL).
     strip_whitespace(Line0,I0,Line) :-
     sub_string(Line0,I0,_,0,Line).
 
-    strip_whitespace(I0,Line,IF) :-
+    skip_whitespace(I0,Line,IF) :-
     sub_string(Line,I0,1,_,WS),
     ws(WS),
     !,
@@ -394,7 +393,7 @@ NPrefix \= Left,
     sub_string(L,0,NPrefix,_,Prefix),
     sub_string(L,NPrefix,_,Right,Name),
     sub_string(L,_,Right,0,RL),
-    string_concat([Name,D],PI),
+    string_concat([Name,"/",D],PI),
     encode(PI,DoxName),
     NL=[Prefix,"@ref ",DoxName," \"",PI,"\""|NRL],
     trl_pi(RL,NRL,NL0).

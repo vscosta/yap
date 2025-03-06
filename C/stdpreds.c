@@ -396,7 +396,7 @@ static Int p_walltime(USES_REGS1) {
 
 //  static int cnt;
 
-  /** @pred  _T_ =..  _L_ is iso
+  /** @infixpred  _T_ =..  _L_ is iso
 
 
   The list  _L_ is built with the functor and arguments of the term

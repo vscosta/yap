@@ -675,7 +675,7 @@ close_list([]) :- !.
 close_list([_|T]) :-
 	close_list(T).
 
-/** randomize( +List, -RandomList).
+/** @pred randomize( +List, -RandomList).
 
 Create a "random" peermutation of a list. The initial list may have repeated
 elements,

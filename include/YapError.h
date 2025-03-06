@@ -18,7 +18,7 @@
 /// @brief The file  YapErrors.h defines the internal error handling API.
 ///
 /// @defgroup ErrorC C API/Implementation of error handling
-/// @ingroup YAPError
+/// @ingroup YAPErrors
 ///
 /// @{
 ///

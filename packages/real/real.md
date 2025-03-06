@@ -1,15 +1,13 @@
 
-<!--- @@file real.md --->
-<!--- @@author	Nicos Angelopoulos --->
-<!--- @@author	Vitor Santos Costa --->
-<!--- @@version	1:0:4, 2013/12/25, sinter_class --->
-<!--- @@license	Perl Artistic License --->
+@file real.md
+@author	Nicos Angelopoulos
+@author	Vitor Santos Costa
+@version	1:0:4, 2013/12/25, sinter_class
+@license	Perl Artistic License
 
-@defgroup real The R Prolog Programming Interface
-<!--- @@ingroup packages --->
-<!--- @@{ --->
+@defgroup realm The R Prolog Programming Interface
+@ingroup packages
 
-  + @tableofcontents
 
 This library enables the communication with an R process started as a shared library.
 It is the result of the efforts of two research groups that have worked in parallel.
@@ -46,8 +44,8 @@ Pass Prolog data to R, pass R data to Prolog or assign an R expression to
 an assignable R expression.
 
 @defgroup TestingR Testing Real
-<!--- @@ingroup realmd --->
-<!--- @@{ --->
+<!-- @@ingroup realmd -->
+<!-- @@{ -->
 
 There is a raft of examples packed in a single file that tests the library.
 
@@ -58,10 +56,10 @@ There is a raft of examples packed in a single file that tests the library.
 
 	?- edit( pack(real/examples/for_real) ).
 ```
-<!--- @@} --->
+<!-- @@} -->
 @defgroup RSyntax Prolog and R Syntax
-<!--- @@ingroup real --->
-<!--- @@{ --->
+<!-- @@ingroup real -->
+<!-- @@{ -->
 
 There are syntactic conventions in R that make unparsable prolog code.
 Notably function and variable names are allowed to contain dots, square brackets are used
@@ -164,10 +162,10 @@ This is only advisable for short data structures. For instance,
 Through this interface it is more convenient to be explicit about R chars by Prolog prepending
 atoms or codes with + as in the above example.
 
-<!--- @@} --->
+<!-- @@} -->
 @defgroup RealExamples Examples
-<!--- @@ingroup  real --->
-<!--- @@{ --->
+<!-- @@ingroup  real -->
+<!-- @@{ -->
 
 ```
 
@@ -215,10 +213,10 @@ logical :-
 ```
 
 
-<!--- @@} --->
+<!-- @@} -->
 @defgroup RealInfo Real Information
-<!--- @@ingroup  real --->
-<!--- @@{ --->
+<!-- @@ingroup  real -->
+<!-- @@{ -->
 
 
 @see		http://stoics.org.uk/~nicos/sware/real
@@ -230,10 +228,10 @@ logical :-
 
 Also @ref yap-real describes the YAP specfic details in real.
 
-<!--- @@} --->
+<!-- @@} -->
 @defgroup yap_real Development of real in YAP
-<!--- @@ingroup  real  --->
-<!--- @@{ --->
+<!-- @@ingroup  real  -->
+<!-- @@{ -->
 
 
 YAP includes a development version of real, designed to experiment
@@ -277,13 +275,13 @@ in~\cite . Their major differences:
    ?- [examples/for_real].
    ?- for_real.
 
-<!--- @@} --->
+<!-- @@} -->
 
----
+--
  - Nicos Angelopoulos and Vitor Santos Costa, December, 2012.
 
  - Updates: Nicos Angelopoulos, Dec. 2013, March, 2014
 
  - Updates: Vitor Santos Costa Dec. 2015
 
-<!--- @@} --->
+<!-- @@} -->

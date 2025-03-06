@@ -23,66 +23,43 @@ static char     SccsId[] = "%W% %G%";
    @file arith2.c
 
    @addtogroup arithmetic_operators
-
+@{
+  @anchor arith2op
    These are the binary numeric operators currently supported by YAP.
 
-   -  *_X_+ _Y_ [ISO]*
+   -  *_X_+ _Y_ [ISO]* @anchor plus2
 
    Addition, implemented between any two    types of numbers
   
-   - *_X_- _Y_ [ISO]*
+   - *_X_- _Y_ [ISO]* @anchor minus2
 
    Addition, implemented between any two types of numbers.
 
-   - *_X_\* _Y_ [ISO]*
+   - *_X_\* _Y_ [ISO]* @anchor times2
 
    Product.
 
-   - *_X_/ _Y_ [ISO]*
-
-   Quotient. 
-
-The result of _Y_/0.0  may return the value `inf`, or it may generate an exception, depending on the value of the Prolog flag `arithmetic_exceptions`.
-
-The next example shows zero division handling. If the flag is enabled:
-
-~~~
-?- X is 2/0.
-ERROR!!
-ZERO DIVISOR ERROR- X is Exp
-~~~
-
-If disabled:
-~~~
-?- X is 2/0.
-X = (+inf).
-~~~
-It is `true` by default, but it is disabled by packages like CLP(BN) and
-
-By default the flag is set to `false`.
-
-
-  - *_X_// _Y_ [ISO]*
+   - *_X_/ _Y_ [ISO]* @anchor quo2
 
     Integer quotient.
 
-  - *_X_ mod  _Y_ [ISO]* @anchor mod_2
+  - *_X_ mod  _Y_ [ISO]* @anchor mod2
 
     Integer module operator, always positive.
 
-  - *_X_ rem  _Y_ [ISO]* @anchor rem_2
+  - *_X_ rem  _Y_ [ISO]* @anchor rem2
 
     Integer remainder, similar to `mod` but always has the same sign as `X`.
 
-  - * _X_ div  _Y_ [ISO]* @anchor div_2
+  - * _X_ div  _Y_ [ISO]* @anchor div2
 
     Integer division, as if defined by `( _X_ -  _X_ mod  _Y_)//  _Y_`.
 
-  - *max( _X_, _Y_) [ISO]* @anchor max_2
+  - *max( _X_, _Y_) [ISO]* @anchor max2
 
     The greater value of  _X_ and  _Y_.
 
-  - *min( _X_, _Y_) [ISO]* @anchor min_2
+  - *min( _X_, _Y_) [ISO]* @anchor min2
 
     The lesser value of  _X_ and  _Y_.
 
@@ -90,7 +67,7 @@ By default the flag is set to `false`.
 
      _X_ raised to the power of  _Y_, (from the C-Prolog syntax).
 
-  - *exp( _X_, _Y_)* @anchor exp_2
+  - *exp( _X_, _Y_)* @anchor exp2
 
      _X_ raised to the power of  _Y_, (from the Quintus Prolog syntax).
 
@@ -114,7 +91,7 @@ By default the flag is set to `false`.
 
     Integer bitwise exclusive disjunction.
 
-  - *xor( _X_ ,  _Y_) [ISO]* @anchor xor_2
+  - *xor( _X_ ,  _Y_) [ISO]* @anchor xor2
 
     Integer bitwise exclusive disjunction.
 
@@ -126,19 +103,19 @@ By default the flag is set to `false`.
 
     Integer bitwise right logical shift of  _X_ by  _Y_ places.
 
-  - *gcd( _X_, _Y_)* @anchor gcd_2
+  - *gcd( _X_, _Y_)* @anchor gcd2
 
     The greatest common divisor of the two integers  _X_ and  _Y_.
 
-  - *atan( _X_, _Y_)* @anchor atan_2
+  - *atan( _X_, _Y_)* @anchor atan2
 
     Four-quadrant arc tangent. Also available as `atan2/2`.
 
-  - *atan2( _X_, _Y_) [ISO]* @anchor atan2_2
+  - *atan2( _X_, _Y_) [ISO]* @anchor atan22
 
     Four-quadrant arc tangent.
 
-  - * _X_ rdiv  _Y_ [ISO]* @anchor rdiv_2
+  - * _X_ rdiv  _Y_ [ISO]* @anchor rdiv2
 
     Rational division.
 
@@ -1435,3 +1412,4 @@ Yap_ReInitBinaryExps(void)
   return(TRUE);
 }
 
+/// @}

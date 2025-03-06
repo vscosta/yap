@@ -1,7 +1,7 @@
 /**
   @file 
 
-  @ingroup cudd
+  @ingroup YAP2Bdds
 
   @brief The University of Colorado decision diagram package.
 

@@ -18,7 +18,7 @@
  @brief Main definitions
 
    @defgroup YAPImplementation Implementation Considerations
-   @ingroup programming
+   @ingroup YAPProgramming
 
    @{
 

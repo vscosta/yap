@@ -1666,6 +1666,27 @@ static Int must_be_atom1(USES_REGS1) {
   return must_be_atom__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
 
+
+bool must_be_string__(const char *file, const char *function, int lineno,
+                    Term t USES_REGS) {
+  // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
+  if (IsVarTerm(t)) {
+    Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, t, "is atom");
+    return false;
+  }
+  if (!IsStringTerm(t)) {
+    Yap_ThrowError__(file, function, lineno, TYPE_ERROR_STRING, t, "is atom");
+    return false;
+  }
+  return true;
+}
+
+static Int must_be_string1(USES_REGS1) {
+  Term t = Deref(ARG1);
+  return must_be_string__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
+}
+
+
 bool must_be_char__(const char *file, const char *function, int lineno,
                     Term t USES_REGS) {
   // Term Context = Deref(ARG2)Yap_Error(INSTANTIATION_ERROR, t, NULL);;
@@ -2067,6 +2088,7 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("must_be_callable", 1, must_be_callable1, TestPredFlag);
   Yap_InitCPred("must_be_char", 1, must_be_char1, TestPredFlag);
   Yap_InitCPred("must_be_code", 1, must_be_code1, TestPredFlag);
+  Yap_InitCPred("must_be_string", 1, must_be_string1, TestPredFlag);
   Yap_InitCPred("must_be_ground", 1, must_be_ground1, TestPredFlag);
   Yap_InitCPred("must_be_list", 1, must_be_list1, TestPredFlag);
 

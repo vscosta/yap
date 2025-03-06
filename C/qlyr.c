@@ -19,7 +19,7 @@
  *
  * @file qlyr.c
  *
- * @addtogroup SaveRestoreSupport
+ * @addtogroup QLY
  * @{
  *
  */

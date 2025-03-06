@@ -21,10 +21,6 @@ The manual is organised as follows:
 - @ref YAPPackages
 
 */
-
-#include <gecode/search.hh>
-Gecode::bable maless ribes a number of packages that can be used from YAP.
-   
 @{
    
 
