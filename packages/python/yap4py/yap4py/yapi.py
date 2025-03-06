@@ -93,7 +93,7 @@ class YAPShell:
         g = None
         #import pdb; pdb.set_trace()
         #
-b# construct a query from a one-line string
+        # construct a query from a one-line string
         # q is opaque to Python
         #
         # q = engine.query(python_query(self, s))
