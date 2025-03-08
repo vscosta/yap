@@ -265,7 +265,7 @@ public:
  */
 class YAPEngine {
 private:
-  YAPEngineArgs *engine_args;
+  YAPEngineArgs  *engine_args;
   YAPCallback *_callback;
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
@@ -275,16 +275,16 @@ private:
 public:
   ///< construct a new engine; may use a variable number of arguments
   std::string port = "call";
-  YAPEngine(YAPEngineArgs cargs=YAPEngineArgs()) {
-    engine_args =& cargs;
+  YAPEngine(YAPEngineArgs * cargs) {
+    engine_args = cargs;
     // doInit(cargs->boot_file_type);
     __android_log_print(
     ANDROID_LOG_INFO, "YAPDroid", "start engine  ");
 #ifdef __ANDROID__
-    doInit(YAP_PL, &cargs);
+    doInit(YAP_PL, cargs);
 
 #else
-    doInit(YAP_QLY, &cargs);
+    doInit(YAP_QLY, cargs);
 #endif
   }; ///< construct a new engine, including aaccess to callbacks
   ///< construct a new engine using argc/argv list of arguments

@@ -264,7 +264,7 @@ start_r :-
  start_r :-
 	swipl_wins_warn,
 	init_r_env,
-	load_foreign_files([libreal], [], install_real),
+	load_foreign_files([], ['YAPR'], install_real),
     init_R,
 	set_prolog_flag(double_quotes, string ),
 	assert( r_started(true) ).
@@ -340,7 +340,7 @@ r( RvarIn ) :-
 	send_r_codes( CmdCodes ).
 r( R ) :-
 	rexpr_codes(R,TmpRs,Rcodes,[]),
-	!,
+vv	!,
 	send_r_codes(Rcodes),
 	maplist( r_remove, TmpRs ).
 r( _Other ) :-
