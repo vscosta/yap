@@ -55,11 +55,6 @@ RUN     cd /app/yap/build &&\
 
 RUN cd /app/yap/build/packages/python/yap4py \
     && python3 -m pip install --break-system-packages .
-
-#R extras
-
-RUN cd /app/yap/build \
-    && cmake --build . --target YAP4R
 RUN cd /app/yap/build \
     &&  R CMD INSTALL packages/real/yap4r
 
