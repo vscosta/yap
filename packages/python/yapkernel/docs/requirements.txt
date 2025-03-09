@@ -1,2 +1,3 @@
-sphinxcontrib_github_alt
+
+ksphinxcontrib_github_alt
 myst_parser
