@@ -49,9 +49,8 @@
 	  ]).
 
 
-/** @defgroup YAP_YAP_Py4YAP A C-based  Prolog interface to python.
-    @ingroup YAP_YAP_python
-b
+/** @defgroup py4yap  Prolog interface to python.
+    @ingroup python
 
 @{
 
@@ -59,8 +58,8 @@ b
   @version      0:0:5, 2012/10/8
   @license      Perl Artistic License
 
-This is an interface to allow calling Python from Prolog. Please look
-at the YAP4PY SWIG package if you want to embedd Prolog with Python.
+This is an interface to allow calling Python from Prolog. It works together
+with the YAP4PY SWIG package, thatis used to if you want to embedd Prolog with Python.
 
 The interface should be activated by consulting the python library. It
 immediately boots a Python image.
@@ -99,7 +98,7 @@ similar as possible.
 
 Python interface
 
-Data types arebb
+Data types are
 
      Python                Prolog
      string                atoms
@@ -128,7 +127,7 @@ Data types arebb
 	   op(100, xfy, '.'),
 	   op(100, fy, '.').
 
-	   :-  multifile (<-)/1, (<-)/2,
+:-  multifile (<-)/1, (<-)/2,
 			 '()'/1, '{}'/1,
 			 (:=)/1,
 			 (:=)/2.
@@ -148,7 +147,7 @@ F() :-
     python:python_proc({F} ).
 
  := (P1 , P2 ) :- !,
-    := P1,
+     := P1,
     := P2.
 
 := F :- catch( python:python_proc(F), _, fail ).

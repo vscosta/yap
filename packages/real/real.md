@@ -1,4 +1,4 @@
- 
+#  The R Prolog Programming Interface {#real}
 
 @file real.md
 @author	Nicos Angelopoulos
@@ -7,7 +7,7 @@
 @license	Perl Artistic License
 
 @defgroup real The R Prolog Programming Interface
-@ingroup packages
+@ingroup YAPPackages
 
 @{
 

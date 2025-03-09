@@ -1,3 +1,22 @@
+##
+## @file yapi.py This file is the main file for the YAP4PY interface.
+##
+##
+
+"""
+   @defgroup yap4py Calling Prolog from Python
+   @ingroup python
+   @{
+
+   Next, we include a number of classes directed towards calling YAP in
+a pythonic way. The code relies on the YAP C++ interface, that is exported to
+module yap4py.yap.
+
+We rely on the similarity between namedtuples and terms. Defaults are at systuples.
+Query execution is implemented in the queries module.
+
+"""
+
 from collections import namedtuple
 import readline
 import copy
@@ -17,13 +36,22 @@ import sys
 
 yap_lib_path = dirname(__file__)
 
+
 async def print_out(s):
+    """
+    Asynchroneous output to the Python stdout stream,
+    """
     sys.stdout.write(s.encode())
     await sys.stdout.drain()
 
 async def print_err(s):
+    """
+    Asynchroneous output to the Python stderr stream,
+    """
     sys.stdout.write(s.encode())
     await sys.stderr.drain()
+
+
 
 
 library = namedtuple('library', 'filelib')
@@ -32,8 +60,16 @@ load_text = namedtuple('load_text', 'text')
 set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
 
 class Engine( YAPEngine ):
+    """
+    Entry Point to starting and controllin the YAP machine from
+    Python.
+    """
 
     def __init__(self, args=None,self_contained=False,**kwargs):
+        """
+        Create an embedded YAP interpreter.  Tasks include setting default paths and loading the yapi Prolog library.
+
+        """
         # type: (object) -> object
         if not args:
             args = EngineArgs(**kwargs)
@@ -90,25 +126,26 @@ class YAPShell:
 
 
     def query_prolog(self, query):
-        g = None
-        #import pdb; pdb.set_trace()
-        #
+        """
         # construct a query from a one-line string
         # q is opaque to Python
         #
-        # q = engine.query(python_query(self, s))
+        # q = engine.query(self.python_query(, s))
         #
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        # import pdb; pdb.set_trace()
-        #     #pdb.set_trace()
+
+
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
         #for eq in vs:
         #    if not isinstance(eq[0],str):
         #        print( "Error: Variable Name matches a Python Symbol")
         #        return
+        #        return
+        g = None
+        """
         try:
             engine = self.engine
             

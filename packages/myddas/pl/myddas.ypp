@@ -160,7 +160,7 @@
 				     ]).
 /**
  * @defgroup MYDDAS The MYDDAS Prolog to database interface.
- * @in group YAPApplications.
+ * @ingroup YAPPackages
  *
  * @brief MYDDAS allows access to data-base tables as Prolog predicates.
  *
