@@ -1,6 +1,9 @@
 #include <Rcpp.h>
 
-
+/**
+   @file yap4r.cpp
+   @brief R to YAP
+*/
 // [[Rcpp::plugins("cpp11")]]
 
 #undef Realloc
@@ -13,6 +16,11 @@
 
 #include "real.h"
 
+/**
+   @defgroup YAP4R calling YAP from R
+   @ingroup real
+   @{
+*/
 extern "C" {
 extern void install_real(void);
 }
@@ -43,15 +51,15 @@ public:
 // [[Rcpp::export(rng = false)]]
 
 
-//' Wrapper allowing R to control an YAP environment.
-//'
-//' First, it creates an YAP engine using the C++ YAPEngine class;
-//' Second, it installs the Real library, both Prolog and C.
-//' 
-//' @examples
-//' library(yap4r)
-//' y <- new(yap4r)
-//'
+/// Wrapper allowing R to control an YAP environment.
+///
+/// First, it creates an YAP engine using the C++ YAPEngine class;
+/// Second, it installs the Real library, both Prolog and C.
+/// 
+/// @examples
+/// library(yap4r)
+/// y <- new(yap4r)
+///
 yap4r::yap4r() {
   YAPEngineArgs *yargs = new YAPEngineArgs();
   yargs->setEmbedded(true);
@@ -69,34 +77,34 @@ LogicalVector f(){
 }
 
 
-//' query the YAP database x a text query. The output is a
-//' S-EXP.
-//' 
-//' @param: query as a list of characters
-//' 
-//' The function often starts a sequence:
-//'   + `query(S)`: create a query and get the first answer;
-//'   + `more()`: get an extra answer;
-//'   + `done()`: recover the query.
-//' 
-//' An answer is a vector of S-expressions, with one per query
-//' variable.
-//'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-//' @examples
-//' y$query('current_predicate(X,Y)')
-//' # $X
-//' # text_query
-//' #   
-//' #  $Y
-//' #  text_query()
-//' #
-//' 
-//' 
-//'  y$query('between(1,10,X)')
-//' # $X
-//' #  [1] 1
-//' 
-//' @export
+/// query the YAP database x a text query. The output is a
+/// S-EXP.
+/// 
+/// @param: query as a list of characters
+/// 
+/// The function often starts a sequence:
+///   + `query(S)`: create a query and get the first answer;
+///   + `more()`: get an extra answer;
+///   + `done()`: recover the query.
+/// 
+/// An answer is a vector of S-expressions, with one per query
+/// variable.
+///                                               
+/// @examples
+/// y$query('current_predicate(X,Y)')
+/// # $X
+/// # text_query
+/// #   
+/// #  $Y
+/// #  text_query()
+/// #
+/// 
+/// 
+///  y$query('between(1,10,X)')
+/// # $X
+/// #  [1] 1
+/// 
+/// @export
 SEXP yap4r::query(std::string query) {
  
   if (q) {
@@ -122,29 +130,29 @@ SEXP yap4r::query(std::string query) {
    return f();
 }
 
-//' ask for more solutions from a query.
-//'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-//' @examples
-//' y$more()
-//' # [X=r_query,Y=r_query(_20256)]
-//' # $X
-//' #   r_query
-//' #   
-//' #   $Y
-//' #   r_query()
-//' # $X
-//' # text_query
-//' #   
-//' #  $Y
-//' #  text_query()
-//' #
-//'
-//' 
-//'  y$query('between(1,10,X)')
-//' # $X
-//' #  [1] 1
-//'
-//' @export
+/// ask for more solutions from a query.
+///                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+/// @examples
+/// y$more()
+/// # [X=r_query,Y=r_query(_20256)]
+/// # $X
+/// #   r_query
+/// #   
+/// #   $Y
+/// #   r_query()
+/// # $X
+/// # text_query
+/// #   
+/// #  $Y
+/// #  text_query()
+/// #
+///
+/// 
+///  y$query('between(1,10,X)')
+/// # $X
+/// #  [1] 1
+///
+/// @export
 SEXP yap4r::more() {
   bool rc = true;
   if (failed)
@@ -162,10 +170,10 @@ SEXP yap4r::more() {
 
 
 
-//' ask for more solutions from a query.
-//'
-//'
-//' @export
+/// ask for more solutions from a query.
+///
+///
+/// @export
 bool yap4r::done() {
 
   if (failed)
@@ -177,10 +185,10 @@ bool yap4r::done() {
 }
 
 
-//' run a Prolog term represented as a sexp.
-//'
-//'
-//' @export
+/// run a Prolog term represented as a sexp.
+///
+///
+/// @export
 bool yap4r::run(SEXP l) {
   yhandle_t yh = Yap_InitHandle(MkVarTerm());
   if (!sexp_to_pl(yh, l))
@@ -189,38 +197,38 @@ bool yap4r::run(SEXP l) {
 }
 
 
-//' run a Prolog term represented as text.
-//'
-//' @example
-//' # example session with the Aleph ILP system.
-//' library(yap4r)
+/// run a Prolog term represented as text.
+///
+/// @example
+/// # example session with the Aleph ILP system.
+/// library(yap4r)
 //` y <- new(yap4r)
-//' y$compile('aleph')
+/// y$compile('aleph')
 //- setwd('~/ilp/carcinogenesis')
-//' y$eval('read(aleph)')
-//' y$eval('induce')
-//' @export
+/// y$eval('read(aleph)')
+/// y$eval('induce')
+/// @export
 bool yap4r::eval(std::string l) {
   Term t = MkAtomTerm(Yap_LookupAtom(l.c_str()));
   return yap->mgoal(Yap_MkApplTerm(functorEvalText, 1, &t), USER_MODULE);
 }
 
 
-//' compile Prolog file
-//'
-//' @example
-//' y$compile('aleph')
-//' @export
+/// compile Prolog file
+///
+/// @example
+/// y$compile('aleph')
+/// @export
 bool yap4r::compile(std::string s) {
   Term t = MkAtomTerm(Yap_LookupAtom(s.c_str()));
   return yap->mgoal(Yap_MkApplTerm(functorCompile, 1, &t), USER_MODULE);
 }
 
-//' compile Prolog library
-//'
-//' @example
-//' u$library('lists')
-//' @export
+/// compile Prolog library
+///
+/// @example
+/// u$library('lists')
+/// @export
 bool yap4r::library(std::string s) {
   Term t = MkAtomTerm(Yap_LookupAtom(s.c_str()));
   t = Yap_MkApplTerm(functorLibrary, 1, &t);
@@ -248,3 +256,5 @@ RCPP_MODULE(yap4r) {
       .method("peek", &yap4r::peek, "load arg[i] into R")
     ;
 }
+
+/// @}

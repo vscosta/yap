@@ -1,3 +1,4 @@
+ 
 
 @file real.md
 @author	Nicos Angelopoulos
@@ -5,9 +6,10 @@
 @version	1:0:4, 2013/12/25, sinter_class
 @license	Perl Artistic License
 
-@defgroup realm The R Prolog Programming Interface
+@defgroup real The R Prolog Programming Interface
 @ingroup packages
 
+@{
 
 This library enables the communication with an R process started as a shared library.
 It is the result of the efforts of two research groups that have worked in parallel.
@@ -285,3 +287,4 @@ in~\cite . Their major differences:
  - Updates: Vitor Santos Costa Dec. 2015
 
 <!-- @@} -->
+@}

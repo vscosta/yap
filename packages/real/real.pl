@@ -2,7 +2,7 @@
 %    Author:        Nicos Angelopoulos, Vitor Santos Costa, Jan Wielemaker
 %    E-mail:        Nicos Angelopoulos <nicos@gmx.co.uk>
 %    Copyright (C): Nicos Angelopoulos, Universidade do Porto, VU University Amsterdam
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  This file is part of real
 %  distributed according to Perl Artistic License
@@ -12,9 +12,11 @@
 
 /**
  * @file real.pl
+ */
+/**
  * @brief Prolog component of r_interface
  * @defgroup YAP_YAP_realpl Prolog component of r_interface
- * @ingroup YAP_YAP_realmd
+ * @ingroup real
  * @{
  * Initialization code and key predicares for R-Prolog interface.
  *

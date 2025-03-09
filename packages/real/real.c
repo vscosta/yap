@@ -10,7 +10,7 @@
 /**
  * @defgroup realI Interface Prolog to R
  * @ brief How to call R from YAP
- * @ingroup realm
+ * @ingroup real
  * @{
  */
 #include "Rinternals.h"
