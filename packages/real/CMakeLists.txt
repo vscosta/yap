@@ -10,7 +10,7 @@ if (WITH_R)
     )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R)
-configure_file( ${CMAKE_CURRENT_LIST_DIR}/yap4r/src/Makevars.in ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/Makevars)
+
 
 set(REAL_SOURCES real.c)
 
@@ -48,13 +48,13 @@ set(REAL_SOURCES real.c)
       ${CMAKE_SOURCE_DIR}/include
       ${LIBR_INCLUDE_DIRS}
       )	
-
-    check_include_files( "stdio.h;R.h" HAVE_R_H )
+check_include_files( "stdio.h;R.h" HAVE_R_H )
     check_include_files( "R.h;Rinterface.h" HAVE_R_INTERFACE_H )
     check_include_files( "R.h;Rembedded.h" HAVE_R_EMBEDDED_H )
     check_include_files( "R.h;Rinternals.h" HAVE_RINTERNALS_H )
 
-
+configure_file( ${CMAKE_CURRENT_LIST_DIR}/r4yapconfig.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/R4YAPconfig.h)
+configure_file( ${CMAKE_CURRENT_LIST_DIR}/yap4r/src/Makevars.in ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/Makevars)
     add_library(YAPR  ${REAL_SOURCES})
     target_link_libraries (YAPR ${LIBR_LIBRARIES}   libYap)
 
