@@ -664,7 +664,6 @@ lookup atom in atom table */
       p->ModuleOfPred = cur_mod;
     p->StatisticsForPred = NULL;
     Yap_NewModulePred( p);
-
 #ifdef TABLING
     p->TableOfPred = NULL;
 #endif /* TABLING */

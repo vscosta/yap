@@ -293,20 +293,35 @@ Retract all the clauses whose head matches the goal  _G_. Goal
 
 */
 retractall(MT) :- !,
-    '$yap_strip_module'(MT,M,T),
-    must_be_callable(T),
-    functor(T,Na,Ar),
+    '$predicate_type'(MT, Type),
     (
-	'$is_log_updatable'(T, M) ->
-	'$retractall_lu'(T,M)
+      Type == proxy_procedure
+      ->
+      '$import'(MDonor,M,GDonor,T,_NHost,_K),
+      retractall(MDonor:GDonor)
+      ;
+      Type == updatable_procedure
+      ->
+      MT=M:T,
+      '$retractall_lu'(T,M)
+      ;
+      Type == undefined_procedure
+      ->
+      MT=M:T,
+      functor(T,Na,Ar),
+      '$dynamic'(Na/Ar,M)
+      
+%%    '$erase_all_clauses_for_dynamic'(T, M)
     ;
-    '$undefined'(T,M) ->
-    '$dynamic'(Na/Ar,M), !
-    ;
-    '$is_dynamic'(T,M) ->
-    '$erase_all_clauses_for_dynamic'(T, M)
-    ;
-    throw_error(permission_error(modify,static_procedure,Na/Ar),retractall(T))
+      Type == system_procedure
+      ->
+      MT=M:T,
+      functor(T,Na,Ar),
+    throw_error(permission_error(modify,system_procedure,M:Na/Ar),retractall(T))
+	 ;
+	 MT=M:T,
+      functor(T,Na,Ar),
+    throw_error(permission_error(modify,static_procedure,M:Na/Ar),retractall(T))
     ).
 
 '$retractall_lu'(T,M) :-

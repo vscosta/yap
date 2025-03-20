@@ -111,6 +111,7 @@ class YAPShell:
     def numbervars( self ):
         Dict = {}
         self.engine.goal(show_answer( self, Dict), True)
+
         return Dict
         # rc = self.q.namedVarsVector()
         # self.q.r = self.q.goal().numbervars()
