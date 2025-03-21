@@ -157,10 +157,10 @@ restart:
   if (IsVarTerm(t)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
     return NULL;
-  } else if (IsVarTerm(tmod)) {
+  } else if (tmod && IsVarTerm(tmod)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
     return NULL;
- } else if (!IsAtomTerm(tmod)) {
+ } else if (tmod && !IsAtomTerm(tmod)) {
     Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
@@ -182,6 +182,51 @@ restart:
       t = ArgOfTerm(2, t);
       goto restart;
     }
+    PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
+    return ap;
+  } else {
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, pname);
+  }
+  return NULL;
+}
+
+PredEntry *get_full_pred(Term *tp, Term *tmodp, const char *pname) {
+  Term t0 = *tp, t = t0;
+  Term tmod = CurrentModule;
+
+restart:
+  if (IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
+    return NULL;
+  } else if (IsVarTerm(tmod)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
+    return NULL;
+ } else if (!IsAtomTerm(tmod)) {
+    Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
+    return NULL;
+  } else if (IsAtomTerm(t)) {
+    PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
+    *tmodp = tmod;
+    *tp = t;
+    return ap;
+  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
+    return Yap_FindLUIntKey(IntegerOfTerm(t));
+  } else if (IsPairTerm(t)) {
+    t = Yap_MkApplTerm(FunctorCsult, 1, &t);
+    goto restart;
+  } else if (IsApplTerm(t)) {
+    Functor fun = FunctorOfTerm(t);
+    if (IsExtensionFunctor(fun)) {
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      return NULL;
+    }
+    if (fun == FunctorModule) {
+      tmod = ArgOfTerm(1,t);
+      t = ArgOfTerm(2, t);
+      goto restart;
+    }
+    *tmodp = tmod;
+    *tp = t;
     PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
     return ap;
   } else {
@@ -2269,19 +2314,9 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   MegaClause *before = DeadMegaClauses;
 
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
-  if (IsVarTerm(t))
-    return FALSE;
-  if (IsVarTerm(mod) || !IsAtomTerm(mod)) {
-    return FALSE;
-  }
-  if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-    pred = RepPredProp(PredPropByAtom(at, mod));
-  } else if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
-    pred = RepPredProp(PredPropByFunc(fun, mod));
-  } else
-    return (FALSE);
+  pred = Yap_get_pred(t, mod, "purge_clauses");
+  if (!pred)
+    return true;
   if (pred->PredFlags & UserCPredFlag) {
     free(ClauseCodeToStaticClause(pred->CodeOfPred));
     pred->OpcodeOfPred = UNDEF_OPCODE;
@@ -2568,17 +2603,15 @@ static  Term gpred(PredEntry *pe)
 {
     Term out = TermStaticProcedure;
     MegaClause *mcl;
-    if ( pe->OpcodeOfPred == UNDEF_OPCODE)
-        return TermUndefined;
-    if (pe->PredFlags & SystemPredFlags ||
-	pe->ModuleOfPred == PROLOG_MODULE)
-	return  TermSystemProcedure;
     if (is_foreign(pe))
 	return  TermForeignProcedure;
    if (pe->PredFlags & ProxyPredFlag)
 	return  TermProxyProcedure;
    if (pe->PredFlags & LogUpdatePredFlag)
       return TermUpdatableProcedure;
+    if (pe->PredFlags & SystemPredFlags ||
+	pe->ModuleOfPred == PROLOG_MODULE)
+	return  TermSystemProcedure;
     if (pe->PredFlags & MegaClausePredFlag)
 	return  TermMegaProcedure;
     if (out==TermMegaProcedure) {
@@ -2600,6 +2633,19 @@ static  Term gpred(PredEntry *pe)
 }
 
 
+
+static Int predicate_info(USES_REGS1) { /* '$is_dynamic'(+P)	 */
+  PredEntry *pe;
+  Term t1 = Deref(ARG1);
+  Term tmod = CurrentModule;
+  pe = get_full_pred(&t1, &tmod, "predicate_info");
+  if (pe == NULL)
+    return false;
+  tmod = ( tmod == 0 ? TermProlog : tmod);
+  bool rc = Yap_unify(ARG2, gpred(pe)) && Yap_unify(ARG3,tmod ) &&
+    Yap_unify(ARG4,t1);
+  return rc;
+ }
 
 static Int predicate_type(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
@@ -4322,7 +4368,7 @@ static Int p_nth_instance(USES_REGS1) {
     }
   }
   if (pred_arity) {
-    if (!Yap_unify(ARG1, Yap_MkNewApplTerm(pred_f, pred_arity)))
+    if (!Yap_unify(ARG1, Yap_MkNewApplTerm(pred_f,pred_arity)))
       return FALSE;
   } else {
     if (!Yap_unify(ARG1, MkAtomTerm((Atom)pred_f)))
@@ -4473,6 +4519,7 @@ void Yap_InitCdMgr(void) {
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$has_source", 2, has_source, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$predicate_type", 3, predicate_type,  SafePredFlag);
+  Yap_InitCPred("$predicate_info", 4 , predicate_info,  SafePredFlag);
   Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, owner_file, SafePredFlag);
   Yap_InitCPred("$owner_file_line", 3, owner_file_line, SafePredFlag);

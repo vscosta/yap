@@ -293,7 +293,7 @@ Retract all the clauses whose head matches the goal  _G_. Goal
 
 */
 retractall(MT) :- !,
-    '$predicate_type'(MT, Type),
+    '$predicate_info'(MT, Type, M, T),
     (
       Type == proxy_procedure
       ->
@@ -302,12 +302,10 @@ retractall(MT) :- !,
       ;
       Type == updatable_procedure
       ->
-      MT=M:T,
       '$retractall_lu'(T,M)
       ;
       Type == undefined_procedure
       ->
-      MT=M:T,
       functor(T,Na,Ar),
       '$dynamic'(Na/Ar,M)
       
@@ -315,24 +313,22 @@ retractall(MT) :- !,
     ;
       Type == system_procedure
       ->
-      MT=M:T,
       functor(T,Na,Ar),
     throw_error(permission_error(modify,system_procedure,M:Na/Ar),retractall(T))
 	 ;
-	 MT=M:T,
       functor(T,Na,Ar),
     throw_error(permission_error(modify,static_procedure,M:Na/Ar),retractall(T))
     ).
 
 '$retractall_lu'(T,M) :-
-	'$free_arguments'(T), !,
-	( '$purge_clauses'(T,M), fail ; true ).
+    '$free_arguments'(T),
+    !,
+    ( '$purge_clauses'(T,M), fail ; true ).
 '$retractall_lu'(T,M) :-
-	'$log_update_clause'(T,M,_,R),
+    '$log_update_clause'(T,M,_,R),
 	erase(R),
 	fail.
 '$retractall_lu'(_,_).
-
 '$erase_all_clauses_for_dynamic'(T, M) :-
     '$log_update_clause'(T,M,_,R),
    	erase(R),
