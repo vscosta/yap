@@ -118,6 +118,17 @@ static char SccsId[] = "%W% %G%";
 #define SYSTEM_STAT stat
 #endif
 
+typedef enum {
+  YAP_START_PARSING,  /// initialization
+  YAP_SCANNING,       /// input to list of tokens
+  YAP_SCANNING_ERROR, /// serious error (eg oom); trying error handling, followd
+  /// by throw, restart or failure
+  YAP_PARSING,         /// list of tokens to term
+  YAP_PARSING_ERROR,   /// oom or syntax error
+  YAP_PARSING_FINISHED /// exit parser
+} parser_state_t;
+
+
 static Term is_output_list(Term t)
 {
     Term *tailp;
@@ -374,10 +385,10 @@ static Int scan_stream(USES_REGS1) {
   Term end = TermNil;
   LOCAL_tokptr = NULL;
   while (true) {
-  LOCAL_ErrorMessage = NULL;
+    LOCAL_ErrorMessage = "trying to scan after end of input";
     if (st->status & (Past_Eof_Stream_f)) {
       post_process_eof(st);
-      break;
+      return YAP_SCANNING_ERROR;
     }
       TokEntry * t = 
       Yap_tokenizer(GLOBAL_Stream + inp_stream, &params);
@@ -616,9 +627,6 @@ opos=	ftell(GLOBAL_Stream[sno].file);
 }
   }
 
-    if (st>= 0 && st->status & Past_Eof_Stream_f) {
-      Yap_CloseStream(sno);
-    }
       /* 0:  strat, error, end line */
   /*2 msg */
   /* 1: file */
@@ -794,16 +802,6 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   }
   return args;
 }
-
-typedef enum {
-  YAP_START_PARSING,  /// initialization
-  YAP_SCANNING,       /// input to list of tokens
-  YAP_SCANNING_ERROR, /// serious error (eg oom); trying error handling, followd
-  /// by throw, restart or failure
-  YAP_PARSING,         /// list of tokens to term
-  YAP_PARSING_ERROR,   /// oom or syntax error
-  YAP_PARSING_FINISHED /// exit parser
-} parser_state_t;
 
 Int Yap_FirstLineInParse(void) {
   CACHE_REGS
@@ -1092,13 +1090,10 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream, TokEntry *tokstart) {
   /*   return YAP_PARSING_ERROR; */
   /* } */
     if (GLOBAL_Stream[inp_stream].status & Past_Eof_Stream_f) {
-      fe->msg = "parsing stopped at a end-of-file";
-      Yap_CloseStream(inp_stream);
-      Yap_ThrowError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,Yap_MkStream(inp_stream),NULL); 
+      LOCAL_ErrorMessage = "parsing stopped at a end-of-file";
+      return YAP_PARSING_FINISHED;
     }
     /* we need to force the next read to also give end of file.*/
-    GLOBAL_Stream[inp_stream].status |= Push_Eof_Stream_f;
-    fe->msg = "end of file found before end of term";
     return YAP_PARSING_FINISHED;
   } else {
     // <eof>
