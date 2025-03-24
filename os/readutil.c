@@ -54,7 +54,7 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
   unsigned char *buf;
   bool binary_stream;
   utf8proc_int32_t ch;
-
+  do_as_binary = true;
   if (sno < 0)
     return false;
   status = GLOBAL_Stream[sno].status;

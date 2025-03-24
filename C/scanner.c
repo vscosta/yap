@@ -804,7 +804,7 @@ if (ch == EOFCHAR) {
  while(iswspace(ch)) {
     ch = getchr(inp);
     if (ch == EOFCHAR) {
-      st->status |= Push_Eof_Stream_f;
+      inp->status |= Push_Eof_Stream_f;
       return out;
     }
   }
@@ -935,12 +935,6 @@ const char *Yap_tokText(void *tokptre) {
   return ".";
 }
 
-// mark that we reached EOF
-// next  token will be end_of_file)
-static void mark_eof(struct stream_desc *st) {
-  st->buf.on = true;
-  st->buf.ch = EOF;
-}
 
 TokEntry *add_eot(TokEntry *p)
 {
@@ -982,7 +976,13 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   if( st->status &  Push_Eof_Stream_f) {
     ch=EOF;
     st->status &= ~Push_Eof_Stream_f;
-  } else {
+    if( st->status &  Reset_Eof_Stream_f) {
+      if (st->file && feof(st->file)) {
+	clearerr(st->file);
+      }
+    }
+    st->status &= ~Past_Eof_Stream_f;;
+  }´else{
   ch = getchr(st);
   while (chtype(ch) == BS) {
     och = ch;
@@ -1197,8 +1197,6 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       if (ch == '.') {
 	int pch = Yap_peekWide(st-GLOBAL_Stream);
 	if(chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
-	  if (ch==EOT) {
-	  }
 	  t->TokInfo = TermDot;
 	  t->Tok = Ord(eot_tok);
 	  return l;
