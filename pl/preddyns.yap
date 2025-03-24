@@ -293,31 +293,42 @@ Retract all the clauses whose head matches the goal  _G_. Goal
 
 */
 retractall(MT) :- !,
-    '$yap_strip_module'(MT,M,T),
-    must_be_callable(T),
-    functor(T,Na,Ar),
+    '$predicate_info'(MT, Type, M, T),
     (
-	'$is_log_updatable'(T, M) ->
-	'$retractall_lu'(T,M)
+      Type == proxy_procedure
+      ->
+      '$import'(MDonor,M,GDonor,T,_NHost,_K),
+      retractall(MDonor:GDonor)
+      ;
+      Type == updatable_procedure
+      ->
+      '$retractall_lu'(T,M)
+      ;
+      Type == undefined_procedure
+      ->
+      functor(T,Na,Ar),
+      '$dynamic'(Na/Ar,M)
+      
+%%    '$erase_all_clauses_for_dynamic'(T, M)
     ;
-    '$undefined'(T,M) ->
-    '$dynamic'(Na/Ar,M), !
-    ;
-    '$is_dynamic'(T,M) ->
-    '$erase_all_clauses_for_dynamic'(T, M)
-    ;
-    throw_error(permission_error(modify,static_procedure,Na/Ar),retractall(T))
+      Type == system_procedure
+      ->
+      functor(T,Na,Ar),
+    throw_error(permission_error(modify,system_procedure,M:Na/Ar),retractall(T))
+	 ;
+      functor(T,Na,Ar),
+    throw_error(permission_error(modify,static_procedure,M:Na/Ar),retractall(T))
     ).
 
 '$retractall_lu'(T,M) :-
-	'$free_arguments'(T), !,
-	( '$purge_clauses'(T,M), fail ; true ).
+    '$free_arguments'(T),
+    !,
+    ( '$purge_clauses'(T,M), fail ; true ).
 '$retractall_lu'(T,M) :-
-	'$log_update_clause'(T,M,_,R),
+    '$log_update_clause'(T,M,_,R),
 	erase(R),
 	fail.
 '$retractall_lu'(_,_).
-
 '$erase_all_clauses_for_dynamic'(T, M) :-
     '$log_update_clause'(T,M,_,R),
    	erase(R),

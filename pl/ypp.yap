@@ -149,5 +149,7 @@ ypp_file(File,PPFile):-
 
 % initialization
 :-set_state(on),
-	ypp_extcmd('cpp -P -E -w -o ').
+  ypp_extcmd('cpp -P -E -w -o ').
+
 %	ypp_extcmd('gpp -o').
+

@@ -861,6 +861,7 @@ while (npp && !valid_prop((Prop)(npp), task)) {
   Yap_unify(name, ARG2) ;
 	 Yap_unify(MkIntTerm(Arity), ARG3);
     if (npp) {
+      B->cp_h = HR;
       EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(npp);
       return true;
     } else {
@@ -877,6 +878,7 @@ while (npp && !valid_prop((Prop)(npp), task)) {
 static Int module_predicate(USES_REGS1)
 {
   EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
+  B->cp_h = HR;
   return continue_module_predicate(PASS_REGS1);
 }
 

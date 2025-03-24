@@ -438,7 +438,7 @@ predicate_property(Pred,Prop) :-
     functor(P,Na,Ar),
     functor(Q,Na,Ar),
     recorded('$m', meta_predicate(M,Q),_).
-'$predicate_property'(P,M,Prop) :-
+ '$predicate_property'(P,M,Prop) :-
     '$predicate_type'(P,M,Type),
     (Type == undefined -> !,fail;
      Type == system_procedure -> Prop=built_in;
