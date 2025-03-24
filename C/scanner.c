@@ -982,7 +982,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       }
     }
     st->status &= ~Past_Eof_Stream_f;;
-  }´else{
+  } else{
   ch = getchr(st);
   while (chtype(ch) == BS) {
     och = ch;
