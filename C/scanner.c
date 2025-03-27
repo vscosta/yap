@@ -804,7 +804,7 @@ if (ch == EOFCHAR) {
  while(iswspace(ch)) {
     ch = getchr(inp);
     if (ch == EOFCHAR) {
-       inp->status |= Push_Eof_Stream_f;
+      inp->status |= Push_Eof_Stream_f;
       return out;
     }
   }
@@ -975,10 +975,12 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   LOCAL_AnonVarTable = NULL;
   l = NULL;
   p = NULL; /* Just to make lint happy */
+
   if( st->status &  Push_Eof_Stream_f) {
     p = t = add_eot(p);
     return p;
   } else {
+       och = ch;
     ch = getchr(st);
       while (chtype(ch) == BS) {
 	och = ch;
@@ -1032,9 +1034,11 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
 	if (ch != EOF)
 	  ch = getchr(st);
+	else {
+      Yap_EOF_Stream(st);
+	}
       }
       add_ch_to_buff('\0');
-      
       t->TokSize = strlen(TokImage);
       t->TokInfo = MkStringTerm(TokImage);
       t->Tok = Ord(kind = Comment_tok);
@@ -1446,7 +1450,9 @@ t->Tok = Ord(kind = Name_tok);
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
       t->TokNext = NULL;
-       if (!l) {
+      if (!l) {
+
+	Yap_EOF_Stream(st);
 	 l=t;
        } else {
   	 	  st->status |= Push_Eof_Stream_f;
