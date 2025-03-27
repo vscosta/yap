@@ -804,7 +804,8 @@ if (ch == EOFCHAR) {
  while(iswspace(ch)) {
     ch = getchr(inp);
     if (ch == EOFCHAR) {
-    return out;
+      inp->status |= Push_Eof_Stream_f;
+      return out;
     }
   }
     }
@@ -934,16 +935,22 @@ const char *Yap_tokText(void *tokptre) {
   return ".";
 }
 
-// mark that we reached EOF,
-// next  token will be end_of_file)
-static void mark_eof(struct stream_desc *st) {
-  st->buf.on = true;
-  st->buf.ch = EOF;
-  st->stream_wgetc_for_read =  st->stream_wgetc = Yap_popChar;
-  st->stream_getc =  Yap_popChar;
-  st->status |= Push_Eof_Stream_f;
-}
 
+TokEntry *add_eot(TokEntry *p)
+{
+  TokEntry *tokptr = Malloc(sizeof(TokEntry));
+  tokptr->TokNext = NULL;
+  tokptr->TokLine = 1;
+  tokptr->TokLinePos =0;
+  tokptr->TokOffset = 0;
+  tokptr->Tok = Ord(eot_tok);
+  tokptr->TokInfo = TermEof;
+  if (p) {
+    p->TokNext = tokptr;
+  }
+  return  tokptr;
+
+}
 
 #define safe_add_ch_to_buff(ch) charp += put_utf8(charp, ch);
   
@@ -968,21 +975,22 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   LOCAL_AnonVarTable = NULL;
   l = NULL;
   p = NULL; /* Just to make lint happy */
-  ch = getchr(st);
-  while (chtype(ch) == BS) {
-    och = ch;
+
+  if( st->status &  Push_Eof_Stream_f) {
+    p = t = add_eot(p);
+    return p;
+  } else {
+       och = ch;
     ch = getchr(st);
+      while (chtype(ch) == BS) {
+	och = ch;
+	ch = getchr(st);
+      }
+    if( ch == EOF) {
+      p = t = add_eot(p);
+      return p;
+    } 
   }
-    if (ch == EOF) {
-    TokEntry *tokptr = Malloc(sizeof(TokEntry));
-  tokptr->TokNext = NULL;
-  tokptr->TokLine = 1;
-  tokptr->TokLinePos =0;
-  tokptr->TokOffset = 0;
-  tokptr->Tok = Ord(eot_tok);		\
-  tokptr->TokInfo = TermEof;
-    return l = p = tokptr;
-    }
   params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
   do {
@@ -1026,15 +1034,20 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
 	if (ch != EOF)
 	  ch = getchr(st);
+	else {
+      Yap_EOF_Stream(st);
+	}
       }
       add_ch_to_buff('\0');
-      
       t->TokSize = strlen(TokImage);
-	t->TokInfo = MkStringTerm(TokImage);
+      t->TokInfo = MkStringTerm(TokImage);
       t->Tok = Ord(kind = Comment_tok);
-      if (ch==EOF)
-	goto do_eof;
+      if (ch==EOF) {
+	st->status |= Push_Eof_Stream_f;
+	t = add_eot(t);
+      }
       break;
+
 
     case UC:
     case UL:
@@ -1121,9 +1134,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  ch = bad_nl_error( quote, TokImage,  st);           /* in ISO a new linea terminates a string */
 	}
 	if (ch == EOFCHAR) {
-	  *charp = '\0';
-	  if (LOCAL_ActiveError->errorNo)
-	    goto ldefault;
+	          	st->status |= Push_Eof_Stream_f;
+			add_ch_to_buff('\0');
+		  break;
          }
         if (charp > (unsigned char *)TokImage + (imgsz - 1)) {
           size_t sz = charp - (unsigned char *)TokImage;
@@ -1171,8 +1184,10 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  t->Tok = Ord(kind = String_tok);
 	}
       }
-      if (ch == EOF)
-	goto do_eof;
+      if (ch == EOF) {
+	t = add_eot(t);
+	return l;
+      }
       break;
 
     case BS:
@@ -1186,10 +1201,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       if (ch == '.') {
 	int pch = Yap_peekWide(st-GLOBAL_Stream);
 	if(chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
-        t->Tok = Ord(kind = eot_tok);
-	t->TokInfo = TermDot;
-	t->TokSize = 1;
-	return l;
+	  t->TokInfo = TermDot;
+	  t->Tok = Ord(eot_tok);
+	  return l;
 	}
       }
       if (ch == '`')
@@ -1217,6 +1231,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	if (chtype(ch) != EF) {
 	  add_ch_to_buff(ch);
 	  ch = getchr(st);
+	} else {
+	  st->status |= Push_Eof_Stream_f;
 	}
 	add_ch_to_buff('\0');
         t->TokSize = strlen(TokImage);
@@ -1393,7 +1409,10 @@ t->Tok = Ord(kind = Name_tok);
               break;
             }
           } else if (chtype(ch) == EF) {
-	    goto do_eof;
+
+	  st->status |= Push_Eof_Stream_f;
+	    p = add_eot(t);
+	    return l;
           } else {
             charp += put_utf8(charp, ch);
             ch = getchrq(st);
@@ -1428,22 +1447,22 @@ t->Tok = Ord(kind = Name_tok);
       t->Tok = Ord(kind = Ponctuation_tok);
       break;
     case EF:
-    do_eof:
-      if (LOCAL_ActiveError->errorNo)
-	goto ldefault;
-      mark_eof(st);
-      if (!l) {
-      t->Tok = Ord(kind = Name_tok);
-      t->TokInfo = TermEof;
-      t->TokNext = NULL;
-      return t;
-      }
-      p->TokNext=t;
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
       t->TokNext = NULL;
-      p = t;
-      break;
+      if (!l) {
+
+	Yap_EOF_Stream(st);
+	 l=t;
+       } else {
+  	 	  st->status |= Push_Eof_Stream_f;
+	  p = add_eot(t);
+
+
+       }
+      if (!LOCAL_ActiveError->errorNo) {
+	      break;
+    }
     default: {
       ldefault:
       kind = Error_tok;

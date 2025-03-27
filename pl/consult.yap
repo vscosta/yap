@@ -392,12 +392,6 @@ initialization(_G,_OPT).
     ( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
 '$do_startup_reconsult'(_) .
 
-'$skip_unix_header'(Stream) :-
-	peek_code(Stream, 0'#), !, % 35 is ASCII for '#
-	skip(Stream, 10),
-	'$skip_unix_header'(Stream).
-'$skip_unix_header'(_).
-
 /**
 @pred source_file(?FileName)
 
@@ -458,8 +452,10 @@ source_file_property( F, load_context(M,OldF:Line,Opts)) :-
 
   + file  (prolog_load_context/2 option)
 
-  Full name for the file currently being consulted. Notice that included
-  filed are ignored.
+  Full name for the file currently being read in. It can be:
+1. the file being included, if YAP is executing an include/2 directive;
+2. the file being consulted;
+3. the current `user_input`,
 
   + module  (prolog_load_context/2 option)
 
@@ -493,15 +489,13 @@ prolog_load_context(directory, DirName) :-
         -> file_directory_name(F, DirName) ;
           working_directory( DirName, DirName )
         ).
+prolog_load_context(file, Path ) :-
+    catch(stream_property(include_stream, file_name(Path) ),_,fail),
+    !.
+prolog_load_context(file, Path ) :-
+    prolog_load_context(source, Path ).
 prolog_load_context(source, SourceName) :-
-    '__NB_getval__'('$consulting_file', FileName, fail),
-    (
-        recorded('$includes',(FileName->SourceName), _) 
-    ->
-    true
-    ;
-    FileName = SourceName
-    ),
+    stream_property(loop_stream, file_name(SourceName) ),
     !.
 prolog_load_context(source, user_input).
 
@@ -509,10 +503,6 @@ prolog_load_context(module, X) :-
         '__NB_getval__'('$consulting_file', _, fail),
         current_source_module(Y,Y),
         Y = X.
-prolog_load_context(file, Term ) :-
-    b_getval('$current_clause', T),
-    nonvar(T),
-    T = [_,_,Term|_].
 prolog_load_context(stream, Stream) :-
     stream_property(Stream, alias(loop_stream) ).
 prolog_load_context(term, Term ) :-

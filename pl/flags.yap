@@ -28,7 +28,6 @@
 :- system_module_( '$_flags', [create_prolog_flag/3,
         current_prolog_flag/2,
         no_source/0,
-        prolog_flag/2,
         prolog_flag/3,
         set_prolog_flag/2,
         source/0,
