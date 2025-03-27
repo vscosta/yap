@@ -804,7 +804,7 @@ if (ch == EOFCHAR) {
  while(iswspace(ch)) {
     ch = getchr(inp);
     if (ch == EOFCHAR) {
-      st->status |= Push_Eof_Stream_f;
+       inp->status |= Push_Eof_Stream_f;
       return out;
     }
   }
@@ -935,23 +935,19 @@ const char *Yap_tokText(void *tokptre) {
   return ".";
 }
 
-// mark that we reached EOF
-// next  token will be end_of_file)
-static void mark_eof(struct stream_desc *st) {
-  st->buf.on = true;
-  st->buf.ch = EOF;
-}
 
 TokEntry *add_eot(TokEntry *p)
 {
-    TokEntry *tokptr = Malloc(sizeof(TokEntry));
+  TokEntry *tokptr = Malloc(sizeof(TokEntry));
   tokptr->TokNext = NULL;
   tokptr->TokLine = 1;
   tokptr->TokLinePos =0;
   tokptr->TokOffset = 0;
-  tokptr->Tok = Ord(eot_tok);		\
+  tokptr->Tok = Ord(eot_tok);
   tokptr->TokInfo = TermEof;
-  p->TokNext = tokptr;
+  if (p) {
+    p->TokNext = tokptr;
+  }
   return  tokptr;
 
 }
@@ -980,14 +976,18 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   l = NULL;
   p = NULL; /* Just to make lint happy */
   if( st->status &  Push_Eof_Stream_f) {
-    ch=EOF;
-    st->status &= ~Push_Eof_Stream_f;
+    p = t = add_eot(p);
+    return p;
   } else {
-  ch = getchr(st);
-  while (chtype(ch) == BS) {
-    och = ch;
     ch = getchr(st);
-  }
+      while (chtype(ch) == BS) {
+	och = ch;
+	ch = getchr(st);
+      }
+    if( ch == EOF) {
+      p = t = add_eot(p);
+      return p;
+    } 
   }
   params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
@@ -1197,8 +1197,6 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       if (ch == '.') {
 	int pch = Yap_peekWide(st-GLOBAL_Stream);
 	if(chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
-	  if (ch==EOT) {
-	  }
 	  t->TokInfo = TermDot;
 	  t->Tok = Ord(eot_tok);
 	  return l;

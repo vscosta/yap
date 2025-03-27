@@ -647,7 +647,7 @@ include(Fs) :-
     working_directory(Dir0, Dir),
     stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
     ignore(recordzifnot('$includes', (Old ->Y),_)),
-    set_stream(Stream, [alias(loop_stream),encoding(Encoding)] ),
+    set_stream(Stream, [encoding(Encoding)] ),
     print_message(informational, loading(including, Y)),
     '$loop'(Stream,reconsult),
     close(Stream),

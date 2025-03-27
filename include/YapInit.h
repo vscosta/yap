@@ -16,8 +16,9 @@
 #define YAP_RECONSULT_MODE 1
 #define YAP_BOOT_MODE 2
 
-X_API YAP_file_type_t Yap_InitDefaults(void *init_args, char saved_state[],
+extern YAP_file_type_t Yap_InitDefaults(void *init_args, char saved_state[],
                                        int Argc, char *Argv[]);
+
 
 typedef struct yap_boot_params {
     //> struct marker

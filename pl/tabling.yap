@@ -262,6 +262,7 @@ tabling_statistics(answer_ref_nodes,[BytesInUse,StructsInUse]) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 table(Pred) :-
+    writeln(Pred),
    '$current_module'(Mod),
    '$do_table'(Mod,Pred).
 

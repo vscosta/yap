@@ -330,13 +330,15 @@ void Yap_EOF_Stream(StreamDesc *st)
       clearerr(st->file);
     /* reset our function for reading input */
     st->status &= ~Past_Eof_Stream_f;
+    Yap_DefaultStreamOps(st);
     return;
-   }
+   } else {
   st->status |=Past_Eof_Stream_f;
     st->stream_peek = EOFPeek;
     st->stream_wpeek = EOFPeek;
     st->stream_getc = EOFGetc;
     st->stream_wgetc = EOFWGetc;
+   }
 }
 
 int post_process_eof(StreamDesc *s) {
