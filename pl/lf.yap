@@ -411,7 +411,8 @@
    ->
    '$dry_loop'(Stream,Reconsult)
 ; 
-  '$loop'(Stream,Reconsult)
+       '$skip_unix_header'(Stream),
+       '$loop'(Stream,Reconsult)
  
    ),
    ( LC == 0 -> prompt(_,'   |: ') ; true),
@@ -431,6 +432,12 @@
  '$end_consult'(OldD),
  '$exec_initialization_goals'(File),
     !.
+
+'$skip_unix_header'(Stream) :-
+	peek_char(Stream, '#'), !, % 35 is ASCII for '#
+	skip(Stream, 10),
+	'$skip_unix_header'(Stream).
+'$skip_unix_header'(_).
 
 '$dry_loop'(Stream,_Status) :-
     repeat,
@@ -462,7 +469,7 @@
 
 '$loop'(Stream,Status) :-
     repeat,
-   catch(
+    catch(
     '$loop_'(Stream,Status),
 	 _Error,
 	 error_handler),
@@ -647,8 +654,9 @@ include(Fs) :-
     working_directory(Dir0, Dir),
     stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
     ignore(recordzifnot('$includes', (Old ->Y),_)),
-    set_stream(Stream, [encoding(Encoding)] ),
+    set_stream(Stream, [encoding(Encoding), alias(include_stream)] ),
     print_message(informational, loading(including, Y)),
+    
     '$loop'(Stream,reconsult),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
