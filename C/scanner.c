@@ -973,14 +973,11 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   LOCAL_AnonVarTable = NULL;
   l = NULL;
   p = NULL; /* Just to make lint happy */
+
   if( st->status &  Push_Eof_Stream_f) {
+    Yap_EOF_Stream(st);    
     ch=EOF;
     st->status &= ~Push_Eof_Stream_f;
-    if( st->status &  Reset_Eof_Stream_f) {
-      if (st->file && feof(st->file)) {
-	clearerr(st->file);
-      }
-    }
     st->status &= ~Past_Eof_Stream_f;;
   } else{
   ch = getchr(st);
@@ -1032,9 +1029,11 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
 	if (ch != EOF)
 	  ch = getchr(st);
+	else {
+      Yap_EOF_Stream(st);
+	}
       }
       add_ch_to_buff('\0');
-      
       t->TokSize = strlen(TokImage);
       t->TokInfo = MkStringTerm(TokImage);
       t->Tok = Ord(kind = Comment_tok);
@@ -1446,7 +1445,9 @@ t->Tok = Ord(kind = Name_tok);
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
       t->TokNext = NULL;
-       if (!l) {
+      if (!l) {
+
+	Yap_EOF_Stream(st);
 	 l=t;
        } else {
   	 	  st->status |= Push_Eof_Stream_f;
