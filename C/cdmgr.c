@@ -2639,8 +2639,12 @@ static Int predicate_info(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   Term t1 = Deref(ARG1);
   Term tmod = CurrentModule;
   pe = get_full_pred(&t1, &tmod, "predicate_info");
-  if (pe == NULL)
-    return false;
+  if (pe == NULL) {
+    return
+      Yap_unify(ARG2,TermUndefinedProcedure) && Yap_unify(ARG3,tmod ) &&
+    Yap_unify(ARG4,t1);
+    
+  }
   tmod = ( tmod == 0 ? TermProlog : tmod);
   bool rc = Yap_unify(ARG2, gpred(pe)) && Yap_unify(ARG3,tmod ) &&
     Yap_unify(ARG4,t1);

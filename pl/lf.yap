@@ -779,12 +779,26 @@ compile_clauses(Commands) :-
     ).
  
 
-compile_clause(Command) :-
+compile_clause(EC) :-
+    current_source_module(SM,SM),
     prolog_load_context(term_position, Pos),
-    prolog_load_context(variable_names, Vs),
-    call_compiler(Command, reconsult,Vs,Pos),
-    fail.
-compile_clause(_Command).
+   % prolog_load_context(variable_names, Vs),
+    '$head_and_body'(EC, MH, B ),
+        strip_module( MH, Mod, H),
+    (
+	'$undefined'(H, Mod)
+    ->
+     '$handle_import_conflict'(H, Mod)
+    ;
+    true
+    ),
+        ( B==true
+    ->
+    '$compile'((Mod:H), consult, EC, SM, Pos, [])
+    ;
+    '$compile'((Mod:H:-B), consult, EC, SM, Pos, [])
+    ).
+
 
 
 

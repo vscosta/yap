@@ -510,13 +510,7 @@ prolog_load_context(term, Term ) :-
     nonvar(T),
     T = [Term|_].
 prolog_load_context(term_position, Term ) :-
-    (
-    b_getval('$current_clause', T),
-    nonvar(T) ->
-    T = [_,_,_,Term]
-    ;
-    predicate_property( user_input, position(Term))
-    ).
+    stream_property( loop_stream, position(Term)).
 prolog_load_context(variable_names, Term ) :-
     (
     b_getval('$current_clause', T),

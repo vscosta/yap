@@ -480,13 +480,10 @@ sumnodes_body(Pred, Term, A1, A3, N0, Ar) :-
   Calls  _Pred_ on all elements of `List1` and collects a result in  _Accumulator_. Same as
   foldr/3.
 */
-foldl(Goal, List, V0, V) :-
-    foldl_(List, Goal, V0, V).
-
-foldl_([], _, V, V).
-foldl_([H|T], Goal, V0, V) :-
+foldl(_,[],  V, V).
+foldl(Goal,[H|T], V0, V) :-
     call(Goal, H, V0, V1),
-    foldl_(T, Goal, V1, V).
+    foldl(Goal, T,  V1, V).
 
 /**
   @pred foldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
@@ -689,9 +686,55 @@ scanl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V, [VH|VT]) :-
     call(Goal, H1, H2, H3, H4, V, VH),
     scanl_(T1, T2, T3, T4, Goal, VH, VT).
 
-
-user:goal_expansion(checklist(Meta, List), Mod:Goal) :-
+:- if(false).
+%call = map(iter(Args0),Args)
+%NG = it(NArgs,Args0)
+%NC = iter(Args0,NArgs)
+user:goal_expansion(DD:Call, NG) :-
     current_prolog_flag( goal_expansion_allowed, true ),
+    Call =.. [Me,M1:Called|Args],
+    nonvar(M1),
+    nonvar(Called),
+    Called=..[Iter|Args0],
+    length(Args,NA),
+    length(NArgs,NA),
+    new_name(Iter,New),
+    append(NArgs,Args0,NXArgs),
+    NG  =.. [New|NXArgs],
+    HCall =.. [Me,_|NArgs],
+  (
+      clause(maplist:HCall,true),
+    compile_clauses([NG]),
+    fail;
+    clause(maplist:HCall,ItB),
+    ItB = (_:It,_:B),
+  It =.. [call,_|IArgs],
+  append(Args0,IArgs,IArgs1),
+  NCall=..[Iter|IArgs1],
+  B=.. [Me,_|BArgs],
+  append(BArgs,Args0,XArgs1),
+    NB =..[New|XArgs1],
+    compile_clauses([(NG:-M1:NCall,NB)]),
+    fail;
+    NG=..[_|XArgs],
+    append(Args,Args0,XArgs)
+
+    ).
+
+new_name(Name,N) :-
+    retract(ids(I)),
+    !,
+    I1 is I+1,
+    format(atom(N),'~s ~d',[Name,I]),
+    assert(ids(I1)).
+new_name(Name,N) :-
+    format(atom(N),'~s ~d',[Name,0]),
+    assert(ids(1)).
+
+user:goal_expansion(checklist(Mod:Meta),Goal) :-
+    current_prolog_flag( goal_expansion_allowed, true ),
+
+
     callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
@@ -1256,36 +1299,6 @@ user:goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
 				Out =.. [F|OutArgs]
 			    ;
 			    Out = Temp
-			    ),
-			    RecursiveCall)
-		   ]).
-
-user:goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(checknodes, 2, Proto, GoalName),
-    append(MetaVars, [[Term]], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[]], Base),
-    append_args(HeadPrefix, [[In|Ins]], RecursionHead),
-    append_args(Pred, [In], Apply),
-    append_args(HeadPrefix, [Args], SubRecursiveCall),
-    append_args(HeadPrefix, [Ins], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            Apply,
-			    (compound(In)
-			    ->
-				In =.. [_|Args],SubRecursiveCall
-			    ;
-			    true
 			    ),
 			    RecursiveCall)
 		   ]).
