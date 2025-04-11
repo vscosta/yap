@@ -69,8 +69,8 @@ static char SccsId[] = "%W% %G%";
 #undef USE_SBRK
 #endif
 #endif
-//#define DEBUG_MALLOC 1
-//#define DEBUG_D 1
+#define DEBUG_MALLOC 1
+#define DEBUG_DIRECT 0
 
 /************************************************************************/
 /* Yap workspace management                                             */
@@ -88,18 +88,25 @@ static char SccsId[] = "%W% %G%";
 
 int write_malloc = 0;
 
+extern int jmp_deb(int);
+
 void *my_malloc(size_t sz) {
   void *p;
 
   p = calloc(sz,1);
+  if (p==(void*)0x55559abc8370) {
+    fprintf(stderr,"alloc!");
+    jmp_deb(1);
+  }
   //    Yap_DebugPuts(stderr,"gof\n");
 #ifdef DEBUG_MALLOC
   if (DEBUG_DIRECT || Yap_do_low_level_trace) {
 #if __ANDROID__
       //   __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "+ %d %p", write_malloc,p);
 #else
-      fprintf(stderr, "+s %p\n @%p %ld\n", p, TR, LCL0 - (CELL *)LCL0);
+    fprintf(stderr, "+s %p\n %ld\n", p, sz);
 #endif
+
   }
 #endif
   return p;
@@ -109,9 +116,13 @@ void *my_realloc(void *ptr, size_t sz) {
   void *p;
 
   p = realloc(ptr, sz);
+  if (p==(void*)0x55559abc8370) {
+    fprintf(stderr,"realloc out");
+    jmp_deb(1);
+  }
  #ifdef DEBUG_MALLOC
  if (DEBUG_DIRECT ||Yap_do_low_level_trace)
-      fprintf(stderr, "+ %p -> %p : " Sizet_F "\n", ptr, p, sz);
+      fprintf(stderr, "+ %p -> %p : %ld\n", ptr, p, sz);
  #endif
     //    Yap_DebugPuts(stderr,"gof\n");
 //    if (sz > 500 && write_malloc++ > 0)
@@ -124,7 +135,7 @@ void my_free(void *p) {
   // printf("f %p\n",p);
 #if defined(DEBUG_MALLOC)
 if (DEBUG_DIRECT ||Yap_do_low_level_trace)
-    fprintf(stderr, "- %p\n @%p %ld\n", p, TR, (long int)(LCL0 - (CELL *)B) );
+    fprintf(stderr, "- %p\n", p );
 #endif
  free(p);
   //    Yap_DebugPuts(stderr,"gof\n");

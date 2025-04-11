@@ -238,6 +238,7 @@ xsetting(induce,problog).
 :- use_module(library(lists), [member/2,max_list/2, min_list/2, sum_list/2, reverse/2,sumlist/2]).
 :- use_module(library(system), [file_exists/1, shell/2]).
 :- use_module(library(rbtrees)).
+:- use_module(library(maplist)).
 :- use_module(library(bdd)).
 :- use_module(library(lbfgs)).
 :- use_module(problog/utils_learning).

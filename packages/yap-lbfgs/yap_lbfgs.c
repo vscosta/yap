@@ -536,6 +536,52 @@ static YAP_Bool lbfgs_set_parameter(void) {
 Get the current Value for parameter Name
 */
 
+static YAP_Bool lbfgs_current_parameter(void) {
+  YAP_Term t1 = YAP_ARG1;
+  YAP_Term t2 = YAP_ARG2;
+   lbfgs_parameter_t *param = &parms;
+
+   if (!YAP_IsAtomTerm(t1)) {
+    return FALSE;
+  }
+
+  const char *name = YAP_AtomName(YAP_AtomOfTerm(t1));
+
+  if ((strcmp(name, "m") == 0)) {
+    return YAP_Unify(t2, YAP_MkIntTerm(param->m));
+  } else if ((strcmp(name, "epsilon") == 0)) {
+    return YAP_Unify(t2, YAP_MkFloatTerm(param->epsilon));
+  } else if ((strcmp(name, "past") == 0)) {
+    return YAP_Unify(t2, YAP_MkIntTerm(param->past));
+  } else if ((strcmp(name, "delta") == 0)) {
+    return YAP_Unify(t2, YAP_MkFloatTerm(param->delta));
+  } else if ((strcmp(name, "max_iterations") == 0)) {
+    return YAP_Unify(t2, YAP_MkIntTerm(param->max_iterations));
+  } else if ((strcmp(name, "linesearch") == 0)) {
+    return YAP_Unify(t2, YAP_MkIntTerm(param->linesearch));
+  } else if ((strcmp(name, "max_linesearch") == 0)) {
+    return YAP_Unify(t2, YAP_MkIntTerm(param->max_linesearch));
+  } else if ((strcmp(name, "min_step") == 0)) {
+    return YAP_Unify(t2, YAP_MkFloatTerm(param->min_step));
+  } else if ((strcmp(name, "max_step") == 0)) {
+    return YAP_Unify(t2, YAP_MkFloatTerm(param->max_step));
+  } else if ((strcmp(name, "ftol") == 0)) {
+    return YAP_Unify(t2, YAP_MkFloatTerm(param->ftol));
+  } else if ((strcmp(name, "gtol") == 0)) {
+    return YAP_Unify(t2, YAP_MkFloatTerm(param->gtol));
+  } else if ((strcmp(name, "xtol") == 0)) {
+    return YAP_Unify(t2, YAP_MkFloatTerm(param->xtol));
+  } else if ((strcmp(name, "orthantwise_c") == 0)) {
+    return YAP_Unify(t2, YAP_MkFloatTerm(param->orthantwise_c));
+  } else if ((strcmp(name, "orthantwise_start") == 0)) {
+    return YAP_Unify(t2, YAP_MkIntTerm(param->orthantwise_start));
+  } else if ((strcmp(name, "orthantwise_end") == 0)) {
+    return YAP_Unify(t2, YAP_MkIntTerm(param->orthantwise_end));
+  }
+
+  return false;
+}
+
 static YAP_Bool lbfgs_get_parameter(void) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
@@ -603,5 +649,6 @@ X_API void init_lbfgs_predicates(void) {
   
   YAP_UserCPredicate("lbfgs_set_parameter", lbfgs_set_parameter, 2);
   YAP_UserCPredicate("lbfgs_get_parameter", lbfgs_get_parameter, 2);
+  YAP_UserCPredicate("lbfgs_current_parameter", lbfgs_current_parameter, 2);
   init_errors();
 }

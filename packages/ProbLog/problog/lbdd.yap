@@ -23,6 +23,7 @@
 :- use_module(library('problog/logger')).
 :- use_module(library(matrix)).
 :- use_module(library(lists)).
+:- use_module(library(maplist)).
 :- use_module(library(bdd)).
 
 set_tunable(I,Slope,P) :-	
