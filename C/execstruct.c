@@ -394,15 +394,15 @@ static Int _user_expand_goal(USES_REGS1)
   yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
-  Term cmod = CurrentModule;
+  Term cmod = Deref(ARG2);
   Term g = Deref(ARG1);
   yamop * oP = P;
   if (IsVarTerm(g))
     return false;
   yhandle_t h1 = Yap_InitSlot(MkGlobal(g)),
-    h2 = Yap_InitSlot(MkGlobal(ARG2));
+    h2 = Yap_InitSlot(MkGlobal(ARG3));
   /* CurMod:goal_expansion(A,B) */
-  if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod))) &&
+  if ((pe = SkipProxies(RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, P->y_u.Osbpp.p0->ModuleOfPred)))) &&
       pe->OpcodeOfPred != FAIL_OPCODE  &&
       pe->OpcodeOfPred != UNDEF_OPCODE  &&
       Yap_execute_pred(pe, NULL, true PASS_REGS))

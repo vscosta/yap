@@ -493,7 +493,7 @@ p_thread_new_tid( USES_REGS1 )
 static Int
 p_thread_barrier_new_tid( USES_REGS1 )
 {
-  int new_worker = allocate_new_tid();
+  int new_worker =  allocate_new_tid();
   if (new_worker == -1) {
     Yap_Error(RESOURCE_ERROR_MAX_THREADS, MkIntegerTerm(MAX_THREADS), "");
     return FALSE;
@@ -1524,6 +1524,7 @@ p_nof_threads( USES_REGS1 )
   int i = 0, wid;
   LOCK(GLOBAL_ThreadHandlesLock);
   for (wid = 0; wid < MAX_THREADS; wid++) {
+    
     if (!Yap_local[wid]) break;
     if (REMOTE_ThreadHandle(wid).in_use)
       i++;
@@ -1574,14 +1575,14 @@ p_thread_unlock( USES_REGS1 )
 intptr_t
 system_thread_id(void)
 {
-#if defined(__APPLE__)
+#if defined( HAVE_GETTID )
+    return gettid();
+#elif defined(__APPLE__)
   return      syscall(SYS_thread_selfid);
 #elif HAVE_SYS_GETTID || defined(__APPLE__)
   return syscall( SYS_GETTID );
 #elif HAVE_GETTID_SYSCALL
     return syscall(__NR_gettid);
-#elif defined( HAVE_GETTID )
-    return gettid();
 #elif  defined(__WINDOWS__)
     return GetCurrentThreadId();
 #endif
@@ -1634,7 +1635,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("mutex_lock", 1, p_lock_mutex, SafePredFlag);
   Yap_InitCPred("mutex_trylock", 1, p_trylock_mutex, SafePredFlag);
   Yap_InitCPred("mutex_unlock", 1, p_unlock_mutex, SafePredFlag);
- // Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFrlag);
+  Yap_InitCPred("with_mutex", 2, p_with_mutex, MetaPredFlag);
   Yap_InitCPred("$with_with_mutex", 1, p_with_with_mutex, 0);
   Yap_InitCPred("$unlock_with_mutex", 1, p_unlock_with_mutex, 0);
   Yap_InitCPred("$mutex_info", 3, p_mutex_info, SafePredFlag);

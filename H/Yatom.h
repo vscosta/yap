@@ -548,6 +548,7 @@ typedef struct pred_entry {
   struct yami *MetaEntryOfPred; /* allow direct access from meta-calls */
   Term ModuleOfPred;            /* module for this definition           */
   union {
+    struct pred_entry *PredIsProxyFor;
     UInt TimeStampOfPred;          /* timestamp for LU predicates */
     int  CallLineForUndefinedPred; /* Line near where an undefined predicate was first called */
   };
@@ -663,6 +664,7 @@ typedef enum {
 #define SetFlag(Mask, w) w |= Mask
 
 
+
 /* predicate initialization */
 extern void Yap_InitCPred(const char *name, arity_t arity, CPredicate f,
                    pred_flags_t flags);
@@ -677,6 +679,13 @@ extern void Yap_InitCPredBackInModule(const char *name, arity_t arity, arity_t e
 extern void Yap_InitCPredBackCut(const char *name, arity_t arity, arity_t extra,
                           CPredicate call, CPredicate retry, CPredicate cut,
                           pred_flags_t flags);
+
+
+inline static PredEntry *SkipProxies(PredEntry *ap) {
+  while (ap && ap->PredFlags & ProxyPredFlag)
+      ap = ap->PredIsProxyFor;
+    return ap;
+}
 
 /* *********************** DBrefs **************************************/
 

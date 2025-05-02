@@ -1508,7 +1508,7 @@ void Yap_fail_all(choiceptr bb USES_REGS)
   saved_p = P;
   saved_cp = CP;
   /* prune away choicepoints */
-  while (B->cp_b && B->cp_b != bb && B->cp_ap != EXITCODE)
+  while (B && B->cp_b && B->cp_b != bb && B->cp_ap != EXITCODE)
   {
     B = B->cp_b;
 #ifdef YAPOR
@@ -1561,9 +1561,9 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, ex_handler_t handle_errors USES_
   saved_cp = CP;
   LOCAL_PrologMode |= TopGoalMode;
 
-  PELOCK(81v, ppe);
+//  PELOCK(81v, ppe);
   CodeAdr = ppe->CodeOfPred;
-  UNLOCK(ppe->PELock);
+  // UNLOCK(ppe->PELock);
   out = do_goal(CodeAdr, ppe->ArityOfPE, pt, true, handle_errors PASS_REGS);
 
 

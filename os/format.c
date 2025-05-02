@@ -1244,25 +1244,25 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	  return out;
 	}else if ( f == FunctorChars) {
 	  const unsigned char *s = (const unsigned char*)Yap_MemExportStreamPtr( output_stream);
-	  Term rc = Yap_UTF8ToDiffListOfChars(s,ArgOfTerm(2,ARG1));
+	  Term rc = Yap_UTF8ToDiffListOfChars(s,ArgOfTerm(2,ARG1) PASS_REGS);
 	  out = Yap_unify(rc,ArgOfTerm(1,ARG1));
 	  Yap_CloseStream(output_stream);
 	  return out;
 	}else if ( f == FunctorChars1) {
 	  const char *s =Yap_MemExportStreamPtr( output_stream);
-	  Term rc = Yap_CharsToListOfAtoms(s,ENC_ISO_UTF8);
+	  Term rc = Yap_CharsToListOfAtoms(s,ENC_ISO_UTF8 PASS_REGS);
 	  out = Yap_unify(rc,ArgOfTerm(1,ARG1));
 	  Yap_CloseStream(output_stream);
 	  return out;
 	}else if ( f == FunctorCodes1) {
 	  const char *s =Yap_MemExportStreamPtr( output_stream);
-	  Term rc = Yap_CharsToListOfCodes(s,ENC_ISO_UTF8);
+	  Term rc = Yap_CharsToListOfCodes(s,ENC_ISO_UTF8 PASS_REGS);
 	  out = Yap_unify(rc,ArgOfTerm(1,ARG1));
 	  Yap_CloseStream(output_stream);
 	  return out;
 	}else if ( f == FunctorCodes) {
 	  const unsigned char *s =(const unsigned char*)Yap_MemExportStreamPtr( output_stream);
-	  Term rc = Yap_UTF8ToDiffListOfCodes(s,ArgOfTerm(2,ARG1));
+	  Term rc = Yap_UTF8ToDiffListOfCodes(s,ArgOfTerm(2,ARG1) PASS_REGS);
 	  out = Yap_unify(rc,ArgOfTerm(1,ARG1));
 	  Yap_CloseStream(output_stream);
 	  return out;

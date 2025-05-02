@@ -134,7 +134,6 @@ void change_buffer_size(const size_t newsize) {
  */
 static void
 p2c_putt(const YAP_Term t) {
- CACHE_REGS
   //  if( buffer.size==buffer.len+1 ) 
 
     if (!term2string(t)) {

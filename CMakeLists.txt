@@ -789,12 +789,11 @@ set_target_properties(libYap
   PROPERTIES OUTPUT_NAME Yap
   )
 MY_set_target_properties(libYap
-  PROPERTIES VERSION ${YAP_FULL_VERSION}
+  PROPERTIES VERSION ${YAP_FULL_VERSION}q
   SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
   )
 
 message(STATUS "Building YAP packages version ${YAP_VERSION}")
-
 
 if (NOT WIN32)
   set(BUILD_SHARED_LIBS ON)

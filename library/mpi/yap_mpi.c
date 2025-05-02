@@ -274,8 +274,8 @@ mpi_init(void){
 #if USE_THREADS
   int thread_level;
   char ** my_argv;
-  //int my_argc = YAP_Argv(&my_argv);
-  //  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
+  int my_argc = YAP_Argv(&my_argv);
+   MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
 #else
   MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
 #endif

@@ -56,6 +56,9 @@
        maplist(3,+,+,-),
        maplist(4,+,+,+,-),
        maplist(5,+,+,+,+,-),
+       maplist(6,+,+,+,+,+,-),
+       maplist(7,+,+,+,+,+,+,-),
+       maplist(8,+,+,+,+,+,+,+,-),
        convlist(2,+,-),
        mapnodes(2,+,-),
        mapnodes_list(2,+,-),
@@ -83,11 +86,12 @@
        scanl(5, +, +, +, +, -),
        scanl(6, +, +, +, +, +, -).
 
+/*
 :- use_module(library(lists), [append/3]).
 :- use_module(library(maputils)).
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(occurs), [sub_term/2]).
-
+*/
 /**
   * @defgroup maplist Map List and Term Operations
   * @ingroup YAPLibrary
@@ -137,21 +141,80 @@
   * 
   **/
 
+/**
+
+  @pred    maplist(: Pred, ? ListIn)
+
+  Applies predicate  _Pred_( _El_ ) to all
+  elements _El_ of  _ListIn_.
+
+Examples:
+```
+one(1).
+zero(0).
+
+g(N,Ones)  :- length(N,Ones), maplist(one,Ones).
+
+zeros(L) :- maplist(zero,L).
+
+?-  zeros([_,0,_,0]).
+
+?-  zeros([_,0,_,0]).
+
+?-  zeros([_,_,_|_]).
+```
+
+*/
+maplist(_, []).
+maplist(Pred, [In|ListIn]) :-
+    call(Pred, In),
+    maplist(Pred, ListIn).
+
+
 /** @pred maplist( 2:Pred, + _List1_,+ _List2_)
 
 Apply  _Pred_ on all successive pairs of elements from
  _List1_ and
  _List2_. Fails if  _Pred_ can not be applied to a
-pair. See the example above.
+pair. See the next example.
 
+```
+eqall(L1,L2) :- maplist(=,L1,L2).
+
+eqall([X,Y,Z], LF).
+?- eqall([1,2,3],L).
+?- eqall(
 
 */
+maplist(_, [], []).
+maplist(Pred, [In|ListIn], [Out|ListOut]) :-
+    call(Pred, In, Out),
+    maplist(Pred, ListIn, ListOut).
+eqall(L1,L2) :- maplist(=,L1,L2).
+
 
 /** @pred maplist(3:Pred,+ List1,+ List2,+ List4)
 
 Apply  _Pred_ on all successive triples of elements from  _List1_,
  _List2_ and  _List3_. Fails if  _Pred_ can not be applied to a
-triple. See the example above.
+triple. See the example:
+
+```
+zip(X-Y,X,Y).
+
+dozip(X,Y,F) :-
+    maplist(zip, X, Y, F).
+
+
+?- dozip([1,2],[3,4],XY).
+
+?- dozip(X,Y,[1-3,2-4]).
+
+?- dozip([1,X],[Y,Y]xpgxo,[1-3,2-3]).
+
+```
+
+
 
  */
 
@@ -292,77 +355,14 @@ checklist(Pred, [In|ListIn]) :-
     call(Pred, In),
     checklist(Pred, ListIn).
 
-/**
-  @pred    maplist(: Pred, ? ListIn)
-
-  Applies predicate  _Pred_( _El_ ) to all
-  elements _El_ of  _ListIn_.
-
-*/
-maplist(_, []).
-maplist(Pred, [In|ListIn]) :-
-    call(Pred, In),
-    maplist(Pred, ListIn).
 
 
-/**
-  @pred  maplist(: Pred, ? L1, ? L2 )
-  _L1_  and  _L2_ are such that
-  `call( _Pred_, _A1_, _A2_)` holds for every
-  corresponding element in lists  _L1_,   _L2_.
-
-  Comment from Richard O'Keefe: succeeds when _Pred( _Old_, _New_) succeeds for each corresponding
-  _Gi_ in _Listi_, _New_ in _NewList_.  In InterLisp, this is MAPCAR.
-   It is also MAP2C.  Isn't bidirectionality wonderful?
-*/
-maplist(_, [], []).
-maplist(Pred, [In|ListIn], [Out|ListOut]) :-
-    call(Pred, In, Out),
-    maplist(Pred, ListIn, ListOut).
-
-
-/**
-  @pred  maplist(: Pred, ? L1, ? L2, ? L3)
-  _L1_,   _L2_, and  _L3_ are such that
-  `call( _Pred_, _A1_, _A2_, _A3_)` holds for every
-  corresponding element in lists  _L1_,   _L2_, and  _L3_.
-
-*/
-maplist(_, [], [], []).
-maplist(Pred, [A1|L1], [A2|L2], [A3|L3]) :-
-    call(Pred, A1, A2, A3),
-    maplist(Pred, L1, L2, L3).
-
-/**
-  @pred  maplist(: Pred, ? L1, ? L2, ? L3, ? L4)
-
-  _L1_,  _L2_,  _L3_, and  _L4_ are such that
-  `call( _Pred_, _A1_, _A2_, _A3_, _A4_)` holds
-  for every corresponding element in lists  _L1_,  _L2_,  _L3_, and
-  _L4_.
-*/
-maplist(_, [], [], [], []).
-maplist(Pred, [A1|L1], [A2|L2], [A3|L3], [A4|L4]) :-
-    call(Pred, A1, A2, A3, A4),
-    maplist(Pred, L1, L2, L3, L4).
-
-/**
-  @pred  maplist(: Pred, ? L1, ? L2, ? L3, ? L4, ? L5)
-
-  _L1_,  _L2_,  _L3_, _L4_ and  _L5_ are such that
-  `call( _Pred_, _A1_, _A2_, _A3_, _A4_,_A5_)` holds
-  for every corresponding element in lists  _L1_,  _L2_,  _L3_, _L4_ and  _L5_.
-*/
-maplist(_, [], [], [], [], []).
-maplist(Pred, [A1|L1], [A2|L2], [A3|L3], [A4|L4], [A5|L5]) :-
-    call(Pred, A1, A2, A3, A4, A5),
-    maplist(Pred, L1, L2, L3, L4, L5).
 
 /**
   @pred convlist(: Pred, + ListIn, ? ListOut)
 
   A combination of maplist/3 and selectlist/3: creates  _ListOut_ by
-  applying the predicate  _Pred_ to all list elements on which
+   applying the predicate  _Pred_ to all list elements on which
   _Pred_ succeeds.
 
   ROK: convlist(Rewrite, OldList, NewList)
@@ -619,107 +619,59 @@ foldl4_([H|T], Goal, V0, V, W0, W, X0, X, Y0, Y) :-
 %	Left scan of  list.  The  scanl   family  of  higher  order list
 %	operations is defined by:
 %
-%	  ==
-%	  scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
-%		P(X11, ..., Xmn, V0, V1),
-%		...
-%	        P(X1n, ..., Xmn, V', Vn).
-%	  ==
+%
+% ```
+% scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
+% 		P(X11, ..., Xmn, V0, V1),
+% 		...
+% 	        P(X1n, ..., Xmn, V', Vn).
+% ```
+%
+% Left scan of  list.  The  scanl   family  of  higher  order list
+% operations is defined by:
+%
+% ```
+% scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
+%       P(X11, ..., Xm1, V0, V1),
+%       ...
+%        P(X1n, ..., Xmn, Vn-1, Vn).
+% ```
+% 
 
-/**
-
-
-Left scan of  list.  The  scanl   family  of  higher  order list
-operations is defined by:
-
-```
-      scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
-        P(X11, ..., Xm1, V0, V1),
-        ...
-            P(X1n, ..., Xmn, Vn-1, Vn).
-```
-*/
-scanl(Goal, List, V0, [V0|Values]) :-
-    scanl_(List, Goal, V0, Values).
-
-scanl_([], _, _, []).
-scanl_([H|T], Goal, V, [VH|VT]) :-
+scanl(Goal,[H|T], V, [VH|VT]) :-
     call(Goal, H, V, VH),
-    scanl_(T, Goal, VH, VT).
+    scanl(T, Goal, VH, VT).
 
 /**
   scanl(: _Pred_, + _List1_, + _List2_, ? _V0_, ? _Vs_)
 
 Left scan of  list.
  */
-scanl(Goal, List1, List2, V0, [V0|Values]) :-
-    scanl_(List1, List2, Goal, V0, Values).
-
-scanl_([], [], _, _, []).
-scanl_([H1|T1], [H2|T2], Goal, V, [VH|VT]) :-
+scanl(_, [], [], Out, Out).
+scanl(Goal, [H1|T1], [H2|T2], V, [VH|VT]) :-
     call(Goal, H1, H2, V, VH),
-    scanl_(T1, T2, Goal, VH, VT).
+    scanl(Goal, T1, T2, VH, VT).
 
 /**
  scanl(: _Pred_, + _List1_, + _List2_, + _List3_, ? _V0_, ? _Vs_)
 
 Left scan of  list.
 */
-scanl(Goal, List1, List2, List3, V0, [V0|Values]) :-
-    scanl_(List1, List2, List3, Goal, V0, Values).
-
-scanl_([], [], [], _, _, []).
-scanl_([H1|T1], [H2|T2], [H3|T3], Goal, V, [VH|VT]) :-
+scanl(_, [], [], [], V, V).
+scanl(Goal, [H1|T1], [H2|T2], [H3|T3], V, [VH|VT]) :-
     call(Goal, H1, H2, H3, V, VH),
-    scanl_(T1, T2, T3, Goal, VH, VT).
+    scanl(Goal, T1, T2, T3, VH, VT).
 
 /**
   scanl(: _Pred_, + _List1_, + _List2_, + _List3_, + _List4_, ? _V0_, ? _Vs_)
 
   Left scan of  list.
 */
-scanl(Goal, List1, List2, List3, List4, V0, [V0|Values]) :-
-    scanl_(List1, List2, List3, List4, Goal, V0, Values).
 
-scanl_([], [], [], [], _, _, []).
-scanl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V, [VH|VT]) :-
+scanl(_Goal, [], [], [], [], T, T).
+scanl(Goal, [H1|T1], [H2|T2], [H3|T3], [H4|T4], V, [VH|VT]) :-
     call(Goal, H1, H2, H3, H4, V, VH),
-    scanl_(T1, T2, T3, T4, Goal, VH, VT).
-
-:- if(false).
-%call = map(iter(Args0),Args)
-%NG = it(NArgs,Args0)
-%NC = iter(Args0,NArgs)
-user:goal_expansion(DD:Call, NG) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    Call =.. [Me,M1:Called|Args],
-    nonvar(M1),
-    nonvar(Called),
-    Called=..[Iter|Args0],
-    length(Args,NA),
-    length(NArgs,NA),
-    new_name(Iter,New),
-    append(NArgs,Args0,NXArgs),
-    NG  =.. [New|NXArgs],
-    HCall =.. [Me,_|NArgs],
-  (
-      clause(maplist:HCall,true),
-    compile_clauses([NG]),
-    fail;
-    clause(maplist:HCall,ItB),
-    ItB = (_:It,_:B),
-  It =.. [call,_|IArgs],
-  append(Args0,IArgs,IArgs1),
-  NCall=..[Iter|IArgs1],
-  B=.. [Me,_|BArgs],
-  append(BArgs,Args0,XArgs1),
-    NB =..[New|XArgs1],
-    compile_clauses([(NG:-M1:NCall,NB)]),
-    fail;
-    NG=..[_|XArgs],
-    append(Args,Args0,XArgs)
-
-    ).
+    scanl(Goal, xT1, T2, T3, T4 , VH, VT).
 
 new_name(Name,N) :-
     retract(ids(I)),
@@ -731,608 +683,49 @@ new_name(Name,N) :-
     format(atom(N),'~s ~d',[Name,0]),
     assert(ids(1)).
 
-user:goal_expansion(checklist(Mod:Meta),Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
+expand_rule1(maplist).
 
 
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(checklist, 2, Proto, GoalName),
-    append(MetaVars, [List], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[]], Base),
-    append_args(HeadPrefix, [[In|Ins]], RecursionHead),
-    append_args(Pred, [In], Apply),
-    append_args(HeadPrefix, [Ins], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
+%call = map(iter(Args0),Args)
+%NG = it(NArgs,Args0)
+%NC = iter(Args0,NArgs)
+goal_expansion(Call0, NG) :-
+ %   current_prolog_flag( compiling, true ),
+ %   current_prolog_flag( goal_expansion_allowed, true ),
+    writeln(Call),
+    strip_module(Call0,M0,Call),
 
-user:goal_expansion(maplist(Meta, List), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(maplist, 2, Proto, GoalName),
-    append(MetaVars, [List], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[]], Base),
-    append_args(HeadPrefix, [[In|Ins]], RecursionHead),
-    append_args(Pred, [In], Apply),
-    append_args(HeadPrefix, [Ins], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
-		   ]).
+    Call =.. [Me,M1Called|Args],
+    strip_module(M0:M1Called,M1,Called),
+    nonvar(M1),
+    nonvar(Called),
+    writeln(Called),
+    Called=..[Iter|Args0],
+    expand_rule1(Iter),
+    length(Args,NA),
+    length(NArgs,NA),
+    new_name(Iter,New),
+    lists:append(NArgs,Args0,NXArgs),
+    NG  =.. [New|NXArgs],
+    writeln(Called),
+    HCall =.. [Me,_|NArgs],
+    (
+      clause(maplist:HCall,true),
+      compile_clauses([NG]),
+      fail
+      ;
+      clause(maplist:HCall,ItB),
+      ItB = (_:It,_:B),
+    It =.. [call,_|IArgs],
+    lists:append(Args0,IArgs,IArgs1),
+    NCall=..[Iter|IArgs1],
+    B=.. [Me,_|BArgs],
+    lists:append(BArgs,Args0,XArgs1),
+    NB =..[New|XArgs1],
+    compile_clauses([(NG:-M1:NCall,NB)]),
+    fail
+    ;
+    NG=..[_|XArgs],
+    lists:append(Args,Args0,XArgs)
+    ).
 
-user:goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(maplist, 3, Proto, GoalName),
-    append(MetaVars, [ListIn, ListOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], []], Base),
-    append_args(HeadPrefix, [[In|Ins], [Out|Outs]], RecursionHead),
-    append_args(Pred, [In, Out], Apply),
-    append_args(HeadPrefix, [Ins, Outs], RecursiveCall),
-    compile_clauses([	       Mod:Base,
-		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
-		   ]).
-
-user:goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(maplist, 4, Proto, GoalName),
-    append(MetaVars, [L1, L2, L3], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], []], Base),
-    append_args(HeadPrefix, [[A1|A1s], [A2|A2s], [A3|A3s]], RecursionHead),
-    append_args(Pred, [A1, A2, A3], Apply),
-    append_args(HeadPrefix, [A1s, A2s, A3s], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
-		   ]).
-
-user:goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(maplist, 5, Proto, GoalName),
-    append(MetaVars, [L1, L2, L3, L4], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], [], []], Base),
-    append_args(HeadPrefix, [[A1|A1s], [A2|A2s], [A3|A3s], [A4|A4s]], RecursionHead),
-    append_args(Pred, [A1, A2, A3, A4], Apply),
-    append_args(HeadPrefix, [A1s, A2s, A3s, A4s], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
-		   ]).
-
-user:goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(maplist, 6, Proto, GoalName),
-    append(MetaVars, [L1, L2, L3, L4, L5], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], [], [], []], Base),
-    append_args(HeadPrefix, [[A1|A1s], [A2|A2s], [A3|A3s], [A4|A4s], [A5|A5s]], RecursionHead),
-    append_args(Pred, [A1, A2, A3, A4, A5], Apply),
-    append_args(HeadPrefix, [A1s, A2s, A3s, A4s, A5s], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, Mod:RecursiveCall)
-		   ]).
-
-user:goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(selectlist, 3, Proto, GoalName),
-    append(MetaVars, [ListIn, ListOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], []], Base),
-    append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
-    append_args(Pred, [In], Apply),
-    append_args(HeadPrefix, [Ins, NOuts], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            (Apply -> Outs = [In|NOuts]; Outs = NOuts),
-			    RecursiveCall)
-		   ]).
-
-user:goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(selectlist, 3, Proto, GoalName),
-    append(MetaVars, [ListIn, ListIn1, ListOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], []], Base),
-    append_args(HeadPrefix, [[In|Ins], [In1|Ins1], Outs], RecursionHead),
-    append_args(Pred, [In, In1], Apply),
-    append_args(HeadPrefix, [Ins, Ins1, NOuts], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            (Apply -> Outs = [In|NOuts]; Outs = NOuts),
-			    RecursiveCall)
-		   ]).
-
-user:goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(selectlists, 4, Proto, GoalName),
-    append(MetaVars, [ListIn, ListIn1, ListOut, ListOut1], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], [], []], Base),
-    append_args(HeadPrefix, [[In|Ins], [In1|Ins1], Outs, Outs1], RecursionHead),
-    append_args(Pred, [In, Out], Apply),
-    append_args(HeadPrefix, [Ins, Ins1, NOuts, NOuts1], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            (Apply -> Outs = [Out|NOuts], Outs1 = [In1|NOuts1]; Outs = NOuts,  Outs1 = NOuts1),
-			    RecursiveCall)
-		   ]).
-
-% same as selectlist
-user:goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(include, 3, Proto, GoalName),
-    append(MetaVars, [ListIn, ListOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], []], Base),
-    append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
-    append_args(Pred, [In], Apply),
-    append_args(HeadPrefix, [Ins, NOuts], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            (Apply -> Outs = [In|NOuts]; Outs = NOuts),
-			    RecursiveCall)
-		   ]).
-
-user:goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(exclude, 3, Proto, GoalName),
-    append(MetaVars, [ListIn, ListOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], []], Base),
-    append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
-    append_args(Pred, [In], Apply),
-    append_args(HeadPrefix, [Ins, NOuts], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            (Apply -> Outs = NOuts; Outs = [In|NOuts]),
-			    RecursiveCall)
-		   ]).
-
-goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
-    user:current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(partition, 4, Proto, GoalName),
-    append(MetaVars, [ListIn, List1, List2], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], []], Base),
-    append_args(HeadPrefix, [[In|Ins], Outs1, Outs2], RecursionHead),
-    append_args(Pred, [In], Apply),
-    append_args(HeadPrefix, [Ins, NOuts1, NOuts2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            (Apply -> Outs1 = [In|NOuts1], Outs2 = NOuts2; Outs1 = NOuts1, Outs2 = [In|NOuts2]),
-			    RecursiveCall)
-		   ]).
-
-user:goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(partition2, 5, Proto, GoalName),
-    append(MetaVars, [ListIn, List1, List2, List3], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], [], []], Base),
-    append_args(HeadPrefix, [[In|Ins], Outs1, Outs2, Outs3], RecursionHead),
-    append_args(Pred, [In,Diff], Apply),
-    append_args(HeadPrefix, [Ins, NOuts1, NOuts2, NOuts3], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            Apply,
-		            (Diff == (<)  ->
-				 Outs1 = [In|NOuts1],
-				 Outs2 = NOuts2,
-				 Outs3 = NOuts3
-			    ;
-			    Diff == (=)  ->
-			    Outs1 = NOuts1,
-			    Outs2 = [In|NOuts2],
-			    Outs3 = NOuts3
-			    ;
-			    Diff == (>)  ->
-			    Outs1 = NOuts1,
-			    Outs2 = NOuts2,
-			    Outs3 = [In|NOuts3]
-			    ;
-			    must_be(oneof([<,=,>]), Diff)
-			    ),
-			    RecursiveCall)
-		   ]).
-user:goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(convlist, 3, Proto, GoalName),
-    append(MetaVars, [ListIn, ListOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], []], Base),
-    append_args(HeadPrefix, [[In|Ins], Outs], RecursionHead),
-    append_args(Pred, [In, Out], Apply),
-    append_args(HeadPrefix, [Ins, NOuts], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            (Apply -> Outs = [Out|NOuts]; Outs = NOuts),
-			    RecursiveCall)
-		   ]).
-
-user:goal_expansion(convlist(Meta, ListIn, ListExtra, ListOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(convlist, 4, Proto, GoalName),
-    append(MetaVars, [ListIn, ListExtra, ListOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], []], Base),
-    append_args(HeadPrefix, [[In|Ins], [Extra|Extras], Outs], RecursionHead),
-    append_args(Pred, [In, Extra, Out], Apply),
-    append_args(HeadPrefix, [Ins, Extras, NOuts], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            (Apply -> Outs = [Out|NOuts]; Outs = NOuts),
-			    RecursiveCall)
-		   ]).
-
-user:goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(sumlist, 4, Proto, GoalName),
-    append(MetaVars, [List, AccIn, AccOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], Acc, Acc], Base),
-    append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
-    append_args(Pred, [In, Acc1, Acc3], Apply),
-    append_args(HeadPrefix, [Ins, Acc3, Acc2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
-
-user:goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(foldl, 4, Proto, GoalName),
-    append(MetaVars, [List, AccIn, AccOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], Acc, Acc], Base),
-    append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
-    append_args(Pred, [In, Acc1, Acc3], Apply),
-    append_args(HeadPrefix, [Ins, Acc3, Acc2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
-
-user:goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(foldl, 5, Proto, GoalName),
-    append(MetaVars, [List1, List2, AccIn, AccOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], Acc, Acc], Base),
-    append_args(HeadPrefix, [[In|Ins], [I2|Is2], Acc1, Acc2], RecursionHead),
-    append_args(Pred, [In, I2, Acc1, Acc3], Apply),
-    append_args(HeadPrefix, [Ins, Is2, Acc3, Acc2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
-
-user:goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(foldl, 6, Proto, GoalName),
-    append(MetaVars, [List1, List2, List3, AccIn, AccOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], [], Acc, Acc], Base),
-    append_args(HeadPrefix, [[In|Ins], [I2|I2s], [I3|I3s], Acc1, Acc2], RecursionHead),
-    append_args(Pred, [In, I2, I3, Acc1, Acc3], Apply),
-    append_args(HeadPrefix, [Ins, I2s, I3s, Acc3, Acc2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
-
-user:goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(foldl2, 6, Proto, GoalName),
-    append(MetaVars, [List, AccIn, AccOut, W0, W], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], Acc, Acc, W, W], Base),
-    append_args(HeadPrefix, [[In|Ins], Acc1, Acc2, W1, W2], RecursionHead),
-    append_args(Pred, [In, Acc1, Acc3, W1, W3], Apply),
-    append_args(HeadPrefix, [Ins, Acc3, Acc2, W3, W2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
-
-user:goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(foldl2, 7, Proto, GoalName),
-    append(MetaVars, [List1, List2, AccIn, AccOut, W0, W], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], Acc, Acc, W, W], Base),
-    append_args(HeadPrefix, [[In1|Ins1], [In2|Ins2], Acc1, Acc2, W1, W2], RecursionHead),
-    append_args(Pred, [In1, In2, Acc1, Acc3, W1, W3], Apply),
-    append_args(HeadPrefix, [Ins1, Ins2, Acc3, Acc2, W3, W2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
-
-user:goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(foldl2, 7, Proto, GoalName),
-    append(MetaVars, [List1, List2, List3, AccIn, AccOut, W0, W], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], [], [], Acc, Acc, W, W], Base),
-    append_args(HeadPrefix, [[In1|Ins1], [In2|Ins2], [In3|Ins3], Acc1, Acc2, W1, W2], RecursionHead),
-    append_args(Pred, [In1, In2, In3, Acc1, Acc3, W1, W3], Apply),
-    append_args(HeadPrefix, [Ins1, Ins2, Ins3, Acc3, Acc2, W3, W2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
-
-user:goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(foldl3, 8, Proto, GoalName),
-    append(MetaVars, [List, AccIn, AccOut, W0, W, X0, X], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], Acc, Acc, W, W, X, X], Base),
-    append_args(HeadPrefix, [[In|Ins], Acc1, Acc2, W1, W2, X1, X2], RecursionHead),
-    append_args(Pred, [In, Acc1, Acc3, W1, W3, X1, X3], Apply),
-    append_args(HeadPrefix, [Ins, Acc3, Acc2, W3, W2, X3, X2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
-
-user:goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(foldl4, 8, Proto, GoalName),
-    append(MetaVars, [List, AccIn, AccOut, W0, W, X0, X, Y0, Y], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], Acc, Acc, W, W, X, X, Y, Y], Base),
-    append_args(HeadPrefix, [[In|Ins], Acc1, Acc2, W1, W2, X1, X2, Y1, Y2], RecursionHead),
-    append_args(Pred, [In, Acc1, Acc3, W1, W3, X1, X3, Y1, Y3], Apply),
-    append_args(HeadPrefix, [Ins, Acc3, Acc2, W3, W2, X3, X2, Y3, Y2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :- Apply, RecursiveCall)
-		   ]).
-
-user:goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(mapnodes, 3, Proto, GoalName),
-    append(MetaVars, [[InTerm], [OutTerm]], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], []], Base),
-    append_args(HeadPrefix, [[In|Ins], [Out|Outs]], RecursionHead),
-    append_args(Pred, [In, Temp], Apply),
-    append_args(HeadPrefix, [InArgs, OutArgs], SubRecursiveCall),
-    append_args(HeadPrefix, [Ins, Outs], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            Apply,
-			    (compound(Temp)
-			    ->
-				Temp =.. [F|InArgs],
-				SubRecursiveCall,
-				Out =.. [F|OutArgs]
-			    ;
-			    Out = Temp
-			    ),
-			    RecursiveCall)
-		   ]).
-
-user:goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
-    current_prolog_flag( goal_expansion_allowed, true ),
-    callable(Meta),
-    current_source_module(Mod,Mod),
-    aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
-    !,
-    % the new goal
-    pred_name(sumnodes, 4, Proto, GoalName),
-    append(MetaVars, [[Term], AccIn, AccOut], GoalArgs),
-    Goal =.. [GoalName|GoalArgs],
-    % the new predicate declaration
-    HeadPrefix =.. [GoalName|PredVars],
-    append_args(HeadPrefix, [[], Acc, Acc], Base),
-    append_args(HeadPrefix, [[In|Ins], Acc1, Acc2], RecursionHead),
-    append_args(Pred, [In, Acc1, Acc3], Apply),
-    append_args(HeadPrefix, [Args, Acc3, Acc4], SubRecursiveCall),
-    append_args(HeadPrefix, [Ins, Acc4, Acc2], RecursiveCall),
-    compile_clauses([
-		       Mod:Base,
-		       Mod:(RecursionHead :-
-		            Apply,
-			    (compound(In)
-			    ->
-				In =.. [_|Args],SubRecursiveCall
-			    ;
-			    Acc3 = Acc4
-			    ),
-			    RecursiveCall)
-		   ]).
-
-/**
-@}
-*/

@@ -10,7 +10,7 @@
 * Last rev:								 *
 * mods:									 *
 * comments:	arithmetical optimization				 *
-*									 *
+*	github								 *
 *************************************************************************/
 
                                 % the default mode is on
@@ -142,10 +142,13 @@ do_not_compile_expressions :-
     ( stream_property(loop_stream, file_name(F)) -> true ; F = user_input),
          ( stream_property(loop_stream, line_number(L)) -> true;  L = 0),
 	 functor(Head,N,A).
-'$do_c_built_in'(throw_file_error( error, error(Error, G)), _M, _Head,
+'$do_c_built_in'(throw_file_error( error, error(Error, G)), M, Head,
 		 (current_prolog_flag(file_errors, error), NG)) :-
     !,
-    '$do_c_built_in'(throw_error( error, error(Error, G)), _M, _Head, NG).
+    '$do_c_built_in'(throw_error( error, error(Error, G)), M, Head, NG).
+'$do_c_built_in'(goal_expansion(H,NG), M, _,
+    goal_expansion(M:H,NG)) :-
+    !.
 '$do_c_built_in'(X is Y, M, H,  P) :-
         primitive(X), !,
 	'$do_c_built_in'(X =:= Y, M, H, P).

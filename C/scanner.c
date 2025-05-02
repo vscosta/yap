@@ -936,7 +936,7 @@ const char *Yap_tokText(void *tokptre) {
 }
 
 
-TokEntry *add_eot(TokEntry *p)
+TokEntry *add_eot(TokEntry *p USES_REGS)
 {
   TokEntry *tokptr = Malloc(sizeof(TokEntry));
   tokptr->TokNext = NULL;
@@ -965,7 +965,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
-  int32_t ch, och = ' ';
+  int32_t ch=EOF, och = ' ';
   struct qq_struct_t *cur_qq = NULL;
   int sign = 1;
   size_t imgsz = 1024;
@@ -977,17 +977,17 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   p = NULL; /* Just to make lint happy */
 
   if( st->status &  Push_Eof_Stream_f) {
-    p = t = add_eot(p);
+    p = t = add_eot(p PASS_REGS);
     return p;
   } else {
        och = ch;
-    ch = getchr(st);
+       ch = getchr(st);
       while (chtype(ch) == BS) {
 	och = ch;
 	ch = getchr(st);
       }
     if( ch == EOF) {
-      p = t = add_eot(p);
+      p = t = add_eot(p PASS_REGS);
       return p;
     } 
   }
@@ -1044,7 +1044,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       t->Tok = Ord(kind = Comment_tok);
       if (ch==EOF) {
 	st->status |= Push_Eof_Stream_f;
-	t = add_eot(t);
+	t = add_eot(t PASS_REGS);
       }
       break;
 
@@ -1185,7 +1185,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	}
       }
       if (ch == EOF) {
-	t = add_eot(t);
+	t = add_eot(t PASS_REGS);
 	return l;
       }
       break;
@@ -1411,7 +1411,7 @@ t->Tok = Ord(kind = Name_tok);
           } else if (chtype(ch) == EF) {
 
 	  st->status |= Push_Eof_Stream_f;
-	    p = add_eot(t);
+	    p = add_eot(t PASS_REGS);
 	    return l;
           } else {
             charp += put_utf8(charp, ch);
@@ -1456,7 +1456,7 @@ t->Tok = Ord(kind = Name_tok);
 	 l=t;
        } else {
   	 	  st->status |= Push_Eof_Stream_f;
-	  p = add_eot(t);
+	  p = add_eot(t PASS_REGS);
 
 
        }

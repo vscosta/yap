@@ -190,7 +190,7 @@ restart:
   return NULL;
 }
 
-PredEntry *get_full_pred(Term *tp, Term *tmodp, const char *pname) {
+PredEntry *get_full_pred(Term *tp, Term *tmodp, const char *pname USES_REGS) {
   Term t0 = *tp, t = t0;
   Term tmod = CurrentModule;
 
@@ -256,12 +256,12 @@ PredEntry *Yap_new_pred(Term t, Term tmod, bool mkLU, const char *pname) {
   } else if (IsAtomTerm(t)) {
     if (mkLU) {
       rc = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
-      if (rc)
+     if (rc)
 	return rc;
       return Yap_MkLogPred( RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod)) );
     }
     rc = RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
-  } else if (IsIntegerTerm(t)) {
+   } else if (IsIntegerTerm(t)) {
     if (tmod == IDB_MODULE) {
       rc = Yap_FindLUIntKey(IntegerOfTerm(t));
     }
@@ -288,11 +288,12 @@ PredEntry *Yap_new_pred(Term t, Term tmod, bool mkLU, const char *pname) {
     }
     if (mkLU) {
       rc = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
-      if (rc)
+      if (rc) {
 	return rc;
+      }
       return Yap_MkLogPred( RepPredProp(PredPropByFunc(fun, tmod)) );
     }
-    return ( RepPredProp(PredPropByFunc(fun, tmod)) );
+    rc = ( RepPredProp(PredPropByFunc(fun, tmod)) );
   } else
     return NULL;
   // new stuff
@@ -2115,30 +2116,30 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
       }
       if(
 	 mode == ASSERTA || mode == ASSERTZ) {
-      Yap_MkLogPred(p);
-    }
-    } else {
-    multiple =Yap_multiple(p, t1 PASS_REGS);
-    if (multiple) {
-      if (t1==TermReconsult) {
-	purge_clauses(p);
+	Yap_MkLogPred(p);
       }
-      m_culprit = MkPairTerm(
-			     MkAtomTerm(p->src.OwnerFile),
-			     MkIntTerm(p->src.OwnerLine)
-			     );
-    }
-    discontiguous = Yap_discontiguous(p, t1 PASS_REGS);
-  if (discontiguous) {
-StaticClause *cl = ClauseCodeToStaticClause(p->cs.p_code.LastClause);
-    if (cl->ClFlags & FactMask) {
-      d_culprit =  MkIntTerm(cl->usc.ClLine);
-    } else if (cl->ClFlags & SrcMask) {
-      d_culprit = MkIntTerm(cl->usc.ClSource->ag.line_number);
-    } else{
-      d_culprit = MkIntTerm(1);
-    }
-    d_culprit = MkPairTerm(MkAtomTerm(Yap_source_file_name()),d_culprit);
+    } else {
+      multiple =Yap_multiple(p, t1 PASS_REGS);
+      if (multiple) {
+	if (t1==TermReconsult) {
+	  purge_clauses(p);
+	}
+	m_culprit = MkPairTerm(
+			       MkAtomTerm(p->src.OwnerFile),
+			       MkIntTerm(p->src.OwnerLine)
+			       );
+      }
+      discontiguous = Yap_discontiguous(p, t1 PASS_REGS);
+      if (discontiguous) {
+	StaticClause *cl = ClauseCodeToStaticClause(p->cs.p_code.LastClause);
+	if (cl->ClFlags & FactMask) {
+	  d_culprit =  MkIntTerm(cl->usc.ClLine);
+	} else if (cl->ClFlags & SrcMask) {
+	  d_culprit = MkIntTerm(cl->usc.ClSource->ag.line_number);
+	} else{
+	  d_culprit = MkIntTerm(1);
+	}
+	d_culprit = MkPairTerm(MkAtomTerm(Yap_source_file_name()),d_culprit);
   }
   
        
@@ -2621,8 +2622,6 @@ static  Term gpred(PredEntry *pe)
     }
     if (pe->PredFlags & SourcePredFlag)
 	return  TermSourceProcedure;
-   if (pe->PredFlags & ProxyPredFlag)
-	return  TermProxyProcedure;
    if (pe->cs.p_code.NOfClauses == 0)
      	return  TermUndefinedProcedure;
     //    if (pe->PredFlags & NoTracePredFlag)
@@ -2638,7 +2637,7 @@ static Int predicate_info(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   Term t1 = Deref(ARG1);
   Term tmod = CurrentModule;
-  pe = get_full_pred(&t1, &tmod, "predicate_info");
+  pe = get_full_pred(&t1, &tmod, "predicate_info" PASS_REGS);
   if (pe == NULL) {
     return
       Yap_unify(ARG2,TermUndefinedProcedure) && Yap_unify(ARG3,tmod ) &&
@@ -2845,13 +2844,15 @@ static Int is_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   return out;
 }
 static Int mk_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
-  PredEntry *pe;
+  PredEntry *pe, *ope;
 
   pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false,"$is_meta");
+  ope = Yap_get_pred(Deref(ARG3), Deref(ARG4), "$proxy");
   if (EndOfPAEntr(pe))
     
     return FALSE;
   pe->PredFlags |= ProxyPredFlag;
+  pe->PredIsProxyFor = ope;
   return true;
 }
 
@@ -2859,6 +2860,8 @@ static Int pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
   PredEntry *pe;
   bool out;
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$exists");
+  if (EndOfPAEntr(pe))
+    return false;
   if (EndOfPAEntr(pe))
     return false;
   if ((pe->PredFlags & (HiddenPredFlag))!= 0)
@@ -4511,7 +4514,7 @@ void Yap_InitCdMgr(void) {
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$is_meta_predicate", 2, is_metapredicate,
                 TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$mk_proxy_predicate", 2, mk_proxy_predicate,
+  Yap_InitCPred("$mk_proxy_predicate", 4, mk_proxy_predicate,
                 SafePredFlag);
   Yap_InitCPred("$is_proxy_predicate", 2, is_proxy_predicate,
                 TestPredFlag |

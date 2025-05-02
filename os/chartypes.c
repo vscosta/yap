@@ -288,7 +288,7 @@ static int get_char_or_code(Term t, bool *is_char) {
   return val;
 }
 
-static bool to_upper( Term t, Term t2)
+static bool to_upper( Term t, Term t2 USES_REGS)
 {
    bool is_char = false;
    Int out = get_char_or_code(t, &is_char), uout;
@@ -300,7 +300,7 @@ static bool to_upper( Term t, Term t2)
   
 }
 
-static bool to_lower( Term t, Term t2)
+static bool to_lower( Term t, Term t2 USES_REGS)
 {
     bool is_char = false;
 
@@ -313,16 +313,16 @@ static bool to_lower( Term t, Term t2)
   
 }
 
-/** @pred  to_upper(?LowC, ?LUpC)
+/** @pred  to_upper(?LowC, ?LUp)
 
     UpC is the upper case bersion of LowC, or LowC is the lower case version of UpC.
  */
 static Int toupper2(USES_REGS1) {
   Term t;
   if (!IsVarTerm(t = Deref(ARG1))) {
-    return to_upper(t,ARG2);
+    return to_upper(t,ARG2 PASS_REGS);
   } else if (!IsVarTerm(t = Deref(ARG2))) {
-     return to_lower(t,ARG1);
+    return to_lower(t,ARG1 PASS_REGS);
   } else {
     Yap_ThrowError(INSTANTIATION_ERROR, ARG1, NULL);
   }
@@ -336,9 +336,9 @@ static Int toupper2(USES_REGS1) {
 static Int tolower2(USES_REGS1) {
   Term t;
   if (!IsVarTerm(t = Deref(ARG1))) {
-     return to_lower(t,ARG2);
+     return to_lower(t,ARG2 PASS_REGS);
   } else if (IsVarTerm(t = Deref(ARG2))) {
-     return to_upper(t,ARG1);  } else {
+     return to_upper(t,ARG1 PASS_REGS);  } else {
     Yap_ThrowError(INSTANTIATION_ERROR, ARG1, NULL);
   }
   return false;

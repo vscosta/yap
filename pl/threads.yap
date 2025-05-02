@@ -1170,7 +1170,7 @@ thread_get_message(Queue, Term) :-
 /** @pred thread_peek_message(? _Term_)
 
 
-Examines the thread message-queue and compares the queued terms
+Examines the thread message-queue P and compares the queued terms
 with  _Term_ until one unifies or the end of the queue has been
 reached.  In the first case the call succeeds (possibly instantiating
  _Term_.  If no term from the queue unifies this call fails.
@@ -1367,14 +1367,14 @@ thread_local(X) :-
 '$thread_local2'(X,Mod) :-
 	throw_error(type_error(callable,X),thread_local(Mod:X)).
 
-
+/*
 with_mutex(M,G) :-
     setup_call_catcher_cleanup(
          ((var(M)->mutex_create(M);true), mutex_lock(M)),
 G,
 _Ex,
 mutex_unlock(M)).
-
+*/
 
 /**
  * @pred private( _N_/_A_ )

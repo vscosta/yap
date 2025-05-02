@@ -11,8 +11,18 @@
     	or.scheduler.c
   	or.cut.c
   	tab.tries.c
-  	tab.completion.c
-   )
+    tab.completion.c
+    )
+  
+    if (APPLE AND gTHREADS)
+      set(OPTYap_SOURCES pthread-barrier-macos/src/pthread_barrier.c
+	${OPTYap_SOURCES}
+    )
+include_directories(. PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/pthread-barrier-macos/inc>)
+
+
+    endif(APPLE)
 
 
 option (WITH_TABLING "Support tabling" ON)

@@ -31,11 +31,13 @@
 * @defgroup avl AVL Trees
 * @ingroup YAPLibrary
 * @brief Supports constructing AVL trees.
+
+
+
+
+
 * @{
- */
 
-
-/**
 AVL trees are balanced search binary trees. They are named after their
 inventors, Adelson-Velskii and Landis, and they were the first
 dynamically balanced trees to be proposed. The YAP AVL tree manipulation

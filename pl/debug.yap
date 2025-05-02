@@ -490,10 +490,6 @@ trace_goal((A|B), M, Ctx, GN0, CP) :-
      trace_goal(B, M, Ctx, GN0, CP)).
 trace_goal(true, _M, _Ctx, _GN, _CP) :-
     !.
-trace_goal(G,M, Ctx, GoalNumberN, CP0) :-
-    predicate_property(M:G, imported_from(M0)),
-    !,
-    trace_goal(G,M0, Ctx, GoalNumberN, CP0).
 trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
     '$id_goal'(GoalNumberN),
 catch(
@@ -503,113 +499,65 @@ step_goal(G,M,GoalNumberN),
     ).
 
  step_goal(G,M, GoalNumberN) :-
-     '$interact'([call], M:G, GoalNumberN),
-     nb_getval(creep,zip),
+    '$interact'([call], M:G, GoalNumberN), 
+    nb_getval(creep,zip),
      !,
      '$step'(zipped_procedure,M:G,GoalNumberN).
  step_goal(G,M, GoalNumberN) :-
- '$predicate_type'(G,M,T),
+    '$predicate_type'(G,M,T),
     '$step'(T,M:G,GoalNumberN).
 
 %%
 % step a call
 % 
-'$step'(   exo_procedure,MG,GoalNumber) :-
-    '$step'(   source_procedure,MG,GoalNumber).
-'$step'(   mega_procedure,MG,GoalNumber) :-
-    '$step'(   source_procedure,MG,GoalNumber).
+'$step'(   foreign_procedure,MG,GoalNumber) :-
+    '$step'(   system_procedure,MG,GoalNumber).
 '$step'(proxy_procedure,M:G,GoalNumber) :-
     !,
     '$import'(MDonor,M,GDonor,G,_,_),
     '$predicate_type'(GDonor,MDonor,T),
     '$step'(T,MDonor:GDonor,GoalNumber).
-'$step'(   source_procedure,MG,GoalNumber) :-
-    % prepare and select matching clause
-   '$creep_enumerate_sources'(
-     (current_choice_point(CP),
-    '$meta_hook'(MG,NM:NG)),
-NM:NG,
-B,
-Port0,
-    true
-),
-   '$creep_run_sources'(
-      true,
-      NM,B, CP,GoalNumber,
-       Port,
-inner,
-       '$interact'([Port,Port0], NM:MG, GoalNumber)
-). %
-'$step'(   static_procedure,MG,GoalNumber) :-
-    % prepare and select matching clause
-    '$creep_enumerate_refs'(
-     (current_choice_point(CP),
-    '$meta_hook'(MG,NMG)), NMG, N, Ref, Port0, true),
-'$creep_run_refs'(
-true,
- MG,
-N,
-Ref,
-CP,
-Port,
-       '$interact'([Port,Port0], NMG, GoalNumber)
-).
+'$step'(   updatable_procedure,MG,GoalNumber) :-
+    '$step'(   source_procedure,MG,GoalNumber).
+'$step'(   mega_procedure,MG,GoalNumber) :-
+    '$step'(   source_procedure,MG,GoalNumber).
 '$step'(   system_procedure,MG,GoalNumber) :-
-  	gated_call(    % debugging allowed.
-  '$meta_hook'(MG,NMG),
-	    call(NMG),
+  	gated_call(   
+'$meta_hook'(MG,NMG),
+call(NMG),
 	    Port,	
-         '$interact'([Port], NMG, GoalNumber)
+         '$interact'(Port, NMG, GoalNumber)
 	).
-'$step'(   zipped_procedure,MG,GoalNumber) :-
-  	gated_call(    % debugging allowed.
-  true,
-	    call(MG),
+'$step'(   exo_procedure,MG,GoalNumber) :-
+    '$step'(   source_procedure,MG,GoalNumber).
+'$step'(   mega_procedure,MG,GoalNumber) :-
+    '$step'(   source_procedure,MG,GoalNumber).
+'$step'(   source_procedure,MG,GoalNumber) :-
+     current_choice_point(CP),
+ 	gated_call(   
+'$meta_hook'(MG,NM:NG),
+(
+    clause(NM:NG,Body),
+    trace_goal(Body,NM,inner,GoalNumber, CP)
+),
 	    Port,	
-         '$interact'([Port], MG, GoalNumber)
+         '$interact'(Port, NM, GoalNumber)
+	).
+'$step'(   undefined_procedure,MG,GoalNumber) :-
+    '$exit_undefp',
+    '$undefp__'(MG, NM:NewG),
+    trace_goal(NewG, NM,  inner,GoalNumber).
+'$step'(   static_procedure,MG,GoalNumber) :-
+    current_choice_point(CP),
+    gated_call(   
+'$meta_hook'(MG,NM:NG),
+	    (
+(nth_call(NM:NG,_,Ref),'$creep_clause'( NG, NM, Ref, CP )),
+	    Port,	
+         '$interact'(Port, NM:NG, GoalNumber)
 	)
-.
-'$creep_enumerate_sources'(Setup, M:Goal, B,Catcher, Cleanup) :-
-    '$setup_call_catcher_cleanup'(Setup),
-    Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
-	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
-	'$tag_cleanup'(CP0, Task0),
-    clause(M:Goal,B),
-	'$cleanup_on_exit'(CP0, TaskF).
+    ).
 
-
-'$creep_enumerate_refs'(Setup, M:Goal, _N, Ref, Catcher, Cleanup) :-
-    '$setup_call_catcher_cleanup'(Setup),
-        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
-	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
-	'$tag_cleanup'(CP0, Task0),
-	nth_clause(M:Goal,_J,Ref),
-	'$cleanup_on_exit'(CP0, TaskF).
-
-
-'$creep_run_sources'(Setup, M, B, CP0, GoalNumber, Catcher, Ctx, Cleanup) :-
-    '$setup_call_catcher_cleanup'(Setup),
-        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
-	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
-    '$tag_cleanup'(CP0, Task0),
-	trace_goal(B,M,Ctx,GoalNumber, CP0),
-	'$cleanup_on_exit'(CP0, TaskF).
-
-'$creep_run_private'(Setup, M, G, _CP, Catcher, Cleanup) :-
-    '$setup_call_catcher_cleanup'(Setup),
-        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
-	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
-    '$tag_cleanup'(CP0, Task0),
-    '$execute_non_stop'(M:G),
-    '$cleanup_on_exit'(CP0, TaskF).
-
-'$creep_run_refs'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
-    '$setup_call_catcher_cleanup'(Setup),
-    Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
-    TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
-    '$tag_cleanup'(CP0, Task0),
-    '$creep_clause'( Goal, M, Ref, CP ),
-    '$cleanup_on_exit'(CP0, TaskF).
 
 
 '$meta_hook'(MG,M:NG) :-
@@ -642,21 +590,17 @@ Port,
  * @parameter _Info_ describes the goal
  *
  */
-'$interact'(Ports, MG, GoalNumber) :-
-    '$ports_to_port'(Ports,P),
-    '$zip_at_port'(P,GoalNumber,MG),
+'$interact'(P, MG, GoalNumber) :-
+      '$zip_at_port'(P,GoalNumber,MG),
     !.
-'$interact'(Ports, Module:G, L) :-
+'$interact'(P, Module:G, L) :-
      nb_getval(creep,leap),
      !,
-     '$ports_to_port'(Ports,P),
-    ('$deterministic_port'(Ports) -> Deterministic = '?' ; Deterministic = ' '),
+    ('$deterministic_port'(P) -> Deterministic = '?' ; Deterministic = ' '),
      '$enter_trace'(L, Module:G, Deterministic),
      '$action'('\n',P,L,G,Module,Deterministic).  
-'$interact'(Ports, Module:G, L) :-
-    '$ports_to_port'(Ports,P),
-    '$ports_to_port'(Ports,P),
-    ('$deterministic_port'(Ports) -> Deterministic = '?' ; Deterministic = ' '),
+'$interact'(P, Module:G, L) :-
+    ('$deterministic_port'(P) -> Deterministic = '?' ; Deterministic = ' '),
     '$id_goal'(L),        /* get goal no.	*/
     % at this point we are done with leap or skipe
     '$enter_trace'(L, Module:G, Deterministic),
@@ -711,9 +655,8 @@ Port,
  *
  */
 
-'$trace_port'(Ports, GoalNumber, Goal, Module, Ctx, CP,Info) :-
-    '$ports_to_port'(Ports, Port),
-    ('$deterministic_port'(Ports,Info) -> true ; true ),
+'$trace_port'(Port, GoalNumber, Goal, Module, Ctx, CP,Info) :-
+    ('$deterministic_port'(Port ,Info) -> true ; true ),
     (
     true
     ;
@@ -722,58 +665,11 @@ Port,
 
 %        
 % last.first
-%'$ports_to_port'(P, _) :- writeln(P), fail. 
-'$ports_to_port'([answer], exit).
-'$ports_to_port'([answer,exit], exit).
-'$ports_to_port'([answer,answer], exit).
-'$ports_to_port'([call], call).
-'$ports_to_port'([call,none], call).
-'$ports_to_port'([call,redo], redo).
-%'$ports_to_port'([call,exit], internal).
-'$ports_to_port'([exit], exit).
-'$ports_to_port'([exit,none], exit).
-'$ports_to_port'([exit,exit], exit).
-'$ports_to_port'([answer,none], exit).
-'$ports_to_port'([exit,answer], exit).
-%'$ports_to_port'(     [exit], internal).
-%'$ports_to_port'([exit,redo], internal). %impossible?
-'$ports_to_port'([fail,exit], fail).
-'$ports_to_port'([fail,none], fail).
-'$ports_to_port'([fail,answer], redo).
-'$ports_to_port'([fail,exit], fail).
-'$ports_to_port'([exit,fail], fail).
-'$ports_to_port'(     [fail], fail).
-'$ports_to_port'(     [fail,none], fail).
-'$ports_to_port'([redo,answer], exit).
-'$ports_to_port'([redo,none], redo).
-'$ports_to_port'([redo,exit], exit).
-'$ports_to_port'([redo], redo).
-%'$ports_to_port'([!,answer], internal).
-%'$ports_to_port'([!,exit], internal).
-%'$ports_to_port'([!,redo], internal).
-%'$ports_to_port'([!,fail], internal).
-'$ports_to_port'([answer,!], exit).
-'$ports_to_port'([exit,!], exit).
-'$ports_to_port'([redo,!], redo).
-'$ports_to_port'([redo], redo).
-'$ports_to_port'([fail,!], fail).
-%'$ports_to_port'([!], !).
-'$ports_to_port'([!,none], exit).
-'$ports_to_port'([exception(E),_], NE) :- '$publish_port'(E,NE).
-'$ports_to_port'([exception(E)], NE) :- '$publish_port'(E,NE).
-'$ports_to_port'([external_exception(E),_], NE) :- '$publish_port'(E,NE).
-'$ports_to_port'([external_exception(E)], NE) :- '$publish_port'(E,NE).
 
 
-'$deterministic_port'([exit,none]).
-'$deterministic_port'([exit,exit]).
-'$deterministic_port'([fail,exit]).
-'$deterministic_port'([exit,fail]).
-'$deterministic_port'(     [exit]).
-'$deterministic_port'([!,answer]).
-'$deterministic_port'([!,exit]).
-'$deterministic_port'([answer,!]).
-'$deterministic_port'([call]).
+'$deterministic_port'(exit).
+'$deterministic_port'(fail).
+'$deterministic_port'(call).
 
 %'$publish_port'(redo(_), internal) :- !.
 %'$publish_port'(fail(_), internal) :- !.
@@ -1195,11 +1091,19 @@ nb_setval('$spy_on',ignore),
     '$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
 '$debugger_prepare_meta_arguments'([(A*->B)|As], [0|Ms], [(NA*->NB)|NAs]) :-	!,
     '$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
-'$debugger_prepare_meta_arguments'([A|As], [0|Ms], [yap_hacks:trace(MA:GA)|NAs]) :-
-    '$yap_strip_module'(A,MA,GA),
-    GA \= trace(_),
+'$debugger_prepare_meta_arguments'([A|As], [N|Ms], [yap_hacks:trace(MA:GA)|NAs]) :-
+   '$yap_strip_module'(A,MA,GA),
+    nonvar(A),
+    length(B,N),
+    lists:append(B,R,As),
+    GA=..[GN|GAs],
+    lists:append(GAs,B,NGAs),
+    NGA =.. [GN|NGAs],
+    length(Ms0,N),
+    lists:append(Ms0,RMs,Ms),
+    NGA \= trace(_),
 	!,
-   	'$debugger_prepare_meta_arguments'(As, Ms, NAs).
+   	'$debugger_prepare_meta_arguments'(R, RMs, NAs).
 '$debugger_prepare_meta_arguments'([A|As], [_|Ms], [A|NAs]):-
     '$debugger_prepare_meta_arguments'(As, Ms, NAs).
 

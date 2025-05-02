@@ -488,7 +488,7 @@ export_list(Module, List) :-
     \+ '$import'(_,MHost,_,GHost,_,_),
     asserta('$import'(MDonor,MHost,GDonor,GHost,NHost,K)),
     %writeln((MHost:GHost :- MDonor:GDonor)),
-    '$mk_proxy_predicate'(GHost,MHost),
+    '$mk_proxy_predicate'(GHost,MHost,GDonor,MDonor),
    ('$is_metapredicate'(GDonor,MDonor) ->
      	 recorded('$m' , meta_predicate(MDonor,GDonor),_),
 	 '$tag_module'(Args,MHost, NVars, NModVars),
