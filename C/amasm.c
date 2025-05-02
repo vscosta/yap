@@ -2977,9 +2977,6 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
         }
       }
       code_p = cl_u->sc.ClCode;
-      if (LOCAL_nperm>1024 ){
-	code_p = a_n(_write_n_perms, LOCAL_nperm, code_p, pass_no);
-      }
     }
     LOCAL_IPredArity = cip->CurrentPred->ArityOfPE; /* number of args */
     *entry_codep = code_p;
@@ -3000,7 +2997,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
 #else
       code_p = a_try(_try_me, 0, LOCAL_IPredArity, code_p, pass_no, cip);
 #endif /* YAPOR */
-    }
+
 #if THREADS || YAPOR
     if (log_update) {
       // separate from indexing code,
@@ -3008,6 +3005,9 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       code_p = a_e(_unlock_lu, code_p, pass_no);
     }
 #endif
+  } else      if (LOCAL_nperm>1024 ){
+	code_p = a_n(_write_n_perms, LOCAL_nperm, code_p, pass_no);
+      }
   } else {
     /* index code */
     if (log_update) {
@@ -3896,6 +3896,7 @@ yamop *Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact,
         cl->ClSize = size;
         cl->ClFlags = 0;
 	cl->ClPred = cip->CurrentPred;
+	cl->ClNext = NULL;
 	Yap_ClauseSpace += size;
       }
     } else {

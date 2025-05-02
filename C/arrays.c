@@ -662,7 +662,7 @@ static void AllocateStaticArraySpace(ArrayEntry *p,
     asize = asize * sizeof(DBRef);
     break;
   }
-  if (old == NULL) {
+   asize *= 2;  if (old == NULL) {
     while ((p->ValueOfStaticVE.floats = (Float *)Yap_AllocCodeSpace(asize)) == NULL) {
       YAPLeaveCriticalSection();
       if (!Yap_growheap(FALSE, asize, NULL)) {

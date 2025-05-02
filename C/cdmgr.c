@@ -1125,7 +1125,7 @@ static void retract_all(PredEntry *p, int in_use) {
           Yap_FreeCodeSpace((char *)cl);
         }
         p->cs.p_code.NOfClauses--;
-        if (!ncl)
+       if (!ncl && p->cs.p_code.NOfClauses)
           break;
         cl = ncl;
       }

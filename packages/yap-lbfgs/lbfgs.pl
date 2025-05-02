@@ -30,6 +30,7 @@
 		 lbfgs_progress_done/1,
 		 lbfgs_set_parameter/2,
 		 lbfgs_get_parameter/2,
+		 lbfgs_current_parameter/2,
 		 lbfgs_parameters/0]).
 
 % switch on all the checks to reduce bug searching time
@@ -79,6 +80,7 @@ it by
 
 + use lbfgs_set_paramater(Name,Value) to change parameters
 + use lbfgs_get_parameter(Name,Value) to see current parameters
++ use lbfgs_current_parameter(Name,Value) to see current parameters
 + use lbfgs_parameters to print this overview
 
 
