@@ -37,7 +37,6 @@ main :-
     
     %    valid_suffix(ValidSuffix),
     %    sub_atom(Y,_,_,0,ValidSuffix),
-    !,
     file_directory_name(File, Dir),
     working_directory(OldD,Dir),
     open(Y,read,S,[alias(loop_stream)]),
@@ -240,12 +239,11 @@ trl_lines( Lines, O, O0) :-
 trl_line(  "",O,O) :-
     !.
 trl_line(  L,NL,NL3) :-
-    ((
     trl_prefix(L,L1,NL,NL1),
     trl_pred(L1,L2, NL1, NL2),
-    trl_pi(L2,NL2,NL3)
-    )).
-
+    trl_pi(L2,NL2,NL3),
+    !.
+trl_line(L,[L|NL],NL).
 
 trl_prefix(C,RC,["///"|NC],NC) :-
     sub_string(C,0,2,_Len,Pref),

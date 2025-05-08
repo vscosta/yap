@@ -337,7 +337,7 @@ a  *
 '$trace'( MG, _Ctx) :-
     '$zip_at_port'( call, _GN0, MG),
     !,
-    nb_setval(running_debugger_code, false  ),
+    '$off_debugger',
     '$execute_non_stop'(MG).
 '$trace'(MG, Ctx) :-
     strip_module(MG,M,G),
@@ -345,6 +345,7 @@ a  *
     nb_setval(creep,creep),
     nb_setval('$spy_on',stop),
     nb_setval('$spy_target',0),
+    '$on_debugger',
     current_choice_point(CP0),
     trace_goal(G, M, _, Ctx, CP0).
 /*'$trace'(M:G, Ctx) :- % system
@@ -438,12 +439,14 @@ trace_goal( '$call'( G, CP0, _, M), _, Ctx, _, _) :-
     trace_goal(G, M,  Ctx, _, CP0).
 trace_goal( '$cleanup_on_exit'(CP0, TaskF), _, _Ctx, _, _CP) :-
     !,
+    '$off_debugger',
      '$cleanup_on_exit'(CP0, TaskF).
 trace_goal( '$top_level', _, _Ctx, _, _) :-
     !,
     nb_setval(creep,zip).
 trace_goal('$drop_exception'(V,J), _, _, _, _) :-
     !,
+     '$off_debugger',
     '$drop_exception'(V,J).
 
 trace_goal(true,_, _, _,  _CP) :-
@@ -502,7 +505,7 @@ step_goal(G,M,GoalNumberN),
 step_goal(G,M, GoalNumberN) :-
     '$interact'(call, M:G, GoalNumberN), 
     nb_getval(creep,zip),
-     !,
+    !,
      '$step'(zipped_procedure,M:G,GoalNumberN).
  step_goal(G,M, GoalNumberN) :-
     '$predicate_type'(G,M,T),
@@ -525,7 +528,7 @@ step_goal(G,M, GoalNumberN) :-
 '$step'(   system_procedure,MG,GoalNumber) :-
   	gated_call(   
 ('$meta_hook'(MG,NMG),
-  nb_setval(running_debugger_code, false  )
+  '$off_debugger'
 ),
 call(NMG),
 	    Port,	
@@ -545,7 +548,7 @@ call(NMG),
     current_choice_point(CP),
     gated_call(   
                                                                                   ('$meta_hook'(MG,NM:NG),
-  nb_setval(running_debugger_code, false  )
+    '$off_debugger'
 ),
 	    (
 (nth_call(NM:NG,_,Ref),'$creep_clause'( NG, NM, Ref, CP )),
@@ -560,7 +563,7 @@ call(NMG),
 '$debug_gated_call'(Goal, GoalNumber) :-
       current_choice_point(CP0),
    '$setup_call_catcher_cleanup'('$meta_hook'(Goal,NM:NG)), 
-    Cleanup = '$interact'(Port, NM, GoalNumber),                     
+    Cleanup = '$interact'(Port, NM:NG, GoalNumber),                     
     Task0 = bottom( true, Port, Cleanup, Tag, true, CP0),
     '$tag_cleanup'(CP0, Task0),
     TaskF = top( true, Port, Cleanup, Tag, false, CP0),
@@ -608,6 +611,7 @@ call(NMG),
       '$zip_at_port'(P,GoalNumber,MG),
     !.
 '$interact'(P, Module:G, L) :-
+    '$on_debugger',
      nb_getval(creep,leap),
      !,
     ('$deterministic_port'(P) -> Deterministic = '?' ; Deterministic = ' '),
@@ -740,7 +744,6 @@ trace_error(Event,_,_,_,_,_) :-
 %
 % skip a goal or a port
 %
-
 '$gg'(CP,Goal) :-
     current_choice_point(CP0),
     CP = CP0,
@@ -1140,5 +1143,7 @@ watch_goal(G) :-
 trace(G) :-
     '$trace'(G,outer).
 
-
+'$off_debugger' :- nb_setval(running_debugger_code, false  ).
+'$on_debugger' :- nb_setval(running_debugger_code, true  ).
+'$debugging' :- nb_getval(running_debugger_code, true  ).
 %% @}

@@ -443,21 +443,22 @@ notrace(G) :-
     '$continue_debugging'(Ctx).
 
 
-'$exit_goal'(true, GN):-
-    '$continue_debugging'(GN).
+'$exit_goal'(Ctx, _GN):-
+    '$continue_debugging'(Ctx).
 
 '$continue_debugging'(_) :-
     current_prolog_flag(debug, false),
-    !.
-'$continue_debugging'(_) :-
-      current_prolog_flag( trace,true),
+    !,
+    '$off_debugging'.
+'$continue_debugging'(outer) :-
+    '$off_debugging',
+   %   current_prolog_flag( trace,true),
     nb_getval(creep,creep),
-    fail.
-'$continue_debugging'(inner).
+    !,
+    '$creep'.
+'$continue_debugging'(_).
 
-'$continue_debugging'(_) :-
-    current_prolog_flag(debug, false),
-    !.
+
 '$restart_debugging':-
     nb_setval('$spy_on',stop),
     nb_setval('$spy_target',0),

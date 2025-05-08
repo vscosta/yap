@@ -89,6 +89,7 @@ if (DOXYGEN_FOUND)
 ${CMAKE_SOURCE_DIR}/packages/prism
     ${CMAKE_SOURCE_DIR}/packages/cuda
     ${CMAKE_SOURCE_DIR}/packages/meld
+    ${CMAKE_SOURCE_DIR}/packages/myddas/pl
     ${CMAKE_SOURCE_DIR}/packages/cplint
     ${CMAKE_SOURCE_DIR}/packages/python/yapkernel
     ${CMAKE_SOURCE_DIR}/packages/swig
