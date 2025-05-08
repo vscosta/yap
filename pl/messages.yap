@@ -1114,11 +1114,11 @@ takev(L, _V1, L).
 
 
 %%%%%%%%%%%%%%%%%%%%%%
-print_lines( S, A, Key) -->
+prolog:print_lines( S, A, Key) -->
     [Tok],
     !,
     print_lines_(Tok, S, A, Key).
-print_lines( _S, _A, _Key) -->
+prolog:print_lines( _S, _A, _Key) -->
     [].
 
 print_lines_( at_same_line, S, Prefix_, Key) -->

@@ -637,6 +637,11 @@ static ClausePointer code_in_pred_s_index(ClausePointer icl, yamop *codeptr) {
 static ClausePointer find_code_in_clause(PredEntry *pp, yamop *codeptr) {
     yamop *clcode;
 
+    if (!pp) {
+            ClausePointer cl;
+            cl.sc = NULL;
+	    return cl;
+    }
     if (pp->PredFlags & (HiddenPredFlag|CPredFlag | AsmPredFlag | BinaryPredFlag|UserCPredFlag)) {
       ClausePointer cl;
       cl.sc = ClauseCodeToStaticClause(pp->CodeOfPred);
@@ -791,7 +796,11 @@ static ClausePointer code_in_pred(PredEntry *pp,
 	  out.pe =  PredFail;
 	  return out;
 	}
-	if (pp->PredFlags & (CPredFlag | AsmPredFlag | UserCPredFlag)) {
+        if (!pp) {
+          out.sc = NULL;
+	  return out;
+	}
+        if (pp->PredFlags & (CPredFlag | AsmPredFlag | UserCPredFlag)) {
         StaticClause *cl = ClauseCodeToStaticClause(pp->CodeOfPred);
         if (IN_BLOCK(codeptr, (CODEADDR) cl, cl->ClSize)) {
 	  out.sc=cl;
@@ -893,7 +902,9 @@ PredEntry *Yap_PredEntryForCode(choiceptr ap, yamop *codeptr, find_pred_type whe
         if (cl_code_in_pred(pp, codeptr).pe) {
             return pp;
         }
-    }
+      } else if (codeptr->opc == YESCODE->opc) {
+      return PredTrue;
+}
     ModEntry *me = CurrentModules;
     while (me) {
         PredEntry *pp = me->PredForME;
@@ -2227,8 +2238,9 @@ static bool JumpToEnv(USES_REGS1) {
     siglongjmp(*LOCAL_TopRestartEnv,5);
 
     return true;
-
     }
+    if (!LOCAL_TopRestartEnv)
+      return false;
     do {
       if ( B->cp_a4==TermFreeTerm &&
 	   IsVarTerm(Deref(B->cp_a5))) {

@@ -794,7 +794,7 @@ compile_clause(EC) :-
     ),
         ( B==true
     ->
-    '$compile'((Mod:H), consult, EC, SM, Pos, [])
+    '$compile'((Mod:H),  consult, EC, SM, Pos, [])
     ;
     '$compile'((Mod:H:-B), consult, EC, SM, Pos, [])
     ).

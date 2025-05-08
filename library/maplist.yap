@@ -46,6 +46,7 @@
 	   sumnodes/4
 	  ]).
 
+   
 :- meta_predicate
        selectlist(1,+,+),
        selectlist(2,+,+,+),
@@ -86,10 +87,12 @@
        scanl(5, +, +, +, +, -),
        scanl(6, +, +, +, +, +, -).
 
+
+:- use_module( library(lists),[append/3]).
+
 /*
-:- use_module(library(lists), [append/3]).
-:- use_module(library(maputils)).
-:- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
+
+:- use[_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(occurs), [sub_term/2]).
 */
 /**
@@ -174,6 +177,7 @@ maplist(Pred, [In|ListIn]) :-
 /** @pred maplist( 2:Pred, + _List1_,+ _List2_)
 
 Apply  _Pred_ on all successive pairs of elements from
+
  _List1_ and
  _List2_. Fails if  _Pred_ can not be applied to a
 pair. See the next example.
@@ -190,10 +194,9 @@ maplist(_, [], []).
 maplist(Pred, [In|ListIn], [Out|ListOut]) :-
     call(Pred, In, Out),
     maplist(Pred, ListIn, ListOut).
-eqall(L1,L2) :- maplist(=,L1,L2).
 
 
-/** @pred maplist(3:Pred,+ List1,+ List2,+ List4)
+/** @pred maplist(3:Pred,? List1,? List2,? List3)
 
 Apply  _Pred_ on all successive triples of elements from  _List1_,
  _List2_ and  _List3_. Fails if  _Pred_ can not be applied to a
@@ -210,13 +213,87 @@ dozip(X,Y,F) :-
 
 ?- dozip(X,Y,[1-3,2-4]).
 
-?- dozip([1,X],[Y,Y]xpgxo,[1-3,2-3]).
+?- dozip([1,X],[Y,Y],[1-3,2-3]).
 
 ```
 
 
 
  */
+maplist(_, [], [], []).
+maplist(Pred, [H1|List1],[H2|List2], [H3|List3]) :- 
+    call(Pred, H1, H2, H3),
+    maplist(Pred, List1, List2, List3).
+
+/** @pred maplist(4:Pred,? List1,? List2,? List3, ? List4)
+
+Apply  _Pred_ on all successive triples of elements from  _List1_,
+ _List2_,  _List3_ and _List4_. Fails if  _Pred_ can not be applied to a
+tuple. See maplist/3.
+
+
+
+ */
+maplist(_, [], [], [], []).
+maplist(Pred, [H1|List1],[H2|List2], [H3|List3], [H4|List4]) :- 
+    call(Pred, H1, H2, H3, H4),
+    maplist(Pred, List1, List2, List3, List4).
+
+/** @pred maplist(5:Pred,? List1,? List2,? List3, ? List4, ? List5)
+
+Apply  _Pred_ on all successive triples of elements from  _List1_,
+ _List2_,  _List3_, _List4_ and _List5_. Fails if  _Pred_ can not be applied to a
+tuple. See maplist/3.
+
+
+
+ */
+maplist(_, [], [], [], [], []).
+maplist(Pred, [H1|List1],[H2|List2], [H3|List3], [H4|List4], [H5|List5]) :- 
+    call(Pred, H1, H2, H3, H4, H5),
+    maplist(Pred, List1, List2, List3, List4, List5).
+
+/** @pred maplist(6:Pred,? List1,? List2,? List3, ? List4, ? List5, ? List6)
+
+Apply  _Pred_ on all successive triples of elements from  _List1_,
+ _List2_,  _List3_, _List4_, _List5_ and _List6_. Fails if  _Pred_ can not be applied to a
+tuple. See maplist/3.
+
+
+
+ */
+maplist(_, [], [], [], [], [], []).
+maplist(Pred, [H1|List1],[H2|List2], [H3|List3], [H4|List4], [H5|List5], [H6|List6]) :- 
+    call(Pred, H1, H2, H3, H4, H5, H6),
+    maplist(Pred, List1, List2, List3, List4, List5, List6).
+
+/** @pred maplist(7:Pred,? List1,? List2,? List3, ? List4, ? List5, ? List6, ? List7)
+
+Apply  _Pred_ on all successive triples of elements from  _List1_,
+ _List2_,  _List3_, _List4_, _List5_, _List6_ and _List7_. Fails if  _Pred_ can not be applied to a
+tuple. See maplist/3.
+
+
+
+ */
+maplist(_, [], [], [], [], [], [], []).
+maplist(Pred, [H1|List1],[H2|List2], [H3|List3], [H4|List4], [H5|List5], [H6|List6], [H7|List7]) :- 
+    call(Pred, H1, H2, H3, H4, H5, H6, H7),
+    maplist(Pred, List1, List2, List3, List4, List5, List6, List7).
+
+/** @pred maplist(8:Pred,? List1,? List2,? List3, ? List4, ? List5, ? List6, ? List7, ? List8)
+
+Apply  _Pred_ on all successive triples of elements from  _List1_,
+ _List2_,  _List3_, _List4_, _List5_, _List6_, _List7_ and _List8_. Fails if  _Pred_ can not be applied to a
+tuple. See maplist/3.
+
+
+
+ */
+maplist(_, [], [], [], [], [], [], [], []).
+maplist(Pred, [H1|List1],[H2|List2], [H3|List3], [H4|List4], [H5|List5], [H6|List6], [H7|List7], [H8|List8]) :- 
+    call(Pred, H1, H2, H3, H4, H5, H6, H7, H8),
+    maplist(Pred, List1, List2, List3, List4, List5, List6, List7, List8).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -226,12 +303,21 @@ dozip(X,Y,F) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /**
-  @pred  include( 2:Pred, + ListIn, ? ListOut)
+  @pred  include( 1:Pred, + ListIn, ? ListOut)
 
-  Same as selectlist/3.		%
+  Same as selectlist/3.
 */
-include(G,In,Out) :-
-    selectlist(G, In, Out).
+
+include(_, [], []).		
+include(Pred, [In|ListIn], ListOut) :-
+    (call(Pred, In) ->
+	 ListOut = [In|NewListOut]
+    ;
+    ListOut = NewListOut
+    ),
+    include(Pred, ListIn, NewListOut).
+
+
 
 /**
   @pred  selectlist(1:Pred, + ListIn, ? ListOut))
@@ -247,7 +333,7 @@ selectlist(Pred, [In|ListIn], ListOut) :-
     ),
     selectlist(Pred, ListIn, NewListOut).
 
-
+ 
 /** @pred  selectlist( 2:Pred, + ListIn, + ListInAux, ? ListOut)
 
   Creates  _ListOut_ of all list elements of  _ListIn_ that
@@ -372,7 +458,7 @@ checklist(Pred, [In|ListIn]) :-
   OldList on which Rewrite is undefined (fails) are not represented.
   Thus if foo(X,Y) :- integer(X), Y is X+1.
   then convlist(foo, [1,a,0,joe(99),101], [2,1,102]).
-*/
+v*/
 convlist(_, [], []).
 convlist(Pred, [Old|Olds], NewList) :-
     call(Pred, Old, New),
@@ -493,13 +579,10 @@ foldl(Goal,[H|T], V0, V) :-
   foldr/4.
 
 */
-foldl(Goal, List1, List2, V0, V) :-
-    foldl_(List1, List2, Goal, V0, V).
-
-foldl_([], [], _, V, V).
-foldl_([H1|T1], [H2|T2], Goal, V0, V) :-
+foldl(_, [], [], V, V).
+foldl(Goal, [H1|T1], [H2|T2], V0, V) :-
     call(Goal, H1, H2, V0, V1),
-    foldl_(T1, T2, Goal, V1, V).
+    foldl(Goal, T1, T2, V1, V).
 
 /**
 
@@ -509,25 +592,19 @@ Apply _Goal_ plus five arguuments, three map to lists,
 two can be used as a difference_type.
 
 */
-foldl(Goal, List1, List2, List3, V0, V) :-
-    foldl_(List1, List2, List3, Goal, V0, V).
-
-foldl_([], [], [], _, V, V).
-foldl_([H1|T1], [H2|T2], [H3|T3], Goal, V0, V) :-
+foldl(_, [], [], [], V, V).
+foldl(Goal,[H1|T1], [H2|T2], [H3|T3],  V0, V) :-
     call(Goal, H1, H2, H3, V0, V1),
-    foldl_(T1, T2, T3, Goal, V1, V).
+    foldl(Goal,T1, T2, T3, V1, V).
 
 
 /**
 
 */
-foldl(Goal, List1, List2, List3, List4, V0, V) :-
-    foldl_(List1, List2, List3, List4, Goal, V0, V).
-
-foldl_([], [], [], [], _, V, V).
-foldl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V0, V) :-
+foldl(_, [], [], [], [], V, V).
+foldl(Goal, [H1|T1], [H2|T2], [H3|T3], [H4|T4], V0, V) :-
     call(Goal, H1, H2, H3, H4, V0, V1),
-    foldl_(T1, T2, T3, T4, Goal, V1, V).
+    foldl(Goal, T1, T2, T3, T4, V1, V).
 
 
 /**
@@ -537,27 +614,21 @@ foldl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V0, V) :-
   _X_ and  _Y_.
 
 */
-foldl2(Goal, List, V0, V, W0, W) :-
-    foldl2_(List, Goal, V0, V, W0, W).
-
-foldl2_([], _, V, V, W, W).
-foldl2_([H|T], Goal, V0, V, W0, W) :-
+foldl2(_, [], V, V, W, W).
+foldl2(Goal, [H|T], V0, V, W0, W) :-
     call(Goal, H, V0, V1, W0, W1),
-    foldl2_(T, Goal, V1, V, W1, W).
+    foldl2(Goal, T, V1, V, W1, W).
 
 /**
-v   @pred foldl2(: _Pred_, + _List_, ? _List1_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
+   @pred foldl2(: _Pred_, + _List_, ? _List1_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
 
   Calls  _Pred_ on all elements of  _List_  and  _List1_  and collects a result in
   _X_ and  _Y_.
 */
-foldl2(Goal, List1, List2, V0, V, W0, W) :-
-    foldl2_(List1, List2, Goal, V0, V, W0, W).
-
-foldl2_([], [], _Goal, V, V, W, W).
-foldl2_([H1|T1], [H2|T2], Goal, V0, V, W0, W) :-
+foldl2( _Goal, [], [], V, V, W, W).
+foldl2(Goal, [H1|T1], [H2|T2],  V0, V, W0, W) :-
     call(Goal, H1, H2, V0, V1, W0, W1),
-    foldl2_(T1, T2, Goal, V1, V, W1, W).
+    foldl2( Goal, T1, T2, V1, V, W1, W).
 
 /**
    @pred foldl2(: _Pred_, + _List_, ? _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
@@ -566,44 +637,35 @@ foldl2_([H1|T1], [H2|T2], Goal, V0, V, W0, W) :-
   _X_ and  _Y_.
 
 */
-foldl2(Goal, List1, List2, List3, V0, V, W0, W) :-
-    foldl2_(List1, List2, List3, Goal, V0, V, W0, W).
-
-foldl2_([], [], [], _Goal, V, V, W, W).
-foldl2_([H1|T1], [H2|T2], [H3|T3], Goal, V0, V, W0, W) :-
+foldl2([], [], [], _Goal, V, V, W, W).
+foldl2([H1|T1], [H2|T2], [H3|T3], Goal, V0, V, W0, W) :-
     call(Goal, H1, H2, H3, V0, V1, W0, W1),
-    foldl2_(T1, T2, T3, Goal, V1, V, W1, W).
+    foldl2(T1, T2, T3, Goal, V1, V, W1, W).
 
 
 /**
-   @pred foldl3(: _Pred_, + _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_)
+   @pred foldl3(: _Pred_, + _List_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_)
 
 
   Calls  _Pred_ on all elements of `List` and collects a
   result in  _X_,  _Y_ and  _Z_.
 */
-foldl3(Goal, List, V0, V, W0, W, X0, X) :-
-    foldl3_(List, Goal, V0, V, W0, W, X0, X).
-
-foldl3_([], _, V, V, W, W, X, X).
-foldl3_([H|T], Goal, V0, V, W0, W, X0, X) :-
+foldl3(_, [], V, V, W, W, X, X).
+foldl3(Goal, [H|T], V0, V, W0, W, X0, X) :-
     call(Goal, H, V0, V1, W0, W1, X0, X1),
-    foldl3_(T, Goal, V1, V, W1, W, X1, X).
+    foldl3(\Goal, T, V1, V, W1, W, X1, X).
 
 /**
-  @pred foldl4(: _Pred_, + _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_, ? _W0_, ? _W_)
+  @pred foldl4(: _Pred_, + _List1_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_, ? _W0_, ? _W_)
 
 
   Calls  _Pred_ on all elements of `List` and collects a
   result in  _X_,  _Y_,  _Z_ and  _W_.
 */
-foldl4(Goal, List, V0, V, W0, W, X0, X, Y0, Y) :-
-    foldl4_(List, Goal, V0, V, W0, W, X0, X, Y0, Y).
-
-foldl4_([], _, V, V, W, W, X, X, Y, Y).
-foldl4_([H|T], Goal, V0, V, W0, W, X0, X, Y0, Y) :-
+foldl4([], V, V, W, W, X, X, Y, Y).
+foldl4(Goal, [H|T], V0, V, W0, W, X0, X, Y0, Y) :-
     call(Goal, H, V0, V1, W0, W1, X0, X1, Y0, Y1),
-    foldl4_(T, Goal, V1, V, W1, W, X1, X, Y1, Y).
+    foldl4(Goal, T,  V1, V, W1, W, X1, X, Y1, Y).
 
 
 
@@ -671,7 +733,7 @@ scanl(Goal, [H1|T1], [H2|T2], [H3|T3], V, [VH|VT]) :-
 scanl(_Goal, [], [], [], [], T, T).
 scanl(Goal, [H1|T1], [H2|T2], [H3|T3], [H4|T4], V, [VH|VT]) :-
     call(Goal, H1, H2, H3, H4, V, VH),
-    scanl(Goal, xT1, T2, T3, T4 , VH, VT).
+    scanl(Goal, T1, T2, T3, T4 , VH, VT).
 
 new_name(Name,N) :-
     retract(ids(I)),
@@ -684,48 +746,107 @@ new_name(Name,N) :-
     assert(ids(1)).
 
 expand_rule1(maplist).
+expand_rule1(checklist).
+expand_rule1(convlist).
+expand_rule1(exclude).
+expand_rule1(foldl).
+expand_rule1(foldl1).
+expand_rule1(foldl2).
+expand_rule1(include).
+expand_rule1(partition).
+expand_rule1(selectlist).
+expand_rule1(selectlists).
+expand_rule1(sumlist).
 
 
-%call = map(iter(Args0),Args)
-%NG = it(NArgs,Args0)
-%NC = iter(Args0,NArgs)
-goal_expansion(Call0, NG) :-
+
+/**
+  @pred goal_expansion(Call, Unfolded)
+
+  Active if argument to call is bound, Then we have
+
+  Original call = meta( call(CallerArgs) CallerLink)
+  results in a call to newname:
+      newCall = newname(CallerLink CallerArgs)
+
+  defined by performing the following transformations to the original meta-predicate:
+      meta( BaseCase ) -> newname(BaseCase CallerArgs)
+  and in the recursive definition:
+      call(g(Args),LinkArgs) -> g(Args LinkArgs)
+      meta(g(Args) LinkArgs) -> newname(LinkArgs Args)
+*/
+
+goal_expansion(Call0, M0:NG) :-
  %   current_prolog_flag( compiling, true ),
  %   current_prolog_flag( goal_expansion_allowed, true ),
-    writeln(Call),
     strip_module(Call0,M0,Call),
-
-    Call =.. [Me,M1Called|Args],
-    strip_module(M0:M1Called,M1,Called),
+    Call =.. [Meta,M0Goal|LinkArgs],
+    expand_rule1(Meta),
+    strip_module(M0Goal,M1,Target),
     nonvar(M1),
-    nonvar(Called),
-    writeln(Called),
-    Called=..[Iter|Args0],
-    expand_rule1(Iter),
-    length(Args,NA),
-    length(NArgs,NA),
-    new_name(Iter,New),
-    lists:append(NArgs,Args0,NXArgs),
-    NG  =.. [New|NXArgs],
-    writeln(Called),
-    HCall =.. [Me,_|NArgs],
-    (
-      clause(maplist:HCall,true),
-      compile_clauses([NG]),
+    nonvar(Target),
+    Target=..[G|Args],
+    new_name(G,NewName),
+    newvs(LinkArgs, LinkVs),
+    HCall =.. [Meta,M0Goal|LinkVs],
+      (
+	findall(NewClause,
+ (
+     clause(maplist:HCall,Body),
+      process(Body, Meta, HCall,Args,M1:G,NewName,NewClause)
+	),
+	NewClauses),
+      compile_clauses(NewClauses),
       fail
-      ;
-      clause(maplist:HCall,ItB),
-      ItB = (_:It,_:B),
-    It =.. [call,_|IArgs],
-    lists:append(Args0,IArgs,IArgs1),
-    NCall=..[Iter|IArgs1],
-    B=.. [Me,_|BArgs],
-    lists:append(BArgs,Args0,XArgs1),
-    NB =..[New|XArgs1],
-    compile_clauses([(NG:-M1:NCall,NB)]),
-    fail
     ;
-    NG=..[_|XArgs],
-    lists:append(Args,Args0,XArgs)
+  append(LinkArgs, Args, CallerArgs),
+  NG =.. [NewName|CallerArgs]
     ).
+
+
+process(true, _, HCall,Args,_MG,NewName,(NH :- true)) :-
+    !,
+    newvs(Args, Empties),
+    HCall=..[_,_|Finals],
+    append(Empties,Finals,AllArgs),
+    NH=..[NewName|AllArgs].
+process(Body, Meta, HCall,Args,MG,NewName,(NH:-NewBody)) :-
+    HCall=..[_,_|Finals],
+    append(Finals,Args,AllArgs),
+    NH=..[NewName|AllArgs],
+    new_body(Body, Args,Meta, MG, NewName, NewBody).
+
+new_body((C1,C2),Args,Meta,MG,NewName,(NC1,NC2)) :-
+    !,
+    new_body(C1,Args,Meta,MG,NewName,NC1),
+    new_body(C2,Args,Meta,MG,NewName,NC2).
+new_body((C1|C2),Args,Meta,MG,NewName,(NC1|NC2)) :-
+        !,
+    new_body(C1,Args,Meta,MG,NewName,NC1),
+    new_body(C2,Args,Meta,MG,NewName,NC2).
+new_body((C1;C2),Args,Meta,MG,NewName,(NC1;NC2)) :-
+    !,
+new_body(C1,Args,Meta,MG,NewName,NC1),
+    new_body(C2,Args,Meta,MG,NewName,NC2).
+new_body((C1->C2),Args,Meta,MG,NewName,(NC1->NC2)) :-
+    !,
+    new_body(C1,Args,Meta,MG,NewName,NC1),
+    new_body(C2,Args,Meta,MG,NewName,NC2).
+new_body(C1,Args,Meta,_MG,NewName,New) :-  
+    strip_module(C1,_M,C),
+    C =.. [Meta,_|LinkArgs],
+    !,
+    append(LinkArgs,Args,BaseArgs),
+    New =.. [NewName|BaseArgs].
+new_body(C1,Args,_Meta,M:G,_NewName,M:New) :- 
+    strip_module(C1,_M,C),
+    C =.. [call,_|LinkArgs],
+    !,
+    append(Args,LinkArgs,BaseArgs),
+    New =.. [G|BaseArgs].
+new_body(C1,_Args ,_Meta,_MG,_NewName,C1).
+
+newvs([],[]).
+newvs([_|L],[_|NL]) :-
+    newvs(L,NL).
 

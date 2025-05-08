@@ -329,7 +329,7 @@ be lost.
   *  - verify whether debugging is still ok;
   *  - enter the debugger core.
   * The top gated_call should set up creeping for the next call.
-  *
+a  *
   * @param _Mod_:_Goal_ is the goal to be examined.
   * @return `call(Goal)`
 */
@@ -337,6 +337,7 @@ be lost.
 '$trace'( MG, _Ctx) :-
     '$zip_at_port'( call, _GN0, MG),
     !,
+    nb_setval(running_debugger_code, false  ),
     '$execute_non_stop'(MG).
 '$trace'(MG, Ctx) :-
     strip_module(MG,M,G),
@@ -492,14 +493,14 @@ trace_goal(true, _M, _Ctx, _GN, _CP) :-
     !.
 trace_goal(G,M, _Ctx, _GoalNumberN, _CP0) :-
     '$id_goal'(GoalNumberN),
-catch(
+    catch(
 step_goal(G,M,GoalNumberN),
     Error,
     trace_error(Error, GoalNumberN, step_goal(G,M, GoalNumberN))
     ).
 
- step_goal(G,M, GoalNumberN) :-
-    '$interact'([call], M:G, GoalNumberN), 
+step_goal(G,M, GoalNumberN) :-
+    '$interact'(call, M:G, GoalNumberN), 
     nb_getval(creep,zip),
      !,
      '$step'(zipped_procedure,M:G,GoalNumberN).
@@ -523,26 +524,19 @@ step_goal(G,M,GoalNumberN),
     '$step'(   source_procedure,MG,GoalNumber).
 '$step'(   system_procedure,MG,GoalNumber) :-
   	gated_call(   
-'$meta_hook'(MG,NMG),
+('$meta_hook'(MG,NMG),
+  nb_setval(running_debugger_code, false  )
+),
 call(NMG),
 	    Port,	
          '$interact'(Port, NMG, GoalNumber)
 	).
 '$step'(   exo_procedure,MG,GoalNumber) :-
     '$step'(   source_procedure,MG,GoalNumber).
-'$step'(   mega_procedure,MG,GoalNumber) :-
+ '$step'(   mega_procedure,MG,GoalNumber) :-
     '$step'(   source_procedure,MG,GoalNumber).
 '$step'(   source_procedure,MG,GoalNumber) :-
-     current_choice_point(CP),
- 	gated_call(   
-'$meta_hook'(MG,NM:NG),
-(
-    clause(NM:NG,Body),
-    trace_goal(Body,NM,inner,GoalNumber, CP)
-),
-	    Port,	
-         '$interact'(Port, NM, GoalNumber)
-	).
+     '$debug_gated_call'(MG,GoalNumber).
 '$step'(   undefined_procedure,MG,GoalNumber) :-
     '$exit_undefp',
     '$undefp__'(MG, NM:NewG),
@@ -550,7 +544,9 @@ call(NMG),
 '$step'(   static_procedure,MG,GoalNumber) :-
     current_choice_point(CP),
     gated_call(   
-'$meta_hook'(MG,NM:NG),
+                                                                                  ('$meta_hook'(MG,NM:NG),
+  nb_setval(running_debugger_code, false  )
+),
 	    (
 (nth_call(NM:NG,_,Ref),'$creep_clause'( NG, NM, Ref, CP )),
 	    Port,	
@@ -558,6 +554,24 @@ call(NMG),
 	)
     ).
 
+    '$step'(   zipped_procedure,MG,GoalNumber) :-
+    '$step'(   system_procedure,MG,GoalNumber).
+
+'$debug_gated_call'(Goal, GoalNumber) :-
+      current_choice_point(CP0),
+   '$setup_call_catcher_cleanup'('$meta_hook'(Goal,NM:NG)), 
+    Cleanup = '$interact'(Port, NM, GoalNumber),                     
+    Task0 = bottom( true, Port, Cleanup, Tag, true, CP0),
+    '$tag_cleanup'(CP0, Task0),
+    TaskF = top( true, Port, Cleanup, Tag, false, CP0),
+    clause(NM:NG,Body),
+    (Body==true
+     ->
+     true
+     ;
+     trace_goal(Body,NM,inner,GoalNumber, CP0)
+    ),
+    '$cleanup_on_exit'(CP0, TaskF).
 
 
 '$meta_hook'(MG,M:NG) :-
@@ -600,7 +614,7 @@ call(NMG),
      '$enter_trace'(L, Module:G, Deterministic),
      '$action'('\n',P,L,G,Module,Deterministic).  
 '$interact'(P, Module:G, L) :-
-    ('$deterministic_port'(P) -> Deterministic = '?' ; Deterministic = ' '),
+    ('$deterministic_port'(P) -> Deterministic = ' ' ; Deterministic = '?'),
     '$id_goal'(L),        /* get goal no.	*/
     % at this point we are done with leap or skipe
     '$enter_trace'(L, Module:G, Deterministic),
@@ -1093,7 +1107,8 @@ nb_setval('$spy_on',ignore),
     '$debugger_prepare_meta_arguments'([A,B|As],[0,0|Ms],[NA,NB|NAs]).
 '$debugger_prepare_meta_arguments'([A|As], [N|Ms], [yap_hacks:trace(MA:GA)|NAs]) :-
    '$yap_strip_module'(A,MA,GA),
-    nonvar(A),
+   integer(N),
+   N>=0,
     length(B,N),
     lists:append(B,R,As),
     GA=..[GN|GAs],

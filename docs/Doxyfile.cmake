@@ -90,6 +90,7 @@ ${CMAKE_SOURCE_DIR}/packages/prism
     ${CMAKE_SOURCE_DIR}/packages/cuda
     ${CMAKE_SOURCE_DIR}/packages/meld
     ${CMAKE_SOURCE_DIR}/packages/cplint
+    ${CMAKE_SOURCE_DIR}/packages/python/yapkernel
     ${CMAKE_SOURCE_DIR}/packages/swig
     ${CMAKE_SOURCE_DIR}/include/SWI-Prolog.h
     ${CMAKE_SOURCE_DIR}/C/absmi_insts.i)

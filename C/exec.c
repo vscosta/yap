@@ -354,6 +354,15 @@ PredEntry *Yap_track_cpred(op_numbers op, yamop *ip, size_t min, void *v)
       i->env_size =   -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
       i->caller =  Yap_pc_to_pred(P );
       return i->pe =PREVOP(CP,Osbpp)->y_u.Osbpp.p0;
+    case _Ystop:
+      i->env = ENV;
+      i->p = P;
+      i->p_env = CP;
+      i->a = 0;
+      i->op = op;
+      i->env_size =   -PREVOP(CP,Osbpp)->y_u.Osbpp.s / sizeof(CELL);
+      i->caller =  PredTrue;
+      return i->pe =PREVOP(CP,Osbpp)->y_u.Osbpp.p0;
     case _undef_p:
       i->env = ENV;
       i->p = P;
@@ -1342,9 +1351,11 @@ bool done=false;
     while(!done) {
     switch (lval)
     {
-    case 0:
-    { /* restart */
-      out = Yap_absmi(0);
+    case 0: { /* restart */
+      if (B && B->cp_b)
+        out = Yap_absmi(0);
+      else
+	out = false;
       done=true;
     }
     break;

@@ -48,6 +48,7 @@ array(Obj, Size) :-
 
 
 % arithmetical optimization
+'$c_arrays'(P,P) :- var(P), !.
 '$c_arrays'((P:-Q),(NP:-QF)) :- !,
 	'$c_arrays_body'(Q, QI),
 	'$c_arrays_head'(P, NP, QI, QF).

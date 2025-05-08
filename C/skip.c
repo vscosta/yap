@@ -106,15 +106,7 @@ Op(_write_struct, fa);
 Op(_write_longint, i);
     case _Ystop:
   {
-    ClausePointer cl;
-    cl.pe = (PredEntry*)(ip->y_u.l.l);
-    if (cl.luc->Id == FunctorDBRef)
-      return cl.luc->ClPred;
-    else if ((cl.lui->ClFlags & (IndexMask|LogUpdMask)) == (IndexMask|LogUpdMask ))
-      return cl.lui->ClPred;
-    else if ((cl.si->ClFlags & IndexMask) == IndexMask )
-      return cl.si->ClPred;
-    return cl.sc->ClPred;
+    return PredTrue;
   }
 Op(_jump, l);
 Op(_jump_if_var, l);

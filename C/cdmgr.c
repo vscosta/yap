@@ -1461,7 +1461,6 @@ static bool one_more_clause(PredEntry *p, Term t, assert_control_t mode) {
     return false;
   LOCAL_LastAssertedPred = p;
    if (p->cs.p_code.NOfClauses) {
-     LOCAL_LastAssertedPred = p;        
         return false;
 }
    return true; /* careful */

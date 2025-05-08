@@ -14,7 +14,7 @@
     tab.completion.c
     )
   
-    if (APPLE AND gTHREADS)
+    if (APPLE)
       set(OPTYap_SOURCES pthread-barrier-macos/src/pthread_barrier.c
 	${OPTYap_SOURCES}
     )

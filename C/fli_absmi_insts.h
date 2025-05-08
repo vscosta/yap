@@ -615,9 +615,13 @@ Yap_RaiseException();
       ENDBOp();
 
       BOp(spy_pred, e);
-      saveregs();
-      spy_goal(PASS_REGS1);
-      setregs();
+      {
+        PredEntry *pe = PredFromDefCode(PREG);
+	saveregs();
+	spy_goal(pe PASS_REGS);
+        setregs();
+
+      }
       CACHE_A1();
       JMPNext();
       ENDBOp();

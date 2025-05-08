@@ -122,33 +122,34 @@ do_not_compile_expressions :-
 '$c_built_in'(IN, _M, (?- _H), IN) :-
     !.
 '$c_built_in'(IN, M, H, OUT) :-
-    current_prolog_flag(optimise,true), !,
-    '$do_c_built_in'(IN, M, H, OUT).
-'$c_built_in'(IN, _, _H, IN).
- 
-
-'$do_c_built_in'(Mod:G, _, _, M1:G1) :-
-    '$yap_strip_module'(Mod:G, M1,  G1),
-    (var(G1);var(M1)),
+    current_prolog_flag(optimise,true),
+    '$yap_strip_module'(M:IN, MI, GI),
+    nonvar(MI),
+    nonvar(GI),
+    '$do_c_built_in'(GI, MI, H, OUT),
     !.
-'$do_c_built_in'(Mod:G, _, _, G1) :-
-    !,
-    '$do_c_built_in'(G,Mod, _, G1).
+'$c_built_in'(IN, M, _H, M:IN).
+ 
+'$do_c_built_in'(G, M, _, call(M:G)) :-
+    var(G),
+    !.
+'$do_c_built_in'(G, M, _, call(M:G)) :-
+    var(M),
+    !.
 '$do_c_built_in'(throw_error(error,ErrorTerm), M, Head,
 		 '$user_exception'(Error,Info,F,L,M,N,A)) :-
     nonvar(ErrorTerm),
     ErrorTerm = error( Error ,Info),
+    nonvar(Error),
     !,
     ( stream_property(loop_stream, file_name(F)) -> true ; F = user_input),
-         ( stream_property(loop_stream, line_number(L)) -> true;  L = 0),
+    ( stream_property(loop_stream, line_number(L)) -> true;  L = 1),
 	 functor(Head,N,A).
 '$do_c_built_in'(throw_file_error( error, error(Error, G)), M, Head,
 		 (current_prolog_flag(file_errors, error), NG)) :-
+    nonvar(Error),
     !,
     '$do_c_built_in'(throw_error( error, error(Error, G)), M, Head, NG).
-'$do_c_built_in'(goal_expansion(H,NG), M, _,
-    goal_expansion(M:H,NG)) :-
-    !.
 '$do_c_built_in'(X is Y, M, H,  P) :-
         primitive(X), !,
 	'$do_c_built_in'(X =:= Y, M, H, P).
@@ -171,14 +172,13 @@ do_not_compile_expressions :-
 :- multifile prolog:'$inline'/2.
 
 :- multifile user:inline/2.
-
 '$do_c_built_in'(Comp,_ , _, R) :-
     prolog:'$inline'(Comp, R),
     !.
 '$do_c_built_in'(Comp, _M, _, R) :-
     user:inline(Comp, R),
     !.
-'$do_c_built_in'(Comp0, _, _,	 R) :-		% now, do it for comparisons
+'$do_c_built_in'(Comp0, _, _,	 R) :-		% now, do it for compar isons
 	'$compop'(Comp0, Op, E, F),
 	!,
 	'$compop'(Comp,  Op, U, V),

@@ -409,12 +409,12 @@ o:p(B) :- n:g, X is 2+3, call(B).
 	   '$expand_goals'(NG0, G1F, GOF, HM, SM0, BM0, HVars-H)
       ).
 
-'$user_expansion'(G0 ,SM, NG0) :-
-    '$do_user_expansion'(G0, SM , IG0),
+'$user_expansion'(G0 , NG0) :-
+    '$do_user_expansion'(G0 , IG0),
     IG0 \== G0,
     !,
-    '$user_expansion'(IG0, SM , NG0).
-'$user_expansion'(G0,_ , G0).
+    '$user_expansion'(IG0 , NG0).
+'$user_expansion'(G0, G0).
 
 '$match_mod'(G0, HMod, SMod, M0, O) :-
     '$yap_strip_module'(M0:G0, M,G),

@@ -16,6 +16,8 @@
 	op(780, xfx, of),
 	op(700, xfx, [?=]),
 	op(200, fx, (@)),
+%	op(500, xfx, ':='),
+op(500, xfx, '+='),
 	  op(100, yf, []),
                   op(760, yfx, #<==>),
                   op(750, xfy, #==>),
@@ -61,29 +63,8 @@ append_([L1,L2|Ls], L) :-
 	append(L1,L2,LI),
 	append_([LI|Ls],L).
 
-%:- use_module(library(maplist)).
-foldl(Goal, List, V0, V) :-
-    foldl_(List, Goal, V0, V).
 
-foldl_([], _, V, V).
-foldl_([H|T], Goal, V0, V) :-
-    call(Goal, H, V0, V1),
-    foldl_(T, Goal, V1, V).
-
-maplist(_, []).
-maplist(Pred, [In|ListIn]) :-
-    call(Pred, In),
-    maplist(Pred, ListIn).
-
-maplist(_, [], []).
-maplist(Pred, [In|ListIn], [Out|ListOut]) :-
-    call(Pred, In, Out),
-    maplist(Pred, ListIn, ListOut).
-
-maplist(_, [], [], []).
-maplist(Pred, [A1|L1], [A2|L2], [A3|L3]) :-
-    call(Pred, A1, A2, A3),
-    maplist(Pred, L1, L2, L3).
+:- use_module(library(maplist)).
 
 %:- use_module(library(system)).
 %:- use_module(library(matrix)).

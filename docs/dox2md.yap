@@ -11,11 +11,14 @@
 
 :- multifile  brief/2, visited/1.
 
-
+/*
 :- 
     unix(argv([_,_,D])),
-   path_concat([D,'packages/xml2yap/libYAPxml'],Lib),
+   absolute_file_path('packages/xml2yap/libYAPxml',Lib,[relative_to(D), file_type(executable) ]),
    load_foreign_files([Lib],[],libxml_yap_init).
+*/
+
+:- load_foreign_files([],['YAPxml'],libxml_yap_init).
 
 :-  initialization(main).
 

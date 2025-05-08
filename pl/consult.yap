@@ -472,7 +472,7 @@ source_file_property( F, load_context(M,OldF:Line,Opts)) :-
 
   + `term_position`  (prolog_load_context/2 option)
 
-  Stream position at the stream currently being read in. For SWI
+q  Stream position at the stream currently being read in. For SWI
   compatibility, it is a term of the form
   '$stream_position'(0,Line,0,0).
 
@@ -490,7 +490,8 @@ prolog_load_context(directory, DirName) :-
           working_directory( DirName, DirName )
         ).
 prolog_load_context(file, Path ) :-
-    catch(stream_property(include_stream, file_name(Path) ),_,fail),
+    stream_property(Stream,alias(include_stream)),
+    stream_property(Stream, file_name(Path) ),
     !.
 prolog_load_context(file, Path ) :-
     prolog_load_context(source, Path ).
@@ -573,15 +574,14 @@ prolog_load_context(variable_names, Term ) :-
 	 Reconsult = Reconsult0
 	),
 		(
-	    Reconsult \== consult,
-	    recorded('$lf_loaded','$lf_loaded'(F, _, _, _, _, _, _),R),
-	    erase(R),
-	    fail
+		  Reconsult \== consult,
+		  unload_file(F),
+		  fail
 	;
 	
 	    var(Reconsult)
 	    ->
-		Reconsult = consult
+		Reconsult = reconsult
 	    ;
 	    Reconsult = Reconsult0
 	),
@@ -623,9 +623,10 @@ unload_file(F) :-
 
 
 unload_file_(File) :-
-     recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),_),
-     !,
-    '$unload_file'(File).
+     recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
+     '$unload_file'(File),
+     erase(R),
+     fail.
 unload_file_(_).
 
 '$unload_file'(File) :-

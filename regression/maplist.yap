@@ -3,7 +3,8 @@
 
 eqall(L1,L2) :- maplist(=,L1,L2).
 
-eqall([X,Y,Z], LF).
+eqallX(A,L1,L2) :- maplist(o(A),L1,L2).
+
 ?- eqall([1,2,3],L).
 
 zero(0).

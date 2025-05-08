@@ -372,7 +372,7 @@ catch(MG,E,G) :-
 	E = E0
     ->
 	(
-	    strip_module(G,_,error_handler )
+	    '$yap_strip_module'(G,_,error_handler )
 	->
 	(
 	    E = error(K,U)

@@ -689,11 +689,11 @@
 
       /* spy_or_trymark                   */
       BOp(spy_or_trymark, Otapl);
-      PELOCK(5, ((PredEntry *)(PREG->y_u.Otapl.p)));
-      PREG = (yamop *)(&(((PredEntry *)(PREG->y_u.Otapl.p))->OpcodeOfPred));
-      UNLOCKPE(11, (PredEntry *)(PREG->y_u.Otapl.p));
       saveregs();
-      spy_goal(PASS_REGS1);
+      PredEntry *pe = PredFromDefCode(PREG);
+      PELOCK(5, pe);
+      spy_goal(pe PASS_REGS);
+      UNLOCKPE(11,pe);
       setregs();
       ENDBOp();
 

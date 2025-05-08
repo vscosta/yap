@@ -739,8 +739,7 @@ static void undef_goal(PredEntry *pe USES_REGS) {
   return;
 }
 
-static void spy_goal(USES_REGS1) {
-  PredEntry *pe = PredFromDefCode(P);
+static void spy_goal(PredEntry *pe USES_REGS) {
 
 #if defined(YAPOR) || defined(THREADS)
   if (!PP) {
