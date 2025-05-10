@@ -143,7 +143,8 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
     maplist(out_comment,Comments),
     addcomm(N/A,S1,_Found),
     findall(I,between(1,A,I),Is),
-    maplist(atomic_concat('int ARG'),Is,NIs),
+    maplist(number_atom,Is,AIs),
+    maplist(atom_concat('int ARG'),AIs,NIs),
     (
       is_exported(N,A)
       ->

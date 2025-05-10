@@ -808,7 +808,7 @@ process(true, _, HCall,Args,_MG,NewName,(NH :- true)) :-
     !,
     newvs(Args, Empties),
     HCall=..[_,_|Finals],
-    append(Empties,Finals,AllArgs),
+    append(Finals,Empties,AllArgs),
     NH=..[NewName|AllArgs].
 process(Body, Meta, HCall,Args,MG,NewName,(NH:-NewBody)) :-
     HCall=..[_,_|Finals],

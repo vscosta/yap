@@ -918,7 +918,7 @@ static Int number_atom(USES_REGS1) {
     return false;
     }
   } else if (v2) {
-    t1 = Yap_NumberToString(t1 PASS_REGS);
+    t1 = MkAtomTerm(Yap_NumberToAtom(t1 PASS_REGS));
   pop_text_stack(l);
     if (!t1) {
   return false;

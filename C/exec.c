@@ -38,8 +38,6 @@ static bool EnterCreepMode(Term, Term CACHE_TYPE);
 
 static Int execute(USES_REGS1);
 
-static Int execute0(USES_REGS1);
-
 static Term cp_as_integer(choiceptr cp USES_REGS)
 {
   return (MkIntegerTerm(LCL0 - (CELL *)cp));
@@ -1020,55 +1018,6 @@ static Int execute_in_mod(USES_REGS1)
 extern void *Yap_blob_info(Term t);
 
 
-static Int execute0(USES_REGS1)
-{ /* '$execute0'(Goal,Mod)	 */
-  Term t = Deref(ARG1);
-  Term mod = Deref(ARG2);
-  arity_t i, arity;
-  PredEntry *pe;
-
-  /* if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) { */
-  /*   pe = Yap_interrupt_execute(P PASS_REGS); */
-  /*   return pe->OpcodeOfPred != FAILCODE; */
-  /* } */
- start_execute0:
-  pe = Yap_get_pred(t, mod, "call");
-  if (!pe)
-    return false;
-  arity = pe->ArityOfPE;
-    if (pe->FunctorOfPred) {
-      if (arity==1)
-	goto start_execute0;
-      return do_execute_n(arity, t,CurrentModule PASS_REGS);
-    }
-  if (arity)
-  {
-    if (arity > MaxTemps)
-    {
-      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
-    }
-    /* I cannot use the standard macro here because
-           otherwise I would dereference the argument and
-           might skip a svar */
-    CELL *pt = RepAppl(t) + 1;
-    for (i = 1; i <= arity; ++i)
-    {
-#if YAPOR_SBA
-      Term d0 = *pt++;
-      if (d0 == 0)
-        XREGS[i] = (CELL)(pt - 1);
-      else
-        XREGS[i] = d0;
-#else
-      XREGS[i] = *pt++;
-#endif
-    }
-  }
-  /*	N = arity; */
-  /* call may not define new system predicates!! */
-  return CallPredicate(pe, B,
-                       pe->CodeOfPred PASS_REGS);
-}
 
 static Int creep_step(USES_REGS1)
 { /* '$execute_nonstop'(Goal,Mod)
@@ -1132,8 +1081,9 @@ static Int creep_step(USES_REGS1)
 static Int execute_nonstop(USES_REGS1)
 { /* '$execute_nonstop'(Goal,Mod)
                                           */
-  Term t = Deref(ARG1);
-  PredEntry *pe = Yap_get_pred(t, ARG2, "c_exec(G)");
+  Term tmod = CurrentModule;
+  Term t = Yap_StripModule(Deref(ARG1), &tmod);
+  PredEntry *pe = Yap_get_pred(t, tmod, "c_exec(G)");
     register Functor f = FunctorOfTerm(t);
     register arity_t arity = pe->ArityOfPE, i;
 
@@ -1158,9 +1108,10 @@ static Int execute_nonstop(USES_REGS1)
       XREGS[i] = *pt++;
 #endif
     }
-  
-    return CallPredicate(pe, B,
-                         pe->cs.p_code.TrueCodeOfPred PASS_REGS);
+  yamop  *pc= pe->CodeOfPred;
+  if (pe->PredFlags & SpiedPredFlag)
+    pc =  pe->cs.p_code.TrueCodeOfPred ;
+  return CallPredicate(pe, B, pc PASS_REGS             );
 }
 
 
@@ -2233,7 +2184,6 @@ void Yap_InitExecFs(void)
 #ifdef DEPTH_LIMIT
   Yap_InitCPred("$execute_under_depth_limit", 2, execute_depth_limit, 0);
 #endif
-  Yap_InitCPred("$execute0", 2, execute0, NoTracePredFlag);
   Yap_InitCPred("$execute_non_stop", 1, execute_nonstop, NoTracePredFlag);
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
