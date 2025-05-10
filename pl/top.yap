@@ -401,7 +401,7 @@ expand_clause(Term, Term, Term).
 
 
 % system_catch is like catch, but it avoids the overhead of a full
-% meta-call by calling '$execute0' instead of execute.
+% meta-call by calling '$execute_non_stop' instead of execute.
 % This way it
 % also avoids module preprocessing and goal_expansion
 %

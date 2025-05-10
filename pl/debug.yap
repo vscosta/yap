@@ -287,21 +287,19 @@ be lost.
 */
 
 '$spy'(ModG) :-
-    '$spy'(ModG,outer).
+    '$trace'(ModG,outer).
 	
 
-'$spy'(ModG,Ctx) :-
-    gated_call(
-    strip_module(ModG,M,G),
-    (G == true -> true ; '$trace'(M:G, Ctx)),
-    Port,
-    '$continue_debugging'(Port,Ctx)).
+'$spy'(M:G,Ctx) :-
+       '$trace'(M:G,Ctx). 
 
 
-'$continue_debugging'(_,_) :-
-    nb_getval(creep,zip),
+
+'$continue_debugging'(_,inner) :-
     !.
-'$continue_debugging'(_,top) :-
+'$continue_debugging'(_,_) :-
+    '$off_debugger',
+    nb_getval(creep,zip),
     !.
 '$continue_debugging'(exit,_) :-
     !,
@@ -315,7 +313,7 @@ be lost.
 '$continue_debugging'(redo,_) :-
     !,
     '$creep'.
-
+'$continue_debugging'(_,_).
 '$creep'(true) :-
     !.
 '$creep'(ModG) :-
@@ -334,11 +332,8 @@ a  *
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'( MG, _Ctx) :-
-    '$zip_at_port'( call, _GN0, MG),
-    !,
-    '$off_debugger',
-    '$execute_non_stop'(MG).
+
+%    trace_goal(G,M, inner, _GoalNumberN, _CP0).
 '$trace'(MG, Ctx) :-
     strip_module(MG,M,G),
     !,
@@ -439,7 +434,7 @@ trace_goal( '$call'( G, CP0, _, M), _, Ctx, _, _) :-
     trace_goal(G, M,  Ctx, _, CP0).
 trace_goal( '$cleanup_on_exit'(CP0, TaskF), _, _Ctx, _, _CP) :-
     !,
-    '$off_debugger',
+    %'$off_debugger',
      '$cleanup_on_exit'(CP0, TaskF).
 trace_goal( '$top_level', _, _Ctx, _, _) :-
     !,
@@ -502,18 +497,22 @@ step_goal(G,M,GoalNumberN),
     trace_error(Error, GoalNumberN, step_goal(G,M, GoalNumberN))
     ).
 
-step_goal(G,M, GoalNumberN) :-
-    '$interact'(call, M:G, GoalNumberN), 
-    nb_getval(creep,zip),
+/**
+ *
+ */
+step_goal(true,_M, _GoalNumber) :-
+    !.
+step_goal(G,M, GoalNumber) :-
+    '$zip_at_port'(call,GoalNumber,M:G),
     !,
-     '$step'(zipped_procedure,M:G,GoalNumberN).
- step_goal(G,M, GoalNumberN) :-
+    '$step'(zipped_procedure,M:G,GoalNumber).
+step_goal(G,M, GoalNumber) :-
+    '$interact'(call, M:G, GoalNumber), 
     '$predicate_type'(G,M,T),
-    '$step'(T,M:G,GoalNumberN).
+    '$step'(T,M:G,GoalNumber).
 
-%%
-% step a call
-% 
+
+
 '$step'(   foreign_procedure,MG,GoalNumber) :-
     '$step'(   system_procedure,MG,GoalNumber).
 '$step'(proxy_procedure,M:G,GoalNumber) :-
@@ -523,35 +522,42 @@ step_goal(G,M, GoalNumberN) :-
     '$step'(T,MDonor:GDonor,GoalNumber).
 '$step'(   updatable_procedure,MG,GoalNumber) :-
     '$step'(   source_procedure,MG,GoalNumber).
-'$step'(   mega_procedure,MG,GoalNumber) :-
-    '$step'(   source_procedure,MG,GoalNumber).
+%% execute non stop will skip the first spy...
 '$step'(   system_procedure,MG,GoalNumber) :-
-  	gated_call(   
-('$meta_hook'(MG,NMG),
-  '$off_debugger'
-),
-call(NMG),
-	    Port,	
+!,
+    gated_call(
+   '$meta_hook'(MG,NMG),'$execute_non_stop'(NMG),Port,
+%  '$off_debugger'
          '$interact'(Port, NMG, GoalNumber)
 	).
 '$step'(   exo_procedure,MG,GoalNumber) :-
     '$step'(   source_procedure,MG,GoalNumber).
- '$step'(   mega_procedure,MG,GoalNumber) :-
+'$step'(   mega_procedure,MG,GoalNumber) :-
     '$step'(   source_procedure,MG,GoalNumber).
 '$step'(   source_procedure,MG,GoalNumber) :-
-     '$debug_gated_call'(MG,GoalNumber).
+     current_choice_point(CP),
+       gated_call(   
+'$meta_hook'(MG,NM:NG),
+       (
+	 clause(NM:NG,Body),
+	 trace_goal(Body,NM,inner,GoalNumber, CP)
+       ),
+       Port,       
+         '$interact'(Port, NM, GoalNumber)
+       ).
 '$step'(   undefined_procedure,MG,GoalNumber) :-
-    '$exit_undefp',
     '$undefp__'(MG, NM:NewG),
     trace_goal(NewG, NM,  inner,GoalNumber).
 '$step'(   static_procedure,MG,GoalNumber) :-
     current_choice_point(CP),
     gated_call(   
-                                                                                  ('$meta_hook'(MG,NM:NG),
+('$meta_hook'(MG,NM:NG),
     '$off_debugger'
 ),
 	    (
-(nth_call(NM:NG,_,Ref),'$creep_clause'( NG, NM, Ref, CP )),
+              predicate_property(NM:NG, number_of_clauses(NCl),
+between(1,NCl, I),
+fetch_nth_clause(I,NM:NG,_,Ref),'$creep_clause'( NG, NM, Ref, CP )),
 	    Port,	
          '$interact'(Port, NM:NG, GoalNumber)
 	)
@@ -589,12 +595,12 @@ call(NMG),
       true
 ;
       recorded('$m', meta_predicate(M,PredDef),_)
-      ),
+    ),
     PredDef=..[N|Ms],
     '$debugger_prepare_meta_arguments'(As, Ms, NAs),
     NG=..[N|NAs],
     G \== NG,
-    !.
+!.
 '$meta_hook'(MG,MG).
 
 /**
@@ -607,16 +613,20 @@ call(NMG),
  * @parameter _Info_ describes the goal
  *
  */
-'$interact'(P, MG, GoalNumber) :-
-      '$zip_at_port'(P,GoalNumber,MG),
+/*'$interact'(P, MG, GoalNumber) :-
+    '$zip_at_port'(P,GoalNumber,MG),
     !.
+*/
 '$interact'(P, Module:G, L) :-
-    '$on_debugger',
-     nb_getval(creep,leap),
+    '$stop_creeping'(_),
+    nb_getval(creep,leap),
      !,
     ('$deterministic_port'(P) -> Deterministic = '?' ; Deterministic = ' '),
      '$enter_trace'(L, Module:G, Deterministic),
-     '$action'('\n',P,L,G,Module,Deterministic).  
+     '$action'(l,P,L,G,Module,Deterministic).  
+'$interact'(_, ModuleG, L) :-
+    '$zip_at_port'(call,L,ModuleG),
+     !.
 '$interact'(P, Module:G, L) :-
     ('$deterministic_port'(P) -> Deterministic = ' ' ; Deterministic = '?'),
     '$id_goal'(L),        /* get goal no.	*/
