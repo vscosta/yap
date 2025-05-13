@@ -804,7 +804,7 @@ if (ch == EOFCHAR) {
  while(iswspace(ch)) {
     ch = getchr(inp);
     if (ch == EOFCHAR) {
-      st->status |= Push_Eof_Stream_f;
+      inp->status |= Push_Eof_Stream_f;
       return out;
     }
   }
@@ -1197,7 +1197,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       if (ch == '.') {
 	int pch = Yap_peekWide(st-GLOBAL_Stream);
 	if(chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
-	  if (ch==EOT) {
+	  if (ch==EOF) {
 	  }
 	  t->TokInfo = TermDot;
 	  t->Tok = Ord(eot_tok);
