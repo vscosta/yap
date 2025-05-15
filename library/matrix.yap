@@ -1312,7 +1312,7 @@ size(N0, N1, N2) :-
 
 % use 1 to get access to matrix
 m_get('$matrix'(Dims, _, Sz, Bases, M), Indx, V) :-
-	foldl2(indx, Indx, Dims, Bases, Sz, _, 1, Offset),
+	foldl2(indx, Indx    , Dims, Bases, Sz, _, 1, Offset),
 	arg(Offset, M, V).
 
 
