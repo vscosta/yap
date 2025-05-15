@@ -2887,17 +2887,9 @@ static Term GetDBTerm(DBTerm *DBSP, int src USES_REGS) {
     pt = CellPtr(DBSP->Contents);
     CalculateStackGap(PASS_REGS1);
     if (HR + NOf > ASP - EventFlag / sizeof(CELL)) {
-      if (LOCAL_PrologMode & InErrorMode) {
-        LOCAL_PrologMode &= ~InErrorMode;
-        if (HR + NOf > ASP)
-          fprintf(stderr,
-                  "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
-        Yap_exit(1);
-      } else {
         LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
         LOCAL_Error_Size = NOf * sizeof(CELL);
         return (Term)0;
-      }
     }
     HeapPtr = cpcells(HOld, pt, NOf);
     pt += HeapPtr - HOld;
