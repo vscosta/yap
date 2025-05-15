@@ -29,6 +29,7 @@
 	   foldl2/7,
 	   foldl2/8,
 	   foldl3/8,
+	   foldl3/9,
 	   foldl4/10,
 	   include/3,
 	   exclude/3,
@@ -75,8 +76,9 @@
        foldl(3, +, +, -),
        foldl2(5, +, +, -, +, -),
        foldl2(6, +, ?, +, -, +, -),
-       foldl2(6, +, ?, ?, +, -, +, -),
-       foldl3(5, +, +, -, +, -, +, -),
+       foldl2(7, +, ?, ?, +, -, +, -),
+       foldl3(7, +, +, -, +, -, +, -),
+       foldl3(8, +, +, +, -, +, -, +, -),
        foldl4(7, +, +, -, +, -, +, -, +, -),
        foldl(4, +, +, +, -),
        foldl(5, +, +, +, +, -),
@@ -637,10 +639,10 @@ foldl2(Goal, [H1|T1], [H2|T2],  V0, V, W0, W) :-
   _X_ and  _Y_.
 
 */
-foldl2([], [], [], _Goal, V, V, W, W).
-foldl2([H1|T1], [H2|T2], [H3|T3], Goal, V0, V, W0, W) :-
+foldl2(_, [], [], [], V, V, W, W).
+foldl2(Goal, [H1|T1], [H2|T2], [H3|T3], V0, V, W0, W) :-
     call(Goal, H1, H2, H3, V0, V1, W0, W1),
-    foldl2(T1, T2, T3, Goal, V1, V, W1, W).
+    foldl2( Goal, T1, T2, T3, V1, V, W1, W).
 
 
 /**
@@ -654,6 +656,18 @@ foldl3(_, [], V, V, W, W, X, X).
 foldl3(Goal, [H|T], V0, V, W0, W, X0, X) :-
     call(Goal, H, V0, V1, W0, W1, X0, X1),
     foldl3(\Goal, T, V1, V, W1, W, X1, X).
+
+/**
+   @pred foldl3(: _Pred_, + _List1_,?_List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_)
+
+
+  Calls  _Pred_ on all elements of `List` and collects a
+  result in  _X_,  _Y_ and  _Z_.
+*/
+foldl3(_, [], [], V, V, W, W, X, X).
+foldl3(Goal, [H1|T1], [H2|T2],  V0, V, W0, W, X0, X) :-
+    call(Goal, H1, H2, V0, V1, W0, W1, X0, X1),
+    foldl3(\Goal, T1, T2, V1, V, W1, W, X1, X).
 
 /**
   @pred foldl4(: _Pred_, + _List1_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_, ? _W0_, ? _W_)
