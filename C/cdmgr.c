@@ -2603,15 +2603,15 @@ static  Term gpred(PredEntry *pe)
 {
     Term out = TermStaticProcedure;
     MegaClause *mcl;
+    if (pe->PredFlags & SystemPredFlags ||
+	pe->ModuleOfPred == PROLOG_MODULE)
+	return  TermSystemProcedure;
     if (is_foreign(pe))
 	return  TermForeignProcedure;
    if (pe->PredFlags & ProxyPredFlag)
 	return  TermProxyProcedure;
    if (pe->PredFlags & LogUpdatePredFlag)
       return TermUpdatableProcedure;
-    if (pe->PredFlags & SystemPredFlags ||
-	pe->ModuleOfPred == PROLOG_MODULE)
-	return  TermSystemProcedure;
     if (pe->PredFlags & MegaClausePredFlag)
 	return  TermMegaProcedure;
     if (out==TermMegaProcedure) {
