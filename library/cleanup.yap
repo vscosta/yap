@@ -194,9 +194,10 @@ cleanup_expansion(M:G/A) :-
 	       ;   bb_put(expansion_toggle,1),
 		   NG=M:GG )).
 cleanup_expansion(G/A) :-
-       !,prolog_flag(typein_module,M),cleanup_expansion(M:G/A).
+    !,
+    currrent_prolog_flag(typein_module,M),cleanup_expansion(M:G/A).
 cleanup_expansion(X) :-
-	!,throw(error(instantiation_error,fragile(X))).
+    !,throw(error(instantiation_error,fragile(X))).
 
 compose_var_goal(G/A,NG) :-
 	arity_to_vars(A,L), NG =.. [G|L].
