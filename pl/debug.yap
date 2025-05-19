@@ -503,11 +503,11 @@ step_goal(G,M,GoalNumberN),
 step_goal(true,_M, _GoalNumber) :-
     !.
 step_goal(G,M, GoalNumber) :-
+    '$interact'(call, M:G, GoalNumber), 
     '$zip_at_port'(call,GoalNumber,M:G),
     !,
     '$step'(zipped_procedure,M:G,GoalNumber).
 step_goal(G,M, GoalNumber) :-
-    '$interact'(call, M:G, GoalNumber), 
     '$predicate_type'(G,M,T),
     '$step'(T,M:G,GoalNumber).
 
@@ -543,7 +543,7 @@ step_goal(G,M, GoalNumber) :-
 	 trace_goal(Body,NM,inner,GoalNumber, CP)
        ),
        Port,       
-         '$interact'(Port, NM, GoalNumber)
+         '$interact'(Port, NM:NG, GoalNumber)
        ).
 '$step'(   undefined_procedure,MG,GoalNumber) :-
     '$undefp__'(MG, NM:NewG),
@@ -574,12 +574,7 @@ fetch_nth_clause(I,NM:NG,_,Ref),'$creep_clause'( NG, NM, Ref, CP )),
     '$tag_cleanup'(CP0, Task0),
     TaskF = top( true, Port, Cleanup, Tag, false, CP0),
     clause(NM:NG,Body),
-    (Body==true
-     ->
-     true
-     ;
-     trace_goal(Body,NM,inner,GoalNumber, CP0)
-    ),
+     trace_goal(Body,NM,inner,GoalNumber, CP0),
     '$cleanup_on_exit'(CP0, TaskF).
 
 
@@ -621,28 +616,30 @@ fetch_nth_clause(I,NM:NG,_,Ref),'$creep_clause'( NG, NM, Ref, CP )),
     '$stop_creeping'(_),
     nb_getval(creep,leap),
      !,
-    ('$deterministic_port'(P) -> Deterministic = '?' ; Deterministic = ' '),
+     ('$deterministic_port'(P) -> Deterministic = '?' ; Deterministic = ' '),
      '$enter_trace'(L, Module:G, Deterministic),
-     '$action'(l,P,L,G,Module,Deterministic).  
-'$interact'(_, ModuleG, L) :-
-    '$zip_at_port'(call,L,ModuleG),
+     (P == answer -> P1 = exit; P = P1),
+     '$action'(l,P1,L,G,Module,Deterministic).  
+'$interact'(P, ModuleG, L) :-
+    '$zip_at_port'(P,L,ModuleG),
      !.
 '$interact'(P, Module:G, L) :-
     ('$deterministic_port'(P) -> Deterministic = ' ' ; Deterministic = '?'),
     '$id_goal'(L),        /* get goal no.	*/
     % at this point we are done with leap or skipe
     '$enter_trace'(L, Module:G, Deterministic),
+     (P == answer -> P1 = exit; P = P1),
     repeat,
     '$clear_input'(debugger_input),
-    '$trace_msg'(P,G,Module,L,Deterministic),
+    '$trace_msg'(P1,G,Module,L,Deterministic),
     (
-    '$has_leash'(P)
+    '$has_leash'(P1)
 ->
     prompt1(' ? '),
     get_char(user_input,C),
-    '$action'(C,P,L,G,Module,Deterministic)
+    '$action'(C,P1,L,G,Module,Deterministic)
     ;
-	'$action'('\n',P,L,G,Module,Deterministic),
+	'$action'('\n',P1,L,G,Module,Deterministic),
 	nl(debugger_output)                            
     ),
     !.
