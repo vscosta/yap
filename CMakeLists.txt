@@ -830,7 +830,7 @@ if (WITH_CUDA)
 endif()
 
 if (WITH_Gecode)
-add_subDIRECTORY(packages/gecode)
+#add_subDIRECTORY(packages/gecode)
 endif()
 
 if (WITH_LBFGS)

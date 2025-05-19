@@ -229,7 +229,7 @@ YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) {
   RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(const std::string f, std::vector<Term> ts) {
+YAPApplTerm::YAPApplTerm(const std::string f, const std::vector<Term> ts) {
         CACHE_REGS
 
     BACKUP_H();

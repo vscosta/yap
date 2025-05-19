@@ -232,7 +232,7 @@ qend_program :-
     throw_error(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
-'$x_sprolog_flag'(language, V) :-
+'$x_current_prolog_flag'(language, V) :-
 	current_prolog_flag(language, V).
 '$x_current_prolog_flag'(M:P, V) :-
 	current_module(M),

@@ -17,8 +17,8 @@ static PyObject *read_symbol( PyObject *ctx, const char *s) {
   PyObject *out;
   if (!ctx)
       return NULL;
-  if (PyObject_HasAttrString(ctx, s)) {
-      return PyObject_GetAttrString(ctx,s);
+  if ((PyObject_GetOptionalAttrString(ctx, s, &out))) {
+    return out;
   }
       if( PyModule_Check(ctx)) {
          ctx = PyModule_GetDict(ctx);
