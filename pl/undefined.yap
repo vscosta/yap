@@ -84,7 +84,6 @@ followed by the failure of that call.
     '$undefp_flag'(M:G).
 
 '$undefp_flag'(G) :-
-    writeln(G),
     current_prolog_flag(unknown, Flag),
     '$undef_error'(Flag,G),
     fail.
