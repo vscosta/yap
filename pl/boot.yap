@@ -379,7 +379,8 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- ensure_loaded('../pl/pathconf.yap').
 
-:- set_value('$user_module',user), '$protect'.
+:-     set_value('$user_module',user),
+       '$protect'.
 
 %% @}
  

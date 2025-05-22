@@ -658,7 +658,7 @@ unload_file_(_).
     unload_module(DonorM),
     fail.
 '$unload_file'(File) :-
-	retractall('$source_file'(File,_Age)),
+	'$retractall_lu'('$source_file'(File,_Age),prolog),
 	fail.
 '$unload_file'(File) :-
 	recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),

@@ -1,5 +1,5 @@
 /**
-  * @file xml2pl.c reads an XML document
+  * @file xml2pl.c reads an XML document by using the pugi library
   *
   */
 #include "yapi.hh"
@@ -7,12 +7,16 @@
 
 #include <iostream>
 
+/**
+   
+ */
 extern "C"  void libxml_yap_init ();
 extern "C"  bool xml_load();
 
 /**
- *
- * The class XML2YAP demonstrates  a non-validating XML to Prolog parser.
+ * @addtogroup XML4PL
+ *@{
+ * The class XML2YAP demonstrates  a non-validating XML to Prolog parser. The code uses the PUGI parser.
  */
 class XML2YAP {
   YAPTerm inpt;
@@ -211,6 +215,8 @@ CACHE_REGS
 
 /**
   * @pred load_xml(_XML_,_Graph_)
+
+  load the XML document  to a Prolog stream,
   */
  bool xml_load()
 {
@@ -234,5 +240,5 @@ CACHE_REGS
 
 
 
-// 
+/// @} 
  

@@ -364,10 +364,10 @@ be associated to a new file.
  get rid of a module and of all predicates included in the module.
 */
 abolish_module(Mod) :-
-    retractall('$module'(_,Mod,_,_)),
+    '$retractall_lu'('$module'(_,Mod,_,_),prolog),
     fail.
 abolish_module(Mod) :-
-    retractall('$import'(Mod,_,_,_,_,_)),
+    '$retractall_lu'('$import'(Mod,_,_,_,_,_),prolog),
     fail.
 abolish_module(Mod) :-
     module_predicated(Mod,Na,Ar,_),
@@ -578,7 +578,7 @@ set_base_module(ExportingModule) :-
 set_base_module(ExportingModule) :-
     atom(ExportingModule), !,
     '$current_module'(Mod),
-    retractall(prolog:'$parent_module'(Mod,_)),
+    '$retractall_lu'('$parent_module'(Mod,_),prolog),
     asserta(prolog:'$parent_module'(Mod,ExportingModule)).
 set_base_module(ExportingModule) :-
     throw_error(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
@@ -623,11 +623,11 @@ add_import_module(Mod, ImportModule, Pos) :-
     throw_error(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
 add_import_module(Mod, ImportModule, start) :-
     atom(Mod), !,
-    retractall(prolog:'$parent_module'(Mod,ImportModule)),
+    '$retractall_lu'('$parent_module'(Mod,ImportModule),prolog),
     asserta(prolog:'$parent_module'(Mod,ImportModule)).
 add_import_module(Mod, ImportModule, end) :-
     atom(Mod), !,
-    retractall(prolog:'$parent_module'(Mod,ImportModule)),
+    '$retractall_lu'('$parent_module'(Mod,ImportModule),prolog),
     assertz(prolog:'$parent_module'(Mod,ImportModule)).
 add_import_module(Mod, ImportModule, Pos) :-
     \+ atom(Mod), !,
@@ -653,7 +653,7 @@ delete_import_module(Mod, ImportModule) :-
 delete_import_module(Mod, ImportModule) :-
     atom(Mod),
     atom(ImportModule), !,
-    retractall(prolog:'$parent_module'(Mod,ImportModule)).
+    '$retractall_lu'('$parent_module'(Mod,ImportModule),prolog).
 delete_import_module(Mod, ImportModule) :-
     \+ atom(Mod), !,
     throw_error(type_error(atom,Mod),delete_import_module(Mod, ImportModule)).
@@ -752,10 +752,10 @@ unload_module(Mod) :-
     abolish(Mod:N/A),
     fail.
 unload_module(Mod) :-
-    retractall('$import'(Mod,_M,_G0,_G,_N,_K)),
+    '$retractall_lu'('$import'(Mod,_M,_G0,_G,_N,_K),prolog),
     fail.
 unload_module(Mod) :-
-    retractall('$module'( _, Mod, _, _)).
+    '$retractall_lu'('$module'( _, Mod, _, _), prolog).
 
 /*  debug */
 module_state :-

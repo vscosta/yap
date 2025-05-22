@@ -337,7 +337,7 @@ retractall(MT) :- !,
 
 /* support for abolish/1 */
 '$abolishd'(T, M) :-
-	retractall('$import'(M,_,T,_,_)),
+	'$retractall_lu'('$import'(M,_,T,_,_),prolog),
 	fail.
 '$abolishd'(T, M) :-
 	'$purge_clauses'(T,M), fail.

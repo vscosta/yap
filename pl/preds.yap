@@ -328,7 +328,7 @@ abolish(X0) :-
 	functor(G,Name,Arity),
 	print_message(warning,no_match(abolish(Module:Name/Arity))).
 '$abolishs'(T, M) :-
-	retractall('$import'(_,M,_,T,_,_)),
+	'$retractall_lu'('$import'(_,M,_,T,_,_),prolog),
 	fail.
 '$abolishs'(G, M) :-
 	'$purge_clauses'(G, M), fail.
@@ -532,13 +532,13 @@ current_predicate(A,T0) :-
      '$current_predicate_module'(M0, M),
     (nonvar(T) ->
 	functor(T,A,Ar),
-        functor_predicate(M,A,Ar,_user)
+        functor_predicate(M,A,Ar,user)
     ;atom(A) ->
     atom_functor(A,Ar),
     functor(T,A,Ar),
-    functor_predicate(M,A,Ar,_user)
+    functor_predicate(M,A,Ar,user)
     ;
-    module_predicate(M,A,Ar,_user),
+    module_predicate(M,A,Ar,user),
     functor(T,A,Ar)
     ).
 
@@ -609,7 +609,7 @@ system_predicate(A, P0) :-
     '$all_current_modules'(M).
 '$current_predicate_module'(M, M) :-
     must_be_atom(M).
-'$current_predicate_module'(_M, prolog).
+%'$current_predicate_module'(_M, prolog).
 
 /**
   @pred  current_predicate( F ) is iso
@@ -624,18 +624,18 @@ current_predicate(T0) :-
     '$current_predicate_module'(M0, M),
     (
 	T=A/Ar, var(A) ->
-	module_predicate(M,A,Ar,_user)
+	module_predicate(M,A,Ar,user)
     ;
     T = A//Ar, var(A) ->
-  	module_predicate(M,A,Ar0,_user),
+  	module_predicate(M,A,Ar0,user),
      Ar is Ar0+2
      ;
     T = A/Ar, nonvar(A) -> atom_functor(A,Ar),
-    functor_predicate(M,A,Ar,_user)
+    functor_predicate(M,A,Ar,user)
 
     ;
     T = A//Ar, nonvar(A) -> atom_functor(A,Ar),
-	  functor_predicate(M,A,Ar0,_user),
+	  functor_predicate(M,A,Ar0,user),
 	  Ar is Ar0-2
     ;
     error(type_error(predicate_indicator,T),

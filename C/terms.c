@@ -1100,6 +1100,28 @@ return numbv;
 /** numbervariables in term t         */
 int Yap_NumberVars(Term t, int numbv, Functor f, bool  handle_singles , const char* prefix USES_REGS)
 {
+  if (IsVarTerm(t)) {
+      CELL *ts = HR;
+      HR+=2;
+      ts[0] = (CELL)f;			
+      if ( handle_singles){	
+	ts[1] = TermUnderscore;			
+      } 
+      else if (prefix) {
+        char *s = (char *)HR;
+	int j;
+        utf8proc_ssize_t  k=numbv++;
+	while (k) {					
+	  s[j++] = k%26+'A';
+	  k = k/26;
+        }
+        s[j] = '0';
+	ts[1]=MkAtomTerm(Yap_LookupAtom(s));	
+      } else {
+	ts[1] = MkIntTerm(numbv); 
+      }
+      return Yap_unify(ARG1, AbsAppl(ts));
+    }
   if (IsPrimitiveTerm(t)) {
     return numbv;
   }

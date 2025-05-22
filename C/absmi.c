@@ -316,8 +316,10 @@ static Term addgs(Term g, Term tg)
   return g;
 }
 
-Term Yap_unbound_delay(Term tout USES_REGS)
-{
+Term Yap_unbound_delay(Term tout USES_REGS) {
+
+  if (tout == 0)
+    return tout;
   if (IsVarTerm(Deref(tout))) {
     Term *v = VarOfTerm(tout);
     Term tn;

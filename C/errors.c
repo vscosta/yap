@@ -1322,7 +1322,7 @@ void Yap_PrintException(yap_error_descriptor_t *i) {
 
 /**
  * let's go.
- */
+  */
 bool Yap_RaiseException() {
   CACHE_REGS
   if (LOCAL_ActiveError->errorNo) {
@@ -1363,7 +1363,7 @@ static Int read_exception(USES_REGS1) {
   yap_error_descriptor_t *e;
   Term t = Deref(ARG1), rc;
   if (IsAddressTerm(t)) {
-    e = AddressOfTerm(t);
+      e = AddressOfTerm(t);
     if (e == nullptr)
       return false;
     rc = err2list(e);
@@ -1440,10 +1440,16 @@ static Int drop_exception(USES_REGS1) {
   Term tn;
   bool rc = false;
   if (LOCAL_Error_TYPE) {
-    if (LOCAL_Error_TYPE == USER_DEFINED_EVENT) {
+    // allow copying from within error
+    yap_error_number errnb = LOCAL_Error_TYPE;
+      LOCAL_PrologMode &= ~InErrorMode;
+    if (LOCAL_ActiveError->errorUserTerm)
+      LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(LOCAL_ActiveError->errorUserTerm);
+    LOCAL_Error_TYPE = errnb;
+    if (errnb == USER_DEFINED_EVENT) {
       rc = Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1) &&
 	Yap_unify( TermNil, ARG2);
-    } else if (LOCAL_Error_TYPE == USER_DEFINED_ERROR ) {
+    } else if (errnb == USER_DEFINED_ERROR ) {
       rc = Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1) &&
 	Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
       if (rc) {
@@ -1464,7 +1470,6 @@ static Int drop_exception(USES_REGS1) {
   } else {
     rc = false;
   }
-  LOCAL_PrologMode &= ~InErrorMode;
   return rc;
 }
 

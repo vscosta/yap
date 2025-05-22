@@ -314,16 +314,23 @@ finally undone by _Cleanup_.
 */
 
 setup_call_cleanup(Setup,Goal, Cleanup) :-
-	gated_call( Setup , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
+    must_be_callable(Cleanup),
+    open(_) = Open,
+    gated_call( Setup , once(Goal), Catcher , prolog:cleanup_handler(Catcher,Open,Cleanup)).
 
 
 
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
-	gated_call( Setup , Goal, Catcher , prolog:cleanup_handler(Catcher,open(_),Cleanup)).
+    open(_) = Open,
+    gated_call( Setup , once(Goal), Catcher , prolog:cleanup_handler(Catcher,Open,Cleanup)).
 
-
-prolog:cleanup_handler(Catcher,_Open,Cleanup) :-
-    '$is_catcher'(Catcher),
+prolog:cleanup_handler(_Catcher,open(V),_Cleanup) :-
+    nonvar(V),
+    !.
+prolog:cleanup_handler(answer,_,_Cleanup) :-
+    !.
+prolog:cleanup_handler(_Catcher,Open,Cleanup) :-
+    nb_setarg(1,Open,closed),
     (Cleanup->true;true).
 
 '$is_catcher'(exit).
@@ -561,8 +568,9 @@ Write YAP's boot message.
 
 */
 version :-
-	'$version_specs'(Specs),
-	print_message(informational, version(Specs)).
+    start_low_level_trace,
+    '$version_specs'(Specs),
+    print_message(informational, version(Specs)).
 
 
 

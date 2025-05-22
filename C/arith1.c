@@ -505,18 +505,33 @@ eval1(Int fi, Term t USES_REGS)
     {
       Float dbl = get_float(t), out;
       out = sinh(dbl);
+#if HAVE_ISNAN
+      if (isnan(out) && isoLanguageFlag()) {
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
+      }
+#endif
       RFLOAT(out);
     }
   case op_cosh:
     {
       Float dbl = get_float(t), out;
       out = cosh(dbl);
+#if HAVE_ISNAN
+      if (isnan(out) && isoLanguageFlag()) {
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
+      }
+#endif
       RFLOAT(out);
     }
   case op_tanh:
     {
       Float dbl = get_float(t), out;
       out = tanh(dbl);
+#if HAVE_ISNAN
+      if (isnan(out) && isoLanguageFlag()) {
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
+      }
+#endif
       RFLOAT(out);
     }
   case op_asin:
@@ -526,7 +541,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = asin(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
       }
 #endif
@@ -539,7 +554,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = acos(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "acos(%f)", dbl);
       }
 #endif
@@ -552,7 +567,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = atan(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "atanh(%f)", dbl);
       }
 #endif
@@ -565,7 +580,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = asinh(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asinh(%f)", dbl);
       }
 #endif
@@ -578,7 +593,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = acosh(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "acosh(%f)", dbl);
 	return false;
       }
@@ -593,7 +608,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = atanh(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "atanh(%f)", dbl);
       }
 #endif
