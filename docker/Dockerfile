@@ -24,7 +24,7 @@ RUN apt update && apt -y upgrade && \
     openmpi-bin libopenmpi-dev\
     swig ninja-build\
     python3 python3-dev python3-numpy    python3-numpy-dev \
-     python3-pip   python3-wheel python3-setuptools\
+     python3-pip   python3-wheel python3-setuptools mkdocs  python3-venv\
     libgecode-dev \
     r-cran-rcpp \
     libraptor2-dev 
@@ -48,13 +48,16 @@ RUN  git clone https://github.com/vscosta/yap /app/yap --depth=3\
 
 ##RUN  mkdir -p /app/yap/build &&\
 RUN     cd /app/yap/build &&\
-     apt install -y mkdocs &&\
      ninja  mkdocs
 
 #Python extras
 
-RUN cd /app/yap/build/packages/python/yap4py \
-    && python3 -m pip install --break-system-packages .
+#
+#
+    RUN cd /app/yap/build/packages/python/yap4py\
+    && python3 -m venv /app/venv\
+    && . /app/venv/bin/activate\
+    && python3 -m pip install .
 RUN cd /app/yap/build/packages/real \
     &&  R CMD INSTALL yap4r
 
@@ -67,8 +70,8 @@ cpack --config CPackConfig.cmake -G DEB
 #    Make port 80 available to the world outside this container
 EXPOSE 22 80 8888
 
-# Define environment variable
-ENV NAME World
+# Define    environment variable
+ENV NAME=World
 
 ## Run app.py when the container launches
 #CMD ["jupyter", "lab", "--port=8888", "--no-browser","--NotebookApp.token=''","--NotebookApp.password=''", "--ip=0.0.0.0", "--allow-root", "tut.ipynb" ]
