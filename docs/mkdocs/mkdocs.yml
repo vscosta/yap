@@ -9,9 +9,6 @@ theme:
   logo: 'images/favicon.ico'
 plugins:
   - search
-      indexing: 'full'
-  - pagetree
-  - awesome-nav
 markdown_extensions:
   - admonition
   - attr_list
