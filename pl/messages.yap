@@ -476,8 +476,12 @@ main_message(error(style_check(multiple,[F0|L0],I      ), _Info),_Level, _LC) --
 '~a:~d:0: has original definition for ~q'-[F0,L0,I],
 	       nl ].
 main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
+    {string(Msg);atom(Msg)},
     !,
     [  '[ Syntax Error:~n      ~s~n]'-[Msg]   ].
+main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
+    !,
+    [  '[ Syntax Error:~n      ~w~n]'-[Msg]   ].
 main_message(error(ErrorInfo,_), _Level, LC) -->
     [nl],
     main_error_message( ErrorInfo, LC ).

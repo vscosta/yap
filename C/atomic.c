@@ -2918,7 +2918,9 @@ backtrackable:
     through all possible sub-strings of  _A_.
 
 */
-static Int sub_atom(USES_REGS1) { return (sub_atomic(true, false PASS_REGS)); }
+static Int sub_atom(USES_REGS1) {
+  must_be_atom(ARG1);
+  return (sub_atomic(true, false PASS_REGS)); }
 
 /** @pred  sub_string(+ _S_,? _Bef_, ? _Size_, ? _After_, ?
     _S_out_) is iso
@@ -2935,7 +2937,9 @@ static Int sub_atom(USES_REGS1) { return (sub_atomic(true, false PASS_REGS)); }
     all possible sub-strings of  _S_.
 
 */
-static Int sub_string(USES_REGS1) { return sub_atomic(false, true PASS_REGS); }
+static Int sub_string(USES_REGS1) {
+  must_be_string(ARG1);
+  return sub_atomic(false, true PASS_REGS); }
 
 /** @pred  sub_text(+ _S_,? _Bef_, ? _Size_, ? _After_, ?
     _S_out_)
