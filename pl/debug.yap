@@ -508,14 +508,6 @@ step_goal(G,M, GoalNumber) :-
     !,
     '$step'(zipped_procedure,M:G,GoalNumber).
 step_goal(G,M, GoalNumber) :-
-    '$interact'(call, M:G, GoalNumber),
-    '$move_to'(M:G,GoalNumber).
-
-'$move_to'(MG,GoalNumber) :-
-    '$zip_at_port'(call,GoalNumber, MG),
-    !,
-    '$step'(zipped_procedure, MG, GoalNumber).
-  '$move_to'(M:G,GoalNumber) :-
     '$predicate_type'(G,M,T),
     '$step'(T,M:G,GoalNumber).
 
