@@ -531,9 +531,14 @@ current_predicate(A,T0) :-
     '$yap_strip_module'(T0, M0, T),
      '$current_predicate_module'(M0, M),
     (nonvar(T) ->
-	functor(T,A,Ar),
-        functor_predicate(M,A,Ar,user)
-    ;atom(A) ->
+     functor(T,A,Ar),
+     (
+       functor_predicate(M,A,Ar,user)
+     ;
+       functor_predicate(prolog,A,Ar,_)
+     )
+     ;
+	atom(A) ->
     atom_functor(A,Ar),
     functor(T,A,Ar),
     functor_predicate(M,A,Ar,user)
@@ -630,9 +635,15 @@ current_predicate(T0) :-
   	module_predicate(M,A,Ar0,user),
      Ar is Ar0+2
      ;
-    T = A/Ar, nonvar(A) -> atom_functor(A,Ar),
-    functor_predicate(M,A,Ar,user)
-
+     T = A/Ar,
+     nonvar(A)
+     ->
+     atom_functor(A,Ar),
+     (
+       functor_predicate(M,A,Ar,user)
+       ;
+       functor_predicate(prolog,A,Ar,_)
+     )
     ;
     T = A//Ar, nonvar(A) -> atom_functor(A,Ar),
 	  functor_predicate(M,A,Ar0,user),

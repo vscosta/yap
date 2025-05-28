@@ -559,7 +559,6 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
   int has_overflow = false;
   //  coynst unsigned char *d
   // ecimalpoint; 
-  bool might_be_float = false;
   char *buf0 = *bufpp, *sp = buf0, *buf = buf0;
   size_t imgsz = *szp, max_size = imgsz, left = max_size - 2;
 
@@ -570,7 +569,6 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
    * do this (have mercy)
    */
   if (chtype(ch) == NU) {
-    might_be_float = true;
     *sp++ = ch;
     if (--left == 0)
       number_overflow();
@@ -639,9 +637,9 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
           NULL)
 #endif
 //        decimalpoint = (const unsigned char *)".";
-int decp = '.'; //decimalpoint[0];
+	  int decp = '.'; //decimalpoint[0];
       bool has_dot = ch==decp;
-      if (might_be_float && has_dot) {
+      if (has_dot) {
       int nch = Yap_peekWide(st-GLOBAL_Stream);
       	if (chtype(nch
 		   ) != NU) {
@@ -650,13 +648,13 @@ int decp = '.'; //decimalpoint[0];
 	  Yap_encoding_error( ch, 1, st); //, "e/E float format not allowed in ISO mode");
 	  return TermNil;
 	}
-	    *chp = ch;
-	    *sp++='\0';
-	    if (has_overflow)
-	      return read_int_overflow(buf, base, val, sign);
-	    if (sign == -1)
-	      return MkIntegerTerm(-val);
-	    return MkIntegerTerm(val);
+	  *chp = ch;
+	  *sp++='\0';
+	  if (has_overflow)
+	    return read_int_overflow(buf, base, val, sign);
+	  if (sign == -1)
+	    return MkIntegerTerm(-val);
+	  return MkIntegerTerm(val);
 	}
 	ch = getchr(st);
 	
@@ -676,7 +674,7 @@ int decp = '.'; //decimalpoint[0];
       }
     
       
-      if (might_be_float && (ch == 'e' || ch == 'E')) {
+      if (ch == 'e' || ch == 'E') {
       if (--left == 0)
         number_overflow();
       *sp++ = ch;
@@ -700,15 +698,13 @@ int decp = '.'; //decimalpoint[0];
       }
       *sp++ = '\0';
       *chp = ch;	
-      CACHE_REGS
-      if (might_be_float) {
-        return float_send(buf, sign);
-      }
-      return MkIntegerTerm(sign * val);
+      return float_send(buf, sign);
   } else {
     CACHE_REGS
     *chp = ch;
     *sp = '\0';
+    if (has_overflow)
+      return read_int_overflow(buf, base, val, sign);
     return MkIntegerTerm(val * sign);
   }
 }
