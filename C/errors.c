@@ -1780,7 +1780,8 @@ bool must_be_list__(const char *file, const char *function, int lineno,
   if (IsVarTerm(*tailp))
     Yap_ThrowError__(file, function, lineno, INSTANTIATION_ERROR, list, "must be list");
   if (*tailp != TermNil || n < 0) {
-    return false;
+    Yap_ThrowError__(file, function, lineno, TYPE_ERROR_LIST, list, "is atom");
+     return false;
   }
   return true;
 }
@@ -1788,6 +1789,25 @@ bool must_be_list__(const char *file, const char *function, int lineno,
 static Int must_be_list1(USES_REGS1) {
   Term t = Deref(ARG1);
   return must_be_list__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
+}
+
+bool can_be_list__(const char *file, const char *function, int lineno,
+                    Term list USES_REGS) {
+  Term *tailp;
+  // Term Context = Deref(ARG2);
+  Int n = Yap_SkipList(&list, &tailp);
+  if (IsVarTerm(*tailp))
+    return true;
+  if (*tailp != TermNil || n < 0) {
+        Yap_ThrowError__(file, function, lineno, TYPE_ERROR_LIST, list, "can be list");
+
+  }
+  return true;
+}
+
+static Int can_be_list1(USES_REGS1) {
+  Term t = Deref(ARG1);
+  return can_be_list__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS);
 }
 
 /** @pred callable( ?_Goal_ )
@@ -2096,6 +2116,7 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("must_be_string", 1, must_be_string1, TestPredFlag);
   Yap_InitCPred("must_be_ground", 1, must_be_ground1, TestPredFlag);
   Yap_InitCPred("must_be_list", 1, must_be_list1, TestPredFlag);
+  Yap_InitCPred("can_be_list", 1, can_be_list1, TestPredFlag);
 
   Yap_InitCPred("must_be_predicate_indicator", 4, must_be_predicate_indicator1,
                 0);
