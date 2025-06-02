@@ -328,7 +328,7 @@ abolish(X0) :-
 	functor(G,Name,Arity),
 	print_message(warning,no_match(abolish(Module:Name/Arity))).
 '$abolishs'(T, M) :-
-	retractall('$import'(_,M,_,T,_,_)),
+	'$retractall_lu'('$import'(_,M,_,T,_,_),prolog),
 	fail.
 '$abolishs'(G, M) :-
 	'$purge_clauses'(G, M), fail.
@@ -528,12 +528,17 @@ predicate_erased_statistics(P0,NCls,Sz,ISz) :-
 Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_.
 */
 current_predicate(A,T0) :-
-    '$yap_strip_module'(T0, M, T),
-    (var(M) -> '$all_current_modules'(M);  must_be_atom(M)),
+    '$yap_strip_module'(T0, M0, T),
+     '$current_predicate_module'(M0, M),
     (nonvar(T) ->
-	functor(T,A,Ar),
-        functor_predicate(M,A,Ar,user)
-    ;atom(A) ->
+     functor(T,A,Ar),
+     (
+       functor_predicate(M,A,Ar,user)
+     ;
+       functor_predicate(prolog,A,Ar,_)
+     )
+     ;
+	atom(A) ->
     atom_functor(A,Ar),
     functor(T,A,Ar),
     functor_predicate(M,A,Ar,user)
@@ -550,8 +555,8 @@ current_predicate(A,T0) :-
 Defines the relation:  indicator _P_ refers to a currently defined system predicate.
 */
 system_predicate(T0) :-
-    '$yap_strip_module'(T0, M, T),    
-    (      var(M) -> '$all_current_modules'(M);  must_be_atom(M)
+    '$yap_strip_module'(T0, M, T),
+        (      var(M) -> '$all_current_modules'(M); M=prolog,  must_be_atom(M)
     ),
     (
       var(T) -> module_predicate(_,A,Ar,system)
@@ -566,7 +571,8 @@ system_predicate(T0) :-
 	functor_predicate(M,A,Ar,system);
 	throw_error(type_error(predicate_indicator,T),
                 system_predicate(T))
-    ).
+    ),
+    predicate_property(M:T, built_in).
 
 
 
@@ -574,26 +580,41 @@ system_predicate(T0) :-
 
   Succeeds if _A_ is the name of the system predicate _P_. It can be
   used to test or  to enumerate all system predicates.
+
+Defined as if:
+
+```
+system_predicate(A, P0) :-
+   current_predicate(A,P0),
+   predicate_property(P0,built_n).
+```
+
 */
 
 system_predicate(A, P0) :-
     may_bind_to_type(atom,A),
     may_bind_to_type(callable,P0),
-    '$yap_strip_module'(P0, M, P),
-
+    '$yap_strip_module'(P0, M0, P),
+    '$current_predicate_module'(M0, M),
     (
 	nonvar(P)
 	  ->
 	  functor(P,N,A),
 	  functor_predicate(M,N,A,system)
     ;
-    (      var(M) -> '$all_current_modules'(M);  must_be_atom(M)),
     module_predicate(A, Na, Ar, system),
 	  functor(P,Na,Ar)
-    ).
+    ),
+    predicate_property(M:P, built_in).
 
     
-
+'$current_predicate_module'(M, M) :-
+    var(M),
+    !,
+    '$all_current_modules'(M).
+'$current_predicate_module'(M, M) :-
+    must_be_atom(M).
+%'$current_predicate_module'(_M, prolog).
 
 /**
   @pred  current_predicate( F ) is iso
@@ -604,12 +625,8 @@ system_predicate(A, P0) :-
  _Na_ is the name of the predicate, and  _Ar_ its arity.
 */
 current_predicate(T0) :-
-    '$yap_strip_module'(T0, M, T),
-    (
-      var(M) -> '$all_current_modules'(M)
-	;
-	must_be_atom(M)
-    ),
+    '$yap_strip_module'(T0, M0, T),
+    '$current_predicate_module'(M0, M),
     (
 	T=A/Ar, var(A) ->
 	module_predicate(M,A,Ar,user)
@@ -617,10 +634,16 @@ current_predicate(T0) :-
     T = A//Ar, var(A) ->
   	module_predicate(M,A,Ar0,user),
      Ar is Ar0+2
-;
-    T = A/Ar, nonvar(A) -> atom_functor(A,Ar),
-    functor_predicate(M,A,Ar,user)
-
+     ;
+     T = A/Ar,
+     nonvar(A)
+     ->
+     atom_functor(A,Ar),
+     (
+       functor_predicate(M,A,Ar,user)
+       ;
+       functor_predicate(prolog,A,Ar,_)
+     )
     ;
     T = A//Ar, nonvar(A) -> atom_functor(A,Ar),
 	  functor_predicate(M,A,Ar0,user),

@@ -2239,22 +2239,27 @@ static bool JumpToEnv(USES_REGS1) {
 
     return true;
     }
-    if (!LOCAL_TopRestartEnv)
+    choiceptr b = B, ob = NULL;
+    while (b && (b->cp_a4 != TermFreeTerm || !IsVarTerm(Deref(b->cp_a5)))) {
+      ob = b;
+      b = b->cp_b;
+    }
+    choiceptr border_cut =    (choiceptr)(LCL0 - LOCAL_CBorder);
+    if (!b) {
+      /* leave the emulator */
+      // there should be no environments around */
+      B = ob;
       return false;
-    do {
-      if ( B->cp_a4==TermFreeTerm &&
-	   IsVarTerm(Deref(B->cp_a5))) {
-	return true;
-      }
-//      if (B->cp_ap == EXITCODE) {
-//	Yap_RestartYap(5);
-//	return false;
-  //   }
-      if (B->cp_b)
-	B=B->cp_b;
-      else break;
-    }  while(true);
-    return false;
+    }
+    if (b && b < border_cut) {
+	/* local cut */
+	B = b;
+	return false;
+    } else {
+        B = border_cut;
+	// we can only cut up to the border, but
+        // The exception is still there.
+    }
  }
 
 
@@ -2281,30 +2286,25 @@ bool Yap_JumpToEnv(void ) {
 static Int yap_throw(USES_REGS1) {
   //  Yap_DebugPlWriteln(Yap_ChoicePoints(B));
  Term t = Deref(ARG1);
- // Yap_DebugPlWriteln(t);
- 
-     LOCAL_OldP = P;
-    LOCAL_OldCP = CP;
-      //     
-      //	Yap_SaveTerm( Yap_MkErrorTerm(LOCAL_ActiveError) );
-      //Yap_JumpToEnv();
+ //Yap_JumpToEnv();
 if (t == TermDAbort) {
-   Yap_ThrowError(ABORT_EVENT, TermDAbort, NULL);
-   return false;
+   Yap_Error(ABORT_EVENT, TermDAbort, NULL);
+   return Yap_JumpToEnv();;
     }
       if (IsVarTerm(t)) {
-        Yap_ThrowError(INSTANTIATION_ERROR, t,
+        Yap_Error(INSTANTIATION_ERROR, t,
 		       "throw/1 must be called instantiated");
-    }
+	return Yap_JumpToEnv();
+      }
 
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-    Yap_ThrowError(USER_DEFINED_ERROR, t, NULL);
-      return false;
-      } else {
-    Yap_ThrowError(USER_DEFINED_EVENT, t, NULL);
-    return false;
-    
+    Yap_Error(USER_DEFINED_ERROR, t, NULL);
+      return  Yap_JumpToEnv();
+  } else {
+    Yap_Error(USER_DEFINED_EVENT, t, NULL);
+    return Yap_JumpToEnv();
   }
+  return false;
  }
 
   /** @pred  abort
@@ -2321,7 +2321,7 @@ static Int p_abort(USES_REGS1) { /* abort			 */
   /* make sure we won't go creeping around */
   
   LOCAL_ActiveError->errorUserTerm = (TermDAbort);
-  Yap_JumpToEnv();
+  JumpToEnv();
   return false;
  }
 

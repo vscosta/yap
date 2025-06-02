@@ -17,13 +17,20 @@ static PyObject *read_symbol( PyObject *ctx, const char *s) {
   PyObject *out;
   if (!ctx)
       return NULL;
+#if PY_VERSION_HEX >= 0x030D0000
   if ((PyObject_GetOptionalAttrString(ctx, s, &out))) {
     return out;
   }
+  #else
+  if ((out=PyObject_GetAttrString(ctx, s))) {
+    return out;
+  }
+  #endif
       if( PyModule_Check(ctx)) {
          ctx = PyModule_GetDict(ctx);
      }                                                                                                                                                                                                                                 if ( PyDict_Check(ctx)) {
       if ((out = PyDict_GetItemString(ctx, s))) {
+    Py_INCREF(out);
 	return out;
       }
     }

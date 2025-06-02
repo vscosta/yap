@@ -128,8 +128,7 @@ int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st ) {
     }
     if (!st ||st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
       CACHE_REGS
-      LOCAL_Error_TYPE = SYNTAX_ERROR;
-      LOCAL_ErrorMessage = "bad codes ";
+	Yap_ThrowError( SYNTAX_ERROR,TermNil, "bad codes ");
       return EOF;
    } else {
       Yap_Warning("unexpected newline while  reading quoted ");

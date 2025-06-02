@@ -771,7 +771,8 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
     return TermNil;
   }
   int i = push_text_stack();
-  Term t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
+  Term t = Yap_scan_num(GLOBAL_Stream + sno
+			);
   Yap_CloseStream(sno);
   pop_text_stack(i);
   return t;

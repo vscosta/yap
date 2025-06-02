@@ -216,6 +216,23 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
   return l;
 }
 
+static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st)
+{
+  CACHE_REGS
+   LOCAL_ErrorMessage=malloc(2048);
+  snprintf(LOCAL_ErrorMessage, 2047, "unexpected character %c while  reading quoted text", (char)code);
+  if ((st->status & RepError_Prolog_f) || trueGlobalPrologFlag(ISO_FLAG)) {
+    Yap_ThrowError(SYNTAX_ERROR,TermNil,LOCAL_ErrorMessage);
+} else if(st->status & RepClose_Prolog_f) {
+    Yap_Warning(LOCAL_ErrorMessage);
+
+
+    Yap_CloseStream(st-GLOBAL_Stream);
+    return EOF;
+  }
+return ch;
+
+}
 
 int bad_nl_error(int quote, const char *TokImage, struct stream_desc *st) {
   CACHE_REGS
@@ -234,7 +251,7 @@ int bad_nl_error(int quote, const char *TokImage, struct stream_desc *st) {
     LOCAL_ErrorMessage=malloc(2048);
     snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text %s", TokImage);
     return 10;
-}
+ }
 
 
 extern double atof(const char *);
@@ -274,20 +291,6 @@ static Term float_send(char *s, int sign) {
  * @param s
  * @returnppp
  */
-static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st)
-{
-  CACHE_REGS
-  if ((st->status & RepError_Prolog_f) || trueGlobalPrologFlag(ISO_FLAG)) {
-      LOCAL_Error_TYPE = SYNTAX_ERROR;
-    LOCAL_ErrorMessage=malloc(2048);
-    Yap_ThrowError(SYNTAX_ERROR,TermNil,"character encoding error: code so far %d scanned %d",code,ch);
-} else if(st->status & RepClose_Prolog_f) {
-    Yap_CloseStream(st-GLOBAL_Stream);
-    return EOF;
-  }
-return ch;
-
-}
 
 Term read_int_overflow(const char *s, Int base, Int val, int sign) {
 #ifdef USE_GMP
@@ -361,7 +364,19 @@ do_switch:
       } else if (ch >= 'A' && ch <= 'F') {
         wc += ((ch - 'A') + 10) << ((3 - i) * 4);
       } else {
-	return number_encoding_error(wc, 1, st);
+	return number_encoding_error(wc, 1, st);    if (st->status & RepClose_Prolog_f) {
+      Yap_CloseStream(st-GLOBAL_Stream);
+      return EOF;
+    }
+    if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
+      LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
+    } else {
+      LOCAL_ActiveError->errorNo = SYNTAX_WARNING;
+    }
+    LOCAL_ErrorMessage=malloc(2048);
+    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text");
+    return 10;
+
       }
     }
     return wc;
@@ -474,10 +489,12 @@ do_switch:
   }
 }
 
-#define number_overflow()                                                      \
+#define number_overflow() return 0;
+
+#define znumber_overflow()                                                      \
   {                                                                            \
    CACHE_REGS                                          			       \
-    imgsz = Yap_Min(imgsz * 2, imgsz);                                         \
+    imgsz = Yap_Min(imgsz * 2, imgsz);					\
     char *nbuf;                                                                \
     nbuf = Realloc(buf, imgsz);                                                \
     left = imgsz - max_size;                                                   \
@@ -487,13 +504,62 @@ do_switch:
 
 /* reads a number, either integer or float */
 
+static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, char *sp, int *chp, int sign)
+{
+  int upper_case = 'A' - 11 + base;
+  int lower_case = 'a' - 11 + base;
+
+  int val = 0;
+  int ch = getchr(st);
+    *sp++ = ch;
+    if (! my_isxdigit(ch, lower_case,upper_case)) {
+	*sp = '\0';
+	return Yap_encoding_error(ch, MkIntTerm(ch), st );//nvalid hexadecimal digit");
+      }
+    do{
+    Int oval = val;
+    int chval =
+      (chtype(ch) == NU ? ch - '0'
+       : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
+    if (--left == 0)
+      goto overflow;
+    *sp++ = ch;
+    val = val * base + chval;
+    if (oval != (val - chval) / 16) /* overflow */ {
+      goto overflow;
+    }
+    ch = getchr(st);    
+    } while ( my_isxdigit(ch, lower_case, upper_case));
+    *chp = ch;
+    *sp = '\0';
+    return MkIntegerTerm(sign*val); 
+ overflow:
+    char *buf = *bufpp;
+    *sp = '\0';
+    /* skip base */
+    *chp = ch;
+    if (buf[0] == '0' && buf[1] == 'x')
+      return read_int_overflow(buf + 2, 16, val, sign);
+    else if (buf[0] == '0' && buf[1] == 'o')
+      return read_int_overflow(buf + 2, 8, val, sign);
+    else if (buf[0] == '0' && buf[1] == 'b')
+      return read_int_overflow(buf + 2, 2, val, sign);
+    if (buf[1] == '\'')
+      return read_int_overflow(buf + 2, base, val, sign);
+    if (buf[2] == '\'')
+      return read_int_overflow(buf + 3, base, val, sign);
+    return read_int_overflow(buf, base, val, sign);
+   
+}
+
 static Term get_num(int *chp, StreamDesc *st, int sign,
-                    char **bufp, size_t *szp, bool throw_error USES_REGS) {
+                    char **bufpp, size_t *szp USES_REGS) {
   int ch = *chp;
   Int val = 0L, base = ch - '0';
-  int might_be_float = true, has_overflow = false;
-//  const unsigned char *decimalpoint;
-  char *buf0 = *bufp, *sp = buf0, *buf = buf0;
+  int has_overflow = false;
+  //  coynst unsigned char *d
+  // ecimalpoint; 
+  char *buf0 = *bufpp, *sp = buf0, *buf = buf0;
   size_t imgsz = *szp, max_size = imgsz, left = max_size - 2;
 
   *sp++ = ch;
@@ -503,7 +569,6 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
    * do this (have mercy)
    */
   if (chtype(ch) == NU) {
-    might_be_float = true;
     *sp++ = ch;
     if (--left == 0)
       number_overflow();
@@ -513,16 +578,17 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
   if (ch == '\'') {
     if (base > 36) {
       ch=Yap_encoding_error(ch, 1, st); //, "Admissible bases are 11..36");
-    } else {
-      might_be_float = FALSE;
+    } 
       if (--left == 0)
 	number_overflow();
-      ch = getchr(st);
+      if (base >= 1 && base <= 36)
+        return read_int(st, base, left, bufpp,  sp, chp, sign);
       if (base == 0) {
 	CACHE_REGS
 	wchar_t ascii = ch;
 	
-      if (ch == '\\' &&
+      ch = getchr(st);
+	if (ch == '\\' &&
           Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
 	bool got_char;
         ascii = read_escaped_char(&got_char, st);
@@ -530,86 +596,22 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
 	  bad_nl_error('\\',sp,st);
 	}
 	if (ascii == EOF) return TermNil;
-      }
-      *chp = getchr(st);
+	}
+	*chp = getchr(st);
       if (sign == -1) {
         return MkIntegerTerm(-ascii);
       }
       return MkIntegerTerm(ascii);
-    } else if (base >= 10 && base <= 36) {
-	int upper_case = 'A' - 11 + base;
-      int lower_case = 'a' - 11 + base;
-
-      while (my_isxdigit(ch, lower_case, upper_case)) {
-        Int oval = val;
-        int chval =
-            (chtype(ch) == NU ? ch - '0'
-                              : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
-        if (--left == 0)
-          number_overflow();
-        *sp++ = ch;
-        val = oval * base + chval;
-        if (oval != (val - chval) / base) /* overflow */
-          has_overflow = (has_overflow || TRUE);
-        ch = getchr(st);
       }
-    }
-    }
-  }else if (ch == 'x' && base == 0) {
-    might_be_float = FALSE;
-    if (--left == 0)
-      number_overflow();
-    *sp++ = ch;
-    ch = getchr(st);
-    if (!my_isxdigit(ch, 'f', 'F')) {
-      if (throw_error)  {
-	*sp = '\0';
-	return Yap_encoding_error(ch, 1, st );//nvalid hexadecimal digit");
-      } else {
-	return TermNil;
-      }
-
-    }
-    while (my_isxdigit(ch, 'f', 'F')) {
-      Int oval = val;
-      int chval =
-          (chtype(ch) == NU ? ch - '0'
-                            : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
-      if (--left == 0)
-        number_overflow();
-      *sp++ = ch;
-      val = val * 16 + chval;
-      if (oval != (val - chval) / 16) /* overflow */
-        has_overflow = TRUE;
-      ch = getchr(st);
-    }
-    *chp = ch;
+  } else if (ch == 'x' && base == 0) {	
+    return read_int(st, 16, left, bufpp, sp, chp, sign);
   } else if (ch == 'o' && base == 0) {
-    might_be_float = false;
-    base = 8;
-    ch = getchr(st);
-    if (ch < '0' || ch > '7') {
-      if (throw_error)  {
-	*sp = '\0';
-	return Yap_encoding_error( ch, 1, st); //, "invalid octal digit");
-      }
-      return MkIntTerm( 0);
-    }
+    return read_int(st, 8, left, bufpp, sp, chp, sign);
   } else if (ch == 'b' && base == 0) {
-    might_be_float = false;
-    base = 2;
-    ch = getchr(st);
-    if (ch < '0' || ch > '1') { 
-	*sp = '\0';
-      if (throw_error)  {
-	return Yap_encoding_error(ch, 1, st); //, "invalid octal digit");
-      }
-      return MkIntTerm( 0);
-    }
-  } else {
-    val = base;
-    base = 10;
+    return read_int(st, 2, left, bufpp, sp, chp, sign);
   }
+  val = base;
+  base = 10;
   while (chtype(ch) == NU) {
     Int oval = val;
     if (!(val == 0 && ch == '0') || has_overflow) {
@@ -635,9 +637,9 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
           NULL)
 #endif
 //        decimalpoint = (const unsigned char *)".";
-int decp = '.'; //decimalpoint[0];
+	  int decp = '.'; //decimalpoint[0];
       bool has_dot = ch==decp;
-      if (might_be_float && has_dot) {
+      if (has_dot) {
       int nch = Yap_peekWide(st-GLOBAL_Stream);
       	if (chtype(nch
 		   ) != NU) {
@@ -646,13 +648,13 @@ int decp = '.'; //decimalpoint[0];
 	  Yap_encoding_error( ch, 1, st); //, "e/E float format not allowed in ISO mode");
 	  return TermNil;
 	}
-	    *chp = ch;
-	    *sp++='\0';
-	    if (has_overflow)
-	      return read_int_overflow(buf, base, val, sign);
-	    if (sign == -1)
-	      return MkIntegerTerm(-val);
-	    return MkIntegerTerm(val);
+	  *chp = ch;
+	  *sp++='\0';
+	  if (has_overflow)
+	    return read_int_overflow(buf, base, val, sign);
+	  if (sign == -1)
+	    return MkIntegerTerm(-val);
+	  return MkIntegerTerm(val);
 	}
 	ch = getchr(st);
 	
@@ -672,7 +674,7 @@ int decp = '.'; //decimalpoint[0];
       }
     
       
-      if (might_be_float && (ch == 'e' || ch == 'E')) {
+      if (ch == 'e' || ch == 'E') {
       if (--left == 0)
         number_overflow();
       *sp++ = ch;
@@ -696,37 +698,19 @@ int decp = '.'; //decimalpoint[0];
       }
       *sp++ = '\0';
       *chp = ch;	
-      CACHE_REGS
-      if (might_be_float) {
-        return float_send(buf, sign);
-      }
-      return MkIntegerTerm(sign * val);
-  }
-if (has_overflow) {
-    *sp = '\0';
-    /* skip base */
-    *chp = ch;
-    if (buf[0] == '0' && buf[1] == 'x')
-      return read_int_overflow(buf + 2, 16, val, sign);
-    else if (buf[0] == '0' && buf[1] == 'o')
-      return read_int_overflow(buf + 2, 8, val, sign);
-    else if (buf[0] == '0' && buf[1] == 'b')
-      return read_int_overflow(buf + 2, 2, val, sign);
-    if (buf[1] == '\'')
-      return read_int_overflow(buf + 2, base, val, sign);
-    if (buf[2] == '\'')
-      return read_int_overflow(buf + 3, base, val, sign);
-    return read_int_overflow(buf, base, val, sign);
+      return float_send(buf, sign);
   } else {
     CACHE_REGS
     *chp = ch;
     *sp = '\0';
+    if (has_overflow)
+      return read_int_overflow(buf, base, val, sign);
     return MkIntegerTerm(val * sign);
   }
 }
 
 /** This routine is used when we need to parse a string into a number. */
-Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
+Term Yap_scan_num(StreamDesc *inp) {
   CACHE_REGS
   Term  out;
   int sign = 1;
@@ -739,9 +723,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
   if (!(ptr = Malloc(4096) )){
         pop_text_stack(lvl);
 
-	if (throw_error) {
 	  Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "scanner: failed to allocate token image");
-	}
 	return TermNil;
     }
   else if ( inp->file == NULL)
@@ -782,7 +764,7 @@ Term Yap_scan_num(StreamDesc *inp, bool throw_error) {
     }
     size_t sz = 1024;
     char *buf = Malloc(sz);
-    out = get_num(&ch, inp, sign, &buf, &sz, throw_error PASS_REGS); /*  */   
+    out = get_num(&ch, inp, sign, &buf, &sz PASS_REGS); /*  */   
   } else {
     out = TermNil;
   }
@@ -809,8 +791,7 @@ if (ch == EOFCHAR) {
     }
   }
     }
-  if (throw_error)
-    Yap_ThrowError(SYNTAX_ERROR, MkIntTerm(ch),"should just have a  number");
+  Yap_ThrowError(SYNTAX_ERROR, TermNil,"should just have a  number");
   return 0;
 }
 
@@ -1111,7 +1092,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
       cha = ch;
       CHECK_SPACE();
-	t->TokInfo = get_num( &cha, st, sign, &TokImage, &imgsz,true PASS_REGS);
+	t->TokInfo = get_num( &cha, st, sign, &TokImage, &imgsz PASS_REGS);
 	t->Tok = kind = Number_tok;
         /* serious error now */
       t->TokSize= strlen(TokImage);

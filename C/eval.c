@@ -91,7 +91,8 @@ static Term get_matrix_element(Term t1, Term t2 USES_REGS) {
 }
 
 Term Yap_Eval__(Term t USES_REGS) {
-
+  if (t == 0)
+    return 0;
   if (IsVarTerm(t)) {
     t = Yap_unbound_delay(t PASS_REGS);
   }
@@ -153,12 +154,15 @@ Term Yap_Eval__(Term t USES_REGS) {
     }
   } /* else if (IsPairTerm(t)) */
   {
-    if (TailOfTerm(t) != TermNil) {
+    if (t && TailOfTerm(t) != TermNil) {
       Yap_ThrowError(TYPE_ERROR_EVALUABLE, t,
                             "string must contain a single character to be "
                             "evaluated as an arithmetic expression");
     }
-    return Yap_Eval__(HeadOfTerm(t) PASS_REGS);
+    if (t)
+      return Yap_Eval__(HeadOfTerm(t) PASS_REGS);
+    else
+      return Yap_Eval__(t PASS_REGS);
   }
 }
 

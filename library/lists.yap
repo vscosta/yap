@@ -683,12 +683,16 @@ elements,
 randomize(List,RandomListPermutation) :-
     add_random(List,RList),
     msort(RList, SList),
-    add_random(RandomListPermutation,SList).
+    xadd_random(RandomListPermutation,SList).
 
 add_random([],[]).
 add_random([H|L],[R-H|NL]) :-
 R is random,
 add_random(L,NL).
+
+xadd_random([],[]).
+xadd_random([H|L],[_R-H|NL]) :-
+xadd_random(L,NL).
 
 
 /** @} */

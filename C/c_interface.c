@@ -1957,7 +1957,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
     ts[1] = (CurrentModule == 0 ? TermProlog : CurrentModule);
     t  = Yap_MkApplTerm(FunctorCsult, 2, ts);
     }
-  bool rc = Yap_exists(t, false PASS_REGS);
+  bool rc = Yap_exists(t, true PASS_REGS);
     if (Yap_RaiseException())
         return
                 false;

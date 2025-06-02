@@ -407,7 +407,7 @@ notrace(G) :-
      ;
       functor(G,Na,_), atom_concat('$',_,Na)
     ;
-      \+ '$debuggable'(G, [call], Module,GoalNo)
+      \+ '$debuggable'(G, call, Module,GoalNo)
      ),
      !.
      */
@@ -430,7 +430,7 @@ notrace(G) :-
     nb_getval('$spy_target', TargetGoal ),
     number(GoalNo),
     number(TargetGoal),
-    (Port == redo
+    (fail,Port == redo
       ->
       GoalNo > TargetGoal-1
     ;

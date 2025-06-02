@@ -294,6 +294,16 @@ typedef struct init_un_eval {
 static inline Float
 get_float(Term t) {
   if (IsFloatTerm(t)) {
+    Float f = FloatOfTerm(t);
+    if( isoLanguageFlag()) {
+      if (isinf(f)) {
+      Yap_ThrowError(EVALUATION_ERROR_INT_OVERFLOW, t, NULL);
+    }
+    if (isnan(f)) {
+      Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, NULL);
+    }
+      }
+
     return FloatOfTerm(t);
   }
   if (IsIntTerm(t)) {
@@ -505,18 +515,33 @@ eval1(Int fi, Term t USES_REGS)
     {
       Float dbl = get_float(t), out;
       out = sinh(dbl);
+#if HAVE_ISNAN
+      if (isnan(out) && isoLanguageFlag()) {
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
+      }
+#endif
       RFLOAT(out);
     }
   case op_cosh:
     {
       Float dbl = get_float(t), out;
       out = cosh(dbl);
+#if HAVE_ISNAN
+      if (isnan(out) && isoLanguageFlag()) {
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
+      }
+#endif
       RFLOAT(out);
     }
   case op_tanh:
     {
       Float dbl = get_float(t), out;
       out = tanh(dbl);
+#if HAVE_ISNAN
+      if (isnan(out) && isoLanguageFlag()) {
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
+      }
+#endif
       RFLOAT(out);
     }
   case op_asin:
@@ -526,7 +551,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = asin(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
       }
 #endif
@@ -537,9 +562,14 @@ eval1(Int fi, Term t USES_REGS)
       Float dbl, out;
 
       dbl = get_float(t);
+#if HAVE_ISNAN
+      if (dbl < -1.0 || dbl > 1.0 ) {
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "acos(%f)", dbl);
+      }
+#endif
       out = acos(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "acos(%f)", dbl);
       }
 #endif
@@ -552,7 +582,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = atan(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "atanh(%f)", dbl);
       }
 #endif
@@ -565,7 +595,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = asinh(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "asinh(%f)", dbl);
       }
 #endif
@@ -576,9 +606,14 @@ eval1(Int fi, Term t USES_REGS)
       Float dbl, out;
 
       dbl = get_float(t);
+#if HAVE_ISNAN
+      if (dbl < 1.0 ) {
+	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "acosh(%f)", dbl);
+      }
+#endif
       out = acosh(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "acosh(%f)", dbl);
 	return false;
       }
@@ -593,7 +628,7 @@ eval1(Int fi, Term t USES_REGS)
       dbl = get_float(t);
       out = atanh(dbl);
 #if HAVE_ISNAN
-      if (isnan(out)) {
+      if (isnan(out) && isoLanguageFlag()) {
 	Yap_ThrowError(EVALUATION_ERROR_UNDEFINED, t, "atanh(%f)", dbl);
       }
 #endif
@@ -668,12 +703,13 @@ eval1(Int fi, Term t USES_REGS)
       Float dbl;
       switch (ETypeOfTerm(t)) {
       case long_int_et:
+	Yap_ThrowError(TYPE_ERROR_FLOAT, t, "ceiling(%d)", IntegerOfTerm(t));
 	return t;
       case double_et:
 	dbl = FloatOfTerm(t);
 	break;
       case big_int_et:
-	return Yap_gmp_ceiling(t);
+	Yap_ThrowError(TYPE_ERROR_FLOAT, t, "ceiling(big number %x)", t);
       }
 #if HAVE_ISNAN
       if (isnan(dbl)) {
@@ -829,16 +865,12 @@ eval1(Int fi, Term t USES_REGS)
   case op_ffracp:
     switch (ETypeOfTerm(t)) {
     case long_int_et:
-      if (isoLanguageFlag()) { /* iso */
-	Yap_ThrowError(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
-      } else {
-	RFLOAT(0.0);
-      }
+      Yap_ThrowError(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
     case double_et:
       {
 	Float dbl;
 	dbl = FloatOfTerm(t);
-	RFLOAT(dbl-ceil(dbl));
+	RFLOAT(dbl-trunc(dbl));
       }
       break;
     case big_int_et:
@@ -849,7 +881,7 @@ eval1(Int fi, Term t USES_REGS)
     case long_int_et:
       Yap_ThrowError(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", IntegerOfTerm(t));
     case double_et:
-      RFLOAT(rint(FloatOfTerm(t)));
+      RFLOAT(trunc(FloatOfTerm(t)));
       break;
     case big_int_et:
       return Yap_gmp_float_integer_part(t);

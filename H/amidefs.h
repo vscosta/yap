@@ -1116,7 +1116,8 @@ DEBUG_NUMBER_OF_OPTS = 5
 
 typedef enum {
   LOCAL_EX,
-  THROW_EX
+  THROW_EX,
+  PASS_EX
 } ex_handler_t;
 
 #endif

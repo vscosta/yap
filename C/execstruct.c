@@ -108,17 +108,23 @@ static bool gate(Term t USES_REGS)
   t=Deref(t);
   Yap_must_be_callable(t,CurrentModule);
   yap_error_descriptor_t *old=NULL;
-
-  bool rc = Yap_RunTopGoal(t, LOCAL_EX);
-  if (old) 
-   LOCAL_ActiveError=old;
-  if (rc) {
-    LOCAL_PrologMode |= ErrorHandlingMode;
-    Yap_prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
-    LOCAL_PrologMode &= ErrorHandlingMode;
+  bool m = LOCAL_PrologMode & ErrorHandlingMode;
+  if (m || LOCAL_Error_TYPE) {
+    old = malloc(sizeof(*old));
+    memcpy(old, LOCAL_ActiveError, sizeof((*old)));
   }
-  
-  // We'll pass it through
+  LOCAL_PrologMode |= ErrorHandlingMode;
+  bool rc = Yap_RunTopGoal(t, THROW_EX);
+  if (rc) {
+    Yap_prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
+  } 
+  if (old) {
+    memcpy( LOCAL_ActiveError, old,sizeof((*old)));
+    free(old);
+  }
+  if (m) {
+    LOCAL_PrologMode &= ~ErrorHandlingMode;
+  }  
   P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
@@ -169,8 +175,6 @@ static bool watch_cut(Term ext)
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {
       Term t;
-      if (LOCAL_PrologMode & ErrorHandlingMode)
-	return true;
       e = MkAddressTerm(LOCAL_ActiveError);
       if (active)
 	{
@@ -189,16 +193,17 @@ static bool watch_cut(Term ext)
       completion_pt[0] = TermCut;
       MaBind(port_pt, TermCut);
     }
-  gate(cleanup PASS_REGS);
+    gate(cleanup PASS_REGS);
+	  
 //    RESET_VARIABLE(port_pt);
     P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
   YENV = LCL0 - oYENV;
-  if ( Yap_PeekException()) {
-    Yap_JumpToEnv();
-    return false;
-  }
+  /* if ( Yap_PeekException()) { */
+  /*   Yap_JumpToEnv(); */
+  /*   return false; */
+  /* } */
   return true;
 }
 
@@ -228,12 +233,11 @@ static bool watch_retry(Term d0 )
   CP = FAILCODE;
   bool ex_mode = false;
   //  choiceptr Bl = B;
-    
+
+
   // just do the simplest
   if ((ex_mode = Yap_PeekException()))
     {
-      if (LOCAL_PrologMode & ErrorHandlingMode)
-	return true;
       e = MkAddressTerm(LOCAL_ActiveError);
       if (bottom)
 	{
@@ -263,10 +267,10 @@ static bool watch_retry(Term d0 )
   CP = oCP;
   ENV = LCL0 - oENV;
   YENV = LCL0 - oYENV;
-  if ( Yap_PeekException()) {
-    Yap_JumpToEnv();
-    return false;
-  }
+  /* if ( Yap_PeekException()) { */
+  /*   Yap_JumpToEnv(); */
+  /*   return false; */
+  /* } */
   if (Yap_may_creep(true)) {
     return true;
   }
@@ -291,7 +295,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1)
   bool rc;
 
   Yap_DisableInterrupts(worker_id);
-  rc = Yap_RunTopGoal(Setup, LOCAL_EX);
+  rc = Yap_RunTopGoal(Setup, THROW_EX);
   Yap_EnableInterrupts(worker_id);
   if (!rc)
     {
@@ -333,7 +337,7 @@ static Int cleanup_on_exit(USES_REGS1)
   CELL *completion_pt = deref_ptr(RepAppl(task)+4);
    Term cleanup = ArgOfTerm(3, task);
   Int BEntry = IntegerOfTerm(ArgOfTerm(6,task));
-  if (!Yap_dispatch_interrupts( PASS_REGS1 ))
+ if (!Yap_dispatch_interrupts( PASS_REGS1 ))
     return false;
   if (IsNonVarTerm(completion_pt[0]))
     {
@@ -351,6 +355,11 @@ static Int cleanup_on_exit(USES_REGS1)
       completion_pt[0] = TermExit;
     }
   gate(cleanup PASS_REGS);
+  if (Yap_PeekException())
+    {
+      Yap_ThrowExistingError();
+      return false;
+    }
   if(       port_pt[0]==TermAnswer) {
     if(IsVarTerm(completion_pt[0]))
       {
@@ -360,11 +369,6 @@ static Int cleanup_on_exit(USES_REGS1)
   }
   //
 //  RESET_VARIABLE(port_pt);
-  if (Yap_PeekException())
-    {
-      Yap_JumpToEnv();
-      return false;
-    }
   if (Yap_may_creep(true)) {
     return true;
   }

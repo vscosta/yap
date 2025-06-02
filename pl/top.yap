@@ -283,16 +283,9 @@ current_prolog_flag(debug, false), !.
     nb_setval('$spy_target',0).
 
 
-'$call'(V, _CP, G0, M) :-
-    (
-	var(V)
-    ->
-    throw_error(instantiation_error,call(G0))
-    ;
-    var(M)
-    ->
-    throw_error(instantiation_error,call(G0))
-    ).
+'$call'(V, _CP, _G0, _M) :-
+    must_be_callable(V),
+    fail.
 '$call'(!, CP, _G0, _) :-
     !,
     cut_by(CP).
