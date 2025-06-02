@@ -49,49 +49,12 @@
 	  ]).
 
 
-/** @defgroup py4yap  Prolog interface to python.
-    @ingroup python
+/**
+
+@addtogroup py4yap
 
 @{
-
-  @author               Vitor Santos Costa
-  @version      0:0:5, 2012/10/8
-  @license      Perl Artistic License
-
-This is an interface to allow calling Python from Prolog. It works together
-with the YAP4PY SWIG package, thatis used to if you want to embedd Prolog with Python.
-
-The interface should be activated by consulting the python library. It
-immediately boots a Python image.
-
-To best define the interface, one has to address two opposite goals:
-    - make it as similar to python as possible
-    - make all embedded language interfaces (python, R, Java) as
-similar as possible.
-
-   YAP supports the following translation between Prolog and Python:
-
-| *Prolog*      | *Pyhon*       |          *Prolog Examples*             |
-|:-------------:|:-------------:|---------------------------------------:|
-| Numbers       | Numbers       | 2.3
-|               |               | 1545
-|               |               |
-| Atom          | Symbols       | var
-| $Atom         |               | $var [ = var]
-| `string`      | 'string'      | \`hello\`
-| "string"      |        '      | "hello"
-|               |               |
-| Atom(...)     | Symb(...)     | f( a, b, named=v)
-| E.F(...)      | E.F (...)     | mod.f( a) [ = [mod\|f(a)] ]
-| Atom()        |               | f() [ = '()'(f) ]
-| Lists         | Lists         | [1,2,3]
-| t(....)       | Tuples        | t(1,2,3) to (1,2,3)
-| (..., ...)    |               | (1,2,3)[ = (1,(2,3))]
-| {.=., .=.}    | Dict          | {\`one\`: 1, \`two\`: 2, \`three\`: 3}
-
-*/
-
-
+ */
 
 /************************************************************************************************************
 
@@ -142,9 +105,6 @@ user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 F() :-
     python:python_proc(F() ).
 
-
-{F} :-
-    python:python_proc({F} ).
 
  := (P1 , P2 ) :- !,
      := P1,

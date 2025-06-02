@@ -23,7 +23,7 @@
   * @brief  list predicates in a module
   */
 
-/** @defgroup Listing  list predicates in a module
+/** @defgroup Listing  Show the predicates defined in a module
   * @ingroup Builtins
   * 
   * @{

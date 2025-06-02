@@ -29,7 +29,7 @@
  *
  * @brief applications of the tree walker pattern.
  *
- * @addtogroup YAPTerms Term Manipulation
+ * @addtogroup TermManipulation
  * @ingroup Builtins
  *
  * @{

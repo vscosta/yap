@@ -89,7 +89,6 @@ if (DOXYGEN_FOUND)
 ${CMAKE_SOURCE_DIR}/packages/prism
     ${CMAKE_SOURCE_DIR}/packages/cuda
     ${CMAKE_SOURCE_DIR}/packages/meld
-    ${CMAKE_SOURCE_DIR}/packages/myddas/pl
     ${CMAKE_SOURCE_DIR}/packages/cplint
     ${CMAKE_SOURCE_DIR}/packages/python/yapkernel
     ${CMAKE_SOURCE_DIR}/packages/swig
@@ -150,6 +149,7 @@ ${CMAKE_SOURCE_DIR}/packages/prism
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  mkdocs/docs/javascripts
     COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md  -- xml mkdocs/docs ${CMAKE_BINARY_DIR}
     DEPENDS STARTUP filter-bin dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
+    USES_TERMINAL
   )
     add_dependencies(filter-bin STARTUP)
     add_dependencies(dox filter-bin STARTUP)

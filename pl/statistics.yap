@@ -24,7 +24,7 @@
   *
   * @defgroup Statistics System Status
   * @ingroup Builtins
-  * 
+  * @{
   * 
 */
 
@@ -357,3 +357,5 @@ time(Goal) :-
 	->  throw(E)
 	;   Result == yes
 	).
+
+%% @}
