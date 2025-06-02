@@ -24,7 +24,6 @@
 
 
 sub_atom(Text,Below, Mid, Above,  Out) :-
-    writeln(sub_atom(Text,Below, Mid, Above,  Out) ),
     deterministic_sub_atom(Text,Below, Mid, Above,  Out, Sz),
     (
       var(Sz)

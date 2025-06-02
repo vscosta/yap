@@ -29,6 +29,8 @@
 	   foldl2/7,
 	   foldl2/8,
 	   foldl3/8,
+	   foldl3/9,
+	   foldl3/10,
 	   foldl4/10,
 	   include/3,
 	   exclude/3,
@@ -75,9 +77,11 @@
        foldl(3, +, +, -),
        foldl2(5, +, +, -, +, -),
        foldl2(6, +, ?, +, -, +, -),
-       foldl2(6, +, ?, ?, +, -, +, -),
-       foldl3(5, +, +, -, +, -, +, -),
-       foldl4(7, +, +, -, +, -, +, -, +, -),
+       foldl2(7, +, ?, ?, +, -, +, -),
+       foldl3(7, +, +, -, +, -, +, -),
+       foldl3(8, +, +, +, -, +, -, +, -),
+       foldl3(9, +, +, +, +, -, +, -, +, -),
+       foldl4(10, +, +, -, +, -, +, -, +, -),
        foldl(4, +, +, +, -),
        foldl(5, +, +, +, +, -),
        foldl(6, +, +, +, +, +, -),
@@ -637,10 +641,10 @@ foldl2(Goal, [H1|T1], [H2|T2],  V0, V, W0, W) :-
   _X_ and  _Y_.
 
 */
-foldl2([], [], [], _Goal, V, V, W, W).
-foldl2([H1|T1], [H2|T2], [H3|T3], Goal, V0, V, W0, W) :-
+foldl2(_, [], [], [], V, V, W, W).
+foldl2(Goal, [H1|T1], [H2|T2], [H3|T3], V0, V, W0, W) :-
     call(Goal, H1, H2, H3, V0, V1, W0, W1),
-    foldl2(T1, T2, T3, Goal, V1, V, W1, W).
+    foldl2(Goal, T1, T2, T3, V1, V, W1, W).
 
 
 /**
@@ -653,7 +657,31 @@ foldl2([H1|T1], [H2|T2], [H3|T3], Goal, V0, V, W0, W) :-
 foldl3(_, [], V, V, W, W, X, X).
 foldl3(Goal, [H|T], V0, V, W0, W, X0, X) :-
     call(Goal, H, V0, V1, W0, W1, X0, X1),
-    foldl3(\Goal, T, V1, V, W1, W, X1, X).
+    foldl3(Goal, T, V1, V, W1, W, X1, X).
+
+/**
+   @pred foldl3(: _Pred_, + _List0_, ? _List1_, _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_)
+
+
+  Calls  _Pred_ on all elements of `List` and collects a
+  result in  _X_,  _Y_ and  _Z_.
+*/
+foldl3(_, [], [], V, V, W, W, X, X).
+foldl3(Goal, [H|T], [H1|T1], V0, V, W0, W, X0, X) :-
+    call(Goal, H, H1, V0, V1, W0, W1, X0, X1),
+    foldl3(Goal, T, T1, V1, V, W1, W, X1, X).
+
+/**
+   @pred foldl3(: _Pred_, + _List1_, _List2_?_, _List3_? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_)
+
+
+  Calls  _Pred_ on all elements of `List` and collects a
+  result in  _X_,  _Y_ and  _Z_.
+*/
+foldl3(_, [], [], [], V, V, W, W, X, X).
+foldl3(Goal, [H|T], [H1|T1], [H2|T2], V0, V, W0, W, X0, X) :-
+    call(Goal, H, H1, H2, V0, V1, W0, W1, X0, X1),
+    foldl3(Goal, T, T1, T2, V1, V, W1, W, X1, X).
 
 /**
   @pred foldl4(: _Pred_, + _List1_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_, ? _W0_, ? _W_)
@@ -662,7 +690,7 @@ foldl3(Goal, [H|T], V0, V, W0, W, X0, X) :-
   Calls  _Pred_ on all elements of `List` and collects a
   result in  _X_,  _Y_,  _Z_ and  _W_.
 */
-foldl4([], V, V, W, W, X, X, Y, Y).
+foldl4(_, [], V, V, W, W, X, X, Y, Y).
 foldl4(Goal, [H|T], V0, V, W0, W, X0, X, Y0, Y) :-
     call(Goal, H, V0, V1, W0, W1, X0, X1, Y0, Y1),
     foldl4(Goal, T,  V1, V, W1, W, X1, X, Y1, Y).
@@ -750,15 +778,14 @@ expand_rule1(checklist).
 expand_rule1(convlist).
 expand_rule1(exclude).
 expand_rule1(foldl).
-expand_rule1(foldl1).
 expand_rule1(foldl2).
+expand_rule1(foldl3).
+expand_rule1(foldl4).
 expand_rule1(include).
 expand_rule1(partition).
 expand_rule1(selectlist).
 expand_rule1(selectlists).
 expand_rule1(sumlist).
-
-
 
 /**
   @pred goal_expansion(Call, Unfolded)
