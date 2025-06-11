@@ -127,7 +127,6 @@ int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st ) {
       return EOF;
     }
     if (!st ||st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
-      CACHE_REGS
 	Yap_ThrowError( SYNTAX_ERROR,TermNil, "bad codes ");
       return EOF;
    } else {

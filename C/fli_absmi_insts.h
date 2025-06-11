@@ -471,6 +471,8 @@ Yap_RaiseException();
           save_pc();
         }
         PREG = ap->cs.p_code.TrueCodeOfPred;
+        PP = NULL;
+	UNLOCKPE(10, ap);
       }
       JMPNext();
       ENDBOp();

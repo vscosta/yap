@@ -107,7 +107,7 @@
 
 #ifdef DEBUG                                                
 #define MYDDAS_FREE(POINTER,TYPE)                                  \
- {                                                                 \
+ { CACHE_REGS                                                                \
    Yap_REGS.MYDDAS_GLOBAL_POINTER->memory_freed+=sizeof(TYPE);     \
    Yap_REGS.MYDDAS_GLOBAL_POINTER->free_called++;                  \
    /*printf ("FREE   %p %s %d\n",POINTER,__FILE__,__LINE__);*/ \

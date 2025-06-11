@@ -559,12 +559,12 @@ sumnodes_body(Pred, Term, A1, A3, N0, Ar) :-
   @pred oldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
 
   The foldl family of predicates is defined
-	  ==
+```
 	  foldl(P, [X11,...,X1n],V0, Vn, W0, WN) :-
 		P(X11, V0, V1, W0, W1),
 		...
 		P(X1n, Vn1, Vn, Wn1, Wn).
-	  ==
+```
   Calls  _Pred_ on all elements of `List1` and collects a result in  _Accumulator_. Same as
   foldr/3.
 */

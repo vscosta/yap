@@ -161,7 +161,7 @@ decode(S,S).
 
 pred2dox(Pred, String) :-
     sub_string(Pred,0,LEN,2,Name), 
-    sub_string(Pred,0,1,1,"/"), 
+    sub_string(Pred,_0,1,1,"/"), 
     string_chars(Name,Cs),
     I is LEN+2,
     get_string_char(I,Pred,D),

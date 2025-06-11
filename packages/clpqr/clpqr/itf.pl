@@ -48,6 +48,8 @@
 	    clp_type/2
 	]).
 
+:- use_module(library(maplist)).
+
 
 clp_type(Var,Type) :-
 	(   get_attr(Var,itf,Att)

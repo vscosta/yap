@@ -104,6 +104,9 @@ ${CMAKE_SOURCE_DIR}/packages/prism
     -     ${CMAKE_SOURCE_DIR}/C/Tags_32*
     */_CPack_Packages/*
     packages/sat/*-*/*
+    packages/xml/*
+    paackages/prosqlite/*
+    packages/jpl/*
   )
 
     set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)

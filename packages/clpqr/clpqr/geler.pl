@@ -44,6 +44,9 @@
 	    collect_nonlin/3
 	]).
 
+:- use_module(library(maplist)).
+
+
 % l2conj(List,Conj)
 %
 % turns a List into a conjunction of the form (El,Conj) where Conj

@@ -535,7 +535,7 @@ static Int stop_low_level_trace(USES_REGS1) {
 
   LOCAL_do_trace_primitives = TRUE;
 #if DEBUG_LOCKS
-  debug_locks = TRUE;
+  //debug_locks = TRUE;
 #endif
   return (TRUE);
 }

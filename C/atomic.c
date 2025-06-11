@@ -41,19 +41,6 @@
 #endif
 #include <wchar.h>
 
-static int AlreadyHidden(unsigned char *name) {
-  AtomEntry *chain;
-
-  READ_LOCK(INVISIBLECHAIN.AERWLock);
-  chain = RepAtom(INVISIBLECHAIN.Entry);
-  READ_UNLOCK(INVISIBLECHAIN.AERWLock);
-  while (!EndOfPAEntr(chain) &&
-         strcmp((char *)chain->StrOfAE, (char *)name) != 0)
-    chain = RepAtom(chain->NextOfAE);
-  if (EndOfPAEntr(chain))
-    return false;
-  return true;
-}
 
 /**
  * @defgroup Predicates_on_Text Predicates on Text
@@ -61,6 +48,7 @@ static int AlreadyHidden(unsigned char *name) {
  *
  * @brief The following predicates are used to
  manipulate text in Prolog.
+ *
  * @{
  *
  * Text may be represented as atoms, strings, lists of
@@ -74,6 +62,20 @@ static int AlreadyHidden(unsigned char *name) {
  *
  *
 */
+
+static int AlreadyHidden(unsigned char *name) {
+  AtomEntry *chain;
+
+  READ_LOCK(INVISIBLECHAIN.AERWLock);
+  chain = RepAtom(INVISIBLECHAIN.Entry);
+  READ_UNLOCK(INVISIBLECHAIN.AERWLock);
+  while (!EndOfPAEntr(chain) &&
+         strcmp((char *)chain->StrOfAE, (char *)name) != 0)
+    chain = RepAtom(chain->NextOfAE);
+  if (EndOfPAEntr(chain))
+    return false;
+  return true;
+}
 
 
 /**
@@ -2513,7 +2515,7 @@ restart_aux:
     through all possible sub-strings of  _A_.
 
 */
-static Int sub_atom( USES_REGS)
+static Int sub_atom( USES_REGS1 )
   {
   int mask = 0;
   ssize_t minv, sz;
@@ -2651,7 +2653,7 @@ static Int sub_atom( USES_REGS)
   }
   }
 
-  static Int sub_string(USES_REGS)
+  static Int sub_string(USES_REGS1)
 
 
   {
@@ -2791,7 +2793,7 @@ static Int sub_atom( USES_REGS)
   }
   }
 
-  Int sub_atom_fetch(USES_REGS)
+  Int sub_atom_fetch(USES_REGS1)
   {
     const unsigned char *inp = RepAtom(AtomOfTerm(Deref(ARG1) ))->UStrOfAE, *inp1, *pf;
       size_t off = IntegerOfTerm(Deref(ARG2));
@@ -2875,7 +2877,7 @@ static Int cont_current_atom(USES_REGS1) {
 }
 
 
-  Int sub_string_fetch(USES_REGS)
+  Int sub_string_fetch(USES_REGS1)
   {
     const unsigned char *inp =UStringOfTerm(Deref(ARG1) ) , *inp1, *pf;
       size_t off = IntegerOfTerm(Deref(ARG2));

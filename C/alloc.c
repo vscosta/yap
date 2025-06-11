@@ -115,14 +115,14 @@ void *my_malloc(size_t sz) {
 void *my_realloc(void *ptr, size_t sz) {
   void *p;
 
-  p = realloc(ptr, sz);
-  if (p==(void*)0x55559abc8370) {
-    fprintf(stderr,"realloc out");
-    jmp_deb(1);
-  }
  #ifdef DEBUG_MALLOC
  if (DEBUG_DIRECT ||Yap_do_low_level_trace)
-      fprintf(stderr, "+ %p -> %p : %ld\n", ptr, p, sz);
+      fprintf(stderr, "%p ->", ptr);
+ #endif
+  p = realloc(ptr, sz);
+  #ifdef DEBUG_MALLOC
+ if (DEBUG_DIRECT ||Yap_do_low_level_trace)
+      fprintf(stderr, "%p : %ld\n", p, sz);
  #endif
     //    Yap_DebugPuts(stderr,"gof\n");
 //    if (sz > 500 && write_malloc++ > 0)

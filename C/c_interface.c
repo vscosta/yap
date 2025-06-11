@@ -1195,7 +1195,7 @@ X_API Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
     Yap_CloseSlots(CurSlot);
     PP = NULL;
     if (val == 0) {
-      if (Yap_HasException(PASS_REGS1) && Yap_RaiseException(PASS_REGS1)) {
+      if (Yap_HasException(PASS_REGS1) && Yap_RaiseException()) {
         return false;
       }
       return complete_fail(((choiceptr)(LCL0 - ocp)), TRUE PASS_REGS);

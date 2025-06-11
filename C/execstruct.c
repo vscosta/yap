@@ -354,8 +354,9 @@ static Int cleanup_on_exit(USES_REGS1)
       MaBind(port_pt, TermExit);
       completion_pt[0] = TermExit;
     }
+
   gate(cleanup PASS_REGS);
-  if (Yap_PeekException())
+    if (Yap_PeekException())
     {
       Yap_ThrowExistingError();
       return false;

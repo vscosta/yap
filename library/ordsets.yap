@@ -203,7 +203,7 @@ Holds when  _Union_ is the union of the lists  _Sets_.
 	ord_symdiff(+, +, ?),
 	ord_symdiff(+, +, +, +, +, ?),
 	ord_union(+, +, ?),
-	ord_union(+, +, +, +, +, ?).
+v	ord_union(+, +, +, +, +, ?).
 */
 
 
@@ -332,7 +332,7 @@ ord_intersection([Head1|Tail1], [Head2|Tail2], Intersection, Difference) :-
 	).
 
 
-%   ord_seteq(+Set1, +Set2)
+%% @pred   ord_seteq(+Set1, +Set2)
 %   is true when the two arguments represent the same set.  Since they
 %   are assumed to be ordered representations, they must be identical.
 
@@ -342,7 +342,7 @@ ord_seteq(Set1, Set2) :-
 
 
 
-%   ord_subset(+Set1, +Set2)
+%%   @pred ord_subset(+Set1, +Set2)
 %   is true when every element of the ordered set Set1 appears in the
 %   ordered set Set2.
 
@@ -358,7 +358,7 @@ ord_subset(>, Head1, Tail1, _, Tail2) :-
 
 
 
-%   ord_subtract(+Set1, +Set2, ?Difference)
+%% @pred   ord_subtract(+Set1, +Set2, ?Difference)
 %   is true when Difference contains all and only the elements of Set1
 %   which are not also in Set2.
 
@@ -377,7 +377,7 @@ ord_subtract(>, Head1, Tail1, _,     Tail2, Difference) :-
 	ord_subtract([Head1|Tail1], Tail2, Difference).
 
 
-%   ord_del_element(+Set1, Element, ?Rest)
+%% @pred    ord_del_element(+Set1, Element, ?Rest)
 %   is true when Rest contains the elements of Set1
 %   except for Set1
 
@@ -412,7 +412,7 @@ ord_symdiff(>, Head1, Tail1, Head2, Tail2, [Head2|Difference]) :-
 
 
 
-%   ord_union(+Set1, +Set2, ?Union)
+%% @pred    ord_union(+Set1, +Set2, ?Union)
 %   is true when Union is the union of Set1 and Set2.  Note that when
 %   something occurs in both sets, we want to retain only one copy.
 

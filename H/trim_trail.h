@@ -48,9 +48,10 @@
         int erase;
 #if defined(THREADS) || defined(YAPOR)
         PredEntry *ap = cl->ClPred;
+        LOCK(ap->PELock);
+	PP = ap;
 #endif
 
-        LOCK(ap->PELock);
         DEC_CLREF_COUNT(cl);
         cl->ClFlags &= ~InUseMask;
         erase = (cl->ClFlags & (ErasedMask | DirtyMask)) && !(cl->ClRefCount);

@@ -27,7 +27,7 @@ scan_library_exports :-
 	member(F,Files),
 	file_name_extension(B, S, F),
 	(S == pl; S == yap; S = ypp),
-	scan_exports(F, library(S)),
+	scan_exports(F, library(B)),
 	fail
     ;
     true

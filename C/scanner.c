@@ -365,19 +365,7 @@ do_switch:
       } else if (ch >= 'A' && ch <= 'F') {
         wc += ((ch - 'A') + 10) << ((3 - i) * 4);
       } else {
-	return number_encoding_error(wc, 1, st);    if (st->status & RepClose_Prolog_f) {
-      Yap_CloseStream(st-GLOBAL_Stream);
-      return EOF;
-    }
-    if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
-      LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
-    } else {
-      LOCAL_ActiveError->errorNo = SYNTAX_WARNING;
-    }
-    LOCAL_ErrorMessage=malloc(2048);
-    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text");
-    return 10;
-
+        return number_encoding_error(wc, 1, st);
       }
     }
     return wc;
@@ -533,7 +521,10 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
     } while ( my_isxdigit(ch, base, lower_case, upper_case));
     *chp = ch;
     *sp = '\0';
-    return MkIntegerTerm(sign*val); 
+    {
+      CACHE_REGS
+      return MkIntegerTerm(sign * val);
+    }
  overflow:
     char *buf = *bufpp;
     *sp = '\0';

@@ -135,10 +135,9 @@ void change_buffer_size(const size_t newsize) {
 static void
 p2c_putt(const YAP_Term t) {
   //  if( buffer.size==buffer.len+1 ) 
-
     if (!term2string(t)) {
 #ifdef DEBUG
-     write_msg(__FUNCTION__,__FILE__,__LINE__,"p2c_putc:buffer expanded: size=%u pos=%u len=%u\n",BUFFER_SIZE,BUFFER_POS,BUFFER_LEN);  
+      //     write_msg(__FUNCTION__,__FILE__,__LINE__,"p2c_putc:buffer expanded: size=%u pos=%u len=%u\n",BUFFER_SIZE,BUFFER_POS,BUFFER_LEN);  
 #endif
   }
 
