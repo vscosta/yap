@@ -164,7 +164,7 @@
 				% db_open/5
 				% db_open/4
 				%
-@add_to_group MYDDAS
+@addtogroup MYDDAS
 
 @{
 

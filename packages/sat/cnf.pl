@@ -26,7 +26,7 @@
 % WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /**
-  @defgroup CnfConverter
+  @defgroup CnfConverter Propositional formula to CNF
   @ingroup SAT
   @ brief convert a generic propositional formula to CNF (conjunction of disjunctions of literals).
   @{

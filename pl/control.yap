@@ -802,6 +802,7 @@ call_nth(Goal_0, Nth) :-
 */
 
 %% @addtogroup Global_Variables
+
 %% @{
 
 /** @pred  nb_getval(+ _Name_, - _Value_)

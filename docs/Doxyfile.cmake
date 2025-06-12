@@ -87,8 +87,17 @@ if (DOXYGEN_FOUND)
     ${CMAKE_SOURCE_DIR}/C/absmi.c
     ${CMAKE_SOURCE_DIR}/packages/jpl
 ${CMAKE_SOURCE_DIR}/packages/prism
+${CMAKE_SOURCE_DIR}/packages/prosqlite
+${CMAKE_SOURCE_DIR}/packages/pyswip
     ${CMAKE_SOURCE_DIR}/packages/cuda
-    ${CMAKE_SOURCE_DIR}/packages/meld
+        ${CMAKE_SOURCE_DIR}/packages/bdd/include
+	${CMAKE_SOURCE_DIR}/packages/sat/glucose-2.2
+	${CMAKE_SOURCE_DIR}/packages/sat/glucose-4.2.1
+	${CMAKE_SOURCE_DIR}/packages/sat/minisat-2.0.2
+	${CMAKE_SOURCE_DIR}/packages/myddas/sqlite3/src
+	${CMAKE_SOURCE_DIR}/packages/xml2yap/pugixml.cpp
+	${CMAKE_SOURCE_DIR}/packages/CLPBN
+	${CMAKE_SOURCE_DIR}/packages/meld
     ${CMAKE_SOURCE_DIR}/packages/cplint
     ${CMAKE_SOURCE_DIR}/packages/python/yapkernel
     ${CMAKE_SOURCE_DIR}/packages/swig

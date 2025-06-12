@@ -47,7 +47,8 @@ main :-
      insert_module_header,
      maplist(output,Preds),
      working_directory(_,OldD),
-     insert_module_tail.
+     insert_module_tail,
+     halt.
  main.
 
  /*
