@@ -695,7 +695,9 @@ foldl4(Goal, [H|T], V0, V, W0, W, X0, X, Y0, Y) :-
     call(Goal, H, V0, V1, W0, W1, X0, X1, Y0, Y1),
     foldl4(Goal, T,  V1, V, W1, W, X1, X, Y1, Y).
 
-
+*-
++
++36214/
 
 /*******************************
 		 *	       SCANL		*
