@@ -17,7 +17,7 @@
 
 /**
  * @{
- * @defgroup Database The Clausal Data Base
+ * @defgroup Database The Prolog Data Base
  * @ingroup Builtins
 
 Predicates in YAP may be dynamic or static. By default, when
@@ -27,12 +27,8 @@ Static predicates impose some restrictions: in general there can be no
 addition or removal of  clauses for a procedure if it is being used in the
 current execution.
 
-Dynamic predicates allow programmers to change the Clausal Data Base with
-the same flexibility as in C-Prolog. With dynamic predicates it is
-always possible to add or remove clauses during execution and the
-semantics will be the same as for C-Prolog. But the programmer should be
-aware of the fact that asserting or retracting are still expensive operations,
-and therefore he should try to avoid them whenever possible.
+Prolog includes a set of predicates that allow to query and change the
+clausedatabase.
 
 */
 

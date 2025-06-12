@@ -129,11 +129,25 @@ split_element(_SplitCodes,  _DoubleQs, _SingleQs, []) --> !.
 split_element(_SplitCodes,  _DoubleQs, _SingleQs, [[]]) --> [].
 
 
+encode_text(S,NS) :-
+    sub_string(S,Bef,1,End," "),
+    !,
+    sub_string(S,0,Bef,_,S1),
+    encode(S1,NS1),
+    sub_string(S,_,End,0,S2),
+    encode_text(S2,NS2),
+    string_concat([NS1,' ',NS2], NS).
+encode_text(S,NS) :-
+    encode(S,NS).
+
+
 encode(P/A,String) :-
     !,
     format(string(Pred),'~w',[P/A]),
     pred2dox(Pred, String).
 
+encode("","") :-
+    !.
 encode(P,S) :-
     pred2dox(P,S),
     !.
@@ -147,9 +161,10 @@ decode(S,S).
 
 pred2dox(Pred, String) :-
     sub_string(Pred,0,LEN,2,Name), 
+    sub_string(Pred,_0,1,1,"/"), 
     string_chars(Name,Cs),
-I is LEN+2,
-get_string_char(I,Pred,D),
+    I is LEN+2,
+    get_string_char(I,Pred,D),
     foldl(char_to_safe,Cs,PCs,['_',D ]),
     !,
     string_chars(String,  PCs).

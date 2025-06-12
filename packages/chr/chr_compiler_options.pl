@@ -29,9 +29,11 @@
     the GNU General Public License.
 */
 %% @addtogroup YAP_YAP_CHR_in_YAP_Programs CHR Programs
+
 %% @ingroup YAP_YAP_CHR
 %
-% CHR controlling the compiler
+
+%% @brief CHR controlling the compiler
 %
 
 :- module(chr_compiler_options,

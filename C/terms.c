@@ -29,7 +29,7 @@
  *
  * @brief applications of the tree walker pattern.
  *
- * @addtogroup YAPTerms Term Manipulation
+ * @addtogroup TermManipulation
  * @ingroup Builtins
  *
  * @{
@@ -580,7 +580,7 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
     return Yap_unify(out,ARG2);
   }
 
-/** @pred  term_varibales(? _Term_, - _Variables_, +_ExternalVars_) is iso
+/** @pred  term_variables(? _Term_, - _Variables_, +_ExternalVars_) is iso
 
     Unify the difference list between _Variables_ and _ExternaVars_
     with the list of all variables of term _Term_.  The variables
@@ -756,7 +756,7 @@ Term Yap_TermVariables(Term t, Term t0 USES_REGS) /* variables in term t  */
   return out;
 }
 
-#if 0
+
 /** @pred  term_variables(? _Term_, - _Variables_) is iso
 
     Unify  _Variables_ with the list of all variables of term
@@ -764,6 +764,7 @@ Term Yap_TermVariables(Term t, Term t0 USES_REGS) /* variables in term t  */
     appearance when traversing the term depth-first, left-to-right.
 
 */
+#if 0
 static Int  term_variables(USES_REGS1) /* variables in term t
 				       */
 {
@@ -1260,7 +1261,7 @@ static Int unnumbervars(USES_REGS1) /* variables in term t		 */
   return unnumbervars_in_complex_term(t, NULL PASS_REGS);
 }
 
-/** @pred Yap_Unnumbervars(+ _Term_)
+/**  Yap_Unnumbervars(+ _Term_)
 
 Replace all terms of the form $VAR(_) by unbound variables.
 */

@@ -27,8 +27,8 @@
           ]).
 
 
-/** @defgroup regexp Regular Expressions
-@ingroup YAPLibrary
+/** @addtogroup regexp
+
 @{
 
 This library includes routines to determine whether a regular expression

@@ -1309,7 +1309,7 @@ static int exec_absmi(ex_handler_t handle_ints, yap_reset_t reset_mode USES_REGS
       }
 	break;
       default:
-  Yap_JumpToEnv(PASS_REGS1);
+  Yap_JumpToEnv();
 	// do it locally
 	  P = FAILCODE;
           out = Yap_absmi(0);

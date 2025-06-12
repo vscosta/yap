@@ -442,6 +442,11 @@
     if (!VALID_TIMESTAMP(timestamp, PREG->y_u.OtaLl.d)) {
       /* jump to next instruction */
       PREG=PREG->y_u.OtaLl.n;
+#if defined(YAPOR) || defined(THREADS)
+    if (PP == PREG->y_u.OtaLl.d->ClPred) {
+      UNLOCKPE(15,PP);
+    }
+#endif
       JMPNext();
     }
     restore_yaam_regs(PREG->y_u.OtaLl.n);
@@ -457,6 +462,12 @@
     set_cut(S_YREG, B_YREG->cp_b);
 #endif /* FROZEN_STACKS */
     SET_BB(B_YREG);
+#if defined(YAPOR) || defined(THREADS)
+    if (PP) {
+      UNLOCKPE(15, PP);
+      PP = NULL;
+    }
+#endif
     ENDCACHE_Y();
   }
   JMPNext();
@@ -546,6 +557,12 @@
       }
     }
 #endif
+#if defined(YAPOR) || defined(THREADS)
+    if (PP == ap) {
+      UNLOCKPE(26,PP);
+      PP = NULL;
+    }
+#endif
 #ifdef YAPOR
     if (SCH_top_shared_cp(B)) {
       SCH_last_alternative(PREG, B_YREG);
@@ -569,12 +586,6 @@
       }
     SET_BB(B_YREG);
     ENDCACHE_Y();
-#if defined(YAPOR) || defined(THREADS)
-    if (PREG == FAILCODE) {
-      UNLOCKPE(26,PP);
-      PP = NULL;
-    }
-#endif
     JMPNext();
   }
   ENDBOp();

@@ -23,6 +23,44 @@
 :- use_system_module( '$_errors', [throw_error/2]).
 
 
+sub_string(Text,Below, Mid, Above,  Out) :-
+%     writeln(sub_string(Text,Below, Mid, Above,  Out) ),
+    deterministic_sub_string(Text,Below, Mid, Above,  Out, Sz),
+    (
+      var(Sz)
+      ->
+      true
+      ;
+      nonvar(Below)
+      ->
+      Max is Sz-Below,
+      between(0,Max, Mid),
+      sub_string_fetch(Text,Below, Mid, Out),
+      Above is Sz-Below-Mid
+      ;
+      nonvar(Mid)
+      ->
+      Max is Sz-Mid,
+      between(0,Max, Below),
+      sub_string_fetch(Text,Below, Mid, Out),
+      Above is Sz-Below-Mid
+      ;
+      nonvar(Above)
+      ->
+      Max is Sz-Above,
+      between(0,Max,Below),
+      Mid is Sz-Above-Below,
+      sub_string_fetch(Text,Below,Mid, Out)
+      ;
+      between(0,Sz,Below),
+      Max is Sz-Below,
+      between(0,Max,Mid),
+      sub_string_fetch(Text,Below, Mid, Out),
+      Above is Sz-Below-Mid
+    ).
+      
+
+
 sub_atom(Text,Below, Mid, Above,  Out) :-
     deterministic_sub_atom(Text,Below, Mid, Above,  Out, Sz),
     (
@@ -58,36 +96,6 @@ sub_atom(Text,Below, Mid, Above,  Out) :-
       Above is Sz-Below-Mid
     ).
       
-sub_string(Text,Below, Mid, Above,  Out) :-
-    deterministic_sub_string(Text,Below, Mid, Above,  Out, Sz),
-    (
-      var(Sz)
-      ->
-      true
-      ;
-      momvar(Below)
-      ->
-      between(0,Sz-Below, Mid),
-      sub_string_fetch(Text,Below, Mid, Out),
-      Above is Sz-Below-Mid
-      ;
-      momvar(Mid)
-      ->
-      between(0,Sz-Mid, Below),
-      sub_string_fetch(Text,Below, Mid, Out),
-      Below is Sz-Below-Mid
-      ;
-      nonvar(Above)
-      ->
-      between(0,Sz-Above,Below),
-      Mid is Sz-Above-Below,
-      sub_string_fetch(Text,Below,Mid, Out)
-      ;
-      between(0,Sz,Below),
-      between(0,Sz-Below,Mid),
-      sub_string_fetch(Text,Below, Mid, Out),
-      Above is Sz-Below-Mid
-    ).
       
 
 /**

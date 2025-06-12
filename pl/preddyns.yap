@@ -1,14 +1,20 @@
-                                % The next predicates are applicable only
-                                % to dynamic code
-
 /** @file preddyns.yap */
 
 /**
- * @adefgroup DatabasePredDyns
+ * @defgroup DatabasePredDyns Dynamic Predicates
  * @ingroup Builtins
 
+@{
 
-Next follow the main operations on dynamic predicates.
+Dynamic predicates allow programmers to change the Clausal Data
+Base. Our implementation supports the Logical Update Semantics, where
+the alternative clauses for as goal are "frozen" at choice-point
+initiation.
+
+The programmer should aware  that
+asserting or retracting clauses are expensi111ve operations, and.
+
+Next are described  the main operations on dynamic predicates.
 
 */
 
@@ -370,3 +376,5 @@ dynamic_predicate(P,Sem) :-
 '$bad_if_is_semantics'(Sem, Goal) :-
 	Sem \= immediate, Sem \= logical, !,
 	throw_error(domain_error(semantics_indicator,Sem),Goal).
+
+%% @}

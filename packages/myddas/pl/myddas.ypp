@@ -159,22 +159,14 @@
 */				     '$lenght'/2
 				     ]).
 /**
- * @defgroup MYDDAS The MYDDAS Prolog to database interface.
- * @ingroup YAPPackages
- *
- * @brief MYDDAS allows access to data-base tables as Prolog predicates.
- *
- * To use it:
- * ```
- * :- use_module(library(myddas).
- *
- * MYDDAS was originally developed for MySQL. Communication with generic data-bases was made possible by supporting the ODBC protocol.  The current version also
- * supports SQLite and Postgres.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				% db_open/5
 				% db_open/4
 				%
+@addtogroup MYDDAS
+
+@{
 
 
 %% @pred db_open(+Interface,-Handle,+HostDb,+User,+Password)

@@ -2260,6 +2260,7 @@ static bool JumpToEnv(USES_REGS1) {
 	// we can only cut up to the border, but
         // The exception is still there.
     }
+    return false;
  }
 
 
@@ -2321,7 +2322,7 @@ static Int p_abort(USES_REGS1) { /* abort			 */
   /* make sure we won't go creeping around */
   
   LOCAL_ActiveError->errorUserTerm = (TermDAbort);
-  JumpToEnv();
+  JumpToEnv(PASS_REGS1);
   return false;
  }
 

@@ -214,6 +214,10 @@ extern int Yap_SWIHandleError(const char *, ...);
 extern void Yap_InitErrorPreds(void);
 extern bool Yap_callable(Term t);
 
+extern bool can_be_list__(const char *file, const char *function, int lineno,
+                           Term t USES_REGS);
+#define can_be_list(t ) can_be_list__(__FILE__, __FUNCTION__, __LINE__, t PASS_REGS)
+
 extern bool must_be_arity__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_atom__(const char *file, const char *function, int lineno,Term t USES_REGS );
 extern bool must_be_code__(const char *file, const char *function, int lineno,Term t USES_REGS );

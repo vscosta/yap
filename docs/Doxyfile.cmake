@@ -87,9 +87,17 @@ if (DOXYGEN_FOUND)
     ${CMAKE_SOURCE_DIR}/C/absmi.c
     ${CMAKE_SOURCE_DIR}/packages/jpl
 ${CMAKE_SOURCE_DIR}/packages/prism
+${CMAKE_SOURCE_DIR}/packages/prosqlite
+${CMAKE_SOURCE_DIR}/packages/pyswip
     ${CMAKE_SOURCE_DIR}/packages/cuda
-    ${CMAKE_SOURCE_DIR}/packages/meld
-    ${CMAKE_SOURCE_DIR}/packages/myddas/pl
+        ${CMAKE_SOURCE_DIR}/packages/bdd/include
+	${CMAKE_SOURCE_DIR}/packages/sat/glucose-2.2
+	${CMAKE_SOURCE_DIR}/packages/sat/glucose-4.2.1
+	${CMAKE_SOURCE_DIR}/packages/sat/minisat-2.0.2
+	${CMAKE_SOURCE_DIR}/packages/myddas/sqlite3/src
+	${CMAKE_SOURCE_DIR}/packages/xml2yap/pugixml.cpp
+	${CMAKE_SOURCE_DIR}/packages/CLPBN
+	${CMAKE_SOURCE_DIR}/packages/meld
     ${CMAKE_SOURCE_DIR}/packages/cplint
     ${CMAKE_SOURCE_DIR}/packages/python/yapkernel
     ${CMAKE_SOURCE_DIR}/packages/swig
@@ -105,6 +113,9 @@ ${CMAKE_SOURCE_DIR}/packages/prism
     -     ${CMAKE_SOURCE_DIR}/C/Tags_32*
     */_CPack_Packages/*
     packages/sat/*-*/*
+    packages/xml/*
+    paackages/prosqlite/*
+    packages/jpl/*
   )
 
     set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
@@ -150,6 +161,7 @@ ${CMAKE_SOURCE_DIR}/packages/prism
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  mkdocs/docs/javascripts
     COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md  -- xml mkdocs/docs ${CMAKE_BINARY_DIR}
     DEPENDS STARTUP filter-bin dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
+    USES_TERMINAL
   )
     add_dependencies(filter-bin STARTUP)
     add_dependencies(dox filter-bin STARTUP)

@@ -378,9 +378,14 @@ mkraw(codeline(_,Line)) -->
 
 rawl([]) -->
     !.
+
+
 rawl([A|Text]) -->
     foldl(raw,[A|Text]).
 
+raw(ref([refid(Id)|_],[Info])) -->
+!,
+ref(Id,Info).
 raw(highlight(_,Text)) -->
     !,
     rawl( Text).
@@ -389,6 +394,7 @@ raw(Text) -->
 {string(Text) },
 [" "],
 [Text].
+
 
 %  foldl(para).
 
@@ -459,24 +465,16 @@ sect( Parms, Args, Level) -->
     ;
 []
     ),
-
-    [Level],
-    (
-	{ key_in(kind(Kind),Parms) }
-    ->
-    [Kind,":  "]
-;
-[]
-    ),
     (
 	{ Args = [title([],[T])|Body] }
     ->
-{encode(T,TT)},
+     {encode_text(T,TT)},
     [TT],["\n"]
     ;
 {Body = Args},
     ["\n"]
-    ),
+    )
+,
     description(Body).
 
 description(para([],S)) -->
@@ -489,12 +487,20 @@ description(S) -->
     [S].
 description(title([],S)) -->
     { string(S),
-      encode(S,T) },
+      encode_text(S,T) },
     !,
     [T].
+description(sect1([id(Id)],[sect2(Parms,Data)])) -->
+!,
+    anchor([id(Id)],[]),
+    description(sect2(Parms,Data)).
 description(sect1(Parms,S)) -->
 !,
     sect(Parms,S,"### ").
+description(sect2([id(Id)],[sect3(Parms,Data)])) -->
+!,
+    anchor([id(Id)],[]),
+    description(sect3(Parms,Data)).
 description(sect2(Parms,S)) -->
 !,
     sect(Parms,S,"#### ").

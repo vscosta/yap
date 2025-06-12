@@ -64,7 +64,8 @@
 /* stream predicates							*/
 
 /** @defgroup IOSockets YAP Old Style Socket and Pipe Interface
- * @ingroup InputOutput
+
+
  *      @{
  * 
  *     Autoload the socket/pipe library
@@ -125,7 +126,9 @@
 
 
 %! @addtogroup WriteTerm
+
 %! @ingroup InputOutput
+
 %%   @{
 
 

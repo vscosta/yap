@@ -6,6 +6,8 @@
  *
  */
 
+:- set_prolog_flag(double_quotes, string).
+ 
 :- include(docutils).
 
 :-dynamic pred_found/3, exported/3, defines_module/1.
@@ -15,8 +17,6 @@ defines_module(prolog).
 :- initialization(main).
 
 
-
-:- set_prolog_flag(double_quotes, string).
 
 valid_suffix('.yap').
 valid_suffix('.pl').
@@ -380,22 +380,18 @@ detect_name(Line,Name,"",0,Extra) :-
 detect_name(Name,Name,"",0,"").
 
 trl_pi(L,NL,NL0) :-
-    sub_string(L,Left,1,Right,"/"),
+    sub_string(L,Left,1,1,"/"),
     Left > 0,
-    Right > 0,
-    Left1 is Left+1,
-    sub_string(L,Left1,1,_Right,D),
+    sub_string(L,_,1,0,D),
     digit(D),
     back(Left,L,NPrefix),
 NPrefix \= Left,
 !,
     sub_string(L,0,NPrefix,_,Prefix),
-    sub_string(L,NPrefix,_,Right,Name),
-    sub_string(L,_,Right,0,RL),
+    sub_string(L,NPrefix,_,2,Name),
     string_concat([Name,"/",D],PI),
     encode(PI,DoxName),
-    NL=[Prefix,"@ref ",DoxName," \"",PI,"\""|NRL],
-    trl_pi(RL,NRL,NL0).
+    NL=[Prefix,"@ref ",DoxName," \"",PI,"\""|NL0].
 trl_pi(S,[S|C],C).
     
 
@@ -434,7 +430,7 @@ addcomm(N/A,S,false) :-
     length(L,A),
     maplist(=('?'),L),
     T =.. [N|L],
-    format('~n~n/**   @class ~s	 **~w**\n     (undocumented)  **/~n~n',[S,T]).
+    format('~n~n/**   @class ~s~n	 **~w**s     (undocumented)  **/~n~n',[S,T]).
 addcomm(_,_,_).
 
 
@@ -448,7 +444,7 @@ dxpand(module(M,Gs)) :-
 dxpand(module(M)) :-
     retractall(defines_module(_)),
     assert(defines_module(M)).
-dxpand(use_module(_M,_Gs)).
+dxpand(use_module(_M,_Gs)) .
 
 pxpand(Mod,op(M,Gs,Y)) :-
     op(M,Gs,Mod:Y),

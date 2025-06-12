@@ -75,11 +75,12 @@
 #endif
 
 /* You just can't trust some machines */
-static inline bool my_isxdigit(int C, int SL, int SU)
-{									\
-  if (chtype(C) == NU)
+static inline bool my_isxdigit(int C, int base, int SL, int SU)
+{
+  if (C >= '0' && C < '0' + base && C<= '9' )
     return true;
-  return (C >= 'A' && C <= (SU)) || (C >= 'a' && C <= (SL));
+  return  
+    (C >= 'A' && C <= (SU)) || (C >= 'a' && C <= (SL));
 }
 #define my_isupper(C) (chtype(C) == UC)
 #define my_islower(C) (chtype(C) == LC)
@@ -364,19 +365,7 @@ do_switch:
       } else if (ch >= 'A' && ch <= 'F') {
         wc += ((ch - 'A') + 10) << ((3 - i) * 4);
       } else {
-	return number_encoding_error(wc, 1, st);    if (st->status & RepClose_Prolog_f) {
-      Yap_CloseStream(st-GLOBAL_Stream);
-      return EOF;
-    }
-    if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
-      LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
-    } else {
-      LOCAL_ActiveError->errorNo = SYNTAX_WARNING;
-    }
-    LOCAL_ErrorMessage=malloc(2048);
-    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text");
-    return 10;
-
+        return number_encoding_error(wc, 1, st);
       }
     }
     return wc;
@@ -467,7 +456,7 @@ do_switch:
       unsigned char so_far = 0;
       ch = getchrq(st);
       int i=0;
-      while (my_isxdigit(ch, 'f', 'F') && i<4) { /* hexa */
+      while (my_isxdigit(ch, 16, 'f', 'F') && i<4) { /* hexa */
         so_far =
             so_far * 16 + (chtype(ch) == NU
                                ? ch - '0'
@@ -512,7 +501,7 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
   int val = 0;
   int ch = getchr(st);
     *sp++ = ch;
-    if (! my_isxdigit(ch, lower_case,upper_case)) {
+    if (! my_isxdigit(ch, base, lower_case,upper_case)) {
 	*sp = '\0';
 	return Yap_encoding_error(ch, MkIntTerm(ch), st );//nvalid hexadecimal digit");
       }
@@ -525,14 +514,17 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
       goto overflow;
     *sp++ = ch;
     val = val * base + chval;
-    if (oval != (val - chval) / 16) /* overflow */ {
+    if (oval != (val - chval) / base) /* overflow */ {
       goto overflow;
     }
     ch = getchr(st);    
-    } while ( my_isxdigit(ch, lower_case, upper_case));
+    } while ( my_isxdigit(ch, base, lower_case, upper_case));
     *chp = ch;
     *sp = '\0';
-    return MkIntegerTerm(sign*val); 
+    {
+      CACHE_REGS
+      return MkIntegerTerm(sign * val);
+    }
  overflow:
     char *buf = *bufpp;
     *sp = '\0';
@@ -589,15 +581,18 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
 	
       ch = getchr(st);
 	if (ch == '\\' &&
-          Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
-	bool got_char;
-        ascii = read_escaped_char(&got_char, st);
-	if (!got_char) {
-	  bad_nl_error('\\',sp,st);
+	    Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE) {
+	  bool got_char;
+	  ascii = read_escaped_char(&got_char, st);
+	  if (!got_char) {
+	    bad_nl_error('\\',sp,st);
+	  }
+	  if ( ch == EOF) return TermNil;
+        } else {
+          ascii=ch;
 	}
-	if (ascii == EOF) return TermNil;
-	}
-	*chp = getchr(st);
+	  *sp = '\0';
+          *chp = getchr(st);
       if (sign == -1) {
         return MkIntegerTerm(-ascii);
       }

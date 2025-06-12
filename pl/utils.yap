@@ -22,10 +22,11 @@
   * 
   * @brief  Utilities
   *
-  * @defgroup DiverseUtilities Diverse Utilities
+  * @defgroup DiverseUtilities Utilities
+  *
   * @ingroup Builtins
   * 
-  * 
+  * @{ 
   */
 
 
@@ -137,3 +138,4 @@ bind_variables(['$VAR'(I0)|Vs],I0,I) :-
     bind_variables(Vs,I1,I).
 */
 
+%% @}

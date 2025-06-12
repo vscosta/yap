@@ -147,7 +147,7 @@ consult_pred(pred(F,N,_Mode,_Delay,Tabled,Clauses)) :-
 	abolish(F/N),
 	'$assert_clauses'(Clauses).
 
-add_pred(Name, Arity, _Mode, _Delay, Tabled, Clauses) :-
+add_pred(_Name, _Arity, _Mode, _Delay, _Tabled, Clauses) :-
 	'$assert_clauses'(Clauses).
 
 '$assert_clauses'([]).

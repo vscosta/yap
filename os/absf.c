@@ -38,7 +38,6 @@ static char SccsId[] = "%W% %G%";
 
 /**
  *
- * @defgroup absf C-code fior absolute and relative paths.
  * @addtogroup absf
  *
  * @brief C-code support for dealing with absolute and relative paths.

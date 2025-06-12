@@ -197,7 +197,7 @@ extern pthread_key_t Yap_yaamregs_key;
 #undef USES_REGS
 #undef USES_REGS1
 #undef WORKER_REGS
-#define CACHE_REGS REGSTORE *regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
+#define CACHE_REGS REGSTORE * regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
 #define REFRESH_CACHE_REGS regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
 #define INIT_REGS , ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
 #define WORKER_REGS(WID)  REGSTORE *regcache = REMOTE_ThreadHandle(WID).current_yaam_regs;

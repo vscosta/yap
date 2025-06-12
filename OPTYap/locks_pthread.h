@@ -97,7 +97,7 @@ inline static int pthread_barrier_wait(pthread_barrier_t *barrier)
 #endif
 
 //#define DEBUG_RW_LOCKS 1
-#//define DEBUG_LOCKS 1
+//#define DEBUG_LOCKS 1
 #include <stdio.h>
 
 typedef pthread_rwlock_t rwlock_t;
@@ -167,7 +167,6 @@ extern bool debug_pe_locks;
 #if THREADS
 
 /* pthread mutex */
-
 #if DEBUG_LOCKS
 
 #define MUTEX_LOCK(LOCK_VAR)     (void)( ( debug_locks ? fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), \

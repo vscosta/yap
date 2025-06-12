@@ -41,7 +41,7 @@
 
 @defgroup YAP_LBFGS Interface to LibLBFGS
 @ingroup YAPPackages
-
+@{
 @short What is YAP-LBFGS? YAP-LBFGS is an interface to call [libLBFG](http://www.chokkan.org/software/liblbfgs/), from within
 YAP. libLBFGS is a C library for Limited-memory
 Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) solving the under-constrained

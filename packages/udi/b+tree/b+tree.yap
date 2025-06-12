@@ -8,13 +8,13 @@
 :- op(700,xfx,#>=).
 :- op(700,xfx,#=<).
 
-max X :- %%this overrides any previous att
+max X :- % this overrides any previous att
         attributes:put_att_term(X,max(C)).
 
-min X :- %%this overrides any previous att
+min X :- % this overrides any previous att
         attributes:put_att_term(X,min(C)).
 
-X #== Y :-%%this overrides any previous att
+X #== Y :-% this overrides any previous att
         attributes:put_att_term(X,eq(C,Y)).
 
 %% range definition

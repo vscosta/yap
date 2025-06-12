@@ -3274,7 +3274,6 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify_constant(Yap_GetFromHandle(yth+1), MkAtomTerm(AtomTrue)) ||
  !Yap_unify(Yap_GetFromHandle(yth+2), rtn)) {
-      UNLOCK(pe->PELock);
       return FALSE;
     }
     if (pe->ArityOfPE) {
@@ -3297,7 +3296,6 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
 #if defined(YAPOR) || defined(THREADS)
       if (pe->PredFlags & ThreadLocalPredFlag) {
         /* we don't actually need to execute code */
-        UNLOCK(pe->PELock);
       } else {
         PP = pe;
       }
@@ -3337,7 +3335,6 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
         }
       }
     }
-    UNLOCK(pe->PELock);
     return (Yap_unify(Yap_GetFromHandle(yth), ArgOfTerm(1, t)) &&
 	    Yap_unify(Yap_GetFromHandle(yth+1), ArgOfTerm(2, t)) &&
             Yap_unify(Yap_GetFromHandle(yth+2), rtn));
@@ -3372,6 +3369,7 @@ p_log_update_clause(USES_REGS1) {
   Yap_PopHandle(ytr);
   Yap_PopHandle(ytb);
   Yap_PopHandle(yth);
+  UNLOCKPE(41,pe);
   return ret;
 }
 
@@ -3422,7 +3420,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yhandle_t yt
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify_constant(Yap_GetFromHandle(ytb), MkAtomTerm(AtomTrue)) || !Yap_unify(Yap_GetFromHandle(ytr), rtn)) {
       UNLOCK(pe->PELock);
-      return FALSE;
+      return false;
     }
     if (pe->ArityOfPE) {
         Term th = Yap_GetFromHandle(yth);
@@ -3443,17 +3441,14 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yhandle_t yt
       P = cl->ClCode;
 #if defined(YAPOR) || defined(THREADS)
       if (pe->PredFlags & ThreadLocalPredFlag) {
-        /* we don't actually need to execute code */
-        UNLOCK(pe->PELock);
       } else {
         PP = pe;
       }
 #endif
-    } else {
-      /* we don't actually need to execute code */
-      UNLOCK(pe->PELock);
     }
     Yap_ErLogUpdCl(cl);
+    /* we don't actually need to execute code */
+    UNLOCK(pe->PELock);
     return TRUE;
   } else {
     Term t;

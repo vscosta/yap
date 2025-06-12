@@ -1236,7 +1236,7 @@ tthread_peek_message(Queue, Term) :-
 %% @}
 
 /** @defgroup Signalling_Threads Signalling Threads
-@ingroup Threadas
+@ingroup Threads
 
 @{
 
@@ -1367,14 +1367,8 @@ thread_local(X) :-
 '$thread_local2'(X,Mod) :-
 	throw_error(type_error(callable,X),thread_local(Mod:X)).
 
-/*
-with_mutex(M,G) :-
-    setup_call_catcher_cleanup(
-         ((var(M)->mutex_create(M);true), mutex_lock(M)),
-G,
-_Ex,
-mutex_unlock(M)).
-*/
+
+
 
 /**
  * @pred private( _N_/_A_ )

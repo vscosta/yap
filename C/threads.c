@@ -735,9 +735,8 @@ Yap_thread_destroy_engine(int wid)
 
 
 static Int
-p_thread_join( /*USES_REGS1*/)
+p_thread_join( USES_REGS1)
 {
-  CACHE_REGS
   Int tid = IntegerOfTerm(Deref(ARG1));
   pthread_t thread;
 
@@ -992,10 +991,12 @@ p_new_mutex( USES_REGS1 ){
   }
   return FALSE;
 }
-  
+
 /** @pred mutex_destroy(+ _MutexId_)
-    
+
     Destroy a mutex.  After this call,  _MutexId_ becomes invalid and
+
+    
     further references yield an `existence_error` exception. 
 */
 static Int p_destroy_mutex( USES_REGS1 )
@@ -1024,6 +1025,10 @@ static Int p_destroy_mutex( USES_REGS1 )
 static bool
 LockMutex( SWIMutex *mut USES_REGS)
 {
+  if (mut->tid_own == worker_id) {
+    mut->owners++;
+    return true;
+}
 #if DEBUG_LOCKS
   MUTEX_LOCK(&mut->m);
 #else
@@ -1044,6 +1049,10 @@ LockMutex( SWIMutex *mut USES_REGS)
 static bool
 UnLockMutex( SWIMutex *mut USES_REGS)
 {
+  if (mut->tid_own == worker_id && mut->owners > 1) {
+    mut->owners--;
+    return true;
+}
 #if DEBUG_LOCKS
   MUTEX_UNLOCK(&mut->m);
 #else
@@ -1133,6 +1142,34 @@ p_unlock_mutex( USES_REGS1 )
   return TRUE;
 }
 
+  
+static SWIMutex *
+mutex_ensure( Term t1 USES_REGS ){
+  SWIMutex* mutp;
+  if (IsVarTerm((t1))) {
+    Term ts[2];
+    
+    if (!(mutp = NewMutex()))
+      return false;
+    ts[0] = MkAddressTerm(mutp);    
+    ts[1] = MkIntegerTerm(mutp->timestamp);    
+    if (!Yap_unify(ARG1, Yap_MkApplTerm(FunctorMutex, 2, ts) ) ) {
+      return NULL;
+    }
+  } else if ((mutp = MutexOfTerm(t1))) {
+               /* we're good */
+  } else if (IsAtomTerm(t1)) {
+    if (!(mutp = NewMutex()))
+      return NULL;
+    if (!Yap_PutAtomMutex(AtomOfTerm(t1), mutp))
+      return NULL;
+  }
+  else {
+    return NULL;
+  }
+  return mutp;
+}
+
 /** @pred with_mutex(+ _MutexId_, : _Goal_) 
 
 
@@ -1155,23 +1192,7 @@ p_with_mutex( USES_REGS1 )
   SWIMutex *mut;
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   bool rc;
-  Term t1 = Deref(ARG1);
-  if (IsVarTerm(t1)) 
-    {
-      Term ts[2];
-      mut = NewMutex();
-    ts[0] = MkAddressTerm(mut);    
-    ts[1] = MkIntegerTerm(mut->timestamp);    
-    if (!Yap_unify(ARG1, Yap_MkApplTerm(FunctorMutex, 2, ts) ) ) {
-      return false;
-    }
-    }
-  else
-    {
-         mut= MutexOfTerm( ARG1 );
-
-    }
-  
+  mut = mutex_ensure(Deref(ARG1) PASS_REGS);
   if (!mut || !LockMutex(mut PASS_REGS)) {
     return FALSE;
   }
@@ -1181,6 +1202,9 @@ p_with_mutex( USES_REGS1 )
   Int oYENV = LCL0 - YENV;
 
   rc= Yap_RunTopGoal(Deref(ARG2), LOCAL_EX );
+  if ( !UnLockMutex(mut PASS_REGS) ) {
+    rc = false;
+  }
    if (!rc)
     {
       Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
@@ -1196,9 +1220,6 @@ p_with_mutex( USES_REGS1 )
   CP = oCP;
   ENV = LCL0 - oENV;
   YENV = LCL0 - oYENV;
-  if ( !UnLockMutex(mut PASS_REGS) ) {
-    return false;
-  }
   
     if (Yap_PeekException())
     {
@@ -1206,7 +1227,8 @@ p_with_mutex( USES_REGS1 )
       return false;
     }
  if (creeping) {
-    Yap_signal( YAP_CREEP_SIGNAL );
+
+   Yap_signal( YAP_CREEP_SIGNAL );
  }
   return rc;
 }
@@ -1334,64 +1356,7 @@ p_mbox_destroy( USES_REGS1 )
        }
      }
      if (!mboxp->open)
-       mboxp = NULL;
-     UNLOCK(GLOBAL_mboxq_lock);
-     if (mboxp) {
-	 pthread_mutex_lock(& mboxp->mutex);
-     }
-   } else if (IsIntTerm(t)) {
-       int wid = IntOfTerm(t);
-       if (REMOTE(wid) &&
-	   (REMOTE_ThreadHandle(wid).in_use || REMOTE_ThreadHandle(wid).zombie))
-       {
-	 return &REMOTE_ThreadHandle(wid).mbox_handle;
-       } else {
-	  return NULL;
-       }
-       if (!mboxp->open)
-	 mboxp = NULL;
-       if (mboxp) {
-	   pthread_mutex_lock(& mboxp->mutex);
-       }
-   } else {
-       return NULL;
-   }
-   return mboxp;
- }
-
-
- static Int
- p_mbox_send( USES_REGS1 )
- {
-   Term namet = Deref(ARG1);
-   mbox_t* mboxp = getMbox(namet) ;
-
-   if (!mboxp)
-     return FALSE;
-   return mboxSend(mboxp, Deref(ARG2) PASS_REGS);
- }
-
- static Int
- p_mbox_size( USES_REGS1 )
- {
-   Term namet = Deref(ARG1);
-   mbox_t* mboxp = getMbox(namet) ;
-
-   if (!mboxp)
-     return FALSE;
-   return Yap_unify( ARG2, MkIntTerm(mboxp->nmsgs));
- }
-
-
- static Int
- p_mbox_receive( USES_REGS1 )
- {
-   Term namet = Deref(ARG1);
-    mbox_t* mboxp = getMbox(namet) ;
-    if (!mboxp)
-       return FALSE;
-    Term t = 0;
-    return mboxReceive(mboxp, &t PASS_REGS) &&
+       return mboxReceive(mboxp, &t PASS_REGS) &&
       Yap_unify(ARG2,t);
  }
 
@@ -1616,6 +1581,7 @@ void Yap_InitThreadPreds(void)
   Yap_InitCPred("$max_workers", 1, p_max_workers, 0);
   Yap_InitCPred("$max_threads", 1, p_max_threads, 0);
   Yap_InitCPred("$thread_new_tid", 1, p_thread_new_tid, 0);
+  Yap_InitCPred("$thread_barrier_new_tid", 1, p_thread_barrier_new_tid, 0);
   Yap_InitCPred("$create_thread", 7, p_create_thread, 0);
   Yap_InitCPred("$thread_self", 1, p_thread_self, SafePredFlag);
   Yap_InitCPred("$thread_status_lock", 1, p_thread_status_lock, SafePredFlag);
