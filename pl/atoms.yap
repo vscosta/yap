@@ -18,6 +18,10 @@
 			      string_concat/2,
         atomic_list_concat/2,
         atomic_list_concat/3,
+        atom_list_concat/2,
+        atom_list_concat/3,
+        string_list_concat/2,
+        string_list_concat/3,
         current_atom/1], []).
 
 :- use_system_module( '$_errors', [throw_error/2]).
@@ -220,24 +224,114 @@ atomic_list_concat(L, El, At) :-
 	'$add_els'([B|L],El,NL).
 '$add_els'(L,_,L).
 
+/** @pred  atom_list_concat(+ _As_,? _A_)
 
-%
-% small compatibility hack
+Alias for atom_cooncat/2.
 
-'$singletons_in_term'(T,VL) :-
-	'$variables_in_term'(T,[],V10),
-	'$sort'(V10, V1),
-	'$non_singletons_in_term'(T,[],V20),
-	'$sort'(V20, V2),
-	'$subtract_lists_of_variables'(V2,V1,VL).
+The predicate holds when the first argument is a list of atomic terms,
+and the second unifies with the atom obtained by concatenating all the
+atoms in the list. The first argument may only contain atoms.
 
-'$subtract_lists_of_variables'([],VL,VL).
-'$subtract_lists_of_variables'([_|_],[],[]) :- !.
-'$subtract_lists_of_variables'([V1|VL1],[V2|VL2],VL) :-
-	V1 == V2, !,
-	'$subtract_lists_of_variables'(VL1,VL2,VL).
-'$subtract_lists_of_variables'([V1|VL1],[V2|VL2],[V2|VL]) :-
-	'$subtract_lists_of_variables'([V1|VL1],VL2,VL).
+
+*/
+atom_list_concat(L,At) :-
+	atom_concat(L, At).
+
+/** @pred  atom_list_concat(? _As_,+ _Separator_,? _A_)
+
+Creates an atom just like atomic_list_concat/2, but inserts
+ _Separator_ between each pair of atoms. For example:
+
+```{.prolog}
+?- atom_list_concat([gnu,gnat], '-', A).
+
+A = 'gnu-gnat'
+```
+
+YAP emulates the SWI-Prolog version of this predicate that can also be
+used to split atoms by instantiating  _Separator_ and  _Atom_ as
+shown below.
+
+```{.prolog}
+?- atomic_list_concat(L, -, 'gnu-gnat').
+
+L = [gnu, gnat]
+```
+
+
+*/
+atom_list_concat(L, El, At) :-
+	var(El), !,
+	throw_error(instantiation_error,atomc_list_concat(L,El,At)).
+atom_list_concat(L, El, At) :-
+	ground(L), !,
+	'$add_els'(L,El,LEl),
+	atom_concat(LEl, At).
+atom_list_concat(L, El, At) :-
+	atom(At), !,
+	'$atom_list_concat_all'( At, El, L).
+
+'$atom_list_concat_all'( At, El, [A|L]) :-
+	sub_atom(At, Pos, 1, Left, El), !,
+        sub_atom(At, 0, Pos, _, A),
+        sub_atom(At, _, Left, 0, At1),
+	'$atom_list_concat_all'( At1, El, L).
+'$atom_list_concat_all'( At, _El, [At]).
+
+
+/** @pred  string_list_concat(+ _As_,? _A_)
+
+Alias for string_cooncat/2.
+
+The predicate holds when the first argument is a list of stringic terms,
+and the second unifies with the string obtained by concatenating all the
+strings in the list. The first argument may only contain strings.
+
+
+*/
+string_list_concat(L,At) :-
+	string_concat(L, At).
+
+/** @pred  string_list_concat(? _As_,+ _Separator_,? _A_)
+
+Creates an string just like stringic_list_concat/2, but inserts
+ _Separator_ between each pair of strings. For example:
+
+```{.prolog}
+?- string_list_concat([gnu,gnat], '-', A).
+
+A = 'gnu-gnat'
+```
+
+YAP emulates the SWI-Prolog version of this predicate that can also be
+used to split strings by instantiating  _Separator_ and  _String_ as
+shown below.
+
+```{.prolog}
+?- stringic_list_concat(L, -, 'gnu-gnat').
+
+L = [gnu, gnat]
+```
+
+
+*/
+string_list_concat(L, El, At) :-
+	var(El), !,
+	throw_error(instantiation_error,stringc_list_concat(L,El,At)).
+string_list_concat(L, El, At) :-
+	ground(L), !,
+	'$add_els'(L,El,LEl),
+	string_concat(LEl, At).
+string_list_concat(L, El, At) :-
+	string(At), !,
+	'$string_list_concat_all'( At, El, L).
+
+'$string_list_concat_all'( At, El, [A|L]) :-
+	sub_string(At, Pos, 1, Left, El), !,
+        sub_string(At, 0, Pos, _, A),
+        sub_string(At, _, Left, 0, At1),
+	'$string_list_concat_all'( At1, El, L).
+'$string_list_concat_all'( At, _El, [At]).
 
 /** @pred  current_atom( _A_)
 

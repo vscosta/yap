@@ -21,22 +21,21 @@
 % Module declarations
 %====================================================================================
 
-:-system_module(ypp,[
+:- module(ypp,[
 	      ypp_state/1,	% ypp_state(on|off)
 	      ypp_define/2,     % persistent defines  ypp_define(+NAME,VALUE)
 	      ypp_undefine/1,   % persistent defines  ypp_undefine(+NAME)
 	      ypp_extcmd/1,	% ypp_extcmd(?command)
 	      ypp_consult/1,    % similiar to standard consult but with preprocessing
 	      ypp_reconsult/1
-		],
-		[]
+		]
         ).
 
 /**
 * @defgroup Ypp Yap PreProcessing
 * @ingroup YAPLibrary
-*
-* @ Interface to the `C` preprocessor.
+* @{
+* @brief Interface to the `C` preprocessor.
 */
 
 
@@ -51,6 +50,7 @@ ypp_state(State):-
 ypp_state(State):-
 	get_state(State),
 	!.
+
 %% @pred ypp_define(Name,Value).
 %
 % Define symbol _Name_
@@ -83,7 +83,7 @@ ypp_consult(File):-
 	(get_state(on)->ypp_file(File,NFile);NFile=File),
 	consult(NFile).
 
-%% @pred ypp_consult(File)
+%% @pred ypp_reconsult(File)
 %
 % call ypp on _File_ and then reconsult the result.
 ypp_reconsult(File):-
@@ -152,4 +152,6 @@ ypp_file(File,PPFile):-
   ypp_extcmd('cpp -P -E -w -o ').
 
 %	ypp_extcmd('gpp -o').
+
+%% @}
 

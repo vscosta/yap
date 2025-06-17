@@ -166,7 +166,7 @@
 % merely extend or make use of the Package, do not, by themselves, cause
 % the Package to be a Modified Version. In addition, such works are not
 % considered parts of the Package itself, and are not subject to the
-% terms of this license.
+v% terms of this license.
 %
 % General Provisions
 %
@@ -235,10 +235,13 @@
 
 @brief This document is intended as a user guide for the users of ProbLog. ProbLog is a probabilistic Prolog, a probabilistic logic programming language, which is integrated in YAP-Prolog.
 
-@addtogroup InstallingProbLog
+@}
+
+@defgroup InstallingProbLog Installing ProbLog-I
+@ingroup YAP_ProbLog1
 
 ### Requirements
-
+@{
 For installing and running ProbLog, the following are required:
 
 + a reasonable up-to-date computer, running Linux or Mac OS
@@ -262,8 +265,10 @@ Last, when you configure YAP you need to add the options --with-cidd --enable-bd
 
 @}
 
-## Running ProbLog
+@defgroup RunProblog1 Running ProbLog1 Programs
 
+@ingroup YAP_ProbLog1
+@{
 
 To use ProbLog, the ProbLog module has to be loaded at the top of your Prolog programs. This is done with the following statement:
 ```
@@ -279,8 +284,14 @@ or
 ```
 :- use_module(library(problog_learning_lbfgs)).
 ```
+@}
 
-## Encoding Probabilistic Facts
+@defgroup Problog1Facts  Encoding Probabilistic Facts
+
+@ingroup YAP_ProbLog1
+@{
+
+ Encoding Probabilistic Facts
 A probabilistic fact is encoded in ProbLog by preceding a predicate with a probability value. For example:
 ```
 0.5::heads(_).
@@ -293,10 +304,12 @@ Instead of probabilities every fact has a t( ) prefix. The t stands for tunable 
 ```
 t(0.5)::heads(_).
 ```
-*
+@}
+*/
 
 /** @defgroup YAP_ProbLogPredicates ProbLog Predicates
 @ingroup YAP_ProbLog1
+@{
 
 This chapter describes the predicates defined by ProbLog for evaluating the probability of queries.
 

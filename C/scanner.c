@@ -1008,9 +1008,10 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	  add_ch_to_buff(ch);
        }
 
-	if (ch != EOF)
+       if (ch != EOF) {
+	 add_ch_to_buff(ch);
 	  ch = getchr(st);
-	else {
+	} else {
       Yap_EOF_Stream(st);
 	}
       }

@@ -1,4 +1,4 @@
-%#!/home/vsc/.local/bin/yap -L --
+#!/home/vsc/.local/bin/yap -L --
 
 /** @file filter.yap
  *
@@ -10,7 +10,7 @@
  
 :- include(docutils).
 
-:-dynamic pred_found/3, exported/3, defines_module/1.
+:-dynamic pred_found/3, exported/3, defines_module/1,visited/1.
 
 defines_module(prolog).
 
@@ -31,14 +31,18 @@ valid_suffix('.ypp').
 */
 
 main :-
+    retractall(visited(_)),
     retractall(pred_found(_,_,_)),
     unix(argv([File])),
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
-    
+    \+ visited(File),
     %    valid_suffix(ValidSuffix),
     %    sub_atom(Y,_,_,0,ValidSuffix),
-    file_directory_name(File, Dir),
+    file_directory_name(Y, Dir),
+    \+ visited(Y),
+    assert(visited(Y)),
     working_directory(OldD,Dir),
+    current_source_module(M0,M0),
     open(Y,read,S,[alias(loop_stream)]),
     script(S),
     findall(O, user:entry(S,O), Info),
@@ -47,7 +51,9 @@ main :-
      insert_module_header,
      maplist(output,Preds),
      working_directory(_,OldD),
+     current_source_module(_,M0),
      insert_module_tail,
+ %    fail,
      halt.
  main.
 
@@ -76,7 +82,8 @@ main :-
   */
  user:entry(S,O) :-
      repeat,
-     read_clause(S,T,[comments(Comments),variable_names(Vs)]),
+     read_clause(S,T,[comments(Comments0),variable_names(Vs)]),
+     merge_comments(Comments0, Comments),
      (
 	T == end_of_file
        ->
@@ -86,7 +93,7 @@ main :-
        T = ( :- Directive )
        ->
        (
-	 user:dxpand(Directive),
+	 dxpand(Directive),
 	 fail
 	 ;
 	 O = directive(Directive, Comments, Vs)
@@ -159,8 +166,8 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
     ) .
 
 insert_module_header :-
-    %    format('class Predicate;~n~n',[]),
-    defines_module(M),
+    current_source_module(M,M),
+    %    format('class Predicate(M),
     !,
     format('namespace ~s~n{~n',[M]).
 insert_module_header.
@@ -172,93 +179,97 @@ insert_module_tail :-
 insert_module_tail.
 
 out_comment(C) :-
-    trl(C,Cf), 
+    simplify(C,Simplified),
     !,
-    string_concat(Cf,S),
-    format('~s~n',[S]).
+    format('~s~n',[Simplified]).
 
-trl( C,["/**<",Space|NC]) :-
+simplify(C,Simplified) :-
     sub_string(C,0,4,_,"/**<"),
     sub_string(C,4,1,_,Space),
     sp(Space),
     !,
-    sub_string(C,5,_,0,Comm),
-    trl_comment(Comm,star,NC).
-trl( C,["/**",Space|NC]) :-
+    sub_string(C,5,_,0,SlashStar),
+    string_list_concat(ListSlashStar, "\n", SlashStar),
+    maplist(simplify_slash, ListSlashStar,  S),
+    string_list_concat(["/**< "| S], "\n", Simplified).
+simplify(C,Simplified) :-
     sub_string(C,0,3,_,"/**"),
     sub_string(C,3,1,_,Space),
     sp(Space),
     !,
-    sub_string(C,4,_,0,Comm),
-    trl_comment(Comm,star,NC).
-trl( C,["///<",Space|NC]) :-
-    sub_string(C,0,3,_,"%%<"),
+    sub_string(C,4,_,0,SlashStar),
+    string_list_concat(ListSlashStar, "\n", SlashStar),
+    maplist(simplify_slash, ListSlashStar,  [H0|S]),
+    string_concat("/** ", H0, H),
+    string_list_concat([H|S], "\n", Simplified).
+simplify(C,C) :-
+    sub_string(C,0,3,_,"/*"),
     sub_string(C,3,1,_,Space),
     sp(Space),
+    !.
+simplify(C,Simplified) :-
+    sub_string(C,0,4,_,"%%<"),
+    sub_string(C,4,1,_,Space),
+    sp(Space),
     !,
-    sub_string(C,4,_,0,Comm),
-    trl_comment(Comm,star,NC).
-trl( C,["///",Space|NC]) :-
+    sub_string(C,4,_,0,Slash),
+    string_list_concat(ListSlash, "\n", Slash),
+    maplist(simplify_slash, ListSlash,  [H0|S]),
+    string_concat("///< ", H0, H),
+    string_list_concat([H|S], "\n", Simplified).
+simplify(C,Simplified) :-
     sub_string(C,0,2,_,"%%"),
     sub_string(C,2,1,_,Space),
     sp(Space),
+     !,
+     sub_string(C,3,_,0,Slash),
+    string_list_concat(ListSlash, "\n", Slash),
+    maplist(simplify_slash, ListSlash,  S),
+    append(["/** "|S],["*/\n"],HS),
+    string_list_concat(HS, "\n", Simplified).
+simplify(C, "\n") :-
+    sub_string(C,0,1,_,"%"),
+    !.
+simplify(_C,"\n").
+
+simplify_slash(S, NS) :-
+    sub_string(S, 0 ,_,_, "%%"),
     !,
-    sub_string(C,3,_,0,Comm),
-    trl_comment(Comm,star,NC).
-trl( C,["//!",Space|NC]) :-
-    sub_string(C,0,2,_,"%!"),
-    sub_string(C,2,1,_,Space),
-    sp(Space),
+    sub_string(S, 3 ,_,0, IS),
+    simplify_slash_star(IS,NS).
+simplify_slash(S, NS) :-
+    sub_string(S, 0 ,_,_, "%!"),
     !,
-    sub_string(C,3,_,0,Comm),
-    trl_comment(Comm,star,NC).
-trl( _C,[ ""]).
+    sub_string(S, 3 ,_,0, IS),
+    simplify_slash_star(IS,NS).
+simplify_slash(S,NS) :-
+    sub_string(S, 0 ,_,_, "%%<"),
+    !,
+    sub_string(S, 3 ,_,0, IS),
+    simplify_slash_star(IS,NS).
+simplify_slash(S, NS) :-
+    sub_string(S, 0 ,_,_, "%"),
+    !,
+    sub_string(S, 1 ,_,0, IS),
+    simplify_slash_star(IS,NS).
+simplify_slash(S, NS) :- 
+    simplify_slash_star(S,NS).
+
+
+simplify_slash_star(IS,NS) :-
+    trl_pred(IS, NSI),
+    trl_pi(NSI,NS).
 
 sp(" ").
 sp("\t").
 sp("\n").
 
-ws(" ").
-ws("\t").
+sp(" ").
+sp("\t").
 
-trl_comment(L,_,NL) :-
-    trl_lines(L,NL,[]).
-
-trl_lines( "", L, L) :-
-    !.
-trl_lines(Lines, O, O0) :-
-    sub_string(Lines,Left,1,Right,"\n"),
-    Right>0,
-    !,
-    sub_string(Lines,0,Left,_,C),
-    trl_line(C,O,["\n"|O1]),
-    sub_string(Lines,_,Right,0, R),
-    trl_lines(R,O1,O0).
-trl_lines( Lines, O, O0) :-
-    trl_line( Lines, O, O0).
-
-trl_line(  "",O,O) :-
-    !.
-trl_line(  L,NL,NL3) :-
-    trl_prefix(L,L1,NL,NL1),
-    trl_pred(L1,L2, NL1, NL2),
-    trl_pi(L2,NL2,NL3),
-    !.
-trl_line(L,[L|NL],NL).
-
-trl_prefix(C,RC,["///"|NC],NC) :-
-    sub_string(C,0,2,_Len,Pref),
-    (Pref == "%%"
-     ->
-     true ;Pref == "%!"), 
-     sub_string(C,2,1,_Comm,Space),
-    sp(Space),
-    !,
-    sub_string(C,3,_,0,RC). 
-trl_prefix(C,C,NC,NC).
 
 % arity > 0
-trl_pred(L,RL,NL,NRL) :-
+trl_pred(L,NewLine) :-
     % EL = Bef+"@pred"+After
     (
       sub_string(L,Bef,5,After,"@pred")
@@ -269,8 +280,8 @@ trl_pred(L,RL,NL,NRL) :-
       ),
     After1 is After-1,
 
-    sub_string(L,_,1,After1,WS),
-    ws(WS),
+    sub_string(L,_,1,After1,SP),
+    sp(SP),
     sub_string(L,_,After1,0,Line0),
     strip_whitespace(Line0,0,Line),
    sub_string(Line,_,1,_,"("),
@@ -283,9 +294,9 @@ trl_pred(L,RL,NL,NRL) :-
     sub_string(L,0,Bef,_, Prefix),
     string_concat([Name,"/",A],PI),
     encode(PI,DoxName),
-    NL=[Prefix,"@class ",DoxName,"\n       *",Name,Args,"* "|NRL].
+    string_concat([Prefix,"@class ",DoxName,"\n       *",Name,Args,"* ",RL],NewLine).
 % arity == 0
-trl_pred(L,RL,NL,NRL) :-
+trl_pred(L,NewLine) :-
     (
       sub_string(L,Bef,5,After,"@pred")
       ->
@@ -304,8 +315,8 @@ trl_pred(L,RL,NL,NRL) :-
     sub_string(L,0,Bef,_, Prefix),
     string_concat([Name,"/",A],PI),
     encode(PI,DoxName),
-    NL=[Prefix,"@class ",DoxName,"\n       *",Name,Args,"* "|NRL].
-trl_pred(L,RL,NL,NRL) :-
+    string_concat( [Prefix,"@class ",DoxName,"\n       *",Name,Args,"* ",RL],NewLine).
+trl_pred(L,NewLine) :-
     sub_string(L,Bef,10,_After,"@infixpred"),
     A0 is Bef+10,
     skip_whitespace(A0,L,A1),
@@ -328,13 +339,13 @@ trl_pred(L,RL,NL,NRL) :-
 			    atom_string( At, Name),
 			    defines_module(Mod),
 			    assert(pred_found(Mod,At,2)),
-    sub_string(L,0,Bef,_, Prefix),
-    NL =  [Prefix,"@class ",DoxName,"\n       *",NameArgs,"* "|NRL].
-trl_pred(L,L,NL,NL).
+			    sub_string(L,0,Bef,_, Prefix),
+			    string_concat([Prefix,"@class ",DoxName,"\n       *",NameArgs,"* ",RL],NewLine).
+trl_pred(L,L).
 
     strip_whitespace(Line0,I0,Line) :-
-    sub_string(Line0,I0,1,_,WS),
-    ws(WS),
+    sub_string(Line0,I0,1,_,SP),
+    sp(SP),
     !,
     I is I0+1,
     strip_whitespace(Line0,I,Line).
@@ -344,8 +355,8 @@ trl_pred(L,L,NL,NL).
     sub_string(Line0,I0,_,0,Line).
 
     skip_whitespace(I0,Line,IF) :-
-    sub_string(Line,I0,1,_,WS),
-    ws(WS),
+    sub_string(Line,I0,1,_,SP),
+    sp(SP),
     !,
     I is I0+1,
     skip_whitespace(I,Line,IF).
@@ -353,8 +364,8 @@ trl_pred(L,L,NL,NL).
 
   
     block(I0,Line,IF) :-
-    sub_string(Line,I0,1,_,WS),
-\+    ws(WS),
+    sub_string(Line,I0,1,_,SP),
+\+    sp(SP),
     !,
     I is I0+1,
     block(I,Line,IF).
@@ -372,17 +383,18 @@ detect_name(Line,Name,Args,Arity,Extra) :-
     length([_|Is],Arity).
 
 detect_name(Line,Name,"",0,Extra) :-
-    sub_string(Line,Bef,1,After,WS),
-    ws(WS),
+    sub_string(Line,Bef,1,After,SP),
+    sp(SP),
     !,
     sub_string(Line,0,Bef,_,Name),
     sub_string(Line,_,After,0,Extra).
 detect_name(Name,Name,"",0,"").
 
-trl_pi(L,NL,NL0) :-
-    sub_string(L,Left,1,1,"/"),
+trl_pi(L,NewLine) :-
+    sub_string(L,Left,1,Extra,"/"),
     Left > 0,
-    sub_string(L,_,1,0,D),
+    Extra > 0,
+    sub_string(L,_,1,Extra,D),
     digit(D),
     back(Left,L,NPrefix),
 NPrefix \= Left,
@@ -391,16 +403,19 @@ NPrefix \= Left,
     sub_string(L,NPrefix,_,2,Name),
     string_concat([Name,"/",D],PI),
     encode(PI,DoxName),
-    NL=[Prefix,"@ref ",DoxName," \"",PI,"\""|NL0].
-trl_pi(S,[S|C],C).
+    Right is Extra-1,
+    sub_string(L,_,Right,0,RightLine),
+    trl_pi(RightLine,More),
+    string_concat([Prefix,"@ref ",DoxName," \"",PI,"\"",More],NewLine).
+trl_pi(S,S).
     
 
 back(0,_L,0) :-
     !.
 back(I0,S,I0) :-
     I is I0-1,
-    sub_string(S,I,1,_,WS),
-    ws(WS),    !.
+    sub_string(S,I,1,_,SP),
+    sp(SP),    !.
     back(I0,S,P) :-
      I is I0-1,
     back(I,S,P).
@@ -436,15 +451,53 @@ addcomm(_,_,_).
 
 :- initialization(main).
 
+user:directive(S,_M) :-
+     repeat,
+     read_clause(S,T,[]),
+     (
+	T == end_of_file
+       ->
 
+	!
+       ;
+       T = ( :- Directive )
+       ->
+	 user:dxpand(Directive)),
+	 fail.
 
 dxpand(module(M,Gs)) :-
-    assert(defines_module(M)),
+    assert(defines_module(M,Gs)),
+    maplist(pxpand(M),Gs),
+    current_source_module(_,M).
+dxpand(use_module(M,Gs)) :-
+    decls(M),
     maplist(pxpand(M),Gs).
-dxpand(module(M)) :-
-    retractall(defines_module(_)),
-    assert(defines_module(M)).
-dxpand(use_module(_M,_Gs)) .
+dxpand(use_module(M)) :-
+    decls(M),
+defines_module(Gs),
+maplist(pxpand(M),Gs).
+dxpand(compile(M)) :-
+    decls(M),
+defines_module(Gs),
+maplist(pxpand(M),Gs).
+dxpand(consult(M)) :-
+    decls(M),
+defines_module(Gs),
+maplist(pxpand(M),Gs).
+dxpand(reconsult(M)) :-
+    decls(M),
+defines_module(Gs),
+maplist(pxpand(M),Gs).
+dxpand(load_files(M._)) :-
+    decls(M),
+defines_module(Gs),
+maplist(pxpand(M),Gs).
+dxpand((A,B)) :-
+    dxpand(A),
+    dxpand(B).
+dxpand(op(M,Gs,Y)) :-
+    op(M,Gs,Y).
+
 
 pxpand(Mod,op(M,Gs,Y)) :-
     op(M,Gs,Mod:Y),
@@ -456,6 +509,23 @@ pxpand(Mod,_ as A/B) :-
 pxpand(Mod,A//B):-
     B2 is B+2,
     assert(exported(Mod,A,B2)) .
+
+decls(File) :-
+    absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
+    \+ visited(Y),
+    assert(visited(Y)),
+    %    valid_suffix(ValidSuffix),
+    %    sub_atom(Y,_,_,0,ValidSuffix),
+    file_directory_name(Y, Dir),
+    working_directory(OldD,Dir),
+    current_source_module(M0,M0),
+    open(Y,read,S,[alias(loop_stream)]),
+    script(S),
+    findall(O, user:directive(S,O), _Info),
+%spy trl,
+    close(S),
+     working_directory(_,OldD),
+     current_source_module(_,M0).
 
 is_exported(N,_) :-
     string(N),
@@ -474,4 +544,24 @@ is_exported(N,A) :-
     defines_module(Mod),
     exported(Mod,N,A).
 
+merge_comments(M0, MF) :-
+    merge_comments(M0, "", "", MF).
 
+merge_comments([],_, "",[]) :-
+    !.
+merge_comments([],_, C, [C]).
+merge_comments([C1|Cs],"%%", C0,Csf) :-
+    sub_string(C1,0,1,_,"%"),
+    !,
+    string_concat(C0,C1,Cn),
+    merge_comments(Cs, "%%", Cn, Csf).
+merge_comments([C1|Cs],"%%", C0, [ C0,C1|Csf]) :-
+    merge_comments(Cs, "",  "", Csf).
+merge_comments([C1|Others],"", "", Csf) :-
+    sub_string(C1,0,2,_,"%%"),
+    !,
+    merge_comments(Others, "", C1, Csf).
+
+merge_comments([C1|Others],"", "", [C1|Csf]) :-
+    !,
+    merge_comments(Others, "", "", Csf).

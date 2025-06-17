@@ -207,11 +207,11 @@ Y = 2
 L = [2];
 no
 ```
-% And this is bagof/3
+And this is bagof/3
 
-% Either we have excess of variables
-% and we need to find the solutions for each instantiation
-% of these variables
+Either we have excess of variables
+and we need to find the solutions for each instantiation
+of these variables
 */
 bagof(Template, Generator, Bag) :-
 	( '$is_list_or_partial_list'(Bag) ->

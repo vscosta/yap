@@ -2,7 +2,7 @@
 %    Author:        Nicos Angelopoulos, Vitor Santos Costa, Jan Wielemaker
 %    E-mail:        Nicos Angelopoulos <nicos@gmx.co.uk>
 %    Copyright (C): Nicos Angelopoulos, Universidade do Porto, VU University Amsterdam
-n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  This file is part of real
 %  distributed according to Perl Artistic License
@@ -342,7 +342,7 @@ r( RvarIn ) :-
 	send_r_codes( CmdCodes ).
 r( R ) :-
 	rexpr_codes(R,TmpRs,Rcodes,[]),
-vv	!,
+	!,
 	send_r_codes(Rcodes),
 	maplist( r_remove, TmpRs ).
 r( _Other ) :-

@@ -42,9 +42,10 @@
 @defgroup YAP_LBFGS Interface to LibLBFGS
 @ingroup YAPPackages
 @{
+
 @short What is YAP-LBFGS? YAP-LBFGS is an interface to call [libLBFG](http://www.chokkan.org/software/liblbfgs/), from within
 YAP. libLBFGS is a C library for Limited-memory
-Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) solving the under-constrained
+Broyden-Fletcher-Goldfarb-Shannon (L-BFGS) solving the under-constrained
 minimization problem:
 
 ```
@@ -52,69 +53,66 @@ minimization problem:
 ```
 
 
-### Contact YAP-LBFGS has been developed by Bernd Gutmann. In case you
-publish something using YAP-LBFGS, please give credit to me and to
+ YAP-LBFGS was developed by Bernd Gutmann. In case you
+publish something using YAP-LBFGS, please give credit to him and to
 libLBFGS. And if you find YAP-LBFGS useful, or if you find a bug, or
-if you port it to another system, ... please send me an email.
+if you port it to another system, please send me an email to YAP.
 
-
-
-### License
-+  YAP-LBFGS is free software: you can redistribute it and/or modify
+YAP-LBFGS is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-+ YAP-LBFGS is distributed in the hope that it will be useful,
+ YAP-LBFGS is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
+@}
 
-
-### Usage</h2>
-The module lbfgs provides the following predicates after you loaded
-it by
+@defgroup  LBFGS_Usage Using YAP-LBFGS
+@ingroup YAP_LBFGS
+The module lbfgs provides a number of predicates after being loaded
+by
 ```
 :-use_module(library(lbfgs)).
 ```
 
-+ use lbfgs_set_paramater(Name,Value) to change parameters
-+ use lbfgs_get_parameter(Name,Value) to see current parameters
-+ use lbfgs_current_parameter(Name,Value) to see current parameters
-+ use lbfgs_parameters to print this overview
+They include:
 
++ lbfgs_set_paramater(Name,Value) to change parameters
++ lbfgs_get_parameter(Name,Value) to see current parameters
++ lbfgs_current_parameter(Name,Value) to see current parameters
++ lbfgs_parameters to print this overview
 
+LBFGS relies on two callbacks: `evaluate` and `progress`.
 
-### Demo
-
-The following Prolog program, ex1.pl, searches for minimas of the
-function `f(x0)=sin(x0)`. In order to do so, it provides the
-call back predicate <span class="code">evaluate` which
-calculates `f(x0)` and the gradient `d/dx0 f=cos(x0)`.
+The Prolog program, `ex1.pl`, searches for minimal solutions to the
+function `f(x0)=sin(x0)`. In order to do so, the programmer must
+define call back predicate evaluate which calculates `f(x0)` and the
+gradient `d/dx0 f=cos(x0)`
 
 ```
-:- use_module(lbfgs).
-
-% This is the call back function which evaluates F and the gradient of F
 evaluate(FX,X,G,_N,_Step,_User) :-
 	X0 <== X[0],
-F is sin(X0),
+        F is sin(X0),
 	FX[0] <== F,
 	G0 is cos(X0),
 	G[0] <== G0.
+```
 
-% This is the call back function which is invoked to report the progress
-% if the last argument is set to anything else than 0, the lbfgs will
-% stop right now
+% LBFGS reports improvements through the `progress` call-back.
+% if the last argument is set to anything else than 0, LBFGS will
+% stop immediately.
+```
 progress(FX,X,X_Norm,G_Norm,Step,_N,Iteration,Ls) :-
 	X0 <== X[0],
 	format('~d. Iteration : x0=~4f  f(X)=~4f  |X|=~4f
                 |X\'|=~4f  Step=~4f  Ls=~4f~n',
                 [Iteration,X0,FX,X_Norm,G_Norm,Step,Ls]),
 	lbfgs_progress_done(0)
-
-
-
+```
+The two callbacks are called from LBFGS, which is in turn called from Prolog:
+```
 demo :-
 	format('Optimizing the function f(x0) = sin(x0)~n',[]),
 	lbfgs_initialize(1,X,0,Solver),
@@ -148,11 +146,10 @@ We found a minimum at f(4.712390)=-1.000000
 
 LBFGS Status=0
 yes
-   ?-
 ```
 
 
-@{
+
 
 */
 
@@ -167,6 +164,9 @@ lbfgs_initialize(1, Block)
 */
 lbfgs_allocate(N,X) :-
     integer(N),
+
+
+
     N>0,
     lbfgs_grab(N,X).
 
@@ -260,6 +260,7 @@ lbfgs_parameters :-
 	print_param(orthantwise_end,Orthantwise_End,'End index for computing the L1 norm of the variables.',int ),
 	format('******************************************************************************************/~n',[]),
 	format(' use lbfgs_set_parameter(Name,Value) to change parameters~n',[]),
+
 	format(' use lbfgs_get_parameter(Name,Values) to see current parameters~n',[]),
 	format(' use lbfgs_parameters to print this overview~2n',[]).
 
