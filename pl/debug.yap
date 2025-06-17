@@ -513,13 +513,12 @@ trace_goal(G, M, Ctx, GN, CP) :-
 step_goal(true,_M, _GoalNumber) :-
     !.
 step_goal(G,M, GoalNumber) :-
-    '$move_to'(M:G,GoalNumber).
-
-'$move_to'(MG,GoalNumber) :-
-    '$zip_at_port'(call,GoalNumber, MG),
+    '$interact'(call, M:G, GoalNumber), 
+    '$zip_at_port'(call,GoalNumber,M:G),
     !,
     '$stop_creeping'(_),
     '$execute'( MG).
+
   '$move_to'(M:G,GoalNumber) :-
     '$predicate_type'(G,M,T),
     '$step'(T,M:G,GoalNumber).

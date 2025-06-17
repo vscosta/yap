@@ -501,24 +501,22 @@ grow_stack(X) :- '$grow_stack'(X).
 
 
 The goal `gc` enables garbage collection. The same as
-`set_prolog_flag(gc,true)`.
+`current_prolog_flag(gc,on)`.
 
 
 */
 gc :-
-    set_prolog_flag(gc,true).
-
-
+	current_prolog_flag(gc,true).
 /** @pred  nogc
 
 
 The goal `nogc` disables garbage collection. The same as
-`set_prolog_flag(gc,false)`.
+`current_prolog_flag(gc,false)`.
 
 
 */
 nogc :-
-	set_prolog_flag(gc,false).
+	current_prolog_flag(gc,false).
 
 
 /** @pred  garbage_collect_atoms

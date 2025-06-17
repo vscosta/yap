@@ -85,6 +85,8 @@ are available through the `use_module(library(system))` command.
 
 :- dynamic tmp_file_sequence_counter/1.
 
+% time builtins
+
 /**
 
  @pred datime(datime(- _Year_, - _Month_, - _DayOfTheMonth_, - _Hour_, - _Minute_, - _Second_)
@@ -96,8 +98,9 @@ on local time. This function uses the WIN32
 `GetLocalTime` function or the Unix `localtime` function.
 
 ```
-?- datime(X).
-wX = datime(2001,5,28,15,29,46) ?
+									?- datime(X).
+4
+X = datime(2001,5,28,15,29,46) ?
 ```
 
 
