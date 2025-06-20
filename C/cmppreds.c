@@ -499,32 +499,32 @@ Int Yap_compare_terms(Term d0, Term d1) {
   return compare(Deref(d0), Deref(d1));
 }
  
-/** @pred  X \= Y is iso
+/** @infixpred  X \= Y is iso
 
 Terms  _X_ and  _Y_ are not strictly identical.
 */
 static Int a_noteq(Term t1, Term t2) { return (compare(t1, t2) != 0); }
 
-/** @pred   X @< Y is iso
+/** @infixpred   X @< Y is iso
 Term  _X_ is before _Y_ in the standard order.
 
 */
 static Int a_gen_lt(Term t1, Term t2) { return (compare(t1, t2) < 0); }
 
-/** @pred   X=< Y is iso
+/** @infixpred   X=< Y is iso
 Term  _X_ is before term  _Y_ in the standard order, or they are the same term.
 
 */
 static Int a_gen_le(Term t1, Term t2) { return (compare(t1, t2) <= 0); }
 
-/** @pred X @> Y  is iso
+/** @infixpred X @> Y  is iso
 
 
 Term  _X_ is after term  _Y_ in the standard order
 */
 static Int a_gen_gt(Term t1, Term t2) { return compare(t1, t2) > 0; }
 
-/** @pred X @>= Y is iso
+/** @infixpred X @>= Y is iso
 
 Term  _X_ is after term  _Y_ in the standard order, or they are the same term.
 */
@@ -747,8 +747,8 @@ static Int a_eq(Term t1, Term t2) {
   return out == 0;
 }
 
-/*q
-    @pred =\=( _X,_Y_ ) is iso 
+/**
+    @pred  _X =\= _Y_ is iso
 
     Difference of arithmetic expressions
 
@@ -762,10 +762,10 @@ static Int a_dif(Term t1, Term t2) {
 }
 
 /**
-    @pred <=( _X,_Y_ ) is iso
+    @pred  _X >_Y_  is iso
    Greater than arithmetic expressions
 
-   The value of the expression  _X_ is less than or equal to the value
+   The value of the expression  _X_ is greater than the value
   of expression  _Y_.
 */
 static Int a_gt(Term t1, Term t2) { /* A > B		 */
@@ -775,7 +775,7 @@ static Int a_gt(Term t1, Term t2) { /* A > B		 */
 }
 
 /**
-   @pred >=( _X,_Y_ ) is iso
+   @pred  _X >= _Y_ is iso
    Greater than or equal to arithmetic expressions
 
    The value of the expression  _X_ is greater than or equal to the
@@ -788,7 +788,7 @@ static Int a_ge(Term t1, Term t2) { /* A >= B		 */
 }
 
 /**
-   @pred <( _X,_Y_ ) is iso
+   @pred  _X < _Y_  is iso
 
    Lesser than arithmetic expressions
 
@@ -803,7 +803,7 @@ static Int a_lt(Term t1, Term t2) { /* A < B       */
 
 /**
  *
-   @pred >( _X,_Y_ ) is iso
+   @pred _X > _Y_  is iso
 
   Lesser than or equal to arithmetic expressions
 

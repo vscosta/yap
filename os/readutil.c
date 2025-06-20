@@ -40,8 +40,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 /**
-* @defgroup readutil Reading Lines and Files
-* @addtogroup library
+* @addtogroup readutil
 * @{
 * @brief Read full lines and a full file in a single call.
 */

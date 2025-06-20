@@ -31,6 +31,7 @@ valid_suffix('.ypp').
 */
 
 main :-
+    open('/tmp/yap', read, _S, [alias(user_output)]),
     retractall(visited(_)),
     retractall(pred_found(_,_,_)),
     unix(argv([File])),

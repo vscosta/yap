@@ -32,7 +32,7 @@
 
 #define _INATIV
 
-/// use tmp variables that are placed in registers
+// use tmp variables that are placed in registers
 #define HAS_CACHE_REGS 1
 
 #include "absmi.h"

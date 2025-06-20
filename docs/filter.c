@@ -10,6 +10,8 @@
 #include <wchar.h>
 #include <unistd.h>
 
+static FILE *ostream;
+
 static char *protect_class( char where[], const char *what, size_t sz, int arity)
 {
   size_t i;
@@ -27,6 +29,103 @@ static char *protect_class( char where[], const char *what, size_t sz, int arity
   return where;
 }
 
+static char * infixpred_doc(char *line, char *end, ssize_t sz) {
+  char *name, *pred;
+  char *start;
+  char buf[4096];
+  if((pred = strstr(line,"@infixpred"))!=NULL && (!end || pred <end) )       {
+    char *arg1 = strtok(pred+10, " \t");
+    char *op = strtok(NULL, " \t");
+    char *arg2 = strtok(NULL, " \t");
+    line = arg2+strlen(arg2)+1;
+    fprintf(ostream, "%*.s @class %s\n@brief %s/%d %s **%s** %s",
+	    (int)(pred-start),start,
+	    protect_class(buf,name,strlen(name),2),op,2,
+arg1, op, arg2);
+  }
+  return line;
+}
+
+static int commas(char *args) {
+  int nargs = 1;
+  if (*args != '\0')
+    do {
+      if (*args == ',')
+	nargs++;
+    } while (*args);
+  return nargs;
+}
+
+static char * pred_doc(char *line, char *end, ssize_t sz) {
+  char *name, *args, *pred, *start = line;
+  char buf[4096];
+  
+  if((pred = strstr(line,"@pred"))!=NULL && (!end || pred <end) )       {
+    char *prefix = strtok(pred, " \t");
+    name = strtok(NULL, "(");
+    if (name == NULL) {
+      name = prefix+strlen(prefix)+1;
+      int arity = 0;
+          name = strtok(name, " \n");
+	  line = name+strlen(name)+1;
+      fprintf(ostream, "%*s @class %s\n@brief %s/%d **%s**",
+	      (int)(pred-start),start,
+	      protect_class(buf,name,strlen(name),0),name,0,name);
+    } else {
+      args = strtok(NULL, ")");
+      line = args+strlen(args)+1;
+      int arity = commas(args);
+      fprintf(ostream, "%.*s @class %s\n@brief %s/%d **%s(%s)**",
+	      (int)(pred-start),line,
+	      protect_class(buf,name,strlen(name),arity),
+	      name, arity, name, args);
+    }
+  }
+  return line;
+}
+
+  static void process_doc(char *line, ssize_t sz) {
+       char *pred, *end = line+sz;
+       char buf[4096];
+       line = infixpred_doc(line, end, sz);
+       sz = end-line;
+       line = pred_doc(line, end, sz);
+       if (line[0])
+	 fprintf(ostream,"%s",line);
+     }
+  }
+#if 0
+char *pi;
+    while (
+	   line &&
+	   (pi=strchr(line,'/'))!=NULL) {
+      char *pi0 = pi;
+      if (!isdigit(pi0[1]))
+	break;
+      pi0--;
+      while (pi0 >= line && (pi0[0]=='_'|| isalnum(pi0[0])))
+	pi0--;
+      pi0++;
+      fprintf(ostream,"%.*s @ref %s @\"%.*s/%c\""  ,(int)(pi0-line),line,
+
+	      protect_class(buf,pi0,(size_t)(pi-pi0),pi[1]),
+	      (int)(pi-pi0),pi0,pi[1] );
+      line = pi+2;
+      if (!line[0])
+	line = NULL;
+    }
+		
+    if (line && (pi=strstr(line,"*/"))) {
+       fprintf(ostream,"%.*s  %.*s",(int)(pi-line),line,2,pi);
+     }
+
+
+    if (line) {
+	fprintf(ostream ,"%s",line);
+    }
+#endif      
+  }
+
 static bool codecomm(char *p)
 {
   bool rc;
@@ -41,10 +140,11 @@ static bool codecomm(char *p)
 
 int main(int argc, char *argv[]) {
   size_t n;
-  char *line=NULL;
-  char buf[256];
-  bool in_star = false;
-  if (strstr(argv[1],".yap" ) ||
+  char *line=NULL, *p;
+  FILE *f;
+  if (argc == 1) {
+    f= stdin;
+  } else if (strstr(argv[1],".yap" ) ||
       strstr(argv[1],".ypp" ) ||
       strstr(argv[1],".pl" )) {
     char s[2048];
@@ -52,165 +152,58 @@ int main(int argc, char *argv[]) {
     snprintf(s, 2047, "%s %s -L %s -- %s", YAPBIN, YAPSTARTUP, PLFILTER, argv[1]);
     system(s);
     exit(0);
+  } else if (!strcmp("-", argv[1])) {
+    f = stdin;
+  } else {
+    f = fopen(argv[1], "r");
   }
-	
-  FILE *f = fopen(argv[1],"r");
 
-  bool code_comment=false, line_comment=false;
-  while ((getline(&line,&n,f)) >0) {
-    char *start, *pred, *lspace = line;
-    char *line0 = start = line;
-    char *end = NULL;
+  if (argc > 2) {
+    if (!strcmp("-", argv[2]))
+      ostream = stdout;
+    else
+      ostream = fopen( argv[2],"a");
+  else {
+    ostream = fopen("/tmp/yap.cpp","a");
+  }
+  bool code=false;
+  while (getline(&line,&n,f)>0) {
 
-    /// ignore       lspace = line;
-    while (isblank(lspace[0])) {
-      lspace++;
-      if (lspace[0] =='\n' ||
-	  lspace[0] == '\0')
-	continue;
-    }
-    
-    /// check for line comments
-    /// cannot be in a //* comment
-    if (!in_star && !line_comment) {
-      if ( (start =strstr(line,"//") )){
-	/// new comment!
-	code_comment = start && codecomm(start);
-      } else {
-	start=strstr(line,"/*");
-	///
-	if ( start) {
-	  char *lspace;
-	  for (lspace=line;lspace <start;lspace++) {
-	  };
-	  /// new comment!
-	  code_comment|= start && codecomm(start);
-	  in_star = true;
-	  line_comment=false;
-	}
-      }
-    }
-    if (in_star)  {
-      end = strstr(start+4, "*/" ) ;
-      if (end) {
-	if (!isspace(end[-1])) end=NULL;
-      }
-
-    }
-    if (line_comment)  {
-      end = strstr(line,"//" ) ;
-      char *t;
-      for (t=line;t<end;t++) {
-	if (!isspace(t[0])) {
-	  line_comment=false;
-	  code_comment=false;
-	}
-
-      }
-    }
-
-    if (code_comment &&
-	((pred = strstr(line,"@pred"))!=NULL) && (!end || pred <end) )       {
-	int arity=0, i;
-	char *start,*p0, *args;
-	start =pred;
-	pred +=5;
-	while(isblank(*pred++));
-	p0=pred-1;
-	// predicate name
-	if (pred[0]=='\'') {
-	  while(*pred++ != '\'');
+   if ((p=strstr(line,"/*"))) {
+      /* code comment */
+      line = p;
+      code = codecomm(p);
+      do {
+        if ((p = strstr(line, "*/"))) {
+	  p += 2;
+          if (code) {
+            process_doc(line, p - line);
+	  }
+	  break;
 	} else {
-	  while(!isblank(*pred) && pred[0] != '(') {
-	    pred++;
+	  if (code) {
+            process_doc(line, strlen(line));
 	  }
-	  if  (pred[0] == '\0' || isblank(pred[0])) {
-	    fprintf(stdout,"%.*s @class %s  ** \"%.*s\" **%s",
-		    (int)(start-line),line,
-		    protect_class(buf,p0,(pred-p0),0),
-		    (int)(pred-p0),p0,
-		    pred);
-	    continue;
-	  }
-	}
-	args = pred;
-	i=0;
-	if (pred[i] == '(') {
-	  int ch;
-	  arity=1;
-	  while((ch=pred[i++])!=')') {
-	    if (ch==',') arity++;
-			
-	  }
-	}
-	i--;
-	pred +=i;
-	fprintf(stdout,"%.*s @class %s ",
-		(int)(start-line),line,
-		protect_class(buf,p0,(int)(args-p0),arity)),
-	  fprintf(stdout,"\n@brief **\"%.*s\"** %s \n",(int)(pred-p0),p0,pred);
-	line=NULL;
-      }
-    if (code_comment && line) {
-	if ((pred = strstr(line,"@infixpred"))!=NULL && (!end || pred <end) )       {
-	char *name;
-	char *start;
-	start =pred;
-	pred +=10;
-	while(isspace(*pred++));
-		//ard1
-	--pred;
-	name=pred;
-	while(!isspace(*pred++));
-	pred--;
-	fprintf(stdout,"q%.*s @class %s ",(int)(start-line),line,
-		protect_class(buf,name,(int)(pred-name),2)),
-	  fprintf(stdout,"\n@brief **\"%.*s\"** %s \n",(int)(pred-name),name, pred);
-	continue;
-    }
-  }
-    char *pi;
-    while (code_comment &&
-	   line &&
-	   (pi=strchr(line,'/'))!=NULL) {
-      char *pi0 = pi;
-      if (!isdigit(pi0[1]))
-	break;
-      pi0--;
-      while (pi0 >= line && (pi0[0]=='_'|| isalnum(pi0[0])))
-	pi0--;
-      pi0++;
-      fprintf(stdout,"%.*s @ref %s @\"%.*s/%c\""  ,(int)(pi0-line),line,
+        }
+      } while (getline(&line,&n,f));
+    } else if ((p=strstr(line,"//"))) {
+      code = (code || codecomm(p));
 
-	      protect_class(buf,pi0,(size_t)(pi-pi0),pi[1]),
-	      (int)(pi-pi0),pi0,pi[1] );
-      line = pi+2;
-      if (!line[0])
-	line = NULL;
+       line = p;
+    if (code) {
+      process_doc(line, strlen(line));
+     }
+    } else {
+     code  = false; 
     }
-		
-    if (line && (pi=strstr(line,"*/"))) {
-      code_comment = false;
-      in_star=false;
-      fprintf(stdout,"%.*s  %.*s",(int)(pi-line),line,2,pi);
-      line = pi+2;
+   if (feof(f)) {
+      exit(0);
     }
+}
+}
 
-	      
-    if (line) {
-      fprintf(stdout,"%s",line);
-      line=NULL;
-    }
-    free(line0);
-    if (end) {
-      in_star=false;
-      code_comment = false;
-      
-    }
-      
-  }
-  return 0;
-} 
+
+
 
 ///
  

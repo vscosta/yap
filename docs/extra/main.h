@@ -20,7 +20,7 @@ The manual is organised as follows:
 
 - @ref YAPPackages
 
-*/
+
 @{
    
 

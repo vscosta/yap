@@ -1,4 +1,4 @@
-
+q
 :- ensure_loaded( library(real) ).
 :- ensure_loaded( library(lists) ).
 :- use_module( library(apply_macros) ).

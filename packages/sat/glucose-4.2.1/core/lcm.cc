@@ -315,7 +315,7 @@ void Solver::simplifyLearnt(Clause& c)
             }
             c.shrink(c.size() - i);
             if (LCMUpdateLBD) {
-                int nblevels = computeLBD(simp_learnt_clause);
+                unsigned int nblevels = computeLBD(simp_learnt_clause);
                 if (nblevels < c.lbd())
                     c.setLBD(nblevels);
             }

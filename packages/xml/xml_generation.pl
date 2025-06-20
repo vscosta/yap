@@ -147,8 +147,8 @@ generated_external_id( public(URN,URL,Literals) ) -->
 	]".
 
 generated_doctype_literals( [] ) --> "".
-generated_doctype_literals( [dtd_literal(String)|Literals] ) --> "
-	<!", cdata_generation( String ), ">",
+generated_doctype_literals( [dtd_literal(String)|Literals] ) --> 
+	"<!", cdata_generation( String ), ">",
 	generated_doctype_literals( Literals ).
 
 /* quoted_string( +Chars ) is a DCG representing Chars, a list of character

@@ -1,4 +1,4 @@
-%%% -*- Mode: Prolog; -*-
+qq%%% -*- Mode: Prolog; -*-
 
 
 %  This file is part of YAP-LBFGS.
@@ -34,9 +34,9 @@ evaluate(FX,X,G,_N,_Step,_User) :-
 % This is the call back function which is invoked to report the progress
 % if the last argument is set to anything else than 0, the lbfgs will
 % stop right now
-progress(FX,X,G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
+progress(FX,X,_G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
 	X0 <== X[0],
-	format('~d. Iteration : x0=~4f  f(X)=~4f  |X|=~4f
+	format('~d. Iteration : x0=~4f  f(X)=~4f  |X|=~4f \
                 |X\'|=~4f  Step=~4f  Ls=~4f~n',
                 [Iteration,X0,FX,X_Norm,G_Norm,Step,Ls]).
 
@@ -51,5 +51,5 @@ demo :-
 	lbfgs_run(Solver,BestF),
 	BestX0 <== X[0],
 	lbfgs_finalize(Solver),
-	format('~2nOptimization done~nWe found a minimum at
-	f(~f)=~f~2nLBFGS Status=~w~n',[BestX0,BestF,Status]).
+	format('~2nOptimization done~nWe found a minimum at \
+	f(~f)=~f~2nLBFGS Status=~w~n',[BestX0,Best]).

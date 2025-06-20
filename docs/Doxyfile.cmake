@@ -36,7 +36,7 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_CREATE_SUBDIRS NO)
     set(DOXYGEN_ENABLE_PREPROCESSING  YES)
     set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
-    set(DOXYGEN_EXTENSION_MAPPING yap=C++ pl=C++ ypp=C++)
+    set(DOXYGEN_EXTENSION_MAPPING yap=C++ pl=C++ ypp=C++ c=C++ h=C++)
     set(DOXYGEN_FILTER_SOURCE_FILES NO)
     set(DOXYGEN_GENERATE_HTML NO)
     set(DOXYGEN_GENERATE_MAN NO)
@@ -49,6 +49,7 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_HIDE_UNDOC_MEMBERS     YES)
     set(DOXYGEN_HTML_EXTRA_STYLESHEET ${CMAKE_SOURCE_DIR}/docs/assets/css/solarized-light.css)
     set(DOXYGEN_INLINE_GROUPED_CLASSES YES)
+    set(DOXYGEN_INLINE_SIMPLE_STRUCTS YES)
     set(DOXYGEN_INPUT_FILTER ${CMAKE_BINARY_DIR}/filter)
     set(DOXYGEN_JAVADOC_AUTOBRIEF      YES)
     set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
@@ -64,7 +65,9 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_REPEAT_BRIEF NO)
     set(DOXYGEN_SHOW_FILES NO)
     set(DOXYGEN_SHOW_NAMESPACES YES)
-    set(DOXYGEN_TOC_INCLUDE_HEADINGS 5  )
+      set(DOXYGEN_SORT_GROUP_NAMES YES)
+   set(DOXYGEN_SHOW_NAMESPACES YES)
+   set(DOXYGEN_TOC_INCLUDE_HEADINGS 5  )
     set(DOXYGEN_XML_PROGRAMLISTING NO)
     #set(DOXYGEN_ALIASES "pred{2(}=@class P\\10  P\\1\\2" Bold{1}="<b>\\1</b>" )
     set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${CMAKE_SOURCE_DIR}/H/generated  ${CMAKE_SOURCE_DIR}/H  ${CMAKE_SOURCE_DIR}/include   ${CMAKE_SOURCE_DIR}/os   ${CMAKE_SOURCE_DIR}/OPTYap   ${CMAKE_SOURCE_DIR}/CXX ${CMAKE_BINARY_DIR})
@@ -79,13 +82,19 @@ if (DOXYGEN_FOUND)
     ${CMAKE_SOURCE_DIR}/pl/boot2.yap
     ${CMAKE_SOURCE_DIR}/library/apply.yap
     ${CMAKE_SOURCE_DIR}/library/dialect/bprolog
+    ${CMAKE_SOURCE_DIR}/library/dialect/bprolog.yap
+    ${CMAKE_SOURCE_DIR}/library/dialect/swi
+    ${CMAKE_SOURCE_DIR}/library/dialect/swi.yap
     ${CMAKE_SOURCE_DIR}/library/clp
-    ${CMAKE_SOURCE_DIR}/swi/library/clp
+    ${CMAKE_SOURCE_DIR}/swi
     ${CMAKE_SOURCE_DIR}/packages/myddas/sqlite3/src
     ${CMAKE_SOURCE_DIR}/swi/console
     ${CMAKE_SOURCE_DIR}/include/cudd
     ${CMAKE_SOURCE_DIR}/docs/src
     ${CMAKE_SOURCE_DIR}/packages/jpl
+    ${CMAKE_SOURCE_DIR}/packages/chr
+    ${CMAKE_SOURCE_DIR}/packages/CLPBN
+    ${CMAKE_SOURCE_DIR}/packages/gecode
     ${CMAKE_SOURCE_DIR}/packages/prism
     ${CMAKE_SOURCE_DIR}/packages/cuda
     ${CMAKE_SOURCE_DIR}/packages/meld
