@@ -511,7 +511,7 @@ Term  _X_ is before _Y_ in the standard order.
 */
 static Int a_gen_lt(Term t1, Term t2) { return (compare(t1, t2) < 0); }
 
-/** @infixpred   X=< Y is iso
+/** @infixpred   X =< Y is iso
 Term  _X_ is before term  _Y_ in the standard order, or they are the same term.
 
 */
@@ -709,7 +709,7 @@ static Int p_acomp(USES_REGS1) { /* $a_compare(?R,+X,+Y) */
 }
 
 /**
-   @pred =:=( _X,_Y_ ) is iso
+   @infixpred =:= _X_ == _Y_ ) is iso
    Equality of arithmetic expressions
 
    The value of the expression  _X_ is equal to the value of expression _Y_.
@@ -748,7 +748,7 @@ static Int a_eq(Term t1, Term t2) {
 }
 
 /**
-    @pred  _X =\= _Y_ is iso
+    @infixpred  _X =\= _Y_ is iso
 
     Difference of arithmetic expressions
 
@@ -762,7 +762,7 @@ static Int a_dif(Term t1, Term t2) {
 }
 
 /**
-    @pred  _X >_Y_  is iso
+    @infixpred  _X > _Y_  is iso
    Greater than arithmetic expressions
 
    The value of the expression  _X_ is greater than the value
@@ -775,7 +775,7 @@ static Int a_gt(Term t1, Term t2) { /* A > B		 */
 }
 
 /**
-   @pred  _X >= _Y_ is iso
+   @infixpred  _X >= _Y_ is iso
    Greater than or equal to arithmetic expressions
 
    The value of the expression  _X_ is greater than or equal to the
@@ -788,7 +788,7 @@ static Int a_ge(Term t1, Term t2) { /* A >= B		 */
 }
 
 /**
-   @pred  _X < _Y_  is iso
+   @infixpred  _X < _Y_  is iso
 
    Lesser than arithmetic expressions
 
@@ -803,7 +803,7 @@ static Int a_lt(Term t1, Term t2) { /* A < B       */
 
 /**
  *
-   @pred _X > _Y_  is iso
+   @infixpred _X > _Y_  is iso
 
   Lesser than or equal to arithmetic expressions
 
