@@ -25,7 +25,7 @@ static char SccsId[] = "%W% %G%";
 
 /**
    @defgroup arithmetic_predicates Predicates that perform arithmetic
-   @ingroup arithmetic
+   @ingroup Arithmetic
 @{
 */
 #include "Yap.h"

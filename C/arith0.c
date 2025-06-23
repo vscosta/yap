@@ -23,30 +23,26 @@ static char     SccsId[] = "%W% %G%";
 
 */
 
-//! @{
 
 /**
-   @defgroup arithmetic_operators Arithmetic Functions
-   @ingroup arithmetic
 
-  @anchor arith0op
+   @defgroup Arithmetic_operators0 0-ary Operations
+   @ingroup Arithmetic  
+   @{
+
    YAP implements several arithmetic functions, they are defined as
    fields in three enumerations, such that there is one enumeration
-   per each different arity:  
+   per each different arity:
 
-    - #arith0op defines constants and arity 0 arithmetic functions
+- @ref Arithmetic_operators0 defines constants and arity 0 arithmetic functions
 
-      @copydoc #arith0op
+- @ref Arithmetic_operators1  defines single argument arithmetic functions
 
-    - #arith1op defines single argument arithmetic functions
+- @ref Arithmetic_operators2 defines binary arithmetic functions
 
-      @copydoc #arith1op
 
-    - #arith2op defines binary arithmetic functions
 
-      @copydoc #arith2op
-
-  Arithmetic expressions
+      Arithmetic expressions
   in YAP may use the following operators:
 
   {#pi0}
@@ -119,7 +115,7 @@ static char     SccsId[] = "%W% %G%";
    - <b>global</b><p>  @anchor global0
 
      Global stack in use, in bytes.
- *
+
  */
 
 #include "Yap.h"

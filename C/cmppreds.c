@@ -21,6 +21,7 @@
 * Implements term and arithmetic comparison.
 *
 * @defgroup ComparingTerms Comparing Prolog Terms
+@ingroup Builtins
 
 The following predicates are used to compare and order terms, using the
 standard ordering.
@@ -517,7 +518,8 @@ Term  _X_ is before term  _Y_ in the standard order, or they are the same term.
 */
 static Int a_gen_le(Term t1, Term t2) { return (compare(t1, t2) <= 0); }
 
-/** @infixpred X @> Y  is iso
+/**
+   @infixpred X @> Y  is iso
 
 
 Term  _X_ is after term  _Y_ in the standard order

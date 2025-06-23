@@ -31,10 +31,15 @@ valid_suffix('.ypp').
 */
 
 main :-
-    open('/tmp/yap', read, _S, [alias(user_output)]),
     retractall(visited(_)),
     retractall(pred_found(_,_,_)),
     unix(argv([File])),
+    atom_list_concat(Cs,'/',File),
+    atom_list_concat(Cs,'_'  ,OFile),
+atom_concat(OFile,'.cpp',OOFile),
+    working_directory(OldD0, yapdocs),
+    open(OOFile, write, W),
+    working_directory(_New,OldD0),
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
     \+ visited(File),
     %    valid_suffix(ValidSuffix),
@@ -49,11 +54,12 @@ main :-
     findall(O, user:entry(S,O), Info),
 %spy trl,
      predicates(Info, true/0, Preds, _),
-     insert_module_header,
-     maplist(output,Preds),
+     insert_module_header(W),
+     maplist(output(W),Preds),
      working_directory(_,OldD),
      current_source_module(_,M0),
-     insert_module_tail,
+     insert_module_tail(W),
+     flush_output,
  %    fail,
      halt.
  main.
@@ -64,7 +70,7 @@ main :-
 
 
      read_stream_to_string(S,Text),
-     format('~s',[Text]).
+     format(ostream,'~s',[Text]).
  */
 
  %%
@@ -143,12 +149,12 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
 	   Preds, [comments(Comments), head_body(Head, Body, Vs)|L0]) :-
                         predicates(More,N/A,Preds,L0).
 
-output(command([comments(Comments) |_])) :-
-    maplist(out_comment,Comments ).
-output(predicate(N/A,[comments(Comments) |_Clauses])) :-
+output(W,command([comments(Comments) |_])) :-
+    maplist(out_comment(W),Comments ).
+output(W,predicate(N/A,[comments(Comments) |_Clauses])) :-
     encode(N/A,S1),
     atom_string(NA,S1),
-    maplist(out_comment,Comments),
+    maplist(out_comment(W),Comments),
     addcomm(N/A,S1,_Found),
     findall(I,between(1,A,I),Is),
     maplist(number_atom,Is,AIs),
@@ -158,31 +164,31 @@ output(predicate(N/A,[comments(Comments) |_Clauses])) :-
       ->
       (
       A==0 ->
-      format(' class  ~s {        ~w();~n};~n~n~n',[ S1,NA])
+      format(W,' class  ~s {        ~w();~n};~n~n~n',[ S1,NA])
       ;
       T =.. [NA|NIs],
-      format(' class  ~s {        ~w();~n};~n~n~n',[ S1,T])
+      format(W,' class  ~s {        ~w();~n};~n~n~n',[ S1,T])
       );
     true
     ) .
 
-insert_module_header :-
+insert_module_header(W) :-
     current_source_module(M,M),
-    %    format('class Predicate(M),
+    %    format(ostream,'class Predicate(M),
     !,
-    format('namespace ~s~n{~n',[M]).
+    format(W,'namespace ~s~n{~n',[M]).
 insert_module_header.
 
-insert_module_tail :-
+insert_module_tail(W) :-
     defines_module(_M),
     !,
-    format('}~n',[]).
+    format(W,'}~n',[]).
 insert_module_tail.
 
-out_comment(C) :-
+out_comment(W,C) :-
     simplify(C,Simplified),
     !,
-    format('~s~n',[Simplified]).
+    format(W,'~s~n',[Simplified]).
 
 simplify(C,Simplified) :-
     sub_string(C,0,4,_,"/**<"),
@@ -446,7 +452,7 @@ addcomm(N/A,S,false) :-
     length(L,A),
     maplist(=('?'),L),
     T =.. [N|L],
-    format('~n~n/**   @class ~s~n	 **~w**s     (undocumented)  **/~n~n',[S,T]).
+    format(ostream,'~n~n/**   @class ~s~n	 **~w**s     (undocumented)  **/~n~n',[S,T]).
 addcomm(_,_,_).
 
 

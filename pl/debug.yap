@@ -517,7 +517,7 @@ step_goal(G,M, GoalNumber) :-
     '$zip_at_port'(call,GoalNumber,M:G),
     !,
     '$stop_creeping'(_),
-    '$execute'( MG).
+    '$execute'( M:G).
 
   '$move_to'(M:G,GoalNumber) :-
     '$predicate_type'(G,M,T),

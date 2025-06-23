@@ -20,8 +20,11 @@ static char     SccsId[] = "%W% %G%";
 
 /**
    @file arith1.c
+*/
 
-   @addtogroup arithmetic_operators
+/**
+   @defgroup Arithmetic_operators1 Unary Operations
+   @ingroup Arithmetic
 @{
   @anchor arith1op
    @anchor exp1

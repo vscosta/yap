@@ -33,12 +33,13 @@ static char * infixpred_doc(char *line, char *end, ssize_t sz) {
   char  *pred, *start=line;
   char buf[4096];
   if((pred = strstr(line,"@infixpred"))!=NULL && (!end || pred <end) )       {
+    fprintf(ostream, "%*s",  (int)(pred-start),start);
     char *arg1 = strtok(pred+10, " \t");
     char *op = strtok(NULL, " \t");
     char *arg2 = strtok(NULL, " \t");
+
     line = arg2+strlen(arg2)+1;
-    fprintf(ostream, "%*.s @class %s\n@brief %s/%d %s **%s** %s",
-	    (int)(pred-start),start,
+    fprintf(ostream, " @class %s\n@brief %s/%d %s **%s** %s ",
 	    protect_class(buf,op,strlen(op),2),op,2,
 	    arg1, op, arg2);
   }
@@ -63,7 +64,7 @@ static char * pred_doc(char *line, char *end, ssize_t sz) {
   if((pred = strstr(line,"@pred"))!=NULL && (!end || pred <end) )       {
     char *prefix = strtok(pred, " \t");
     name = strtok(NULL, "(");
-    if (name == NULL) {
+    if (name == NULL || name+strlen(name)==end) {
       name = prefix+strlen(prefix)+1;
       name = strtok(name, " \n");
       fprintf(ostream, "%*s @class %s\n@brief %s/%d **%s**",
@@ -71,9 +72,9 @@ static char * pred_doc(char *line, char *end, ssize_t sz) {
 	      protect_class(buf,name,strlen(name),0),name,0,name);
     } else {
       args = strtok(NULL, ")");
-      line = args+strlen(args)+1;
+       line = args+strlen(args)+1;
       int arity = commas(args);
-      fprintf(ostream, "%.*s @class %s\n@brief %s/%d **%s(%s)**",
+      fprintf(ostream, "%*s @class %s\n@brief %s/%d **%s(%s)**",
 	      (int)(pred-start),line,
 	      protect_class(buf,name,strlen(name),arity),
 	      name, arity, name, args);
@@ -85,11 +86,12 @@ static char * pred_doc(char *line, char *end, ssize_t sz) {
 static char *process_doc(char *line, ssize_t sz) {
   char *end = line+sz;
   line = infixpred_doc(line, end, sz);
-  sz = end-line;
+  if ( sz == end-line)
   line = pred_doc(line, end, sz);
-  if (line[0])
+  if (line[0]) {
     fprintf(ostream,"%s",line);
-
+    line = NULL;
+  }
   return line;
 }
 
@@ -99,14 +101,14 @@ char *pi;
 while (
        line &&
        (pi=strchr(line,'/'))!=NULL) {
-  char *pi0 = pi;
+-  char *pi0 = pi;
   if (!isdigit(pi0[1]))
     break;
   pi0--;
   while (pi0 >= line && (pi0[0]=='_'|| isalnum(pi0[0])))
     pi0--;
   pi0++;
-  fprintf(ostream,"%.*s @ref %s @\"%.*s/%c\""  ,(int)(pi0-line),line,
+  fprintf(ostream,"%*s @ref %s @\"%*s/%c\""  ,(int)(pi0-line),line,
 
 	  protect_class(buf,pi0,(size_t)(pi-pi0),pi[1]),
 	  (int)(pi-pi0),pi0,pi[1] );
@@ -116,7 +118,7 @@ while (
  }
 
 if (line && (pi=strstr(line,"*/"))) {
-  fprintf(ostream,"%.*s  %.*s",(int)(pi-line),line,2,pi);
+  fprintf(ostream,"%*s  %*s",(int)(pi-line),line,2,pi);
  }
 
 
@@ -139,7 +141,6 @@ static bool codecomm(char *p)
 }
 
 static FILE * input(char *inp) {
-    bool md_file=false;
     if (strstr(inp,".yap" ) ||
 	     strstr(inp,".ypp" ) ||
 	     strstr(inp,".pl" )) {
@@ -148,30 +149,33 @@ static FILE * input(char *inp) {
     snprintf(s, 2047, "%s %s -L %s -- %s", YAPBIN, YAPSTARTUP, PLFILTER, inp);
     system(s);
     exit(0);
-						} else if (strstr(inp,".py")) {
+    } else if (strstr(inp,".py")) {
         char s[2048];
       snprintf(s,2047,"cat %s",inp);
       system(s);
       exit(0);
       return NULL;
-						} else if (strstr(inp,".md")) {
-     md_file = true;
-    } else if (!strcmp("-", inp)) {
-    return stdin;
-  } else {
+    }  else {
     return fopen(inp, "r");
   }
+    return NULL;
 }
 
-static FILE *output(int argc, char *out) {
-return stderr;
-    if (!strcmp("-", out)) {
-    return stdout;
-  } else if ( argc == 3) {
-    return  fopen("/tmp/yap.cpp","a");
-  }  else {
-    return fopen( out,"a");
-  }
+static FILE *output(char *inp) {
+  char s[2048], *p;
+  chdir("yapdocs");
+  s[0] = '\0';
+  p = s;
+      int i=0;
+      while (inp[i]) {
+        if (inp[i] == '/')
+          p[i] = '_';
+        else
+          p[i] = inp[i];
+        i++;
+      }
+      p[i] = '\0';
+    return fopen( s,"w");
 }
 
 
@@ -184,11 +188,11 @@ int main(int argc, char *argv[]) {
     f= stdin;
     ostream = stdout;
   } else if (argc==2) {
-    ostream = stdout;
     f = input(argv[1]);
+    ostream = output(argv[1] );
   } else {
     f = input(argv[1]);
-    ostream = output(argc,argv[2]);
+    ostream = output(argv[1]);
   }
   bool code=false;
     while (getline(&line,&n,f)>0) {
@@ -196,34 +200,37 @@ int main(int argc, char *argv[]) {
       char *line0=line;
       if ((p=strstr(line,"/*"))) {
 	/* code comment */
-	line = p;
+	if (p!=line) {
+	  fprintf(ostream, "%*s", p-line, line);
+         }
+         line = p;
 	code = codecomm(p);
 	do {
 	if (!line0) {
 	line0=line;
-	current_line++;
-	}
-	ostream=fopen("yap.cpp","a");
-	if (md_file) {
-	fprintf(ostream,"/**  */\n");
-	}
-	}
-	  if ((p = strstr(line, "*/"))) {
+        current_line++;
+        }
+	if ((p = strstr(line, "*/"))) {
 	    p += 2;
 	    if (code) {
-	      process_doc(line, p - line);
+              process_doc(line, p - line);
+	      
+	    } else {
+              fprintf(ostream, "%s", line);
 	    }
 	    break;
 	  } else {
 	    if (code) {
 	      process_doc(line, strlen(line));
+            } else {
+              fprintf(ostream, "%s", line);
 	    }
 	  }
-			if (line0) {
-			free(line0);
-			}
-			line0 = line = NULL;
-	} while (getline(&line,&n,f));
+	if (line0) {
+	  free(line0);
+	}
+	line0 = line = NULL;
+	 } while (getline(&line,&n,f));
       } else if ((p=strstr(line,"//"))) {
 	code = (code || codecomm(p));
 
@@ -231,9 +238,10 @@ int main(int argc, char *argv[]) {
 	if (code) {
 	fprintf(ostream,"\n# %d \"%s\"\n",current_line, argv[1]);
 	  process_doc(line, strlen(line));
-	}
+	} else fprintf(ostream, "%s",line);
       } else {
-	code  = false;
+	fprintf(ostream, "%s",line);
+	code  = false;;
       }
       if (feof(f)) {
 	exit(0);
@@ -243,9 +251,6 @@ int main(int argc, char *argv[]) {
       }
       line0=line = NULL;
     }
-   	if (md_file) {
-	fprintf(ostream,"  */\n");
-	}
 
 }
 

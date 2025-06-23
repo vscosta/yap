@@ -22,9 +22,9 @@ static char     SccsId[] = "%W% %G%";
 
    @file arith2.c
 
-   @addtogroup arithmetic_operators
+   @defgroup arithmetic_operators2 Binary Operators
+   @ingroup Arithmetic
 @{
-  @anchor arith2op
    These are the binary numeric operators currently supported by YAP.
 
    -  *_X_+ _Y_ [ISO]* @anchor plus2
