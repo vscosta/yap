@@ -134,7 +134,7 @@ if (DOXYGEN_FOUND)
 
     doxygen_add_docs(
     dox
-    ${CMAKE_SOURCE_DIR}/docs/extra
+    ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/C
     ${CMAKE_SOURCE_DIR}/H
     ${CMAKE_SOURCE_DIR}/include
@@ -151,8 +151,9 @@ if (DOXYGEN_FOUND)
     configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
     add_custom_target(docs2md
-    COMMAND ${CMAKE_COMMAND} -E rm -fr  mkdocs
+    COMMAND ${CMAKE_COMMAND} -E rm -fr  mkdocs yapdocs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
+    COMMAND ${CMAKE_COMMAND} -E make_directory yapdocs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  ${CMAKE_BINARY_DIR}/INSTALL.md ${DOCS_MD_FILES}  mkdocs/docs

@@ -1,4 +1,3 @@
-/**
    @addtogroup AttributedVariables Support for Attributed Variables
 @ingroup YapExtensions
 @{
@@ -356,4 +355,4 @@ The predicate domain/2 fetches (first clause) or assigns
   these attributes.
 
 @}
-*/
+

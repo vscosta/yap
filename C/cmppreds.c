@@ -500,19 +500,18 @@ Int Yap_compare_terms(Term d0, Term d1) {
   return compare(Deref(d0), Deref(d1));
 }
  
-/** @infixpred  X \= Y is iso
-
+/** @infixpred  X \== Y is iso
 Terms  _X_ and  _Y_ are not strictly identical.
 */
 static Int a_noteq(Term t1, Term t2) { return (compare(t1, t2) != 0); }
 
-/** @infixpred   X @< Y is iso
+/** @infixpred   X @lt Y is iso
 Term  _X_ is before _Y_ in the standard order.
 
 */
 static Int a_gen_lt(Term t1, Term t2) { return (compare(t1, t2) < 0); }
 
-/** @infixpred   X =< Y is iso
+/** @infixpred   X =&lt; Y is iso
 Term  _X_ is before term  _Y_ in the standard order, or they are the same term.
 
 */
