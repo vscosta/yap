@@ -12,10 +12,9 @@ plugins:
   - mkdoxy:
       projects:
         YAP: # name of project must be alphanumeric + numbers (without spaces)
-          src-dirs: ../yapdocs
+          src-dirs: ../yapdocs ../../CXX
           full-doc: True # if you want to generate full documentation
           doxy-cfg: # standard doxygen configuration (key: value)
-
             RECURSIVE: True # recursive search in source directories
             ALLOW_UNICODE_NAMES: True
             INLINE_SIMPLE_STRUCTS: True
@@ -30,11 +29,16 @@ nav:
    - Home: YAP/index.md
    - INSTALL: YAP/INSTALL.md
    - Calling YAP: YAP/CALLING_YAP.md
-   - Core Built-ins: YAP/group__Builtins.md
+   -   Built-ins:
+       - Core: YAP/group__Builtins.md
+       - Input-Output: YAP/group__InputOutput.md
    - Programming: YAP/group__YAPProgramming.md
    - Extensions: YAP/group__YapExtensions.md
    - Library: YAP/group__YAPLibrary.md
    - Available Packages: YAP/group__YAPPackages.md
    - Foreign Language Interface : YAP/group__YAPAPI.md
-
+   - Indices:
+       - YAP/classes.md
+       - YAP/modules.md
+       - YAP/namespaces.md
 

@@ -443,6 +443,9 @@ trace_goal('$drop_exception'(V,J), _, _, _, _) :-
     !,
     '$off_debugger',
     '$drop_exception'(V,J).
+trace_goal(expand_goal(V,J), _, _, _, _) :-
+    !,
+    expand_goal(V,J).
 
 trace_goal(true,_, _, _,  _CP) :-
     !.
@@ -494,7 +497,7 @@ trace_goal(G, M, _Ctx, GN, _CP) :-
     '$execute'(M:G).    
 trace_goal(G, M, Ctx, GN, CP) :-
     '$id_goal'(GoalNumber),
-    '$interact'(call, M:G, GoalNumber), 
+%    '$interact'(call, M:G, GoalNumber), 
     (
       '$zip_at_port'(call,GoalNumber,M:G)
       ->

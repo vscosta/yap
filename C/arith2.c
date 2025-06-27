@@ -347,7 +347,7 @@ p_rdiv(Term t1, Term t2 USES_REGS) {
     case (CELL)big_int_et:
       return Yap_gmq_rdiv_big_big(t1, t2);
     case double_et:
-      Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "rdiv/2");
+     Yap_ThrowError(TYPE_ERROR_INTEGER, t2, "rdiv/2");
     default:
       return 0L;
     }
@@ -372,7 +372,9 @@ p_fdiv(Term t1, Term t2 USES_REGS)
     case long_int_et:
       {
 	Int i2 = IntegerOfTerm(t2);
-
+        if (i2 == 0) {
+          Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
+	}
 	/* two integers */
 	RFLOAT((((Float)IntegerOfTerm(t1))/(Float)i2));
       }
@@ -381,6 +383,9 @@ p_fdiv(Term t1, Term t2 USES_REGS)
 	/* integer, double */
 	Float fl1 = (Float)IntegerOfTerm(t1);
 	Float fl2 = FloatOfTerm(t2);
+	if (fl2 == 0.0) {
+          Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
+	}
 	RFLOAT(fl1/fl2);
       }
     case (CELL)big_int_et:
@@ -397,18 +402,23 @@ p_fdiv(Term t1, Term t2 USES_REGS)
       /* float / integer */
       {
 	Int i2 = IntegerOfTerm(t2);
+	if (i2 == 0) {
+          Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... r1div  0");
+	}
 	RFLOAT(FloatOfTerm(t1)/(Float)i2);
       }
     case double_et:
       {
 	Float f2 = FloatOfTerm(t2);
+	if (f2 == 0.0)
+	  Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
 	RFLOAT(FloatOfTerm(t1)/f2);
       }
     case big_int_et:
 #ifdef USE_GMP
       return Yap_gmp_fdiv_float_big(FloatOfTerm(t1), t2);
 #endif
-    default:
+   default:
       return false;
     }
     break;

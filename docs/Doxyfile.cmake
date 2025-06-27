@@ -5,9 +5,19 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 
 
 set(DOX_MD_FILES
-  ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md)
+  ${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
+ ${CMAKE_SOURCE_DIR}/docs/md/Builtins.md
+ ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
+ ${CMAKE_SOURCE_DIR}/docs/md/Modules.md
+ ${CMAKE_SOURCE_DIR}/docs/md/Syntax.md
+ ${CMAKE_SOURCE_DIR}/docs/md/YAPAPI.md
+ ${CMAKE_SOURCE_DIR}/docs/md/YapExtensions.md
+ ${CMAKE_SOURCE_DIR}/docs/md/YAPLibrary.md
+ ${CMAKE_SOURCE_DIR}/docs/md/YAPPackages.md
+  ${CMAKE_SOURCE_DIR}/docs/md/YAPProgramming.md
+ )
 
-file( MAKE_DIRECTORY sphinx )
+File( MAKE_DIRECTORY sphinx )
 file( MAKE_DIRECTORY sphinx/source)
 file( MAKE_DIRECTORY sphinx/source/images)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/Makefile DESTINATION sphinx)
@@ -41,7 +51,7 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_GENERATE_HTML NO)
     set(DOXYGEN_GENERATE_MAN NO)
     set(DOXYGEN_GENERATE_TREEVIEW YES)
-    set(DOXYGEN_GENERATE_XML YES)
+    set(DOXYGEN_GENERATE_XML NO)
     set(DOXYGEN_GROUP_NESTED_COMPOUNDS YES)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_HIDE_COMPOUND_REFERENCE NO)
@@ -138,40 +148,47 @@ if (DOXYGEN_FOUND)
     ${CMAKE_SOURCE_DIR}/C
     ${CMAKE_SOURCE_DIR}/H
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/CXX
     ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/OPTYap
     ${CMAKE_SOURCE_DIR}/packages
-    COMMENT "Generated XML files"
+    COMMENT "Generating XML files"
   )
 
-    configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/index.md)
+    configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/yap.md)
+    configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
     configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
-    add_custom_target(docs2md
-    COMMAND ${CMAKE_COMMAND} -E rm -fr  mkdocs yapdocs
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
-    COMMAND ${CMAKE_COMMAND} -E make_directory yapdocs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  ${CMAKE_BINARY_DIR}/INSTALL.md ${DOCS_MD_FILES}  mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/images
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/images
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/images/favicon.ico
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  mkdocs/docs/javascripts
-    COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md  -- xml mkdocs/docs ${CMAKE_BINARY_DIR}
-    DEPENDS STARTUP filter-bin dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
-    USES_TERMINAL
-  )
     add_dependencies(filter-bin STARTUP)
-    add_dependencies(dox filter-bin STARTUP)
-    add_custom_target(mkdocs
-    COMMAND mkdocs build
-    WORKING_DIRECTORY mkdocs
-    DEPENDS filter-bin docs2md
+
+add_custom_target(predox
+    COMMAND ${CMAKE_COMMAND} -E rm -fr  mkdocs 
+    COMMAND ${CMAKE_COMMAND} -E make_directory yapdocs
+    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS filter-bin 
+  )
+
+    add_dependencies( dox predox)
+
+add_custom_target(mkdocs
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  .
+      COMMAND ${CMAKE_COMMAND} -E make_directory docs
+  COMMAND ${CMAKE_COMMAND} -E make_directory docs/YAP
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  docs/YAP
+    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/INSTALL.md docs/YAP
+     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md docs/YAP
+    COMMAND ${CMAKE_COMMAND} -E copy ${DOX_MD_FILES}  ../yapdocs
+    COMMAND ${CMAKE_COMMAND} -E make_directory docs/YAP/bimages
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  docs/YAP/images
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico docs/YAP/images/favicon.ico
+    COMMAND ${CMAKE_COMMAND} -E make_directory docs/YAP/javascripts
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  docs/YAP/javascripts
+   COMMAND mkdocs build
+    DEPENDS  dox predox
+     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/mkdocs
+   USES_TERMINAL
   )
 
     add_custom_target(sphinx

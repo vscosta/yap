@@ -885,6 +885,7 @@ typedef struct swi_mutex {
   UInt owners;
   Int tid_own;
   MutexEntry *alias;
+  bool zombie;
   pthread_mutex_t m;
   UInt timestamp;
   struct swi_mutex *backbone; // chain of all mutexes
@@ -933,6 +934,7 @@ static SWIMutex *NewMutex(void) {
   mutp->owners = 0;
   mutp->tid_own = 0;  
   mutp->alias = NIL;  
+  mutp->zombie = false;
   UNLOCK(GLOBAL_MUT_ACCESS);
   return mutp;
 }
@@ -964,6 +966,68 @@ static SWIMutex *MutexOfTerm__(Term t USES_REGS){
   }
   return mut;
 }
+static bool LockMutex(SWIMutex *mut USES_REGS) {
+		     
+  // lock has been removed
+if (mut->zombie) {
+    // already removed.
+     Yap_ThrowError(EXISTENCE_ERROR_MUTEX, ARG1, "destroy_mutex");
+  }
+  if (mut->tid_own == worker_id) {
+    mut->owners++;
+    return true;
+}
+#if DEBUG_LOCKS
+  MUTEX_LOCK(&mut->m);
+#else
+  if (!MUTEX_LOCK(&mut->m) )
+    return FALSE;
+#endif
+  mut->owners++;
+  mut->tid_own = worker_id;
+  if (LOCAL_Mutexes)
+    mut->prev = LOCAL_Mutexes->prev;
+  else
+    mut->prev = NULL;
+  mut->next = LOCAL_Mutexes;
+  LOCAL_Mutexes = NULL;
+  return true;
+}
+
+static bool mv_to_lock_cache(SWIMutex *mut) {
+  LOCK(GLOBAL_MUT_ACCESS);
+  if (GLOBAL_FreeMutexes)
+    mut->prev = GLOBAL_FreeMutexes->prev;
+  else
+    mut->prev = NULL;
+  mut->next = GLOBAL_FreeMutexes;
+  GLOBAL_FreeMutexes = mut;
+  pthread_mutex_destroy(&mut->m);
+    mut->owners = 0;
+    mut->tid_own	= -1;
+    mut->zombie = false;
+  UNLOCK(GLOBAL_MUT_ACCESS);
+  return true;
+}
+static bool
+UnLockMutex( SWIMutex *mut USES_REGS)
+{
+ if (mut->tid_own == worker_id && mut->owners > 1) {
+    mut->owners--;
+    return true;
+}
+if (mut->zombie) {
+  return  mv_to_lock_cache(mut);
+ }  // already removed.
+#if DEBUG_LOCKS
+  MUTEX_UNLOCK(&mut->m);
+#else
+  if (MUTEX_UNLOCK(&mut->m) < 0)
+    return false;
+#endif
+  mut->owners--;
+  return true;
+}
 
 static Int
 p_new_mutex( USES_REGS1 ){
@@ -992,6 +1056,8 @@ p_new_mutex( USES_REGS1 ){
   return FALSE;
 }
 
+  
+
 /** @pred mutex_destroy(+ _MutexId_)
 
     Destroy a mutex.  After this call,  _MutexId_ becomes invalid and
@@ -1003,73 +1069,21 @@ static Int p_destroy_mutex( USES_REGS1 )
 {
   SWIMutex *mut = MutexOfTerm(Deref(ARG1));
   if (!mut)
-    return FALSE;  
-  if (pthread_mutex_destroy(&mut->m) < 0)
-     return FALSE;
+    Yap_ThrowError(EXISTENCE_ERROR_MUTEX, ARG1, "destroy_mutex");
+  if (mut->zombie) {
+    // already removed.
+     Yap_ThrowError(EXISTENCE_ERROR_MUTEX, ARG1, "destroy_mutex");
+  }
+  if (worker_id != mut->tid_own &&
+      !LockMutex(mut PASS_REGS))
+    return false;
   if (mut->alias) {
     mut->alias->Mutex  = NULL;
   }
-  mut->owners = -1;
-  mut->tid_own = -1;
-  LOCK(GLOBAL_MUT_ACCESS);
-  if (GLOBAL_FreeMutexes)
-    mut->prev = GLOBAL_FreeMutexes->prev;
-  else
-    mut->prev = NULL;
-  mut->next = GLOBAL_FreeMutexes;
-  GLOBAL_FreeMutexes = mut;
-  UNLOCK(GLOBAL_MUT_ACCESS);
+	if (mut->owners == 1) {
+    mv_to_lock_cache(mut);
+	}
   return TRUE;
-}
-
-static bool
-LockMutex( SWIMutex *mut USES_REGS)
-{
-  if (mut->tid_own == worker_id) {
-    mut->owners++;
-    return true;
-}
-#if DEBUG_LOCKS
-  MUTEX_LOCK(&mut->m);
-#else
-  if (MUTEX_LOCK(&mut->m) < 0)
-    return FALSE;
-#endif
-  mut->owners++;
-  mut->tid_own = worker_id;
-  if (LOCAL_Mutexes)
-    mut->prev = LOCAL_Mutexes->prev;
-  else
-    mut->prev = NULL;
-  mut->next = LOCAL_Mutexes;
-  LOCAL_Mutexes = NULL;
-  return true;
-}
-
-static bool
-UnLockMutex( SWIMutex *mut USES_REGS)
-{
-  if (mut->tid_own == worker_id && mut->owners > 1) {
-    mut->owners--;
-    return true;
-}
-#if DEBUG_LOCKS
-  MUTEX_UNLOCK(&mut->m);
-#else
-  if (MUTEX_UNLOCK(&mut->m) < 0)
-    return FALSE;
-#endif
-  mut->owners--;
-  if (mut->prev) {
-    mut->prev->next = mut->next;
-  } else {
-    LOCAL_Mutexes = mut->next;
-    if (mut->next)
-      mut->next->prev = NULL;
-  }
-  if (mut->next)
-    mut->next->prev = mut->prev;
-  return true;
 }
 
 /** @pred mutex_lock(+ _MutexId_) 
@@ -1116,9 +1130,16 @@ p_trylock_mutex( USES_REGS1 )
   SWIMutex *mut = MutexOfTerm(Deref(ARG1));
   if (!mut)
     return FALSE;
-  
+  Int own = mut->tid_own;
+  if (own < 0) {    
   if (MUTEX_TRYLOCK(&mut->m) == EBUSY)
     return FALSE;
+  } else {
+
+    if (own != worker_id)
+      return false;
+    /////
+  }
   mut->owners++;
   mut->tid_own = worker_id;
   return TRUE;
@@ -1134,7 +1155,7 @@ p_trylock_mutex( USES_REGS1 )
  
 */
 static Int
-p_unlock_mutex( USES_REGS1 )
+p_unlock_mutex(  USES_REGS1 )
 {
   SWIMutex *mut = MutexOfTerm(Deref(ARG1));
   if (!mut || !UnLockMutex( mut PASS_REGS))
@@ -1355,12 +1376,27 @@ p_mbox_destroy( USES_REGS1 )
 	   mboxp = mboxp->next;
        }
      }
-     if (!mboxp->open)
-       return mboxReceive(mboxp, &t PASS_REGS) &&
-      Yap_unify(ARG2,t);
+   UNLOCK(GLOBAL_mboxq_lock);
+    if (!mboxp->open) {
+       CACHE_REGS
+	 if (mboxReceive(mboxp, &t PASS_REGS) && Yap_unify(ARG2, t))
+	   return mboxp;
+     }
+   }
+     return NULL;
+ } 
+
+
+ static Int
+ p_mbox_send( USES_REGS1 )
+ {
+   Term namet = Deref(ARG1);
+   mbox_t* mboxp = getMbox(namet) ;
+
+   if (!mboxp)
+     return FALSE;
+   return mboxSend(mboxp, Deref(ARG2) PASS_REGS);
  }
-
-
  static Int
  p_mbox_peek( USES_REGS1 )
  {
@@ -1383,6 +1419,30 @@ p_cond_create( USES_REGS1 )
   pthread_cond_init(condp, NULL);
   return Yap_unify(ARG1, MkIntegerTerm((Int)condp));
 }
+
+ static Int
+ p_mbox_receive( USES_REGS1 )
+ {
+   Term namet = Deref(ARG1);
+    mbox_t* mboxp = getMbox(namet) ;
+    if (!mboxp)
+       return FALSE;
+    Term t = 0;
+    return mboxReceive(mboxp, &t PASS_REGS) &&
+      Yap_unify(ARG2,t);
+ }
+
+
+ static Int
+ p_mbox_size( USES_REGS1 )
+ {
+   Term namet = Deref(ARG1);
+   mbox_t* mboxp = getMbox(namet) ;
+
+   if (!mboxp)
+     return FALSE;
+   return Yap_unify( ARG2, MkIntTerm(mboxp->nmsgs));
+ }
 
 static Int
  p_cond_destroy( USES_REGS1 )

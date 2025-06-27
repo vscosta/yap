@@ -1769,7 +1769,7 @@ char * Yap_dump_stack(FILE *f) {
     } else {
 #if !USE_SYSTEM_MALLOC
         fprintf( f, "%%ldKB of Code Space (%p--%p)\n",
-                        (long int) ((CELL) HeapTop - (CELL) Yap_HeapBase) / 1024, Yap_HeapBase,
+		 (long int) ((CELL) HeapTop - (CELL) Yap_HeapBase) / 1024, Yap_HeapBase,
                         HeapTop);
 #if USE_DL_MALLOC
         if (Yap_NOfMemoryHoles) {
@@ -1881,19 +1881,36 @@ bool DumpStack(USES_REGS1) {
 static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,
                                                 ClausePointer cl,
 						PredEntry *pe) {
-         // by default, user_input
-        p->prologPredLine = 0;
-   if (pe->ModuleOfPred == PROLOG_MODULE)
-     p->prologPredModule = "prolog";
-    else
-        p->prologPredModule = AtomName(AtomOfTerm(pe->ModuleOfPred));
+  // by default, user_input
+  p->prologPredLine = 0;
+  if (pe->ModuleOfPred == IDB_MODULE) {
+
+
+    p->prologPredArity = pe->ArityOfPE;
+
+    if (pe->PredFlags & NumberDBPredFlag) {
+      char buf[20];
+      snprintf(buf, 19, "%ld",pe->src.IndxId); 
+       } else if (pe->PredFlags & AtomDBPredFlag) {
+	p->prologPredName = ((Atom) pe->FunctorOfPred)->StrOfAE;
+      } else {
+	Functor f = pe->FunctorOfPred;
+	p->prologPredName = NameOfFunctor(f)->StrOfAE;
+      }
+  } else {
+    if (pe->ModuleOfPred == PROLOG_MODULE) {
+      p->prologPredModule = "prolog";
+    } else {
+      p->prologPredModule = AtomName(AtomOfTerm(pe->ModuleOfPred));
+    }
    if (pe->ArityOfPE>0)
         p->prologPredName = AtomName(NameOfFunctor(pe->FunctorOfPred));
     else
         p->prologPredName = AtomName((Atom) (pe->FunctorOfPred));
     p->prologPredArity = pe->ArityOfPE;
     p->prologPredFile = AtomName(pe->src.OwnerFile);
-    p->prologPredLine = get_clause_line(pe,cl);
+    p->prologPredLine = get_clause_line(pe, cl);
+    }
     return p;
 }
 
