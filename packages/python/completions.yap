@@ -14,7 +14,7 @@
 
 /**
  *  @defgroup YAPCompleter  Call Prolog completer from Python
- *  @ingroup YAPPython
+ *  @ingroup YAP4PY
  *  @{
  *
  *  @brief Prolog completer from Python.

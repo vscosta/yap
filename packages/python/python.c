@@ -6,8 +6,8 @@
  */
 
 /**
- * @defgroup PY4YAP
- * @ingroup python
+ * @ddtogroup PY4YAP
+ * @ingroup PYTHON
  * @brief make Python talk to YAP
  * @{
  */
