@@ -336,11 +336,10 @@ a  *
 %    trace_goal(G,M, inner, _GoalNumberN, _CP0).
 '$trace'(MG, Ctx) :-
     strip_module(MG,M,G),
-    !,
+    '$on_debugger',
     nb_setval(creep,creep),
     nb_setval('$spy_on',stop),
     nb_setval('$spy_target',0),
-    '$on_debugger',
     current_choice_point(CP0),
     trace_goal(G, M, Ctx, _, CP0).
 /*'$trace'(M:G, Ctx) :- % system
@@ -503,8 +502,9 @@ trace_goal(G, M, Ctx, GN, CP) :-
       ->
       '$execute'(M:G)
       ;
+      
       catch(
-    step_goal(G,M,GoalNumber),
+    '$step_goal'(G,M,GoalNumber),
     Error,
     trace_error(Error, GoalNumber, trace_goal(G,M, Ctx, GN, CP))
       )
@@ -513,16 +513,15 @@ trace_goal(G, M, Ctx, GN, CP) :-
 /**
  *
  */
-step_goal(true,_M, _GoalNumber) :-
+'$step_goal'(true,_M, _GoalNumber) :-
     !.
-step_goal(G,M, GoalNumber) :-
+'$step_goal'(G,M, GoalNumber) :-
     '$interact'(call, M:G, GoalNumber), 
     '$zip_at_port'(call,GoalNumber,M:G),
     !,
     '$stop_creeping'(_),
     '$execute'( M:G).
-
-  '$move_to'(M:G,GoalNumber) :-
+'$step_goal'(G,M, GoalNumber) :-
     '$predicate_type'(G,M,T),
     '$step'(T,M:G,GoalNumber).
 

@@ -6,15 +6,16 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 
 set(DOX_MD__FILES
   ${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
- ${CMAKE_SOURCE_DIR}/docs/md/Builtins.md
  ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
- ${CMAKE_SOURCE_DIR}/docs/md/Modules.md
- ${CMAKE_SOURCE_DIR}/docs/md/Syntax.md
- ${CMAKE_SOURCE_DIR}/docs/md/YAPAPI.md
- ${CMAKE_SOURCE_DIR}/docs/md/YapExtensions.md
- ${CMAKE_SOURCE_DIR}/docs/md/YAPLibrary.md
- ${CMAKE_SOURCE_DIR}/docs/md/YAPPackages.md
-  ${CMAKE_SOURCE_DIR}/docs/md/YAPProgramming.md
+ # ${CMAKE_SOURCE_DIR}/docs/md/Builtins.md
+  ${CMAKE_SOURCE_DIR}/docs/md/Modules.md
+  ${CMAKE_SOURCE_DIR}/docs/md/Syntax.md
+ # ${CMAKE_SOURCE_DIR}/docs/md/YAPAPI.md
+ # ${CMAKE_SOURCE_DIR}/docs/md/YapExtensions.md
+ # ${CMAKE_SOURCE_DIR}/docs/md/YAPLibrary.md
+ # ${CMAKE_SOURCE_DIR}/docs/md/YAPPackages.md
+ #  ${CMAKE_SOURCE_DIR}/docs/md/YAPProgramming.md
+  ${CMAKE_SOURCE_DIR}/docs/extra/YapDocs.h
  )
 
 File( MAKE_DIRECTORY sphinx )
