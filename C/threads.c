@@ -882,8 +882,6 @@ p_valid_thread( USES_REGS1 )
 /* Mutex Support */
 
 typedef struct swi_mutex {
-  UInt owners;
-  Int tid_own;
   MutexEntry *alias;
   bool zombie;
   pthread_mutex_t m;
@@ -902,10 +900,6 @@ static SWIMutex *NewMutex(void) {
   LOCK(GLOBAL_MUT_ACCESS);
   mutp = GLOBAL_FreeMutexes;
   while (mutp) {
-    if ((Int)(mutp->owners) < 0) {
-      // just making sure
-      break;
-    }
     mutp = mutp->next;
   }
   if (mutp == NULL) {
@@ -931,8 +925,6 @@ static SWIMutex *NewMutex(void) {
     // reuse existing mutex
     mutp->timestamp++;
   }
-  mutp->owners = 0;
-  mutp->tid_own = 0;  
   mutp->alias = NIL;  
   mutp->zombie = false;
   UNLOCK(GLOBAL_MUT_ACCESS);
@@ -950,7 +942,7 @@ static SWIMutex *MutexOfTerm__(Term t USES_REGS){
     return NULL;
   } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorMutex) {
     mut = AddressOfTerm(ArgOfTerm(1,t1));
-    if ((Int)(mut->owners) < 0 ||
+    if (mut->zombie ||
 	IntegerOfTerm(ArgOfTerm(2,t1)) != mut->timestamp) {
       Yap_Error(EXISTENCE_ERROR_MUTEX,  t1, "mutex access");
       return NULL;
@@ -973,18 +965,12 @@ if (mut->zombie) {
     // already removed.
      Yap_ThrowError(EXISTENCE_ERROR_MUTEX, ARG1, "destroy_mutex");
   }
-  if (mut->tid_own == worker_id) {
-    mut->owners++;
-    return true;
-}
 #if DEBUG_LOCKS
   MUTEX_LOCK(&mut->m);
 #else
   if (!MUTEX_LOCK(&mut->m) )
     return FALSE;
 #endif
-  mut->owners++;
-  mut->tid_own = worker_id;
   if (LOCAL_Mutexes)
     mut->prev = LOCAL_Mutexes->prev;
   else
@@ -1003,8 +989,6 @@ static bool mv_to_lock_cache(SWIMutex *mut) {
   mut->next = GLOBAL_FreeMutexes;
   GLOBAL_FreeMutexes = mut;
   pthread_mutex_destroy(&mut->m);
-    mut->owners = 0;
-    mut->tid_own	= -1;
     mut->zombie = false;
   UNLOCK(GLOBAL_MUT_ACCESS);
   return true;
@@ -1012,10 +996,6 @@ static bool mv_to_lock_cache(SWIMutex *mut) {
 static bool
 UnLockMutex( SWIMutex *mut USES_REGS)
 {
- if (mut->tid_own == worker_id && mut->owners > 1) {
-    mut->owners--;
-    return true;
-}
 if (mut->zombie) {
   return  mv_to_lock_cache(mut);
  }  // already removed.
@@ -1025,38 +1005,42 @@ if (mut->zombie) {
   if (MUTEX_UNLOCK(&mut->m) < 0)
     return false;
 #endif
-  mut->owners--;
   return true;
 }
 
-static Int
-p_new_mutex( USES_REGS1 ){
-  SWIMutex* mutp;
-  Term t1;
-  if (IsVarTerm((t1 = Deref(ARG1)))) {
+static Term NewMutexTerm(Term t1, SWIMutex **mutpp USES_REGS)
+{
+  SWIMutex *mutp;
+
+  if (!(mutp = NewMutex())) {
+      Yap_ThrowError(UNINSTANTIATION_ERROR, t1, "mutex_create on an existing mutex"
+		);
+  }
+  if (mutpp)
+    *mutpp = mutp;
+  if (IsVarTerm(t1)) {
     Term ts[2];
-    
-    if (!(mutp = NewMutex()))
-      return FALSE;
-    ts[0] = MkAddressTerm(mutp);    
-    ts[1] = MkIntegerTerm(mutp->timestamp);    
-    if (Yap_unify(ARG1, Yap_MkApplTerm(FunctorMutex, 2, ts) ) ) {
-      return TRUE;
+    ts[0] = MkAddressTerm(mutp);
+    ts[1] = MkIntegerTerm(mutp->timestamp);
+    return Yap_MkApplTerm(FunctorMutex, 2, ts);
     }
-    Yap_Error(UNINSTANTIATION_ERROR, t1, "mutex_create on an existing mutex");
-    return FALSE;
-  } else if(IsAtomTerm(t1)) {
-    if (!(mutp = NewMutex()))
-      return FALSE;
-    return Yap_PutAtomMutex( AtomOfTerm(t1), mutp );
+    else if(IsAtomTerm(t1)) {
+      Yap_PutAtomMutex( AtomOfTerm(t1), mutp );
+      return t1;
   } else if (IsApplTerm(t1)  && FunctorOfTerm(t1) == FunctorMutex) {
     Yap_Error(UNINSTANTIATION_ERROR, t1, "mutex_create on an existing mutex");
     return FALSE;
   }
-  return FALSE;
+  return false;
 }
 
-  
+static Int
+  p_new_mutex(USES_REGS1)
+{
+  SWIMutex* mutp;
+  Term t1 = Deref(ARG1);
+ return Yap_unify(ARG1,NewMutexTerm(t1, &mutp PASS_REGS));
+}  
 
 /** @pred mutex_destroy(+ _MutexId_)
 
@@ -1074,16 +1058,12 @@ static Int p_destroy_mutex( USES_REGS1 )
     // already removed.
      Yap_ThrowError(EXISTENCE_ERROR_MUTEX, ARG1, "destroy_mutex");
   }
-  if (worker_id != mut->tid_own &&
-      !LockMutex(mut PASS_REGS))
-    return false;
+  LockMutex(mut PASS_REGS);
   if (mut->alias) {
     mut->alias->Mutex  = NULL;
   }
-	if (mut->owners == 1) {
     mv_to_lock_cache(mut);
-	}
-  return TRUE;
+  return true;
 }
 
 /** @pred mutex_lock(+ _MutexId_) 
@@ -1130,18 +1110,6 @@ p_trylock_mutex( USES_REGS1 )
   SWIMutex *mut = MutexOfTerm(Deref(ARG1));
   if (!mut)
     return FALSE;
-  Int own = mut->tid_own;
-  if (own < 0) {    
-  if (MUTEX_TRYLOCK(&mut->m) == EBUSY)
-    return FALSE;
-  } else {
-
-    if (own != worker_id)
-      return false;
-    /////
-  }
-  mut->owners++;
-  mut->tid_own = worker_id;
   return TRUE;
 }
 
@@ -1163,40 +1131,12 @@ p_unlock_mutex(  USES_REGS1 )
   return TRUE;
 }
 
-  
-static SWIMutex *
-mutex_ensure( Term t1 USES_REGS ){
-  SWIMutex* mutp;
-  if (IsVarTerm((t1))) {
-    Term ts[2];
-    
-    if (!(mutp = NewMutex()))
-      return false;
-    ts[0] = MkAddressTerm(mutp);    
-    ts[1] = MkIntegerTerm(mutp->timestamp);    
-    if (!Yap_unify(ARG1, Yap_MkApplTerm(FunctorMutex, 2, ts) ) ) {
-      return NULL;
-    }
-  } else if ((mutp = MutexOfTerm(t1))) {
-               /* we're good */
-  } else if (IsAtomTerm(t1)) {
-    if (!(mutp = NewMutex()))
-      return NULL;
-    if (!Yap_PutAtomMutex(AtomOfTerm(t1), mutp))
-      return NULL;
-  }
-  else {
-    return NULL;
-  }
-  return mutp;
-}
-
 /** @pred with_mutex(+ _MutexId_, : _Goal_) 
 
 
     Execute  _Goal_ while holding  _MutexId_.  If  _Goal_ leaves
     choicepoints, these are destroyed (as in once/1).  The mutex is unlocked
-    regardless of whether  _Goal_ succeeds, fails or raises an exception.
+x    regardless of whether  _Goal_ succeeds, fails or raises an exception.
     An exception thrown by  _Goal_ is re-thrown after the mutex has been
     successfully unlocked.  See also `mutex_create/2`.
 
@@ -1211,12 +1151,14 @@ static Int
 p_with_mutex( USES_REGS1 )
 {
   SWIMutex *mut;
-  Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
-  bool rc;
-  mut = mutex_ensure(Deref(ARG1) PASS_REGS);
-  if (!mut || !LockMutex(mut PASS_REGS)) {
-    return FALSE;
+    Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
+  Term t1 = Deref(ARG1);
+    bool rc;
+  mut =  MutexOfTerm(t1);
+  if (!mut) {
+    NewMutexTerm(t1,&mut PASS_REGS);
   }
+  LockMutex(mut PASS_REGS);
   Int B0 = LCL0-(CELL *)B;
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
@@ -1244,6 +1186,7 @@ p_with_mutex( USES_REGS1 )
   
     if (Yap_PeekException())
     {
+      UnLockMutex(mut PASS_REGS);
       Yap_JumpToEnv();
       return false;
     }
@@ -1251,7 +1194,8 @@ p_with_mutex( USES_REGS1 )
 
    Yap_signal( YAP_CREEP_SIGNAL );
  }
-  return rc;
+ UnLockMutex(mut PASS_REGS);
+ return rc;
 }
 
 
@@ -1281,8 +1225,8 @@ p_mutex_info( USES_REGS1 )
   if (!mut)
     return FALSE;
 
-  return Yap_unify(ARG2, MkIntegerTerm(mut->owners)) &&
-    Yap_unify(ARG3, MkIntegerTerm(mut->tid_own));
+  return Yap_unify(ARG2, MkIntegerTerm(1)) &&
+    Yap_unify(ARG3, MkIntegerTerm(0));
   return TRUE;
 }
 
