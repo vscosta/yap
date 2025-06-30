@@ -156,45 +156,15 @@ static bool codecomm(char *p)
 }
 
 static FILE * input(char *inp) {
-    if (strstr(inp,".yap" ) ||
-	     strstr(inp,".ypp" ) ||
-	     strstr(inp,".pl" )) {
-    char s[2048];
-    //      execl(YAPBIN, "-L",  PLFILTER, "--", inp, NULL);
-    snprintf(s, 2047, "%s %s -L %s -- %s", YAPBIN, YAPSTARTUP, PLFILTER, inp);
-    system(s);
-    exit(0);
-    } else if (!strstr(inp,".py")||
-	       !strstr(inp,".md")) {
-        char s[2048];
-      snprintf(s,2047,"cat %s",inp);
-      system(s);
-      exit(0);
-      return NULL;
-    }  else {
+ {
     return fopen(inp, "r");
   }
     return NULL;
 }
 
 static FILE *output(char *inp, char *out) {
-  char s[2048], *p;
+  if (out) return fopen(out,"w");
    return stdout;
-  if (out) return fopen(out,"a");
-  chdir("yapdocs");
-  s[0] = '\0';
-  p = s;
-      int i=0;
-      while (inp[i]) {
-        if (inp[i] == '/')
-          p[i] = '_';
-        else
-          p[i] = inp[i];
-        i++;
-      }
-      p[i] = '\0';
-      strcpy(p+i,".cpp");
-    return fopen( s,"w");
 }
 
 
@@ -203,6 +173,23 @@ int main(int argc, char *argv[]) {
   size_t n;
   char *line=NULL, *p;
   FILE *f;
+  const char *inp=argv[1];
+  if (strstr(inp,".yap" ) ||
+	     strstr(inp,".ypp" ) ||
+	     strstr(inp,".pl" )) {
+    char s[2048];
+    //      execl(YAPBIN, "-L",  PLFILTER, "--", inp, NULL);
+    snprintf(s, 2047, "%s %s -L %s -- %s", YAPBIN, YAPSTARTUP, PLFILTER, inp);
+    system(s);
+    exit(0);
+    } else if (strstr(inp,".py")||
+	       strstr(inp,".md")) {
+        char s[2048];
+      snprintf(s,2047,"cat %s",inp);
+      system(s);
+      exit(0);
+      return 1;
+    }  
   if (argc == 1) {
     f= stdin;
     ostream = stdout;
@@ -212,6 +199,7 @@ int main(int argc, char *argv[]) {
   } else {
     f = input(argv[1]);
     ostream = output(argv[1], argv[2]);
+
   }
   bool code=false;
     while (getline(&line,&n,f)>0) {

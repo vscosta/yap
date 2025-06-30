@@ -36,10 +36,9 @@ main :-
     unix(argv([File])),
     atom_list_concat(Cs,'/',File),
     atom_list_concat(Cs,'_'  ,OFile),
-atom_concat(OFile,'.cpp',OOFile),
-    working_directory(OldD0, yapdocs),
-    open(OOFile, write, W),
-    working_directory(_New,OldD0),
+    %  open(OOFile, write, W),
+    W = user_output,
+
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
     \+ visited(File),
     %    valid_suffix(ValidSuffix),

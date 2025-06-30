@@ -4,7 +4,7 @@
 get_target_property(YAP_SOURCES libYap SOURCES)
 
 
-set(DOX_MD_FILES
+set(DOX_MD__FILES
   ${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
  ${CMAKE_SOURCE_DIR}/docs/md/Builtins.md
  ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
@@ -42,16 +42,16 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_CASE_SENSE_NAMES YES)
     set(DOXYGEN_CMAKE_LOGO ${CMAKE_SOURCE_DIR}/docs/icons/yap_96x96x32.png)
     set(DOXYGEN_CMAKE_NUMBER  ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
-    set(DOXYGEN_CITE_BIB_FILES ${CMAKE_SOURCE_DIR}/docs/yap.bib)
-    set(DOXYGEN_CREATE_SUBDIRS NO)
-    set(DOXYGEN_ENABLE_PREPROCESSING  YES)
+									    set(DOXYGEN	_CITE_BIB_FILES ${CMAKE_SOURCE_DIR}/docs/yap.bib)
+									    		    set(DOXYGEN_CREATE_SUBDIRS NO)
+											    set(DOXYGEN_ENABLE_PREPROCESSING  YES)
     set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
     set(DOXYGEN_EXTENSION_MAPPING yap=C++ pl=C++ ypp=C++ c=C++ h=C++)
     set(DOXYGEN_FILTER_SOURCE_FILES NO)
-    set(DOXYGEN_GENERATE_HTML NO)
+    set(DOXYGEN_GENERATE_HTML YES)
     set(DOXYGEN_GENERATE_MAN NO)
     set(DOXYGEN_GENERATE_TREEVIEW YES)
-    set(DOXYGEN_GENERATE_XML NO)
+    set(DOXYGEN_GENERATE_XML YES)
     set(DOXYGEN_GROUP_NESTED_COMPOUNDS YES)
     set(DOXYGEN_HAVE_DOT NO)
     set(DOXYGEN_HIDE_COMPOUND_REFERENCE NO)
@@ -142,8 +142,8 @@ if (DOXYGEN_FOUND)
 
 
 
-    doxygen_add_docs(
-    dox
+    set(
+    DOXYGEN_FILES
     ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/C
     ${CMAKE_SOURCE_DIR}/H
@@ -156,37 +156,26 @@ if (DOXYGEN_FOUND)
     COMMENT "Generating XML files"
   )
 
-    configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/yap.md)
-    configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
-    configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
+file( MAKE_DIRECTORY mkdocs )
+file( MAKE_DIRECTORY mkdocs/docs )
+file( MAKE_DIRECTORY mkdocs/docs/YAP )
+file( MAKE_DIRECTORY mkdocs/docs/YAP/images )
+file( MAKE_DIRECTORY mkdocs/docs/YAP/javascripts )
 
-    add_dependencies(filter-bin STARTUP)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml DESTINATION mkdocs)
 
-add_custom_target(predox
-    COMMAND ${CMAKE_COMMAND} -E rm -fr  mkdocs 
-    COMMAND ${CMAKE_COMMAND} -E make_directory yapdocs
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    DEPENDS filter-bin 
-  )
+#file( COPY ${DOX_MD_FILES} DESTINATION mkdocs/docs/YAP)
 
-    add_dependencies( dox predox)
+file( COPY ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png DESTINATION ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP/images )
+file( COPY ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico DESTINATION ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP/images )
+file( COPY ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js   DESTINATION ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP/javascripts )
+
+    configure_file(docs/md/yap.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP)
+    configure_file(docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP)
 
 add_custom_target(mkdocs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  .
-      COMMAND ${CMAKE_COMMAND} -E make_directory docs
-  COMMAND ${CMAKE_COMMAND} -E make_directory docs/YAP
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  docs/YAP
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/INSTALL.md docs/YAP
-     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md docs/YAP
-    COMMAND ${CMAKE_COMMAND} -E copy ${DOX_MD_FILES}  ../yapdocs
-    COMMAND ${CMAKE_COMMAND} -E make_directory docs/YAP/bimages
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  docs/YAP/images
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico docs/YAP/images/favicon.ico
-    COMMAND ${CMAKE_COMMAND} -E make_directory docs/YAP/javascripts
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/assets/js/highlight.min.js  docs/YAP/javascripts
    COMMAND mkdocs build
-    DEPENDS  dox predox
+    DEPENDS   filter-bin STARTUP
      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/mkdocs
    USES_TERMINAL
   )

@@ -14,13 +14,9 @@ plugins:
         YAP: # name of project must be alphanumeric + numbers (without spaces)
           src-dirs:     ../../docs/md   ../../C    ../../H    ../../include   ../../pl    ../../library   ../../os    ../../OPTYap    ../../packages
           full-doc: True # if you want to generate full documentation
-          doxy-cfg: # standard doxygen configuration (key: value)
-            RECURSIVE: True # recursive search in source directories
-            ALLOW_UNICODE_NAMES: True
-            INLINE_SIMPLE_STRUCTS: True
-            INLINE_GROUPED_CLASSES: True
-            INPUT_FILTER: ../filter
-markdown_extensions:
+          doxy-cfg-file: ../Doxyfile.dox
+            FILE_PATTERNS: "*.cpp *.h* *yap *pl *md *ypp" # specify file patterns to filter out
+            RECURSIVE: True # recursive search in source directoriesmarkdown_extensions:
   - attr_list
   - md_in_html
   - footnotes

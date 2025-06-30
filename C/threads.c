@@ -1377,7 +1377,9 @@ p_mbox_destroy( USES_REGS1 )
        }
      }
    UNLOCK(GLOBAL_mboxq_lock);
-    if (!mboxp->open) {
+   if (!mboxp)
+     return NULL;
+   if (!mboxp->open) {
        CACHE_REGS
 	 if (mboxReceive(mboxp, &t PASS_REGS) && Yap_unify(ARG2, t))
 	   return mboxp;

@@ -2,7 +2,7 @@
 *									 *
   *	 YAP Prolog 							 *
   *									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*.	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
@@ -16,10 +16,10 @@
 *************************************************************************/
 
 /**
- * @{
+ 
  * @defgroup Database The Prolog Data Base
  * @ingroup Builtins
-
+ * @{
 Predicates in YAP may be dynamic or static. By default, when
 consulting or reconsulting, predicates are assumed to be static:
 execution is faster and the code will probably use less space.
@@ -473,8 +473,7 @@ predicate_property(Pred,Prop) :-
 '$predicate_property'(P,M,public) :-
 	'$is_public'(P,M).
 '$predicate_property'(P,Mod,number_of_clauses(NCl)) :-
-    '$number_of_clauses'(P,Mod,
-			 NCl).
+    '$number_of_clauses'(P,Mod,NCl).
 
 /**
   @pred  predicate_statistics( _P_, _NCls_, _Sz_, _IndexSz_)
@@ -503,7 +502,7 @@ predicate_statistics(P0,NCls,Sz,ISz) :-
 	'$static_pred_statistics'(P,M,NCls,Sz,ISz).
 
 /** @pred  predicate_erased_statistics( _P_, _NCls_, _Sz_, _IndexSz_)
-
+/
 
 Given predicate  _P_,  _NCls_ is the number of erased clauses for
  _P_ that could not be discarded yet,  _Sz_ is the amount of space

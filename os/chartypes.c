@@ -23,11 +23,11 @@ static char SccsId[] = "%W% %G%";
  * @date   Thu Nov 19 12:05:14 2015
  *
  * @brief  Character Types
- *
+ * 
  *
  */
 
-///{@
+
 
 /**
  * @addtogroup CharacterCodes

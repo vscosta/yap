@@ -38,7 +38,7 @@ static char SccsId[] = "%W% %G%";
 /**
 
    @defgroup DBImplementation Implementation of The Internal data-nase
-   @ingroup YAPImplementation
+   @ingroup Builtins
 
 @{
    

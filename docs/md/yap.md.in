@@ -6,7 +6,7 @@ high-performance Prolog compiler developed at Universidade do Porto.
 
 
 
-![The YAP Logo](images/yap_256x256x32.png)
+![The YAP Logo](YAP/images/yap_256x256x32.png)
 
 NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
      
