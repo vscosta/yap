@@ -180,47 +180,51 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   pthread_cond_t *fullp = &mboxp->full;
   pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
-  
+      fprintf(stderr,"send %p\n",mutexp);  
   if (!mboxp->open) {
     // oops, dead mailbox
- pthread_mutex_unlock(mutexp);
     return false;
   }
+  pthread_mutex_lock(mutexp);
   while (mboxp->nmsgs == mboxp->max)
     pthread_cond_wait(fullp,mutexp);
   //Yap_DebugPlWriteln(t);
   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
   mboxp->nmsgs++;
-     pthread_cond_signal(emptyp);
- pthread_mutex_unlock(mutexp);
-  return true;
+ pthread_cond_signal(emptyp);
+pthread_mutex_unlock(mutexp);
+      fprintf(stderr,"send donr %p\n",mutexp);  
+
+   return true;
 }
 
 static bool
 mboxReceive( mbox_t *mboxp, Term *t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
+
   pthread_cond_t *emptyp = &mboxp->empty;
   // pthread_cond_t *fullp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc;
-  while(true) {
-  if (!mboxp->open){
-      pthread_mutex_unlock(mutexp);
-    return false; 	// don't try to read if someone else already closed dopxu[xuxuwn...
-  }
-
-  rc=Yap_dequeue_tqueue(msgsp, t, false, true PASS_REGS);
+  while (true) {
+    fprintf(stderr,"%d recv %p\n",worker_id,mutexp);  
+          pthread_mutex_lock(mutexp);
+	  if (!mboxp->open){
+	    pthread_mutex_unlock(mutexp);
+	    return false; 	// don't try to read if someone else already closed...
+          }
+	  if (!	    mboxp->nmsgs) {
+	    pthread_cond_wait(emptyp, mutexp);
+	  }
+	  Yap_dequeue_tqueue(msgsp, t, false, true PASS_REGS);
       // Yap_DebugPlWriteln(t);
-      if (rc) {
-	mboxp->nmsgs--;
-	pthread_mutex_unlock(mutexp);
-  return rc;
-      } else {
-	pthread_cond_wait(emptyp, mutexp);
-      }
+	    pthread_mutex_unlock(mutexp);
+            fprintf(stderr, "recv done %p\n", mutexp);
 
-
+	    return true;
+	  
+	  
   }
 }
   
@@ -229,10 +233,11 @@ static bool
 mboxPeek( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
+   pthread_mutex_lock(mutexp);
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc = Yap_dequeue_tqueue(msgsp, &t, false,  false PASS_REGS);
   if (rc)   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
- pthread_mutex_unlock(mutexp);
+   pthread_mutex_unlock(mutexp);
   return rc;
 }
 
@@ -902,29 +907,36 @@ static SWIMutex *NewMutex(void) {
   while (mutp) {
     mutp = mutp->next;
   }
+//      pthread_mutexattr_init(&mat);
   if (mutp == NULL) {
     mutp = (SWIMutex *)Yap_AllocCodeSpace(sizeof(SWIMutex));
     if (mutp == NULL) {
       UNLOCK(GLOBAL_MUT_ACCESS);
+
       return NULL;
-    } else {
-      pthread_mutexattr_init(&mat);
-      mutp->timestamp = 0;
-#if defined(HAVE_PTHREAD_MUTEXATTR_SETKIND_NP)  && !defined(__MINGW32__)
-      pthread_mutexattr_setkind_np(&mat, PTHREAD_MUTEX_RECURSIVE_NP);
-#else
-#ifdef HAVE_PTHREAD_MUTEXATTR_SETTYPE
-      pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE);
-#endif
-#endif
-      pthread_mutex_init(&mutp->m, &mat);
     }
-    mutp->backbone  = GLOBAL_mutex_backbone;
-    GLOBAL_mutex_backbone = mutp;
-  } else {
+mutp->timestamp = 0;    
+  }    else {
     // reuse existing mutex
     mutp->timestamp++;
   }
+  
+      
+/* #if defined(HAVE_PTHREAD_MUTEXATTR_SETKIND_NP)  && !defined(__MINGW32__) */
+/*       pthread_mutexattr_setkind_np(&mat, PTHREAD_MUTEX_RECURSIVE_NP); */
+/* #else */
+/* #ifdef HAVE_PTHREAD_MUTEXATTR_SETTYPE */
+/*       pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE); */
+/* #endif */
+/* #endif */
+/*       pthread_mutex_init(&mutp->m, &mat); */
+  /*   } */
+  pthread_mutexattr_init(&mat);
+  pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE);
+       pthread_mutex_init(&mutp->m, &mat);
+    mutp->backbone  = GLOBAL_mutex_backbone;
+    GLOBAL_mutex_backbone = mutp;
+  
   mutp->alias = NIL;  
   mutp->zombie = false;
   UNLOCK(GLOBAL_MUT_ACCESS);
@@ -999,7 +1011,7 @@ UnLockMutex( SWIMutex *mut USES_REGS)
 if (mut->zombie) {
   return  mv_to_lock_cache(mut);
  }  // already removed.
-#if DEBUG_LOCKS
+#if DEBUG_LOCKS||1
   MUTEX_UNLOCK(&mut->m);
 #else
   if (MUTEX_UNLOCK(&mut->m) < 0)
@@ -1022,7 +1034,7 @@ static Term NewMutexTerm(Term t1, SWIMutex **mutpp USES_REGS)
     Term ts[2];
     ts[0] = MkAddressTerm(mutp);
     ts[1] = MkIntegerTerm(mutp->timestamp);
-    return Yap_MkApplTerm(FunctorMutex, 2, ts);
+    return Yap_unify(Yap_MkApplTerm(FunctorMutex, 2, ts),t1);
     }
     else if(IsAtomTerm(t1)) {
       Yap_PutAtomMutex( AtomOfTerm(t1), mutp );
@@ -1153,22 +1165,26 @@ p_with_mutex( USES_REGS1 )
   SWIMutex *mut;
     Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   Term t1 = Deref(ARG1);
-    bool rc;
-  mut =  MutexOfTerm(t1);
-  if (!mut) {
+  bool rc;
+  if (IsVarTerm(t1)) {
     NewMutexTerm(t1,&mut PASS_REGS);
   }
-  LockMutex(mut PASS_REGS);
+         
+    mut =  MutexOfTerm(t1);
+    fprintf(stderr, "%d:with %p\n", worker_id, mut);
+    Yap_DebugPlWriteln(ARG1);
+    LockMutex(mut PASS_REGS);
   Int B0 = LCL0-(CELL *)B;
   yamop *oP = P, *oCP = CP;
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
 
   rc= Yap_RunTopGoal(Deref(ARG2), LOCAL_EX );
-  if ( !UnLockMutex(mut PASS_REGS) ) {
-    rc = false;
-  }
-   if (!rc)
+ UnLockMutex(mut PASS_REGS);
+      fprintf(stderr,"with done %p\n",mut);
+
+
+      if (!rc)
     {
       Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
       // We'll pass it throughs
@@ -1183,10 +1199,10 @@ p_with_mutex( USES_REGS1 )
   CP = oCP;
   ENV = LCL0 - oENV;
   YENV = LCL0 - oYENV;
-  
+
     if (Yap_PeekException())
     {
-      UnLockMutex(mut PASS_REGS);
+      //UnLockMutex(mut PASS_REGS);
       Yap_JumpToEnv();
       return false;
     }
@@ -1194,7 +1210,6 @@ p_with_mutex( USES_REGS1 )
 
    Yap_signal( YAP_CREEP_SIGNAL );
  }
- UnLockMutex(mut PASS_REGS);
  return rc;
 }
 
@@ -1253,8 +1268,8 @@ typedef struct {
     } else if (IsAtomTerm(namet)) {
          while( mboxp && mboxp->name != namet)
 	 mboxp = mboxp->next;
-       if (mboxp) {
-	   UNLOCK(GLOBAL_mboxq_lock);
+         if (mboxp) {
+	   Yap_ThrowError(PERMISSION_ERROR_CREATE_MESSAGE_QUEUE,namet,"create");
 	   return FALSE;
        }
        mboxp = (mbox_t *)Yap_AllocCodeSpace(sizeof(mbox_t));
@@ -1320,17 +1335,15 @@ p_mbox_destroy( USES_REGS1 )
 	   mboxp = mboxp->next;
        }
      }
-   UNLOCK(GLOBAL_mboxq_lock);
+  UNLOCK(GLOBAL_mboxq_lock);
+   } else if (IsIntTerm(t)) {
+                int wid = IntOfTerm(t);
+                mboxp = &REMOTE_ThreadHandle(wid).mbox_handle;
+              }
    if (!mboxp)
      return NULL;
-   if (!mboxp->open) {
-       CACHE_REGS
-	 if (mboxReceive(mboxp, &t PASS_REGS) && Yap_unify(ARG2, t))
-	   return mboxp;
-     }
-   }
-     return NULL;
- } 
+return mboxp;
+   } 
 
 
  static Int
