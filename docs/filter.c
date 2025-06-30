@@ -179,7 +179,7 @@ static FILE * input(char *inp) {
 
 static FILE *output(char *inp, char *out) {
   char s[2048], *p;
-  if (out && !strcmp(out, "-")) return stdout;
+   return stdout;
   if (out) return fopen(out,"a");
   chdir("yapdocs");
   s[0] = '\0';

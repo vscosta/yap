@@ -11,8 +11,13 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% file python.pl
-%%%
+/**
+ @file python.pl
+ @brief 
+
+ @file python.pl
+ @brief API Definition
+*/
 
 :- module(python,
 	  [

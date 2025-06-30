@@ -12,13 +12,14 @@ plugins:
   - mkdoxy:
       projects:
         YAP: # name of project must be alphanumeric + numbers (without spaces)
-          src-dirs: ../yapdocs ../../CXX
+          src-dirs:     ../../docs/md   ../../C    ../../H    ../../include   ../../pl    ../../library   ../../os    ../../OPTYap    ../../packages
           full-doc: True # if you want to generate full documentation
           doxy-cfg: # standard doxygen configuration (key: value)
             RECURSIVE: True # recursive search in source directories
             ALLOW_UNICODE_NAMES: True
             INLINE_SIMPLE_STRUCTS: True
             INLINE_GROUPED_CLASSES: True
+            INPUT_FILTER: ../filter
 markdown_extensions:
   - attr_list
   - md_in_html
