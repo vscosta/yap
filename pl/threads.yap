@@ -1155,15 +1155,13 @@ to check whether a thread has swallowed a message sent to it.
 
 
 */
-thread_get_message(Queue, Term) :- var(Queue), !,
-	throw_error(instantiation_error,thread_get_message(Queue,Term)).
+thread_get_message(Queue, _Term) :- var(Queue), !,
+fail.
 thread_get_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_R), !,
-	'$message_queue_receive'(Id, MaybeTerm),
-	( MaybeTerm = Term -> true ; 	'$message_queue_send'(Id, MaybeTerm), thread_get_message(Queue, Term) ).
+	'$message_queue_receive'(Id, Term).
 thread_get_message(Queue, Term) :-
-	'$message_queue_receive'(Queue, MaybeTerm),
-	( MaybeTerm = Term -> true ; 	'$message_queue_send'(Queue, MaybeTerm), thread_get_message(Queue, Term) ).
+    '$message_queue_receive'(Queue, Term).
 
 
 

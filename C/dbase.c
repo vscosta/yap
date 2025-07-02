@@ -5029,6 +5029,7 @@ bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
       return false;
     }
   }
+
   /* Yap_LUClauseSpace += sizeof(QueueEntry); */
   x->DBT = StoreTermInDB(Deref(t) PASS_REGS);
   if (x->DBT == NULL) {
@@ -5043,14 +5044,14 @@ bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
   }
   return true;
 }
-
+   
 bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
                         bool release USES_REGS) {
-  Term TDB;
   CELL *oldH = HR;
   tr_fr_ptr oldTR = TR;
   QueueEntry *cur_instance = father_key->FirstInQueue, *prev = NULL;
   while (cur_instance) {
+Term TDB;
     HR = oldH;
     HB = LCL0;
     TR = oldTR;
@@ -5071,6 +5072,7 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
       oldTR = TR;
       oldH = HR;
     }
+    HB = B->cp_h;
     bool rc;
     if (*t==0) {
       *t = TDB;

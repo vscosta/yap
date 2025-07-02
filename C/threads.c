@@ -139,7 +139,10 @@ mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
   fullpp = & mboxp->full;
   pthread_cond_init(fullpp, NULL);
   mutexp = & mboxp->mutex;
-  pthread_mutex_init(mutexp, NULL);
+  pthread_mutexattr_t mat;
+  pthread_mutexattr_init(&mat);
+  pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE);
+  pthread_mutex_init(mutexp, &mat);
   msgsp = & mboxp->msgs;
   mboxp->nmsgs = 0;
   mboxp->nclients = 0;
@@ -180,63 +183,85 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   pthread_cond_t *fullp = &mboxp->full;
   pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
-      fprintf(stderr,"send %p\n",mutexp);  
+
+      // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
+pthread_mutex_lock(mutexp);
   if (!mboxp->open) {
     // oops, dead mailbox
+	    pthread_mutex_unlock(mutexp);
     return false;
   }
-  pthread_mutex_lock(mutexp);
-  while (mboxp->nmsgs == mboxp->max)
-    pthread_cond_wait(fullp,mutexp);
+  if (mboxp->nmsgs == mboxp->max){
+    // fprintf(stderr,"[%d] %s:%d: WAIT(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
+    pthread_cond_wait(fullp, mutexp);
+  }
   //Yap_DebugPlWriteln(t);
   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
-  mboxp->nmsgs++;
- pthread_cond_signal(emptyp);
+
+
+    mboxp->nmsgs++;
+    
+{
+ //  if (mboxp->nmsgs >= 0 ) 
+  // fprintf(stderr,"[%d] %s:%d: SIGNAL(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,( emptyp));
+pthread_cond_signal(emptyp);
+
+ } 
+//  if (mboxp->nmsgs >= 0 ) 
+    // fprintf(stderr,"[%d] %s:%d: MUUNLOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
 pthread_mutex_unlock(mutexp);
-      fprintf(stderr,"send donr %p\n",mutexp);  
+
 
    return true;
 }
 
-static bool
-mboxReceive( mbox_t *mboxp, Term *t USES_REGS )
-{
+static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-
+            pthread_mutex_lock(mutexp);
+  // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
   pthread_cond_t *emptyp = &mboxp->empty;
-  // pthread_cond_t *fullp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
-  bool rc;
-  while (true) {
-    fprintf(stderr,"%d recv %p\n",worker_id,mutexp);  
-          pthread_mutex_lock(mutexp);
 	  if (!mboxp->open){
 	    pthread_mutex_unlock(mutexp);
-	    return false; 	// don't try to read if someone else already closed...
+            return false;
           }
-	  if (!	    mboxp->nmsgs) {
-	    pthread_cond_wait(emptyp, mutexp);
-	  }
-	  Yap_dequeue_tqueue(msgsp, t, false, true PASS_REGS);
-      // Yap_DebugPlWriteln(t);
+          if (  Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
+	    mboxp->nmsgs--;
+	    if (mboxp->nmsgs == mboxp->max)
+	      pthread_cond_signal(&mboxp->full);		      
+	    
+	    // fprintf(stderr,"[%d] %s:%d: MUUNLOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
 	    pthread_mutex_unlock(mutexp);
-            fprintf(stderr, "recv done %p\n", mutexp);
-
 	    return true;
-	  
-	  
-  }
+	  } else {
+	    if (mboxp->nmsgs > 0 ){ 
+  // fprintf(stderr,"[%d] %s:%d: SIGNAL(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,( emptyp));
+pthread_cond_signal(emptyp);
+
+
+	    }
+    // fprintf(stderr,"[%d] %s:%d: WAIt(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
+
+	    pthread_cond_wait(emptyp,mutexp);
+	    pthread_mutex_unlock(mutexp);
+	    return false;
+	  }
+                   
 }
+
+
   
 
 static bool
-mboxPeek( mbox_t *mboxp, Term t USES_REGS )
+  mboxPeek( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
+    // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
    pthread_mutex_lock(mutexp);
   struct idb_queue *msgsp = &mboxp->msgs;
   bool rc = Yap_dequeue_tqueue(msgsp, &t, false,  false PASS_REGS);
   if (rc)   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
+    // fprintf(stderr,"[%d] %s:%d: MUUNLOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
    pthread_mutex_unlock(mutexp);
   return rc;
 }
@@ -431,7 +456,6 @@ thread_run(void *widp)
 #ifdef OUTPUT_THREADS_TABLING
   char thread_name[25];
   char filename[MAX_PATH];
-    sprintf(thread_name, "/thread_output_%d", myworker_id);
   strcpy(filename, YAP_BINDIR);
   strncat(filename, thread_name, 25);
   REMOTE_thread_output(myworker_id) = fopen(filename, "w");
@@ -1005,8 +1029,8 @@ static bool mv_to_lock_cache(SWIMutex *mut) {
   UNLOCK(GLOBAL_MUT_ACCESS);
   return true;
 }
-static bool
-UnLockMutex( SWIMutex *mut USES_REGS)
+
+static bool UnLockMutex( SWIMutex *mut USES_REGS)
 {
 if (mut->zombie) {
   return  mv_to_lock_cache(mut);
@@ -1171,8 +1195,7 @@ p_with_mutex( USES_REGS1 )
   }
          
     mut =  MutexOfTerm(t1);
-    fprintf(stderr, "%d:with %p\n", worker_id, mut);
-    Yap_DebugPlWriteln(ARG1);
+
     LockMutex(mut PASS_REGS);
   Int B0 = LCL0-(CELL *)B;
   yamop *oP = P, *oCP = CP;
@@ -1180,10 +1203,6 @@ p_with_mutex( USES_REGS1 )
   Int oYENV = LCL0 - YENV;
 
   rc= Yap_RunTopGoal(Deref(ARG2), LOCAL_EX );
- UnLockMutex(mut PASS_REGS);
-      fprintf(stderr,"with done %p\n",mut);
-
-
       if (!rc)
     {
       Yap_fail_all((choiceptr)(LCL0-B0) PASS_REGS);
@@ -1200,7 +1219,8 @@ p_with_mutex( USES_REGS1 )
   ENV = LCL0 - oENV;
   YENV = LCL0 - oYENV;
 
-    if (Yap_PeekException())
+    UnLockMutex(mut PASS_REGS);
+ if (Yap_PeekException())
     {
       //UnLockMutex(mut PASS_REGS);
       Yap_JumpToEnv();
@@ -1254,8 +1274,8 @@ typedef struct {
  p_mbox_create( USES_REGS1 )
  {
    Term namet = Deref(ARG1);
-   mbox_t* mboxp = GLOBAL_named_mboxes;
-
+   mbox_t *mboxp = GLOBAL_named_mboxes;
+   bool rc;
    if (IsVarTerm(namet)) {
        AtomEntry *ae;
        int new;
@@ -1264,7 +1284,8 @@ typedef struct {
        ae = Yap_lookupBlob(&mbox, sizeof(mbox), &PL_Message_Queue, &new);
        namet = MkAtomTerm(RepAtom(ae));
        mboxp = (mbox_t *)(ae->rep.blob[0].data);
-      Yap_unify(ARG1, namet);
+     rc = mboxCreate( namet, mboxp PASS_REGS );
+     Yap_unify(ARG1, namet);
     } else if (IsAtomTerm(namet)) {
          while( mboxp && mboxp->name != namet)
 	 mboxp = mboxp->next;
@@ -1277,14 +1298,14 @@ typedef struct {
 	   return FALSE;
        }
        // global mbox, for now we'll just insert in list
-       LOCK(GLOBAL_mboxq_lock);
+       rc = mboxCreate( namet, mboxp PASS_REGS );
+     LOCK(GLOBAL_mboxq_lock);
      mboxp->next = GLOBAL_named_mboxes;
        GLOBAL_named_mboxes = mboxp;
 	   UNLOCK(GLOBAL_mboxq_lock);
-   }
-   bool rc = mboxCreate( namet, mboxp PASS_REGS );
-   return rc;
  }
+    return rc;
+}
 
 
 static Int
@@ -1382,13 +1403,14 @@ p_cond_create( USES_REGS1 )
  static Int
  p_mbox_receive( USES_REGS1 )
  {
-   Term namet = Deref(ARG1);
-    mbox_t* mboxp = getMbox(namet) ;
-    if (!mboxp)
+   mbox_t* mboxp;
+   do {
+     Term namet = Deref(ARG1);
+     mboxp = getMbox(namet) ;
+     if (!mboxp)
        return FALSE;
-    Term t = 0;
-    return mboxReceive(mboxp, &t PASS_REGS) &&
-      Yap_unify(ARG2,t);
+   } while (! mboxReceive(mboxp, ARG2 PASS_REGS) );
+   return true;
  }
 
 
@@ -1586,8 +1608,11 @@ Yap_InitFirstWorkerThreadHandle(void)
   LOCAL_ThreadHandle.current_yaam_regs = 
     &Yap_standard_regs;
   LOCAL_ThreadHandle.pthread_handle = pthread_self();
+  pthread_mutexattr_t mat;
+  pthread_mutexattr_init(&mat);
+  pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE);
   pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock, NULL);
-  pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock_status, NULL);
+    pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock_status, NULL);
   LOCAL_ThreadHandle.tdetach = MkAtomTerm(AtomFalse);
   LOCAL_ThreadHandle.ref_count = 1;
 }
