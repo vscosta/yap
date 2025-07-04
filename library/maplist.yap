@@ -697,7 +697,7 @@ foldl4(Goal, [H|T], V0, V, W0, W, X0, X, Y0, Y) :-
 
 *-
 +
-+36214/
++
 
 /*******************************
 		 *	       SCANL		*
@@ -806,7 +806,7 @@ expand_rule1(sumlist).
 */
 
 goal_expansion(Call0, M0:NG) :-
- %   current_prolog_flag( compiling, true ),
+    prolog_load_context(source,_),
  %   current_prolog_flag( goal_expansion_allowed, true ),
     strip_module(Call0,M0,Call),
     Call =.. [Meta,M0Goal|LinkArgs],

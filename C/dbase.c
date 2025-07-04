@@ -5024,7 +5024,7 @@ void Yap_destroy_tqueue(db_queue *dbq USES_REGS) {
 bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
   QueueEntry *x;
   while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
-    if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
+    if (!Yap_dogc(PASS_REGS1)) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "in findall");
       return false;
     }

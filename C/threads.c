@@ -226,10 +226,12 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
             return false;
           }
           if (  Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
-	    mboxp->nmsgs--;
 	    if (mboxp->nmsgs == mboxp->max)
 	      pthread_cond_signal(&mboxp->full);		      
-	    
+	    mboxp->nmsgs--;
+	    if (mboxp->nmsgs > 0)
+	      pthread_cond_signal(&mboxp->empty);		      
+ 
 	    // fprintf(stderr,"[%d] %s:%d: MUUNLOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
 	    pthread_mutex_unlock(mutexp);
 	    return true;

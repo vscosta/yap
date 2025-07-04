@@ -485,34 +485,54 @@ q  Stream position at the stream currently being read in. For SWI
    The names of the variables in the term being processed, if any.
 */
 prolog_load_context(directory, DirName) :-
-        ( source_location(F, _)
+    '$show_consult_level'(LV),
+    LV >0,
+    ( source_location(F, _)
         -> file_directory_name(F, DirName) ;
           working_directory( DirName, DirName )
         ).
 prolog_load_context(file, Path ) :-
+    '$show_consult_level'(LV),
+    LV >0,
     stream_property(Stream,alias(include_stream)),
     stream_property(Stream, file_name(Path) ),
     !.
 prolog_load_context(file, Path ) :-
+    '$show_consult_level'(LV),
+    LV >0,
     prolog_load_context(source, Path ).
 prolog_load_context(source, SourceName) :-
+    '$show_consult_level'(LV),
+    LV >0,
     stream_property(loop_stream, file_name(SourceName) ),
     !.
-prolog_load_context(source, user_input).
+prolog_load_context(source, user_input) :-
+    '$show_consult_level'(LV),
+    LV >0.
 
 prolog_load_context(module, X) :-
+    '$show_consult_level'(LV),
+    LV >0,
         '__NB_getval__'('$consulting_file', _, fail),
         current_source_module(Y,Y),
         Y = X.
 prolog_load_context(stream, Stream) :-
+    '$show_consult_level'(LV),
+    LV >0,
     stream_property(Stream, alias(loop_stream) ).
 prolog_load_context(term, Term ) :-
+    '$show_consult_level'(LV),
+    LV >0,
     b_getval('$current_clause', T),
     nonvar(T),
     T = [Term|_].
 prolog_load_context(term_position, Term ) :-
+    '$show_consult_level'(LV),
+    LV >0,
     stream_property( loop_stream, position(Term)).
 prolog_load_context(variable_names, Term ) :-
+    '$show_consult_level'(LV),
+    LV >0,
     (
     b_getval('$current_clause', T),
     nonvar(T)
@@ -691,7 +711,7 @@ compilation is to simplify writing portable code.
 
 
 Note that these directives can only be appear as separate terms in the
-  input.  Typical usage scenarios include:
+vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv  input.  Typical usage scenarios include:
 
 
     Load different libraries on different dialects
