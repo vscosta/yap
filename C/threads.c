@@ -204,7 +204,7 @@ pthread_mutex_lock(mutexp);
 {
  //  if (mboxp->nmsgs >= 0 ) 
   // fprintf(stderr,"[%d] %s:%d: SIGNAL(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,( emptyp));
-pthread_cond_signal(emptyp);
+pthread_cond_broadcast(emptyp);
 
  } 
 //  if (mboxp->nmsgs >= 0 ) 
@@ -238,7 +238,7 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
 	  } else {
 	    if (mboxp->nmsgs > 0 ){ 
   // fprintf(stderr,"[%d] %s:%d: SIGNAL(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,( emptyp));
-pthread_cond_signal(emptyp);
+	      //thread_cond_signal(emptyp);
 
 
 	    }
@@ -427,9 +427,12 @@ setup_engine(int myworker_id, int init_thread)
   GLOBAL_NOfThreads++;
   REMOTE_Flags(myworker_id) = REMOTE_Flags(0);
   REMOTE_flagCount(myworker_id) = REMOTE_flagCount(0);
-  REMOTE_ThreadHandle(myworker_id).tgoal =   Yap_CopyTermNoShare(REMOTE_ThreadHandle(myworker_id).tgoal);
-  REMOTE_ThreadHandle(myworker_id).texit =   Yap_CopyTermNoShare(REMOTE_ThreadHandle(myworker_id).texit);
-  
+  Term old = REMOTE_ThreadHandle(myworker_id).tgoal;
+  // REMOTE_ThreadHandle(myworker_id).tgoal =   Yap_CopyTermNoShare(old);
+  //  REMOTE_ThreadHandle(myworker_id).texit =   Yap_CopyTermNoShare(old);
+ REMOTE_ThreadHandle(myworker_id).tgoal =  Yap_FetchTermFromDB(Yap_StoreTermInDB(old) );
+  old = REMOTE_ThreadHandle(myworker_id).texit;
+ REMOTE_ThreadHandle(myworker_id).texit =  Yap_FetchTermFromDB(  Yap_StoreTermInDB(old) );
   MUTEX_UNLOCK(&(REMOTE_ThreadHandle(myworker_id).tlock));  
 #ifdef TABLING
   new_dependency_frame(REMOTE_top_dep_fr(myworker_id), FALSE, NULL, NULL, B, NULL, FALSE, NULL);  /* same as in Yap_init_root_frames() */

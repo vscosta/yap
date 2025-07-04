@@ -209,7 +209,7 @@ static int recover_from_record_error(void) {
     }
     goto recover_record;
   case RESOURCE_ERROR_AUXILIARY_STACK:
-    if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
+    if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, true)) {
       Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
@@ -1276,7 +1276,7 @@ loop:
 
 error:
   LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-  LOCAL_Error_Size = 1024 + ((char *)AuxSp - (char *)CodeMaxBase);
+  LOCAL_Error_Size = 1024 + ((char *)AuxTop - (char *)CodeMaxBase);
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
   while (tovisit > tovisit_base) {
@@ -1741,8 +1741,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
        ntp = MkDBTerm(VarOfTerm(Tm), VarOfTerm(Tm), ntp0, ntp0 + 1, ntp0 - 1,
                      &attachments, &vars_found, dbg);
       if (ntp == NULL) {
-        Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
     } else
@@ -1756,8 +1754,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 #endif
                      &vars_found, dbg);
       if (ntp == NULL) {
-        Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-        LOCAL_Error_TYPE = oerr;
         return NULL;
       }
     } else {
@@ -1778,7 +1774,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 	    if (sz >
 		(char*)AuxSp-(char*)ppt0) {
 	      LOCAL_Error_Size = sz;
-	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
+	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, true)) {
 		Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
 		return NULL;
 	      }
@@ -1797,7 +1793,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 	    if (sz >
 		(char*)AuxSp-(char*)ppt0) {
 	      LOCAL_Error_Size = sizeof(CELL)*(3 + RepAppl(Tm)[1]);
-	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
+	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, true)) {
 		Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
 		return NULL;
 	      }
@@ -1821,7 +1817,6 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 #endif
                        &vars_found, dbg);
         if (ntp == NULL) {
-          Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
           return NULL;
         }
       }
@@ -3035,10 +3030,10 @@ static Int i_recorded(DBProp AtProp, Term t3 USES_REGS) {
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3, 1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_growglobal(NULL)) {
-          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+        if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase, NULL, true)) {
+          Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
                     LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -3108,13 +3103,13 @@ static Int i_recorded(DBProp AtProp, Term t3 USES_REGS) {
         EXTRA_CBACK_ARG(3, 2) = MkIntegerTerm(((Int)mask));
         EXTRA_CBACK_ARG(3, 3) = MkIntegerTerm(((Int)key));
         /* oops, we are in trouble, not enough stack space */
-        if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+        if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_growglobal(NULL)) {
-            Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
-                      LOCAL_ErrorMessage);
-            return FALSE;
-          }
+        if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase, NULL, true)) {
+          Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
+                    LOCAL_ErrorMessage);
+          return FALSE;
+        }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc(PASS_REGS1)) {
@@ -3200,10 +3195,10 @@ static Int c_recorded(int flags USES_REGS) {
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3, 1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_growglobal(NULL)) {
-          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+        if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase, NULL, true)) {
+          Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
                     LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -3244,13 +3239,13 @@ static Int c_recorded(int flags USES_REGS) {
         /* make sure the garbage collector sees what we want it to see! */
         EXTRA_CBACK_ARG(3, 1) = (CELL)ref;
         /* oops, we are in trouble, not enough stack space */
-        if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+        if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_growglobal(NULL)) {
-            Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
-                      LOCAL_ErrorMessage);
-            return FALSE;
-          }
+	  if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase, NULL, true)) {
+            Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
+                           LOCAL_ErrorMessage);
+
+	  }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc(PASS_REGS1)) {
@@ -3393,10 +3388,10 @@ static Int recorded(USES_REGS1) {
       Term TermDB;
       while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
         /* oops, we are in trouble, not enough stack space */
-        if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+        if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_growglobal(NULL)) {
-            Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+	  if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase, NULL, true)) {
+            Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
                       LOCAL_ErrorMessage);
             return FALSE;
           }
@@ -3526,10 +3521,10 @@ static Int p_first_instance(USES_REGS1) {
   UNLOCK(ref->lock);
   while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
-    if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+    if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_growglobal(NULL)) {
-        Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+	  if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase, NULL, true)) {
+        Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
                   LOCAL_ErrorMessage);
         return FALSE;
       }
@@ -4457,10 +4452,10 @@ static Int static_instance(StaticClause *cl, PredEntry *ap USES_REGS) {
 
     while ((TermDB = GetDBTerm(cl->usc.ClSource, TRUE PASS_REGS)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_growglobal(NULL)) {
-          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+	if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase,NULL, true)) {        
+          Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
                     LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -4622,10 +4617,10 @@ static Int p_instance(USES_REGS1) {
 
       while ((TermDB = GetDBTerm(cl->lusl.ClSource, in_cl PASS_REGS)) == 0L) {
         /*fdb/h oops, we are in trouble, not enough stack space */
-        if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+        if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_growglobal(NULL)) {
-            Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+	  if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase, NULL, true)) {        
+            Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
                       LOCAL_ErrorMessage);
             UNLOCK(ap->PELock);
             return FALSE;
@@ -4646,10 +4641,10 @@ static Int p_instance(USES_REGS1) {
     Term TermDB;
     while ((TermDB = GetDBTermFromDBEntry(dbr PASS_REGS)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_growglobal(NULL)) {
-          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+	  if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase, NULL, true)) {        
+          Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
                     LOCAL_ErrorMessage);
           return FALSE;
         }
@@ -4680,10 +4675,10 @@ Term Yap_LUInstance(LogUpdClause *cl, UInt arity) {
     in_src = (opc != _copy_idb_term);
     while ((TermDB = GetDBTerm(cl->lusl.ClSource, in_src PASS_REGS)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+      if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_growglobal(NULL)) {
-          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+	  if (!Yap_ExpandPreAllocCodeSpace(AuxTop-AuxBase, NULL, true)) {        
+          Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
                     LOCAL_ErrorMessage);
           return 0L;
         }
@@ -4946,7 +4941,11 @@ Term Yap_FetchTermFromDB(void *ref) {
   CACHE_REGS
     if (ref == NULL)
       return 0;
-  return GetDBTerm(ref, FALSE PASS_REGS);
+  while (! GetDBTerm(ref, FALSE PASS_REGS)) {
+    if (recover_from_record_error()) {
+      continue;
+    }
+  }
 }
 
 Term Yap_FetchClauseTermFromDB(void *ref) {
@@ -4973,8 +4972,7 @@ static DBTerm *StoreTermInDB(Term t USES_REGS) {
   LOCAL_Error_Size = 0;
   while ((x = (DBTerm *)CreateDBStruct(t, (DBProp)NULL, InQueue, &needs_vars, 0,
                                        &dbg)) == NULL) {
-    if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
-      break;
+    if (LOCAL_Error_TYPE) {
       yhandle_t ys = Yap_InitHandle(t);
       if (recover_from_record_error()) {
         t = Yap_PopHandle(ys);
@@ -5024,7 +5022,7 @@ void Yap_destroy_tqueue(db_queue *dbq USES_REGS) {
 bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
   QueueEntry *x;
   while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
-    if (!Yap_dogc(PASS_REGS1)) {
+    if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "in findall");
       return false;
     }
