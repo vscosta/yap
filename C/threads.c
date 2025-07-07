@@ -204,7 +204,7 @@ pthread_mutex_lock(mutexp);
 {
  //  if (mboxp->nmsgs >= 0 ) 
   // fprintf(stderr,"[%d] %s:%d: SIGNAL(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,( emptyp));
-pthread_cond_signal(emptyp);
+pthread_cond_broadcast(emptyp);
 
  } 
 //  if (mboxp->nmsgs >= 0 ) 
@@ -226,17 +226,19 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
             return false;
           }
           if (  Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
-	    mboxp->nmsgs--;
 	    if (mboxp->nmsgs == mboxp->max)
 	      pthread_cond_signal(&mboxp->full);		      
-	    
+	    mboxp->nmsgs--;
+	    if (mboxp->nmsgs > 0)
+	      pthread_cond_signal(&mboxp->empty);		      
+ 
 	    // fprintf(stderr,"[%d] %s:%d: MUUNLOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
 	    pthread_mutex_unlock(mutexp);
 	    return true;
 	  } else {
 	    if (mboxp->nmsgs > 0 ){ 
   // fprintf(stderr,"[%d] %s:%d: SIGNAL(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,( emptyp));
-pthread_cond_signal(emptyp);
+	      //pthread_cond_signal(emptyp);
 
 
 	    }
@@ -425,8 +427,11 @@ setup_engine(int myworker_id, int init_thread)
   GLOBAL_NOfThreads++;
   REMOTE_Flags(myworker_id) = REMOTE_Flags(0);
   REMOTE_flagCount(myworker_id) = REMOTE_flagCount(0);
-  REMOTE_ThreadHandle(myworker_id).tgoal =   Yap_CopyTermNoShare(REMOTE_ThreadHandle(myworker_id).tgoal);
-  REMOTE_ThreadHandle(myworker_id).texit =   Yap_CopyTermNoShare(REMOTE_ThreadHandle(myworker_id).texit);
+ REMOTE_ThreadHandle(myworker_id).tgoal =  Yap_FetchTermFromDB(Yap_StoreTermInDB(REMOTE_ThreadHandle(myworker_id).tgoal) );
+ REMOTE_ThreadHandle(myworker_id).texit =  Yap_FetchTermFromDB(  Yap_StoreTermInDB(REMOTE_ThreadHandle(myworker_id).texit) );
+
+ // REMOTE_ThreadHandle(myworker_id).tgoal =   Yap_CopyTermNoShare(REMOTE_ThreadHandle(myworker_id).tgoal);
+ //  REMOTE_ThreadHandle(myworker_id).texit =   Yap_CopyTermNoShare(REMOTE_ThreadHandle(myworker_id).texit);
   
   MUTEX_UNLOCK(&(REMOTE_ThreadHandle(myworker_id).tlock));  
 #ifdef TABLING

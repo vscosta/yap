@@ -15,13 +15,7 @@ plugins:
           src-dirs:     ../../docs/md   ../../C    ../../H    ../../include   ../../pl    ../../library   ../../os    ../../OPTYap    ../../packages
           full-doc: True # if you want to generate full documentation
           doxy-cfg-file: ../Doxyfile.dox
-            FILE_PATTERNS: "*.cpp *.h* *yap *pl *md *ypp" # specify file patterns to filter out
-            RECURSIVE: True # recursive search in source directoriesmarkdown_extensions:
-  - attr_list
-  - md_in_html
-  - footnotes
-  - toc:
-      permalink: true
+             # RECURSIVE: True # search in source doxx directoriesmarkdown_extensions:
 nav:
    - Home: YAP/index.md
    - INSTALL: YAP/INSTALL.md

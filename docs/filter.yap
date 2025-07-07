@@ -34,11 +34,7 @@ main :-
     retractall(visited(_)),
     retractall(pred_found(_,_,_)),
     unix(argv([File])),
-    atom_list_concat(Cs,'/',File),
-    atom_list_concat(Cs,'_'  ,OFile),
-    %  open(OOFile, write, W),
     W = user_output,
-
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first)]),
     \+ visited(File),
     %    valid_suffix(ValidSuffix),
@@ -451,7 +447,7 @@ addcomm(N/A,S,false) :-
     length(L,A),
     maplist(=('?'),L),
     T =.. [N|L],
-    format(ostream,'~n~n/**   @class ~s~n	 **~w**s     (undocumented)  **/~n~n',[S,T]).
+    format(ostream,'~n~n/**   @class ~s~n	 ~w     (undocumented)  **/~n~n',[S,T]).
 addcomm(_,_,_).
 
 

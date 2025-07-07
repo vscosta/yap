@@ -93,10 +93,10 @@ encode_text(S,NS) :-
     encode(S,NS).
 
 
-encode(P/A,String) :-
-    !,
-    format(string(Pred),'~w',[P/A]),
-    pred2dox(Pred, String).
+encode(Pred/A,String) :-
+    !,  
+    pred2dox_(Pred, String0),
+    format(string(String),'~s_~d',[String0,A]).
 
 encode("","") :-
     !.
@@ -111,61 +111,38 @@ decode(P,S) :-
 decode(S,S).
 
 
-pred2dox(Pred, String) :-
-    sub_string(Pred,0,LEN,2,Name), 
-    sub_string(Pred,_0,1,1,"/"), 
-    string_chars(Name,Cs),
-    I is LEN+2,
-    get_string_char(I,Pred,D),
-    foldl(char_to_safe,Cs,PCs,['_',D ]),
+pred2dox(S, String) :-
+    sub_string(S,_,2,2,S0),
+    string_chars(S0,[C1,C0]),
+    char_type_digit(C0),
+    (C1 == '/'  ; C1 == '_'),
     !,
-    string_chars(String,  PCs).
-pred2dox(Pred,Pred).
+    sub_string(S,0,_,2,Name),
+    pred2dox_(Name,String0),
+    format(string(String),'~s_~s',[String0,[C0]]).
+pred2dox(Pred, String) :-
+    pred2dox_(Pred, String).
+
+pred2dox_(Pred, String) :-
+    string_chars(Pred, Chars),
+    maplist(char_type_csym, Chars),
+    !,
+    String = Pred.
+pred2dox_(Pred, String) :-
+    string_codes(Pred, Codes),
+    foldl(addch,Codes, SF,[]),
+    string_concat(["YAP"|SF],String).
+
+addch(Code,[SF|Ss],Ss)  :-
+format(string(SF),'~*t~d~8+',[0'0,Code]).
 
 dox2pred(String,Pred) :-
-    sub_string(String,0,LEN,2,Name),
-    string_chars(Name,PCs),
-I is LEN+2,
-get_string_char(I,String,D),
-   char_type(D,digit),
-   foldl(char_to_safe,ACs,PCs,[]),
-   append(ACs,['/',D],Cs),
-    !,
-    string_chars(Pred,  Cs).
-dox2pred(Pred,Pred).
+    sub_string(String,0,3,Len,`YAP`),
+    sub_string(String,3,Len,0,Codes),
+    fetch_chars(Len,Codes,Chars),
+    string_concat(Chars,Pred).
 
-/* translate >= to UNU */
-char_to_safe(C,[],[]) :-
-    var(C),
-    !.
-char_to_safe(C,[D],[]) :-
-    var(C),
-    !,
-    C=D.
-char_to_safe(C,['U',A,'U'|Next],Next) :-
-    var(C),
-    !,
-     number_chars(CA,['0',x,A]),
-    char_code(C,CA).
-char_to_safe(C,['U',A,B,'U'|Next],Next) :-
-    var(C),
-    !,
-    number_chars(CA,['0',x,A,B]),
-    char_code(C,CA).
-char_to_safe(C,[D|NL],NL) :-
-    var(C),
-    !,
-    C=D.
-/* translate >= to UNU */
-char_to_safe('U',NL,L) :-
-    !,
-   format(chars(NL, L), 'U~16rU', [0'U]).
-char_to_safe(C,[C|L],L) :-
-    char_type(C,alnum),
-    !.
-char_to_safe('_',['_'|L],L) :-
-    !.
-char_to_safe(C,NL,L) :-
-    char_code(C,Code),
-   format(chars(NL, L), 'U~16rU', [Code]).
-    
+fetch_chars(Len,Len,[],[]) :- !.
+fetch_chars(This,String,[S|Chars]) :-
+    sub_string(String,This,8,Left,S),
+    fetch_chars(Left,String,Chars).

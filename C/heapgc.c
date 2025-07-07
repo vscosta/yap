@@ -435,6 +435,11 @@ push_registers(Int num_regs, void PUSH__(Term, Term *), yamop *nextop USES_REGS)
   for (i = 1; i <= num_regs; i++) {
     PUSH( XREGS[i] );
   }
+#if THREADS
+  if (worker_id > 0)
+    gl = RepGlobalProp(LOCAL_ThreadHandle.ge);
+#endif
+
 
   PUSH( LOCAL_GlobalArena );
   //PUSH( LOCAL_GcGeneration );

@@ -12,32 +12,23 @@
 
 static FILE *ostream;
 
-static  char *protect_class(char *where, char *what, ssize_t sz)
-{
-  size_t i;
+static char *protect_class(char *where, char *what, ssize_t sz) {
+  ssize_t i;
   char *out = where;
-  for (i=0;i<sz;i++) {
+  char *p = what;
+  int ch;
+  while ((ch = *p++) &&
+	 (isalnum(ch)||ch=='_'));
+  if (!ch) {
+    strcpy(where, what);
+    return where;
+  }
+  strcpy(where, "YAP");
+  out = where + strlen("YAP");
+  for (i = 0; i < sz; i++) {
     int ch = what[i];
-    switch (ch) {
-    case '@':
-      out = stpcpy(out, "at_");
-      break;      
-    case '>':
-       out = stpcpy(out, "gt_");
-     case '<':
-       out = stpcpy(out, "lt_");
-     case '=':
-       out = stpcpy(out, "eq_");
-   case '&':
-      out = stpcpy(out, "am_");
-      break;
-     case '\\':
-       out = stpcpy(out, "bk_");
-      break;
-    default:
-      *out++=ch;
-      *out = '\0';
-    }
+          sprintf(out, "%.8x", ch);
+	  out += strlen(out);
   }
   return where;
 }
@@ -54,7 +45,7 @@ static char * infixpred_doc(char *line, char *end, ssize_t sz) {
 
     op = protect_class(buf, op, strlen(op));
     line = arg2+strlen(arg2)+1;
-    fprintf(ostream, "@class %s @link %s/%d @endlink\n@brief  %s **%s** %s ", op, 
+    fprintf(ostream, "@class \"%s_2\" @link %s/%d @endlink\n@brief  %s %s %s ", op, 
 	    op, 2,
 	    arg1, op, arg2);
   }
@@ -83,15 +74,15 @@ static char * pred_doc(char *line, char *end, ssize_t sz) {
     if (name == NULL || name+strlen(name)==end) {
       name = prefix+strlen(prefix)+1;
       name = strtok(name, " \n");
-      fprintf(ostream, "@class %s @link %s/%d @endlink\n@brief  **%s**",
+      fprintf(ostream, "@class %s_a @link %s/%d @endlink\n@brief  %s",
 	      protect_class(buf,name, strlen(name)),
 	      name, 0, name  );
     } else {
       args = strtok(NULL, ")");
       int arity = commas(args);
-      fprintf(ostream, "\n@class %s_%d\n @brief %s/%d **%s(%s)**",
+      fprintf(ostream, "\n@class %s_%d @link %s/%d @endlink\n @brief %s/%d %s(%s)",
               protect_class(buf, name,strlen(name)),
-              arity, name, arity,  name, args);
+              arity, name, arity, name, arity,  name, args);
       line = args+strlen(args)+1;
     }
   }
