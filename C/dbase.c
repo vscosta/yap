@@ -4973,15 +4973,12 @@ static DBTerm *StoreTermInDB(Term t USES_REGS) {
   LOCAL_Error_Size = 0;
   while ((x = (DBTerm *)CreateDBStruct(t, (DBProp)NULL, InQueue, &needs_vars, 0,
                                        &dbg)) == NULL) {
-    if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
-      break;
       yhandle_t ys = Yap_InitHandle(t);
       if (recover_from_record_error()) {
         t = Yap_PopHandle(ys);
       } else {
 	Yap_PopHandle(ys);
         return NULL;
-      }
     }
   }
   return x;

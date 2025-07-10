@@ -1,4 +1,3 @@
-
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -185,7 +184,7 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   struct idb_queue *msgsp = &mboxp->msgs;
 
       // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
-pthread_mutex_lock(mutexp);
+  pthread_mutex_lock(mutexp);
   if (!mboxp->open) {
     // oops, dead mailbox
 	    pthread_mutex_unlock(mutexp);
@@ -199,17 +198,10 @@ pthread_mutex_lock(mutexp);
   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
 
 
-    mboxp->nmsgs++;
-    
-{
- //  if (mboxp->nmsgs >= 0 ) 
-  // fprintf(stderr,"[%d] %s:%d: SIGNAL(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,( emptyp));
-pthread_cond_broadcast(emptyp);
-
- } 
-//  if (mboxp->nmsgs >= 0 ) 
-    // fprintf(stderr,"[%d] %s:%d: MUUNLOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
-pthread_mutex_unlock(mutexp);
+  mboxp->nmsgs++;
+  mboxp->nclients=0;
+  pthread_cond_signal(emptyp);
+  pthread_mutex_unlock(mutexp);
 
 
    return true;
@@ -217,38 +209,29 @@ pthread_mutex_unlock(mutexp);
 
 static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-            pthread_mutex_lock(mutexp);
-  // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
+
   pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
-	  if (!mboxp->open){
-	    pthread_mutex_unlock(mutexp);
-            return false;
-          }
-          if (  Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
-	    if (mboxp->nmsgs == mboxp->max)
-	      pthread_cond_signal(&mboxp->full);		      
-	    mboxp->nmsgs--;
-	    if (mboxp->nmsgs > 0)
-	      pthread_cond_signal(&mboxp->empty);		      
- 
-	    // fprintf(stderr,"[%d] %s:%d: MUUNLOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
-	    pthread_mutex_unlock(mutexp);
-	    return true;
-	  } else {
-	    if (mboxp->nmsgs > 0 ){ 
-  // fprintf(stderr,"[%d] %s:%d: SIGNAL(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,( emptyp));
-	      //pthread_cond_signal(emptyp);
 
-
-	    }
-    // fprintf(stderr,"[%d] %s:%d: WAIt(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
-
-	    pthread_cond_wait(emptyp,mutexp);
-	    pthread_mutex_unlock(mutexp);
-	    return false;
-	  }
-                   
+    pthread_mutex_lock(mutexp);
+    if (!mboxp->open){
+      pthread_mutex_unlock(mutexp);
+      return true;
+    }
+    if (mboxp->nmsgs==0)
+      pthread_cond_wait(emptyp, mutexp);
+    if (Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
+	mboxp->nmsgs--;
+      if (mboxp->nmsgs+1 == mboxp->max) {
+	pthread_cond_signal(&mboxp->full);
+      }
+      pthread_mutex_unlock(mutexp);
+      return true;
+    } else {
+	mboxp->nmsgs--;
+      pthread_mutex_unlock(mutexp);
+      return false;
+    }
 }
 
 
@@ -1409,13 +1392,11 @@ p_cond_create( USES_REGS1 )
  p_mbox_receive( USES_REGS1 )
  {
    mbox_t* mboxp;
-   do {
      Term namet = Deref(ARG1);
      mboxp = getMbox(namet) ;
      if (!mboxp)
        return FALSE;
-   } while (! mboxReceive(mboxp, ARG2 PASS_REGS) );
-   return true;
+   return  mboxReceive(mboxp, ARG2 PASS_REGS) ;
  }
 
 

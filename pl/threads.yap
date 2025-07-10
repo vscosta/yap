@@ -1110,13 +1110,14 @@ there is only one waiting thread or all waiting threads wait with an
 unbound variable an arbitrary thread is restarted to scan the queue.
 
 */
-thread_send_message(Queue, Term) :- var(Queue), !,
+thread_send_message(Queue, Term) :-
+ %  writeln(user_error,Queue-Term),
+%    writeln(user_error,Queue+Term),
+    var(Queue), !,
 	throw_error(instantiation_error,thread_send_message(Queue,Term)).
 thread_send_message(Queue, Term) :-
-	recorded('$thread_alias',[Id|Queue],_R), !,
-	'$message_queue_send'(Id, Term).
-thread_send_message(Queue, Term) :-
-	'$message_queue_send'(Queue, Term).
+    '$mbox_id'(Queue, Id),
+    '$message_queue_send'(Id, Term).
 
 /** @pred thread_get_message(? _Term_)
 
@@ -1155,19 +1156,35 @@ to check whether a thread has swallowed a message sent to it.
 
 
 */
-thread_get_message(Queue, _Term) :- var(Queue), !,
-fail.
 thread_get_message(Queue, Term) :-
-	recorded('$thread_alias',[Id|Queue],_R), !,
-	'$message_queue_receive'(Id, Term).
+    var(Queue),
+    !,
+    throw_error(instantiation_error,thread_get_message(Queue,Term)).
 thread_get_message(Queue, Term) :-
-    '$message_queue_receive'(Queue, Term).
+    '$mbox_id'(Queue, Id),
+    '$mbox_get_message'(Id, Term).
 
 
+'$mbox_get_message'(Queue, Term0) :-
+    '$message_queue_receive'(Queue, Term),
+    (
+      Term = Term0
+      ->
+      !
+      ;
+      '$message_queue_send'(Queue, Term),
+      fail
+      ).
+'$mbox_get_message'(Queue, Term) :-
+    '$mbox_get_message'(Queue, Term).
 
-/** @pred thread_peek_message(? _Term_)
+'$mbox_id'(Queue, Id) :-
+    recorded('$thread_alias',[Id|Queue],_R),
+    !.
+'$mbox_id'(Id, Id).
 
 
+/** thread_peek_message(?Term)
 Examines the thread message-queue P and compares the queued terms
 with  _Term_ until one unifies or the end of the queue has been
 reached.  In the first case the call succeeds (possibly instantiating
