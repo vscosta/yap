@@ -5048,10 +5048,13 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
   tr_fr_ptr oldTR = TR;
   QueueEntry *cur_instance = father_key->FirstInQueue, *prev = NULL;
   while (cur_instance) {
-Term TDB;
+    Term TDB;
     HR = oldH;
     HB = LCL0;
     TR = oldTR;
+    HB = ASP;
+    //QueueEntry *p = cur_instance; int i=0; while(p) {i++; p=p->next;}
+    //    fprintf(stderr,"checking %d",i);  Yap_DebugPlWriteln(*t);
     while ((TDB = GetDBTerm(cur_instance->DBT, false PASS_REGS)) == 0L) {
         while (oldTR < TR) {
           CELL d1 = TrailTerm(TR - 1);
@@ -5059,26 +5062,38 @@ Term TDB;
           /* normal variable */
           RESET_VARIABLE(d1);
         }
-      if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_dogc(PASS_REGS1)) {
-          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-          return false;
-        }
+	HB = B->cp_h;
+	yhandle_t ys = Yap_InitHandle(*t);
+	if (recover_from_record_error()) {
+	  *t = Yap_PopHandle(ys);
+	} else {
+	  *t = Yap_PopHandle(ys);
+	  return NULL;
+	}
+	oldTR = TR;
+	oldH = HR;
+	HB = LCL0;
+    }
+      bool rc;
+      //      Yap_DebugPlWriteln(TDB);
+      if (*t==0) {
+	*t = TDB;
+	rc = true;
+      } else {
+	rc = Yap_unify(*t, TDB);
       }
-      oldTR = TR;
-      oldH = HR;
-    }
-    HB = B->cp_h;
-    bool rc;
-    if (*t==0) {
-      *t = TDB;
-      rc = true;
-    } else {
-      rc = Yap_unify(*t, TDB);
-    }
-    if (rc) {
-	if (release) {
+      if (rc) break;
+      // just getting the first
+      if (first)
+        return false;
+      // but keep on going, if we want to check everything.
+      prev = cur_instance;
+      cur_instance = cur_instance->next;
+  }
+  if (cur_instance == NULL) {
+    return false;
+  }
+  if (release) {
 	  if (cur_instance == father_key->FirstInQueue) {
 	    father_key->FirstInQueue = cur_instance->next;
 	  }
@@ -5088,32 +5103,22 @@ Term TDB;
 	  if (prev) {
 	    prev->next = cur_instance->next;
 	  }
-        /* release space for cur_instance */
-        keepdbrefs(cur_instance->DBT PASS_REGS);
-        ErasePendingRefs(cur_instance->DBT PASS_REGS);
-        FreeDBSpace((char *)cur_instance->DBT);
-        FreeDBSpace((char *)cur_instance);
-      } else {
-        // undo if you'rejust peeking
-        while (oldTR < TR) {
-          CELL d1 = TrailTerm(TR - 1);
-          TR--;
-          /* normal variable */
-          RESET_VARIABLE(d1);
-        }
-      }
-      return true;
-    } else {
-      // just getting the first
-      if (first)
-        return false;
-      // but keep on going, if we want to check everything.
-      prev = cur_instance;
-      cur_instance = cur_instance->next;
-    }
+	  /* release space for cur_instance */
+	  keepdbrefs(cur_instance->DBT PASS_REGS);
+	  ErasePendingRefs(cur_instance->DBT PASS_REGS);
+	  FreeDBSpace((char *)cur_instance->DBT);
+	  FreeDBSpace((char *)cur_instance);
+	} else {
+	  // undo if you'rejust peeking
+	  while (oldTR < TR) {
+	    CELL d1 = TrailTerm(TR - 1);
+	    TR--;
+	    /* normal variable */
+	    RESET_VARIABLE(d1);
+	  }
   }
-  return false;
-}
+	return true;
+  }
 
 static Int p_init_queue(USES_REGS1) {
   db_queue *dbq;

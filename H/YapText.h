@@ -617,22 +617,18 @@ static inline Term Yap_CharsToDiffListOfCodes(const char *s, Term tail,
 
 static inline Term Yap_UTF8ToDiffListOfCodes(const unsigned char *s,
 					     Term tail USES_REGS) {
-  seq_tv_t inp, out;
-
-  inp.val.uc0 = s;
-  inp.type = YAP_STRING_CHARS;
-    inp.enc = out.enc = ENC_ISO_UTF8;
-  out.type = YAP_STRING_DIFF | YAP_STRING_CODES;
-  out.val.uc = NULL;
-  out.dif = tail;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0;
-  return out.val.t;
+  while (*s) {
+    // assumes the two code have always the same size;
+    utf8proc_int32_t chr;
+    s += get_utf8(s, -1, &chr);
+    tail = MkPairTerm(MkIntTerm(chr), tail);
+  }
+  return tail;
 }
 
 static inline Term Yap_UTF8ToDiffListOfChars(const unsigned char *s,
 					     Term tail USES_REGS) {
-  seq_tv_t inp, out;
+  seq_tv_t inp,out;
 
   inp.val.uc0 = s;
   inp.type = YAP_STRING_CHARS;

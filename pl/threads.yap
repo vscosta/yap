@@ -1165,7 +1165,7 @@ thread_get_message(Queue, Term) :-
     '$mbox_get_message'(Id, Term).
 
 
-'$mbox_get_message'(Queue, Term0) :-
+'$mbox_get_message'(Queue, Term) :-
     '$message_queue_receive'(Queue, Term),
     (
       Term = Term0

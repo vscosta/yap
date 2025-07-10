@@ -221,14 +221,13 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
     if (mboxp->nmsgs==0)
       pthread_cond_wait(emptyp, mutexp);
     if (Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
-	mboxp->nmsgs--;
+      mboxp->nmsgs--;
       if (mboxp->nmsgs+1 == mboxp->max) {
 	pthread_cond_signal(&mboxp->full);
       }
       pthread_mutex_unlock(mutexp);
       return true;
     } else {
-	mboxp->nmsgs--;
       pthread_mutex_unlock(mutexp);
       return false;
     }
