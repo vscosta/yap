@@ -133,8 +133,11 @@ pred2dox_(Pred, String) :-
     foldl(addch,Codes, SF,[]),
     string_concat(["YAP"|SF],String).
 
-addch(Code,[SF|Ss],Ss)  :-
-format(string(SF),'~*t~d~8+',[0'0,Code]).
+addch(Code,[SF|Ss],[SF|Ss])  :-
+    code_type_alpha(SF),
+    !.
+    addch(Code,SF,Ss) :-
+    format(SF,Ss(SF),'~d_+',[Code]).
 
 dox2pred(String,Pred) :-
     sub_string(String,0,3,Len,`YAP`),

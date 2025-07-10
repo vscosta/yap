@@ -27,8 +27,13 @@ static char *protect_class(char *where, char *what, ssize_t sz) {
   out = where + strlen("YAP");
   for (i = 0; i < sz; i++) {
     int ch = what[i];
-          sprintf(out, "%.8x", ch);
+    if (isalpha(ch)) {
+      *out++ = ch;
+      out[0] = '\0';
+    } else {
+          sprintf(out, "%d_", ch);
 	  out += strlen(out);
+    }
   }
   return where;
 }
