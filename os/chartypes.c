@@ -1120,7 +1120,7 @@ void Yap_InitChtypes(void) {
   Yap_InitCPred("$get_default_encoding", 1, get_default_encoding,
                 SafePredFlag | HiddenPredFlag);
 
-  Yap_InitCPred("$encoding", 2, p_encoding, SafePredFlag | SyncPredFlag),
+  YapInitCPred("$encoding", 2, p_encoding, SafePredFlag | SyncPredFlag),
 
       Yap_InitCPred("$current_char_conversion", 2, p_current_char_conversion,
                     SyncPredFlag | HiddenPredFlag);
