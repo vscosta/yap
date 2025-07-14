@@ -1,4 +1,4 @@
-#!/home/vsc/.local/bin/yap -L --
+#docu!/home/vsc/.local/bin/yap -L --
 
 /** @file filter.yap
  *
@@ -289,13 +289,11 @@ trl_pred(L,NewLine) :-
    sub_string(Line,_,1,_,"("),
     detect_name(Line,Name,Args,Arity,RL),
     !,
-    number_string(Arity,A),
     atom_string(At,Name),
     defines_module(M),
     assert(pred_found(M,At,Arity)),
     sub_string(L,0,Bef,_, Prefix),
-    string_concat([Name,"/",A],PI),
-    encode(PI,DoxName),
+    encode(Name/Arity,DoxName),
     string_concat([Prefix,"@class ",DoxName,"\n       *",Name,Args,"* ",RL],NewLine).
 % arity == 0
 trl_pred(L,NewLine) :-
@@ -308,15 +306,13 @@ trl_pred(L,NewLine) :-
       ),
     sub_string(L,_,After,0,L1),
     strip_whitespace(L1,0,L2),
-    detect_name(L2,Name,Args,Arity,RL),
+    detect_name(L2,Name,Args,A,RL),
     !,
-    number_string(Arity,A),
     atom_string(At,Name),
     defines_module(M),
-    assert(pred_found(M,At,Arity)),
+    assert(pred_found(M,At,A)),
     sub_string(L,0,Bef,_, Prefix),
-    string_concat([Name,"/",A],PI),
-    encode(PI,DoxName),
+    encode(Name/A,DoxName),
     string_concat( [Prefix,"@class ",DoxName,"\n       *",Name,Args,"* ",RL],NewLine).
 trl_pred(L,NewLine) :-
     sub_string(L,Bef,10,_After,"@infixpred"),
@@ -336,13 +332,12 @@ trl_pred(L,NewLine) :-
 			    sub_string(L,A2,L2,_,Name),
 			    sub_string(L,A1,L1,_,NameArgs),
 			    sub_string(L,B3,_,0,RL),
-			    string_concat([Name,"/2"],PI),
-			    encode(PI,DoxName),
+			    encode(Name/2,DoxName),
 			    atom_string( At, Name),
 			    defines_module(Mod),
 			    assert(pred_found(Mod,At,2)),
 			    sub_string(L,0,Bef,_, Prefix),
-			    string_concat([Prefix,"@class ",DoxName,"\n       *",NameArgs,"* ",RL],NewLine).
+			    string_concat([Prefix,"@class ",DoxName,"\n       ",NameArgs," ",RL],NewLine).
 trl_pred(L,L).
 
     strip_whitespace(Line0,I0,Line) :-
@@ -396,19 +391,21 @@ trl_pi(L,NewLine) :-
     sub_string(L,Left,1,Extra,"/"),
     Left > 0,
     Extra > 0,
-    sub_string(L,_,1,Extra,D),
+    Extra1 is Extra-1,
+    sub_string(L,_,1,Extra1,D),
     digit(D),
+    string_number(D,Arity),
     back(Left,L,NPrefix),
-NPrefix \= Left,
-!,
+    NPrefix \= Left,
+    !,
     sub_string(L,0,NPrefix,_,Prefix),
-    sub_string(L,NPrefix,_,2,Name),
-    string_concat([Name,"/",D],PI),
-    encode(PI,DoxName),
+    ExtraP1 is Extra+1,
+    sub_string(L,NPrefix,_,ExtraP1,Name),
+    encode(Name/Arity,DoxName),
     Right is Extra-1,
     sub_string(L,_,Right,0,RightLine),
     trl_pi(RightLine,More),
-    string_concat([Prefix,"@ref ",DoxName," \"",PI,"\"",More],NewLine).
+    string_concat([Prefix,"@ref ",DoxName," \"",Name,"/",D,"\" ",More],NewLine).
 trl_pi(S,S).
     
 

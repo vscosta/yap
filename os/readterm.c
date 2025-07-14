@@ -469,7 +469,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
   if (!err) {
     //    Yap_JumpToEnv();   if (sno < 0 || start == NULL) {
     e->parserPos = 0;
-     e->prologConsulting = LOCAL_consult_level > 0;
+    e->prologConsulting = IsPairTerm(Yap_GetGlobal(AtomConsultingFile));
      e->parserReadingCode = true;
      e->parserFirstLine =
        e->parserLine =  e->parserLastLine =st->linecount;
@@ -511,7 +511,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
      o[0] = '\0';
      Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno,SYNTAX_ERROR, MkIntTerm(err_line), TermNil, NULL);
      // const char *p1 =
-     e->prologConsulting = LOCAL_consult_level > 0;
+     e->prologConsulting = IsPairTerm(Yap_GetGlobal(AtomConsultingFile));
      e->parserReadingCode = true;
      e->parserFirstLine = start_line;
      e->parserLine = err_line;

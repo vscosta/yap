@@ -138,10 +138,7 @@ mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
   fullpp = & mboxp->full;
   pthread_cond_init(fullpp, NULL);
   mutexp = & mboxp->mutex;
-  pthread_mutexattr_t mat;
-  pthread_mutexattr_init(&mat);
-  pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE);
-  pthread_mutex_init(mutexp, &mat);
+  pthread_mutex_init(mutexp, NULL);
   msgsp = & mboxp->msgs;
   mboxp->nmsgs = 0;
   mboxp->nclients = 0;
@@ -159,6 +156,7 @@ mboxDestroy( mbox_t *mboxp USES_REGS )
   pthread_cond_t *emptyp = &mboxp->empty;
   pthread_cond_t *fullpp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
+  pthread_mutex_lock(mutexp);
   mboxp->open = false;
   if (mboxp->nclients == 0 ) {
     pthread_cond_destroy(emptyp);
@@ -221,13 +219,14 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
     if (mboxp->nmsgs==0)
       pthread_cond_wait(emptyp, mutexp);
     if (Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
-      mboxp->nmsgs--;
+	mboxp->nmsgs--;
       if (mboxp->nmsgs+1 == mboxp->max) {
 	pthread_cond_signal(&mboxp->full);
       }
       pthread_mutex_unlock(mutexp);
       return true;
     } else {
+	mboxp->nmsgs--;
       pthread_mutex_unlock(mutexp);
       return false;
     }
@@ -1284,12 +1283,12 @@ typedef struct {
        if (mboxp == NULL) {
 	   return FALSE;
        }
-       // global mbox, for now we'll just insert in list
+      LOCK(GLOBAL_mboxq_lock);
+      // global mbox, for now we'll just insert in list
        rc = mboxCreate( namet, mboxp PASS_REGS );
-     LOCK(GLOBAL_mboxq_lock);
-     mboxp->next = GLOBAL_named_mboxes;
+       mboxp->next = GLOBAL_named_mboxes;
        GLOBAL_named_mboxes = mboxp;
-	   UNLOCK(GLOBAL_mboxq_lock);
+       UNLOCK(GLOBAL_mboxq_lock);
  }
     return rc;
 }

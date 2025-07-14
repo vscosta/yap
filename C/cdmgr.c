@@ -55,7 +55,6 @@ static int RemoveIndexation(PredEntry *);
 static Int number_of_clauses(USES_REGS1);
 static Int p_compile(USES_REGS1);
 static Int p_purge_clauses(USES_REGS1);
-static Int p_showconslultlev(USES_REGS1);
 static Int p_endconsult(USES_REGS1);
 static Int p_undefined(USES_REGS1);
 static Int new_multifile(USES_REGS1);
@@ -1455,8 +1454,6 @@ void Yap_AssertzClause(PredEntry *p, yamop *cp) {
 static bool one_more_clause(PredEntry *p, Term t, assert_control_t mode) {
   CACHE_REGS
 
-  if (LOCAL_consult_level == 0)
-    return true;
   if (p == LOCAL_LastAssertedPred)
     return false;
   LOCAL_LastAssertedPred = p;
@@ -1631,7 +1628,6 @@ static int is_fact(Term t) {
 }
 
 Int Yap_source_line_no(void) {
-  CACHE_REGS
       int sno;  
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     return GLOBAL_Stream[sno].linecount;
@@ -1639,7 +1635,7 @@ Int Yap_source_line_no(void) {
   if ((sno = Yap_CheckAlias(AtomUserIn)) >= 0) {
     return GLOBAL_Stream[sno].linecount;
   }
-  if (LOCAL_consult_level == 0) {
+  if ( Yap_GetGlobal(AtomConsultingFile) == TermNil) {
     return GLOBAL_Stream[0].linecount;
   } else {
     return 1;
@@ -1647,8 +1643,7 @@ Int Yap_source_line_no(void) {
 }
 
 Int Yap_source_line_pos(void) {
-  CACHE_REGS
-      int sno;  
+  int sno;  
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);
@@ -1659,16 +1654,15 @@ Int Yap_source_line_pos(void) {
     //  return(AtomUserIn);
     return GLOBAL_Stream[sno].charcount+1-GLOBAL_Stream[sno].linestart;
   }
-  if (LOCAL_consult_level == 0) {
+  if (Yap_GetGlobal(AtomConsultingFile) == TermNil) {
     return GLOBAL_Stream[0].charcount+1-GLOBAL_Stream[0].linestart;
   } else {
     return GLOBAL_Stream[sno].charcount+1-GLOBAL_Stream[sno].linestart;
   }
-
 }
 
+
 Int Yap_source_pos(void) {
-  CACHE_REGS
       int sno;  
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
@@ -1680,7 +1674,7 @@ Int Yap_source_pos(void) {
     //  return(AtomUserIn);
     return GLOBAL_Stream[sno].charcount;
   }
-  if (LOCAL_consult_level == 0) {
+  if ((Yap_GetGlobal(AtomConsultingFile)) == TermNil) {
     return GLOBAL_Stream[0].charcount;
   } else {
     return 1;
@@ -1689,7 +1683,6 @@ Int Yap_source_pos(void) {
 }
 
 Atom Yap_source_file_name(void) {
-  CACHE_REGS
       int sno;  
   if (!GLOBAL_Stream)
     return AtomEmpty;
@@ -1703,7 +1696,7 @@ Atom Yap_source_file_name(void) {
     //  return(AtomUserIn);
     return GLOBAL_Stream[sno].name;
   }
-  if (LOCAL_consult_level == 0) {
+  if (Yap_GetGlobal(AtomConsultingFile) == TermNil) {
     return GLOBAL_Stream[0].name;
   } else {
     return AtomEmpty;
@@ -2054,7 +2047,7 @@ warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *m
     ts[0] = terr;
     ts[1] = culprit;
     ts[2] =  Yap_PredicateIndicator(t, CurrentModule);
-    e->prologConsulting =  LOCAL_consult_level > 0;
+    e->prologConsulting =  IsPairTerm( Yap_GetGlobal(AtomConsultingFile) );
     e->parserReadingCode = true;
     e->parserLine = Yap_source_line_no();
     e->parserLinePos = 0;
@@ -2228,7 +2221,6 @@ we should have:
 void Yap_init_consult(int mode, const char *filenam, const char *dirname) {
   CACHE_REGS
   Yap_ChDir(dirname);
-  LOCAL_consult_level++;
   LOCAL_LastAssertedPred = NULL;
 }
 
@@ -2238,7 +2230,9 @@ static Int startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   Yap_init_consult(mode,
 		   RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE,
 		   RepAtom(AtomOfTerm(Deref(ARG3)))->StrOfAE);
-  t = MkIntTerm(LOCAL_consult_level);
+  Term cs = Yap_GetGlobal(AtomConsultingFile), *tail;
+  Int i = Yap_SkipList(&cs, &tail);
+  t = MkIntTerm(i);
   if (aliast !=  TermLoopStream) {
     int sno = Yap_CheckStream(ARG4,Input_Stream_f  |
 						Socket_Stream_f,
@@ -2258,25 +2252,10 @@ if (IsVarTerm(t))
    LOCAL_LastAssertedPred=AddressOfTerm(t);
   return true;
 }
-static Int p_showconslultlev(USES_REGS1) {
-  Term t;
-  if (LOCAL_consult_level < 0)
-      LOCAL_consult_level=0;
-  t = MkIntTerm(LOCAL_consult_level);
-  return (Yap_unify_constant(ARG1, t));
-}
 
 static void end_consult(USES_REGS1) {
   char *dir = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   Yap_ChDir(dir);
-  
- if (LOCAL_consult_level > 0)
-      LOCAL_consult_level--;
-    LOCAL_LastAssertedPred = NULL;
-#if !defined(YAPOR) && !defined(YAPOR_SBA)
-/*  if (LOCAL_consult_level == 0)
-    do_toggle_static_predicates_in_use(FALSE);*/
-#endif
 }
 
 void Yap_end_consult(void) {
@@ -4495,7 +4474,6 @@ void Yap_InitCdMgr(void) {
 
   Yap_InitCPred("$start_consult", 5, startconsult,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);
   Yap_InitCPred("$end_consult", 1, p_endconsult, SafePredFlag | SyncPredFlag);
   /* gc() may happen during compilation, hence these predicates are
         now unsafe */

@@ -617,13 +617,19 @@ static inline Term Yap_CharsToDiffListOfCodes(const char *s, Term tail,
 
 static inline Term Yap_UTF8ToDiffListOfCodes(const unsigned char *s,
 					     Term tail USES_REGS) {
+  Term p0, *p = &p0;
   while (*s) {
     // assumes the two code have always the same size;
     utf8proc_int32_t chr;
     s += get_utf8(s, -1, &chr);
-    tail = MkPairTerm(MkIntTerm(chr), tail);
+    HR += 2;
+    *p = AbsPair(HR - 2);
+    p = HR - 1;
+    HR[-2] = MkIntTerm(chr);
   }
-  return tail;
+  RESET_VARIABLE(p);
+  Yap_unify(*p, tail);
+  return p0;
 }
 
 static inline Term Yap_UTF8ToDiffListOfChars(const unsigned char *s,
@@ -892,7 +898,7 @@ static inline Term Yap_ListToNumber(Term t0 USES_REGS) {
 
 static inline Term Yap_ListToString(Term t0 USES_REGS) {
   seq_tv_t inp, out;
-
+  Term TermEmpty = MkAtomTerm(Yap_LookupAtom("")); 
     if (t0==TermNil) {
     return TermEmpty;
   } else if (IsPairTerm(t0)) {
@@ -1398,9 +1404,10 @@ static inline Term Yap_ConcatStrings(Term t1, Term t2 USES_REGS) {
 
 static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
 				  size_t max USES_REGS) {
+  Atom AtomEmpty = Yap_LookupAtom("");
   Atom a3 = AtomOfTerm(t1);
   if(cut == 0){
-    ats[0] = AtomEmpty;
+   ats[0] = AtomEmpty;
     ats[1] = a3;
   } else if( cut == max) {
     ats[0]=a3;

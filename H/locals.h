@@ -181,7 +181,6 @@ LOCAL_INIT(UInt, LabelFirstArraySz, 0L);
 LOCAL_INIT(int, InterruptsDisabled, FALSE);
 
 LOCAL_INIT(struct open_query_struct *, execution, NULL);
-LOCAL_INIT(int, consult_level, 0);
 
 // Variables related to memory allocation
 LOCAL(ADDR, LocalBase);

@@ -499,6 +499,7 @@ live__ :-
     at_end_of_stream(user_input),
      !.	
 live__ :-    
+    nb_setval('$consulting_file',[]),
     current_source_module(Module,Module),
     set_prolog_flag(verbose,normal),
     ( Module==user ->

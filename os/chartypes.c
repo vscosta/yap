@@ -207,7 +207,9 @@ static Int p_encoding(USES_REGS1) { /* '$encoding'(Stream,N) */
 
 /**
    get_char( + Code, -Char)
-   if the number _Code_ represents a valid Unicode point, the atom _Char_ will represent the same
+   if the number _Code_ represents a valid Unicode point, the atom _Char_ will
+represent the s
+ame
    unicode point.
 */
 static int get_char(Term t) {
@@ -313,6 +315,7 @@ static bool to_lower( Term t, Term t2 USES_REGS)
 
 /** @pred  to_upper(?LowC, ?LUp)
 
+    At least one of LowC or LUp are bound to a code or a character.
     UpC is the upper case bersion of LowC, or LowC is the lower case version of UpC.
  */
 static Int toupper2(USES_REGS1) {
@@ -1183,6 +1186,7 @@ void Yap_InitChtypes(void) {
   Yap_InitCPred("code_type_period", 1, code_type_period, SafePredFlag);
   Yap_InitCPred("code_type_quote", 1, code_type_quote, SafePredFlag);
   Yap_InitCPred("code_type_paren", 1, code_type_paren, SafePredFlag);
+
   Yap_InitCPred("code_type_prolog_var_start", 1, code_type_prolog_var_start,
                 SafePredFlag);
   Yap_InitCPred("code_type_prolog_atom_start", 1, code_type_prolog_atom_start,

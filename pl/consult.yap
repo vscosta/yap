@@ -343,7 +343,7 @@ initialization(_G,_OPT).
     ;
     OPT == after_load
     ->
-        '__NB_getval__'('$consulting_file', LC, fail),
+    '__NB_getval__'('$consulting_file', [LC|_], fail),
     strip_module(G,M,H),
     recordz('$initialization_queue',q(LC,M:H),_)
 	;
@@ -484,35 +484,38 @@ q  Stream position at the stream currently being read in. For SWI
 
    The names of the variables in the term being processed, if any.
 */
-prolog_load_context(directory, DirName) :-
+prolog_load_context(Option,Result) :-
+      '__NB_getval__'('$consulting_file', [_|_], fail),
+      prolog_load_context_(Option,Result).
+
+prolog_load_context_(directory, DirName) :-
         ( source_location(F, _)
         -> file_directory_name(F, DirName) ;
           working_directory( DirName, DirName )
         ).
-prolog_load_context(file, Path ) :-
+prolog_load_context_(file, Path ) :-
     stream_property(Stream,alias(include_stream)),
     stream_property(Stream, file_name(Path) ),
     !.
-prolog_load_context(file, Path ) :-
-    prolog_load_context(source, Path ).
-prolog_load_context(source, SourceName) :-
+prolog_load_context_(file, Path ) :-
+    prolog_load_context_(source, Path ).
+prolog_load_context_(source, SourceName) :-
     stream_property(loop_stream, file_name(SourceName) ),
     !.
-prolog_load_context(source, user_input).
+prolog_load_context_(source, user_input).
 
-prolog_load_context(module, X) :-
-        '__NB_getval__'('$consulting_file', _, fail),
+prolog_load_context_(module, X) :-
         current_source_module(Y,Y),
         Y = X.
-prolog_load_context(stream, Stream) :-
+prolog_load_context_(stream, Stream) :-
     stream_property(Stream, alias(loop_stream) ).
-prolog_load_context(term, Term ) :-
+prolog_load_context_(term, Term ) :-
     b_getval('$current_clause', T),
     nonvar(T),
     T = [Term|_].
-prolog_load_context(term_position, Term ) :-
+prolog_load_context_(term_position, Term ) :-
     stream_property( loop_stream, position(Term)).
-prolog_load_context(variable_names, Term ) :-
+prolog_load_context_(variable_names, Term ) :-
     (
     b_getval('$current_clause', T),
     nonvar(T)
@@ -558,7 +561,6 @@ prolog_load_context(variable_names, Term ) :-
 	% inform the file has been loaded and is now available.
 '$tell_loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, _TOpts, Opts) :-
     prolog_load_context(directory, Dir),
-    b_setval('$consulting_file', F ),
 	(
 	 % if we are reconsulting, always start from scratch
 	 Reconsult0 \== consult,
@@ -909,7 +911,10 @@ QEnd of cond  itional compilation.
  *
  * Unify _LV_ with the number of files being consulted.
  */
-consult_depth(LV) :- '$show_consult_level'(LV).
+consult_depth(LV) :-
+    '__NB_getval__'('$consulting_file', Files, fail),
+    length(Files,LV).
+
 
 prolog_library(File) :-
     current_prolog_flag(verbose_load,Old),

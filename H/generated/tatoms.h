@@ -76,6 +76,7 @@ X_API EXTERNAL Atom AtomCompound; X_API EXTERNAL Term TermCompound;
 X_API EXTERNAL Atom AtomConsistencyError; X_API EXTERNAL Term TermConsistencyError;
 X_API EXTERNAL Atom AtomConsult; X_API EXTERNAL Term TermConsult;
 X_API EXTERNAL Atom AtomConsultOnBoot; X_API EXTERNAL Term TermConsultOnBoot;
+X_API EXTERNAL Atom AtomConsultingFile; X_API EXTERNAL Term TermConsultingFile;
 X_API EXTERNAL Atom AtomContext; X_API EXTERNAL Term TermContext;
 X_API EXTERNAL Atom AtomCputime; X_API EXTERNAL Term TermCputime;
 X_API EXTERNAL Atom AtomCreate; X_API EXTERNAL Term TermCreate;
@@ -158,6 +159,7 @@ X_API EXTERNAL Atom AtomExit; X_API EXTERNAL Term TermExit;
 X_API EXTERNAL Atom AtomExoClause; X_API EXTERNAL Term TermExoClause;
 X_API EXTERNAL Atom AtomExoProcedure; X_API EXTERNAL Term TermExoProcedure;
 X_API EXTERNAL Atom AtomExpand; X_API EXTERNAL Term TermExpand;
+X_API EXTERNAL Atom AtomExpandGoal; X_API EXTERNAL Term TermExpandGoal;
 X_API EXTERNAL Atom AtomExpectedNumber; X_API EXTERNAL Term TermExpectedNumber;
 X_API EXTERNAL Atom AtomExtendFileSearchPath; X_API EXTERNAL Term TermExtendFileSearchPath;
 X_API EXTERNAL Atom AtomExtendsions; X_API EXTERNAL Term TermExtendsions;
@@ -687,6 +689,8 @@ X_API EXTERNAL  Functor FunctorExecuteWithin;
 X_API EXTERNAL  Functor FunctorExistenceError;
 
 X_API EXTERNAL  Functor FunctorExoClause;
+
+X_API EXTERNAL  Functor FunctorExoandGoal;
 
 X_API EXTERNAL  Functor FunctorExternalException;
 

@@ -76,6 +76,7 @@
   AtomConsistencyError = AtomAdjust(AtomConsistencyError); TermConsistencyError = MkAtomTerm(AtomConsistencyError);
   AtomConsult = AtomAdjust(AtomConsult); TermConsult = MkAtomTerm(AtomConsult);
   AtomConsultOnBoot = AtomAdjust(AtomConsultOnBoot); TermConsultOnBoot = MkAtomTerm(AtomConsultOnBoot);
+  AtomConsultingFile = AtomAdjust(AtomConsultingFile); TermConsultingFile = MkAtomTerm(AtomConsultingFile);
   AtomContext = AtomAdjust(AtomContext); TermContext = MkAtomTerm(AtomContext);
   AtomCputime = AtomAdjust(AtomCputime); TermCputime = MkAtomTerm(AtomCputime);
   AtomCreate = AtomAdjust(AtomCreate); TermCreate = MkAtomTerm(AtomCreate);
@@ -158,6 +159,7 @@
   AtomExoClause = AtomAdjust(AtomExoClause); TermExoClause = MkAtomTerm(AtomExoClause);
   AtomExoProcedure = AtomAdjust(AtomExoProcedure); TermExoProcedure = MkAtomTerm(AtomExoProcedure);
   AtomExpand = AtomAdjust(AtomExpand); TermExpand = MkAtomTerm(AtomExpand);
+  AtomExpandGoal = AtomAdjust(AtomExpandGoal); TermExpandGoal = MkAtomTerm(AtomExpandGoal);
   AtomExpectedNumber = AtomAdjust(AtomExpectedNumber); TermExpectedNumber = MkAtomTerm(AtomExpectedNumber);
   AtomExtendFileSearchPath = AtomAdjust(AtomExtendFileSearchPath); TermExtendFileSearchPath = MkAtomTerm(AtomExtendFileSearchPath);
   AtomExtendsions = AtomAdjust(AtomExtendsions); TermExtendsions = MkAtomTerm(AtomExtendsions);
@@ -604,6 +606,7 @@
   FunctorExecuteWithin = FuncAdjust(FunctorExecuteWithin);
   FunctorExistenceError = FuncAdjust(FunctorExistenceError);
   FunctorExoClause = FuncAdjust(FunctorExoClause);
+  FunctorExoandGoal = FuncAdjust(FunctorExoandGoal);
   FunctorExternalException = FuncAdjust(FunctorExternalException);
   FunctorFloat = FuncAdjust(FunctorFloat);
   FunctorFloats = FuncAdjust(FunctorFloats);

@@ -1226,7 +1226,7 @@ GLOBAL_VFS = NULL;
   /* tell the system who should cope with interrupts */
   Yap_ExecutionMode = yap_init->ExecutionMode;
   Yap_set_locations(yap_init);
-
+  Yap_SetGlobalVal(AtomConsultingFile,TermNil);
   if (Yap_INPUT_STARTUP==NULL)
     try_restore = false;
   if (do_bootstrap || !try_restore ||
@@ -1236,7 +1236,6 @@ GLOBAL_VFS = NULL;
 
     start_modules();
     TermEof = MkAtomTerm(Yap_LookupAtom("end_of_file"));
-    LOCAL_consult_level = -1;
     __android_log_print(
 			ANDROID_LOG_INFO, "YAPDroid", "init %s ", Yap_BOOTSTRAP);
     char *dir = Malloc(MAX_PATH);
@@ -1274,10 +1273,9 @@ GLOBAL_VFS = NULL;
 				MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));
       setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
     }
-    LOCAL_consult_level = 0;
   }
   CurrentModule = PROLOG_MODULE;
-Yap_StartSlots();
+  Yap_StartSlots();
   YAP_RunGoalOnce(TermInitProlog);
   setBooleanLocalPrologFlag(COMPILING_FLAG, false);
   setBooleanLocalPrologFlag(VERBOSE_LOAD_FLAG, true);

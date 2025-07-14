@@ -50,7 +50,7 @@ static char * infixpred_doc(char *line, char *end, ssize_t sz) {
 
     op = protect_class(buf, op, strlen(op));
     line = arg2+strlen(arg2)+1;
-    fprintf(ostream, "@class \"%s_2\" @link %s/%d @endlink\n@brief  %s %s %s ", op, 
+    fprintf(ostream, "@class \"%s_2\"\n @link %s/%d @endlink\n@brief  %s %s %s ", op, 
 	    op, 2,
 	    arg1, op, arg2);
   }
@@ -74,8 +74,8 @@ static char * pred_doc(char *line, char *end, ssize_t sz) {
 
   if ((pred = strstr(line, "@pred")) != NULL && (!end || pred < end)) {
     fprintf(ostream, "%.*s", (int)(pred - start), start);
-    char *prefix = strtok(pred, " \t");
-    name = strtok(NULL, "(");
+    char *prefix = strtok(pred, " \t(");
+    name = strtok(NULL, " \t(");
     if (name == NULL || name+strlen(name)==end) {
       name = prefix+strlen(prefix)+1;
       name = strtok(name, " \n");

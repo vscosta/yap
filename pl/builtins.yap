@@ -26,7 +26,7 @@
 
 */
 
-/** @pred  0:P,0:Q   is iso, meta
+/** @infixpred  0:P , 0:Q   is iso, meta
 Conjunction of goals (and).
 
 The conjunction is a fundamental construct of Prolog. Example:
@@ -92,7 +92,7 @@ comma(X,Y,Z,A,B,C,D,E) :-
     call(E).
      
             
-    /** @pred   0:P ; 0:Q  is iso
+    /** @infixpred   0:P ; 0:Q  is iso
 Disjuncjtion of goals (or).
 
 Example:
@@ -136,7 +136,7 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 
 '|'(X,Y) :- ';'(X,Y).
 
-/** @pred   0:Condition -> 0:Action  is iso
+/** @infixpred   0:Condition -> 0:Action  is iso
 
 @short If _Condition__ has a solution, call _Action_;
 
@@ -232,7 +232,7 @@ list, since backtracking could not "pass through" the cut.
 ! :- true.
 
 
-/** @pred   \+ 0:P   is iso, meta
+/** @prefixpred   \+ 0:P   is iso, meta
 Negation by failure.
 
 Goal  _P_ is not provable. The execution of this predicate fails if
@@ -306,7 +306,7 @@ number of steps.
  '$repeat'.
  '$repeat' :- '$repeat'.
 
-/** @pred  + _P_ is nondet
+/** @prefixpred  + _P_ is nondet
 
 The same as `call( _P_)`. This feature has been kept to provide
 compatibility with C-Prolog. When compiling a goal, YAP

@@ -1168,7 +1168,7 @@ thread_get_message(Queue, Term) :-
 '$mbox_get_message'(Queue, Term) :-
     '$message_queue_receive'(Queue, Term),
     (
-      Term = Term0
+      Term = _Term0 % always succeeds
       ->
       !
       ;
