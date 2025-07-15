@@ -92,9 +92,9 @@ for MS-Windows.
 	thread_create(0, -, :),
 	thread_create(0, -),
 	thread_create(0),
-	thread_signal(+, 0),
 	with_mutex(+, 0),
 	thread_signal(+,0),
+	thread_join(:,-),
 	volatile(:).
 
 volatile(P) :- var(P),
@@ -1245,7 +1245,7 @@ thread_peek_message(Queue, Term) :- var(Queue), !,
 thread_peek_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_R), !,
 	'$message_queue_peek'(Id, Term).
-tthread_peek_message(Queue, Term) :-
+thread_peek_message(Queue, Term) :-
 	'$message_queue_peek'(Queue, Term).
 
 %% @}
