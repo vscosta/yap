@@ -3280,7 +3280,6 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
 #endif
     } else {
       /* we don't actually need to execute code */
-      //      UNLOCK(pe->PELock);
     }
     return TRUE;
   } else {
@@ -3289,28 +3288,29 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
     while ((t = Yap_FetchClauseTermFromDB(cl->lusl.ClSource)) == 0L) {
 
       if (first_time) {
+	UNLOCKPE(41,pe);
         if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_growglobal(NULL)) {
-            UNLOCK(pe->PELock);
             Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                       LOCAL_ErrorMessage);
             return FALSE;
           }
         } else {
-          LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_dogc(PASS_REGS1)) {
-            UNLOCK(pe->PELock);
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return FALSE;
           }
         }
+	PELOCK(41,pe);
       } else {
+	UNLOCKPE(41,pe);
         if (!Yap_dogc(PASS_REGS1)) {
-          UNLOCK(pe->PELock);
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
+	PELOCK(41,pe);
       }
     }
     return (Yap_unify(Yap_GetFromHandle(yth), ArgOfTerm(1, t)) &&

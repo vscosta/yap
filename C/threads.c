@@ -187,8 +187,8 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   //  {  extern long long vsc_count;   fprintf(stderr, "[%d]%lld -: (%p)\n", worker_id, __LINE__, mutexp); vsc_count++;}
   if (!mboxp->open) {
     // oops, dead mailbox
-	    pthread_mutex_unlock(mutexp);
-    return false;
+	mboxDestroy(mboxp PASS_REGS);
+	return false;
   }
   if (mboxp->nmsgs == mboxp->max){
     // fprintf(stderr,"[%d] %s:%d: WAIT(%p)  ",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
@@ -253,9 +253,7 @@ static bool
   // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
    pthread_mutex_lock(mutexp);
   struct idb_queue *msgsp = &mboxp->msgs;
-  bool rc = Yap_dequeue_tqueue(msgsp, &t, false,  false PASS_REGS);
-  if (rc)   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
-    // fprintf(stderr,"[%d] %s:%d: MUUNLOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
+  bool rc = Yap_dequeue_vqueue(msgsp, &t, false PASS_REGS);
    pthread_mutex_unlock(mutexp);
   return rc;
 }
