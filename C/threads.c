@@ -182,7 +182,8 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   struct idb_queue *msgsp = &mboxp->msgs;
 
   pthread_mutex_lock(mutexp);
-  fprintf(stderr,"[%d] QUEUEq %lld: MULOCK(%p)\n",  Yap_ThreadID(), __LINE__,(mutexp));
+    fprintf(stderr,"[%d] QUEUE %d %lld: MULOCK(%p)  ",  Yap_ThreadID(), mboxp->nclients, __LINE__,(mutexp));   Yap_DebugPlWriteln(ARG2);
+
   //  {  extern long long vsc_count;   fprintf(stderr, "[%d]%lld -: (%p)\n", worker_id, __LINE__, mutexp); vsc_count++;}
   if (!mboxp->open) {
     // oops, dead mailbox
@@ -190,7 +191,7 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
     return false;
   }
   if (mboxp->nmsgs == mboxp->max){
-    // fprintf(stderr,"[%d] %s:%d: WAIT(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
+    // fprintf(stderr,"[%d] %s:%d: WAIT(%p)  ",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
     mboxp->nclients++;
       pthread_cond_wait(fullp, mutexp);
       mboxp-> nclients--;
@@ -204,7 +205,7 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
 
 
   mboxp->nmsgs++;
-  pthread_cond_signal(emptyp);
+  pthread_cond_broadcast(emptyp);
   pthread_mutex_unlock(mutexp);
 
 
@@ -218,14 +219,14 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
   struct idb_queue *msgsp = &mboxp->msgs;
 
     pthread_mutex_lock(mutexp);
-  while (true) {
-    fprintf(stderr, "[%d] REC: MULOCK(%p) %s:%d\n", Yap_ThreadID(), mutexp,__FUNCTION__, __LINE__);
+    while (true) {
+            fprintf(stderr,  "[%d] %d REC: MULOCK(%p) %s ", Yap_ThreadID(), mboxp->nclients,mutexp,__FUNCTION__, __LINE__);  Yap_DebugPlWriteln(ARG2);
      if (Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
       mboxp->nmsgs--;
-   if (!mboxp->open){
-     mboxDestroy(mboxp PASS_REGS);
-      return true;
-    }
+      if (!mboxp->open){
+	mboxDestroy(mboxp PASS_REGS);
+	return true;
+      }
 
       
       if (mboxp->nmsgs+1 == mboxp->max) {
@@ -233,7 +234,8 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
       }
       pthread_mutex_unlock(mutexp);
       return true;
-    }
+     }
+     //      fprintf(stderr, "[%d] %d GOT IT: MULOCK(%p) %s ", Yap_ThreadID(), mboxp->nclients,mutexp,__FUNCTION__, __LINE__);  Yap_DebugPlWriteln(ARG2 );
       mboxp->nclients++;
       pthread_cond_wait(emptyp, mutexp);
       mboxp->nclients--;

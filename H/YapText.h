@@ -731,6 +731,8 @@ static inline Term Yap_ListOfAtomsToNumber(Term t0 USES_REGS) {
 
 static inline Term Yap_ListOfAtomsToString(Term t0 USES_REGS) {
   seq_tv_t inp, out;
+  if (t0==0)
+    return 0;
   if (t0==TermNil) {
     return MkStringTerm("");
   }
@@ -746,6 +748,8 @@ static inline Term Yap_ListOfAtomsToString(Term t0 USES_REGS) {
 
 static inline Atom Yap_ListOfCodesToAtom(Term t0 USES_REGS) {
   seq_tv_t inp, out;
+  if (t0==0)
+    return NULL;
   if (t0==TermNil) {
     return AtomEmpty;
   }
@@ -779,7 +783,6 @@ static inline Term Yap_ListOfCodesToString(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   if (t0==TermNil) {
     return MkStringTerm("");
-
   }
   inp.val.t = t0;
   inp.type = YAP_STRING_CODES|YAP_STRING_ATOM;
@@ -792,11 +795,11 @@ static inline Term Yap_ListOfCodesToString(Term t0 USES_REGS) {
 }
 
 static inline Atom Yap_ListToAtom(Term t0 USES_REGS) {
-  seq_tv_t inp, out;
+  seq_tv_t inp,out;
   if (t0==TermNil) {
     return AtomEmpty;
-  } else if (IsPairTerm(t0)) {
-    inp.val.t = t0;
+  }
+  if  (IsPairTerm(t0)) {
     Term h0 = HeadOfTerm(t0);
     if (IsAtomTerm(h0)) {
       inp.type = YAP_STRING_ATOMS;

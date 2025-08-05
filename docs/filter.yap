@@ -308,7 +308,7 @@ trl_pred(L,NewLine) :-
     strip_whitespace(L1,0,L2),
     detect_name(L2,Name,Args,A,RL),
     !,
-    atom_string(At,Name),
+    atom_stringt,Name),
     defines_module(M),
     assert(pred_found(M,At,A)),
     sub_string(L,0,Bef,_, Prefix),

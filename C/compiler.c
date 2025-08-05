@@ -1548,11 +1548,11 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
   if (IsVarTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   } else if (IsNumTerm(Goal)) {
-    // Yap_Warning("goal can not be a %s", "number");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, Goal, "goal can not be a %s", "number");
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   } else if (IsRefTerm(Goal)) {
     //   Yap_Warning("sub-goal can not be a data base reference");
-    Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, Goal, "goal can not be a %s", "reference");
   } else if (IsPairTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
@@ -3625,6 +3625,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     Yap_ThrowError(INSTANTIATION_ERROR, my_clause, " clause is not bound");
     return 0;
   }
+    head = Yap_YapStripModule(head, &mod);
   if (IsApplTerm(my_clause) && FunctorOfTerm(my_clause) == FunctorAssert) {
     head = ArgOfTerm(1, my_clause);
     body = ArgOfTerm(2, my_clause);

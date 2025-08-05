@@ -94,7 +94,6 @@ for MS-Windows.
 	thread_create(0),
 	with_mutex(+, 0),
 	thread_signal(+,0),
-	thread_join(:,-),
 	volatile(:).
 
 volatile(P) :- var(P),

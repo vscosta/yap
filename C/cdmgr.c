@@ -2086,19 +2086,19 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
   tf = Yap_StripModule(tf, &modh);
     extern long long vsc_count;    vsc_count++;
   p = Yap_new_pred(tf,  modh, mklog, RepAtom(AtomOfTerm(t1))->StrOfAE);
+  if (!p) {
+  }
   if (p &&
-  	CurrentModule!=PROLOG_MODULE &&
+                  	CurrentModule!=PROLOG_MODULE &&
 	 p->ModuleOfPred == PROLOG_MODULE &&
 	  p->CodeOfPred->opc != UNDEF_OPCODE &&
       !(p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) &&
       p->src.OwnerFile != Yap_source_file_name())
-    {
+    {  UNLOCKPE(20, p);
       Yap_ThrowError(  PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateIndicator(tf,modh), "trying to change a system predicate");
 	return false;
   }
   Yap_track_cpred( 0, P, 0,   &info);
-
-  PELOCK(20, p);
 
 
     if (p->cs.p_code.NOfClauses == 0) {
@@ -2193,13 +2193,13 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
      return false;
     }
   }
+    UNLOCKPE(30, p);
   if (multiple) {
       warn(WARNING_MULTIPLE, t, TermMultiple, m_culprit, "definition in multiple files warning");
     } else
     if (discontiguous) {
       warn(WARNING_DISCONTIGUOUS, t, TermDiscontiguous, d_culprit, "discontiguous definition in same file warning");
      }
-    UNLOCKPE(30, p);
   return true;
 }
 
@@ -3237,7 +3237,6 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
   cl = Yap_FollowIndexingCode(
       pe, i_code, yth, NEXTOP(PredLogUpdClause->CodeOfPred, Otapl), cp_ptr);
   if (cl == NULL) {
-    UNLOCK(pe->PELock);
     return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
@@ -3281,7 +3280,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
 #endif
     } else {
       /* we don't actually need to execute code */
-      UNLOCK(pe->PELock);
+      //      UNLOCK(pe->PELock);
     }
     return TRUE;
   } else {
@@ -3320,6 +3319,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
   }
 }
 
+
 static Int /* $hidden_predicate(P) */
 p_log_update_clause(USES_REGS1) {
   PredEntry *pe;
@@ -3334,12 +3334,19 @@ p_log_update_clause(USES_REGS1) {
     new_cp = NEXTOP(P,Osbpp);
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
-    if (pe == NULL || EndOfPAEntr(pe)||pe->ModuleOfPred == TermIDB)
-        cut_fail();
+  if (pe == NULL) {
+     cut_fail();
+  }
+  PELOCK(41, pe);
+  if ( EndOfPAEntr(pe)||pe->ModuleOfPred == TermIDB) {
+    UNLOCKPE(41, pe);
+     cut_fail();
+  }
     if ((pe->PredFlags & LogUpdatePredFlag) == 0 && (pe->OpcodeOfPred != UNDEF_OPCODE)) {
+      UNLOCKPE(41, pe);
       Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
     }
-  PELOCK(41, pe);
+  UNLOCKPE(41, pe);
   yhandle_t yth, ytb, ytr;
   yth = Yap_InitHandle(t1);
   ytb = Yap_InitHandle(Deref(ARG3));
@@ -3348,7 +3355,6 @@ p_log_update_clause(USES_REGS1) {
   Yap_PopHandle(ytr);
   Yap_PopHandle(ytb);
   Yap_PopHandle(yth);
-  UNLOCKPE(41,pe);
   return ret;
 }
 
@@ -3357,14 +3363,15 @@ p_continue_log_update_clause(USES_REGS1) {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
-  PELOCK(42, pe);
   yhandle_t yth, ytb, ytr;
   yth = Yap_InitHandle(Deref(ARG3));
   ytb = Yap_InitHandle(Deref(ARG4));
   ytr = Yap_InitHandle(Deref(ARG5));
+  PELOCK(42, pe);
   Int rc = fetch_next_lu_clause(pe, ipc, yth, ytb, ytr, B->cp_cp,
                               FALSE);
-  Yap_PopHandle(ytr);
+  UNLOCKPE(42, pe);
+ Yap_PopHandle(ytr);
   Yap_PopHandle(ytb);
   Yap_PopHandle(yth);
   return rc;
@@ -3483,12 +3490,15 @@ p_log_update_clause_erase(USES_REGS1) {
     new_cp = NEXTOP(P,Osbpp);
   }
   pe = Yap_get_pred(t1, Deref(ARG2), "clause/3");
-    if (pe == NULL || EndOfPAEntr(pe)|| pe->OpcodeOfPred == UNDEF_OPCODE)
-        return FALSE;
-    if ((pe->PredFlags & LogUpdatePredFlag) == 0 && (pe->OpcodeOfPred != UNDEF_OPCODE)) {
-      Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
-    }
   PELOCK(43, pe);
+  if (pe == NULL || EndOfPAEntr(pe)|| pe->OpcodeOfPred == UNDEF_OPCODE) {
+    UNLOCKPE(43,pe);
+    return FALSE;
+  }
+    if ((pe->PredFlags & LogUpdatePredFlag) == 0 && (pe->OpcodeOfPred != UNDEF_OPCODE)) {
+   UNLOCKPE(43,pe);
+   Yap_ThrowError(PERMISSION_ERROR_ACCESS_PRIVATE_PROCEDURE, Yap_PredicateIndicator(t1, ARG2), " must be dynamic or have source property" );
+    }
     yhandle_t yth, ytb, ytr;
     yth = Yap_InitHandle(t1);
     ytb = Yap_InitHandle(Deref(ARG3));
@@ -3499,7 +3509,7 @@ p_log_update_clause_erase(USES_REGS1) {
      Yap_PopHandle(ytb);
       Yap_PopHandle(yth);
     return ret;
-}
+  }
 
 static Int /* $hidden_predicate(P) */
 p_continue_log_update_clause_erase(USES_REGS1) {

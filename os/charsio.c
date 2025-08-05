@@ -716,16 +716,16 @@ static Int put_byte(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
   Term t2;
   Int ch;
   if (IsVarTerm(t2 = Deref(ARG2))) {
-    Yap_ThrowError(INSTANTIATION_ERROR, t2, "put_code/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "put_byte/2");
     return FALSE;
   } else if (!IsIntegerTerm(t2)) {
-    Yap_ThrowError(TYPE_ERROR_BYTE, t2, "put_code/2");
+    Yap_ThrowError(TYPE_ERROR_BYTE, t2, "put_byte/2");
     return FALSE;
-  } else if ((ch = IntegerOfTerm(t2)) < -1) {
-    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2, "put_code/1");
+  } else if ((ch = IntegerOfTerm(t2)) < 0 || ch > 255) {
+    Yap_ThrowError(TYPE_ERROR_BYTE, t2, "put_byte/1");
     return FALSE;
   }
-  int sno = Yap_CheckBinaryStream(ARG1, Output_Stream_f, "put/2");
+  int sno = Yap_CheckBinaryStream(ARG1, Output_Stream_f, "put_byte/2");
   if (sno < 0)
     return (FALSE);
   GLOBAL_Stream[sno].stream_putc(sno, ch);
@@ -754,8 +754,8 @@ static Int put_byte_1(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
   } else if (!IsIntegerTerm(t2)) {
     Yap_ThrowError(TYPE_ERROR_BYTE, t2, "put_code/1");
     return FALSE;
-  } else if ((ch = IntegerOfTerm(t2)) < -1) {
-    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2, "put_code/1");
+  } else if ((ch = IntegerOfTerm(t2)) < 0 || ch > 255) {
+    Yap_ThrowError(TYPE_ERROR_BYTE, t2, "put_code/1");
     return FALSE;
   }
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)
