@@ -117,25 +117,6 @@ static encoding_t enc_os_default(encoding_t rc) {
 }
 
 
-int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st ) {
-  //  IF (LOCAL_encoding_errors == TermIgnore)
-  //  return ch;
-
-   //  return ch;
-    if (st &&st->status & RepClose_Prolog_f) {
-      if (st)      Yap_CloseStream(st-GLOBAL_Stream);
-      return EOF;
-    }
-    if (!st ||st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
-	Yap_ThrowError( SYNTAX_ERROR,TermNil, "bad codes ");
-      return EOF;
-   } else {
-      Yap_Warning("unexpected newline while  reading quoted ");
-    }
-
-     return code;
-  
-}
 
 encoding_t Yap_SystemEncoding(void) {
   int i = -1;

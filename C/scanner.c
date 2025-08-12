@@ -221,38 +221,12 @@ static int number_encoding_error(int ch, seq_type_t code, struct stream_desc *st
 {
   CACHE_REGS
    LOCAL_ErrorMessage=malloc(2048);
-  snprintf(LOCAL_ErrorMessage, 2047, "unexpected character %c while  reading quoted text", (char)code);
-  if ((st->status & RepError_Prolog_f) || trueGlobalPrologFlag(ISO_FLAG)) {
-    Yap_ThrowError(SYNTAX_ERROR,TermNil,LOCAL_ErrorMessage);
-} else if(st->status & RepClose_Prolog_f) {
-    Yap_Warning(LOCAL_ErrorMessage);
-
-
-    Yap_CloseStream(st-GLOBAL_Stream);
-    return EOF;
-  }
-return ch;
-
+   snprintf(LOCAL_ErrorMessage, 2047,
+            "unexpected character %c while  reading quoted text", (char)code);
+   return Yap_encoding_error(ch, st, LOCAL_tokptr, LOCAL_toktide,
+                             LOCAL_ErrorMessage);
 }
 
-int bad_nl_error(int quote, const char *TokImage, struct stream_desc *st) {
-  CACHE_REGS
-    if (trueGlobalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG) && ! trueGlobalPrologFlag(ISO_FLAG)) {
-      return 10;
-    }
-    if (st->status & RepClose_Prolog_f) {
-      Yap_CloseStream(st-GLOBAL_Stream);
-      return EOF;
-    }
-    if (st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
-      LOCAL_Error_TYPE = SYNTAX_ERROR;
-    } else {
-      LOCAL_Error_TYPE = SYNTAX_WARNING;
-    }
-    LOCAL_ErrorMessage=malloc(2048);
-    snprintf(LOCAL_ErrorMessage, 2047, "unexpected newline while  reading quoted text %s", TokImage);
-    return 10;
- }
 
 
 extern double atof(const char *);
@@ -502,8 +476,9 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
   int ch = getchr(st);
     *sp++ = ch;
     if (! my_isxdigit(ch, base, lower_case,upper_case)) {
-	*sp = '\0';
-	return Yap_encoding_error(ch, MkIntTerm(ch), st );//nvalid hexadecimal digit");
+      *sp = '\0';
+      CACHE_REGS
+	return Yap_encoding_error(ch, st,LOCAL_tokptr,LOCAL_toktide,  "invalid hexadecimal digit");
       }
     do{
     Int oval = val;
@@ -569,7 +544,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
   }
   if (ch == '\'') {
     if (base > 36) {
-      ch=Yap_encoding_error(ch, 1, st); //, "Admissible bases are 11..36");
+      ch=Yap_encoding_error(base, st, LOCAL_tokptr,LOCAL_toktide, "Admissible bases are 11..36");
     } 
       if (--left == 0)
 	number_overflow();
@@ -585,7 +560,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
 	  bool got_char;
 	  ascii = read_escaped_char(&got_char, st);
 	  if (!got_char) {
-	    bad_nl_error('\\',sp,st);
+	    Yap_encoding_error(ch,st,LOCAL_tokptr,LOCAL_toktide,"parser error while scanning escaped character" );
 	  }
 	  if ( ch == EOF) return TermNil;
         } else {
@@ -640,7 +615,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
 		   ) != NU) {
 	  if (trueGlobalPrologFlag(ISO_FLAG)) {
 	  *sp = '\0';
-	  Yap_encoding_error( ch, 1, st); //, "e/E float format not allowed in ISO mode");
+	  Yap_encoding_error( ch, st, LOCAL_tokptr,LOCAL_toktide, "e/E float format not allowed in ISO mode");
 	  return TermNil;
 	}
 	  *chp = ch;
@@ -1108,7 +1083,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
       while (true) {
         if (ch == 10 && !(Yap_GetModuleEntry(CurrentModule)->flags & M_MULTILINE)) {
-	  ch = bad_nl_error( quote, TokImage,  st);           /* in ISO a new linea terminates a string */
+	  ch = Yap_encoding_error( 10, st, LOCAL_tokptr,LOCAL_toktide,          "in ISO a new linea terminates a string" );
 	}
 	if (ch == EOFCHAR) {
 	          	st->status |= Push_Eof_Stream_f;

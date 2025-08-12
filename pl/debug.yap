@@ -413,11 +413,11 @@ true
 '$trace_meta_call'( G, CP, GN, M ) :-
     yap_hacks:trace_goal(G, M, outer, GN, CP ).
 
-%% @pred trace_goal( +G, +M, +GoalNumber, +CP)
+%% @pred '$debug_goal'( +G, +M, +Status, +GoalNumber, +CP)
 %
 %  debug a complex query
 %
-yap_hacks:trace_goal(V, M, _, _, _) :-
+'$debug_goal'(V, M, _, _, _) :-
     (
       var(V)
       ->
@@ -427,73 +427,73 @@ yap_hacks:trace_goal(V, M, _, _, _) :-
       ->
       throw_error(instantiation_error,call(M:V))
     ).
-yap_hacks:trace_goal( '$call'( G, CP0, _, M), _, Ctx, GN, _) :-
+'$debug_goal'( '$call'( G, CP0, _, M), _, Ctx, GN, _) :-
     !,
-    yap_hacks:trace_goal(G, M,  Ctx, GN, CP0).
-yap_hacks:trace_goal( '$cleanup_on_exit'(CP0, TaskF), _, _Ctx, _, _CP) :-
+    '$debug_goal'(G, M,  Ctx, GN, CP0).
+'$debug_goal'( '$cleanup_on_exit'(CP0, TaskF), _, _Ctx, _, _CP) :-
     !,
     %'$off_debugger',
     '$cleanup_on_exit'(CP0, TaskF).
-yap_hacks:trace_goal( '$top_level', _, _Ctx, _, _) :-
+'$debug_goal'( '$top_level', _, _Ctx, _, _) :-
     !,
     nb_setval(creep,zip).
-yap_hacks:trace_goal('$drop_exception'(V,J), _, _, _, _) :-
+'$debug_goal'('$drop_exception'(V,J), _, _, _, _) :-
     !,
     '$off_debugger',
     '$drop_exception'(V,J).
-yap_hacks:trace_goal(expand_goal(V,J), _, _, _, _) :-
+'$debug_goal'(expand_goal(V,J), _, _, _, _) :-
     !,
     expand_goal(V,J).
 
-yap_hacks:trace_goal(true,_, _, _,  _CP) :-
+'$debug_goal'(true,_, _, _,  _CP) :-
     !.
-yap_hacks:trace_goal(false,_, _, _,  _CP) :-
+'$debug_goal'(false,_, _, _,  _CP) :-
     !.
-yap_hacks:trace_goal(fail,_, _, _,  _CP) :-
+'$debug_goal'(fail,_, _, _,  _CP) :-
     !.
-yap_hacks:trace_goal(!,_, _, _,  CP) :-
+'$debug_goal'(!,_, _, _,  CP) :-
     !,
     cut_by(CP).
-yap_hacks:trace_goal(current_choice_point(CP),_, _,  _,CP) :-
+'$debug_goal'(current_choice_point(CP),_, _,  _,CP) :-
     !.
-yap_hacks:trace_goal(query_to_answer(G,Vs,Port, Bindings,GF,Goals),_, _, _, _) :-
+'$debug_goal'(query_to_answer(G,Vs,Port, Bindings,GF,Goals),_, _, _, _) :-
     !,
     query_to_answer(G, Vs,Port, Bindings,GF,Goals).
-yap_hacks:trace_goal(cut_by(M), _, _, _,  _) :-
+'$debug_goal'(cut_by(M), _, _, _,  _) :-
     !,
     cut_by(M).
-yap_hacks:trace_goal(M:G, _, Ctx, GN0, CP) :-
+'$debug_goal'(M:G, _, Ctx, GN0, CP) :-
     !,
     '$yap_strip_module'(M:G, M0, G0),
-    yap_hacks:trace_goal(G0, M0, Ctx, GN0, CP ).
-yap_hacks:trace_goal((A,B), M, Ctx, GN0, CP) :- !,
-				      yap_hacks:trace_goal(A, M, inner, GN0, CP),
-				      yap_hacks:trace_goal(B, M, Ctx, _GN0, CP).
-yap_hacks:trace_goal((A->B;C), M, Ctx, GN0, CP) :- !,
-					 ( yap_hacks:trace_goal(call(A), M, inner, GN0, CP) ->
-					   yap_hacks:trace_goal(B, M, Ctx, _GN0, CP);
-					   yap_hacks:trace_goal(C, M, Ctx, _GN0, CP)).
-yap_hacks:trace_goal((A*->B;C), M, Ctx, GN0, CP) :- !,
-					  (yap_hacks:trace_goal(call(A), M, inner, GN0, CP) *->
-					   yap_hacks:trace_goal(B, M, Ctx, _GN0, CP);
-					   yap_hacks:trace_goal(C, M, Ctx, _GN0, CP)).
-yap_hacks:trace_goal((A*->B), M, Ctx, GN0, CP) :- !,
-					\+ yap_hacks:trace_goal(call(A), M, inner, GN0, CP),
-					yap_hacks:trace_goal(B, M, Ctx, _GN0, CP).
-yap_hacks:trace_goal((A;B), M, Ctx, GN0, CP) :-
+    '$debug_goal'(G0, M0, Ctx, GN0, CP ).
+'$debug_goal'((A,B), M, Ctx, GN0, CP) :- !,
+				      '$debug_goal'(A, M, inner, GN0, CP),
+				      '$debug_goal'(B, M, Ctx, _GN0, CP).
+'$debug_goal'((A->B;C), M, Ctx, GN0, CP) :- !,
+					 ( '$debug_goal'(call(A), M, inner, GN0, CP) ->
+					   '$debug_goal'(B, M, Ctx, _GN0, CP);
+					   '$debug_goal'(C, M, Ctx, _GN0, CP)).
+'$debug_goal'((A*->B;C), M, Ctx, GN0, CP) :- !,
+					  ('$debug_goal'(call(A), M, inner, GN0, CP) *->
+					   '$debug_goal'(B, M, Ctx, _GN0, CP);
+					   '$debug_goal'(C, M, Ctx, _GN0, CP)).
+'$debug_goal'((A*->B), M, Ctx, GN0, CP) :- !,
+					\+ '$debug_goal'(call(A), M, inner, GN0, CP),
+					'$debug_goal'(B, M, Ctx, _GN0, CP).
+'$debug_goal'((A;B), M, Ctx, GN0, CP) :-
     !,
-    (yap_hacks:trace_goal(A, M, Ctx, GN0, CP);
-     yap_hacks:trace_goal(B, M, Ctx, GN0, CP)).
-yap_hacks:trace_goal((A|B), M, Ctx, GN0, CP) :-
+    ('$debug_goal'(A, M, Ctx, GN0, CP);
+     '$debug_goal'(B, M, Ctx, GN0, CP)).
+'$debug_goal'((A|B), M, Ctx, GN0, CP) :-
     !,
-    (yap_hacks:trace_goal(A, M, Ctx, GN0, CP);
-     yap_hacks:trace_goal(B, M, Ctx, GN0, CP)).
-yap_hacks:trace_goal(G, M, _Ctx, GN, _CP) :-
+    ('$debug_goal'(A, M, Ctx, GN0, CP);
+     '$debug_goal'(B, M, Ctx, GN0, CP)).
+'$debug_goal'(G, M, _Ctx, GN, _CP) :-
     '$zip_at_port'(call,GN,M:G),
     !,
     '$stop_creeping'(_),
     '$execute'(M:G).    
-yap_hacks:trace_goal(G, M, Ctx, GN, CP) :-
+'$debug_goal'(G, M, Ctx, GN, CP) :-
     '$id_goal'(GoalNumber),
 %    '$interact'(call, M:G, GoalNumber), 
     (
@@ -505,7 +505,7 @@ yap_hacks:trace_goal(G, M, Ctx, GN, CP) :-
       catch(
     '$step_goal'(G,M,GoalNumber),
     Error,
-    trace_error(Error, GoalNumber, yap_hacks:trace_goal(G,M, Ctx, GN, CP))
+    trace_error(Error, GoalNumber, '$debug_goal'(G,M, Ctx, GN, CP))
       )
     ).
 
@@ -553,14 +553,14 @@ yap_hacks:trace_goal(G, M, Ctx, GN, CP) :-
 '$meta_hook'(MG,NM:NG),
        (
 	 clause(NM:NG,Body),
-	 yap_hacks:trace_goal(Body,NM,inner,GoalNumber, CP)
+	 '$debug_goal'(Body,NM,inner,GoalNumber, CP)
     ),
     Port,       
     '$interact'(Port, NM:NG, GoalNumber)
     ).
 '$step'(   undefined_procedure,MG,GoalNumber) :-
     '$undefp__'(MG, NM:NewG),
-    yap_hacks:trace_goal(NewG, NM,  inner,GoalNumber).
+    '$debug_goal'(NewG, NM,  inner,GoalNumber).
 '$step'(   static_procedure,MG,GoalNumber) :-
     current_choice_point(CP),
     gated_call(   
@@ -585,7 +585,7 @@ fetch_nth_clause(I,NM:NG,_,Ref),'$creep_clause'( NG, NM, Ref, CP )),
     '$tag_cleanup'(CP0, Task0),
     TaskF = top( true, Port, Cleanup, Tag, false, CP0),
     clause(NM:NG,Body),
-    yap_hacks:trace_goal(Body,NM,inner,GoalNumber, CP0),
+    '$debug_goal'(Body,NM,inner,GoalNumber, CP0),
     '$cleanup_on_exit'(CP0, TaskF).
 
 
@@ -714,7 +714,7 @@ fetch_nth_clause(I,NM:NG,_,Ref),'$creep_clause'( NG, NM, Ref, CP )),
 
 
 %%% - abort: forward throw while the call is newer than goal
-%% @pred yap_hacks:trace_goal'( Exception, +Goal, +Mod, +GoalID )
+%% @pred '$debug_goal''( Exception, +Goal, +Mod, +GoalID )
 %
 % debugger code for exceptions. Recognised cases are:
 %   - abort always forwarded
@@ -1118,14 +1118,14 @@ trace_error(Event,_,_,_,_,_) :-
 '$cps'([]).
 
 
-'$debugger_skip_trace_goal'([],[]).
-'$debugger_skip_trace_goal'([CP|CPs],CPs1) :-
-    yap_hacks:choicepoint(CP,_,yap_hacks,trace_goal,4,(_;_),_),
+'$debugger_skip_debug_goal'([],[]).
+'$debugger_skip_debug_goal'([CP|CPs],CPs1) :-
+    yap_hacks:choicepoint(CP,_,yap_hacks,'$debug_goal',5,(_;_),_),
     !,
-    '$debugger_skip_trace_goal'(CPs,CPs1).
-'$debugger_skip_trace_goal'([CP|CPs],[CP|CPs1]) :-
+    '$debugger_skip_debug_goal'(CPs,CPs1).
+'$debugger_skip_debug_goal'([CP|CPs],[CP|CPs1]) :-
     !,
-    '$debugger_skip_trace_goal'(CPs,CPs1).
+    '$debugger_skip_debug_goal'(CPs,CPs1).
 
 '$debugger_skip_traces'([CP|CPs],CPs1) :-
     yap_hacks:choicepoint(CP,_,prolog,'$port',7,(_;_),_),

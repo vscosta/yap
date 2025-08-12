@@ -233,7 +233,7 @@
 :- use_module(library('problog/os')).
 :- use_module(library('problog/print_learning')).
 :- use_module(library('problog/utils_lbdd')).
-:- use_module(library('problog/utils_learning', [
+:- use_module(library('problog/utils_learning'), [
 			   empty_output_directory/0,
 			   create_known_values_file_name/2,
 			   create_bdd_file_name/3,

@@ -63,6 +63,9 @@ yap_hacks:exception_property(Q,E,V) :-
 yap_hacks:yap_error_descriptor(Inf,Des) :-
    '$messages': error_descriptor(Inf,Des).
 
+yap_hacks:trace_goal(G, M, Status, Number, CP) :-
+    '$debug_goal'(G,M,Status,Number,CP).
+
 
 :- meta_predicate(prolog:ctrace(0)).
 

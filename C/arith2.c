@@ -326,7 +326,7 @@ p_rdiv(Term t1, Term t2 USES_REGS) {
 	Int i1 = IntegerOfTerm(t1);
 	Int i2 = IntegerOfTerm(t2);
 
-	if (i2 == 0)
+	if (i2 == 0 && isoLanguageFlag())
 	  Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " rdiv 0", i1);
 	return Yap_gmq_rdiv_int_int(i1, i2);
       }
@@ -340,7 +340,7 @@ p_rdiv(Term t1, Term t2 USES_REGS) {
   case (CELL)big_int_et:
     switch (ETypeOfTerm(t2)) {
     case long_int_et:
-      if (IntegerOfTerm(t2) == 0)
+      if (IntegerOfTerm(t2) == 0 && isoLanguageFlag())
 	Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
       /* I know the term is much larger, so: */
       return Yap_gmq_rdiv_big_int(t1, IntegerOfTerm(t2));
@@ -372,7 +372,7 @@ p_fdiv(Term t1, Term t2 USES_REGS)
     case long_int_et:
       {
 	Int i2 = IntegerOfTerm(t2);
-        if (i2 == 0) {
+        if (i2 == 0 && isoLanguageFlag()) {
           Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
 	}
 	/* two integers */
@@ -383,7 +383,7 @@ p_fdiv(Term t1, Term t2 USES_REGS)
 	/* integer, double */
 	Float fl1 = (Float)IntegerOfTerm(t1);
 	Float fl2 = FloatOfTerm(t2);
-	if (fl2 == 0.0) {
+	if (fl2 == 0.0 && isoLanguageFlag()) {
           Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
 	}
 	RFLOAT(fl1/fl2);
@@ -402,7 +402,7 @@ p_fdiv(Term t1, Term t2 USES_REGS)
       /* float / integer */
       {
 	Int i2 = IntegerOfTerm(t2);
-	if (i2 == 0) {
+	if (i2 == 0&& isoLanguageFlag()) {
           Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... r1div  0");
 	}
 	RFLOAT(FloatOfTerm(t1)/(Float)i2);
@@ -410,7 +410,7 @@ p_fdiv(Term t1, Term t2 USES_REGS)
     case double_et:
       {
 	Float f2 = FloatOfTerm(t2);
-	if (f2 == 0.0)
+	if (f2 == 0.0 && isoLanguageFlag())
 	  Yap_ThrowError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
 	RFLOAT(FloatOfTerm(t1)/f2);
       }

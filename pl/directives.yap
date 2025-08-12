@@ -174,7 +174,7 @@ Similar to initialization/1, but allows  specifying when
     expects_dialect(D).
 '$exec_directive'(encoding(Enc), _, _, _, _) :-
         '$set_encoding'(Enc).
-'$exec_directive'(include(F), _Status, _, _, _) :-
+'$exec_directive'(include(F), _Status, _, _M, _) :-
 	'$include'(F).
 % don't declare modules into Prolog Module
 '$exec_directive'(module(N,P), _Status, HostM, _, Pos) :-

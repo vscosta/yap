@@ -189,5 +189,4 @@ extern bool Yap_HandleSIGINT(void);
 
 extern void Yap_plwrite(Term, struct stream_desc *, CELL *, yhandle_t, write_flag_t, xarg *);
 
-
 #endif

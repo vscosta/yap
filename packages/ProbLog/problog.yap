@@ -166,7 +166,7 @@
 % merely extend or make use of the Package, do not, by themselves, cause
 % the Package to be a Modified Version. In addition, such works are not
 % considered parts of the Package itself, and are not subject to the
-v% terms of this license.
+%  terms of this license.
 %
 % General Provisions
 %
@@ -833,8 +833,9 @@ The possible values for this flag are any number greater than zero.
 :- multifile myclause/1.
 
 % problog related modules
+:- current_source_module(M,M), writeln(pppppppppppppppppppppp:M).
 :- include(problog_lbdd).
-:- include('problog/pbmath').
+:- reexport('problog/pbmath').
 :- use_module('problog/lbdd').
 :- use_module('problog/variables').
 :- use_module('problog/extlists').

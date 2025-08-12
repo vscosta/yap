@@ -52,14 +52,13 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
   Int status;
   size_t  buf_sz, sz;
   unsigned char *buf;
-  bool binary_stream;
   utf8proc_int32_t ch;
   Term p0, *p = &p0;
   
   if (sno < 0)
     return false;
   status = GLOBAL_Stream[sno].status;
-  binary_stream = GLOBAL_Stream[sno].status & Binary_Stream_f;
+  //  binary_stream = GLOBAL_Stream[sno].status & Binary_Stream_f;
   if (status & Past_Eof_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno]. streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
@@ -75,7 +74,6 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
 	    ch = buf[sz - 1];
       }
     } else  {
-      unsigned char *pt;
       do {
         ch = st->stream_wgetc_for_read(sno);
            if (ch < 0 || ch == 10 || ch == 13) {

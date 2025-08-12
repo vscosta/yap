@@ -73,12 +73,12 @@ The operations provided by the program are:
   with  `true' if it is there, in which case I is also
   unified with that item.
  
-2. insert(i,t):  (implemented by the call insert(I, T, New))
+2.@anchor insert_2 insert(i,t):  (implemented by the call insert(I, T, New))
   "Insert item i in tree t, assuming that it is not there already."
   (In our implementation, i is not inserted if it is already
   there: rather it is unified with the item already in the tree.)
  
-3. delete(i,t):  (implemented by the call del(I, T, New))
+3. @anchor del_2 delete(i,t):  (implemented by the call del(I, T, New))
   "Delete item i from tree t, assuming that it is present."
   (In our implementation, the call fails if the item is not in
   the tree.)
@@ -107,7 +107,7 @@ latter case Item is also unified with the item found in the tree. In
 % done at the new node; if the item is found, then splaying is done at
 % the node at which it is found.
  
-% A node is simply an n/3 structure: n(NodeValue, LeftSon, RightSon).
+% @anchor n_3 A node is simply an n/3 structure: n(NodeValue, LeftSon, RightSon).
 % NodeValue could be as simple as an integer, or it could be a (Key,
 % Value) pair.
 
