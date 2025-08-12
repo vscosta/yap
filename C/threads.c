@@ -123,6 +123,7 @@ allocate_new_tid(void)
 }
 
 
+
 static bool
 mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
 {
@@ -138,10 +139,7 @@ mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
   fullpp = & mboxp->full;
   pthread_cond_init(fullpp, NULL);
   mutexp = & mboxp->mutex;
-  pthread_mutexattr_t mat;
-  pthread_mutexattr_init(&mat);
-  pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE);
-  pthread_mutex_init(mutexp, &mat);
+  pthread_mutex_init(mutexp, NULL);
   msgsp = & mboxp->msgs;
   mboxp->nmsgs = 0;
   mboxp->nclients = 0;
@@ -159,7 +157,7 @@ mboxDestroy( mbox_t *mboxp USES_REGS )
   pthread_cond_t *emptyp = &mboxp->empty;
   pthread_cond_t *fullpp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
-  mboxp->open = false;
+  pthread_mutex_lock(mutexp);
   if (mboxp->nclients == 0 ) {
     pthread_cond_destroy(emptyp);
     pthread_cond_destroy(fullpp);
@@ -172,7 +170,7 @@ mboxDestroy( mbox_t *mboxp USES_REGS )
     pthread_cond_broadcast(emptyp);
     pthread_mutex_unlock(mutexp);
     return true;
-  }
+   }
 }
 
 static bool
@@ -183,24 +181,31 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
 
-      // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
   pthread_mutex_lock(mutexp);
+    fprintf(stderr,"[%d] QUEUE %d %lld: MULOCK(%p)  ",  Yap_ThreadID(), mboxp->nclients, __LINE__,(mutexp));   Yap_DebugPlWriteln(ARG2);
+
+  //  {  extern long long vsc_count;   fprintf(stderr, "[%d]%lld -: (%p)\n", worker_id, __LINE__, mutexp); vsc_count++;}
   if (!mboxp->open) {
     // oops, dead mailbox
-	    pthread_mutex_unlock(mutexp);
-    return false;
+	mboxDestroy(mboxp PASS_REGS);
+	return false;
   }
   if (mboxp->nmsgs == mboxp->max){
-    // fprintf(stderr,"[%d] %s:%d: WAIT(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
-    pthread_cond_wait(fullp, mutexp);
+    // fprintf(stderr,"[%d] %s:%d: WAIT(%p)  ",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
+    mboxp->nclients++;
+      pthread_cond_wait(fullp, mutexp);
+      mboxp-> nclients--;
+      if (!mboxp->open) {
+	mboxDestroy(mboxp PASS_REGS);
+        return false;
+      }
   }
   //Yap_DebugPlWriteln(t);
   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
 
 
   mboxp->nmsgs++;
-  mboxp->nclients=0;
-  pthread_cond_signal(emptyp);
+  pthread_cond_broadcast(emptyp);
   pthread_mutex_unlock(mutexp);
 
 
@@ -214,23 +219,27 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
   struct idb_queue *msgsp = &mboxp->msgs;
 
     pthread_mutex_lock(mutexp);
-    if (!mboxp->open){
-      pthread_mutex_unlock(mutexp);
-      return true;
-    }
-    if (mboxp->nmsgs==0)
-      pthread_cond_wait(emptyp, mutexp);
-    if (Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
-	mboxp->nmsgs--;
+    while (true) {
+            fprintf(stderr,  "[%d] %d REC: MULOCK(%p) %s ", Yap_ThreadID(), mboxp->nclients,mutexp,__FUNCTION__, __LINE__);  Yap_DebugPlWriteln(ARG2);
+     if (Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
+      mboxp->nmsgs--;
+      if (!mboxp->open){
+	mboxDestroy(mboxp PASS_REGS);
+	return true;
+      }
+
+      
       if (mboxp->nmsgs+1 == mboxp->max) {
 	pthread_cond_signal(&mboxp->full);
       }
       pthread_mutex_unlock(mutexp);
       return true;
-    } else {
-	mboxp->nmsgs--;
-      pthread_mutex_unlock(mutexp);
-      return false;
+     }
+     //      fprintf(stderr, "[%d] %d GOT IT: MULOCK(%p) %s ", Yap_ThreadID(), mboxp->nclients,mutexp,__FUNCTION__, __LINE__);  Yap_DebugPlWriteln(ARG2 );
+      mboxp->nclients++;
+      pthread_cond_wait(emptyp, mutexp);
+      mboxp->nclients--;
+
     }
 }
 
@@ -241,12 +250,10 @@ static bool
   mboxPeek( mbox_t *mboxp, Term t USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
-    // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
+  // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
    pthread_mutex_lock(mutexp);
   struct idb_queue *msgsp = &mboxp->msgs;
-  bool rc = Yap_dequeue_tqueue(msgsp, &t, false,  false PASS_REGS);
-  if (rc)   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
-    // fprintf(stderr,"[%d] %s:%d: MUUNLOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
+  bool rc = Yap_dequeue_vqueue(msgsp, &t, false PASS_REGS);
    pthread_mutex_unlock(mutexp);
   return rc;
 }
@@ -1285,12 +1292,12 @@ typedef struct {
        if (mboxp == NULL) {
 	   return FALSE;
        }
-       // global mbox, for now we'll just insert in list
+      LOCK(GLOBAL_mboxq_lock);
+      // global mbox, for now we'll just insert in list
        rc = mboxCreate( namet, mboxp PASS_REGS );
-     LOCK(GLOBAL_mboxq_lock);
-     mboxp->next = GLOBAL_named_mboxes;
+       mboxp->next = GLOBAL_named_mboxes;
        GLOBAL_named_mboxes = mboxp;
-	   UNLOCK(GLOBAL_mboxq_lock);
+       UNLOCK(GLOBAL_mboxq_lock);
  }
     return rc;
 }

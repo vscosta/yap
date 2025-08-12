@@ -25,8 +25,6 @@
 % definition of acyclic path using list of visited nodes
 
 :- lbfgs:lbfgs_set_parameter(epsilon,0.01).
-
-
 :- include(graph_bk).
 
 %%%%

@@ -18,9 +18,9 @@
 	store_gradient/3]
 ).
 
-:- use_module(library(problog)).
 :- use_module(library('problog/flags')).
 :- use_module(library('problog/logger')).
+:- use_module(library('problog/pbmath')).
 :- use_module(library(matrix)).
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
@@ -41,16 +41,16 @@ set_tunable(I,Slope,P) :-
 
 prob2log(_X,Slope,FactID,V) :-
     problog:get_fact_probability(FactID, V0),
-    problog:inv_sigmoid(V0, Slope, V).
+    inv_sigmoid(V0, Slope, V).
 
 log2prob(X,Slope,FactID,V) :-
     V0 <== X[FactID],
-    problog:sigmoid(V0, Slope, V).
+    sigmoid(V0, Slope, V).
 
 bind_maplist([], _Slope, _X).
 bind_maplist([Node-(Node-NPr)|MapList], Slope, X) :-
     SigPr <== X[Node],
-    problog:sigmoid(SigPr, Slope, Pr),
+    sigmoid(SigPr, Slope, Pr),
     NPr is min(0.99,max(0.01,Pr)),
     bind_maplist(MapList, Slope, X).
 

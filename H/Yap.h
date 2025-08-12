@@ -635,6 +635,7 @@ extern void Yap_destroy_tqueue(db_queue *dbq USES_REGS);
 extern bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS);
 extern bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
                         bool release USES_REGS);
+extern bool Yap_dequeue_vqueue(db_queue *father_key, Term *t, bool first USES_REGS);
 
 #ifdef THREADS
 

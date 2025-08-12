@@ -380,6 +380,8 @@
        			  true ;
       Reconsult0 = reconsult
     ),
+    '__NB_getval__'('$consulting_file', Files, fail),
+    b_setval('$consulting_file',[File|Files]),
     unload_file(File),
     '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts),
    	'$start_consult'(Reconsult,File,Dir,Stream,LC),

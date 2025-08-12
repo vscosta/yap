@@ -2502,6 +2502,13 @@ p_non_singletons_in_term( USES_REGS1 )	/* non_singletons in term t		 */
   }
 }
 
+/** @pred  ground( _T_) is iso
+
+
+Succeeds if there are no free variables in the term  _T_.
+
+
+*/
 static Int
 p_ground( USES_REGS1 )			/* ground(+T)		 */
 {
@@ -4464,13 +4471,6 @@ void Yap_InitUtilCPreds(void)
   //Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
   //Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
   Yap_InitCPred("_ground", 1, p_ground, SafePredFlag);
-/** @pred  ground( _T_) is iso
-
-
-Succeeds if there are no free variables in the term  _T_.
-
-
-*/
   Yap_InitCPred("$_variables_in_term", 3, p_variables_in_term, 0);
   //Yap_InitCPred("$free_variables_in_term", 3, p_free_variables_in_term, 0);
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, 0);

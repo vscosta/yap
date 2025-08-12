@@ -46,8 +46,6 @@ Support for text processing:
 
 
 
-
-
 #ifndef Yap_Min
 #define Yap_Min(x, y) (x < y ? x : y)
 
@@ -230,6 +228,18 @@ static inline seq_type_t mod_to_type(int quote, Term mod USES_REGS) {
 }
 
 // the routines
+
+
+inline static Term MkCharTerm(Int c) {
+  CACHE_REGS
+  unsigned char cs[8];
+  if (c==EOF)
+    return TermEof;
+  size_t n = put_xutf8(cs, c);
+  if (n<0) n = 0;
+  cs[n] =  0;
+  return MkAtomTerm(Yap_ULookupAtom(cs));
+}
 
 extern unsigned char *Yap_readText(seq_tv_t *inp USES_REGS);
 extern bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS);
@@ -711,32 +721,36 @@ static inline Term Yap_CharsToDiffListOfCodes(const char *s, Term tail,
 
 static inline Term Yap_UTF8ToDiffListOfCodes(const unsigned char *s,
 					     Term tail USES_REGS) {
-  seq_tv_t inp, out;
-
-  inp.val.uc0 = s;
-  inp.type = YAP_STRING_CHARS;
-    inp.enc = out.enc = ENC_ISO_UTF8;
-  out.type = YAP_STRING_DIFF | YAP_STRING_CODES;
-  out.val.uc = NULL;
-  out.dif = tail;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0;
-  return out.val.t;
+  Term p0, *p = &p0;
+  while (*s) {
+    // assumes the two code have always the same size;
+    utf8proc_int32_t chr;
+    s += get_utf8(s, -1, &chr);
+    *p = AbsPair(HR - 2);
+    HR += 2;
+    p = HR - 1;
+    HR[-2] = MkIntTerm(chr);
+  }
+  RESET_VARIABLE(p);
+  Yap_unify(*p, tail);
+  return p0;
 }
 
 static inline Term Yap_UTF8ToDiffListOfChars(const unsigned char *s,
 					     Term tail USES_REGS) {
-  seq_tv_t inp, out;
-
-  inp.val.uc0 = s;
-  inp.type = YAP_STRING_CHARS;
-  inp.enc = out.enc = ENC_ISO_UTF8;
-  out.type = YAP_STRING_DIFF | YAP_STRING_ATOMS;
-  out.val.uc = NULL;
-  out.dif = tail;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0;
-  return out.val.t;
+  Term p0, *p = &p0;
+  while (*s) {
+    // assumes the two code have always the same size;
+    utf8proc_int32_t chr;
+    s += get_utf8(s, -1, &chr);
+    *p = AbsPair(HR - 2);
+    HR += 2;
+    p = HR - 1;
+    HR[-2] = MkCharTerm(chr);
+  }
+  RESET_VARIABLE(p);
+  Yap_unify(*p, tail);
+  return p0;
 }
 
 static inline Term Yap_WCharsToDiffListOfCodes(const wchar_t *s,
@@ -848,7 +862,7 @@ static inline Atom Yap_ListOfCodesToAtom(Term t0 USES_REGS) {
 #define Yap_ListOfAtomsToAtom ListOfCodesToAtom
 
 static inline Atom Yap_ListToAtom(Term t0 USES_REGS) {
-  seq_tv_t inp, out;
+  seq_tv_t inp,out;
   if (t0==TermNil) {
     return AtomEmpty;
   } else if (IsPairTerm(t0)) {

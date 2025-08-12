@@ -97,24 +97,7 @@ proven. The example verifies that all arithmetic statements in the list
 ?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
                  Result =:= Formula).
 ```
-
-
-*/
-/** @pred forall(+ _Cond_,+ _Action_)
-
-
-
-
-For all alternative bindings of  _Cond_  _Action_ can be proven.
-The next example verifies that all arithmetic statements in the list
- _L_ are correct. It does not say which is wrong if one proves wrong.
-
-```
-?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
-                 Result =:= Formula).
-```
-
-
+It is the same as `\+((Cond, \+(Action))`.
 
 */
 forall(Cond, Action) :- \+((Cond, \+(Action))).
@@ -147,12 +130,12 @@ notrace(G) :-
 	'$debug_restart'( State ),
 	fail
     ).
-/** @pred  (G *-> H)
+/** @infixpred  (G *-> H)
 
 Call goal  _H_ once per each solution of goal  _G_.
 
-The built-in `*->3` is usually called from within a disjunction. It
-performs similar to `->/3`, with the difference that it will backtrack
+The built-in *->/2 is usually called from within a disjunction. It
+performs similar to ->/2, with the difference that it will backtrack
 over the test goal. Consider the following small data-base:
 
 ```{.prolog}
@@ -160,7 +143,7 @@ a(1).        b(a).          c(x).
 a(2).        b(b).          c(y).
 ```
 
-Execution of an *->/3 query will proceed as follows:
+Execution of an *->/2 query will proceed as follows:
 
 ```{.prolog}
    ?- (a(X)->b(Y);c(Z)).

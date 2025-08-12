@@ -5041,17 +5041,49 @@ bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
   }
   return true;
 }
+
+
+   
+static  QueueEntry *queue_fetch(  QueueEntry *prev, Term *t, bool first USES_REGS ) {
+  tr_fr_ptr oldTR = TR;
+  if (!prev)
+    return NULL;
+   while ((prev)->next) {
+     bool matches = Yap_unify((prev)->next->DBT->Entry, *t);
+      while (oldTR < TR) {
+	CELL d1 = TrailTerm(TR - 1);
+	TR--;
+	/* normal variable */
+	RESET_VARIABLE(d1);
+      }
+     if (LOCAL_Error_TYPE) 
+       return NULL;
+     if (matches)
+       return prev;
+     else if (!(prev)->next) {
+       return NULL;
+     }
+     prev=(prev->next);
+ }
+ return NULL;
+}
+ 
+
    
 bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
                         bool release USES_REGS) {
   CELL *oldH = HR;
   tr_fr_ptr oldTR = TR;
-  QueueEntry *cur_instance = father_key->FirstInQueue, *prev = NULL;
-  while (cur_instance) {
-Term TDB;
+  QueueEntry q0;
+  q0.next = father_key->FirstInQueue;
+  QueueEntry *cur_instance, *prev;
+  Term TDB;
+  prev =queue_fetch(&q0, t, first PASS_REGS) ;
+  if ( prev) {
     HR = oldH;
     HB = LCL0;
     TR = oldTR;
+    cur_instance = (prev)->next;
     while ((TDB = GetDBTerm(cur_instance->DBT, false PASS_REGS)) == 0L) {
         while (oldTR < TR) {
           CELL d1 = TrailTerm(TR - 1);
@@ -5103,17 +5135,16 @@ Term TDB;
         }
       }
       return true;
-    } else {
-      // just getting the first
-      if (first)
-        return false;
-      // but keep on going, if we want to check everything.
-      prev = cur_instance;
-      cur_instance = cur_instance->next;
     }
   }
   return false;
 }
+
+bool Yap_dequeue_vqueue(db_queue *father_key, Term *t, bool first USES_REGS) {
+  QueueEntry q0;
+  q0.next = father_key->FirstInQueue;
+   return queue_fetch(&q0, t, first PASS_REGS) != NULL;
+}  
 
 static Int p_init_queue(USES_REGS1) {
   db_queue *dbq;
@@ -5227,18 +5258,7 @@ static Int p_peek_queue(USES_REGS1) {
     return FALSE;
   } else {
     father_key = (db_queue *)IntegerOfTerm(Father);
-    if ((cur_instance = father_key->FirstInQueue) == NULL) {
-      /* an empty queue automatically goes away */
-      FreeDBSpace((char *)father_key);
-      return FALSE;
-    }
-    if (!Yap_dequeue_tqueue(father_key, &ARG2, true, false PASS_REGS))
-      return FALSE;
-    if (cur_instance == father_key->LastInQueue)
-      father_key->FirstInQueue = father_key->LastInQueue = NULL;
-    else
-      father_key->FirstInQueue = cur_instance->next;
-    return TRUE;
+    return Yap_dequeue_vqueue(father_key, &ARG2, true PASS_REGS);
   }
 }
 

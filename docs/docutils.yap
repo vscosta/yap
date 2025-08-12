@@ -54,7 +54,7 @@ split(String, SplitCodes, Strings) :-
 split_at_blank(SplitCodes, More) -->
 	[C],
 	{ member(C, SplitCodes) }, !,
-	split_at_blank(SplitCodes, More).
+				   split_at_blank(SplitCodes, More).
 split_at_blank(SplitCodes, [[C|New]| More]) -->
 	[C], !,
 	split_(SplitCodes, New, More).
@@ -80,7 +80,11 @@ split_element(SplitCodes,  DoubleQs, SingleQs, Strings) -->
 split_element(_SplitCodes,  _DoubleQs, _SingleQs, []) --> !.
 split_element(_SplitCodes,  _DoubleQs, _SingleQs, [[]]) --> [].
 
-
+encode_text(A,NS) :-
+    atom(A),
+    !,
+    atom_string(A,S),
+    encode_text(S,NS).
 encode_text(S,NS) :-
     sub_string(S,Bef,1,End," "),
     !,
@@ -94,50 +98,57 @@ encode_text(S,NS) :-
 
 
 encode(Pred/A,String) :-
-    !,  
-    pred2dox_(Pred, String0),
-    format(string(String),'~s_~d',[String0,A]).
+    !,
+    (atom(Pred) -> atom_string(Pred, SPred) ; Pred = SPred),
+    (number(A) ->
+     number_string(A, Arity)
+    ;
+    atom(A) ->
+    atom_string(A, Arity);
+    A = Arity
+    ),
+    pred2dox(SPred, String0),
+    format(string(String),'~s_~s',[String0,Arity]).
 
 encode("","") :-
     !.
 encode(P,S) :-
-    pred2dox(P,S),
-    !.
-    encode(S,S).
+    atom(P),
+    !,
+    atom_string(P,SP),
+    encode(SP,S).
+encode(P,S) :-
+    sub_string(P,_,2,0,S0),
+    string_chars(S0,[C1,C0]),
+    char_type_digit(C0),
+    C1 == '/',
+    !,
+    sub_string(P,0,_,2,Name),
+    pred2dox(Name,String0),
+    format(string(S),'~s_~s',[String0,[C0]]).
+encode(Pred, Pred).
 
 decode(P,S) :-
     dox2pred(P,S),
     !.
-decode(S,S).
+    decode(S,S).
 
 
-pred2dox(S, String) :-
-    sub_string(S,_,2,2,S0),
-    string_chars(S0,[C1,C0]),
-    char_type_digit(C0),
-    (C1 == '/'  ; C1 == '_'),
-    !,
-    sub_string(S,0,_,2,Name),
-    pred2dox_(Name,String0),
-    format(string(String),'~s_~s',[String0,[C0]]).
 pred2dox(Pred, String) :-
-    pred2dox_(Pred, String).
-
-pred2dox_(Pred, String) :-
     string_chars(Pred, Chars),
     maplist(char_type_csym, Chars),
     !,
     String = Pred.
-pred2dox_(Pred, String) :-
+pred2dox(Pred, String) :-
     string_codes(Pred, Codes),
-    foldl(addch,Codes, SF,[]),
-    string_concat(["YAP"|SF],String).
+    foldl(addch,Codes, SF, []),
+    string_codes(String,[0'Y,0'A,0'P|SF]).
 
-addch(Code,[SF|Ss],[SF|Ss])  :-
-    code_type_alpha(SF),
+addch(Code,[Code|Ss],Ss)  :-
+    code_type_alpha(Code),
     !.
-    addch(Code,SF,Ss) :-
-    format(SF,Ss(SF),'~d_+',[Code]).
+addch(Code,SF,Ss) :-
+    format(codes(SF,Ss),'~d_',[Code]).
 
 dox2pred(String,Pred) :-
     sub_string(String,0,3,Len,`YAP`),

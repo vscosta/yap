@@ -45,7 +45,8 @@
 	   selectlist/4,
 	   selectlists/5,
 	   sumlist/4,
-	   sumnodes/4
+	   sumnodes/4,
+expands_to/3
 	  ]).
 
    
@@ -697,7 +698,7 @@ foldl4(Goal, [H|T], V0, V, W0, W, X0, X, Y0, Y) :-
 
 *-
 +
-+36214/
++
 
 /*******************************
 		 *	       SCANL		*
@@ -806,7 +807,7 @@ expand_rule1(sumlist).
 */
 
 goal_expansion(Call0, M0:NG) :-
- %   current_prolog_flag( compiling, true ),
+    prolog_load_context(source,_),
  %   current_prolog_flag( goal_expansion_allowed, true ),
     strip_module(Call0,M0,Call),
     Call =.. [Meta,M0Goal|LinkArgs],
@@ -815,6 +816,7 @@ goal_expansion(Call0, M0:NG) :-
     nonvar(M1),
     nonvar(Target),
     Target=..[G|Args],
+    G\=call,
     new_name(G,NewName),
     newvs(LinkArgs, LinkVs),
     HCall =.. [Meta,M0Goal|LinkVs],
@@ -879,3 +881,24 @@ newvs([],[]).
 newvs([_|L],[_|NL]) :-
     newvs(L,NL).
 
+expands_to(Call0, NG,NewClauses) :-
+ %   current_prolog_flag( goal_expansion_allowed, true ),
+    strip_module(Call0,_M0,Call),
+    Call =.. [Meta,M0Goal|LinkArgs],
+    expand_rule1(Meta),
+    strip_module(M0Goal,M1,Target),
+    nonvar(M1),
+    nonvar(Target),
+    Target=..[G|Args],
+    new_name(G,NewName),
+    newvs(LinkArgs, LinkVs),
+    HCall =.. [Meta,M0Goal|LinkVs],
+    findall(NewClause, (
+     clause(maplist:HCall,Body),
+      process(Body, Meta, HCall,Args,M1:G,NewName,NewClause)
+	),
+	NewClauses),
+	append(LinkArgs, Args, CallerArgs),
+	NG =.. [NewName|CallerArgs].
+
+expands_to(G,G,[]).

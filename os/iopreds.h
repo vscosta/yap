@@ -325,10 +325,6 @@ static inline void freeBuffer(const void *ptr) {
   free((void *)ptr);
 }
 
-extern int Yap_encoding_error(int ch, seq_type_t code, struct stream_desc *st);
-extern int Yap_symbol_encoding_error(int ch, seq_type_t code,
-                                     struct stream_desc *st, const char *s);
-extern int Yap_bad_nl_error(Term t, struct stream_desc *st);
 #endif
 
 extern  int post_process_eof( StreamDesc *s);

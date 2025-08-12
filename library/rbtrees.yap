@@ -82,7 +82,7 @@ form colour(Left, Key, Value, Right), where _colour_  is one of =red= or
 :- type rbtree(K,V) ---> t(tree(K,V),tree(K,V)).
 :- type tree(K,V)   ---> black(tree(K,V),K,V,tree(K,V))
 	               ; red(tree(K,V),K,V,tree(K,V))
-		       ; ''.
+		       ; empty.
 :- type cmp ---> (=) ; (<) ; (>).
 
 
@@ -106,9 +106,9 @@ Create a new tree.
 
 	@deprecated	Use rb_empty/1.
 */
-rb_new(t(Nil,Nil)) :- Nil = black('',_,_,'').
+rb_new(t(Nil,Nil)) :- Nil = black(empty,_,_,empty).
 
-rb_new(K,V,t(Nil,black(Nil,K,V,Nil))) :- Nil = black('',_,_,'').
+rb_new(K,V,t(Nil,black(Nil,K,V,Nil))) :- Nil = black(empty,_,_,empty).
 
 /** @pred rb_empty(? _Tree_)
 
@@ -117,7 +117,7 @@ Succeeds if tree  _Tree_ is empty.
 
 
 */
-rb_empty(t(Nil,Nil)) :- Nil = black('',_,_,'').
+rb_empty(t(Nil,Nil)) :- Nil = black(empty,_,_,empty).
 
 /** @pred rb_lookup(+ _Key_,- _Value_,+ _Tree_)
 
@@ -130,7 +130,7 @@ Backtrack through all elements with key  _Key_ in the red-black tree
 rb_lookup(Key, Val, t(_,Tree)) :-
 	lookup(Key, Val, Tree).
 
-lookup(_, _, black('',_,_,'')) :- !, fail.
+lookup(_, _, black(empty,_,_,empty)) :- !, fail.
 lookup(Key, Val, Tree) :-
 	arg(2,Tree,KA),
 	compare(Cmp,KA,Key),
@@ -155,8 +155,8 @@ lookup(=, _, V, Tree) :-
 rb_min(t(_,Tree), Key, Val) :-
 	min(Tree, Key, Val).
 
-min(red(black('',_,_,_),Key,Val,_), Key, Val) :- !.
-min(black(black('',_,_,_),Key,Val,_), Key, Val) :- !.
+min(red(black(empty,_,_,_),Key,Val,_), Key, Val) :- !.
+min(black(black(empty,_,_,_),Key,Val,_), Key, Val) :- !.
 min(red(Right,_,_,_), Key, Val) :-
 	min(Right,Key,Val).
 min(black(Right,_,_,_), Key, Val) :-
@@ -172,8 +172,8 @@ min(black(Right,_,_,_), Key, Val) :-
 rb_max(t(_,Tree), Key, Val) :-
 	max(Tree, Key, Val).
 
-max(red(_,Key,Val,black('',_,_,_)), Key, Val) :- !.
-max(black(_,Key,Val,black('',_,_,_)), Key, Val) :- !.
+max(red(_,Key,Val,black(empty,_,_,_)), Key, Val) :- !.
+max(black(_,Key,Val,black(empty,_,_,_)), Key, Val) :- !.
 max(red(_,_,_,Left), Key, Val) :-
 	max(Left,Key,Val).
 max(black(_,_,_,Left), Key, Val) :-
@@ -190,7 +190,7 @@ associated with  _Val_.
 rb_next(t(_,Tree), Key, Next, Val) :-
 	next(Tree, Key, Next, Val, []).
 
-next(black('',_,_,''), _, _, _, _) :- !, fail.
+next(black(empty,_,_,empty), _, _, _, _) :- !, fail.
 next(Tree, Key, Next, Val, Candidate) :-
 	arg(2,Tree,KA),
 	arg(3,Tree,VA),
@@ -220,7 +220,7 @@ next(=, _, _, _, NK, Val, Tree, Candidate) :-
 rb_previous(t(_,Tree), Key, Previous, Val) :-
 	previous(Tree, Key, Previous, Val, []).
 
-previous(black('',_,_,''), _, _, _, _) :- !, fail.
+previous(black(empty,_,_,empty), _, _, _, _) :- !, fail.
 previous(Tree, Key, Previous, Val, Candidate) :-
 	arg(2,Tree,KA),
 	arg(3,Tree,VA),
@@ -302,11 +302,14 @@ update(red(Left,Key0,Val0,Right), Key, OldVal, Val, NewTree) :-
 	Tree T has   value  for  Key  associated with
 	NewVal.  Fails if it cannot find Key in T.
 */
-rb_rewrite(t(_Nil,OldTree), Key, OldVal, Val) :-
+
+rb_rewrite(t(Nil,OldTree), Key, OldVal, Val) :-
+        rb_empty(t(Nil,Nil)), % type check
 	rewrite(OldTree, Key, OldVal, Val).
 
-rb_rewrite(t(_Nil,OldTree), Key, Val) :-
-	rewrite(OldTree, Key, _, Val).
+rb_rewrite(t(Nil,OldTree), Key, Val) :-
+    rb_empty(t(Nil,Nil)), % type check
+    rewrite(OldTree, Key, _, Val).
 
 rewrite(Node, Key, OldVal, Val) :-
 	Node = black(Left,Key0,Val0,Right),
@@ -353,7 +356,7 @@ tree  _TreeN_. Fails if it cannot find  _Key_ in  _Tree_, or if
 rb_apply(t(Nil,OldTree), Key, Goal, t(Nil,NewTree)) :-
 	apply(OldTree, Key, Goal, NewTree).
 
-%apply(black('',_,_,''), _, _, _) :- !, fail.
+%apply(black(empty,_,_,empty), _, _, _) :- !, fail.
 apply(black(Left,Key0,Val0,Right), Key, Goal,
       black(NewLeft,Key0,Val,NewRight)) :-
 	Left \= [],
@@ -400,7 +403,7 @@ rb_in(Key, Val, t(_,T)) :-
 
 
 enum(Key, Val, black(L,K,V,R)) :-
-	L \= '',
+	L \= empty,
 	enum_cases(Key, Val, L, K, V, R).
 enum(Key, Val, red(L,K,V,R)) :-
 	enum_cases(Key, Val, L, K, V, R).
@@ -424,7 +427,7 @@ rb_lookupall(Key, Val, t(_,Tree)) :-
 	lookupall(Key, Val, Tree).
 
 
-lookupall(_, _, black('',_,_,'')) :- !, fail.
+lookupall(_, _, black(empty,_,_,empty)) :- !, fail.
 lookupall(Key, Val, Tree) :-
 	arg(2,Tree,KA),
 	compare(Cmp,KA,Key),
@@ -490,7 +493,7 @@ insert(Tree0,Key,Val,Nil,Tree) :-
 %
 % actual insertion
 %
-insert2(black('',_,_,''), K, V, Nil, T, Status) :- !,
+insert2(black(empty,_,_,empty), K, V, Nil, T, Status) :- !,
 	T = red(Nil,K,V,Nil),
 	Status = not_done.
 insert2(red(L,K0,V0,R), K, V, Nil, NT, Flag) :-
@@ -535,7 +538,7 @@ insert_new(Tree0,Key,Val,Nil,Tree) :-
 %
 % actual insertion, copied from insert2
 %
-insert_new_2(black('',_,_,''), K, V, Nil, T, Status) :- !,
+insert_new_2(black(empty,_,_,empty), K, V, Nil, T, Status) :- !,
 	T = red(Nil,K,V,Nil),
 	Status = not_done.
 insert_new_2(red(L,K0,V0,R), K, V, Nil, NT, Flag) :-
@@ -641,7 +644,7 @@ fix_right(T,T,done).
 pretty_print(t(_,T)) :-
 	pretty_print(T,6).
 
-pretty_print(black('',_,_,''),_) :- !.
+pretty_print(black(empty,_,_,empty),_) :- !.
 pretty_print(red(L,K,_,R),D) :-
 	DN is D+6,
 	pretty_print(L,DN),
@@ -714,12 +717,12 @@ Delete the least element from the tree  _Tree_, returning the key
 rb_del_min(t(Nil,T), K, Val, t(Nil,NT)) :-
 	del_min(T, K, Val, Nil, NT, _).
 
-del_min(red(black('',_,_,_),K,V,R), K, V, Nil, OUT, Flag) :- !,
+del_min(red(black(empty,_,_,_),K,V,R), K, V, Nil, OUT, Flag) :- !,
 	delete_red_node(Nil,R,OUT,Flag).
 del_min(red(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	del_min(L, K, V, Nil, NL, Flag0),
 	fixup_left(Flag0,red(NL,K0,V0,R), NT, Flag).
-del_min(black(black('',_,_,_),K,V,R), K, V, Nil, OUT, Flag) :- !,
+del_min(black(black(empty,_,_,_),K,V,R), K, V, Nil, OUT, Flag) :- !,
 	delete_black_node(Nil,R,OUT,Flag).
 del_min(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	del_min(L, K, V, Nil, NL, Flag0),
@@ -738,12 +741,12 @@ Delete the largest element from the tree  _Tree_, returning the key
 rb_del_max(t(Nil,T), K, Val, t(Nil,NT)) :-
 	del_max(T, K, Val, Nil, NT, _).
 
-del_max(red(L,K,V,black('',_,_,_)), K, V, Nil, OUT, Flag) :- !,
+del_max(red(L,K,V,black(empty,_,_,_)), K, V, Nil, OUT, Flag) :- !,
 	delete_red_node(L,Nil,OUT,Flag).
 del_max(red(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	del_max(R, K, V, Nil, NR, Flag0),
 	fixup_right(Flag0,red(L,K0,V0,NR),NT, Flag).
-del_max(black(L,K,V,black('',_,_,_)), K, V, Nil, OUT, Flag) :- !,
+del_max(black(L,K,V,black(empty,_,_,_)), K, V, Nil, OUT, Flag) :- !,
 	delete_black_node(L,Nil,OUT,Flag).
 del_max(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	del_max(R, K, V, Nil, NR, Flag0),
@@ -752,27 +755,27 @@ del_max(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 
 
 delete_red_node(L1,L2,L1,done) :- L1 == L2, !.
-delete_red_node(black('',_,_,''),R,R,done) :-  !.
-delete_red_node(L,black('',_,_,''),L,done) :-  !.
+delete_red_node(black(empty,_,_,empty),R,R,done) :-  !.
+delete_red_node(L,black(empty,_,_,empty),L,done) :-  !.
 delete_red_node(L,R,OUT,Done) :-
 	delete_next(R,NK,NV,NR,Done0),
 	fixup_right(Done0,red(L,NK,NV,NR),OUT,Done).
 
 
 delete_black_node(L1,L2,L1,not_done) :- 	L1 == L2, !.
-delete_black_node(black('',_,_,''),red(L,K,V,R),black(L,K,V,R),done) :- !.
-delete_black_node(black('',_,_,''),R,R,not_done) :- !.
-delete_black_node(red(L,K,V,R),black('',_,_,''),black(L,K,V,R),done) :- !.
-delete_black_node(L,black('',_,_,''),L,not_done) :- !.
+delete_black_node(black(empty,_,_,empty),red(L,K,V,R),black(L,K,V,R),done) :- !.
+delete_black_node(black(empty,_,_,empty),R,R,not_done) :- !.
+delete_black_node(red(L,K,V,R),black(empty,_,_,empty),black(L,K,V,R),done) :- !.
+delete_black_node(L,black(empty,_,_,empty),L,not_done) :- !.
 delete_black_node(L,R,OUT,Done) :-
 	delete_next(R,NK,NV,NR,Done0),
 	fixup_right(Done0,black(L,NK,NV,NR),OUT,Done).
 
 
-delete_next(red(black('',_,_,''),K,V,R),K,V,R,done) :- 	!.
-delete_next(black(black('',_,_,''),K,V,red(L1,K1,V1,R1)),
+delete_next(red(black(empty,_,_,empty),K,V,R),K,V,R,done) :- 	!.
+delete_next(black(black(empty,_,_,empty),K,V,red(L1,K1,V1,R1)),
 	K,V,black(L1,K1,V1,R1),done) :- !.
-delete_next(black(black('',_,_,''),K,V,R),K,V,R,not_done) :- !.
+delete_next(black(black(empty,_,_,empty),K,V,R),K,V,R,not_done) :- !.
 delete_next(red(L,K,V,R),K0,V0,OUT,Done) :-
 	delete_next(L,K0,V0,NL,Done0),
 	fixup_left(Done0,red(NL,K,V,R),OUT,Done).
@@ -882,7 +885,7 @@ rb_visit(t(_,T),Lf) :-
 rb_visit(t(_,T),L0,Lf) :-
 	visit(T,L0,Lf).
 
-visit(black('',_,_,_),L,L) :- !.
+visit(black(empty,_,_,_),L,L) :- !.
 visit(red(L,K,V,R),L0,Lf) :-
 	visit(L,[K-V|L1],Lf),
 	visit(R,L0,L1).
@@ -907,7 +910,7 @@ rb_map(t(Nil,Tree),Goal,t(Nil,NewTree)) :-
 	map(Tree,Goal,NewTree,Nil).
 
 
-map(black('',_,_,''),_,Nil,Nil) :- !.
+map(black(empty,_,_,empty),_,Nil,Nil) :- !.
 map(red(L,K,V,R),Goal,red(NL,K,NV,NR),Nil) :-
 	call(Goal,V,NV), !,
 	map(L,Goal,NL,Nil),
@@ -931,7 +934,7 @@ rb_map(t(_,Tree),Goal) :-
 	map(Tree,Goal).
 
 
-map(black('',_,_,''),_) :- !.
+map(black(empty,_,_,empty),_) :- !.
 map(red(L,_,V,R),Goal) :-
 	call(Goal,V), !,
 	map(L,Goal),
@@ -958,7 +961,7 @@ previous node in inorder, `call(G,VL,_,Acc0)` must hold, and if
 */rb_fold(Goal, t(_,Tree), In, Out) :-
 	map_acc(Tree, Goal, In, Out).
 
-map_acc(black('',_,_,''), _, Acc, Acc) :- !.
+map_acc(black(empty,_,_,empty), _, Acc, Acc) :- !.
 map_acc(red(L,_,V,R), Goal, Left, Right) :-
 	map_acc(L,Goal, Left, Left1),
 	once(call(Goal,V, Left1, Right1)),
@@ -986,7 +989,7 @@ previous node in inorder, `call(G,KeyL,VL,_,Acc0)` must hold, and if
 rb_key_fold(Goal, t(_,Tree), In, Out) :-
 	map_key_acc(Tree, Goal, In, Out).
 
-map_key_acc(black('',_,_,''), _, Acc, Acc) :- !.
+map_key_acc(black(empty,_,_,empty), _, Acc, Acc) :- !.
 map_key_acc(red(L,Key,V,R), Goal, Left, Right) :-
 	map_key_acc(L,Goal, Left, Left1),
 	once(call(Goal, Key, V, Left1, Right1)),
@@ -1009,7 +1012,7 @@ containing all new nodes as pairs  _K-V_.
 rb_clone(t(Nil,T),ONs,t(Nil,NT),Ns) :-
 	clone(T,Nil,ONs,[],NT,Ns,[]).
 
-clone(black('',_,_,''),Nil,ONs,ONs,Nil,Ns,Ns) :- !.
+clone(black(empty,_,_,empty),Nil,ONs,ONs,Nil,Ns,Ns) :- !.
 clone(red(L,K,V,R),Nil,ONsF,ONs0,red(NL,K,NV,NR),NsF,Ns0) :-
 	clone(L,Nil,ONsF,[K-V|ONs1],NL,NsF,[K-NV|Ns1]),
 	clone(R,Nil,ONs1,ONs0,NR,Ns1,Ns0).
@@ -1035,7 +1038,7 @@ rb_partial_map(t(Nil,T0), Map, Map0, Goal, t(Nil,TF)) :-
 	partial_map(T0, Map, Map0, Nil, Goal, TF).
 
 partial_map(T,[],[],_,_,T) :- !.
-partial_map(black('',_,_,_),Map,Map,Nil,_,Nil) :- !.
+partial_map(black(empty,_,_,_),Map,Map,Nil,_,Nil) :- !.
 partial_map(red(L,K,V,R),Map,MapF,Nil,Goal,red(NL,K,NV,NR)) :-
 	partial_map(L,Map,MapI,Nil,Goal,NL),
 	(
@@ -1088,7 +1091,7 @@ rb_keys(t(_,T),Lf) :-
 rb_keys(t(_,T),L0,Lf) :-
 	keys(T,L0,Lf).
 
-keys(black('',_,_,''),L,L) :- !.
+keys(black(empty,_,_,empty),L,L) :- !.
 keys(red(L,K,_,R),L0,Lf) :-
 	keys(L,[K|L1],Lf),
 	keys(R,L0,L1).
@@ -1128,11 +1131,11 @@ paux(K, K-_).
 %	T is the red-black tree corresponding  to the mapping in ordered
 %	list L.
 ord_list_to_rbtree([], t(Nil,Nil)) :- !,
-	Nil = black('', _, _, '').
+	Nil = black(empty, _, _, empty).
 ord_list_to_rbtree([K-V], t(Nil,black(Nil,K,V,Nil))) :- !,
-	Nil = black('', _, _, '').
+	Nil = black(empty, _, _, empty).
 ord_list_to_rbtree(List, t(Nil,Tree)) :-
-	Nil = black('', _, _, ''),
+	Nil = black(empty, _, _, empty),
 	Ar =.. [seq|List],
 	functor(Ar,_,L),
 	Height is truncate(log(L)/log(2)),
@@ -1166,7 +1169,7 @@ build_node( _, Left, K, Val, Right, black(Left, K, Val, Right)).
 rb_size(t(_,T),Size) :-
 	size(T,0,Size).
 
-size(black('',_,_,_),Sz,Sz) :- !.
+size(black(empty,_,_,_),Sz,Sz) :- !.
 size(red(L,_,_,R),Sz0,Szf) :-
 	Sz1 is Sz0+1,
 	size(L,Sz1,Sz2),
@@ -1196,7 +1199,7 @@ is_rbtree(T,Goal) :-
 % This code checks if a tree is ordered and a rbtree
 %
 %
-rbtree(t(_,black('',_,_,''))) :- !.
+rbtree(t(_,black(empty,_,_,empty))) :- !.
 rbtree(t(_,T)) :-
 	catch(rbtree1(T),msg(S,Args),format(S,Args)).
 
@@ -1208,14 +1211,14 @@ rbtree1(red(_,_,_,_)) :-
 	throw(msg("root should be black",[])).
 
 
-find_path_blacks(black('',_,_,''), Bls, Bls) :- !.
+find_path_blacks(black(empty,_,_,empty), Bls, Bls) :- !.
 find_path_blacks(black(L,_,_,_), Bls0, Bls) :-
 	Bls1 is Bls0+1,
 	find_path_blacks(L, Bls1, Bls).
 find_path_blacks(red(L,_,_,_), Bls0, Bls) :-
 	find_path_blacks(L, Bls0, Bls).
 
-check_rbtree(black('',_,_,''),Min,Max,Bls0) :- !,
+check_rbtree(black(empty,_,_,empty),Min,Max,Bls0) :- !,
 	check_height(Bls0,Min,Max).
 check_rbtree(red(L,K,_,R),Min,Max,Bls) :-
 	check_val(K,Min,Max),

@@ -5,7 +5,14 @@
 %= +Float, -Float
 %========================================================================
 
-:- table smoothen/2.
+    :- module(pbmath,
+[ smoothen/2,
+       sigmoid/2,
+       sigmoid/3,
+       inv_sigmoid/2,
+       inv_sigmoid/3] ).
+
+%     :- table smoothen/2.
 
 smoothen(Pr, NPr) :-
     		(

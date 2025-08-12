@@ -45,76 +45,62 @@ static char SccsId[] = "%W% %G%";
 * @brief Read full lines and a full file in a single call.
 */
 
+
 static Int rl_to_codes(Term TEnd, int do_as_binary, bool codes USES_REGS) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
   StreamDesc *st = GLOBAL_Stream + sno;
   Int status;
   size_t  buf_sz, sz;
   unsigned char *buf;
-  bool binary_stream;
   utf8proc_int32_t ch;
-  do_as_binary = true;
+  Term p0, *p = &p0;
+  
   if (sno < 0)
     return false;
   status = GLOBAL_Stream[sno].status;
-  binary_stream = GLOBAL_Stream[sno].status & Binary_Stream_f;
+  //  binary_stream = GLOBAL_Stream[sno].status & Binary_Stream_f;
   if (status & Past_Eof_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno]. streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
   }
+     if (st->status & Binary_Stream_f) {
           buf = Malloc(4096);
-  buf_sz = 4096;
-  while (true) {
-    if (do_as_binary && !binary_stream) {
-      GLOBAL_Stream[sno].status |= Binary_Stream_f;
-    }
-    if (st->status & Binary_Stream_f) {
-      sz = fread(buf, 1, buf_sz, GLOBAL_Stream[sno].file);
-    } else {
-      unsigned char *pt = buf;
+	  buf_sz = 4096;
+	  sz = fread(buf, 1, buf_sz, GLOBAL_Stream[sno].file);
+	  if (feof(st->file))
+	    ch = EOF;
+
+	  else {
+	    ch = buf[sz - 1];
+      }
+    } else  {
       do {
         ch = st->stream_wgetc_for_read(sno);
-        if (ch < 127) {
-
-          if (ch < 0) {
-            break;
-          }
-          *pt++ = ch;
-        } else {
-	  
-            pt += get_utf8(pt, 4, &ch);
-            if (pt + 4 == buf + buf_sz)
-            break;
-         }
-      } while (ch != '\n');
-      sz = pt - buf;
-    }
-    if (do_as_binary && !binary_stream)
-      GLOBAL_Stream[sno].status &= ~Binary_Stream_f;
-    if (sz == -1 || sz == 0) {
-      if (GLOBAL_Stream[sno].status & Past_Eof_Stream_f) {
+           if (ch < 0 || ch == 10 || ch == 13) {
+            break; 
+           }
+	   
+  HR += 2;
+  *p = AbsPair(HR - 2);
+  if (codes)
+    HR[-2] = MkIntTerm(ch);
+  else
+    HR[-2] = MkCharTerm(ch);
+  p = HR - 1;
+      } while (true);
+     }
+    if (ch == EOF) {
+      if (*p == p0) {
         return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
       }
+      ungetc(ch, st->file);
     }
-    if (GLOBAL_Stream[sno].status & Past_Eof_Stream_f || buf[sz - 1] == 10) {
-      /* we're done */
-      if (!(do_as_binary || GLOBAL_Stream[sno].status & Past_Eof_Stream_f)) {
-        /* handle CR before NL */
-        if ((Int)sz - 2 >= 0 && buf[sz - 2] == 13)
-          buf[sz - 2] = '\0';
-        else
-          buf[sz - 1] = '\0';
-      }
-      if (codes)
-      return Yap_unify(
-          ARG2, Yap_UTF8ToDiffListOfCodes(buf, TEnd PASS_REGS));
-      else
-      return Yap_unify(
-          ARG2, Yap_UTF8ToDiffListOfChars(buf, TEnd PASS_REGS));
-     }
-
+      RESET_VARIABLE(p);
+      return Yap_unify(*p, TEnd) &&
+	Yap_unify(p0, ARG2);
+		   
    }
-}
+
 /**
    @pred read_line_to_codes( +_Stream_, -_Codes_)
 
@@ -133,6 +119,7 @@ static Int read_line_to_codes2(USES_REGS1) {
 static Int read_line_to_chars2(USES_REGS1) {
   return rl_to_codes(TermNil, FALSE,false PASS_REGS);
 }
+
 
 
 /**

@@ -50,8 +50,7 @@ static char * infixpred_doc(char *line, char *end, ssize_t sz) {
 
     op = protect_class(buf, op, strlen(op));
     line = arg2+strlen(arg2)+1;
-    fprintf(ostream, "@class \"%s_2\" @link %s/%d @endlink\n@brief  %s %s %s ", op, 
-	    op, 2,
+    fprintf(ostream, "@class \"%s_2\"\n \n @brief  %s %s %s ", op, 
 	    arg1, op, arg2);
   }
   return line;
@@ -74,20 +73,20 @@ static char * pred_doc(char *line, char *end, ssize_t sz) {
 
   if ((pred = strstr(line, "@pred")) != NULL && (!end || pred < end)) {
     fprintf(ostream, "%.*s", (int)(pred - start), start);
-    char *prefix = strtok(pred, " \t");
-    name = strtok(NULL, "(");
+    char *prefix = strtok(pred, " \t(");
+    name = strtok(NULL, " \t(");
     if (name == NULL || name+strlen(name)==end) {
       name = prefix+strlen(prefix)+1;
       name = strtok(name, " \n");
-      fprintf(ostream, "@class %s_a @link %s/%d @endlink\n@brief  %s",
+      fprintf(ostream, "@class %s_0\n@brief  %s",
 	      protect_class(buf,name, strlen(name)),
-	      name, 0, name  );
+	      name  );
     } else {
       args = strtok(NULL, ")");
       int arity = commas(args);
-      fprintf(ostream, "\n@class %s_%d @link %s/%d @endlink\n @brief %s/%d %s(%s)",
+      fprintf(ostream, "\n@class %s_%d \n @brief %s/%d %s(%s)",
               protect_class(buf, name,strlen(name)),
-              arity, name, arity, name, arity,  name, args);
+               arity, name, arity,  name, args);
       line = args+strlen(args)+1;
     }
   }

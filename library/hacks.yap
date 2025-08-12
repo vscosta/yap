@@ -250,8 +250,7 @@ list_of_qmarks(I,[?|L]) :-
 fully_strip_module( T, M, TF) :-
     '$yap_strip_module'( T, M, TF).
 
-
-yap_hacks:export_beautify(A,NA) :-
+export_beautify(A,NA) :-
     beautify(A,NA).
     
 %%

@@ -92,7 +92,6 @@ for MS-Windows.
 	thread_create(0, -, :),
 	thread_create(0, -),
 	thread_create(0),
-	thread_signal(+, 0),
 	with_mutex(+, 0),
 	thread_signal(+,0),
 	volatile(:).
@@ -1165,10 +1164,10 @@ thread_get_message(Queue, Term) :-
     '$mbox_get_message'(Id, Term).
 
 
-'$mbox_get_message'(Queue, Term0) :-
+'$mbox_get_message'(Queue, Term) :-
     '$message_queue_receive'(Queue, Term),
     (
-      Term = Term0
+      Term = _Term0 % always succeeds
       ->
       !
       ;
@@ -1245,7 +1244,7 @@ thread_peek_message(Queue, Term) :- var(Queue), !,
 thread_peek_message(Queue, Term) :-
 	recorded('$thread_alias',[Id|Queue],_R), !,
 	'$message_queue_peek'(Id, Term).
-tthread_peek_message(Queue, Term) :-
+thread_peek_message(Queue, Term) :-
 	'$message_queue_peek'(Queue, Term).
 
 %% @}

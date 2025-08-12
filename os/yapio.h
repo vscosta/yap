@@ -175,16 +175,6 @@ extern uint64_t WideHashFunction(wchar_t *);
 
 extern void Yap_InitAbsfPreds(void);
 
-inline static Term MkCharTerm(Int c) {
-  CACHE_REGS
-  unsigned char cs[8];
-  if (c==EOF)
-    return TermEof;
-  size_t n = put_xutf8(cs, c);
-  if (n<0) n = 0;
-  cs[n] =  0;
-  return MkAtomTerm(Yap_ULookupAtom(cs));
-}
 
 extern char *GLOBAL_cwd;
 
@@ -198,6 +188,5 @@ extern uint64_t Yap_StartOfWTimes;
 extern bool Yap_HandleSIGINT(void);
 
 extern void Yap_plwrite(Term, struct stream_desc *, CELL *, yhandle_t, write_flag_t, xarg *);
-
 
 #endif

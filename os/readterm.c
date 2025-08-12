@@ -469,7 +469,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
   if (!err) {
     //    Yap_JumpToEnv();   if (sno < 0 || start == NULL) {
     e->parserPos = 0;
-     e->prologConsulting = LOCAL_consult_level > 0;
+    e->prologConsulting = IsPairTerm(Yap_GetGlobal(AtomConsultingFile));
      e->parserReadingCode = true;
      e->parserFirstLine =
        e->parserLine =  e->parserLastLine =st->linecount;
@@ -511,7 +511,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
      o[0] = '\0';
      Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno,SYNTAX_ERROR, MkIntTerm(err_line), TermNil, NULL);
      // const char *p1 =
-     e->prologConsulting = LOCAL_consult_level > 0;
+     e->prologConsulting = IsPairTerm(Yap_GetGlobal(AtomConsultingFile));
      e->parserReadingCode = true;
      e->parserFirstLine = start_line;
      e->parserLine = err_line;
@@ -801,6 +801,29 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     re->prio = LOCAL_default_priority;
   }
   return args;
+}
+
+int Yap_encoding_error__(const char *file, const char *function, int line ,int ch, struct stream_desc *st, TokEntry *start,
+                       TokEntry *err, const char *msg ) {
+  //  IF (LOCAL_encoding_errors == TermIgnore)
+  //  return ch;
+
+   //  return ch;
+    if (st &&st->status & RepClose_Prolog_f) {
+      if (st) {
+        Yap_CloseStream(st - GLOBAL_Stream);
+      }
+      return EOF;
+    }
+    if (!st ||st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
+      Yap_syntax_error__(file, function, line,  MkIntTerm(ch), st-GLOBAL_Stream, start, err, (char *)msg, ch);
+      return EOF;
+   } else {
+      Yap_Warning("unexpected newline while  reading quoted ");
+    }
+
+     return ch;
+  
 }
 
 Int Yap_FirstLineInParse(void) {

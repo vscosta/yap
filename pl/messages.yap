@@ -241,11 +241,11 @@ translate_message( abort(user)) --> !,
 					  [ 'YAP execution aborted' - [] ].
 translate_message( loading(_,F)) --> { F == user }, !.
 translate_message( loading(What,FileName)) --> !,
-	{ '$show_consult_level'(LC) },
+	{ consult_depth(LC) },
 	[ '~N~*|% ~s ~w...' - [LC, What, FileName] ].
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
-        { '$show_consult_level'(LC) },
+        { consult_depth(LC) },
 	[ '~N~*|% ~s ~a in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
 translate_message(signal(SIG,_)) -->
     !,
@@ -276,20 +276,20 @@ translate_message( Term ) -->
 translate_message(error(style_check(singletons,Culprit,Cl),Exc))-->
     !,
     {
-    '$show_consult_level'(LC),
+    consult_depth(LC),
       Level = warning },
     main_message(error(style_check(singletons,Culprit,Cl),Exc),  Level, LC ).
 translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     !,
     {
        error_descriptor(Exc, Desc),
-    '$show_consult_level'(LC),
+    consult_depth(LC),
     Level = warning },
     location( Desc, Level, parser, LC),
   main_message(error(style_check(What,Culprit,Cl),Exc),  Level, LC ).
 translate_message(error(syntax_error(E), Info)) -->
     {
-     '$show_consult_level'(LC),
+     consult_depth(LC),
       error_descriptor(Info, Desc),
      Level = error
     },
@@ -303,13 +303,13 @@ translate_message(error(syntax_error(E), Info)) -->
     [nl].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
-    { '$show_consult_level'(LC),
+    { consult_depth(LC),
          error_descriptor(Info, Desc) },
    location(Desc, error, full, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
  {
-     '$show_consult_level'(LC),
+     consult_depth(LC),
         error_descriptor(Info, Desc),
 	Level = error,
      Exc \= exception(_)
@@ -1201,7 +1201,7 @@ prefix_(warning,      '~N'-[]).
 prefix_(error,	      '~N'-[]).
 prefix_(banner,	      '~N'-[]).
 prefix_(informational, '~N~*| '-[LC]) :-
-    '$show_consult_level'(LC),
+    consult_depth(LC),
     LC > 0,
     !.
 prefix_(informational,	      '~N'-[]).

@@ -157,8 +157,9 @@ initialize_prolog :-
 
 :- c_compile('lf.yap').
 :- c_compile('consult.yap').
+ %:- start_low_level_trace.
 :- compile('error.yap').
-
+%:- stop_Low_level_trace.
 
 
 :- ['utils.yap',
@@ -208,7 +209,7 @@ initialize_prolog :-
 :- dynamic 'extensions_to_present_answer'/1.
 
 :- 	['arrays.yap'].
-%:- start_low_level_trace.
+
 
 /**
 

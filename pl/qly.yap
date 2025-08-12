@@ -584,6 +584,7 @@ qload_file( F0 ) :-
     print_message(informational, loading(StartMsg, File)),
     file_directory_name(File, DirName),
     working_directory(OldD, DirName),
+    nb_setval('$consulting_file',[]),
     '$q_header'( S, Type ),
 	'$lf_option'(last_opt, LastOpt),
 	functor( TOpts, opt, LastOpt ),

@@ -36,6 +36,14 @@
 #define  INLINE_ONLY
 #endif
 
+#define Yap_encoding_error(ch,st,ptr, tide,msg ) Yap_encoding_error__(__FILE__, __FUNCTION__, __LINE__,ch,st, ptr, tide,msg )
+
+ extern int Yap_encoding_error__(const char *file, const char *function,
+                               int lineno,
+				 int ch, struct stream_desc *st,
+                                 TokEntry *ptr, TokEntry *tide, const char *msg);
+
+
  inline static utf8proc_ssize_t __get_utf8(const utf8proc_uint8_t *ptr,
                                                     size_t n,
                                                     utf8proc_int32_t *valp USES_REGS) {
@@ -45,7 +53,7 @@
           *valp = 0;
           return 2;
       }
-      Yap_encoding_error(ptr[0],0,NULL);
+      Yap_encoding_error(ptr[0],NULL,NULL,NULL,"bad UTF-8 sequence while trying to input");
       *valp = -1;
       return  1;
   }
@@ -62,7 +70,7 @@ inline static utf8proc_ssize_t __put_xutf8(utf8proc_uint8_t *ptr,
     utf8proc_ssize_t rc = utf8proc_encode_char(val, ptr);
   if (rc <= 0) {
 
-      Yap_encoding_error(ptr[0],0,NULL);
+      return Yap_encoding_error(ptr[0],NULL,NULL,NULL,"found bad UTF-8 sequence while trying to output");
       return  1;
   }
   return rc < 1 ? 1 : rc;
@@ -74,7 +82,7 @@ inline static utf8proc_ssize_t __put_utf8(utf8proc_uint8_t *ptr,
     utf8proc_ssize_t rc = utf8proc_encode_char(val, ptr);
     if (rc <= 0) {
 
-      Yap_encoding_error(ptr[0],0,NULL);
+      Yap_encoding_error(ptr[0],NULL,NULL,NULL,"found bad UTF-8 sequence while trying to output");
 
     }
     return rc < 1 ? 1 : rc;

@@ -366,11 +366,8 @@ ADDR Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe) {
   UInt sz;
   if (sz0 < SCRATCH_INC_SIZE)
     sz0 = SCRATCH_INC_SIZE;
-  if (sz0 < LOCAL_ScratchPad.sz)
-    sz = LOCAL_ScratchPad.sz + sz0;
-  else
-    sz = sz0;
-  sz = AdjustLargePageSize(sz + sz / 4);
+     sz = LOCAL_ScratchPad.sz + sz0;
+ 
 
 #if USE_DL_MALLOC
   LOCK(DLMallocLock);

@@ -437,14 +437,14 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
       Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
       return (FALSE);
     }
-    if (IsNumTerm(twork)) {
+    if (IsNumTerm(twork) || IsStringTerm(twork)) {
       Term tt = TailOfTerm(t2);
       if (IsVarTerm(tt)) {
         Yap_ThrowError(INSTANTIATION_ERROR, tt, "(=..)/2");
         return (FALSE);
       }
       if (tt != MkAtomTerm(AtomNil)) {
-        Yap_ThrowError(TYPE_ERROR_ATOMIC, twork, "(=..)/2");
+        Yap_ThrowError(TYPE_ERROR_ATOM, twork, "(=..)/2");
         return (FALSE);
       }
       return (Yap_unify_constant(ARG1, twork));
@@ -465,7 +465,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
     at = AtomOfTerm(twork);
     twork = TailOfTerm(t2);
     if (IsVarTerm(twork)) {
-      Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=..)/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, twork, "(=.. _ _/2");
       return (FALSE);
     } else if (!IsPairTerm(twork)) {
       if (twork != TermNil) {
@@ -525,7 +525,7 @@ static Int p_univ(USES_REGS1) { /* A =.. L			 */
 #endif
     return (Yap_unify(ARG1, twork));
   }
-  if (IsAtomicTerm(tin)) {
+  if (IsAtomicTerm(tin)||IsStringTerm(tin)) {
     twork = MkPairTerm(tin, MkAtomTerm(AtomNil));
     return (Yap_unify(twork, ARG2));
   }
@@ -597,7 +597,8 @@ static Int
 
   if (IsVarTerm(t)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t, "halt/1");
-    return (FALSE);
+
+ return (FALSE);
   }
   if (!IsIntegerTerm(t)) {
     Yap_ThrowError(TYPE_ERROR_INTEGER, t, "halt/1");
