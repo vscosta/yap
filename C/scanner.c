@@ -526,6 +526,7 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
       return MkIntegerTerm(sign * val);
     }
  overflow:
+  {
     char *buf = *bufpp;
     *sp = '\0';
     /* skip base */
@@ -541,7 +542,7 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
     if (buf[2] == '\'')
       return read_int_overflow(buf + 3, base, val, sign);
     return read_int_overflow(buf, base, val, sign);
-   
+  }
 }
 
 static Term get_num(int *chp, StreamDesc *st, int sign,
