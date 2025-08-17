@@ -26,6 +26,13 @@ smoothen(Pr, NPr) :-
 					   NPr = Pr
 				   ).
 
+%% ========================================================================
+%% = @pred sigmoid(+Float, -Float)
+%% = Calculates the sigmoid function respectivly the inverse of it
+%% = warning: applying inv_sigmoid to 0.0 or 1.0 will yield +/-inf
+%% =
+%% = +Float, -Float
+%% ========================================================================
 sigmoid(T,Sig) :-
     problog:problog_flag(sigmoid_slope,Slope),
     sigmoid(T,Slope,Sig).

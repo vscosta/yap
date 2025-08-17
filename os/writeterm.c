@@ -628,12 +628,9 @@ static Int term_to_codes(USES_REGS1) {
     Yap_ThrowError(TYPE_ERROR_LIST, t2, "atom_to_term/2");
     return (FALSE);
   }
-seq_tv_t inp;
- inp.val.t  = t2;
- inp.type = YAP_STRING_ATOMS_CODES;
-  unsigned char * buf = Yap_ListOfCodesToBuffer(NULL, t2, &inp PASS_REGS);
+  char * buf = (char *)Yap_CodesToBuffer( t2 PASS_REGS);
   ctl = TermNil;
-  return (rc = Yap_UBufferToTerm(buf, ctl)) != 0L &&
+  return (rc = Yap_BufferToTerm(buf, ctl)) != 0L &&
     Yap_unify(rc, ARG1);
 }
 

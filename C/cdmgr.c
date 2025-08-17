@@ -30,7 +30,6 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "YapEval.h"
 #include "clause.h"
 #include "tracer.h"
-#include "yapio.h"
 #ifdef YAPOR
 #include "or.macros.h"
 #endif /* YAPOR */
@@ -1105,7 +1104,7 @@ static void retract_all(PredEntry *p, int in_use) {
         Yap_FreeCodeSpace((char *)cl);
       }
       /* make sure this is not a MegaClause */
-      
+
       p->cs.p_code.NOfClauses = 0;
     } else {
       StaticClause *cl = ClauseCodeToStaticClause(q);
@@ -1135,7 +1134,7 @@ static void retract_all(PredEntry *p, int in_use) {
   if (is_live(p)) {
     p->cs.p_code.TrueCodeOfPred = p->CodeOfPred =
      (yamop *)(&p->OpcodeOfPred);
-    p->OpcodeOfPred =   FAIL_OPCODE;     
+    p->OpcodeOfPred =   FAIL_OPCODE;
   } else {
     p->OpcodeOfPred = UNDEF_OPCODE;
     p->PredFlags = UndefPredFlag;
@@ -1170,7 +1169,7 @@ bool Yap_unknown(Term t) {
     UndefHook->OpcodeOfPred = UndefHook->CodeOfPred->opc;
     return true;
   }
-  
+
   return false;
 }
 
@@ -1193,7 +1192,7 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
       !(p->PredFlags & ThreadLocalPredFlag) && p->ModuleOfPred != IDB_MODULE) {
     p->OpcodeOfPred = LOCKPRED_OPCODE;
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-  } 
+  }
 #endif
   p->cs.p_code.NOfClauses = 1;
   if (!(p->PredFlags & MultiFileFlag)) {
@@ -1438,7 +1437,7 @@ void Yap_AssertzClause(PredEntry *p, yamop *cp) {
   if (p->PredFlags & DynamicPredFlag) {
     if (p->cs.p_code.FirstClause == NULL) {
       add_first_dynamic(p, cp, FALSE);
-    } else { 
+    } else {
      assertz_dynam_clause(p, cp);
     }
   } else {
@@ -1537,7 +1536,7 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
    if ((ap->PredFlags & (SystemPredFlags| DiscontiguousPredFlag | MultiFileFlag | LogUpdatePredFlag|UndefPredFlag) ||
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
    return false;
-  } 
+  }
    if (LOCAL_LastAssertedPred &&
        ap != LOCAL_LastAssertedPred) {
 	// repeat warnings
@@ -1588,7 +1587,7 @@ static Int
   if (pe->cs.p_code.NOfClauses == 0) {
     pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
      (yamop *)(&pe->OpcodeOfPred);
-    pe->OpcodeOfPred =   FAIL_OPCODE;     
+    pe->OpcodeOfPred =   FAIL_OPCODE;
   }
   return (TRUE);
 }
@@ -1628,7 +1627,7 @@ static int is_fact(Term t) {
 }
 
 Int Yap_source_line_no(void) {
-      int sno;  
+      int sno;
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     return GLOBAL_Stream[sno].linecount;
   }
@@ -1643,7 +1642,7 @@ Int Yap_source_line_no(void) {
 }
 
 Int Yap_source_line_pos(void) {
-  int sno;  
+  int sno;
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);
@@ -1663,7 +1662,7 @@ Int Yap_source_line_pos(void) {
 
 
 Int Yap_source_pos(void) {
-      int sno;  
+      int sno;
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
     //    if(sno ==0)
     //  return(AtomUserIn);
@@ -1683,7 +1682,7 @@ Int Yap_source_pos(void) {
 }
 
 Atom Yap_source_file_name(void) {
-      int sno;  
+      int sno;
   if (!GLOBAL_Stream)
     return AtomEmpty;
   if ((sno = Yap_CheckAlias(AtomLoopStream)) >= 0) {
@@ -1750,7 +1749,7 @@ bool Yap_addclause(PredEntry *p, Term t, yamop *cp, Term tmode, Term mod, Term *
   pred_flags_t pflags;
   Term tf;
   assert_control_t mode = get_mode(tmode);
- 
+
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
   if (pflags & MegaClausePredFlag) {
@@ -1763,7 +1762,7 @@ bool Yap_addclause(PredEntry *p, Term t, yamop *cp, Term tmode, Term mod, Term *
   if (p->cs.p_code.NOfClauses >1 )
     Yap_AddClauseToIndex(p, cp, assert_as_first(mode));
   else
-    p->PredFlags &= ~ IndexedPredFlag;	
+    p->PredFlags &= ~ IndexedPredFlag;
   }
   if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     spy_flag = true;
@@ -1865,7 +1864,7 @@ bool Yap_addclause(PredEntry *p, Term t, yamop *cp, Term tmode, Term mod, Term *
       return false;
     }
   }
- 
+
   return true;
 }
 
@@ -1891,7 +1890,7 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
       if (is_live(ap)) {
      ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred =
      (yamop *)(&ap->OpcodeOfPred);
-    ap->OpcodeOfPred =   FAIL_OPCODE;     
+    ap->OpcodeOfPred =   FAIL_OPCODE;
       } else {
         ap->OpcodeOfPred = UNDEF_OPCODE;
         ap->PredFlags = UndefPredFlag;
@@ -1953,11 +1952,11 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
   yamop *cp = cl->ClCode;
 
   if (  pe->PredFlags & IndexedPredFlag) {
-  if (pe->cs.p_code.NOfClauses >1 )
-    Yap_AddClauseToIndex(pe, cp, assert_as_first(mode));
-    else
-    pe->PredFlags &= ~ IndexedPredFlag;	
-  } 
+      if (pe->cs.p_code.NOfClauses >1 )
+          Yap_AddClauseToIndex(pe, cp, assert_as_first(mode));
+      else
+          pe->PredFlags &= ~ IndexedPredFlag;
+  }
   if (pe->cs.p_code.FirstClause == NULL) {
     add_first_static(pe, cp, FALSE);
     /* make sure we have a place to jump to */
@@ -2133,9 +2132,9 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
 	}
 	d_culprit = MkPairTerm(MkAtomTerm(Yap_source_file_name()),d_culprit);
   }
-  
-       
-  
+
+
+
     if (trueGlobalPrologFlag(PROFILING_FLAG)) {
       p->PredFlags |= ProfiledPredFlag;
       if (!Yap_initProfiler(p)) {
@@ -2208,7 +2207,7 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
    - Low - highest address
    - Sp - top of stack
    - Base - frame for file being compiled.
-   - Size 
+   - Size
 
 we should have:
  Sp > Low-Size
@@ -2289,7 +2288,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   PredEntry *pred;
   Term t = Deref(ARG1);
   Term mod = Deref(ARG2);
-  
+
   MegaClause *before = DeadMegaClauses;
 
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
@@ -2385,7 +2384,7 @@ static Int new_multifile(USES_REGS1) {
   arity_t arity;
 
   pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false,  "multifile");
-  
+
   if (EndOfPAEntr(pe))
     return false;
   arity = pe->ArityOfPE;
@@ -2427,7 +2426,7 @@ static Int new_multifile(USES_REGS1) {
 
    low-level checking for multifile predicates.
  */
-static Int p_is_multifile(USES_REGS1) { 
+static Int p_is_multifile(USES_REGS1) {
   PredEntry *pe;
   bool out;
 
@@ -2620,7 +2619,7 @@ static Int predicate_info(USES_REGS1) { /* '$is_dynamic'(+P)	 */
     return
       Yap_unify(ARG2,TermUndefinedProcedure) && Yap_unify(ARG3,tmod ) &&
     Yap_unify(ARG4,t1);
-    
+
   }
   tmod = ( tmod == 0 ? TermProlog : tmod);
   bool rc = Yap_unify(ARG2, gpred(pe)) && Yap_unify(ARG3,tmod ) &&
@@ -2827,7 +2826,7 @@ static Int mk_proxy_predicate(USES_REGS1) { /* '$is_metapredicate'(+P)	 */
   pe = Yap_new_pred(Deref(ARG1), Deref(ARG2), false,"$is_meta");
   ope = Yap_get_pred(Deref(ARG3), Deref(ARG4), "$proxy");
   if (EndOfPAEntr(pe))
-    
+
     return FALSE;
   pe->PredFlags |= ProxyPredFlag;
   pe->PredIsProxyFor = ope;
@@ -3327,7 +3326,7 @@ p_log_update_clause(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Int ret;
   yamop *new_cp;
- 
+
   if (P->opc == EXECUTE_CPRED_OPCODE) {
     new_cp = CP;
   } else {
@@ -4448,7 +4447,7 @@ struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {
      if (CurrentModule != PROLOG_MODULE)
        Yap_ThrowError(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateToIndicator(pe),NULL);
       return NULL;
-      } 
+      }
   pe->PredFlags = LogUpdatePredFlag;
   pe->OpcodeOfPred = FAIL_OPCODE;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;

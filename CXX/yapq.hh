@@ -4,7 +4,7 @@
  *   @defgroup FLI_YAP-cplus-query-handling Query Handling in the YAP interface.
  *   @brief Engine and Query Management
  *
- *   @ingroup FLI_YAP-cplus-interface
+ *   @ingroup FLI_YAP++
  *
  * @{
  *

@@ -5,7 +5,7 @@
  *
  *   @brief  error handling in C++ and OO languages
  *
- *   @ingroup FLI_YAP-cplus-interface
+ *   @ingroup FLI_YAP++
  *  
  *
  *   @{

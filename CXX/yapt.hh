@@ -11,8 +11,7 @@
  *
  *   @{
  *
- *   @ingroup FLI_YAP-cplus-interface
- *   @tableofcontents
+ *   @ingroup FLI_YAP++
  *
  *
  * These classes offer term construction and access. Terms are seens

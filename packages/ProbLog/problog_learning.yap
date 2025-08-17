@@ -736,7 +736,7 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	  problog_flag(sigmoid_slope,Slope),
 	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
 	  convert_filename_to_problog_path('simplecudd', Simplecudd),
-	  atomic_concat([simplecudd,
+	  atomic_concat([Simplecudd,
 			 ' -i "', Probabilities_File, '"',
 			 ' -l "', Query_Directory,'/query_',QueryID, '"',
 			 ' -m ', Method,
@@ -986,13 +986,13 @@ mse_testset :-
 %= +Float, -Float
 %========================================================================
 
-sigmoid(T,Sig) :-
-	problog_flag(sigmoid_slope,Slope),
-	Sig is 1/(1+exp(-T*Slope)).
+%% sigmoid(T,Sig) :-
+%% 	problog_flag(sigmoid_slope,Slope),
+%% 	Sig is 1/(1+exp(-T*Slope)).
 
-inv_sigmoid(T,InvSig) :-
-	problog_flag(sigmoid_slope,Slope),
-	InvSig is -log(1/T-1)/Slope.
+%% inv_sigmoid(T,InvSig) :-
+%% 	problog_flag(sigmoid_slope,Slope),
+%% 	InvSig is -log(1/T-1)/Slope.
 
 
 

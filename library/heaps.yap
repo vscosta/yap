@@ -246,14 +246,6 @@ list_to_heap([Key-Datum|Rest], M, OldTree, Heap) :-
 %   returns the Key-Datum pair at the top of the heap (which is of
 %   course the pair with the smallest Key), but does not remove it
 %   from the heap.  It fails if the heap is empty.
-
-
-/** @pred min_of_heap(+ _Heap_,  - _Key_,  - _Datum_) 
-
-
-Returns the Key-Datum pair at the top of the heap (which is of course
-the pair with the smallest Key), but does not remove it from the heap.
-*/
 min_of_heap(t(_,_,t(Key,Datum,_,_)), Key, Datum).
 
 

@@ -247,20 +247,18 @@ extern bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS);
 extern bool Yap_Concat_Text(int n, seq_tv_t inp[], seq_tv_t *out USES_REGS);
 extern bool Yap_Splice_Text(int n, ssize_t cuts[], seq_tv_t *inp,
 			    seq_tv_t outv[] USES_REGS);
-extern unsigned char *Yap_ListOfCodesToBuffer(unsigned char *buf, Term t,
-                                              seq_tv_t *inp USES_REGS);
-extern unsigned char *Yap_ListOfCharsToBuffer(unsigned char *buf, Term t,
-                                              seq_tv_t *inp USES_REGS);
 // user friendly interface
+extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on);
 
 
-unsigned char *Yap_CodesToBuffer(t0 USES_REGS)
+
+static inline unsigned char *Yap_CodesToBuffer(Term t0 USES_REGS)
 {
     Term t = t0, *end = NULL;
-  ssize_t length = Yap_SkipList(t, &end);
+  ssize_t length = Yap_SkipList(&t, &end);
 
   if (length==0) {
-    st0 = Malloc(4);
+    unsigned char *st0 = (unsigned char *) malloc(4);
     st0[0] = 0;
     return st0;
   }
@@ -268,9 +266,9 @@ unsigned char *Yap_CodesToBuffer(t0 USES_REGS)
     Yap_ThrowError(TYPE_ERROR_LIST, t0, "scanning list of codes");
     return NULL;
   }
-  unsigned char *buf = malloc(4*(length+1)), *pt = buf;
+  unsigned char *buf = (unsigned char *)malloc(4*(length+1)), *pt = buf;
   while (t != TermNil) {
-      Term th = HeadOfTerm(r);
+      Term th = HeadOfTerm(t);
       if (IsVarTerm(th)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t0, "scanning list of codes");
         return NULL;
@@ -290,19 +288,20 @@ unsigned char *Yap_CodesToBuffer(t0 USES_REGS)
       if (chsz >0 ) {
           pt += chsz;
       }
+      t = TailOfTerm(t);
   }
       *pt = '\0';
   return buf;
 }
 
 
-unsigned char *Yap_CharsToBuffer(Term t0 USES_REGS)
+static inline unsigned char *Yap_CharsToBuffer(Term t0 USES_REGS)
 {
     Term t = t0, *end = NULL;
-  ssize_t length = Yap_SkipList(t, &end);
+  ssize_t length = Yap_SkipList(&t, &end);
 
   if (length==0) {
-    st0 = Malloc(4);
+    unsigned char *st0 = (unsigned char*)Malloc(4);
     st0[0] = 0;
     return st0;
   }
@@ -310,9 +309,9 @@ unsigned char *Yap_CharsToBuffer(Term t0 USES_REGS)
     Yap_ThrowError(TYPE_ERROR_LIST, t0, "scanning list of codes");
     return NULL;
   }
-  unsigned char *buf = malloc(4*(length+1)), *pt = buf;
+  unsigned char *buf = (unsigned char *)malloc(4*(length+1)), *pt = buf;
   while (t != TermNil) {
-      Term th = HeadOfTerm(r);
+      Term th = HeadOfTerm( t);
       if (IsVarTerm(th)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t0, "scanning list of codes");
         return NULL;
@@ -321,29 +320,34 @@ unsigned char *Yap_CharsToBuffer(Term t0 USES_REGS)
           Yap_ThrowError(TYPE_ERROR_ATOM, t0,
                          "scanning list of codes");
       }
-      unsigned char *chbuf = RepAtom(AtomOfTerm(th))->UStrOfAE'
-      int n = get_utf8(chbuf, -1, &chr);
-      if (n!=strlen(chbuf)) {
+      unsigned char *chbuf = RepAtom(AtomOfTerm(th))->UStrOfAE;
+      int chr;
+      int n = get_utf8(chbuf, -1, & chr);
+      if (n!=(int)strlen( (char *)chbuf)) {
         Yap_ThrowError(TYPE_ERROR_CHARACTER, th, "scanning list of atoms");
         return NULL;
-      }while ((ch = *chbuf++)) {
+      }
+      int ch;
+      while (( ch = *chbuf++)) {
           *pt+=ch;
       }
+            t = TailOfTerm(t);
   }
       *pt = '\0';
   return buf;
 }
 
 
-static unsigned char * *Yap_TextListToBuffer(Term t0 USES_REGS) {
-bool codes;
+static inline unsigned char  *Yap_TextListToBuffer(Term t0 USES_REGS) {
     if (IsPairTerm(t0)) {
       bool codes = IsIntTerm(HeadOfTerm(t0));
       if (codes) {
-          return Yap_CodesToBuf(t0);
+	return Yap_CodesToBuffer(t0 PASS_REGS);
       }
-      return Yap_CharsToBuf(t0);
-  }
+    }
+      return  Yap_CharsToBuffer(t0 PASS_REGS);
+    }
+    
 
 
 static inline Atom Yap_AtomicToLowAtom(Term t0 USES_REGS) {
@@ -816,23 +820,22 @@ static inline Atom Yap_ListOfAtomsToAtom(Term t0 USES_REGS) {
    return a;
 }
 
-static inline Term Yap_ListOfAtomsToNumber(Term t0, USES_REGS) {
-  seq_tv_t inp, out;
+static inline Term Yap_ListOfAtomsToNumber(Term t0 USES_REGS) {
   if (t0==TermNil) {
     return TermNil;
   }
-  unsigned char *buf =Yap_TextListToBuffer(t0 PASS_REGS);
+  char *buf =(char *)Yap_TextListToBuffer(t0 PASS_REGS);
   if(!buf) {
   return TermNil;
   }
-  Term rc = Yap_StringToNumberTerm((const char *)buf, &LOCAL_encoding, false ;
+
+  Term rc = Yap_StringToNumberTerm( buf, &LOCAL_encoding, false );
   free( buf );
   return rc;
  }
  #define Yap_ListOfCodesToNumber Yap_ListOfAtomsToNumber
 
 static inline Term Yap_ListOfAtomsToString(Term t0 USES_REGS) {
-    seq_tv_t inp, out;
     if (t0==TermNil) {
       return MkStringTerm("");
     }
@@ -847,42 +850,42 @@ static inline Term Yap_ListOfAtomsToString(Term t0 USES_REGS) {
  #define Yap_ListOfCodesToString ListOfAtomsToString
 
 static inline Atom Yap_ListOfCodesToAtom(Term t0 USES_REGS) {
-    seq_tv_t inp, out;
     if (t0==TermNil) {
-      return TermEmpty;
+      return AtomEmpty;
     }
     unsigned char *buf =Yap_TextListToBuffer(t0 PASS_REGS);
     if(!buf) {
-    return TermNil;
+    return AtomNil;
     }
-    Term rc = Yap_ULookupAtom(buf);
+    Atom rc = Yap_ULookupAtom(buf);
     free( buf );
-    return rc;
+    return  rc;
 }
-#define Yap_ListOfAtomsToAtom ListOfCodesToAtom
+#define Yap_ListOfAtomsToAtom Yap_ListOfCodesToAtom
 
 static inline Atom Yap_ListToAtom(Term t0 USES_REGS) {
-  seq_tv_t inp,out;
   if (t0==TermNil) {
     return AtomEmpty;
   } else if (IsPairTerm(t0)) {
     return Yap_ListOfAtomsToAtom(t0 PASS_REGS);
   } else if ( IsAtomTerm (t0)) {
-      return t0;
+    return AtomOfTerm(t0);
   } else if ( IsStringTerm (t0)) {
-    return MkUStringTerm(RepAtom(AtomOfTerm(t0))->UStringOfAE);
+    return Yap_LookupAtom(StringOfTerm(t0));
   } else if ( IsIntegerTerm (t0) ||
       IsBigIntTerm (t0 )||
-        IsFloatTerm(t0))
+        IsFloatTerm(t0)
           ) {
-    char * buf = Yap_TermToBuffer(t0);
+    char * buf = Yap_TermToBuffer(t0, 0);
     if (!buf)
-        return 0;
+        return NULL;
+    Atom rc = Yap_LookupAtom(buf);
     free(buf);
-    returm Yap_LookupAtom(buf);
+    return rc;
   }  else {
     Yap_ThrowError(TYPE_ERROR_LIST, t0, "List to atom");
   }
+  return NULL;
 }
 
 static inline Term Yap_ListToAtomic(Term t0 USES_REGS) {

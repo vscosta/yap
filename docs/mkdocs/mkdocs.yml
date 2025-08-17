@@ -6,18 +6,18 @@ theme:
   highlightjs: true
   hljs_languages:
     - prolog
-  logo: 'YAP/images/favicon_32x32.ico'
+  logo: 'YAP/img/favicon.ico'
 plugins:
   - search
   - mkdoxy:
       projects:
         YAP: # name of project must be alphanumeric + numbers (without spaces)
-          src-dirs:   docs/YAP  ../../docs/md   ../../C    ../../H    ../../include   ../../pl    ../../library   ../../os    ../../OPTYap    ../../packages
+          src-dirs:      ../../C    ../../H    ../../include   ../../pl    ../../library   ../../os    ../../OPTYap    ../../packages ../../CXX  ../../docs/md
           full-doc: True # if you want to generate full documentation
           doxy-cfg-file: ../Doxyfile.dox
              # RECURSIVE: True # search in source doxx directoriesmarkdown_extensions:
 nav:
-   - Home: YAP/yap.md
+   - Home: YAP/index.md
    - INSTALL: YAP/INSTALL.md
    - Calling YAP: YAP/CALLING_YAP.md
    -   Built-ins:

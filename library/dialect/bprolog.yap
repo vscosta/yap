@@ -12,6 +12,7 @@
 :- ensure_loaded(bprolog/foreach).
 :- ensure_loaded(bprolog/compile_foreach).
 
+:- op(900, xfy, <=).
 :- op(700, xfx, [?=]).
 :- op(200, fx, (@)).
 

@@ -8,7 +8,7 @@
 /**
  *
  *   @defgroup FLI_YAP-cplus-interface-atoms Prolog Atoms
- *   @ingroup FLI_YAP-cplus-interface
+ *   @ingroup FLI_YAP++
  *  @{
  *  @brief Symbols and associated propeeties.
  *

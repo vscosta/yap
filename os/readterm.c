@@ -431,7 +431,7 @@ static Int scan_stream(USES_REGS1) {
  *    +
  */
 char * Yap_syntax_error__(const char *file, const char *function, int lineno,Term t, int sno, TokEntry *start,
-                       TokEntry *err, char *msg,  ...) {
+                       TokEntry *err, const char *msg,  ...) {
   CACHE_REGS
 #if HAVE_FTELLO
   offset_t opos;
@@ -816,7 +816,7 @@ int Yap_encoding_error__(const char *file, const char *function, int line ,int c
       return EOF;
     }
     if (!st ||st->status & RepError_Prolog_f || trueGlobalPrologFlag(ISO_FLAG)) {
-      Yap_syntax_error__(file, function, line,  MkIntTerm(ch), st-GLOBAL_Stream, start, err, (char *)msg, ch);
+      Yap_syntax_error__(file, function, line,  MkIntTerm(ch), st-GLOBAL_Stream, start, err, msg, ch);
       return EOF;
    } else {
       Yap_Warning("unexpected newline while  reading quoted ");
@@ -2010,16 +2010,13 @@ static Int read_term_from_string(USES_REGS1) {
  */
 static Int read_term_from_chars(USES_REGS1) {
   Term t1 = Deref(ARG1);
-  const unsigned char *s;
-  seq_tv_t inp;
-  inp.val.t = t1;
-  inp.type = YAP_STRING_ATOMS;
+ unsigned char *s;
   BACKUP_H()
   if (IsVarTerm(t1)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
     return (FALSE);
   }
-  s = Yap_ListOfCharsToBuffer(NULL, t1 , &inp PASS_REGS);
+  s  = Yap_CharsToBuffer( t1 PASS_REGS);
   Term ctl = add_output(ARG2, ARG3);
 
   Int rc = Yap_UBufferToTerm(s, ctl);
@@ -2043,15 +2040,12 @@ static Int read_term_from_chars(USES_REGS1) {
  */
 static Int read_term_from_codes(USES_REGS1) {
   Term t1 = Deref(ARG1);
-  seq_tv_t inp;
-  inp.val.t = t1;
-  inp.type = YAP_STRING_ATOMS;
   BACKUP_H()
   if (IsVarTerm(t1)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
     return (FALSE);
   }
-  const unsigned char *s = Yap_ListOfCodesToBuffer(NULL, t1, &inp PASS_REGS);
+  const unsigned char *s = Yap_CodesToBuffer( t1 PASS_REGS);
   Term ctl = add_output(ARG2, ARG3);
 
   Int rc = Yap_UBufferToTerm(s, ctl);

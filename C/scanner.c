@@ -762,8 +762,8 @@ if (ch == EOFCHAR) {
     }
   }
     }
-  Yap_ThrowError(SYNTAX_ERROR, TermNil,"should just have a  number");
-  return 0;
+  Yap_encoding_error(ch,inp,tokptr,tokptr,"scanner does not see a number");
+  return TermNil;
 }
 
 #define CHECK_SPACE()                                                          \

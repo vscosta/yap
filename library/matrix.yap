@@ -22,7 +22,7 @@
  * @brief  Vector, Array and Matrix  library
  *
 
- 
+
  *
 */
 
@@ -107,7 +107,7 @@ is_matrix/1,
 
 :- multifile rhs_opaque/1, array_extension/2.
 
-/** 
+/**
 
 @defgroup YAPMatrix Matrix Operations in YAP.
 @ingroup YAPLibrary
@@ -123,11 +123,11 @@ is_matrix/1,
 Matrices are indexable objects formed with Prolog terms, or  opaque objects, or `malloc` chunk, or foreign objects.
 
  They are multimensional objects providing entries of type:
- + `terms</tt>: Prolog terms
- + `ints</tt>: bounded integers, represented as an opaque term. The
+ + `terms`: Prolog terms
+ + `ints`: bounded integers, represented as an opaque term. The
 maximum integer depends on hardware, but should be obtained from the
 natural size of the machine.
- + `floats</tt>: floating-point numbers, represented as an opaque term.
+ + `floats`: floating-point numbers, represented as an opaque term.
 
     Notice that the library does not support all known matrix operations. Please
 contact the YAP maintainers if you require extra functionality.
@@ -160,7 +160,7 @@ perform non-backtrackable assignment.
 
     - `Mat = matrix(Dims) of Offset^Goal`
 
-    - `Mat = matrix(Dims) of call(Goal)` 
+    - `Mat = matrix(Dims) of call(Goal)`
 
     - `Mat = vector(Dim,Opts)` same as `matrix([Dims], [])`
 
@@ -191,7 +191,7 @@ perform non-backtrackable assignment.
   YAP also supports foreign matrices.
 
 Matrix elements can be accessed through the matrix_get/2 predicate
-or through an `R</tt>-inspired access notation (that uses the ciao
+or through an `R`-inspired access notation (that uses the ciao
 style extension to `[]`). Examples include:
 
 
@@ -805,7 +805,7 @@ data(_Opts, fill, 0) :-
     !.
 
 filler_data(V, terms) :-
-var(V),	
+var(V),
     !.
 filler_data(Fill, Fill) :-
     number(Fill),

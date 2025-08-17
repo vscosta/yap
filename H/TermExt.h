@@ -96,6 +96,8 @@ INLINE_ONLY blob_type BlobOfFunctor(Functor f) {
 
 #ifdef COROUTINING
 
+/// Defines the operations that can be imokemented in 
+
 typedef struct {
   /* what to do when someone tries to bind our term to someone else
 hv     in some  predefined context */
@@ -118,7 +120,8 @@ typedef enum {
 } exts;
 
 #endif
-
+/// defines the tags for Prolog extensions:
+/// 
 #define CloseExtension(x) MkAtomTerm((Atom)(x))
 
 #define GetStartOfExtension(x) ((CELL*)AtomOfTerm(*x))

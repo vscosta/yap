@@ -3,7 +3,7 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Tue Nov 17 01:08:55 2015
  *
- * @brief Quintus extensions of arg/3.
+ * @brief Quintus extensions to arg/3.
 */
 
 :- module(arg,
@@ -19,10 +19,12 @@
 
 /**
  *
- * @defgroup GenArg Extend arg/3 with backtracking.
- * @brief arg/3 plus backtracking and paths.
+ * @defgroup GenArg Extending arg/3 with backtracking and paths
  * @ingroup YAPLibrary
  *
+ *  @brief These predicates, originally designed for Quintus Prolog, provide ore flexible versions of arg/3 including
+ *backtracking (genarg/3), argument counting from 0  (genarg0/3),
+ * and paths (path_arg/3). 
  *
  * @{
  *

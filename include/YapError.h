@@ -5,7 +5,7 @@
  *									 *
  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
  *									 *
- **************************************************************************
+ **************************************************************U************
  *									 *
  * File:		YapError.h * mods:
  ** comments:	error header file for YAP				 *
@@ -332,6 +332,6 @@ extern bool Yap_callable(YAP_Term t);
 
  extern char *Yap_syntax_error__(const char *file, const char *function,
                                  int lineno, YAP_Term t, int sno,
-                                 TokEntry *start, TokEntry *err, char *s, ...);
+                                 TokEntry *start, TokEntry *err, const char *s, ...);
 #endif
 /// @}

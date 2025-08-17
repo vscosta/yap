@@ -89,7 +89,7 @@ regardless of the cycle-length.
 %-----------------------------------------------------
 
 /**
-  * coinductive( +Spec )
+  * @pred coinductive( +Spec )
   *
   * declare a predicate or set of predicates to be coinductive (see @ref coinduction).
   *

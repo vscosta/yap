@@ -14,7 +14,7 @@
  *
  *   @defgroup FLI_YAP-cplus-db-interface Data-Base Component of YAP interface.
  *
- *   @ingroup FLI_YAP-cplus-interface
+ *   @ingroup FLI_YAP++
  * @{
  *
  *
