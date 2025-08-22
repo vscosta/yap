@@ -187,10 +187,13 @@ static void wrputn(Int n,
   protect_close_number(wglb, ob);
 }
 
-inline static void wrputs(char *s, StreamDesc *stream) {
-  int c;
-  while ((c = *s++))
-    wrputc(c, stream);
+inline static void wrputs(char *s0, StreamDesc *stream) {
+  int chr,c;
+  utf8proc_uint8_t *s = ( utf8proc_uint8_t *) s0;
+  while ((c = get_utf8(s, -1, &chr))>0 && chr) {
+    s += c;
+    wrputc(chr, stream);
+  }
 }
 
 #ifdef USE_GMP

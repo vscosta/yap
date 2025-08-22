@@ -484,8 +484,20 @@ q  Stream position at the stream currently being read in. For SWI
 
    The names of the variables in the term being processed, if any.
 */
+prolog_load_context(module, X) :-
+        current_source_module(Y,Y),
+        Y = X.
+prolog_load_context(variable_names, Term ) :-
+    (
+    b_getval('$current_clause', T),
+    nonvar(T)
+    ->
+    T = [_,Term|_]
+    ;
+    Term = []
+    ).
 prolog_load_context(Option,Result) :-
-      '__NB_getval__'('$consulting_file', [_|_], fail),
+%      '__NB_getval__'('$consulting_file', [_|_], fail),
       prolog_load_context_(Option,Result).
 
 prolog_load_context_(directory, DirName) :-
@@ -504,9 +516,6 @@ prolog_load_context_(source, SourceName) :-
     !.
 prolog_load_context_(source, user_input).
 
-prolog_load_context_(module, X) :-
-        current_source_module(Y,Y),
-        Y = X.
 prolog_load_context_(stream, Stream) :-
     stream_property(Stream, alias(loop_stream) ).
 prolog_load_context_(term, Term ) :-
@@ -515,15 +524,6 @@ prolog_load_context_(term, Term ) :-
     T = [Term|_].
 prolog_load_context_(term_position, Term ) :-
     stream_property( loop_stream, position(Term)).
-prolog_load_context_(variable_names, Term ) :-
-    (
-    b_getval('$current_clause', T),
-    nonvar(T)
-    ->
-    T = [_,Term|_]
-    ;
-    Term = []
-    ).
 
 % if the file exports a module, then we can
 % be imported from any module.

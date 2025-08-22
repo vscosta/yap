@@ -1965,7 +1965,7 @@ bool Yap_Reset(yap_reset_t mode, bool hard)
 
   Yap_ResetException(NULL);
   /* first, backtrack to the root */
-  while (B)
+  while (B && B->cp_b)
     {
       P = FAILCODE;
       int a = -1;

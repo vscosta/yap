@@ -381,7 +381,7 @@
       Reconsult0 = reconsult
     ),
     '__NB_getval__'('$consulting_file', Files, fail),
-    b_setval('$consulting_file',[File|Files]),
+    nb_setval('$consulting_file',[File|Files]),
     unload_file(File),
     '$lf_storefile'(File, UserFile, OuterModule, Reconsult0, Reconsult, TOpts, Opts),
    	'$start_consult'(Reconsult,File,Dir,Stream,LC),
@@ -417,7 +417,8 @@
        '$loop'(Stream,Reconsult)
  
    ),
-   ( LC == 0 -> prompt(_,'   |: ') ; true),
+  nb_setval('$consulting_file',Files),
+  ( LC == 0 -> prompt(_,'   |: ') ; true),
     current_source_module(OldM,_M0),
     % surely, we were in run mode or we would not have included the file!
     % back to include mode!

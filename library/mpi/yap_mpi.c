@@ -69,15 +69,14 @@ typedef struct broadcast_req BroadcastRequest;
 #endif
 
 #define BUF_INITIAL_SIZE 4096
-  
 
 /********************************************************************
  * Auxiliary data
  ********************************************************************/
 #ifdef USE_THREADS
-  static YAP_Bool mpi_status;
+static YAP_Bool mpi_status;
 #else
-  static YAP_Bool mpi_statuss[1024];
+static YAP_Bool mpi_statuss[1024];
 #define mpi_status (mpi_statuss[YAP_ThreadSelf()])
 #endif
 
@@ -106,24 +105,24 @@ static double total_time_spent;      // total time spend in communication code
 /* MSG ACCOUNTING */
 #define RESET_STATS()                                                          \
   {                                                                            \
-  total_time_spent = 0;                                                      \
-  bytes_sent = bytes_recv = num_msgs_recv = num_msgs_sent = max_s_recv_msg = \
-  max_s_sent_msg = 0;                                                    \
+    total_time_spent = 0;                                                      \
+    bytes_sent = bytes_recv = num_msgs_recv = num_msgs_sent = max_s_recv_msg = \
+        max_s_sent_msg = 0;                                                    \
   }
 
 #define MSG_SENT(size)                                                         \
   {                                                                            \
-  bytes_sent += size;                                                        \
-  ++num_msgs_sent;                                                           \
-  if (max_s_sent_msg < size)                                                 \
-  max_s_sent_msg = size;                                                   \
+    bytes_sent += size;                                                        \
+    ++num_msgs_sent;                                                           \
+    if (max_s_sent_msg < size)                                                 \
+      max_s_sent_msg = size;                                                   \
   }
 #define MSG_RECV(size)                                                         \
   {                                                                            \
-  bytes_recv += size;                                                        \
-  ++num_msgs_recv;                                                           \
-  if (max_s_recv_msg < size)                                                 \
-  max_s_recv_msg = size;                                                   \
+    bytes_recv += size;                                                        \
+    ++num_msgs_recv;                                                           \
+    if (max_s_recv_msg < size)                                                 \
+      max_s_recv_msg = size;                                                   \
   }
 
 #define MPITIME total_time_spent
@@ -133,22 +132,22 @@ static double total_time_spent;      // total time spend in communication code
   { tstart(); }
 #define PAUSE_TIMER()                                                          \
   {                                                                            \
-  tend();                                                                    \
-  total_time_spent += tval();                                                \
+    tend();                                                                    \
+    total_time_spent += tval();                                                \
   }
 
 #define return(p)                                                              \
   {                                                                            \
-  PAUSE_TIMER();                                                             \
-  return (p);                                                                \
+    PAUSE_TIMER();                                                             \
+    return (p);                                                                \
   }
 
 #if USE_THREADS
-  static struct timeval _tstarts[1024], _tends[1024];
+static struct timeval _tstarts[1024], _tends[1024];
 #define _tsart (_tstarts[YAP_ThreadSelf()])
 #define _tend (_tends[YAP_ThreadSelf()])
 #else
-  static struct timeval tstart_, _tend;
+static struct timeval tstart_, _tend;
 #endif
 #include <sys/fffffftffime.h>
 #include <sys/resource.h>
@@ -218,7 +217,8 @@ typedef struct req__ {
   bool export;
 } req_t;
 
-static inline YAP_UInt new_request(MPI_Request *handle, void *ptr, bool export) {
+static inline YAP_UInt new_request(MPI_Request *handle, void *ptr,
+                                   bool export) {
   struct req__ *r;
   r = malloc(sizeof *r);
   if (handle)
@@ -267,15 +267,14 @@ static YAP_Bool mpi_error(int errcode) {
  */
 static bool initialized = false;
 
-static YAP_Bool 
-mpi_init(void){
+static YAP_Bool mpi_init(void) {
   if (initialized)
     return true;
 #if USE_THREADS
   int thread_level;
-  char ** my_argv;
+  char **my_argv;
   int my_argc = YAP_Argv(&my_argv);
-   MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
+  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
 #else
   MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
 #endif
@@ -291,46 +290,46 @@ mpi_init(void){
 }
 
 #ifdef USE_THREADS
-  /*
-   * Sets up the mpi enviromment. This function should be called before any other
-   * MPI function. the argument is the name of the predicate that will be invoked
-   * when a message is received
-   */
-  static YAP_Bool rcv_msg_thread(char *handle_pred) {
-    YAP_Term pred = YAP_MkAtomTerm(YAP_LookupAtom(handle_pred));
-    MPI_Status status;
+/*
+ * Sets up the mpi enviromment. This function should be called before any other
+ * MPI function. the argument is the name of the predicate that will be invoked
+ * when a message is received
+ */
+static YAP_Bool rcv_msg_thread(char *handle_pred) {
+  YAP_Term pred = YAP_MkAtomTerm(YAP_LookupAtom(handle_pred));
+  MPI_Status status;
 
-    while (1) {
-      write_msg(__FUNCTION__, __FILE__, __LINE__, "Waiting for MPI msg\n");
-      if (MPI_CALL(MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD,
-                             &status)) == MPI_SUCCESS) {
-	// call handle
-	write_msg(__FUNCTION__, __FILE__, __LINE__, "MPI Msg received\n");
-	YAP_RunGoal(pred);
-      } else
-	write_msg(__FUNCTION__, __FILE__, __LINE__, "Error in MPI_Probe\n");
-    }
-    return 1;
+  while (1) {
+    write_msg(__FUNCTION__, __FILE__, __LINE__, "Waiting for MPI msg\n");
+    if (MPI_CALL(MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD,
+                           &status)) == MPI_SUCCESS) {
+      // call handle
+      write_msg(__FUNCTION__, __FILE__, __LINE__, "MPI Msg received\n");
+      YAP_RunGoal(pred);
+    } else
+      write_msg(__FUNCTION__, __FILE__, __LINE__, "Error in MPI_Probe\n");
   }
-  /*
-   *
-   */
-  static YAP_Bool mpi_init_rcv_thread(void) {
-    int thread_level;
-    //  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
-    pthread_t thread;
-    char *arg = "handle_msg";
+  return 1;
+}
+/*
+ *
+ */
+static YAP_Bool mpi_init_rcv_thread(void) {
+  int thread_level;
+  //  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
+  pthread_t thread;
+  char *arg = "handle_msg";
 
-    MPI_Init_thread(&GLOBAL_argc, &GLOBAL_argv, MPI_THREAD_SINGLE, &thread_level);
-    if (pthread_create(&thread, NULL, (void *)&rcv_msg_thread, arg)) {
-      return false;
-    }
-
-    pthread_detach(thread);
-    write_msg(__FUNCTION__, __FILE__, __LINE__, "Thread level: %d\n",
-              thread_level);
-    return true;
+  MPI_Init_thread(&GLOBAL_argc, &GLOBAL_argv, MPI_THREAD_SINGLE, &thread_level);
+  if (pthread_create(&thread, NULL, (void *)&rcv_msg_thread, arg)) {
+    return false;
   }
+
+  pthread_detach(thread);
+  write_msg(__FUNCTION__, __FILE__, __LINE__, "Thread level: %d\n",
+            thread_level);
+  return true;
+}
 #endif
 
 /*
@@ -575,7 +574,6 @@ static YAP_Bool mpi_irecv(void) {
   return YAP_Unify(YAP_ARG4, YAP_MkIntTerm(r));
 }
 
-
 /** @pred mpi_wait(? _Handle_)
  *
  *  Completes a non-blocking operation. IF the operation was a send, the
@@ -583,10 +581,10 @@ static YAP_Bool mpi_irecv(void) {
  * system. At this point the send buffer is released. If the operation
  * was a receive, it waits until the message is copied to the receive
  * buffer.
- * 
+ *
  */
 static YAP_Bool mpi_wait(void) {
-  YAP_Term t1 = YAP_Deref(YAP_ARG1);  // handle
+  YAP_Term t1 = YAP_Deref(YAP_ARG1); // handle
   MPI_Status status;
   MPI_Request *handle;
   // The first argument  must be an integer (an handle)
@@ -614,7 +612,7 @@ static YAP_Bool mpi_wait(void) {
  * ).
  */
 static YAP_Bool mpi_test(void) {
-  YAP_Term t1 = YAP_Deref(YAP_ARG1);      // Status
+  YAP_Term t1 = YAP_Deref(YAP_ARG1); // Status
   MPI_Request *handle;
   MPI_Status status;
   int flag;
@@ -713,9 +711,9 @@ static YAP_Bool mpi_test_recv(void) {
 }
 
 /**
-* @pred mpi_barrier
-*
-* Collective communication function that performs a barrier synchronization
+ * @pred mpi_barrier
+ *
+ * Collective communication function that performs a barrier synchronization
  * among all processes. mpi_barrier
  */
 static YAP_Bool mpi_barrier(void) {
@@ -731,9 +729,8 @@ static YAP_Bool mpi_barrier(void) {
 to all other processes.
 */
 static YAP_Bool mpi_bcast(void) {
-  YAP_Term t1 = YAP_Deref(YAP_ARG1),
- t2 = YAP_Deref(YAP_ARG2) ,
- t3 = YAP_Deref(YAP_ARG3);
+  YAP_Term t1 = YAP_Deref(YAP_ARG1), t2 = YAP_Deref(YAP_ARG2),
+           t3 = YAP_Deref(YAP_ARG3);
   char *str = NULL;
   size_t len;
   int val;
@@ -751,12 +748,12 @@ static YAP_Bool mpi_bcast(void) {
     str = term2string(t2);
     len = strlen(str) + 1;
   } else {
-  if (YAP_IsVarTerm(t2)) {
-    len =BUF_INITIAL_SIZE;
-  } else {
-    len = YAP_IntOfTerm(t2);
-  }
-  str = malloc(len);
+    if (YAP_IsVarTerm(t2)) {
+      len = BUF_INITIAL_SIZE;
+    } else {
+      len = YAP_IntOfTerm(t2);
+    }
+    str = malloc(len);
   }
 #if defined(MPI_DEBUG)
   write_msg(__FUNCTION__, __FILE__, __LINE__, "%s(%s,%u, MPI_CHAR,%d,%d)\n",
@@ -769,18 +766,19 @@ static YAP_Bool mpi_bcast(void) {
     len = strlen(str) + 1;
   } else {
     if (YAP_IsVarTerm(t2)) {
-    len =BUF_INITIAL_SIZE;
-  } else {
-    len = YAP_IntOfTerm(t2);
-  }
-  str = malloc(len);
+      len = BUF_INITIAL_SIZE;
+    } else {
+      len = YAP_IntOfTerm(t2);
+    }
+    str = malloc(len);
   }
   val = (MPI_CALL(MPI_Bcast(str, len, MPI_CHAR, root, MPI_COMM_WORLD)) ==
                  MPI_SUCCESS
              ? true
-         : false);
-  if (!val) return false;
-  if ( rank!= root) {
+             : false);
+  if (!val)
+    return false;
+  if (rank != root) {
     Term out = string2term(str, (size_t *)&len);
     // make sure we only fetch ARG3 after constructing the term
     free(str);
@@ -791,20 +789,18 @@ static YAP_Bool mpi_bcast(void) {
   return (val);
 }
 
+/** @pred mpi_ibcast(+ _Root_, + _Data_, + _Tag_)
 
-                    /** @pred mpi_ibcast(+ _Root_, + _Data_, + _Tag_)
-                       
-                       
-                       
-                         Non-blocking operation. Broadcasts the message  _Data_
-                         from the process with rank  _Root_ to all other processes.
-                       
-                       
-                         */
+
+
+     Non-blocking operation. Broadcasts the message  _Data_
+     from the process with rank  _Root_ to all other processes.
+
+
+     */
 static YAP_Bool mpi_ibcast(void) {
-  YAP_Term t1 = YAP_Deref(YAP_ARG1),
- t3 = YAP_Deref(YAP_ARG3),
- t2 = YAP_Deref(YAP_ARG2);
+  YAP_Term t1 = YAP_Deref(YAP_ARG1), t3 = YAP_Deref(YAP_ARG3),
+           t2 = YAP_Deref(YAP_ARG2);
   size_t len;
   int root;
   char *str;
@@ -824,16 +820,16 @@ static YAP_Bool mpi_ibcast(void) {
     str = term2string(t3);
     len = strlen(str) + 1;
   } else {
-  if (YAP_IsVarTerm(t2)) {
-    len =BUF_INITIAL_SIZE;
-  } else {
-    len = YAP_IntOfTerm(t2);
-  }
-  str = malloc(len);
+    if (YAP_IsVarTerm(t2)) {
+      len = BUF_INITIAL_SIZE;
+    } else {
+      len = YAP_IntOfTerm(t2);
+    }
+    str = malloc(len);
   }
   YAP_UInt r = new_request(NULL, str, false);
   if (MPI_CALL(MPI_Ibcast(str, len, MPI_CHAR, root, MPI_COMM_WORLD,
-                         get_request(r))) != MPI_SUCCESS) {
+                          get_request(r))) != MPI_SUCCESS) {
     PAUSE_TIMER();
     return false;
   }
@@ -847,8 +843,7 @@ static YAP_Bool mpi_ibcast(void) {
   // used and should not be messed
   //  We must associate the string to each handle
   PAUSE_TIMER();
-  return (YAP_Unify(YAP_ARG4 , YAP_MkIntTerm(r)));
-
+  return (YAP_Unify(YAP_ARG4, YAP_MkIntTerm(r)));
 }
 /*******************************************
  * Buffer Allocation */
@@ -872,7 +867,7 @@ static YAP_Bool mpi_default_buffer_size(void) {
  *
  */
 static YAP_Bool mpi_buffer_size(void) {
-   char *str = term2string (YAP_ARG1);
+  char *str = term2string(YAP_ARG1);
   size_t len = strlen(str) + 1;
 
   return YAP_Unify(YAP_ARG2, YAP_MkIntTerm(len));
@@ -880,7 +875,8 @@ static YAP_Bool mpi_buffer_size(void) {
 
 static YAP_Bool mpi_stop(void) {
   volatile bool stop = true;
-  while (stop);
+  while (stop)
+    ;
   return true;
 }
 
@@ -890,10 +886,10 @@ static YAP_Bool mpi_stop(void) {
 X_API void init_mpi(void) {
   YAP_SetYAPFlag(YAP_MkAtomTerm(YAP_LookupAtom("readline")),
                  YAP_MkAtomTerm(YAP_LookupAtom("false")));
-  YAP_UserCPredicate("mpi_init", mpi_init, 0); // mpi_init/0
-  YAP_UserCPredicate("mpi_finalize", mpi_finalize, 0); // mpi_init/0
-  YAP_UserCPredicate("mpi_stop", mpi_stop, 0); // mpi_init/0
-  YAP_UserCPredicate("mpi_version", mpi_version, 2); // mpi_init/0
+  YAP_UserCPredicate("mpi_init", mpi_init, 0);           // mpi_init/0
+  YAP_UserCPredicate("mpi_finalize", mpi_finalize, 0);   // mpi_init/0
+  YAP_UserCPredicate("mpi_stop", mpi_stop, 0);           // mpi_init/0
+  YAP_UserCPredicate("mpi_version", mpi_version, 2);     // mpi_init/0
   YAP_UserCPredicate("mpi_comm_rank", mpi_comm_rank, 1); // mpi_init/0
   YAP_UserCPredicate("mpi_comm_size", mpi_comm_size, 1); // mpi_init/0
 #ifdef USE_THREADS
@@ -901,19 +897,22 @@ X_API void init_mpi(void) {
                      1); // mpi_init_rcv_thread(+Handle, 4)t;
 #endif
   YAP_UserCPredicate("mpi_send", mpi_send, 3); // mpi_recv(?Source,?Tag,-Data).
-  YAP_UserCPredicate("mpi_isend", mpi_isend, 4); // mpi_recv(?Source,?Tag,-Data).
-  YAP_UserCPredicate("mpi_get_processor_name", mpi_get_processor_name, 1); // mpi_recv(?Source,?Tag,-Data).
+  YAP_UserCPredicate("mpi_isend", mpi_isend,
+                     4); // mpi_recv(?Source,?Tag,-Data).
+  YAP_UserCPredicate("mpi_get_processor_name", mpi_get_processor_name,
+                     1);                       // mpi_recv(?Source,?Tag,-Data).
   YAP_UserCPredicate("mpi_recv", mpi_recv, 3); // mpi_recv(?Source,?Tag,-Data).
   YAP_UserCPredicate("mpi_irecv", mpi_irecv,
                      4); // mpi_irecv(?Source,?Tag,-Handle).
-  YAP_UserCPredicate("mpi_wait", mpi_wait, 1);// mpi_wait(+Handle).
+  YAP_UserCPredicate("mpi_wait", mpi_wait, 1); // mpi_wait(+Handle).
   YAP_UserCPredicate("mpi_wait", mpi_wait_recv,
-                     2); // mpi_wait_recv(+Handle,-Data).
+                     2);                       // mpi_wait_recv(+Handle,-Data).
   YAP_UserCPredicate("mpi_test", mpi_test, 1); // mpi_test(+Handle).
   YAP_UserCPredicate("mpi_test", mpi_test_recv,
-                     2); // mpi_test(+Handle,-Data).
-  YAP_UserCPredicate("mpi_bcast", mpi_bcast, 3);  // mpi_bcast(Root,Term)
-  YAP_UserCPredicate("mpi_ibcast", mpi_ibcast, 4); // mpi_bcast3(Root,Term,Handle)
+                     2);                         // mpi_test(+Handle,-Data).
+  YAP_UserCPredicate("mpi_bcast", mpi_bcast, 3); // mpi_bcast(Root,Term)
+  YAP_UserCPredicate("mpi_ibcast", mpi_ibcast,
+                     4); // mpi_bcast3(Root,Term,Handle)
   YAP_UserCPredicate("mpi_barrier", mpi_barrier, 0); // mpi_barrier/0
   YAP_UserCPredicate("mpi_default_buffer_size", mpi_default_buffer_size,
                      1); // buffer size
