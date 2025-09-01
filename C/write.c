@@ -114,8 +114,8 @@ static bool callPortray(Term t, int sno USES_REGS) {
 
 
 static void wrputn(Int, struct write_globs *);
-static void wrputf(Float, struct write_globs *);
-static void wrputref(void *, int, struct write_globs *);
+static void wrputf(Float, struct write_globs * USES_REGS);
+static void wrputref(void *, int, struct write_globs * USES_REGS);
 static int legalAtom(unsigned char *);
 /*static int LeftOpToProtect(Atom, int);
   static int RightOpToProtect(Atom, int);*/
@@ -187,7 +187,9 @@ static void wrputn(Int n,
   protect_close_number(wglb, ob);
 }
 
-inline static void wrputs(char *s0, StreamDesc *stream) {
+#define wrputs(s0  , stream ) wrputs__(s0, stream PASS_REGS)
+
+inline static void wrputs__(char *s0, StreamDesc *stream USES_REGS) {
   int chr,c;
   utf8proc_uint8_t *s = ( utf8proc_uint8_t *) s0;
   while ((c = get_utf8(s, -1, &chr))>0 && chr) {
@@ -236,7 +238,7 @@ static char *ensure_space(size_t sz) {
   return s;
 }
 
-static void write_mpint(MP_INT *big, struct write_globs *wglb) {
+static void write_mpint(MP_INT *big, struct write_globs *wglb USES_REGS) {
   char *s;
   int has_minus = mpz_sgn(big);
   int ob;
@@ -259,7 +261,7 @@ static void write_mpint(MP_INT *big, struct write_globs *wglb) {
 
 /* writes a bignum	 */
 static void write_opaque(Term t,                                                                                                         
-                     struct write_globs *wglb) {
+                     struct write_globs *wglb USES_REGS) {
   CELL *pt = RepAppl(t) + 1;
   CELL big_tag = pt[0];
 
@@ -287,20 +289,20 @@ static void write_opaque(Term t,
   else
     wrputn(blob_info, wglb);
   wrputs("@", wglb->stream);
-  wrputref(pt, false, wglb);
+  wrputref(pt, false, wglb PASS_REGS);
   wrputs("__", wglb->stream);
 }
 
 /* writes a bignum	 */
 static void writebig(Term t, int p, int depth, int rinfixarg,
-                     struct write_globs *wglb) {
+                     struct write_globs *wglb USES_REGS) {
   CELL *pt = RepAppl(t) + 1;
   CELL big_tag = pt[0];
 
 #ifdef USE_GMP
    if (big_tag == BIG_INT) {
     MP_INT *big = Yap_BigIntOfTerm(t);
-    write_mpint(big, wglb);
+    write_mpint(big, wglb PASS_REGS);
     return;
   } else if (big_tag == BIG_RATIONAL) {
     Term trat = Yap_RatTermToApplTerm(t);
@@ -310,7 +312,7 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
 #endif
 }
 
-static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
+static void wrputf(Float f, struct write_globs *wglb USES_REGS) /* writes a float	 */
 
 {
   char s[256];
@@ -398,14 +400,14 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
     return false;
   wglb.lw = separator;
   wglb.stream = GLOBAL_Stream + sno;
-  wrputf(f, &wglb);
+  wrputf(f, &wglb PASS_REGS);
   *s = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return true;
 }
 
 /* writes a data base reference */
-static void wrputref(void *ref, int Quote_illegal, struct write_globs *wglb) {
+static void wrputref(void *ref, int Quote_illegal, struct write_globs *wglb USES_REGS) {
   char s[256];
   wrf stream = wglb->stream;
 
@@ -843,23 +845,23 @@ static void writeTerm(Term t, int p, int depth , int rinfixarg,
     if (IsExtensionFunctor(functor)) {
       switch ((CELL)functor) {
       case (CELL)FunctorDouble:
-        wrputf(FloatOfTerm(t), wglb);
+        wrputf(FloatOfTerm(t), wglb PASS_REGS);
         return;
       case (CELL)FunctorString:
         write_string(UStringOfTerm(t), wglb);
         return;
       case (CELL)FunctorDBRef:
-        wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb);
+        wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb PASS_REGS);
         return;
       case (CELL)FunctorLongInt:
         wrputn(LongIntOfTerm(t), wglb);
         return;
       case (CELL)FunctorBlob:
-        write_opaque(t, wglb);
+        write_opaque(t, wglb PASS_REGS);
         return;
         case (CELL)FunctorBigInt:
       default:
-        writebig(t, p, depth, rinfixarg, wglb);
+        writebig(t, p, depth, rinfixarg, wglb PASS_REGS);
         return;
       }
     }
