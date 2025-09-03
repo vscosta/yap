@@ -166,7 +166,7 @@ static bool load_file(const char *b_file USES_REGS) {
 
   /* consult in C */
   int lvl = push_text_stack();
-  
+
   char *full = Malloc(MAX_PATH);
   char *dir = Malloc(MAX_PATH);
   /* the consult mode does not matter here, really */
@@ -189,7 +189,7 @@ static bool load_file(const char *b_file USES_REGS) {
   while (t != TermEof) {
     sigjmp_buf e;
     LOCAL_RestartEnv = &e;
-    
+
     if (sigsetjmp(e,0) == 0) {
     CACHE_REGS
           YAP_Reset(YAP_FULL_RESET, false);
@@ -230,7 +230,7 @@ static bool load_file(const char *b_file USES_REGS) {
       } else {
 	YAP_RunGoalOnce(t);
       }
-      
+
     } else {
       YAP_CompileClause(t);
     }
@@ -274,7 +274,7 @@ static bool is_dir( const char *path) {
     strcmp(info,s) == 0 ||
     Yap_isDirectory( s );*/
   }
-																			       
+
 static bool is_file( const char *path) {
   if (is_install)
     return true;
@@ -282,10 +282,10 @@ static bool is_file( const char *path) {
     return false;
   return Yap_Exists( path );
 }
-																			       
+
 static bool is_wfile( const char *path) {
 
-  	       
+
   if (!path)
     return false;
 
@@ -397,7 +397,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
 		    getenv("YAPBINDIR"),
 		    path_binary_dir,
 		    join(Yap_ROOTDIR, "bin"),
-		    
+
 #if !defined(__ANDROID__)
 		    join(getenv("DESTDIR"), YAP_BINDIR),
 #endif
@@ -423,7 +423,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
 
   /// INCLUDEDIR: where the OS stores header files, namely libYap...
   Yap_INCLUDEDIR = sel(is_dir,
-		       
+
 		       iap->INCLUDEDIR,
 		       join(Yap_ROOTDIR, "include"),
 #if !defined(__ANDROID__)
@@ -615,21 +615,21 @@ static int dump_runtime_variables(void) {
 X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
 				       char *argv[]) {
   CACHE_REGS
-  
+
 //#ifdef THREADS
 //  REMOTE(0) = calloc(1, sizeof(struct worker_local));
-//    
+//
 //  REGSTORE *rs = (REGSTORE *)calloc(sizeof(REGSTORE), 1);
 //  pthread_key_create(&Yap_yaamregs_key, NULL);
 //  pthread_setspecific(Yap_yaamregs_key, (const void *)rs);
 //  REMOTE_ThreadHandle(0).default_yaam_regs = rs;
 //  REMOTE_ThreadHandle(0).current_yaam_regs = rs;
 //  rs->worker_id_ = 0;
-//  rs->worker_local_ = REMOTE(0);  
+//  rs->worker_local_ = REMOTE(0);
 //  REFRESH_CACHE_REGS
-//    //LOCAL = REMOTE(0);    
+//    //LOCAL = REMOTE(0);
 //#endif
-//    
+//
  if (
      #if THREADS
 REMOTE(0) &&
@@ -1188,7 +1188,7 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
   // if (yap_init->assetManager)
 //Yap_InitAssetManager();
 #endif
-     
+
 GLOBAL_VFS = NULL;
  bool try_restore = yap_init->boot_file_type == YAP_QLY;
   bool do_bootstrap = yap_init->boot_file_type == YAP_PL ||
@@ -1226,7 +1226,7 @@ GLOBAL_VFS = NULL;
   /* tell the system who should cope with interrupts */
   Yap_ExecutionMode = yap_init->ExecutionMode;
   Yap_set_locations(yap_init);
-  Yap_SetGlobalVal(AtomConsultingFile,TermNil);
+  Yap_SetBacktrackableGlobalVal(AtomConsultingFile,TermNil PASS_REGS);
   if (Yap_INPUT_STARTUP==NULL)
     try_restore = false;
   if (do_bootstrap || !try_restore ||

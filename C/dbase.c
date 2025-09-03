@@ -5046,6 +5046,7 @@ bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
    
 static  QueueEntry *queue_fetch(  QueueEntry *prev, Term *t, bool first USES_REGS ) {
   tr_fr_ptr oldTR = TR;
+  HB = HR;
   if (!prev)
     return NULL;
    while ((prev)->next) {
@@ -5056,6 +5057,7 @@ static  QueueEntry *queue_fetch(  QueueEntry *prev, Term *t, bool first USES_REG
 	/* normal variable */
 	RESET_VARIABLE(d1);
       }
+      HB = B->cp_h;
      if (LOCAL_Error_TYPE) 
        return NULL;
      if (matches)

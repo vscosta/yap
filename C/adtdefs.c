@@ -754,8 +754,8 @@ lookup atom in atom table */
     p->beamTable = NULL;
 #endif
     /* careful that they don't cross MkFunctor */
-    p->NextOfPE = AbsPredProp(LOCAL_ThreadHandle.local_preds);
-    LOCAL_ThreadHandle.local_preds = p;
+    p->NextOfPE = (LOCAL_ThreadHandle.local_preds);
+    LOCAL_ThreadHandle.local_preds =   AbsPredProp(p);
     p->FunctorOfPred = ap->FunctorOfPred;
     Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred) + 1, p,
 				  GPROF_NEW_PRED_THREAD);

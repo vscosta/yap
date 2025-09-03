@@ -484,13 +484,8 @@ if (WITH_CUDD)
         find_package (CUDD)
     endif()
 
-    if (CUDD_FOUND)
-        add_subDIRECTORY(packages/bdd)
-
-    endif()
 
 endif()
-
 
 set(pl_library "" CACHE INTERNAL "prolog library files")
 set(pl_os_library "" CACHE INTERNAL "prolog os files")
@@ -704,6 +699,9 @@ endif()
 
 add_subDIRECTORY( packages/myddas )
 add_subDIRECTORY( packages/clpqr )
+
+
+add_subDIRECTORY(packages/bdd)
 
 
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)

@@ -329,7 +329,7 @@ static inline unsigned char *Yap_CharsToBuffer(Term t0 USES_REGS)
       }
       int ch;
       while (( ch = *chbuf++)) {
-          *pt+=ch;
+          *pt++ =ch;
       }
             t = TailOfTerm(t);
   }

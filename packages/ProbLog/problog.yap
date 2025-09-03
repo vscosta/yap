@@ -833,7 +833,6 @@ The possible values for this flag are any number greater than zero.
 :- multifile myclause/1.
 
 % problog related modules
-:- current_source_module(M,M), writeln(pppppppppppppppppppppp:M).
 :- include(problog_lbdd).
 :- reexport('problog/pbmath').
 :- use_module('problog/lbdd').

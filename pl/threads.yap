@@ -1167,15 +1167,16 @@ thread_get_message(Queue, Term) :-
 '$mbox_get_message'(Queue, Term) :-
     '$message_queue_receive'(Queue, Term),
     (
-      Term = _Term0 % always succeeds
+      Term = Any % always succeeds
       ->
       !
       ;
-      '$message_queue_send'(Queue, Term),
+      '$message_queue_send'(Queue, Any),
       fail
+      ;
+    '$mbox_get_message'(Queue, Term)      
       ).
-'$mbox_get_message'(Queue, Term) :-
-    '$mbox_get_message'(Queue, Term).
+
 
 '$mbox_id'(Queue, Id) :-
     recorded('$thread_alias',[Id|Queue],_R),

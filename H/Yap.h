@@ -664,7 +664,7 @@ typedef struct thandle {
   int ret;
   REGSTORE *default_yaam_regs;
   REGSTORE *current_yaam_regs;
-  struct pred_entry *local_preds;
+  Prop local_preds;
   pthread_t pthread_handle;
   pthread_barrier_t pthread_barrier;
   mbox_t mbox_handle;

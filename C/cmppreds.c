@@ -503,19 +503,18 @@ Int Yap_compare_terms(Term d0, Term d1) {
 /** @infixpred  X \== Y is iso
 Terms  _X_ and  _Y_ are not strictly identical.
 */
-static Int a_noteq(Term t1, Term t2) { return (compare(t1, t2) != 0); }
+static Int a_noteq(Term t1, Term t2) { return (compare(Deref(t1), Deref(t2)) != 0); }
 
 /** @infixpred   X @lt Y is iso
 Term  _X_ is before _Y_ in the standard order.
 
-*/
-static Int a_gen_lt(Term t1, Term t2) { return (compare(t1, t2) < 0); }
+*/ static Int a_gen_lt(Term t1, Term t2) { return (compare(Deref(t1), Deref(t2)) < 0); }
 
 /** @infixpred   X =&lt; Y is iso
 Term  _X_ is before term  _Y_ in the standard order, or they are the same term.
 
 */
-static Int a_gen_le(Term t1, Term t2) { return (compare(t1, t2) <= 0); }
+static Int a_gen_le(Term t1, Term t2) { return (compare(Deref(t1), Deref(t2)) <= 0); }
 
 /**
    @infixpred X @> Y  is iso
@@ -523,13 +522,13 @@ static Int a_gen_le(Term t1, Term t2) { return (compare(t1, t2) <= 0); }
 
 Term  _X_ is after term  _Y_ in the standard order
 */
-static Int a_gen_gt(Term t1, Term t2) { return compare(t1, t2) > 0; }
+static Int a_gen_gt(Term t1, Term t2) { return compare(Deref(t1), Deref(t2)) > 0; }
 
 /** @infixpred X @>= Y is iso
 
 Term  _X_ is after term  _Y_ in the standard order, or they are the same term.
 */
-static Int a_gen_ge(Term t1, Term t2) { return compare(t1, t2) >= 0; }
+static Int a_gen_ge(Term t1, Term t2) { return compare(Deref(t1), Deref(t2)) >= 0; }
 
 
 /** @pred  compare( _C_, _X_, _Y_) is iso

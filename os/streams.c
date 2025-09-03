@@ -1072,6 +1072,10 @@ static void CloseStream(int sno) {
   // fprintf( stderr, "- %d\n",sno);
   if (sno < 3 ||  GLOBAL_Stream[sno].status & Free_Stream_f)
     return;
+  if (GLOBAL_Stream[sno].file &&
+      (GLOBAL_Stream[sno].status & (Append_Stream_f|Output_Stream_f))) {
+    fflush(GLOBAL_Stream[sno].file);
+  }
   if ((me = GLOBAL_Stream[sno].vfs) != NULL &&
       GLOBAL_Stream[sno].file == NULL) {
     if (me->close) {

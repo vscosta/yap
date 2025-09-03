@@ -6,7 +6,7 @@
 //  - they must be defined somewhere
 //  - they have an #ifdef to get a shorter name
 //  - they must be initialised somewhere
-//  - they may be of interest to restore
+//  - they may be of interest to restore~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
 // The defs include 3+ components:
 //   Type

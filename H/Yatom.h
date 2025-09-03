@@ -1317,7 +1317,7 @@ INLINE_ONLY struct pred_entry *
 Yap_GetThreadPred(struct pred_entry *ap USES_REGS) {
   Functor f = ap->FunctorOfPred;
   Term mod = ap->ModuleOfPred;
-  Prop p0 = AbsPredProp(LOCAL_ThreadHandle.local_preds);
+  Prop p0 = LOCAL_ThreadHandle.local_preds;
 
   while (p0) {
     PredEntry *ap = RepPredProp(p0);

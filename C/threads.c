@@ -150,27 +150,32 @@ mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
   return true;
 }
 
-static bool
-mboxDestroy( mbox_t *mboxp USES_REGS )
+static void mboxDoDestroy( mbox_t *mboxp USES_REGS )
 {
   pthread_mutex_t *mutexp = &mboxp->mutex;
   pthread_cond_t *emptyp = &mboxp->empty;
   pthread_cond_t *fullpp = &mboxp->full;
   struct idb_queue *msgsp = &mboxp->msgs;
-  pthread_mutex_lock(mutexp);
-  if (mboxp->nclients == 0 ) {
-    pthread_cond_destroy(emptyp);
-    pthread_cond_destroy(fullpp);
-    pthread_mutex_destroy(mutexp);
-    Yap_destroy_tqueue(msgsp PASS_REGS);
-    // at this point, there is nothing left to unlock!
-    return true;
+  pthread_cond_destroy(emptyp);
+  pthread_cond_destroy(fullpp);
+  pthread_mutex_destroy(mutexp);
+  Yap_destroy_tqueue(msgsp PASS_REGS);
+  Yap_FreeCodeSpace( (char *)mboxp );
+}
+
+static bool
+ mboxDestroy( mbox_t *mboxp USES_REGS )
+{
+pthread_mutex_t *mutexp = &mboxp->mutex;
+ pthread_mutex_lock(mutexp);
+ mboxp->open = false;
+  if (mboxp->nclients==0 && mboxp->nmsgs==0) {
+    mboxDoDestroy(mboxp PASS_REGS);
   } else {
-    /* we have clients in the mailbox, try to wake them up one by one */
-    pthread_cond_broadcast(emptyp);
     pthread_mutex_unlock(mutexp);
-    return true;
-   }
+  }
+  // at this point, there is nothing left to unlock!
+  return true;
 }
 
 static bool
@@ -185,27 +190,22 @@ mboxSend( mbox_t *mboxp, Term t USES_REGS )
   //    fprintf(stderr,"[%d] QUEUE %d %lld: MULOCK(%p)  ",  Yap_ThreadID(), mboxp->nclients, __LINE__,(mutexp));   Yap_DebugPlWriteln(ARG2);
 
   //  {  extern long long vsc_count;   fprintf(stderr, "[%d]%lld -: (%p)\n", worker_id, __LINE__, mutexp); vsc_count++;}
-  if (!mboxp->open) {
-    // oops, dead mailbox
-	mboxDestroy(mboxp PASS_REGS);
-	return false;
-  }
+      if (!mboxp->open && mboxp->nmsgs==0 && mboxp->nclients==0) {
+	mboxDoDestroy(mboxp PASS_REGS);
+        return false;
+      }
   if (mboxp->nmsgs == mboxp->max){
     // fprintf(stderr,"[%d] %s:%d: WAIT(%p)  ",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
     mboxp->nclients++;
       pthread_cond_wait(fullp, mutexp);
       mboxp-> nclients--;
-      if (!mboxp->open) {
-	mboxDestroy(mboxp PASS_REGS);
-        return false;
-      }
   }
   //Yap_DebugPlWriteln(t);
   Yap_enqueue_tqueue(msgsp, Deref(t) PASS_REGS);
 
 
   mboxp->nmsgs++;
-  pthread_cond_signal(emptyp);
+  pthread_cond_broadcast(emptyp);
   pthread_mutex_unlock(mutexp);
 
 
@@ -217,17 +217,17 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
 
   pthread_cond_t *emptyp = &mboxp->empty;
   struct idb_queue *msgsp = &mboxp->msgs;
+  //  fprintf(stderr," ? %d\n" ,  Yap_ThreadID() )
+  //                  fprintf(stderr,  "[%d] %d REC: MULOCK(%p) %s ", Yap_ThreadID(), mboxp->nclients,mutexp,__FUNCTION__, __LINE__);  Yap_DebugPlWriteln(ARG2);
 
-    pthread_mutex_lock(mutexp);
+  pthread_mutex_lock(mutexp);
     while (true) {
-      //            fprintf(stderr,  "[%d] %d REC: MULOCK(%p) %s ", Yap_ThreadID(), mboxp->nclients,mutexp,__FUNCTION__, __LINE__);  Yap_DebugPlWriteln(ARG2);
-     if (Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
-      mboxp->nmsgs--;
-      if (!mboxp->open){
-	mboxDestroy(mboxp PASS_REGS);
-	return true;
+      if (!mboxp->open && mboxp->nmsgs == 0 && mboxp->nclients==0){
+	mboxDoDestroy(mboxp PASS_REGS);
+	return false;
       }
-
+     if (Yap_dequeue_tqueue(msgsp, &t, false, true PASS_REGS)) {
+       mboxp->nmsgs--;
       
       if (mboxp->nmsgs+1 == mboxp->max) {
 	pthread_cond_signal(&mboxp->full);
@@ -236,9 +236,8 @@ static bool mboxReceive(mbox_t *mboxp, Term t USES_REGS) {
       return true;
      }
      //      fprintf(stderr, "[%d] %d GOT IT: MULOCK(%p) %s ", Yap_ThreadID(), mboxp->nclients,mutexp,__FUNCTION__, __LINE__);  Yap_DebugPlWriteln(ARG2 );
-      mboxp->nclients++;
-      pthread_cond_signal(emptyp);
-   pthread_cond_wait(emptyp, mutexp);
+     mboxp->nclients++;
+     pthread_cond_wait(emptyp, mutexp);
       mboxp->nclients--;
 
     }
@@ -254,9 +253,17 @@ static bool
   // fprintf(stderr,"[%d] %s:%d: MULOCK(%p)\n",  Yap_ThreadID(), __FILE__, __LINE__,(mutexp));
    pthread_mutex_lock(mutexp);
   struct idb_queue *msgsp = &mboxp->msgs;
-  bool rc = Yap_dequeue_vqueue(msgsp, &t, false PASS_REGS);
+      //            fprintf(stderr,  "[%d] %d REC: MULOCK(%p) %s ", Yap_ThreadID(), mboxp->nclients,mutexp,__FUNCTION__, __LINE__);  Yap_DebugPlWriteln(ARG2);
+      if (!mboxp->open && mboxp->nmsgs == 0 && mboxp->nclients==0){
+	mboxDoDestroy(mboxp PASS_REGS);
+	return false;
+      }
+     if (Yap_dequeue_tqueue(msgsp, &t, false, false PASS_REGS)) {
+      pthread_mutex_unlock(mutexp);
+      return true;
+     }
    pthread_mutex_unlock(mutexp);
-  return rc;
+  return false;
 }
 
 static int
@@ -288,7 +295,7 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, 
   if (!(REMOTE_ThreadHandle(new_worker_id).stack_address = malloc(pm))) {
     return FALSE;
   }
-  REMOTE_ThreadHandle(new_worker_id).tgoal = tgoal;
+  REMOTE_ThreadHandle(new_worker_id).tgoal = (tgoal);
       
   if (CurrentModule) {
     REMOTE_ThreadHandle(new_worker_id).cmod =
@@ -329,17 +336,18 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term tgoal, 
 static void
 kill_thread_engine (int wid, int always_die)
 {
-  Prop p0 = AbsPredProp(REMOTE_ThreadHandle(wid).local_preds);
+  Prop p0 =  REMOTE_ThreadHandle(wid).local_preds;
   Prop gl = REMOTE_ThreadHandle(wid).ge;
 
   REMOTE_ThreadHandle(wid).local_preds = NIL;
   REMOTE_ThreadHandle(wid).ge = NIL;
   /* kill all thread local preds */
   while(p0) {
-    PredEntry *ap = RepPredProp(p0);
-    p0 = ap->NextOfPE;
+    Prop p = p0->NextOfPE;
+    PredEntry *ap = RepPredProp(p);
     Yap_Abolish(ap);
     Yap_FreeCodeSpace((char *)ap);
+    p0 = p;
   }
   while (gl) {
     GlobalEntry *gb = RepGlobalProp(gl);
@@ -1332,7 +1340,6 @@ p_mbox_destroy( USES_REGS1 )
   }
   UNLOCK(GLOBAL_mboxq_lock);
   mboxDestroy(mboxp PASS_REGS);
-  Yap_FreeCodeSpace( (char *)mboxp );
    return TRUE;
  }
 
