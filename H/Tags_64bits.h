@@ -167,10 +167,8 @@ AdjustPtr (Term t, Term off)
 
 
 
-INLINE_ONLY Term AdjustIDBPtr (Term t, Term off);
-
 INLINE_ONLY Term
-AdjustIDBPtr (Term t, Term off)
+AdjustIDBPtr (Term t, ssize_t off)
 {
   return (Term) ((t) + off);
 }

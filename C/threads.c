@@ -258,7 +258,7 @@ static bool
 	mboxDoDestroy(mboxp PASS_REGS);
 	return false;
       }
-     if (Yap_dequeue_tqueue(msgsp, &t, false, false PASS_REGS)) {
+      if (Yap_dequeue_tqueue(msgsp, &t, false, false PASS_REGS)) {
       pthread_mutex_unlock(mutexp);
       return true;
      }
@@ -1307,7 +1307,8 @@ typedef struct {
        mboxp->next = GLOBAL_named_mboxes;
        GLOBAL_named_mboxes = mboxp;
        UNLOCK(GLOBAL_mboxq_lock);
- }
+   } else
+     return false;
     return rc;
 }
 
@@ -1363,7 +1364,11 @@ p_mbox_destroy( USES_REGS1 )
    } else if (IsIntTerm(t)) {
                 int wid = IntOfTerm(t);
                 mboxp = &REMOTE_ThreadHandle(wid).mbox_handle;
-              }
+   } else
+     {
+       return false;
+
+     }
    if (!mboxp)
      return NULL;
 return mboxp;

@@ -284,10 +284,8 @@ AdjustPtr (Term t, Term off)
 
 
 
-INLINE_ONLY EXTERN Term AdjustIDBPtr (Term t, Term off);
-
 INLINE_ONLY EXTERN Term
-AdjustIDBPtr (Term t, Term off)
+AdjustIDBPtr (Term t, ssize_t off)
 {
   return (Term) (IsVarTerm (t) ? (t) + (off) : (t) - (off));
 }
@@ -309,10 +307,8 @@ AdjustPtr (Term t, Term off)
 
 
 
-INLINE_ONLY EXTERN Term AdjustIDBPtr (Term t, Term off);
-
 INLINE_ONLY EXTERN Term
-AdjustIDBPtr (Term t, Term off)
+AdjustIDBPtr (Term t, ssize_t off)
 {
   return (Term) (IsVarTerm (t) ? (t) +
 		 (off) : (IsApplTerm (t) ? (CELL)

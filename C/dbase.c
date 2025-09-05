@@ -689,7 +689,7 @@ inline static CELL *cpcells(CELL *to, CELL *from, Int n) {
 #endif
 }
 
-static void linkblk(link_entry *r, CELL *c, CELL offs) {
+static void linkblk(link_entry *r, CELL *c, ssize_t offs) {
   CELL p;
   while ((p = (CELL)*r) != 0) {
     Term t = c[p];
@@ -1950,8 +1950,8 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       ppt->NOfCells = NOfCells;
     }
     if (ppt != ppt0) {
-      linkblk(dbg->LinkAr, CellPtr(ppt->Contents - 1), (CELL)ppt - (CELL)ppt0);
-      ppt->Entry = AdjustIDBPtr(tt, (CELL)ppt - (CELL)ppt0);
+      linkblk(dbg->LinkAr, CellPtr(ppt->Contents - 1), (char *)ppt - (char*)ppt0);
+      ppt->Entry = AdjustIDBPtr(tt, (char*)ppt - (char *)ppt0);
 #ifdef COROUTINING
       if (attachments)
         ppt->ag.attachments = AdjustIDBPtr(attachments, (CELL)ppt - (CELL)ppt0);
@@ -2901,11 +2901,11 @@ static Term GetDBTerm(DBTerm *DBSP, int src USES_REGS) {
     }
     HeapPtr = cpcells(HOld, pt, NOf);
     pt += HeapPtr - HOld;
-    HR = HeapPtr;
     {
       link_entry *lp = (link_entry *)pt;
-      linkblk(lp, HOld - 1, (CELL)HOld - (CELL)(DBSP->Contents));
+      linkblk(lp, HR - 1, (char *)HR - (char *)(DBSP->Contents));
     }
+    HR = HeapPtr;
 #ifdef COROUTINING
     if (DBSP->ag.attachments != 0L && !src) {
       if (!copy_attachments((CELL *)AdjustIDBPtr(
@@ -2918,7 +2918,7 @@ static Term GetDBTerm(DBTerm *DBSP, int src USES_REGS) {
       }
     }
 #endif
-    return AdjustIDBPtr(t, Unsigned(HOld) - (CELL)(DBSP->Contents));
+    return AdjustIDBPtr(t, (char *)HOld - (char *)(DBSP->Contents));
   }
 }
 
@@ -5046,9 +5046,10 @@ bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
    
 static  QueueEntry *queue_fetch(  QueueEntry *prev, Term *t, bool first USES_REGS ) {
   tr_fr_ptr oldTR = TR;
-  HB = HR;
+  HB = LCL0;
   if (!prev)
     return NULL;
+  return prev->next;
    while ((prev)->next) {
      bool matches = Yap_unify((prev)->next->DBT->Entry, *t);
       while (oldTR < TR) {
@@ -5077,14 +5078,13 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
   CELL *oldH = HR;
   tr_fr_ptr oldTR = TR;
   QueueEntry q0;
-  q0.next = father_key->FirstInQueue;
+//  q0.next = father_key->FirstInQueue;
   QueueEntry *cur_instance, *prev;
   Term TDB;
-  prev =queue_fetch(&q0, t, first PASS_REGS) ;
-  if ( prev) {
-    HR = oldH;
-    HB = LCL0;
-    TR = oldTR;
+  q0.next = father_key->FirstInQueue;
+  prev=&q0;
+//	 . queue_fetch(&q0, t, first PASS_REGS) ;
+ while ( prev->next) {
     cur_instance = (prev)->next;
     while ((TDB = GetDBTerm(cur_instance->DBT, false PASS_REGS)) == 0L) {
         while (oldTR < TR) {
@@ -5093,6 +5093,7 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
           /* normal variable */
           RESET_VARIABLE(d1);
         }
+	HR=oldH;
       if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         if (!Yap_dogc(PASS_REGS1)) {
@@ -5103,7 +5104,6 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
       oldTR = TR;
       oldH = HR;
     }
-    HB = B->cp_h;
     bool rc;
     if (*t==0) {
       *t = TDB;
@@ -5137,7 +5137,13 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
         }
       }
       return true;
+    } else {
+      if (first) {
+	return false;
+      }
     }
+      HR = oldH;
+      prev = prev->next;
   }
   return false;
 }
