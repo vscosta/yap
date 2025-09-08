@@ -145,11 +145,12 @@ volatile(P) :-
 	'$run_at_thread_start',
 G,
  Port,
-    '$record_thread_status'(Key,Port)
-)),
     '$thread_zombie_self'(Id0),
     '$run_at_thread_exit'(Id0),
-    '$erase_thread_info'(Id0).
+    '$erase_thread_info'(Id0),
+    '$record_thread_status'(Key,Port)
+       )
+       ).
 %    (var(Detached) -> tru'$mutex_lock'(Id0);true),
 
 % OK, we want to ensure atomicity here in case we get an exception while we
