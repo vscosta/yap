@@ -68,7 +68,6 @@ property list
 #define CHKTAG(t,Tag) 	((Unsigned(t)&TagBits)==Tag)
 
 #include "inline-only.h"
-INLINE_ONLY int IsVarTerm (Term);
 
 INLINE_ONLY int
 IsVarTerm (Term t)
@@ -86,17 +85,11 @@ IsNonVarTerm (Term t)
 
 
 
-INLINE_ONLY Term *RepPair (Term);
-
 INLINE_ONLY Term *
 RepPair (Term t)
 {
   return (Term *) (((t) - PairBits));
 }
-
-
-
-INLINE_ONLY Term AbsPair (Term *);
 
 INLINE_ONLY Term
 AbsPair (Term * p)
@@ -106,8 +99,6 @@ AbsPair (Term * p)
 
 
 
-INLINE_ONLY Int IsPairTerm (Term);
-
 INLINE_ONLY Int
 IsPairTerm (Term t)
 {
@@ -115,8 +106,6 @@ IsPairTerm (Term t)
 }
 
 
-
-INLINE_ONLY Term *RepAppl (Term);
 
 INLINE_ONLY Term *
 RepAppl (Term t)
@@ -126,8 +115,6 @@ RepAppl (Term t)
 
 
 
-INLINE_ONLY Term AbsAppl (Term *);
-
 INLINE_ONLY Term
 AbsAppl (Term * p)
 {
@@ -135,8 +122,6 @@ AbsAppl (Term * p)
 }
 
 
-
-INLINE_ONLY Int IsApplTerm (Term);
 
 INLINE_ONLY Int
 IsApplTerm (Term t)
@@ -146,26 +131,11 @@ IsApplTerm (Term t)
 
 
 
-INLINE_ONLY Int IsAtomOrIntTerm (Term);
-
 INLINE_ONLY Int
 IsAtomOrIntTerm (Term t)
 {
   return (Int) ((((t) & LowTagBits) == 0x1));
 }
-
-
-
-
-INLINE_ONLY Term AdjustPtr (Term t, Term off);
-
-INLINE_ONLY Term
-AdjustPtr (Term t, Term off)
-{
-  return (Term) (((t) + off));
-}
-
-
 
 INLINE_ONLY Term
 AdjustIDBPtr (Term t, ssize_t off)
@@ -173,10 +143,6 @@ AdjustIDBPtr (Term t, ssize_t off)
   return (Term) ((t) + off);
 }
 
-
-
-
-INLINE_ONLY Int IntOfTerm (Term);
 
 INLINE_ONLY Int
 IntOfTerm (Term t)
