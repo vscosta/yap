@@ -221,11 +221,7 @@ named, you can use the name_vars option to generate the missing variable names.
 This YAP option generates user readable names for
 the term variables. It complements `variable_names`. 
 
-+ portrayed(+ _Bool_)
-If `true`, use <tt>portray/1</tt> to portray bound terms. The default
-value is `false`.
-
-+ portray(+ _Bool_)
+*+ portray(+ _Bool_)
 If `true`, use <tt>portray/1</tt> to portray bound terms. The default
 value is `false`.
 

@@ -336,26 +336,22 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     POPRET(out);
   }
   if (inp->type & YAP_STRING_BIG && IsBigIntTerm(inp->val.t)) {
+    char *out;
     // Yap_DebugPlWriteln(inp->val.t);
-    char *out = Malloc(MaxTmp());
-    if (!Yap_mpz_to_string(Yap_BigIntOfTerm(inp->val.t), out, MaxTmp() - 1,
-                           10)) {
+    if ((out=Yap_mpz_to_string(Yap_BigIntOfTerm(inp->val.t),10)) == NULL) 
       AUX_ERROR(inp->val.t, MaxTmp(PASS_REGS1), out, char);
+	
     }
-    POPRET(out);
   }
   if (inp->type & YAP_STRING_TERM) {
     pop_text_stack(lvl);
     return (unsigned char *)Yap_TermToBuffer(inp->val.t, 0);
-  }
   pop_text_stack(lvl);
-    Yap_ThrowError(TYPE_ERROR_TEXT,
-       inp->val.t, "while converting term %s", Yap_TermToBuffer(
-         inp->val.t, YAP_WRITE_HANDLE_CYCLES|YAP_WRITE_QUOTED | Number_vars_f));
-
-    return NULL;
-  }
-
+  Yap_ThrowError(TYPE_ERROR_TEXT,
+		 inp->val.t, "while converting term %s", Yap_TermToBuffer(								  inp->val.t, YAP_WRITE_HANDLE_CYCLES|YAP_WRITE_QUOTED | Number_vars_f));
+  
+  return NULL;
+}
   if (inp->type & YAP_STRING_CHARS) {
     if (inp->enc == ENC_ISO_ASCII) {
       pop_text_stack(lvl);

@@ -141,17 +141,20 @@ volatile(P) :-
        %writeln(Id),
 	(Detached == true -> '$detach_thread'(Id0) ; true),
 	% always finish with a throw to make sure we clean stacks.
-       ignore(setup_call_catcher_cleanup(
+        setup_call_catcher_cleanup(
 	'$run_at_thread_start',
 G,
  Port,
+   (
     '$thread_zombie_self'(Id0),
     '$run_at_thread_exit'(Id0),
     '$erase_thread_info'(Id0),
     '$record_thread_status'(Key,Port)
        )
        ).
+
 %    (var(Detached) -> tru'$mutex_lock'(Id0);true),
+)).
 
 % OK, we want to ensure atomicity here in case we get an exception while we
 % are closing down the thread.

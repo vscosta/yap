@@ -91,16 +91,15 @@ static void badEntry( yap_error_number err, yhandle_t ys, xarg *entry)
 
 static bool callPortray(Term t, int sno USES_REGS) {
   PredEntry *pe;
-  Int b0 = LCL0 - (CELL *)B;
 
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorPortray, USER_MODULE))) &&
-      pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, &t, true PASS_REGS)) {
-    choiceptr B0 = (choiceptr)(LCL0 - b0);
-    Yap_fail_all(B0 PASS_REGS);
-    return true;
+      pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE) {
+    int os = LOCAL_c_output_stream;
+    LOCAL_c_output_stream = sno;
+    bool rc = Yap_execute_pred(pe, &t, false PASS_REGS);
+    LOCAL_c_output_stream = os;
+    return rc;
   }
-
   return false;
 }
 
@@ -801,8 +800,15 @@ static void writeTerm(Term t, int p, int depth , int rinfixarg,
   t = Deref(t);
   if (IsVarTerm(t)) {
     write_var((CELL *)t, depth, wglb);
-  } else if (IsIntTerm(t)) {
+    return;
+  }
+  if (wglb->Use_portray  &&
+      callPortray(t, wglb->stream - GLOBAL_Stream PASS_REGS)) {
+        return;
+      }
 
+if (IsIntTerm(t)) {
+  
     wrputn((Int)IntOfTerm(t), wglb);
   } else if (IsAtomTerm(t)) {
     putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb);
@@ -822,10 +828,6 @@ static void writeTerm(Term t, int p, int depth , int rinfixarg,
       wrclose_bracket(wglb, TRUE);
       return;
     }
-    if (wglb->Use_portray)
-      if (callPortray(t, wglb->stream - GLOBAL_Stream PASS_REGS)) {
-        return;
-      }
     if (trueGlobalPrologFlag(WRITE_STRINGS_FLAG) && IsCodesTerm(t)) {
       putString(t, wglb);
     } else {
@@ -877,7 +879,7 @@ static void writeTerm(Term t, int p, int depth , int rinfixarg,
       CELL *p = ArgsOfSFTerm(t);
       putAtom(atom, wglb->Quote_illegal, wglb);
       wropen_bracket(wglb, FALSE);
-eedddddda      lastw = separator;
+      lastw = separator;
       while (*p) {
         Int sl = 0;
 
@@ -897,11 +899,7 @@ eedddddda      lastw = separator;
       return;
     }
 #endif
-    if (wglb->Use_portray) {
-      if (callPortray(t, wglb->stream - GLOBAL_Stream PASS_REGS)) {
-        return;
-      }
-    }
+
      if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp)) {
       Term tright = ArgOfTerm(1, t);
       int bracket_right = !IsVarTerm(tright) && IsAtomTerm(tright) &&
@@ -1199,15 +1197,6 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, CELL * hbase, yhandle_t ynames, wr
 	    flags &= ~YAP_WRITE_USE_PORTRAY;
 	  } else {
 	    badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_PORTRAY]);
-	  }
-	}
-	if (args[WRITE_PORTRAYED].used) {
-	  if( args[WRITE_PORTRAYED].tvalue == TermTrue) {
-	    flags |= YAP_WRITE_USE_PORTRAY;
-	  } else if (args[WRITE_PORTRAYED].tvalue == TermFalse) {
-	    flags &= ~YAP_WRITE_USE_PORTRAY;
-	  } else {
-	    badEntry(DOMAIN_ERROR_WRITE_OPTION,ys, &args[WRITE_PORTRAYED]);
 	  }
 	}
 	if (args[WRITE_CHARACTER_ESCAPES].used) {

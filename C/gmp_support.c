@@ -1684,54 +1684,30 @@ Yap_gmp_popcount(Term t)
 }
 
 char * 
-Yap_mpz_to_string(	MP_INT *b, char *s, size_t sz, int base)
+Yap_mpz_to_string(	MP_INT *b, int base)
 {
-  if (s) {
-    size_t size = mpz_sizeinbase(b, base);
-    if (size+2 > sz) {
-      return NULL;
-    }
-    return mpz_get_str (s, base, b);
-  }
-  return NULL;
+    return mpz_get_str (NULL, base, b);
 }
 
-char * 
-Yap_gmp_to_string(Term t, char *s, size_t sz, int base)
+char *Yap_gmp_to_string(Term t, int base)
 {
+  char *s;
   if (RepAppl(t)[1] == BIG_INT) {
     MP_INT *b = Yap_BigIntOfTerm(t);
-
-    if (s) {
-      size_t size = mpz_sizeinbase(b, base);
-      if (size+2 > sz) {
-	return NULL;
-      }
-    }
-    return mpz_get_str (s, base, b);
+    return mpz_get_str (NULL, base, b);
   } else if (RepAppl(t)[1] == BIG_RATIONAL) {
     MP_RAT *b = Yap_BigRatOfTerm(t);
-    size_t pos;
-    size_t siz =
-	mpz_sizeinbase(mpq_numref(b), base)+
-	mpz_sizeinbase(mpq_denref(b), base)+
-	8;
-    if (s) {
-      if (siz > sz) {
-	return NULL;
-      }
-    } else {
-      if (!(s = malloc(siz)))
-	return NULL;
-    }
-    strncpy(s,"rdiv(",sz);
-    pos = strlen(s);
-    mpz_get_str (s+pos, base, mpq_numref(b));
-    pos = strlen(s);
-    s[pos] = ',';
-    mpz_get_str (s+(pos+1), base, mpq_denref(b));
-    pos = strlen(s);
-    s[pos] = ')';
+    char *den = mpz_get_str (NULL, base
+			     , mpq_denref(b)),
+      *num = mpz_get_str (NULL, base, mpq_numref(b));
+    size_t sz1 = strlen(num),
+      sz2 = strlen(den);
+    s = malloc(sz1+sz2+6+2+1+1);
+    snprintf(s,sz1+sz2+5+2+2,"rdiv( %s, %s)", num, den);
+    free(num);
+    free(den);
+  } else {
+    return NULL;
   }
   return s;
 }

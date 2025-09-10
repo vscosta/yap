@@ -97,7 +97,6 @@ bool Yap_exists(Term t, ex_handler_t handle_sigs USES_REGS)
     return rc;
   }
 }
-
 static bool gate(Term t USES_REGS)
 {
   yamop *oP = P, *oCP = CP;

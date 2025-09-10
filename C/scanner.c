@@ -471,31 +471,35 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
 {
   int upper_case = 'A' - 11 + base;
   int lower_case = 'a' - 11 + base;
-
+  char *sp0=sp;
   int val = 0;
   int ch = getchr(st);
-    *sp++ = ch;
     if (! my_isxdigit(ch, base, lower_case,upper_case)) {
       *sp = '\0';
       CACHE_REGS
 	return Yap_encoding_error(ch, st,LOCAL_tokptr,LOCAL_toktide,  "invalid hexadecimal digit");
       }
     do{
-    Int oval = val;
-    int chval =
-      (chtype(ch) == NU ? ch - '0'
-       : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
-    if (--left == 0)
+     if (--left == 0)
       goto overflow;
     *sp++ = ch;
-    val = val * base + chval;
-    if (oval != (val - chval) / base) /* overflow */ {
-      goto overflow;
-    }
     ch = getchr(st);    
     } while ( my_isxdigit(ch, base, lower_case, upper_case));
     *chp = ch;
     *sp = '\0';
+    sp = sp0;
+    ch = *sp++;
+    do{
+    Int oval = val;
+    int chval =
+      (chtype(ch) == NU ? ch - '0'
+       : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
+    val = val * base + chval;
+    if (!IntInBnd(val ) ) /* overflow */ {
+      goto overflow;
+    }
+    ch = *sp++;
+    } while ( ch );
     {
       CACHE_REGS
       return MkIntegerTerm(sign * val);
@@ -503,9 +507,6 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
  overflow:
   {
     char *buf = *bufpp;
-    *sp = '\0';
-    /* skip base */
-    *chp = ch;
     if (buf[0] == '0' && buf[1] == 'x')
       return read_int_overflow(buf + 2, 16, val, sign);
     else if (buf[0] == '0' && buf[1] == 'o')
@@ -873,9 +874,7 @@ const char *Yap_tokText(void *tokptre) {
       snprintf(s, 63, "%6g", FloatOfTerm(info));
       return s;
     } else {
-      size_t len = Yap_gmp_to_size(info, 10);
-      char *s = Malloc(len + 2);
-      return Yap_gmp_to_string(info, s, len + 1, 10);
+      return Yap_gmp_to_string(info, 10);
     }
     break;
   case Var_tok:

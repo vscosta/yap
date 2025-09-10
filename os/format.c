@@ -446,16 +446,42 @@ static Int fetch_index_from_args(Term t) {
   return i;
 }
 
-static wchar_t base_dig(Int dig, Int ch) {
-  if (dig < 10)
-    return dig + '0';
-  else if (ch == 'r')
-    return (dig - 10) + 'a';
-  else /* ch == 'R' */
-    return (dig - 10) + 'A';
-}
-
 #define TMP_STRING_SIZE 1024
+
+static void
+format_integer(int command, int (*f_putc)(int, wchar_t), int repeats, char *tmpbase,  int sno)
+{
+  char *ptr = tmpbase;
+  ssize_t siz;
+  if (tmpbase[0] == '-') {
+    f_putc(sno, (int) '-');
+    ptr++;
+  }
+  siz = strlen(ptr);
+  if (command == 'D' && repeats >= siz) {
+    f_putc(sno, (int) '0');
+    f_putc(sno, (int) '.');
+    while (repeats > siz) {
+      if (command == 'D' && (repeats-siz)%3 == 0)
+	f_putc(sno, (int) '.');
+      f_putc(sno, (int) '0');
+      repeats--;
+    }
+    repeats = 0;
+  }
+  while (siz > 0) {
+    if ((command == 'D'||command == 'd') &&siz == repeats) {
+      f_putc(sno, (int) '.');
+    } else if (command == 'D' && (siz-repeats) % 3 == 0) {
+      f_putc(sno, (int) ',');
+    }
+    int ch = *ptr++;
+    if (command == 'R' && ch >= 'a' && ch <= 'z')
+      ch += 'A'-'a';
+    f_putc(sno, (int) (ch));
+    siz--;
+  }
+}
 
 #if 0
 static bool tabulated(const unsigned char *fptr)
@@ -619,6 +645,9 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	}
       }
       switch (ch) {
+      case '~':
+	f_putc(sno, (int) '~');
+	 break;
       case 'a': {
 	/* print an atom */
 	TOO_FEW_ARGUMENTS(1, has_repeats);
@@ -717,112 +746,37 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	break;
 	case 'd':
 	  case 'D': {
+	    int command = ch;
 	    /* print a decimal, using weird . stuff */
 	    TOO_FEW_ARGUMENTS(1,false);
-	    t = targs[targ++];
+	    t =Deref( targs[targ++] );
 	    if (IsVarTerm(t)) {
 	      format_clean_up(sno, sno0, finfo);
 	      Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch, fstr);
-	    }
-	    if (!IsIntegerTerm(t)
-#ifdef HAVE_GMP
-		&& !IsBigIntTerm(t)
-#endif
-
-		) {
-	      format_clean_up(sno, sno0, finfo);
-	      Yap_ThrowError(TYPE_ERROR_INTEGER, t, "command %c in format %s", ch, fstr);
-	    }
-	    {
-	      Int siz = 0;
-	      char *ptr = tmp1;
-	      tmpbase = tmp1;
-
-	      if (IsIntegerTerm(t)) {
-		Int il = IntegerOfTerm(t);
-#if HAVE_SNPRINTF
+	    } else if (IsIntegerTerm(t)) {
+		Int il =  IntegerOfTerm(t);
 		snprintf(tmp1, 256, "%ld", (long int) il);
-#else
-		sprintf(tmp1, "%ld", (long int)il);
-#endif
-		siz = strlen(tmp1);
-		if (il < 0)
-		  siz--;
-#ifdef HAVE_GMP
-	      } else if (IsBigIntTerm(t) && RepAppl(t)[1] == BIG_INT) {
-		char *res;
-
 		tmpbase = tmp1;
-
-		while (
-		       !(res = Yap_gmp_to_string(t, tmpbase, TMP_STRING_SIZE, 10))) {
-		  if (tmpbase == tmp1) {
-		    tmpbase = NULL;
-		  } else {
-		    tmpbase = res;
-		    format_clean_up(sno, sno0, finfo);
-		    Yap_ThrowError(DOMAIN_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch, fstr);
-		    return false;
-		  }
-		  tmpbase = res;
-		  ptr = tmpbase;
-		  |
-#endif
-		    siz = strlen(tmpbase);
-                                                                 
-		} else {
-		  format_clean_up(sno, sno0, finfo);
-		  Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch, fstr);
-		  return false;
-		}
-
-		if (tmpbase[0] == '-') {
-		  f_putc(sno, (int) '-');
-		  ptr++;
-		}
-		if (ch == 'D') {
-		  int first = TRUE;
-
-		  while (siz > repeats) {
-		    if ((siz - repeats) % 3 == 0 && !first) {
-		      f_putc(sno, (int) ',');
-		    }
-		    f_putc(sno, (int) (*ptr++));
-		    first = FALSE;
-		    siz--;
-		  }
-		} else {
-		  while (siz > repeats) {
-		    f_putc(sno, (int) (*ptr++));
-		    siz--;
-		  }
-		}
-		if (repeats) {
-		  if (ptr == tmpbase || ptr[-1] == '-') {
-		    f_putc(sno, (int) '0');
-		  }
-		  f_putc(sno, (int) '.');
-		  while (repeats > siz) {
-		    f_putc(sno, (int) '0');
-		    repeats--;
-		  }
-		  while (repeats) {
-		    f_putc(sno, (int) (*ptr++));
-		    repeats--;
-		  }
-		}
+	      } else if (IsBigIntTerm(t)) {
+		tmpbase = Yap_gmp_to_string(t, 10);
+	      } else {
+	      format_clean_up(sno, sno0, finfo);
+	      Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch, fstr);
+	      return false;
+	    }
+	    format_integer( command, f_putc, repeats, tmpbase, sno);
 		if (tmpbase != tmp1)
 		  free(tmpbase);
 		break;
 	      case 'r':
 	      case 'R': {
-		Int numb, radix;
+		Int numb, radix, dig ;
 		UInt divfactor = 1, size = 1, i;
 		wchar_t och;
-
+		int command = ch;
 		/* print a decimal, using weird . stuff */
 		TOO_FEW_ARGUMENTS(1,false);
-		t = targs[targ++];
+  		t = targs[targ++];
 		if (IsVarTerm(t)) {
 		  format_clean_up(sno, sno0, finfo);
 		  Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch,
@@ -837,55 +791,47 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 		  Yap_ThrowError(DOMAIN_ERROR_RADIX, targs[targ-1], "command %c in format %s", ch,
 				 fstr);
 		}
-#ifdef HAVE_GMP
-		if (IsBigIntTerm(t) && RepAppl(t)[1] == BIG_INT) {
-		  char *pt, *res;
-
-		  tmpbase = tmp1;
-		  while (!(
-			   res = Yap_gmp_to_string(t, tmpbase, TMP_STRING_SIZE, radix))) {
-		    if (tmpbase == tmp1) {
-		      tmpbase = NULL;
-		    } else {
-		      tmpbase = res;
-
-		      format_clean_up(sno, sno0, finfo);
-		      Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch, fstr);
-		    }
-		  }
-		  tmpbase = res;
-		  pt = tmpbase;
-		  while ((ch = *pt++))
-		    f_putc(sno, ch);
-		  if (tmpbase != tmp1)
-		    free(tmpbase);
-		  break;
-		}
-#endif
-		if (!IsIntegerTerm(t)) {
-		  format_clean_up(sno, sno0, finfo);
+	if (IsBigIntTerm(t) && RepAppl(t)[1] == BIG_INT) {
+ 
+		  tmpbase = Yap_gmp_to_string(t, radix);
+      	} else		if (!IsIntegerTerm(t)) {
+ 		  format_clean_up(sno, sno0, finfo);
 		  Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch,
 				 fstr);
-		}
-		numb = IntegerOfTerm(t);
-		if (numb < 0) {
-		  numb = -numb;
-		  f_putc(sno, (int) '-');
-		}
-		while (numb / divfactor >= radix) {
-		  divfactor *= radix;
-		  size++;
-		}
-		for (i = 1; i < size; i++) {
-		  Int dig = numb / divfactor;
-		  och = base_dig(dig, ch);
-		  f_putc(sno, och);
-		  numb %= divfactor;
-		  divfactor /= radix;
-		}
-		och = base_dig(numb, ch);
-		f_putc(sno, och);
+		} else {
+	  tmpbase = ptr = tmp1;
+		    	numb = IntegerOfTerm(t);
+                                if (numb < 0) {
+                                    numb = -numb;
+                                    *ptr++='-';
+                                 }
+                                if (numb == 0) {
+                                   *ptr++ = '0';
+                                } else {
+                                  divfactor = 1;
+                                  while (radix *divfactor <=
+                                         numb)
+                                    divfactor *= radix;
 
+                                  while (true)  {
+				   dig = numb / divfactor;
+				    if (dig >= 10)
+
+                                      och = dig-10+'a';
+				    else
+				      och = dig+'0';
+                                    *ptr++ = och;
+                                    if (divfactor == 1)
+				      break;
+                                    numb %= divfactor;
+                                    divfactor /= radix;
+				  }
+				}
+				*ptr = '\0';
+		}
+		format_integer( command, f_putc, repeats, tmpbase, sno);
+		if (tmpbase != tmp1)
+		  free(tmpbase);
 		break;
 	      }
 	      case 's':
@@ -1004,10 +950,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 			      Yap_CloseSlots(slf);
 			    }
 			    break;
-			    case '~':
-			      TOO_FEW_ARGUMENTS(0,has_repeats);
-			      f_putc(sno, (int) '~');
-			      break;
 			      case 'n':
 				if (!has_repeats)
 				  repeats = 1;
@@ -1087,7 +1029,6 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	    return false;
 	  }
 	    /* ok, now we should have a command */
-      }
       } else {
 	if (ch == '\n') {
 	  sno = format_synch(sno, sno0, finfo);

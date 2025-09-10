@@ -258,13 +258,9 @@ INLINE_ONLY Term MkIntTerm(Int n) {
   overflow problems are possible
 */
 
-INLINE_ONLY Term MkIntConstant(Int);
-
 INLINE_ONLY Term MkIntConstant(Int n) {
   return n *(LowTagBits+1);
 }
-
-INLINE_ONLY bool IsIntTerm(Term);
 
 INLINE_ONLY bool IsIntTerm(Term t) {
   return CHKTAG((t), NumberTag);
@@ -312,14 +308,11 @@ INLINE_ONLY Term MkPairTerm__(Term head, Term tail USES_REGS) {
 
 #define MkIntegerTerm(i) __MkIntegerTerm(i PASS_REGS)
 
-INLINE_ONLY Term __MkIntegerTerm(Int USES_REGS);
-
 INLINE_ONLY Term __MkIntegerTerm(Int n USES_REGS) {
   return (Term)(IntInBnd(n) ? MkIntTerm(n) : MkLongIntTerm(n));
 }
 #endif
 
-INLINE_ONLY bool IsIntegerTerm(Term);
 INLINE_ONLY bool IsIntegerTerm(Term t) {
   return (int)(IsIntTerm(t) || IsLongIntTerm(t));
 }
@@ -333,28 +326,21 @@ INLINE_ONLY Int IntegerOfTerm(Term t) {
 
 #define MkAddressTerm(i) __MkAddressTerm(i PASS_REGS)
 
-INLINE_ONLY Term __MkAddressTerm(void *USES_REGS);
-
 INLINE_ONLY Term __MkAddressTerm(void *n USES_REGS) {
   return __MkIntegerTerm((Int)n PASS_REGS);
 }
 
 #endif
 
-INLINE_ONLY bool IsAddressTerm(Term);
 
 INLINE_ONLY bool IsAddressTerm(Term t) {
   return (bool)IsIntegerTerm(t);
 }
 
-INLINE_ONLY void *AddressOfTerm(Term);
-
 INLINE_ONLY void *AddressOfTerm(Term t) {
   return (void *)(IsIntTerm(t) ? IntOfTerm(t) : LongIntOfTerm(t));
 }
 
-
-INLINE_ONLY Int IsPairTermOrNil (Term);
 
 INLINE_ONLY Int
 IsPairOrNilTerm (Term t)

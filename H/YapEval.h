@@ -477,7 +477,7 @@ static inline expression_t ETypeOfTerm(Term t) {
   return long_int_et;
   }
 
-extern char *Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base);
+extern char *Yap_mpz_to_string(MP_INT *b, int base);
 
 extern Term Yap_gmq_rdiv_int_int(Int, Int);
 extern Term Yap_gmq_rdiv_int_big(Int, Term);
@@ -563,7 +563,7 @@ extern Term Yap_gmp_lsb(Term);
 extern Term Yap_gmp_msb(Term);
 extern Term Yap_gmp_popcount(Term);
 
-extern char *Yap_gmp_to_string(Term, char *, size_t, int);
+extern char *Yap_gmp_to_string(Term, int);
 extern size_t Yap_gmp_to_size(Term, int);
 
 extern int Yap_term_to_existing_big(Term, MP_INT *);
