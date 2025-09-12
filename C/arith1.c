@@ -724,7 +724,7 @@ eval1(Int fi, Term t USES_REGS)
 	Yap_ThrowError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer(%f)",dbl);
       }
 #endif
-      RBIG_FL(ceil(dbl));
+      RBIG_FL((dbl));
     }
   case op_round:
     {

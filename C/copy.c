@@ -595,7 +595,7 @@ Term CopyTermToArena(Term t,
 	}
     }
 
-    CELL *start, *end;
+    CELL *start = HR, *end = LCL0;
     int i = push_text_stack();
     expand_stack =(HR-H0)/8;
     if (expand_stack < 4 * MIN_ARENA_SIZE)

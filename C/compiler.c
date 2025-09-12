@@ -712,9 +712,9 @@ static int try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level,
 static void c_arg(Int argno, Term t, unsigned int arity, unsigned int level,
                   compiler_struct *cglobs) {
 restart:
-  if (IsVarTerm(t))
+  if (IsVarTerm(t)) {
     c_var(t, argno, arity, level, cglobs);
-  else if (IsAtomTerm(t)) {
+  } else if (IsAtomTerm(t)) {
     if (level == 0) {
       Yap_emit((cglobs->onhead ? get_atom_op : put_atom_op), (CELL)t, argno,
                &cglobs->cint);
@@ -723,9 +723,7 @@ restart:
                     ? (argno == (Int)arity ? unify_last_atom_op : unify_atom_op)
                     : write_atom_op),
                (CELL)t, Zero, &cglobs->cint);
-  } else if (IsIntegerTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t) ||
-             IsStringTerm(t)) {
-    if (IsIntTerm(t)) {
+  } else if (IsIntTerm(t)) {
     if (level == 0)
       Yap_emit((cglobs->onhead ? get_num_op : put_num_op), (CELL)t, argno,
                &cglobs->cint);
@@ -735,8 +733,7 @@ restart:
                     : write_num_op),
                (CELL)t, Zero, &cglobs->cint);
     return;
-    }
-    if (IsFloatTerm(t)) {
+  }  else if (IsFloatTerm(t)) {
 	cglobs->has_blobs = true;
         if (level == 0)
           Yap_emit((cglobs->onhead ? get_float_op : put_float_op), t, argno,
@@ -748,8 +745,7 @@ restart:
                                    : write_float_op),
                    t, Zero, &cglobs->cint);
 	return;
-      }
-    if (IsLongIntTerm(t)) {
+  }  else if (IsLongIntTerm(t)) {
 	cglobs->has_blobs = true;
         if (level == 0)
           Yap_emit((cglobs->onhead ? get_longint_op : put_longint_op), t, argno,
@@ -761,8 +757,7 @@ restart:
                         : write_longint_op),
                    t, Zero, &cglobs->cint);
 	return;
-      }
-    if (IsStringTerm(t)) {
+      }   else if (IsStringTerm(t)) {
         /* we are taking a string, that is supposed to be
          guarded in the clause itself. . */
         CELL l1 = ++cglobs->labelno;
@@ -800,7 +795,7 @@ restart:
                                    : write_string_op),
                    l1, Zero, &cglobs->cint);
 	return;
-      }
+  } else if (IsBigIntTerm(t)) {
         /* we are taking a blob, that is a binary that is supposed to be
          guarded in the clause itself. Possible examples include
          floats, long ints, bignums, bitmaps.... */
@@ -842,7 +837,7 @@ restart:
                    l1, Zero, &cglobs->cint);
       /* That's it folks! */
       return;
-  } else if (IsPairTerm(t)) {
+} else if (IsPairTerm(t)) {
     cglobs->space_used += 2;
     if (optimizer_on && level < 6) {
 #if !defined(THREADS) && !defined(YAPOR)
@@ -896,6 +891,7 @@ restart:
                                  : write_atom_op),
                  (CELL)t, Zero, &cglobs->cint);
     }
+    return;
   } else {
 
 #ifdef SFUNC
@@ -904,7 +900,7 @@ restart:
       return;
     }
 #endif
-
+    
     if (optimizer_on) {
       if (!(cglobs->cint.CurrentPred->PredFlags &
             (DynamicPredFlag | LogUpdatePredFlag))) {
@@ -934,7 +930,8 @@ restart:
       pop_code(level, cglobs);
     }
   }
-}
+  }
+
 
 static void c_eq(Term t1, Term t2, compiler_struct *cglobs) {
   CACHE_REGS

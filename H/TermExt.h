@@ -463,8 +463,6 @@ INLINE_ONLY void *Yap_BlobInfo(Term t) {
 
 #ifdef YAP_H
 
-INLINE_ONLY bool unify_extension(Functor, CELL, CELL *, CELL);
-
 EXTERN bool unify_extension(Functor, CELL, CELL *, CELL);
 
 int Yap_gmp_tcmp_big_big(Term, Term);
@@ -481,11 +479,7 @@ INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0, CELL d1)
   case string_e:
     return strcmp((char *)(pt0 + 2), (char *)(RepAppl(d1) + 2)) == 0;
   case big_int_e:
-#ifdef USE_GMP
     return (Yap_gmp_tcmp_big_big(d0, d1) == 0);
-#else
-    return d0 == d1;
-#endif /* USE_GMP */
   case double_e: {
     CELL *pt1 = RepAppl(d1);
     return pt0[1] == pt1[1] &&

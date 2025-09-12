@@ -139,7 +139,11 @@ mboxCreate( Term namet, mbox_t *mboxp USES_REGS )
   fullpp = & mboxp->full;
   pthread_cond_init(fullpp, NULL);
   mutexp = & mboxp->mutex;
-  pthread_mutex_init(mutexp, NULL);
+  pthread_mutexattr_t mat;
+  pthread_mutexattr_init(&mat);
+  pthread_mutexattr_settype(&mat, PTHREAD_MUTEX_RECURSIVE);
+  pthread_mutex_init(mutexp, &mat);
+  //  pthread_mutex_init(mutexp, NULL);
   msgsp = & mboxp->msgs;
   mboxp->nmsgs = 0;
   mboxp->nclients = 0;
@@ -975,7 +979,7 @@ mutp->timestamp = 0;
 
 static SWIMutex *MutexOfTerm__(Term t USES_REGS){
   Term t1 = Deref(t);
-  SWIMutex *mut = NULL;
+    SWIMutex *mut = NULL;
   
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "mutex operation");
@@ -1006,7 +1010,9 @@ if (mut->zombie) {
      Yap_ThrowError(EXISTENCE_ERROR_MUTEX, ARG1, "destroy_mutex");
   }
 #if DEBUG_LOCKS
-  MUTEX_LOCK(&mut->m);
+  MUTEX_LOCK(&
+
+	     umut->m);
 #else
   if (!MUTEX_LOCK(&mut->m) )
     return FALSE;
@@ -1285,7 +1291,7 @@ typedef struct {
        int new;
        mbox_t mbox;
 
-       ae = Yap_lookupBlob(&mbox, sizeof(mbox), &PL_Message_Queue, &new);
+        ae = Yap_lookupBlob(&mbox, sizeof(mbox), &PL_Message_Queue, &new);
        namet = MkAtomTerm(RepAtom(ae));
        mboxp = (mbox_t *)(ae->rep.blob[0].data);
      rc = mboxCreate( namet, mboxp PASS_REGS );
@@ -1689,7 +1695,7 @@ Yap_NOfThreads(void) {
   // GLOBAL_ThreadHandlesLock is held
 #ifdef YAPOR
   return 2;
-#else
+  #else
   return 1;
 #endif
 }
@@ -1795,7 +1801,7 @@ void Yap_InitThreadPreds(void)
 #if DEBUG_LOCKS||DEBUG_PE_LOCKS
 
   Yap_InitCPred("debug_locks", 0, p_debug_locks, SafePredFlag);
-  Yap_InitCPred("nodebug_locks", 0, p_nodebug_locks, SafePredFlag);
+.  Yap_InitCPred("nodebug_locks", 0, p_nodebug_locks, SafePredFlag);
 #endif
 }
 
@@ -1806,3 +1812,5 @@ void Yap_InitThreadPreds(void)
 /**
    @}
 */
+
+

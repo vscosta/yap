@@ -1087,7 +1087,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     if (fmt != NULL) {
       if (throw) {
 
-	strncpy(s,fmt,PATH_MAX);
+	strncpy(s,fmt,PATH_MAX-1);
       } else {
       
   va_list ap;

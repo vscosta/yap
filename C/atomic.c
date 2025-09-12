@@ -79,7 +79,7 @@ static int AlreadyHidden(unsigned char *name) {
 
 
 /**
-   @pred hide_atom(+ _Atom_)
+   @pred hide_atom(+ _Atom)
 
    Make atom  _Atom_ invisible, by removing it from the Atom Table.
 
@@ -574,37 +574,48 @@ static Int string_atom(USES_REGS1) { /* string_to_atom(?String,?Atom)
 
 */
 static Int atom_chars(USES_REGS1) {
-  Term t1;
-  int l = push_text_stack();
-
-restart_aux:
-  t1 = Deref(ARG1);
+    int l = push_text_stack();
+Term    t1 = Deref(ARG1), t2 = Deref(ARG2);
   if (IsAtomTerm(t1)) {
     Term tf = Yap_AtomSWIToListOfAtoms(t1 PASS_REGS);
-    if (tf) {
-      pop_text_stack(l);
-      return Yap_unify(ARG2, tf);
+     if (tf) {
+        pop_text_stack(l);
+	return Yap_unify(ARG2, tf);
     }
-  } else if (!Yap_IsGroundTerm(t1)) {
+       Term end, *tailp = &end;
+   Yap_SkipList(&t2, &tailp);
+    if (*tailp != TermNil && !IsVarTerm(*tailp)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_chars(_,_)");
+    }
+  } else if (IsVarTerm(t1)) {
+    if (IsPairTerm(t2)||t2==TermNil) {
     /* ARG1 unbound */
-    Term t = Deref(ARG2);
-    Atom af = Yap_ListOfAtomsToAtom(t PASS_REGS);
-    if (af) {
-      pop_text_stack(l);
-      return Yap_unify(ARG1, MkAtomTerm(af));
+      Term end, *tailp = &end;
+    Yap_SkipList(&t2, &tailp);
+    if (*tailp == TermNil) {
+    Atom af = Yap_ListOfAtomsToAtom(t2 PASS_REGS);
+      
+    pop_text_stack(l);
+    return Yap_unify(ARG1, MkAtomTerm(af));
     }
-    /* error handling */
+    else if (IsVarTerm(*tailp)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_chars(_,_)");
+
+    } else {
+        Yap_ThrowError(TYPE_ERROR_LIST,t2,"atom_chars(_,_)");
+    }
+    }else     if (!Yap_IsGroundTerm(t2)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "atom_chars(_,_)");
+    } else {
+      Yap_ThrowError(TYPE_ERROR_LIST,t2,"atom_chars(_,_)");
+    }
   } else {
-    LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
-  }
-  if (LOCAL_Error_TYPE && Yap_HandleError("atom_chars/2")) {
-    goto restart_aux;
-  }
-  {
+    /* errors */
+ 	Yap_ThrowError(TYPE_ERROR_ATOM,t1,"atom_chars(_,_)"	  );
     pop_text_stack(l);
     return false;
   }
-}
+  }
 
 /**
  * @pred atom_codes(?Atom, ?Codes)

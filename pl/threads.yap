@@ -154,7 +154,7 @@ G,
        ).
 
 %    (var(Detached) -> tru'$mutex_lock'(Id0);true),
-)).
+
 
 % OK, we want to ensure atomicity here in case we get an exception while we
 % are closing down the thread.
@@ -1033,7 +1033,7 @@ message_queue_create(Id) :-
 		'$message_queue_create'(Id)
 	;	throw_error(uninstantiation_error(Id), message_queue_create(Id))
 	).
-
+																							
 /** @pred message_queue_destroy(+ _Queue_)
 
 
@@ -1064,7 +1064,7 @@ message_queue_destroy(_).
 
 
 Report on the alias and number of messages stored in a queue created
-with message_queue_create/1.
+																																														AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwith message_queue_create/1.
 
 + `alias(Alias)` report the alias for stream _S_. It can also be used
 to enumerate all message queues that have aliases, including anonymous

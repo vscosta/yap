@@ -317,7 +317,7 @@ static inline unsigned char *Yap_CharsToBuffer(Term t0 USES_REGS)
         return NULL;
       }
        if (!IsAtomTerm(th)) {
-          Yap_ThrowError(TYPE_ERROR_ATOM, t0,
+          Yap_ThrowError(TYPE_ERROR_CHARACTER, th,
                          "scanning list of codes");
       }
       unsigned char *chbuf = RepAtom(AtomOfTerm(th))->UStrOfAE;

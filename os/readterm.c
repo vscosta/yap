@@ -563,7 +563,7 @@ opos=	ftell(GLOBAL_Stream[sno].file);
 	bufb[errpos-msgstartpos] = '\0';
       }
       e->parserTextA = bufb;
-      Int msgendpos = Yap_Min(opos,errpos+200);
+      Int msgendpos = Yap_Max(opos,errpos);
       if (msgstartpos >= errpos) {
 	bufa = NULL;
       } else {

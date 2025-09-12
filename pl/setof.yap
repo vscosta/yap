@@ -107,7 +107,7 @@ no
 
 */
 findall(Template, Generator, Answers) :-
-     must_be_of_type( list_or_partial_list, Answers ),
+     can_be_list( Answers ),     
      '$findall'(Template, Generator, [], Answers).
 
 

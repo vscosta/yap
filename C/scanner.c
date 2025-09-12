@@ -431,10 +431,15 @@ do_switch:
       ch = getchrq(st);
       int i=0;
       while (my_isxdigit(ch, 16, 'f', 'F') && i<4) { /* hexa */
-        so_far =
-            so_far * 16 + (chtype(ch) == NU
-                               ? ch - '0'
-                               : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
+        so_far = so_far * 16 +
+	  (chtype(ch) == NU ? ch - '0'
+	   : ch >= 'A' && ch <= 'F'       ?ch - 'A'+10:
+	      
+	   ch >= 'a' && ch <= 'f'? ch - 'a' + 10: 
+	   ch == '\\'? -so_far : - 2*so_far
+	   );;
+	if (so_far <= 0)
+	  break;
         ch = getchrq(st);
 	i++;
       }

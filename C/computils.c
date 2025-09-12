@@ -467,11 +467,11 @@ Yap_bip_name(Int op, char *s) {
 #ifdef DEBUG
 
 static void
-write_address(CELL address)
+write_address(CELL address USES_REGS)
 {
   if (address < (CELL)AtomBase) {
     Yap_DebugErrorPutc('L');
-    Yap_DebugPlWrite(MkIntTerm (address));
+    Yap_DebugPlWrite(MkIntegerTerm (address));
   } else if (address == (CELL) FAILCODE) {
     Yap_DebugPlWrite (MkAtomTerm (AtomFail));
   } else {
@@ -492,7 +492,7 @@ write_address(CELL address)
 }
 
 static void
-write_special_label(special_label_op arg, special_label_id rn, UInt lab)
+write_special_label(special_label_op arg, special_label_id rn, UInt lab USES_REGS)
 {
   switch (arg) {
   case SPECIAL_LABEL_INIT:
@@ -508,7 +508,7 @@ write_special_label(special_label_op arg, special_label_id rn, UInt lab)
       Yap_DebugErrorPuts("fail,");
       break;
     }
-    write_address(lab);
+    write_address(lab PASS_REGS);
   case SPECIAL_LABEL_SET:
     Yap_DebugErrorPuts("set,");
     break;
@@ -622,10 +622,10 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	    }
 	    break;
 	  case 'l':
-	    write_address (arg);
+	    write_address (arg PASS_REGS);
 	    break;
 	  case 'L':
-	    write_special_label (arg, rn, cpc->rnd3);
+	    write_special_label (arg, rn, cpc->rnd3 PASS_REGS);
 	    break;
 	  case 'B':
 	    {
@@ -686,14 +686,14 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	  case 'h':
 	    {
 	      CELL my_arg = *cptr++;
-	      write_address(my_arg);
+	      write_address(my_arg PASS_REGS);
 	    }
 	    break;
 	  case 'g':
-	    write_address(arg);
+	    write_address(arg PASS_REGS);
 	    break;
 	  case 'i':
-	    write_address (arg);
+	    write_address (arg PASS_REGS);
 	    break;
 	  case 'j':
 	    {
@@ -743,7 +743,7 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 		}
 		Yap_DebugErrorPutc ('\t');
 		my_arg = *ptr++;
-		write_address (my_arg);
+		write_address (my_arg PASS_REGS);
 		if (i+1 < arg)
 		  Yap_DebugErrorPutc ('\n');
 	      }
@@ -762,7 +762,7 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 		  Yap_DebugPlWrite(MkIntTerm (0));
 		}
 		Yap_DebugErrorPutc('\t');
-		write_address(lbl);
+		write_address(lbl PASS_REGS);
 		ptr += 2;
 		if (i+1 < arg)
 		  Yap_DebugErrorPutc('\n');

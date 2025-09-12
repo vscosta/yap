@@ -2251,7 +2251,7 @@ static yamop *a_bregs(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
 static yamop *copy_blob(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
   /* copy the blob to code space, making no effort to align if a double */
   int max = cpc->rnd1, i;
-  for (i = 0; i < max; i++)
+  for (i = 0; i <= max; i++)
     code_p = fill_a(cpc->arnds[i], code_p, pass_no);
   return code_p;
 }
