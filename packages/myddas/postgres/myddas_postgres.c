@@ -886,6 +886,17 @@ c_postgres_row( USES_REGS1 ) {
   }	return rc;
 }
 
+
+
+void init_postgres( void )
+{
+  Term mod = MkAtomTerm(LookupAtom("myddas_postgres")), omod = CurrentModule;
+  CurrentModule = mod;
+			
+    Yap_InitMYDDAS_PGPreds();
+    Yap_InitBackMYDDAS_PGPreds();
+    CurrentModule = omod;
+}
 #else
 
 void Yap_InitMYDDAS_PGPreds(void);
@@ -900,13 +911,6 @@ void Yap_InitBackMYDDAS_PGPreds(void)
 }
 
 #endif
-
-void init_pg( void )
-{
-    Yap_InitMYDDAS_PGPreds();
-    Yap_InitBackMYDDAS_PGPreds();
-}
-
 
 #ifdef _WIN32
 

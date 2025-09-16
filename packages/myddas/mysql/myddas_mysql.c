@@ -722,6 +722,15 @@ c_db_my_change_database( USES_REGS1 ) {
   return TRUE;
 }
 
+void init_mysql( void )
+{
+ Term mod = MkAtomTerm(LookupAtom("myddas_mysql")), omod = CurrentModule;
+  CurrentModule = mod;
+    Yap_InitMYDDAS_MySQLPreds();
+    Yap_InitBackMYDDAS_MySQLPreds();
+  CurrentModule = omod;
+}
+
 #else
 
 void Yap_InitMYDDAS_MySQLPreds(void);
@@ -735,13 +744,13 @@ void Yap_InitBackMYDDAS_MySQLPreds(void)
 {
 }
 
-#endif
-
 void init_mysql( void )
 {
     Yap_InitMYDDAS_MySQLPreds();
     Yap_InitBackMYDDAS_MySQLPreds();
 }
+
+#endif
 
 
 #ifdef _WIN32

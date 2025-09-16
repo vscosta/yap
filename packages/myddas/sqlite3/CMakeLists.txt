@@ -2,7 +2,6 @@
 
 
   if (WITH_SQLite3)
-find_package(SQLite3)
     add_feature_info(  YAPsqlite3 "SQLite3_FOUND	" " SQLite3 DB Manager version ${SQLite3_VERSION}, at ${SQLite3_INCLUDE_DIRS}" )
 
 if (SQLite3_FOUND)

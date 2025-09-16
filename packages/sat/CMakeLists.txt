@@ -1,4 +1,4 @@
-
+if (WITH_MINISAT)
 
 add_library( YAPMinisat minisat-interface.cc
         )
@@ -6,6 +6,7 @@ add_library( YAPMinisat minisat-interface.cc
       
 set_target_properties(MINISAT PROPERTIES CXX_STANDARD 11)
 
+endif()
 
 #cryptominisat5 support
 
@@ -14,16 +15,11 @@ if( WITH_CryptoMINISAT )
 find_library( CryptoMINISAT_LIBRARY cryptominisat cryptominisat5 )
   if (CryptoMINISAT_LIBRARY)
       set (CryptoMINISAT_FOUND On)
-emdif()
+endif()
 
-if (CryptoMINISAT_FOUND)
-add_library( YAPCryptominisat
- cryptominisat-interface.cc 
-)
+target_link_libraries ( YAPCryptominisat cryptominisat   libYap)
 
-target_link_libraries (cryptominisat   libYap)
-
-set_target_properties(YAPCcryptominisat PROPERTIES CXX_STANDARD 14)
+set_target_properties(YAPCryptominisat PROPERTIES CXX_STANDARD 14)
 set(solver cryptominisat)
 set (Solver CMSat	)
 configure_file(yap-interface.cc.cmake cryptominisat-interface.cc)
@@ -32,18 +28,14 @@ configure_file(yap-interface.cc.cmake cryptominisat-interface.cc)
           RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )
 
-find_library( CryptoMINISAT_LIBRARY cryptominisat cryptominisat5 )
-  if (CryptoMINISAT_LIBRARY)
-      set (CryptoMINISAT_FOUND On)
-emdif()
-
+endif()
 
 if( WITH_Glucose4 )
 
 find_library( Glucose4_LIBRARY glucose4 )
   if (Glucose4_LIBRARY)
       set (Glucose4_FOUND On)
-emdif()
+endif()
 
 if (Glucose4_FOUND)
 add_library( YAPGlucose4
@@ -68,12 +60,9 @@ configure_file(yap-interface.cc.cmake glucose4-interface.cc)
 find_library( Glucose4_LIBRARY glucose4 glucose45 )
   if (Glucose4_LIBRARY)
       set (Glucose4_FOUND On)
-emdif()
+endif()
 
-if (Glucose4_FOUND)
-add_library( YAPGlucose4
- glucose4-interface.cc 
-)
+
 
 endif()
 

@@ -19,12 +19,7 @@
 			 '$error_checks'/1
 			 ]).
 
-:- use_module(library(myddas)).
 
-:- use_module(myddas_sqlite3).
-:- use_module(myddas_odbc).
-:- use_module(myddas_postgres).
-:- use_module(myddas_mysql).
 
 :- use_module(myddas_util_predicates,[
 				      '$make_a_list'/2,
@@ -90,23 +85,23 @@
 	get_value(Connection,Con),
 	% Number of fields of the Relation, must be
         % equal to the number of attributes
-	c_db_connection_type(Con,ConType),
+	myddas_core:c_db_connection_type(Con,ConType),
 	( ConType == mysql ->
-	    c_db_my_number_of_fields(Relation,Con,Arity)
+	    myddas_mysql:c_db_my_number_of_fields(Relation,Con,Arity)
 	; ConType == sqlite3 ->
-	    c_sqlite3_number_of_fields(Relation,Con,Arity)
+	    myddas_sqlite3:c_sqlite3_number_of_fields(Relation,Con,Arity)
 	;
-	    c_odbc_number_of_fields(Relation,Con,Arity)
+	    myddas_odbc:c_odbc_number_of_fields(Relation,Con,Arity)
 	),
 	length(Att,Arity),
 	% All fields must be Instanciated ( FALTA POR O NULL )
 	'$make_a_list'(Arity,FieldsProperties),
 	( ConType == mysql ->
-	    c_db_my_get_fields_properties(Relation,Con,FieldsProperties)
+	    myddas_mysql:c_db_my_get_fields_properties(Relation,Con,FieldsProperties)
 	;ConType == sqlite3 ->
-	    c_sqlite3_get_fields_properties(Relation,Con,FieldsProperties)
+	    myddas_sqlite3:c_sqlite3_get_fields_properties(Relation,Con,FieldsProperties)
 	;
-	    c_odbc_get_fields_properties(Relation,Con,FieldsProperties)
+	    myddas_odbc:c_odbc_get_fields_properties(Relation,Con,FieldsProperties)
 	),
 	'$check_fields'(Att,FieldsProperties).
 '$error_checks'(db_open(mysql,Connection,Host/Db/Port/_,User,Password)) :- !,
@@ -164,6 +159,7 @@
         atom(Connection),
         nonvar(SQL),
 	not ground(LA).
+
 '$error_checks'(db_number_of_fields(Connection,RelationName,_)) :- !,
         atom(Connection),
 	nonvar(RelationName).

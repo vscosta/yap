@@ -52,53 +52,53 @@ static Int c_db_check(USES_REGS1);
 
 void Yap_InitMYDDAS_SharedPreds(void) {
     
-   Term MyddasModule = MkAtomTerm(Yap_LookupAtom("myddas"));
+   Term MyddasCoreModule = MkAtomTerm(Yap_LookupAtom("myddas_core"));
   /* c_db_initialize_myddas */
-  Yap_InitCPredInModule("c_db_initialize_myddas", 0, c_db_initialize_myddas, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_initialize_myddas", 0, c_db_initialize_myddas, 0, MyddasCoreModule);
 
   /* c_db_connection_type: Connection x Type */
-  Yap_InitCPredInModule("c_db_connection_type", 2, c_db_connection_type, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_connection_type", 2, c_db_connection_type, 0, MyddasCoreModule);
 
   /* CORRECT THIS: db_add_preds : PredName * Arity * Connection */
-  Yap_InitCPredInModule("c_db_add_preds", 4, c_db_add_preds, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_add_preds", 4, c_db_add_preds, 0, MyddasCoreModule);
 
   /* c_db_check_if_exists_pred : PredName * Arity * Connection */
-  Yap_InitCPredInModule("c_db_check_if_exists_pred", 3, c_db_check_if_exists_pred, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_check_if_exists_pred", 3, c_db_check_if_exists_pred, 0, MyddasCoreModule);
 
   /* c_db_delete_pred : Module * PredName * Arity */
-  Yap_InitCPredInModule("c_db_delete_predicate", 3, c_db_delete_predicate, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_delete_predicate", 3, c_db_delete_predicate, 0, MyddasCoreModule);
 
   /* c_db_delete_pred : Module * PredName * Arity */
-  Yap_InitCPredInModule("c_db_multi_queries_number", 2, c_db_multi_queries_number, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_multi_queries_number", 2, c_db_multi_queries_number, 0, MyddasCoreModule);
 
 #ifdef MYDDAS_STATS
   /* c_db_stats: Connection * Stats */
-  Yap_InitCPredInModule("c_db_stats", 2, c_db_stats, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_stats", 2, c_db_stats, 0, MyddasCoreModule);
 
   /* c_db_stats_walltime */
-  Yap_InitCPredInModule("c_db_stats_walltime", 1, c_db_stats_walltime, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_stats_walltime", 1, c_db_stats_walltime, 0, MyddasCoreModule);
 
   /* c_db_stats_translate */
-  Yap_InitCPredInModule("c_db_stats_translate", 2, c_db_stats_translate, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_stats_translate", 2, c_db_stats_translate, 0, MyddasCoreModule);
 
   /* c_db_stats_time */
-  Yap_InitCPredInModule("c_db_stats_time", 2, c_db_stats_time, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_stats_time", 2, c_db_stats_time, 0, MyddasCoreModule);
 #endif
 
 #ifdef DEBUG
-  Yap_InitCPredInModule("c_db_check", 0, c_db_check, 0, MyddasModule);
+  Yap_InitCPredInModule("c_db_check", 0, c_db_check, 0, MyddasCoreModule);
 #endif
 }
 
 void Yap_InitBackMYDDAS_SharedPreds(void) {
     
-  Term MyddasModule = MkAtomTerm(Yap_LookupAtom("myddas"));
+  Term MyddasCoreModule = MkAtomTerm(Yap_LookupAtom("myddas_core"));
   /* Gives all the predicates associated to a given connection */
   Yap_InitCPredBackInModule("c_db_preds_conn", 4, sizeof(Int), c_db_preds_conn_start,
-			    c_db_preds_conn_continue, 0, MyddasModule);
+			    c_db_preds_conn_continue, 0, MyddasCoreModule);
   /* Gives all the connections stored on the MYDDAS Structure*/
   Yap_InitCPredBackInModule("c_db_connection", 1, sizeof(Int), c_db_connection_start,
-                    c_db_connection_continue, 0, MyddasModule);
+                    c_db_connection_continue, 0, MyddasCoreModule);
 }
 
 static bool myddas_initialised;
@@ -702,8 +702,12 @@ void init_myddas(void) {
   {
     return;
   }
+  Term mod = MkAtomTerm(Yap_LookupAtom("myddas_core")), omod = CurrentModule;
+  CurrentModule = mod;
 Yap_InitMYDDAS_SharedPreds();
-  Yap_InitBackMYDDAS_SharedPreds();
+Yap_InitBackMYDDAS_SharedPreds();
+   CurrentModule = omod;
+
 #define stringify(X) _stringify(X)
 #define _stringify(X) #X
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;

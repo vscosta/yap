@@ -35,24 +35,6 @@
 		  db_get_attributes_types/3,
 		  db_number_of_fields/2,
 		  db_number_of_fields/3,
-      % myddas_shared.c
-      c_db_initialize_myddas/0,
-      c_db_connection_type/2,
-      c_db_add_preds/4,
-      c_db_preds_conn/4,
-      c_db_connection/1,
-      c_db_check_if_exists_pred/3,
-      c_db_delete_predicate/3,
-      c_db_multi_queries_number/2,
-/*      %#ifdef MYDDAS_STATS
-      c_db_stats/2,
-      c_db_stats_walltime/1,
-      c_db_stats_translate/2,
-      c_db_stats_time/2,
-      %#endif
-      %#ifdef DEBUG
-      c_db_check/0,
-      %#endif
 		  %#ifdef MYDDAS_TOP_LEVEL
           db_top_level/4,
 		  db_top_level/5,

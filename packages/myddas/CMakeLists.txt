@@ -8,27 +8,41 @@ set(SO_PATCH 0)
 
 add_feature_info(MYDDAS WITH_MYDDAS "MYDDAS release ${SO_MAJOR}.${SO_MINOR}.${SO_PATCH} " )
 
+set ( WITH_ODBC No)
+set ( WITH_MySQL No)
 
-add_subdirectory(sqlite3)
-add_subdirectory(mysql)
-add_subdirectory(odbc)
-add_subdirectory(postgres)
-
-if (MYSQL_FOUND)
-add_definitions( -DMYDDAS_MYSQL=1)
-endif ()
-
-if (ODBC_FOUND)
-add_definitions( -DMYDDAS_ODBC=1)
-endif ()
-
-if (POSTGRES_FOUND)
-add_definitions( -DMYDDAS_POSTGRES=1)
-endif()
-
-if (SQLite3_FOUND)
+if (WITH_SQLite3)
+find_package(SQLite3)
+if (SQLIte3_FOUND)
 add_definitions( -DMYDDAS_SQLITE3=1)
 endif()
+add_subdirectory(sqlite3)
+endif()
+
+if (WITH_PostgreSQL)
+find_package(PostgreSQL)
+if (PostgreSQL_FOUND)
+add_definitions( -DMYDDAS_POSTGRES=1)
+endif()
+add_subdirectory(postgres)
+endif()
+
+if( WITH_MySQL)
+ find_package(FindPkgConfig REQUIRED)
+pkg_check_modules(mariadb REQUIRED IMPORTED_TARGET "mysqlclient")
+if (MARIADB_FOUND)
+add_definitions( -DMYDDAS_MYSQL=1)
+endif()
+add_subdirectory(mysql)
+endif()
+
+if( WITH_ODBC)
+find_Package(ODBC)
+if (ODBC_FOUND)
+add_definitions( -DMYDDAS_ODBC=1)
+endif()
+add_subdirectory(odbc)
+endif ()
 
 set(MYDDAS_SOURCES
 myddas_initialization.c

@@ -45,24 +45,13 @@
 				  '$check_list_on_list'/2
 				  ]).
 
-:- use_module(library(myddas),[
-		      db_verbose/1,
-          c_db_preds_conn/4
-		     ]).
+:- use_module('myddas_core').
+:- use_module(library(myddas_mysql)).
+:- use_module(library(myddas_sqlite3)).
+:- use_module(library(myddas_odbc)).
+:- use_module(library(myddas_postgres)).
+:- use_module(library(myddas_prolog2sql)).
 
-:- use_module(myddas_prolog2sql,[
-	      queries_atom/2,
-			     translate/3
-			    ]).
-
-:- use_module(myddas_errors,[
-			     '$error_checks'/1
-			     ]).
-
-:- use_module(myddas_mysql,[
-		  my_row/3,
-		  c_db_my_get_next_result_set/2
-	      ]).
 
 '$prolog2sql'(ProjTerm,DbGoal,SQL):-
 	copy_term((ProjTerm,DbGoal),(CopyTerm,CopyGoal)),

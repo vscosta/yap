@@ -11,7 +11,7 @@
 * File:		myddas_assert_predicates.yap	                         *
 * Last rev:							         *
 * mods:									 *
-* comments:	Predicates that assert other for the MyDDAS Interface	 *
+ * comments:	Predicates that assert other for the MyDDAS Interface	 *
 *									 *
 *************************************************************************/
 
@@ -24,86 +24,29 @@
 				    db_insert/3,
 				    db_abolish/2,
 				    db_listing/0,
-				    db_listing/1
-%				    relation/3
+				    db_listing/1,
+				    relation/3
+
 				   ]).
-
-
-:- use_module(library(myddas)).
+:- dynamic relation/3.
 
 :- use_module(myddas_errors,[
 			     '$error_checks'/1
 			     ]).
 
-:- use_module(myddas_util_predicates,[
-				      '$get_values_for_insert'/3,
-				      '$make_atom'/2,
-				      '$write_or_not'/1,
-				      '$copy_term_nv'/4,
-				      '$assert_attribute_information'/4,
-				      '$make_a_list'/2,
-				      '$where_exists'/2,
-				      '$build_query'/5
-				      ]).
+:- use_module(myddas_util_predicates).
 
-:- use_module(myddas_prolog2sql,[
-				 translate/3,
-				 queries_atom/2
-				]).
-:- use_module(myddas_mysql,[
-db_my_result_set/1,
-			    			      my_show_tables/1,
-			      c_my_change_database/2,
-			      c_my_connect/4,
-			      c_my_disconnect/1,
-			      c_my_get_attributes_types/3,
-			      c_my_get_database/2,
-			      c_my_get_fields_properties/3,
-			      c_my_get_next_result_set/3,
-			      c_my_query/5,
-				  my_row/3,
-			    my_result_set/1
-			    ]).
- :- use_module(myddas_sqlite3,[
-sqlite3_result_set/1,
-			      sqlite3_show_tables/1,
-			      c_sqlite3_change_database/2,
-			      c_sqlite3_connect/4,
-			      c_sqlite3_disconnect/1,
-			      c_sqlite3_get_attributes_types/3,
-			      c_sqlite3_get_database/2,
-			      c_sqlite3_get_fields_properties/3,
-			      c_sqlite3_get_next_result_set/3,
-			      c_sqlite3_query/5,
-				  sqlite3_row/3
-                           ]).
-:- use_module(myddas_odbc,[
-			      odbc_result_set/1,
-			      c_odbc_change_database/2,
-			      c_odbc_connect/4,
-			      c_odbc_disconnect/1,
-			      c_odbc_get_attributes_types/3,
-			      c_odbc_get_database/2,
-			      c_odbc_get_fields_properties/3,
-			      c_odbc_get_next_result_set/3,
-			      c_odbc_query/5,
-			      c_odbc_row/3
-                           ]).
-:- use_module(myddas_postgres,[
-			      postgres_result_set/1,
-			      c_postgres_change_database/2,
-			      c_postgres_connect/4,
-			      c_postgres_disconnect/1,
-			      c_postgres_get_attributes_types/3,
-			      c_postgres_get_database/2,
-			      c_postgres_get_fields_properties/3,
-			      c_postgres_get_next_result_set/3,
-			      c_postgres_query/5,
-			      c_postgres_row/3
-                           ]).
+:- use_module(myddas_prolog2sql).
+:- use_module(myddas_mysql).
+			    
+ :- use_module(myddas_sqlite3).
+
+:- use_module(myddas_odbc).
+:- use_module(myddas_postgres).
 			   
+:- use_module(myddas_core).
 
-:- use_module( libary(lists)).
+:- use_module( library(lists)).
 
 :- meta_predicate db_import(+,+,:), db_import(+,:).
 
@@ -167,7 +110,7 @@ db_view(Connection,PredName,DbGoal) :-
 	CopyView=..[ViewName|LA],
 
 	M=myddas_assert_predicates,
-	c_db_connection_type(Con,ConType),
+	myddas_core:c_db_connection_type(Con,ConType),
 
 	% build view clause
 	table_view( ConType, Con, CopyView, CopyGoal, Arity, LA, M, Assert ),
@@ -187,7 +130,7 @@ db_insert(RelationName,PredName) :-
 db_insert(Connection,RelationName,PredName) :-
 	'$error_checks'(db_insert3(Connection,RelationName,PredName)),
 	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
+	myddas_core:c_db_connection_type(Con,ConType),
 
 	% get relation arity
 	table_arity( Con, ConType, RelationName, Arity ),
@@ -235,7 +178,7 @@ db_abolish(PredName,Arity):-
 %
 db_listing:-
 	c_db_connection(Con),
-	user:c_db_preds_conn(Con,Module,Name,Arity),
+	c_db_preds_conn(Con,Module,Name,Arity),
 	listing(Module:Name/Arity),
 	fail.
 db_listing.
@@ -248,15 +191,15 @@ db_listing.
 %% describe a table's data.
 db_listing(Module:Name/Arity):-!,
 	c_db_connection(Con),
-	user:c_db_preds_conn(Con,Module,Name,Arity),
+	c_db_preds_conn(Con,Module,Name,Arity),
 	listing(Module:Name/Arity).
 db_listing(Name/Arity):-!,
 	c_db_connection(Con),
-	user:c_db_preds_conn(Con,Module,Name,Arity),
+	c_db_preds_conn(Con,Module,Name,Arity),
 	listing(Module:Name/Arity).
 db_listing(Name):-
 	c_db_connection(Con),
-	user:c_db_preds_conn(Con,Module,Name,Arity),
+	c_db_preds_conn(Con,Module,Name,Arity),
 	listing(Module:Name/Arity).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -286,13 +229,13 @@ table_attributes( sqlite3, Con, RelationName, TypesList ) :-
 #if MYDDAS_MYSQL
 table_access_predicate( mysql, Con, Arity, P, LA, M,
 			M:( P :- myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
-				  myddas_prolog2sql:translate(G,G,Code),
+				  translate(G,G,Code),
 				  queries_atom(Code,FinalSQL),
 				  db_my_result_set(Mode),
 				  myddas_util_predicates:'$write_or_not'(FinalSQL),
-				  user:c_db_my_query(FinalSQL,ResultSet,Con,Mode,_),
+				  c_db_my_query(FinalSQL,ResultSet,Con,Mode,_),
 				  !,
-				  user:c_db_my_row(ResultSet,Arity,LA)
+				  c_db_my_row(ResultSet,Arity,LA)
 			  )).
 #endif
 #if MYDDAS_POSTGRES
@@ -310,8 +253,8 @@ table_access_predicate( postgres, Con, Arity, P, LA, M,
 #if MYDDAS_SQLITE3
 table_access_predicate( sqlite3, Con, Arity, P, LA, M,
                         M:( P :- (myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
-                                      myddas_prolog2sql:translate(G,G,Code),
-                                      myddas_prolog2sql:queries_atom(Code,FinalSQL),
+                                      translate(G,G,Code),
+                                      queries_atom(Code,FinalSQL),
 				      myddas_sqlite3:sqlite3_result_set(Mode),
                                       myddas_util_predicates:'$write_or_not'(FinalSQL),
 				      myddas_sqlite3:c_sqlite3_query(FinalSQL,ResultSet,Con,Mode,_),
@@ -322,8 +265,8 @@ table_access_predicate( sqlite3, Con, Arity, P, LA, M,
 #if MYDDAS_ODBC
 table_access_predicate( odbc, Con, Arity, P, LA, M,
                         M:( P :- (myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
-				  myddas_prolog2sql:translate(G,G,Code),
-				  myddas_prolog2sql:queries_atom(Code,FinalSQL),
+				  translate(G,G,Code),
+				  queries_atom(Code,FinalSQL),
 				  myddas_odbc:odbc_result_set(Mode),
 				  'myddas_util_predicates:$write_or_not'(FinalSQL),
 				  myddas_odbc:c_odbc_query(FinalSQL,ResultSet,Con,Mode,_),

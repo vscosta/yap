@@ -9,8 +9,8 @@ WITH_SAT=$WITH_PACKAGES
 WITH_MYDDAS=$WITH_PACKAGES
 WITH_SQLite3=$WITH_MYDDAS
 
-REPO=file:///home/vsc/github/yap
-#REPO=https://github.com/vscosta/yap
+#REPO=file:///home/vsc/github/yap
+REPO=https://github.com/vscosta/yap
 while [ -a $*  ] ; do
             case "${1}" in
 	    	 --all-packages)
@@ -341,11 +341,9 @@ cat >> Dockerfile << EOF
 RUN  git clone $REPO /app/yap --depth=1\
     && mkdir -p /app/yap/build\
     && cd /app/yap/build\
-    && cmake .. $OPTS -DCMAKE_BUILD_TYPE=Release -DWITH_PACKAGES=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja 
-
-RUN  ninja install
-
-RUN cpack -C Release
+    && cmake .. $OPTS -DCMAKE_BUILD_TYPE=Release -DWITH_PACKAGES=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja  && \
+ninja install && \
+RUN cpack -C Release 
 
 ENV NAME=World
 

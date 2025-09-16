@@ -5,9 +5,6 @@ if (WITH_Postgres)
     myddas_postgres.c
     )
 
-
-find_package(PostgreSQL)
-
     add_feature_info(  YAPpostgres "PostgresSQL_FOUND	" " POstgresSQL DB Manager version ${PostgreSQL_VERSION_STRING}, at ${SQLite3_INCLUDE_DIRS} and   ${SQLite3_LIBRARY_DIRS}" )
   if (PostgreSQL_FOUND)
 

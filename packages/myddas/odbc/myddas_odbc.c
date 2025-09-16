@@ -801,18 +801,26 @@ void Yap_InitBackMYDDAS_ODBCPreds(void) {
   Yap_InitCPredBackCut("c_db_odbc_row", 3, sizeof(Int), c_db_odbc_row,
                        c_db_odbc_row, c_db_odbc_row_cut, 0);
 }
+void init_odbc() {
+  CACHE_REGS
+  Term mod = MkAtomTerm(Yap_LookupAtom("myddas_odbc")), omod = CurrentModule;
+  CurrentModule = mod;
+  Yap_InitMYDDAS_ODBCPreds();
+  Yap_InitBackMYDDAS_ODBCPreds();
+  CurrentModule = omod;
+  }
+
+
 #else
 
 void Yap_InitMYDDAS_ODBCPreds(void) {}
 void Yap_InitBackMYDDAS_ODBCPreds(void) {}
 
-#endif
+void init_odbc(void) {
+  }
 
-void init_odbc( void )
-{
-    Yap_InitMYDDAS_ODBCPreds();
-    Yap_InitBackMYDDAS_ODBCPreds();
-}
+
+#endif
 
 
 #ifdef _WIN32

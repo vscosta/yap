@@ -1,6 +1,7 @@
 set(MYDDAS_YPP
         myddas_assert_predicates.ypp
         myddas_top_level.ypp
+        myddas_core.ypp
         myddas_errors.ypp
         myddas_prolog2sql.ypp
         myddas_util_predicates.ypp
