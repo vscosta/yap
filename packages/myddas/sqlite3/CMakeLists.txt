@@ -1,45 +1,35 @@
 
 
 
-  if (WITH_SQLITE3)
-  set (SQLITE_TEST
+  if (WITH_SQLite3)
+find_package(SQLite3)
+    add_feature_info(  YAPsqlite3 "SQLite3_FOUND	" " SQLite3 DB Manager version ${SQLite3_VERSION}, at ${SQLite3_INCLUDE_DIRS}" )
+
+if (SQLite3_FOUND)
+
+
+set (SQLITE_TEST
     sqlitest.yap)
 
   set (SQLITE_DB    chinook.db)
 
   set( YAPSQLITE3_SOURCES
-    myddas_sqlite3.c src/sqlite3.c
+    myddas_sqlite3.c
     )
 
-  message( "   * Sqlite3 Data-Base (http://www.sqlite3.org), distributed with MYDDAS" )
 
-  add_to_dir(SQLITE_DB ${YAP_INSTALL_DATADIR})
-  add_to_dir( SQLITE_TEST ${YAP_INSTALL_DATADIR})
+if (SQLite3_FOUND)
 
+find_package(SQLite3)
 
-  #sqlite3 is now in the system
-
-  set (SQLITE3_FOUND ON CACHE STRING "System provides SQLITE3 DB" YES  )
 
 set_property(DIRECTORY
         APPEND PROPERTY
-       INCLUDE_DIRECTORIES  ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/src   )
+       INCLUDE_DIRECTORIES  ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR}/)
 
-
-
-  add_definitions(-DSQLITE_ENABLE_COLUMN_METADATA=1 )
-
-  add_definitions(-DSQLITE_ENABLE_JSON1=1 )
-
-  add_definitions(-DSQLITE_ENABLE_RBU=1 )
-
-  add_definitions(-DSQLITE_ENABLE_RTREE=1 )
-  add_definitions(-DSQLITE_ENABLE_FTS5=1 )
 
   SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
-message("ql ${EMBEDDED_SQLITE3}")
-  message( "   * Sqlite3 Data-Base (http://www.sqlite3.org), distributed with MYDDAS" )
   if ( ANDROID )
  add_definitions(-DSQLITE_FCNTL_MMAP_SIZE=0 )
  file(MAKE_DIRECTORY ${YAP_INSTALL_DATADIR}/myddas)
@@ -49,14 +39,12 @@ message("ql ${EMBEDDED_SQLITE3}")
       add_library(  YAPsqlite3 OBJECT
       ${YAPSQLITE3_SOURCES} )
   else()
-
-
-    list(APPEND YAPSQLITE3_SOURCES src/sqlite3.c)
-
-    add_library(  YAPsqlite3 SHARED
+   add_library(  YAPsqlite3 SHARED
       ${YAPSQLITE3_SOURCES})
+endif()
 
-    target_link_libraries(YAPsqlite3 libYap YAPmyddas)
+ 
+    target_link_libraries(YAPsqlite3 libYap YAPmyddas   SQLite::SQLite3)
 
     set_target_properties(YAPsqlite3
       PROPERTIES
@@ -79,4 +67,5 @@ message("ql ${EMBEDDED_SQLITE3}")
           )
 
 
+endif()
 endif()

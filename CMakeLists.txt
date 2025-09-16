@@ -237,36 +237,30 @@ endif()
 
 
 
+
 OPTION(WITH_MATLAB " Enable Matlab interface" OFF)
-OPTION(WITH_MYDDAS " Enable MYDDAS DBMS interface" ON)
 
 if (ANDROID)
     option (WITH_PACKAGES "packages and libraries  that add value to YAP" OFF)
     OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
-    OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ON)
-    OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)" OFF)
-else()
-    option(WITH_PACKAGES "packages and libraries  that add value to YAP" ON)
-    OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ${WITH_PACKAGES})
-    OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_PACKAGES})
-    OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)"  ${WITH_PACKAGES})
-endif()
-OPTION(WITH_MYSQL " Enable MYDDAS MYSQL driver" ${WITH_MYDDAS}})
-OPTION(WITH_ODBC " Enable MYDDAS ODBC driver" ${WITH_MYDDAS})
-OPTION(WITH_POSTGRES " Enable MYDDAS POSTGRES driver" ${WITH_MYDDAS})
-
-
-
-IF (WITH_SWIG)
+    IF (WITH_SWIG)
     find_host_package(SWIG)
-    add_subdirectory(packages/swig)
+    add_subdirectory(packages/swigb)
     # macro_log_feature (SWIG_FOUND "Swig"
     #         "Use SWIG Interface Generator "
     #         "http://www.swig.org" ON)
-
-ENDIF (WITH_SWIG)
-
-
+    ENDIF (WITH_SWIG)
+    OPTION(WITH_SQLite3 " Enable MYDDAS SQLITE3 driver" ON)
+    OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)" OFF)
+else()
+	OPTION(WITH_MYDDAS " Enable MYDDAS DBMS interface" ON)
+	if (WITH_MYDDAS)
+    OPTION(WITH_ODBC  " Enable MYDDAS ODBC driver" ON)
+    OPTION(WITH_SQLite3  " Enable MYDDAS SQLITE3 driver" ON)
+    OPTION(WITH_Postgres  " Enable MYDDAS Postgres driver" ON)
+    endif()
+    OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)"  ${WITH_PACKAGES})
+endif()
 OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" On)
 OPTION(WITH_XML2YAP " Enable the  XML2YAP library" On)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
@@ -513,7 +507,6 @@ set(YAP_FVERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
 set(YAP_NUMERIC_VERSION
   ${YAP_MAJOR_VERSION}*10000+${YAP_MINOR_VERSION}*100+${YAP_PATCH_VERSION})
-set(MYDDAS_VERSION MYDDAS-0.9.1)
 
 site_name(YAP_SITE)
 
@@ -680,17 +673,6 @@ if(ANDROID)
 else()
     add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 )
 
-    if (MYSQL_FOUND)
-        add_definitions( -DMYDDAS_MYSQL=1)
-    endif ()
-
-    if (ODBC_FOUND)
-        add_definitions( -DMYDDAS_ODBC=1)
-    endif ()
-
-    if (POSTGRES_FOUND)
-        add_definitions( -DMYDDAS_POSTGRES=1)
-    endif()
     #utf-8 is not aPconn option
     # we use the nice UTF-8 package
     #available at the Julia project

@@ -1,0 +1,354 @@
+#!/usr/bin/env bash 
+TARGET=$1
+WITH_PACKAGES=1
+WITH_CUDD=$WITH_PACKAGES
+WITH_Gecode=$WITH_PACKAGES
+WITH_Python3=$WITH_PACKAGES
+WITH_Raptor2=$WITH_PACKAGES
+WITH_SAT=$WITH_PACKAGES
+WITH_MYDDAS=$WITH_PACKAGES
+WITH_SQLite3=$WITH_MYDDAS
+
+REPO=file:///home/vsc/github/yap
+#REPO=https://github.com/vscosta/yap
+while [ -a $*  ] ; do
+            case "${1}" in
+	    	 --all-packages)
+		    OPTIONS+=" -DWITH_PACKAGES=1"
+		    ALL_PACKAGES=1
+		    ;;
+	    	 --select-packages)
+		    OPTIONS+=" -DWITH_PACKAGES=0"
+		    ALL_PACKAGES=NO
+		    ;;
+	    	 --with-cudd)
+		    WITH_CUDD=1
+		    OPTIONS+=" -DWITH_CUDD=1"
+		    ALL_PACKAGES=NO
+		    ;;
+	    	 --with-gecode)
+		    WITH_Gecode=1
+		    OPTIONS+=" -DWITH_Gecode=1"
+		    ALL_PACKAGES=NO
+		    ;;
+	    	 --with-python)
+		    WITH_Python3=1
+		    OPTIONS+=" -DWITH_Python3=1"
+		    ALL_PACKAGES=NO
+		    ;;
+	    	 --with-r)
+		    WITH_R=1
+		    OPTIONS+=" -DWITH_R=1"
+		    ALL_PACKAGES=NO
+		    ;;
+	    	 --with-threads)
+                    OPTIONS+=" -DWITH_Threads=1"
+                    ;;
+
+        *)
+            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
+                echo "Non-option argument: '-${OPTARG}'" >&2
+            fi
+            ;;
+	   esac
+shift
+done
+      
+if [ x$ALL_Packages = xNO ]; then
+   OPTIONS+=" -DWITH_PACKAGES=0"
+fi
+
+#
+# header: uses TARGET
+#
+cat > Dockerfile << EOF
+FROM $TARGET AS base
+
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# Set the working directory to /app
+
+WORKDIR /app
+EOF
+
+#
+# setup compilation
+#
+ case "$TARGET" in
+    ubuntu*|debian*)
+	cat >> Dockerfile << EOF
+
+RUN  \
+    apt -y update && apt -y upgrade && \
+    apt -y install git gcc g++ make cmake\
+    autotools-dev automake autoconf perl-base m4 doxygen\
+    libreadline-dev libgmp-dev \
+    openmpi-bin libopenmpi-dev\
+    swig ninja-build\
+    mkdocs  \
+    r-cran-rcpp
+
+EOF
+;;
+    fedora*)
+ 	cat >> Dockerfile << EOF
+
+RUN \
+     dnf -y upgrade && \
+     dnf -y install git gcc g++ make cmake automake\
+     readline-devel gmp-devel \
+     openmpi-devel\
+    ninja-build 
+
+
+EOF
+	;;
+    arch*)
+ 	    cat >> Dockerfile << EOF
+RUN  \
+    pacman -Suyy --noconfirm && \
+     pacman  -S --noconfirm  git gcc g++ make cmake\
+    openmpi-bin libopenmpi-devel\
+ ninja-build\
+    r-cran-rcpp \
+    
+
+EOF
+	    ;;
+	    esac
+
+
+#
+# CUDD compilation
+#
+if [ WITH_CUDD == 1 ]; then
+case "$TARGET" in
+    ubuntu*|debian*|fedora*)
+	cat >> Dockerfile << EOF
+
+RUN  \
+    git clone https://github.com/ivmai/cudd.git /app/cudd && \
+     cd /app/cudd     && \
+     aclocal  && \
+    automake  && \
+    ./configure --prefix=/usr --enable-shared --enable-obj --enable-dddmp  && \
+    make -j install
+
+EOF
+;;
+    arch*)
+ 	    cat >> Dockerfile << EOF
+RUN  \
+  pacman -S --noconfirm cudd
+EOF
+	    ;;
+	    esac
+
+fi
+
+#
+# GECODE compilation
+#
+if [ WITH_Gecode == 1 ]; then
+case "$TARGET" in
+    ubuntu*|debian*)
+	cat >> Dockerfile << EOF
+
+RUN  \
+ apt install libgecode-dev
+EOF
+;;
+    fedora*)
+ 	cat >> Dockerfile << EOF
+
+RUN \
+ dnf -y install gecode-devel
+
+EOF
+	;;
+    arch*)
+ 	cat >> Dockerfile << EOF
+
+	RUN  \
+echo "GECODE seems to only exist in AUR"
+
+RUN \
+cd /app && \
+ git clone https://aur.archlinux.org/gecode.git && \
+ cd gecode && \
+ makepkg -s -i
+     
+    EOF
+	    ;;
+	    esac
+fi
+
+#
+# PYTHON compilation
+#
+if [ WITH_Python3 = 1 ]; then
+case "$TARGET" in
+    ubuntu*|debian*)
+	cat >> Dockerfile << EOF
+
+RUN  \
+apt install -y swig  python3 python3-dev python3-numpy    python3-numpy-dev  \
+    python3-pip   python3-wheel python3-setuptools   python3-venv
+
+EOF
+;;
+    fedora*)
+ 	cat >> Dockerfile << EOF
+
+RUN \
+    dnf install -y  swig   python3 python3-devel python3-numpy    python3-numpy-devel \
+    python3-pip    python3-wheel python3-setuptools   python3-venv
+
+EOF
+	;;
+    arch*)
+RUN  \
+     pacman -S --noconfirm swig python3-numpy  \
+    python3-pip  python3-wheel python3-setuptools   python3-venv
+
+EOF
+	;;
+esac
+fi
+
+#
+# RAPTOR (RDF) compilation
+#
+if [ WITH_Raptor2 = 1 ]; then
+case "$TARGET" in
+    ubuntu*|debian*)
+	cat >> Dockerfile << EOF
+RUN  \
+    apt install -y     libraptor2-dev
+EOF
+;;
+    fedora*)
+ 	cat >> Dockerfile << EOF
+
+RUN \
+    dnf install -y \
+    raptor2-devel
+
+EOF
+	;;
+    arch*)
+RUN  \
+     pacman -S --noconfirm libraptor2
+
+EOF
+	;;
+esac
+fi
+
+#
+# SAT Solving compilation
+#
+if [ $WITH_SAT = 1 ]; then
+case "$TARGET" in
+    ubuntu*|debian*)
+	cat >> Dockerfile << EOF
+RUN  apt install -y   libzarchive-dev minisat libcryptominisat5-dev
+
+RUN git clone https://github.com/audemard/glucose.git && \
+mkdir glucose/release && \
+cd  glucose/release && \
+cmake BUILD_SHARED_LIBS=1  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja .. && \
+ ninja 
+EOF
+;;
+    fedora*)
+ 	cat >> Dockerfile << EOF
+
+RUN \ dnf install -y mminisat2-devel cryptominisat-devel                       
+
+
+RUN git clone https://github.com/audemard/glucose.git && \
+mkdir glucose/release && \
+cd  glucose/release && \
+cmake BUILD_SHARED_LIBS=1  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja .. && \
+ ninja 
+EOF
+	;;
+    arch*)
+ 	cat >> Dockerfile << EOF
+
+RUN  \
+    pacman -S --noconfirm minisat cryptominisat
+
+RUN echo "glucose SAT solver seems to only exist in AUR"
+
+RUN \
+cd /app && \
+ git clone https://aur.archlinux.org/glucose.git && \
+ cd glucose && \
+ makepkg -s -i
+     
+
+
+EOF
+	;;
+esac
+fi
+
+
+#
+# MYDDAS DB Interface
+#
+if [ $WITH_MYDDAS = 1 ]; then
+case "$TARGET" in
+    ubuntu*|debian*)
+	cat >> Dockerfile << EOF
+RUN  apt install -y  libsqlite3-dev libpq-dev libmariadb-dev libmariadb-dev-compat unixodbc-dev
+
+EOF
+;;
+    fedora*)
+ 	cat >> Dockerfile << EOF
+RUN  dnf install -y  sqlite3-devel pq-devel mariadb-devel unixodbc-devel
+
+EOF
+	;;
+    arch*)
+ 	cat >> Dockerfile << EOF
+
+RUN  \
+    pacman -S --noconfirm minisat cryptominisat
+
+RUN echo "glucose SAT solver seems to only exist in AUR"
+
+RUN \
+cd /app && \
+ git clone https://aur.archlinux.org/glucose.git && \
+ cd glucose && \
+ makepkg -s -i
+     
+
+
+EOF
+	;;
+esac
+fi
+
+
+#
+# let us go!
+#
+cat >> Dockerfile << EOF
+RUN  git clone $REPO /app/yap --depth=1\
+    && mkdir -p /app/yap/build\
+    && cd /app/yap/build\
+    && cmake .. $OPTS -DCMAKE_BUILD_TYPE=Release -DWITH_PACKAGES=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja 
+
+RUN  ninja install
+
+RUN cpack -C Release
+
+ENV NAME=World
+
+EOF
+
+sudo docker build .

@@ -8,13 +8,12 @@
     @brief Calling a SAT solver from Prolog
     @{
 
-	There are four SAT solver modules available:
+	There are three SAT solver modules available:
 	CryptoMinisat     (cryptominisat)
 	    Minisat 2.0.2          (minisat)
-	    Glucose 2.2            (glucose)
 	    Glucose 4.0            (glucose4)
 
-	    Glucose 2.2 is the default SAT solver.
+	    minisat is the default SAT solver.
 
 	    To change the default SAT solver, the user should use:
 	    :- nb_setval(satSolver_module,<New Value>).
@@ -35,12 +34,11 @@
                         satMinBinary/4, satMinBinary/2 %%% Binary is MSB first
     ]).
 
-    :- create_prolog_flag(sat_solver, glucose4, [type(atom), access(read_write), keep(true)]).
+    :- create_prolog_flag(sat_solver, minisat, [type(atom), access(read_write), keep(true)]).
 
-    satSolverLibrary(minisat,'MINISAT'):-!.
-    satSolverLibrary(glucose,'GLUCOSE'):-!.
-    satSolverLibrary(glucose4,'GLUCOSE4'):-!.
-    satSolverLibrary(cryptominisat,'CRYPTOMINISAT'):-!.
+    satSolverLibrary(minisat,'YAPMinisat'):-!.
+    satSolverLibrary(glucose4,'YAPGlucose4'):-!.
+    satSolverLibrary(cryptominisat,'YAPCryptominisat'):-!.
     satSolverLibrary(Value,_):-!, throw(error(domain_error(satSolver_module,Value),satSolverLibrary(Value,_))).
     
 

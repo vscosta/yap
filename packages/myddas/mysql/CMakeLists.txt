@@ -12,7 +12,7 @@ if (WITH_MYSQL)
   set(SO_MINOR 0)
   set(SO_PATCH 0)
 
-  macro_optional_find_package(MySQL ON)
+   find_package(MySQL)
 
   if (MYSQL_FOUND)
       #  MYSQL_INCLUDE_DIR - where to find mysql.h, etc.

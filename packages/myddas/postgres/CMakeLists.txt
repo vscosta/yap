@@ -1,21 +1,16 @@
 
-if (WITH_POSTGRES)
+if (WITH_Postgres)
 
   set( YAPPOSTGRES_SOURCES
     myddas_postgres.c
     )
 
-  set(SO_MAJOR 1)
-  set(SO_MINOR 0)
-  set(SO_PATCH 0)
 
-  macro_optional_find_package(PostgreSQL ON)
+find_package(PostgreSQL)
 
+    add_feature_info(  YAPpostgres "PostgresSQL_FOUND	" " POstgresSQL DB Manager version ${PostgreSQL_VERSION_STRING}, at ${SQLite3_INCLUDE_DIRS} and   ${SQLite3_LIBRARY_DIRS}" )
   if (PostgreSQL_FOUND)
-    #  PostgreSQL_FOUND         - Set to true when PostgreSQL is found.
-    #  PostgreSQL_INCLUDE_DIRS  - Include directories for PostgreSQL
-    #  PostgreSQL_LIBRARY_DIRS  - Link directories for PostgreSQL libraries
-    #  PostgreSQL_LIBRARIES     - The PostgreSQL libraries.
+
     add_library(YAPpostgres  ${YAPPOSTGRES_SOURCES})
     target_link_libraries(YAPpostgres libYap   ${PostgreSQL_LIBRARIES})
     set_property(DIRECTORY
@@ -40,3 +35,4 @@ if (WITH_POSTGRES)
   endif (PostgreSQL_FOUND)
 
 endif()
+
