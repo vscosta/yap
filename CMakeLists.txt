@@ -12,9 +12,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 project(YAP)
 
-set(YAP_MAJOR_VERSION 7)
-set(YAP_MINOR_VERSION 6)
-set(YAP_PATCH_VERSION 0)
+set(YAP_MAJOR_VERSION 8)
+set(YAP_MINOR_VERSION 0)
+set(YAP_PATCH_VERSION 1)
 
 # Sets the version of CMake required to build the native
 # library. You should either keep the default value or  pass a

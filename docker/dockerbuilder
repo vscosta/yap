@@ -263,7 +263,8 @@ EOF
     fedora*)
  	cat >> Dockerfile << EOF
 
-RUN \ dnf install -y mminisat2-devel cryptominisat-devel                       
+RUN \
+  dnf install -y minisat2-devel cryptominisat-devel                       
 
 
 RUN git clone https://github.com/audemard/glucose.git && \
@@ -308,7 +309,7 @@ EOF
 ;;
     fedora*)
  	cat >> Dockerfile << EOF
-RUN  dnf install -y  sqlite3-devel pq-devel mariadb-devel unixodbc-devel
+RUN  dnf install -y  sqlite-devel postgresql-devel mariadb-devel unixODBC-devel
 
 EOF
 	;;
