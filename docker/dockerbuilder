@@ -338,12 +338,12 @@ fi
 # let us go!
 #
 cat >> Dockerfile << EOF
-RUN  git clone $REPO /app/yap --depth=1\
+RUN  git clone $REPO /app/yap --depth=1 \
     && mkdir -p /app/yap/build\
     && cd /app/yap/build\
     && cmake .. $OPTS -DCMAKE_BUILD_TYPE=Release -DWITH_PACKAGES=1 -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja  && \
 ninja install && \
-RUN cpack -C Release 
+ cpack -C Release 
 
 ENV NAME=World
 
