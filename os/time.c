@@ -536,3 +536,5 @@ void Yap_InitTimePreds(void) {
   /* can only do after heap is initialized */
   Yap_InitWTime();
 }
+
+/// @}

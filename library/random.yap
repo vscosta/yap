@@ -116,19 +116,6 @@ integers in the range `[1... _MAX_)`.
 
 
 */
-/** @pred setrand(+ _Key_)
-
-
-Use a term of the form `rand(X,Y,Z)` to set a new state for the
-random number generator. The integer `X` must be in the range
-`[1...30269)`, the integer `Y` must be in the range
-`[1...30307)`, and the integer `Z` must be in the range
-`[1...30323)`.
-
-
-
-
- */
 %:- use_module(library(pairs)).
 :- use_module(library(lists)).
 
@@ -208,6 +195,19 @@ strip_keys([], []) :- !.
 strip_keys([_-K|L], [K|S]) :-
 	strip_keys(L, S).
 
+/** @pred setrand(+ _Key_)
+
+
+Use a term of the form `rand(X,Y,Z)` to set a new state for the
+random number generator. The integer `X` must be in the range
+`[1...30269)`, the integer `Y` must be in the range
+`[1...30307)`, and the integer `Z` must be in the range
+`[1...30323)`.
+
+
+
+
+ */
 setrand(rand(X,Y,Z)) :-
 	integer(X),
 	integer(Y),

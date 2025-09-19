@@ -161,6 +161,7 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/YAP/img/favicon.ico
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
     COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/md/INSTALL.md   mkdocs/docs/YAP
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md   mkdocs/docs/YAP
 #    COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md  -- xml mkdocs/docs ${CMAKE_BINARY_DIR}
     DEPENDS STARTUP filter-bin dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
   )

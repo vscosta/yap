@@ -57,7 +57,7 @@ info(_A, _, _, _).
 
 do_returns(G0 ,  Sols0, Lab ) :-
     counter(I),
-    fetch(I, Sols0, Pattern0, Next),
+    fetch(I, Sols0, Pattern0, _Next),
      Pattern0 = ( V0 =@= Target0 ),
      copy_term(G0-V0, G-VGF),
      catch( answer(G, VGF, Target0, Lab, Sol) , Error, Sol = error(G, Error) ),
