@@ -446,7 +446,7 @@ db_assert(PredName):-
 	db_assert(myddas,PredName).
 
 db_assert(Connection,PredName):-
-	translate(PredName,PredName,Code),
+	myddas_prolog2sql:translate(PredName,PredName,Code),
 	'$error_checks'(db_insert2(Connection,PredName,Code)),
 	'$get_values_for_insert'(Code,ValuesList,RelName),
 	'$make_atom'(['INSERT INTO `',RelName,'` VALUES '|ValuesList],SQL),
@@ -547,7 +547,7 @@ db_update(Connection,WherePred-SetPred):-
 
 	copy_term(WhereArgs,WhereArgsTemp),
 	NewRelation=..[PredName|WhereArgsTemp],
-	translate(NewRelation,NewRelation,Code),
+	myddas_prolog2sql:translate(NewRelation,NewRelation,Code),
 
 	'$get_values_for_update'(Code,SetArgs,SetCondition,WhereCondition),
 

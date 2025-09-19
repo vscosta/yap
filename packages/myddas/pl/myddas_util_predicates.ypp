@@ -32,7 +32,6 @@
 				  '$get_table_name'/2,
 				  '$extract_args'/4,
 				  '$copy_term_nv'/4,
-				  '$assert_attribute_information'/4,
 				  '$make_a_list'/2,
 				  % '$make_list_of_args'/4,
 				  '$where_exists'/2,
@@ -220,18 +219,6 @@
  '$make_a_list'(N,[_|T]) :-
  	N1 is N-1,
     	'$make_a_list'(N1,T).
- 
-'$assert_attribute_information'(N,N,_,_) :- !.
-'$assert_attribute_information'(N,M,Relation,[FieldName,HeadType|TailTypes]) :-
- 	functor(Attrib,attribute,4),
-     	N1 is N+1,
- 	arg(1,Attrib,N1),
-	arg(2,Attrib,Relation),
-	arg(3,Attrib,FieldName),
-	arg(4,Attrib,HeadType),
-	'$assert_facts'(myddas_prolog2sql,Attrib),
-	%assert(myddas_prolog2sql:Attrib),
-     	'$assert_attribute_information'(N1,M,Relation,TailTypes).
  
  
 '$copy_term_nv'(T,Dic,NT,[(T,NT)|Dic]) :-

@@ -16,12 +16,15 @@
 *************************************************************************/
 
 :- module(myddas_assert_predicates,[
+				    db_assert/1,
+				    db_assert/2,
 				    db_import/2,
 				    db_import/3,
 				    db_view/2,
 				    db_view/3,
 				    db_insert/2,
 				    db_insert/3,
+				    db_update/2,
 				    db_abolish/2,
 				    db_listing/0,
 				    db_listing/1,
@@ -29,6 +32,9 @@
 
 				   ]).
 :- dynamic relation/3.
+
+:- use_module( library(lists)).
+:- use_module( library(maplist)).
 
 :- use_module(myddas_errors,[
 			     '$error_checks'/1
@@ -38,15 +44,14 @@
 
 :- use_module(myddas_prolog2sql).
 :- use_module(myddas_mysql).
-			    
+
  :- use_module(myddas_sqlite3).
 
 :- use_module(myddas_odbc).
 :- use_module(myddas_postgres).
-			   
+
 :- use_module(myddas_core).
 
-:- use_module( library(lists)).
 
 :- meta_predicate db_import(+,+,:), db_import(+,:).
 
@@ -58,30 +63,93 @@ db_import(RelationName,PredName0):-
 	db_import(myddas,RelationName,PredName0).
 db_import(Connection,RelationName,PredName0) :-
 	'$error_checks'(db_import(Connection,RelationName,PredName0)),
-     get_value(Connection,Con),
-	table_arity( Con, ConType, RelationName, Arity ),
+	get_value(Connection,Con),
+	table_arity( Connection, RelationName, Arity ),
 	strip_module(PredName0, Module, PredName),
 	\+ c_db_check_if_exists_pred(PredName,Arity,Module),
-	R=..[relation,Module,PredName,Arity,RelationName],
-	% assert relation fact
-	assert(myddas_prolog2sql:R),
+        c_db_connection_type(Con,ConType),
+	table_attributes( ConType, Con, RelationName, FieldNamesList, TypesList ),
+	assert(myddas_yap2sql:relation(Module,PredName,Arity,RelationName, FieldNamesList, TypesList )),
+	functor(Goal,PredName,Arity),
+	att_names(RelationName, FieldNamesList, FieldNames),
+	format(atom(SQL), 'select ~s from ~s;', [FieldNames, RelationName]),
+	term_variables(Goal,Vars),
+	TVars =.. [t|Vars],
+	assert((Module:Goal :- all_vars(Vars),!,
+			       db_sql(Connection, SQL,TVars))),
+        assert((Module:Goal :- goal2sql(Module:Goal))),
+	!.
 
-	Size is 2*Arity,
-        length(TypesList, Size),
-	% get attributes types in TypesList [field0,type0,field1,type1...]
-	table_attributes( ConType, Con, RelationName, TypesList ),
+goal2sql(Module:Goal) :-
+    functor(Goal, PredName, Arity),
+	Goal =.. [PredName|Args],
+	myddas_yap2sql:relation(Module,PredName,Arity,RelationName, FieldNamesList, _TypesList ),
+	foldl3(binding, Args, FieldNamesList, BoundVars, [], FreeVars, [], OutVars, []),
+	att_names(RelationName, FreeVars, Selected),
+	format(atom(SQL), 'select ~s from ~s where ~s;', [Selected, RelationName, BoundVars]),
+	TVars =.. [t|OutVars],
+	asserta((Module:Goal :- all_vars(OutVars),!,
+			       db_sql(Connection, SQL,TVars))),
+	db_sql(Connection, SQL,TVars).
 
-				% assert attributes facts
-        '$assert_attribute_information'(0,Arity,RelationName,TypesList),
+	binding(A, Name, [Name=A|L], L, Fs, Fs, Os, Os) :-
+	     nonvar(A),
+		 !.
+	binding(V, Name, L, L, [Name|Fs], Fs, [V|Os], Os).
 
-	% build PredName functor
-	functor(P,PredName,Arity),
-	P=..[PredName|LA],
-	%build PredName clause
-	table_access_predicate( ConType, Con, Arity, P, LA, Module, Assert0 ),
-		strip_module(Assert0,_,Assert),
-	assert_static(user:Assert),
-	c_db_add_preds(PredName,Arity,Module,Con).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% table_arity :- number of columns in a relation.
+%                               %
+table_arity( Con, _ConType, RelationName, Arity ) :-
+           db_number_of_fields(Con,RelationName,Arity).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+#if MYDDAS_SQLITE3
+table_attributes( sqlite3, Con, RelationName, NamesList, TypesList ) :-
+    c_sqlite3_get_attributes_types(RelationName,Con,InfoList),
+  maplist(new_att(RelationName),InfoList,NamesList, TypesList).
+
+new_att(RelationName,t(N1,Name, Type), Name, Type) :-
+    assert(myddas_yap2sql:att(RelationName,N1,Name, Type)).
+
+att_names(RelationName, L, FieldNames) :-
+    att_names(RelationName,L,LF,[]),
+    atom_list_concat(LF, FieldNames).
+
+att_names(R, [Name]) --> [R,'.',Name].
+att_names(R, [Name|Names]) -->
+    [R,'.',Name,', '],
+    att_names(R, Names).
+
+bindings(RelationName, L, FieldNames) :-
+    bindings(RelationName,L,LF,[]),
+    atom_list_concat(LF, FieldNames).
+
+bindings(R, [Name=Value]) -->
+     bind(Name,R,Value).
+bindings(R, [Name=Value|Names]) -->
+    bind(Name,R,Value),
+	[', '],
+    bindings(R, Names).
+
+bind(Name,R,Value) -->
+     {integer(Value),
+	 !,
+	 atom_number(Value,A)},
+	[R,'.',Name,' = ', A].
+bind(Name,R,Value) -->
+	[R,'.',Name,' = \'', Value,'\''].
+
+
+all_vars(L) :- maplist(var,L).
+
+
+#else
+% table_attributes( _DB, _Con, _RelationName, _NamesList, _TypesList ) :-throw(not_yet)..
+#endif
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -93,33 +161,29 @@ db_import(Connection,RelationName,PredName0) :-
 % db_view/2
 %
 db_view(PredName,DbGoal) :-
-	db_view(myddas,PredName,DbGoal).
+        db_view(myddas,PredName,DbGoal).
 db_view(Connection,PredName,DbGoal) :-
-	'$error_checks'(db_view(Connection,PredName,DbGoal)),
-	get_value(Connection,Con),
+        '$error_checks'(db_view(Connection,PredName,DbGoal)),
+        get_value(Connection,Con),
 
-       	% get arity of projection term
-	functor(PredName,ViewName,Arity),
-	db_module(Module),
-	not c_db_check_if_exists_pred(ViewName,Arity,Module),
+        % get arity of projection term
+        functor(PredName,ViewName,Arity),
+        db_module(Module),
+        not c_db_check_if_exists_pred(ViewName,Arity,Module),
 
-	% This copy_term is done to prevent the unification
-	% with top-level variables   A='var('A')' error
-	copy_term((PredName,DbGoal),(CopyView,CopyGoal)),
+        % This copy_term is done to prevent the unification
+        % with top-level variables   A='var('A')' error
+        copy_term((PredName,DbGoal),(CopyView,CopyGoal)),
 
-	CopyView=..[ViewName|LA],
+        CopyView=..[ViewName|LA],
 
-	M=myddas_assert_predicates,
-	myddas_core:c_db_connection_type(Con,ConType),
+        M=myddas_assert_predicates,
+        c_db_connection_type(Con,ConType),
 
-	% build view clause
-	table_view( ConType, Con, CopyView, CopyGoal, Arity, LA, M, Assert ),
-	assert(Module:Assert),
-	c_db_add_preds(ViewName,Arity,Module,Con).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
+        % build view clause
+        table_view( ConType, Con, CopyView, CopyGoal, Arity, LA, M, Assert ),
+        assert(Module:Assert),
+        c_db_add_preds(ViewName,Arity,Module,Con).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % @pred db_insert/3
@@ -130,7 +194,7 @@ db_insert(RelationName,PredName) :-
 db_insert(Connection,RelationName,PredName) :-
 	'$error_checks'(db_insert3(Connection,RelationName,PredName)),
 	get_value(Connection,Con),
-	myddas_core:c_db_connection_type(Con,ConType),
+	c_db_connection_type(Con,ConType),
 
 	% get relation arity
 	table_arity( Con, ConType, RelationName, Arity ),
@@ -157,6 +221,7 @@ db_insert(Connection,RelationName,PredName) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % db_abolish(+,+)
 %
 %
@@ -205,31 +270,15 @@ db_listing(Name):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % table_arity :- number of columns in a relation.
 %				%
-table_arity( Con, _ConType, RelationName, Arity ) :-
-	   db_number_of_fields(Con,RelationName,Arity).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#if MYDDAS_MYSQL
-				% major attributes types.
-table_attributes( mysql, Con, RelationName, TypesList ) :-
-	c_db_my_get_attributes_types(RelationName,Con,TypesList).
-#endif
-#if MYDDAS_POSTGRES
-table_attributes( postgres, Con, RelationName, TypesList ) :-
-        c_postgres_get_attributes_types(RelationName,Con,TypesList).
-#endif
-table_attributes( odbc, Con, RelationName, TypesList ) :-
-	c_odbc_get_attributes_types(RelationName,Con,TypesList).
-
-table_attributes( sqlite3, Con, RelationName, TypesList ) :-
-  c_sqlite3_get_attributes_types(RelationName,Con,TypesList).
+table_arity( Connection, RelationName, Arity ) :-
+	   db_number_of_fields(Connection,RelationName,Arity).
 
 % predicate for DB-> query
 
 #if MYDDAS_MYSQL
 table_access_predicate( mysql, Con, Arity, P, LA, M,
-			M:( P :- myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
-				  translate(G,G,Code),
+			( P :-  '$copy_term_nv'(P,[],G,_),
+				  translate(M:G,M:G,Code),
 				  queries_atom(Code,FinalSQL),
 				  db_my_result_set(Mode),
 				  myddas_util_predicates:'$write_or_not'(FinalSQL),
@@ -241,7 +290,7 @@ table_access_predicate( mysql, Con, Arity, P, LA, M,
 #if MYDDAS_POSTGRES
 table_access_predicate( postgres, Con, Arity, P, LA, M,
                         M:( P :- myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
-                               translate(M:G,M:G,Code),
+                               myddas_prolog2sql:translate(M:G,M:G,Code),
                                queries_atom(Code,FinalSQL),
                                myddas_postgres:postgres_result_set(Mode),
                                myddas_util_predicates:'$write_or_not'(FinalSQL),
@@ -252,9 +301,9 @@ table_access_predicate( postgres, Con, Arity, P, LA, M,
 #endif
 #if MYDDAS_SQLITE3
 table_access_predicate( sqlite3, Con, Arity, P, LA, M,
-                        M:( P :- (myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
-                                      translate(G,G,Code),
-                                      queries_atom(Code,FinalSQL),
+                        ( M:P :- (myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
+                                      myddas_prolog2sql:translate(M:G,M:G,Code),
+                                      myddas_prolog2sql:queries_atom(Code,FinalSQL),
 				      myddas_sqlite3:sqlite3_result_set(Mode),
                                       myddas_util_predicates:'$write_or_not'(FinalSQL),
 				      myddas_sqlite3:c_sqlite3_query(FinalSQL,ResultSet,Con,Mode,_),
@@ -264,9 +313,9 @@ table_access_predicate( sqlite3, Con, Arity, P, LA, M,
 #endif
 #if MYDDAS_ODBC
 table_access_predicate( odbc, Con, Arity, P, LA, M,
-                        M:( P :- (myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
-				  translate(G,G,Code),
-				  queries_atom(Code,FinalSQL),
+                        ( P :- (myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
+				  myddas_prolog2sql:translate(G,G,Code),
+				  queries_atom(M:Code,FinalSQL),
 				  myddas_odbc:odbc_result_set(Mode),
 				  'myddas_util_predicates:$write_or_not'(FinalSQL),
 				  myddas_odbc:c_odbc_query(FinalSQL,ResultSet,Con,Mode,_),
@@ -365,3 +414,85 @@ table_view( sqlite3, Con, CopyView, CopyGoal, Arity, LA, M,
               !,
               myddas_sqlite3:sqlite3_row(ResultSet,Arity,LA) ))).
 #endif
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				% db_assert/2
+				% db_assert/1
+				%
+db_assert(PredName):-
+	db_assert(myddas,PredName).
+
+db_assert(Connection,PredName):-
+	translate(PredName,PredName,Code),
+	'$error_checks'(db_assert(Connection,PredName,Code)),
+	'$get_values_for_insert'(Code,ValuesList,RelName),
+	'$make_atom'(['INSERT INTO `',RelName,'` VALUES '|ValuesList],SQL),
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	'$write_or_not'(SQL),
+	( ConType == mysql ->
+	  myddas_top_level:db_my_result_set(Mode),
+	  c_db_my_query(SQL,_,Con,Mode,_)
+	;ConType == postgres ->
+	  postgres_result_set(Mode),
+	  c_postgres_query(SQL,_,Con,Mode,_)
+	;ConType == sqlite3 ->
+	  sqlite3_result_set(Mode),
+	  myddas_myddas_sqlite3:c_sqlite3_query(SQL,_,Con,Mode,_)
+	;
+	  c_odbc_query(SQL,_,_,_,Con)
+	).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+				% db_update/2
+				% BUG: db_update dosen't work for this case, just an example
+				% db_update(my1,edge(1,3)-edge(99,99)).
+				% The case where the set condition is "set" to change all the fields
+db_update(Connection,WherePred-SetPred):-
+				%TODO: error_checks
+	get_value(Connection,Conn),
+
+				% Match and Values must be "unifiable"
+	functor(WherePred,PredName,Arity),
+	functor(SetPred,PredName,Arity),
+
+	functor(NewRelation,PredName,Arity),
+
+	'$extract_args'(WherePred,1,Arity,WhereArgs),
+	'$extract_args'(SetPred,1,Arity,SetArgs),
+
+	copy_term(WhereArgs,WhereArgsTemp),
+	NewRelation=..[PredName|WhereArgsTemp],
+	translate(NewRelation,NewRelation,Code),
+
+	'$get_values_for_update'(Code,SetArgs,SetCondition,WhereCondition),
+
+	'$get_table_name'(Code,TableName),
+	append(SetCondition,WhereCondition,Conditions),
+	'$make_atom'(['UPDATE `',TableName,'` '|Conditions],SQL),
+	'$write_or_not'(SQL),
+	get_value(Connection,Con),
+	c_db_connection_type(Con,ConType),
+	( ConType == mysql ->
+	myddas_top_level:db_my_result_set(Mode),
+	  c_db_my_query(SQL,_,Conn,Mode,_)
+	;
+	  ConType == mysql ->
+	postgres_result_set(Mode),
+	  c_postgres_query(SQL,_,Conn,Mode,_)
+	;
+	ConType == sqlite3 ->
+	sqlite3_result_set(Mode),
+	 myddas_sqlite3:c_sqlite3_query(SQL,_,Conn,Mode,_)
+	;
+	  ConType == odbc ->
+	  c_odbc_query(SQL,_,Conn,Mode,_)
+	).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

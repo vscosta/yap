@@ -20,17 +20,20 @@ init :-
 
 go :-
     writeln(('db_import')),
-    db_import(con,'artists', artists),
-    writeln(('artist -> artists')),
-	db_import(con,'albums', albums),
-    writeln(('albums -> albums')),
-	db_import(con,'tracks', tracks),
+    (db_import(con,'artists', artists)),
+    writeln(('artist -> artists')).
+go :-
+    (db_import(con,'albums', albums)),
+	 writeln(('albums -> albums')).
+go :-
+    (db_import(con,'tracks', tracks)),
     writeln(('tracks -> tracks')).
 
 
 go :-
-%	X=1,
-    artists(X,Y),
+writeln(unif),
+    %	X=1,
+( artists(X,Y)),
     writeln(X:Y).
 go :-
     		writeln(db_get_attributes_types),

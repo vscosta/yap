@@ -64,6 +64,7 @@ typedef struct result_set {
 static void Yap_InitMYDDAS_SQLITE3Preds(void);
 static void Yap_InitBackMYDDAS_SQLITE3Preds(void);
 
+static Int c_sqlite3_connect2(USES_REGS1);
 static Int c_sqlite3_connect(USES_REGS1);
 static Int c_sqlite3_disconnect(USES_REGS1);
 static Int c_sqlite3_number_of_fields(USES_REGS1);
@@ -76,9 +77,8 @@ static Int c_sqlite3_get_next_result_set(USES_REGS1);
 static Int c_sqlite3_get_database(USES_REGS1);
 static Int c_sqlite3_change_database(USES_REGS1);
 
-static Int c_sqlite3_connect(USES_REGS1) {
+  static Int c_sqlite3_connect_(Term arg_db USES_REGS) {
   Term arg_file = Deref(ARG1);
-  Term arg_db = ARG2;
 
   MYDDAS_UTIL_CONNECTION new = NULL;
   sqlite3 *db;
@@ -105,6 +105,14 @@ static Int c_sqlite3_connect(USES_REGS1) {
   }
 }
 
+
+static Int c_sqlite3_connect( USES_REGS1 ) {
+  return c_sqlite3_connect_(ARG4 PASS_REGS);
+}
+
+static Int c_sqlite3_connect2( USES_REGS1) {
+  return c_sqlite3_connect_(ARG2 PASS_REGS);
+}
 #ifdef MYDDAS_STATS
 static MYDDAS_STATS_TIME myddas_stat_init_query(sqlite3 *db) {
   MYDDAS_UTIL_connecTION node = myddas_util_search_connection(db);
@@ -315,16 +323,18 @@ static Int c_sqlite3_get_attributes_types(USES_REGS1) {
 
   /* executar a query SQL */
   CALL_SQLITE(MkStringTerm(sql), prepare_v2(db, sql, -1, &stmt, NULL));
-
+  if (sqlite3_step(stmt) != SQLITE_ROW)
+    return false;
   int fields = sqlite3_column_count(stmt);
-
+  Term final = AbsPair(HR);
   for (row = 0; row < fields; row++) {
     const char *tm;
 
     list = Yap_MkNewPairTerm();
     *tfp = list;
-    RepPair(list)[0] =
-        MkAtomTerm(Yap_LookupAtom(sqlite3_column_name(stmt, row)));
+    Term props[3];
+    props[0] = MkIntTerm( row  + 1 );
+    props[1] = MkAtomTerm(Yap_LookupAtom(sqlite3_column_name(stmt, row)));
     tfp = RepPair(list) + 1;
 
     int type = sqlite3_column_type(stmt, row);
@@ -349,16 +359,13 @@ static Int c_sqlite3_get_attributes_types(USES_REGS1) {
       break;
     }
       __android_log_print(ANDROID_LOG_INFO, "YAPDroid", " sqlite3  attributes %s:%s ",sqlite3_column_name(stmt, row),tm);
-      list = Yap_MkNewPairTerm();
-    *tfp = list;
-    RepPair(list)[0] = MkAtomTerm(Yap_LookupAtom(tm));
-    tfp = RepPair(list) + 1;
-    tfp = RepPair(list) + 1;
+      props[2] = MkAtomTerm(Yap_LookupAtom(tm));
+    RepPair(list)[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomT,3),3,props);
   }
   *tfp = TermNil;
   CALL_SQLITE(ARG1, finalize(stmt));
 
-  return Yap_unify(tf, ARG3);
+  return Yap_unify(final, ARG3);
 }
 
 /* db_disconnect */
@@ -535,15 +542,17 @@ static Int c_sqlite3_row(USES_REGS1) {
   MyddasULInt count = 0;
   start = myddas_stats_walltime();
 #endif
-  Term arg_arity = Deref(ARG2);
   Term arg_list_args = Deref(ARG3);
   Int rc = TRUE;
   struct row_state *rs = AddressOfTerm(Deref(ARG4));
   struct result_set *res_set = rs->res_set;
-  Term head, list, null_atom[1];
+  Term *output, null_atom[1];
   Int i, arity;
-  list = arg_list_args;
-  arity = IntegerOfTerm(arg_arity);
+   arity = res_set->length;
+ if (IsVarTerm(arg_list_args)) {
+    arg_list_args = Yap_MkNewApplTerm(Yap_MkFunctor(AtomT,arity), arity);
+  }
+  output = RepAppl(arg_list_args)+1;
   sqlite3 *db = res_set->db;
 
   // busy-waiting
@@ -572,12 +581,9 @@ static Int c_sqlite3_row(USES_REGS1) {
     cut_fail(); /* This macro already does a return FALSE */
 
   } else if (res == SQLITE_ROW) {
-    list = arg_list_args;
-    Term tf = 0;
     for (i = 0; i < arity; i++) {
       /* convert data types here */
-      head = HeadOfTerm(list);
-      list = TailOfTerm(list);
+      Term tf;
 
       int type = sqlite3_column_type(res_set->stmt, i);
       switch (type) {
@@ -605,7 +611,7 @@ static Int c_sqlite3_row(USES_REGS1) {
                             null_atom);
         break;
       }
-      if (!Yap_unify(head, tf))
+      if (!Yap_unify(output[i],tf))
         rc = FALSE;
     }
 #ifdef MYDDAS_STATS
@@ -637,8 +643,8 @@ static void Yap_InitMYDDAS_SQLITE3Preds(void) {
    Term cm = CurrentModule;
    CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
   /* db_dbect: Host x User x Passwd x Database x dbection x ERROR_CODE */
+  Yap_InitCPred("c_sqlite3_connect", 2, c_sqlite3_connect2, 0);
   Yap_InitCPred("c_sqlite3_connect", 4, c_sqlite3_connect, 0);
-  Yap_InitCPred("c_sqlite3_connect", 2, c_sqlite3_connect, 0);
 
   /* db_number_of_fields: Relation x connection x NumberOfFields */
   Yap_InitCPred("c_sqlite3_number_of_fields", 3, c_sqlite3_number_of_fields, 0);

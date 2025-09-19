@@ -18,7 +18,7 @@
 :- module(myddas_core,[
   db_open/5,
 		  db_open/4,
-		  db_open/0,
+		  db_open/1,
 %		  sqlite3/1,
 		  db_close/1,
 		  db_close/0,
@@ -38,11 +38,8 @@
 		  db_prolog_select/3,
 		  db_prolog_select_multi/3,
 		  db_command/2,
-		  db_assert/2,
-		  db_assert/1,
 		  db_create_table/3,
 		  db_export_view/4,
-		  db_update/2,
 		  db_describe/2,
 		  db_describe/3,
 		  db_show_tables/2,
@@ -78,15 +75,17 @@
 				% myddas_mysql.ypp,
           		  db_multi_queries_number/2
 ]).
+
 :- use_module(library(lists)).
+:- use_module(library(maplist)).
 
 :- load_foreign_files([], ['YAPmyddas'], init_myddas).
 
 :- use_module(library(myddas_util_predicates)).
 :- use_module(library(myddas_mysql)).
 :- use_module(library(myddas_sqlite3)).
-:- use_module(library(myddas_odbc)).
 :- use_module(library(myddas_postgres)).
+:- use_module(library(myddas_odbc)).
 :- use_module(library(myddas_errors)).
 
 
@@ -184,14 +183,24 @@ db_open(odbc,Connection,ODBCEntry,User,Password) :-
 db_open(sqlite3,Connection,File,User,Password) :-
     absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
     '$error_checks'(db_open(sqlite3,Connection,Db,User,Password)),
-    c_sqlite3_connect(Db,User,Password,Con),
-    set_value(Connection,Con).
+   c_sqlite3_connect(Db,User,Password,Con),
+   set_value(Connection,Con).
 db_open(sqlite3,File,User,Password) :-
+Connection=myddas,
     absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
     '$error_checks'(db_open(sqlite3,_Connection,Db,User,Password)),
+  c_sqlite3_connect(Db,User,Password,Con),
+    set_value(Connection,Con).
+db_open(File) :-
+Connection=myddas,
+     absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
+    '$error_checks'(db_open(sqlite3,Connection,Db,User,Password)),
     c_sqlite3_connect(Db,User,Password,Con),
-    set_value(myddas,Con).
+    set_value(Connection,Con).
+       
+
 #endif
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -203,12 +212,12 @@ db_open(sqlite3,File,User,Password) :-
 % predicates are abolished. Default is to close `myddas`.
 db_close:-
     db_close(myddas).
-db_close(Protocol):-
-    '$error_checks'(db_close(Protocol)),
-    get_value(Protocol,Con),
+db_close(Connection):-
+    '$error_checks'(db_close(Connection)),
+    get_value(Connection,Con),
     c_db_connection_type(Con,ConType),
     ( '$abolish_all'(Con) ;
-      set_value(Protocol,[]), % "deletes" atom
+      set_value(Connection,[]), % "deletes" atom
       C_SWITCH( ConType, disconnect(Con) )
     ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -261,14 +270,14 @@ db_is_database_predicate(Module,PredName,Arity):-
 db_stats(List):-
     db_stats(myddas,List).
 
-db_stats(Protocol,List):-
-    '$error_checks'(db_stats(Protocol,List)),
+db_stats(Connection,List):-
+    '$error_checks'(db_stats(Connection,List)),
     NumberOfStats = 10,
     '$make_a_list'(NumberOfStats,ListX1),
-    ( var(Protocol) ->
+    ( var(Connection) ->
       c_db_stats(0,ListX1)
     ;
-    get_value(Protocol,Conn),
+    get_value(Connection,Conn),
     c_db_stats(Conn,ListX1)
     ),
     '$make_stats_list'(ListX1,List).
@@ -294,8 +303,8 @@ db_stats_time(Reference,Time):-
 				%
 
 				%compatibility
-db_sql_select(Protocol,SQL,LA):-
-	db_sql(Protocol,SQL,LA).
+db_sql_select(Connection,SQL,LA):-
+	db_sql(Connection,SQL,LA).
 
 db_sql(SQL,LA):-
 	db_sql(myddas,SQL,LA).
@@ -315,13 +324,11 @@ db_sql_(ConType, Con, SQL,LA):-
 	  postgres_result_set(Mode),
 	  c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
 	;ConType == sqlite3 ->
-	  sqlite3_result_set(Mode),
-	  c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
+	  c_sqlite3_query(SQL,ResultSet,Con,_Mode,Arity)
 	;
-	  c_odbc_query(SQL,ResultSet,Arity,LA,Con),
-	  c_odbc_number_of_fields_in_query(SQL,Con,Arity)
+	  %% ????
+	  c_odbc_query(SQL,ResultSet,Arity,LA,Con)
 	),
-	'$make_a_list'(Arity,LA),
 	SWITCH( ConType, row(ResultSet,Arity,LA) ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -337,7 +344,7 @@ db_prolog_select(Connection,LA,DbGoal):-
 	length(LA,Arity),
 	Name=viewname,
 	functor(ViewName,Name,Arity),
-				% build arg list for viewname/Arity
+					% build arg list for viewname/Arity
 	ViewName=..[Name|LA],
 	'$prolog2sql'(ViewName,DbGoal,SQL),
 	get_value(Connection,Con),
@@ -379,38 +386,6 @@ db_command(Connection,SQL):-
 	;
 	  true
 	).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_assert/2
-				% db_assert/1
-				%
-db_assert(PredName):-
-	db_assert(myddas,PredName).
-
-db_assert(Connection,PredName):-
-	myddas_prolog2sql:translate(PredName,PredName,Code),
-	'$error_checks'(db_insert2(Connection,PredName,Code)),
-	'$get_values_for_insert'(Code,ValuesList,RelName),
-	'$make_atom'(['INSERT INTO `',RelName,'` VALUES '|ValuesList],SQL),
-	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
-	'$write_or_not'(SQL),
-	( ConType == mysql ->
-	  myddas_top_level:db_my_result_set(Mode),
-	  c_db_my_query(SQL,_,Con,Mode,_)
-	;ConType == postgres ->
-	  postgres_result_set(Mode),
-	  c_postgres_query(SQL,_,Con,Mode,_)
-	;ConType == sqlite3 ->
-	  sqlite3_result_set(Mode),
-	  myddas_myddas_sqlite3:c_sqlite3_query(SQL,_,Con,Mode,_)
-	;
-	  c_odbc_query(SQL,_,_,_,Con)
-	).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				% db_create_table/3
@@ -434,7 +409,7 @@ db_create_table(Connection,TableName,FieldsInf):-
 	  c_postgres_query(FinalSQL,_,Con,Mode,_)
 	;ConType == sqlite3 ->
 	  sqlite3_result_set(Mode),
-	  myddas_myddas_sqlite3:c_sqlite3_query(FinalSQL,_,Con,Mode,_)
+	  c_sqlite3_query(FinalSQL,_,Con,Mode,_)
 	;
 	  c_odbc_query(FinalSQL,_,_,_,Con)
 	).
@@ -465,59 +440,9 @@ db_export_view(Connection,TableViewName,SQLorDbGoal,FieldsInf):-
 	( ConType == mysql ->
 	  myddas_top_level:db_my_result_set(Mode),
 	  c_db_my_query(FinalSQL,_,Con,Mode,_)
-	;
-	  c_odbc_query(FinalSQL,_,_,_,Con)
+%	;
+%	  c_odbc_query(FinalSQL,_,_,_,Con)
 	).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_update/2
-				% BUG: db_update dosen't work for this case, just an example
-				% db_update(my1,edge(1,3)-edge(99,99)).
-				% The case where the set condition is "set" to change all the fields
-db_update(Connection,WherePred-SetPred):-
-				%TODO: error_checks
-	get_value(Connection,Conn),
-
-				% Match and Values must be "unifiable"
-	functor(WherePred,PredName,Arity),
-	functor(SetPred,PredName,Arity),
-
-	functor(NewRelation,PredName,Arity),
-
-	'$extract_args'(WherePred,1,Arity,WhereArgs),
-	'$extract_args'(SetPred,1,Arity,SetArgs),
-
-	copy_term(WhereArgs,WhereArgsTemp),
-	NewRelation=..[PredName|WhereArgsTemp],
-	myddas_prolog2sql:translate(NewRelation,NewRelation,Code),
-
-	'$get_values_for_update'(Code,SetArgs,SetCondition,WhereCondition),
-
-	'$get_table_name'(Code,TableName),
-	append(SetCondition,WhereCondition,Conditions),
-	'$make_atom'(['UPDATE `',TableName,'` '|Conditions],SQL),
-	'$write_or_not'(SQL),
-	get_value(Connection,Con),
-	c_db_connection_type(Con,ConType),
-	( ConType == mysql ->
-	myddas_top_level:db_my_result_set(Mode),
-	  c_db_my_query(SQL,_,Conn,Mode,_)
-	;
-	  ConType == mysql ->
-	postgres_result_set(Mode),
-	  c_postgres_query(SQL,_,Conn,Mode,_)
-	;
-	ConType == sqlite3 ->
-	sqlite3_result_set(Mode),
-	 myddas_sqlite3:c_sqlite3_query(SQL,_,Conn,Mode,_)
-	;
-	  ConType == odbc ->
-	odbc_result_set(Mode),
-	  c_odbc_query(SQL,_,Conn,Mode,_)
-	).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 /**
  *
 @pred db_get_attributes_types(+Conn,+RelationName,-ListOfFields)
@@ -528,18 +453,21 @@ are the names and attributes types of the fields of a given relation. For exampl
 
 ```
 ?- db_get_attributes_types(myddas,’Hello World’,LA).
-LA = [’Number’,integer,’Name’,string,’Letter’,string] ?
+LA = [’Number’:integer,’Name’:string,’Letter’:string] ?
 yes
 ˜˜˜˜
 where `Hello World` is the name of the relation and `myddas` is the connection identifier.
  */
-db_get_attributes_types(RelationName,TypesList) :-
-	db_get_attributes_types(myddas,RelationName,TypesList).
-db_get_attributes_types(Connection,RelationName,TypesList) :-
-	'$error_checks'(db_get_attributes_types(Connection,RelationName,TypesList)),
+db_get_attributes_types(RelationName,List) :-
+	db_get_attributes_types(myddas,RelationName,List).
+db_get_attributes_types(Connection,RelationName,List) :-
+	'$error_checks'(db_get_attributes_types(Connection,RelationName,List)),
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
-    C_SWITCH(ConType, get_attributes_types(RelationName,Con,TypesList) ).
+    C_SWITCH(ConType, get_attributes_types(RelationName,Con,Info) ),
+    maplist(xtract,Info,List).
+
+xtract(t(_,_,N,T),N:T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

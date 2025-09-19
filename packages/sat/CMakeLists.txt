@@ -23,7 +23,7 @@ set_target_properties(YAPCryptominisat PROPERTIES CXX_STANDARD 14)
 set(solver cryptominisat)
 set (Solver CMSat	)
 configure_file(yap-interface.cc.cmake cryptominisat-interface.cc)
-	instalal(TARGETS CRYPTOMINISAT
+	install(TARGETS CRYPTOMINISAT
           LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
           RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )
@@ -37,7 +37,7 @@ find_library( Glucose4_LIBRARY glucose4 )
       set (Glucose4_FOUND On)
 endif()
 
-if (Glucose4_FOUND)
+if (Gluecose4_FOUND)
 add_library( YAPGlucose4
  glucose4-interface.cc 
 )

@@ -102,15 +102,13 @@ RUN \
 
 EOF
 	;;
-    arch*)
+    archlinux*)
  	    cat >> Dockerfile << EOF
 RUN  \
     pacman -Suyy --noconfirm && \
-     pacman  -S --noconfirm  git gcc g++ make cmake\
-    openmpi-bin libopenmpi-devel\
- ninja-build\
-    r-cran-rcpp \
-    
+     pacman  -S --noconfirm  git gcc make cmake\
+                 openmpi \
+ ninja 
 
 EOF
 	    ;;
@@ -135,7 +133,7 @@ RUN  \
 
 EOF
 ;;
-    arch*)
+    archlinux*)
  	    cat >> Dockerfile << EOF
 RUN  \
   pacman -S --noconfirm cudd
@@ -165,7 +163,7 @@ RUN \
 
 EOF
 	;;
-    arch*)
+    archlinux*)
  	cat >> Dockerfile << EOF
 
 	RUN  \
@@ -173,7 +171,7 @@ echo "GECODE seems to only exist in AUR"
 
 RUN \
 cd /app && \
- git clone https://aur.archlinux.org/gecode.git && \
+ git clone https://aur.archlinuxlinux.org/gecode.git && \
  cd gecode && \
  makepkg -s -i
      
@@ -205,7 +203,7 @@ RUN \
 
 EOF
 	;;
-    arch*)
+    archlinux*)
 RUN  \
      pacman -S --noconfirm swig python3-numpy  \
     python3-pip  python3-wheel python3-setuptools   python3-venv
@@ -235,7 +233,8 @@ RUN \
 
 EOF
 	;;
-    arch*)
+    archlinux*)
+	cat >> Dockerfile << EOF
 RUN  \
      pacman -S --noconfirm libraptor2
 
@@ -251,13 +250,8 @@ if [ $WITH_SAT = 1 ]; then
 case "$TARGET" in
     ubuntu*|debian*)
 	cat >> Dockerfile << EOF
-RUN  apt install -y   libzarchive-dev minisat libcryptominisat5-dev
-
-RUN git clone https://github.com/audemard/glucose.git && \
-mkdir glucose/release && \
-cd  glucose/release && \
-cmake BUILD_SHARED_LIBS=1  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja .. && \
- ninja 
+RUN  apt install -y    minisat libcryptominisat5-dev
+ 
 EOF
 ;;
     fedora*)
@@ -266,35 +260,28 @@ EOF
 RUN \
   dnf install -y minisat2-devel cryptominisat-devel                       
 
-
-RUN git clone https://github.com/audemard/glucose.git && \
-mkdir glucose/release && \
-cd  glucose/release && \
-cmake BUILD_SHARED_LIBS=1  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja .. && \
- ninja 
 EOF
 	;;
-    arch*)
+    archlinux*)
  	cat >> Dockerfile << EOF
 
 RUN  \
     pacman -S --noconfirm minisat cryptominisat
-
-RUN echo "glucose SAT solver seems to only exist in AUR"
-
-RUN \
-cd /app && \
- git clone https://aur.archlinux.org/glucose.git && \
- cd glucose && \
- makepkg -s -i
-     
-
 
 EOF
 	;;
 esac
 fi
 
+
+	cat >> Dockerfile << EOF
+RUN \
+ git clone https://github.com/audemard/glucose.git && \
+mkdir glucose/release && \
+cd  glucose/release && \
+cmake -DBUILD_SHARED_LIBS=1 -DCMAKE_POLICY_VERSION_MINIMUM=3.5   -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr -G Ninja .. && \
+ ninja 
+EOF
 
 #
 # MYDDAS DB Interface
@@ -313,20 +300,11 @@ RUN  dnf install -y  sqlite-devel postgresql-devel mariadb-devel unixODBC-devel
 
 EOF
 	;;
-    arch*)
+    archlinux*)
  	cat >> Dockerfile << EOF
 
 RUN  \
-    pacman -S --noconfirm minisat cryptominisat
-
-RUN echo "glucose SAT solver seems to only exist in AUR"
-
-RUN \
-cd /app && \
- git clone https://aur.archlinux.org/glucose.git && \
- cd glucose && \
- makepkg -s -i
-     
+    pacman -S --noconfirm sqlite3 mariadb postgresql unixodbc
 
 
 EOF
