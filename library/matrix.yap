@@ -171,8 +171,8 @@ perform non-backtrackable assignment.
     - `Mat = matrix[Dims] of Def, same as `matrix(Dims) of Def`
 
     Dimensions may be given as:
-    ListOfNumbers.
 
+    ListOfNumbers.
 
     Options are:
 

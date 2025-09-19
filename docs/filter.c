@@ -128,8 +128,10 @@ while (
     line = NULL;
  }
 
-8if (line && (pi=strstr(line,"*/"))) {
-  fprintf(ostream,"%*s  %*s",(int)(pi-line),line,2,pi);
+if (line) {
+  while (pi=strstr(line+pi0,"*/")) {
+  fprintf(ostream,"%*s*/",(int)(pi-line),line);
+  line = pi+2;
  }
 
 
@@ -163,12 +165,12 @@ static bool star(char *line, char **p, bool code, char  *line0) {
   }
   line = *p;
   if((*p= strstr(line, "*/"))) {
-    *p += 2;
 	if (code) {
 	  process_doc(line, *p - line);
 	} else {
-	  fprintf(ostream, "%s", line);
+	  fprintf(ostream, "%.*s*/", (int)(*p-line), line);
 	}
+	      *p += 2;
           return false;
 	    
       } else {
@@ -177,7 +179,7 @@ static bool star(char *line, char **p, bool code, char  *line0) {
 	} else {
 	  fprintf(ostream, "%s", line);
 	}
-	line = NULL;
+	*p = NULL;
 }
   return  true;
 }
@@ -229,7 +231,7 @@ int main(int argc, char *argv[]) {
       current_line++;
       line0=line=p;
     }
-    if (!open_comment) {
+    if (open_comment) {
       if ((p = strstr(line, "/*"))) {
           code = codecomm(p, true);
         open_comment = true;

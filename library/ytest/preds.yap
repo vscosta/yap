@@ -4,8 +4,6 @@ aq:- [library(hacks)].
     var(Flags0),
     Flags0 ==  Flags1,
     !,
-
-
     (
      predicate_property(M:P, meta_predicate(_))
     ->
