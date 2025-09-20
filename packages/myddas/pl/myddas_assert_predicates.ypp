@@ -73,29 +73,35 @@ db_import(Connection,RelationName,PredName0) :-
 	functor(Goal,PredName,Arity),
 	att_names(RelationName, FieldNamesList, FieldNames),
 	format(atom(SQL), 'select ~s from ~s;', [FieldNames, RelationName]),
-	term_variables(Goal,Vars),
-	TVars =.. [t|Vars],
-	assert((Module:Goal :- all_vars(Vars),!,
-			       db_sql(Connection, SQL,TVars))),
-        assert((Module:Goal :- goal2sql(Module:Goal))),
+	functor(G,PredName,Arity),
+	term_variables(G,Vars),
+	assert((Module:G :- all_vars(Vars),!,
+			       db_sql(Connection, SQL,Vars))),
+        assert((Module:Goal :- goal2sql(Connection,Module:Goal))),
 	!.
 
-goal2sql(Module:Goal) :-
+goal2sql(Connection, Module:Goal) :-
+    copy_term(Goal,NGoal),
+    copy_term(Goal,TmpGoal),
     functor(Goal, PredName, Arity),
-	Goal =.. [PredName|Args],
+    TmpGoal =.. [PredName|Args],
 	myddas_yap2sql:relation(Module,PredName,Arity,RelationName, FieldNamesList, _TypesList ),
-	foldl3(binding, Args, FieldNamesList, BoundVars, [], FreeVars, [], OutVars, []),
-	att_names(RelationName, FreeVars, Selected),
-	format(atom(SQL), 'select ~s from ~s where ~s;', [Selected, RelationName, BoundVars]),
-	TVars =.. [t|OutVars],
-	asserta((Module:Goal :- all_vars(OutVars),!,
-			       db_sql(Connection, SQL,TVars))),
-	db_sql(Connection, SQL,TVars).
+	foldl3(apply(RelationName), Args, FieldNamesList,BoundVars,[], Outputs, [], _Equalities, []),
+	att_names(Outputs, Selected),
+	bindings( BoundVars, Conditions),
+	format(atom(SQL), 'select ~s from ~s where ~s;', [Selected, RelationName, Conditions]),
+	term_variables(Goal,FreeVars),
+	asserta((Module:Goal :- NGoal =@= Goal,!,
+			       db_sql(Connection, SQL,FreeVars))),
+	db_sql(Connection, SQL,FreeVars).
 
-	binding(A, Name, [Name=A|L], L, Fs, Fs, Os, Os) :-
-	     nonvar(A),
-		 !.
-	binding(V, Name, L, L, [Name|Fs], Fs, [V|Os], Os).
+apply( R,V, A,L, L,  [R:A|Fs], Fs, Os, Os) :-
+    var(V),
+    !,
+    V = '$binding'(R:A).
+apply( R, '$binding'(R:A0), A, L , L, Fs, Fs, [(R:A)=(R:A0)|Os], Os) :-
+    !.
+apply( R,  C, A,[(R:A)=C| L] , L, Fs, Fs, Os, Os) .
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % table_arity :- number of columns in a relation.
@@ -115,29 +121,54 @@ new_att(RelationName,t(N1,Name, Type), Name, Type) :-
     assert(myddas_yap2sql:att(RelationName,N1,Name, Type)).
 
 att_names(RelationName, L, FieldNames) :-
-    att_names(RelationName,L,LF,[]),
+    att_names_(RelationName,L,LF,[]),
     atom_list_concat(LF, FieldNames).
 
-att_names(R, [Name]) --> [R,'.',Name].
-att_names(R, [Name|Names]) -->
+att_names_(_R, []) --> [].
+att_names_(R, [Name]) --> [R,'.',Name].
+att_names_(R, [Name|Names]) -->
     [R,'.',Name,', '],
-    att_names(R, Names).
+    att_names_(R, Names).
+
+att_names(L, FieldNames) :-
+    att_names_(L,LF,[]),
+    atom_list_concat(LF, FieldNames).
+
+att_names_([]) --> [].
+att_names_([(R:Name)]) -->
+    !,
+    [R,'.',Name].
+att_names_([(R:Name)|Names]) -->
+    [R,'.',Name,', '],
+    att_names_(R, Names).
 
 bindings(RelationName, L, FieldNames) :-
-    bindings(RelationName,L,LF,[]),
+    bindings_(RelationName,L,LF,[]),
     atom_list_concat(LF, FieldNames).
 
-bindings(R, [Name=Value]) -->
+bindings_(R, [Name=Value]) -->
      bind(Name,R,Value).
-bindings(R, [Name=Value|Names]) -->
+bindings_(R, [Name=Value|Names]) -->
     bind(Name,R,Value),
 	[', '],
-    bindings(R, Names).
+    bindings_(R, Names).
+
+bindings(L, FieldNames) :-
+    bindings_(L,LF,[]),
+    atom_list_concat(LF, FieldNames).
+
+bindings_([R:Name=Value]) -->
+    !,
+     bind(Name,R,Value).
+bindings_([R:Name=Value|Names]) -->
+    bind(Name,R,Value),
+	[', '],
+    bindings_( Names).
 
 bind(Name,R,Value) -->
      {integer(Value),
 	 !,
-	 atom_number(Value,A)},
+	 atom_number(A,Value)},
 	[R,'.',Name,' = ', A].
 bind(Name,R,Value) -->
 	[R,'.',Name,' = \'', Value,'\''].

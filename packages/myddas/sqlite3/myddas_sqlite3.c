@@ -593,7 +593,7 @@ static Int c_sqlite3_row(USES_REGS1) {
       case SQLITE_FLOAT:
         tf = MkFloatTerm(sqlite3_column_double(res_set->stmt, i));
         break;
-      case SQLITE_TEXT:
+     case SQLITE_TEXT:
         tf = MkAtomTerm(Yap_LookupAtom(
             (const char *)sqlite3_column_text(res_set->stmt, i)));
         break;
@@ -686,7 +686,7 @@ static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
   //                  c_sqlite3_row, c_sqlite3_row_terminate);
   Yap_InitCPred("c_sqlite3_row_initialise", 2, c_sqlite3_row_initialise, 0);
   Yap_InitCPred("c_sqlite3_row_terminate", 2, c_sqlite3_row_terminate, 0);
-  Yap_InitCPredBack("c_sqlite3_row_get", 4, 0, c_sqlite3_row, c_sqlite3_row, 0);
+  Yap_InitCPred("c_sqlite3_row_get", 4, c_sqlite3_row, 0);
   CurrentModule = cm;
 }
 

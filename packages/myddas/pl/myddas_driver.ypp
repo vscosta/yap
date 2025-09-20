@@ -259,12 +259,16 @@ DBMS(call_procedure)(Connection,Procedure,Args,LA) :-
 #endif
 
 DBMS(row)(ResultSet,Arity,Args) :-
+TArgs =.. [t|Args],
     setup_call_catcher_cleanup(
         c_DBMS(row_initialise)(ResultSet,State),
-        c_DBMS(row_get)(ResultSet,Arity,Args,State),
-	Caught,
+	(repeat,
+	 c_DBMS(row_get)(ResultSet,Arity,TArgs,State)
+	 ),
+	 Caught,
         c_DBMS(row_terminate)(State, Caught)
         ).
+
 
 
 

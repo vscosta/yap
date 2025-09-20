@@ -297,24 +297,25 @@ finally undone by _Cleanup_.
 */
 
 setup_call_cleanup(Setup,Goal, Cleanup) :-
-    must_be_callable(Cleanup),
     open(_) = Open,
-    gated_call( Setup , once(Goal), Catcher , prolog:cleanup_handler(Catcher,Open,Cleanup)).
+    gated_call( Setup , (Goal), Catcher , prolog:cleanup_handler(Catcher,Open,Cleanup)).
 
 
 
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
     open(_) = Open,
-    gated_call( Setup , once(Goal), Catcher , prolog:cleanup_handler(Catcher,Open,Cleanup)).
+    gated_call( Setup , (Goal), Catcher , prolog:cleanup_handler(Catcher,Open,Cleanup)).
 
 prolog:cleanup_handler(_Catcher,open(V),_Cleanup) :-
     nonvar(V),
     !.
-prolog:cleanup_handler(answer,_,_Cleanup) :-
-    !.
-prolog:cleanup_handler(_Catcher,Open,Cleanup) :-
+prolog:cleanup_handler(Catcher,Open,Cleanup) :-
+    '$is_catcher'(Catcher),
+   !,
     nb_setarg(1,Open,closed),
     (Cleanup->true;true).
+prolog:cleanup_handler(answer,_,_Cleanup) :-
+    !.
 
 '$is_catcher'(exit).
 '$is_catcher'(fail).

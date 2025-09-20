@@ -107,23 +107,23 @@ static bool gate(Term t USES_REGS)
   t=Deref(t);
   Yap_must_be_callable(t,CurrentModule);
   yap_error_descriptor_t *old=NULL;
-  bool m = LOCAL_PrologMode & ErrorHandlingMode;
-  if (m || LOCAL_Error_TYPE) {
+  if (LOCAL_Error_TYPE) {
     old = malloc(sizeof(*old));
     memcpy(old, LOCAL_ActiveError, sizeof((*old)));
   }
-  LOCAL_PrologMode |= ErrorHandlingMode;
-  bool rc = Yap_RunTopGoal(t, THROW_EX);
-  if (rc) {
-    Yap_prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
-  } 
+  LOCAL_PrologMode &= ~ErrorHandlingMode;
+  bool rc = Yap_RunTopGoal(t, PASS_EX);
+  if (Yap_HasException(PASS_REGS1)) {
+      Yap_ThrowExistingError();
+  }
   if (old) {
     memcpy( LOCAL_ActiveError, old,sizeof((*old)));
     free(old);
+      Yap_ThrowExistingError();
   }
-  if (m) {
-    LOCAL_PrologMode &= ~ErrorHandlingMode;
-  }  
+  if (rc) {
+    Yap_prune_inner_computation((choiceptr)(LCL0-oB) PASS_REGS);
+  } 
   P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
@@ -166,7 +166,11 @@ static bool watch_cut(Term ext)
   Term e = 0;
   bool active = ArgOfTerm(5, task) == TermTrue;
   bool ex_mode;
- CELL *port_pt = deref_ptr(RepAppl(task)+2);
+  CELL *port_pt = deref_ptr(RepAppl(task)+2);
+  if (port_pt[0]==TermAnswer ||
+      port_pt[0]==TermRetry) {
+    RESET_VARIABLE(port_pt);
+  }      
  if (IsNonVarTerm(port_pt[0])) {
      return true;
  }
@@ -337,7 +341,7 @@ static Int cleanup_on_exit(USES_REGS1)
    Term cleanup = ArgOfTerm(3, task);
   Int BEntry = IntegerOfTerm(ArgOfTerm(6,task));
  if (!Yap_dispatch_interrupts( PASS_REGS1 ))
-    return false;
+   return false;
   if (IsNonVarTerm(completion_pt[0]))
     {
 

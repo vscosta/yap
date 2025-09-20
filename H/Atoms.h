@@ -50,7 +50,7 @@
 #endif /* HAVE_GCC */
 #endif
 
-/** blob: weird data + size
+/** blob: weird data + size */
 typedef struct atom_blob {
   size_t length;
   char data[MIN_ARRAY];
