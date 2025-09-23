@@ -701,15 +701,18 @@ p_arg( USES_REGS1 )
       deref_head(d0, arg_arg1_unk);
     arg_arg1_nvar:
       /* ARG1 is ok! */
-      if (IsIntTerm(d0))
+  if (IsIntTerm(d0)) {
 	i = IntOfTerm(d0);
-      else if (IsLongIntTerm(d0)) {
+  } else if (IsLongIntTerm(d0)) {
 	i = LongIntOfTerm(d0);
-      } else {
+  } else if (IsAtomTerm(d0)) {
+    Functor f = FunctorOfTerm(Deref(ARG2));
+	i = Yap_LookupAtomIndex(MkAtomTerm(NameOfFunctor(f)), d0, ArityOfFunctor(f) PASS_REGS);
+    } else {
 	if (!IsBigIntTerm( d0 ))
 	  Yap_ThrowError(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
-	return(FALSE);
-      }
+	return(false);
+      }	
       if (i<0)
 	{
 	  Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, d0, "arg 1 of arg/3");

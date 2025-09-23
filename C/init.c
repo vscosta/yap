@@ -432,6 +432,10 @@ static UInt update_flags_from_prolog(UInt flags, PredEntry *pe) {
   return flags;
 }
 
+
+
+
+ 
 void Yap_InitCPredInModule(const char *Name, arity_t Arity, CPredicate code,
                    pred_flags_t flags, Term mod) {
   Atom atom = NIL;
