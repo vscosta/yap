@@ -113,12 +113,12 @@ static bool gate(Term t USES_REGS)
   }
   LOCAL_PrologMode &= ~ErrorHandlingMode;
   bool rc = Yap_RunTopGoal(t, PASS_EX);
-  if (Yap_HasException(PASS_REGS1)) {
-      Yap_ThrowExistingError();
-  }
   if (old) {
     memcpy( LOCAL_ActiveError, old,sizeof((*old)));
     free(old);
+      Yap_ThrowExistingError();
+  }
+  if (Yap_HasException(PASS_REGS1)) {
       Yap_ThrowExistingError();
   }
   if (rc) {
