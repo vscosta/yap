@@ -4465,6 +4465,26 @@ p_in( USES_REGS1 )
   return false;
 }
 
+int Yap_LookupAtomIndex(Term fname, Term index, arity_t arity USES_REGS)
+{
+    int i;
+    ArgnamesEntry *prop = Yap_GetArgnamesProp(AtomOfTerm(fname), arity);
+    if (prop == NULL)
+      return -1;
+    Term *names = prop->argnames;
+    for (i=0;i<prop->Length;i++) {
+      if (names[i] == index) return i;
+    }
+    return -1;
+}
+
+static Int p_add_argnames(USES_REGS1)
+{
+  Term target=Deref(ARG1);
+  //Yap_must_be_atom(target);
+  return Yap_NewArgnames(AtomOfTerm(target), IntegerOfTerm(ARG2), Deref(ARG3));
+}
+
 void Yap_InitUtilCPreds(void)
 {
     //  Yap_InitCPred("copy_term", 2, p_copy_term, 0);
@@ -4522,6 +4542,7 @@ attributes.  This predicate is Cycle-safe.
   Yap_InitCPredInModule("import_term", 2, p_import_term, 0, TERMS_MODULE);
   Yap_InitCPredInModule("freshen_variables", 1, p_freshen_variables, 0, TERMS_MODULE);
   Yap_InitCPredInModule("reset_variables", 1, p_reset_variables, 0, TERMS_MODULE);
+  Yap_InitCPredInModule("argument_names", 3, p_add_argnames, 0, PROLOG_MODULE);
 #ifdef DEBUG
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag);
   Yap_InitCPred("dum", 1, camacho_dum, SafePredFlag);
@@ -4529,4 +4550,4 @@ attributes.  This predicate is Cycle-safe.
   Yap_InitCPred("$in", 2, p_in, SafePredFlag);
 }
 
-/// @}
+/** @} */

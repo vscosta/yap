@@ -615,7 +615,7 @@ Term    t1 = Deref(ARG1), t2 = Deref(ARG2);
     pop_text_stack(l);
     return false;
   }
-  }
+}
 
 /**
  * @pred atom_codes(?Atom, ?Codes)

@@ -712,6 +712,7 @@ eval1(Int fi, Term t USES_REGS)
 	dbl = FloatOfTerm(t);
 	break;
       case big_int_et:
+	dbl = 0.0;
 	Yap_ThrowError(TYPE_ERROR_FLOAT, t, "ceiling(big number %x)", t);
       }
 #if HAVE_ISNAN

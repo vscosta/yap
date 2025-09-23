@@ -1079,7 +1079,7 @@ lookup atom in atom table */
       if (p == NULL) {
 	WRITE_UNLOCK(ae->ARWLock);
 	return false;
-      }
+v      }
       p->KindOfPE = TranslationProperty;
       p->Translation = i;
       p->arity = arity;
@@ -1090,6 +1090,71 @@ lookup atom in atom table */
     WRITE_UNLOCK(ae->ARWLock);
     return true;
   }
+
+bool Yap_NewArgnames(Atom a, arity_t minarity, Term argnames) {
+    AtomEntry *ae = RepAtom(a);
+    Prop p0;
+    ArgnamesEntry *p;
+
+    WRITE_LOCK(ae->ARWLock);
+    p0 = GetAPropHavingLock(ae, ArgnamesProperty);
+    if (p0 == NIL) {
+      p = (ArgnamesEntry *)Yap_AllocAtomSpace(sizeof(ArgnamesEntry));
+    } else {
+      p = RepArgnamesProp(p0);
+    }
+      if (p == NULL) {
+	WRITE_UNLOCK(ae->ARWLock);
+	return false;
+      }
+      p->KindOfPE = ArgnamesProperty;
+      if (IsApplTerm(argnames)) {
+        CELL *source = RepAppl(argnames)+1;
+	int i;
+	
+	minarity =	p->Length = ArityOfFunctor(FunctorOfTerm(argnames));
+	p->argnames = malloc((minarity)*sizeof(Term));
+        for (i=0; i< minarity; i++) {
+	  Term t = source[i];
+	  if (IsVarTerm(t)) {
+	    Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
+	  }
+	  if (IsAtomTerm(t)) {
+	    p->argnames[i] = t;
+	  } else if (IsStringTerm(t)) {
+	    Atom at = Yap_LookupAtom(StringOfTerm(t));
+	    p->argnames[i] = MkAtomTerm(at) ;
+	  } else {
+	    Yap_ThrowError(TYPE_ERROR_ATOM, t, NULL);
+	  }
+	}
+      } else if (IsPairTerm(argnames)) {
+	int i;
+	Term l0, *l = &l0,
+	minarity = p->Length = Yap_SkipList(&argnames, &l);
+	p->argnames = malloc((minarity)*sizeof(Term));
+	for (i=0; i< minarity; i++) {
+	  Term t = HeadOfTerm(argnames);
+	  if (IsVarTerm(t)) {
+	    Yap_ThrowError(INSTANTIATION_ERROR, t, NULL);
+	  }
+	  if (IsAtomTerm(t)) {
+	    p->argnames[i] = t;
+	  } else if (IsStringTerm(t)) {
+	    Atom at = Yap_LookupAtom(StringOfTerm(t));
+	    p->argnames[i] = MkAtomTerm(at);
+	  } else {
+	    Yap_ThrowError(TYPE_ERROR_ATOM, t, NULL);
+	  }
+	  argnames = TailOfTerm(argnames);
+	}
+      AddPropToAtom(RepAtom(a), (PropEntry *)p);
+      /* take care that the lock for the property will be inited even
+	 if someone else searches for the property */
+      WRITE_UNLOCK(ae->ARWLock);
+      }
+      return true;
+}
 
   bool Yap_PutAtomMutex(Atom a, void *i) {
     AtomEntry *ae = RepAtom(a);
