@@ -5255,7 +5255,6 @@ static Int p_dequeue_unlocked(USES_REGS1) {
 
 static Int p_peek_queue(USES_REGS1) {
   db_queue *father_key;
-  QueueEntry *cur_instance;
   Term Father = Deref(ARG1);
 
   if (IsVarTerm(Father)) {

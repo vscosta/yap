@@ -1079,7 +1079,7 @@ lookup atom in atom table */
       if (p == NULL) {
 	WRITE_UNLOCK(ae->ARWLock);
 	return false;
-v      }
+      }
       p->KindOfPE = TranslationProperty;
       p->Translation = i;
       p->arity = arity;

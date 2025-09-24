@@ -1,5 +1,3 @@
-
-
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
 :- use_module(library(myddas)).
@@ -7,6 +5,8 @@
 main :-
 		 init,
 		 main_,
+		 !,
+		 fail,
 		  close.
 main_ :-
 	catch(go,E,writeln(E)),
@@ -81,14 +81,20 @@ go :-
 go :-
 	go_cut1.
 
+go :-
+    tracks(_TrackId,Name,_AlbumId,_GenreId,_MediaTypeId,Name,_Milliseconds,_Bytes,_UnitPrice),
+     writeln(Name).
+
 go_cut0 :-
-    artists(X,Y),
+     artists(X,Y),
     writeln(X:Y),
     !.
 
 
 go_cut1 :-
+    cut1.
 %	X=1,
+cut1 :-
     artists(X,Y),
     writeln(X:Y),
     !.

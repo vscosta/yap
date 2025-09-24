@@ -495,7 +495,6 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
     sp = sp0;
     ch = *sp++;
     do{
-    Int oval = val;
     int chval =
       (chtype(ch) == NU ? ch - '0'
        : (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);

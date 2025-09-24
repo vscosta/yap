@@ -28,10 +28,13 @@
 				    db_abolish/2,
 				    db_listing/0,
 				    db_listing/1,
-				    relation/3
+				    relation/3,
+				    goal2sql/2
 
 				   ]).
 :- dynamic relation/3.
+
+:- dynamic translate/3.
 
 :- use_module( library(lists)).
 :- use_module( library(maplist)).
@@ -42,7 +45,6 @@
 
 :- use_module(myddas_util_predicates).
 
-:- use_module(myddas_prolog2sql).
 :- use_module(myddas_mysql).
 
  :- use_module(myddas_sqlite3).
@@ -71,25 +73,21 @@ db_import(Connection,RelationName,PredName0) :-
 	table_attributes( ConType, Con, RelationName, FieldNamesList, TypesList ),
 	assert(myddas_yap2sql:relation(Module,PredName,Arity,RelationName, FieldNamesList, TypesList )),
 	functor(Goal,PredName,Arity),
-	att_names(RelationName, FieldNamesList, FieldNames),
-	format(atom(SQL), 'select ~s from ~s;', [FieldNames, RelationName]),
-	functor(G,PredName,Arity),
-	term_variables(G,Vars),
-	assert((Module:G :- all_vars(Vars),!,
-			       db_sql(Connection, SQL,Vars))),
-        assert((Module:Goal :- goal2sql(Connection,Module:Goal))),
-	!.
+	assert((Module:Goal :- goal2sql(Connection,Module:Goal))),
+    !.
 
 goal2sql(Connection, Module:Goal) :-
-    copy_term(Goal,NGoal),
-    copy_term(Goal,TmpGoal),
-    functor(Goal, PredName, Arity),
-    TmpGoal =.. [PredName|Args],
+	functor(Goal,PredName,Arity),
 	myddas_yap2sql:relation(Module,PredName,Arity,RelationName, FieldNamesList, _TypesList ),
-	foldl3(apply(RelationName), Args, FieldNamesList,BoundVars,[], Outputs, [], _Equalities, []),
+	copy_term(Goal,NGoal),
+	copy_term(Goal,TmpGoal),
+	TmpGoal =.. [PredName|Args],
+	foldl3(apply(RelationName), Args, FieldNamesList,BoundVars,[], Outputs, [], Joins, []),
 	att_names(Outputs, Selected),
-	bindings( BoundVars, Conditions),
-	format(atom(SQL), 'select ~s from ~s where ~s;', [Selected, RelationName, Conditions]),
+	bindings( BoundVars, Selects),
+	joins( Joins, CodeJoins),
+	format(atom(SQL), 'select ~s from ~s ~s ~s;~n', [Selected, RelationName, CodeJoins, Selects]),
+	writeln(SQL),
 	term_variables(Goal,FreeVars),
 	asserta((Module:Goal :- NGoal =@= Goal,!,
 			       db_sql(Connection, SQL,FreeVars))),
@@ -120,19 +118,10 @@ table_attributes( sqlite3, Con, RelationName, NamesList, TypesList ) :-
 new_att(RelationName,t(N1,Name, Type), Name, Type) :-
     assert(myddas_yap2sql:att(RelationName,N1,Name, Type)).
 
-att_names(RelationName, L, FieldNames) :-
-    att_names_(RelationName,L,LF,[]),
-    atom_list_concat(LF, FieldNames).
-
-att_names_(_R, []) --> [].
-att_names_(R, [Name]) --> [R,'.',Name].
-att_names_(R, [Name|Names]) -->
-    [R,'.',Name,', '],
-    att_names_(R, Names).
-
-att_names(L, FieldNames) :-
+att_names(L,FieldNames) :-
     att_names_(L,LF,[]),
     atom_list_concat(LF, FieldNames).
+
 
 att_names_([]) --> [].
 att_names_([(R:Name)]) -->
@@ -140,48 +129,43 @@ att_names_([(R:Name)]) -->
     [R,'.',Name].
 att_names_([(R:Name)|Names]) -->
     [R,'.',Name,', '],
-    att_names_(R, Names).
+    att_names_(Names).
 
-bindings(RelationName, L, FieldNames) :-
-    bindings_(RelationName,L,LF,[]),
-    atom_list_concat(LF, FieldNames).
-
-bindings_(R, [Name=Value]) -->
-     bind(Name,R,Value).
-bindings_(R, [Name=Value|Names]) -->
-    bind(Name,R,Value),
-	[', '],
-    bindings_(R, Names).
-
-bindings(L, FieldNames) :-
+bindings([],'') :-
+    !.
+bindings(L,FieldNames) :-
     bindings_(L,LF,[]),
-    atom_list_concat(LF, FieldNames).
+    atom_list_concat(['where '|LF], FieldNames).
 
-bindings_([R:Name=Value]) -->
-    !,
-     bind(Name,R,Value).
-bindings_([R:Name=Value|Names]) -->
-    bind(Name,R,Value),
-	[', '],
-    bindings_( Names).
-
-bind(Name,R,Value) -->
-     {integer(Value),
-	 !,
-	 atom_number(A,Value)},
-	[R,'.',Name,' = ', A].
-bind(Name,R,Value) -->
+bindings_(L,FieldNames) :-
+    bindings_(L,LF,[]),
+    atom_number(A,Value)},
+   [R,'.',Name,' = ', A].
+bindings_(Name,R,Value) -->
 	[R,'.',Name,' = \'', Value,'\''].
 
+joins(Eqs,Code) :-
+    joins_(Eqs, LF,[]),
+    atom_list_concat(LF, Code).
 
-all_vars(L) :- maplist(var,L).
+joins_([]) -->
+    [].
+joins_([R:Name=Q:Name2]) -->
+    !,
+     eq(Name,R,Name2,Q).
+joins_([R:Name=Q:Name2|Names]) -->
+    eq(Name,R,Name2,Q),
+    [',~n '],
+    joins_( Names).
 
+eq(A1,R1,A2,R2) -->
+    ['inner join ',R1,' on ', R1,'.',A1,' = ',R2,'.',A2].
 
 #else
 % table_attributes( _DB, _Con, _RelationName, _NamesList, _TypesList ) :-throw(not_yet)..
 #endif
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%a%%%%%%%%%%%%%%%%%%%%%
 
 
 :- meta_predicate db_view(:,0).
@@ -321,11 +305,11 @@ table_access_predicate( mysql, Con, Arity, P, LA, M,
 #if MYDDAS_POSTGRES
 table_access_predicate( postgres, Con, Arity, P, LA, M,
                         M:( P :- myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
-                               myddas_prolog2sql:translate(M:G,M:G,Code),
+                               translate(M:G,M:G,Code),
                                queries_atom(Code,FinalSQL),
                                myddas_postgres:postgres_result_set(Mode),
                                myddas_util_predicates:'$write_or_not'(FinalSQL),
-                               c_postgres_query(FinalSQL,ResultSet,Con,Mode,_),
+xb                               c_postgres_query(FinalSQL,ResultSet,Con,Mode,_),
                                !,
                                c_postgres_row(ResultSet,Arity,LA) )
 		      ).

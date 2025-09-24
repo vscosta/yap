@@ -771,7 +771,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	      case 'r':
 	      case 'R': {
 		Int numb, radix, dig ;
-		UInt divfactor = 1, size = 1, i;
+		UInt divfactor = 1 ;
 		wchar_t och;
 		int command = ch;
 		/* print a decimal, using weird . stuff */
