@@ -165,7 +165,7 @@ static bool star(char *line, char **p, bool code, char  *line0) {
   }
   line = *p;
   if((*p= strstr(line, "*/"))) {
-	if (code) {
+    if (code) {
 	  process_doc(line, *p - line);
 	} else {
 	  fprintf(ostream, "%.*s*/", (int)(*p-line), line);
@@ -231,7 +231,7 @@ int main(int argc, char *argv[]) {
       current_line++;
       line0=line=p;
     }
-    if (open_comment) {
+    if (!open_comment) {
       if ((p = strstr(line, "/*"))) {
           code = codecomm(p, true);
         open_comment = true;
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
           code = codecomm(p, false);
         open_comment = true;
           starl = false;
-      } else {
+     } else {
         fprintf(ostream, "%s", line);
         line =
 	  NULL;
@@ -255,7 +255,8 @@ int main(int argc, char *argv[]) {
     if (line) {
     if ( open_comment) {
       if (line < p) {
-          fprintf(ostream, "%.*s", (int)(p - line), line);
+        fprintf(ostream, "%.*s", (int)(p - line), line);
+	line = p;
       }
       if (starl){
         open_comment = star(line, &p, code, line0);

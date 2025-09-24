@@ -609,12 +609,12 @@ Term    t1 = Deref(ARG1), t2 = Deref(ARG2);
     } else {
       Yap_ThrowError(TYPE_ERROR_LIST,t2,"atom_chars(_,_)");
     }
-  } else {
+  }
+
     /* errors */
  	Yap_ThrowError(TYPE_ERROR_ATOM,t1,"atom_chars(_,_)"	  );
     pop_text_stack(l);
     return false;
-  }
 }
 
 /**
