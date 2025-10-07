@@ -89,7 +89,7 @@ set_last_deeply(BlocksContext* b, BlocksContext** last) {
 	      EMIT_DEEPFK_BLOCK_TEST(yaam_block); \
 	  }
       
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define YAAM_BLOCK_IS_SIMPLEB_MULTIPLE_DESTINY(yaam_block) \
         yaam_block == YAAM_UNIFYBOUND || \
 		yaam_block == PROFILED_RETRY_LOGICAL_END || \
@@ -98,7 +98,7 @@ set_last_deeply(BlocksContext* b, BlocksContext** last) {
 		yaam_block == COUNT_TRUST_LOGICAL_END || \
 		yaam_block == LOCK_LU_END || \
 		yaam_block == TRY_AND_MARK_YAPOR_THREADS_NOYAPOR_IF
-#else /* defined(YAPOR) || defined(THREADS) */
+#else /* MULTIPLE_WORKERS */
 #define YAAM_BLOCK_IS_SIMPLEB_MULTIPLE_DESTINY(yaam_block) \
         yaam_block == YAAM_UNIFYBOUND || \
 		yaam_block == PROFILED_RETRY_LOGICAL_END || \

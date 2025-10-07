@@ -86,7 +86,7 @@
         BBLOCK(        LOCK_LU_INSTINIT)
         BBLOCK(        LOCK_LU_END)
         BBLOCK(        UNLOCK_LU_INSTINIT)
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         BBLOCK(        UNLOCK_LU_YAPOR_THREADS)
 #endif
         BBLOCK(        UNLOCK_LU_END)
@@ -112,7 +112,7 @@
 /** try and retry of dynamic predicates **/
         BBLOCK(        SPY_OR_TRYMARK_INSTINIT)
         BBLOCK(        TRY_AND_MARK_INSTINIT)
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #ifdef YAPOR
         BBLOCK(        TRY_AND_MARK_YAPOR_THREADS_YAPOR)
 #endif
@@ -729,7 +729,7 @@
         BBLOCK(        THREAD_LOCAL_INSTINIT)
 #endif
         BBLOCK(        EXPAND_INDEX_INSTINIT)
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         BBLOCK(        EXPAND_INDEX_YAPOR_THREADS_NOPP)
         BBLOCK(        EXPAND_INDEX_YAPOR_THREADS_IFOK_INIT)
         BBLOCK(        EXPAND_INDEX_YAPOR_THREADS_IFOK_IFOK)
@@ -743,19 +743,19 @@
         BBLOCK(        EXPAND_INDEX_NOYAPOR_NOTHREADS_SETSREG)
 #endif
         BBLOCK(        EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG)
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         BBLOCK(        EXPAND_INDEX_UNLOCK)
 #endif
         BBLOCK(        EXPAND_INDEX_END)
         BBLOCK(        EXPAND_CLAUSES_INSTINIT)
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         BBLOCK(        EXPAND_CLAUSES_YAPOR_THREADS_NOPP)
         BBLOCK(        EXPAND_CLAUSES_YAPOR_THREADS_IFOK_INIT)
         BBLOCK(        EXPAND_CLAUSES_YAPOR_THREADS_IFOK_IFOK)
         BBLOCK(        EXPAND_CLAUSES_YAPOR_THREADS_IFOK_END)
 #endif
         BBLOCK(        EXPAND_CLAUSES_NOYAPOR_NOTHREADS)
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         BBLOCK(        EXPAND_CLAUSES_UNLOCK)
 #endif
         BBLOCK(        EXPAND_CLAUSES_END)

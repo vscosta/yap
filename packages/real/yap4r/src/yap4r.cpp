@@ -61,6 +61,8 @@ public:
 /// y <- new(yap4r)
 ///
 yap4r::yap4r() {
+  CACHE_REGS
+  
   YAPEngineArgs *yargs = new YAPEngineArgs();
   yargs->setEmbedded(true);
   yap = new YAPEngine(yargs);
@@ -106,7 +108,7 @@ LogicalVector f(){
 /// 
 /// @export
 SEXP yap4r::query(std::string query) {
- 
+  CACHE_REGS 
   if (q) {
     q->close();
       q = nullptr;
@@ -190,6 +192,7 @@ bool yap4r::done() {
 ///
 /// @export
 bool yap4r::run(SEXP l) {
+  CACHE_REGS
   yhandle_t yh = Yap_InitHandle(MkVarTerm());
   if (!sexp_to_pl(yh, l))
     return false;
@@ -236,11 +239,12 @@ bool yap4r::library(std::string s) {
 }
 
 SEXP yap4r::peek(int i) {
+  CACHE_REGS
   if (failed || q == nullptr)
     return R_MissingArg;
   if (i == 0)
     return qsexp;
-  return term_to_sexp(Yap_InitSlot(Yap_XREGS[i]), false);
+  return term_to_sexp(Yap_InitSlot(q->x(i)), false);
 }
 
 RCPP_MODULE(yap4r) {

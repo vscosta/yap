@@ -238,30 +238,13 @@ endif()
 
 
 
-OPTION(WITH_MATLAB " Enable Matlab interface" OFF)
+option (WITH_PACKAGES "packages and libraries  that add value to YAP" ON)
 
-if (ANDROID)
-    option (WITH_PACKAGES "packages and libraries  that add value to YAP" OFF)
-    OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
-    IF (WITH_SWIG)
-    find_host_package(SWIG)
-    add_subdirectory(packages/swigb)
-    # macro_log_feature (SWIG_FOUND "Swig"
-    #         "Use SWIG Interface Generator "
-    #         "http://www.swig.org" ON)
-    ENDIF (WITH_SWIG)
-    OPTION(WITH_SQLite3 " Enable MYDDAS SQLITE3 driver" ON)
-    OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)" OFF)
-else()
-	OPTION(WITH_MYDDAS " Enable MYDDAS DBMS interface" ON)
-	if (WITH_MYDDAS)
-    OPTION(WITH_ODBC  " Enable MYDDAS ODBC driver" ON)
-    OPTION(WITH_SQLite3  " Enable MYDDAS SQLITE3 driver" ON)
-    OPTION(WITH_Postgres  " Enable MYDDAS Postgres driver" ON)
-    endif()
-    OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)"  ${WITH_PACKAGES})
-endif()
-OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" On)
+
+OPTION(WITH_MATLAB " Enable Matlab interface" OFF)
+OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
+
+  OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" On)
 OPTION(WITH_XML2YAP " Enable the  XML2YAP library" On)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
 OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
@@ -272,6 +255,7 @@ option(WITH_SAT    "interface  with sat solvers" ${WITH_PACKAGES})
 option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
 option(WITH_Python3  "Allow Python->YAP  and YAP->Python" ${WITH_SWIG})
 option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
+     option(WITH_YAP4R  "Use the Rcpp code generator" ${WITH_R})
 option(WITH_Java "Try to use Java (currently Java )" OFF)
 option (WITH_CUDD "BDD CUDD package"  ${WITH_PACKAGES})
 option(WITH_PROBLOG "include Problog-I." ${WITH_CUDD})
@@ -290,6 +274,8 @@ if (POLICY CMP0042)
 endif ()
 
 if (ANDROID)
+    OPTION(WITH_SQLite3 " Enable MYDDAS SQLITE3 driver" ON)
+    OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)" OFF)
     function(add_to_dir list output)
     endfunction(add_to_dir list output)
 
@@ -405,6 +391,14 @@ endif ()
 
 # where we have most scripts
 # set path to additional CMake modules
+
+    if (WITH_SWIG)
+    find_host_package(SWIG)
+    add_subdirectory(packages/swig)
+    # macro_log_feature (SWIG_FOUND "Swig"
+    #         "Use SWIG Interface Generator "
+    #         "http://www.swig.org" ON)
+    endif (WITH_SWIG)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -790,9 +784,10 @@ endif (WITH_JIT)
 
 if (WITH_Raptor2)
 
-    add_subDIRECTORY(packages/raptor)
+    add_subdirectory(packages/raptor)
 
 endif()
+
 
 if (WITH_XML2YAP)
 
@@ -908,6 +903,12 @@ if (WITH_Java)
 endif(WITH_Java)
 
 
+add_subdirectory(library/mpi)
+
+add_subDIRECTORY(packages/python)
+
+add_subDIRECTORY(packages/real)
+
 if (WITH_PROBLOG)
     if (CUDD_FOUND)
         add_subDIRECTORY(packages/ProbLog)
@@ -1002,12 +1003,6 @@ if (NOT ANDROID)
 
 endif()
 
-add_subdirectory(library/mpi)
-
-add_subDIRECTORY(packages/python)
-
-add_subDIRECTORY(packages/real)
-
 ##   add_subDIRECTORY(utils)
 ##
 
@@ -1028,9 +1023,6 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/config.h.cmake
   ${CMAKE_BINARY_DIR}/config.h)
 configure_file(${CMAKE_CURRENT_LIST_DIR}/GitSHA1.c.in GitSHA1.c @ONLY)
 
-feature_summary(DESCRIPTION "Packages found:"
-  WHAT  ALL
-  )
 set (CPACK_PROJECT YAP)
 set (CPACK_DEBIAN_PACKAGE_MAINTAINER vscosta@fc.up.pt)
 set (CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)

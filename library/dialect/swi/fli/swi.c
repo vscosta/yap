@@ -3098,15 +3098,15 @@ int raiseSignal(void *ld, int sig) {
   return FALSE;
 }
 
-#if THREADS
-void Yap_LockStream(void *s) {
-  //  if ( s->mutex ) recursiveMutexLock(s->mutex);
-}
+/* #if THREADS */
+/* void Yap_LockStream(void *s) { */
+/*   //  if ( s->mutex ) recursiveMutexLock(s->mutex); */
+/* } */
 
-void Yap_UnLockStream(void *s) {
-  //  if ( s->mutex ) recursiveMutexUnlock(s->mutex);
-}
-#endif
+/* void Yap_UnLockStream(void *s) { */
+/*   //  if ( s->mutex ) recursiveMutexUnlock(s->mutex); */
+/* } */
+/* #endif */
 
 extern term_t Yap_CvtTerm(term_t ts);
 

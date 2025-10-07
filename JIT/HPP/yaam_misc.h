@@ -21,7 +21,7 @@
 
 #define UNLOCK_LU_INSTINIT
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define UNLOCK_LU_YAPOR_THREADS \
       UNLOCKPE(1,PP); \
       PP = NULL;
@@ -61,7 +61,7 @@
       JMPNext();
 
 /** COPY_IDB_TERM_INSTINIT was changed: no error messages **/
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #if MULTIPLE_STACKS
 #ifdef DEPTH_LIMIT
 #define COPY_IDB_TERM_INSTINIT \
@@ -197,7 +197,7 @@
 	  }
 #endif /* DEPTH_LIMIT */
 #endif /* MULTIPLE_STACKS */
-#else /* defined(YAPOR) || defined(THREADS) */
+#else /* MULTIPLE_WORKERS */
 #if MULTIPLE_STACKS
 #ifdef DEPTH_LIMIT
 #define COPY_IDB_TERM_INSTINIT \
@@ -325,12 +325,12 @@
 	  }
 #endif /* DEPTH_LIMIT */
 #endif /* MULTIPLE_STACKS */
-#endif /* defined(YAPOR) || defined(THREADS) */
+#endif /* MULTIPLE_WORKERS */
 
 #define COPY_IDB_TERM_END \
       BLOCK = (CELL)COPY_IDB_TERM_END;
 
-#if defined(YAPOR) || defined(THREADS)    
+#if MULTIPLE_WORKERS    
 #if MULTIPLE_STACKS
 #ifdef DEPTH_LIMIT 
 #define UNIFY_IDB_TERM_INSTINIT \
@@ -446,7 +446,7 @@
       JMPNext();
 #endif /* DEPTH_LIMIT  */
 #endif /* MULTIPLE_STACKS */
-#else /* defined(YAPOR) || defined(THREADS) */
+#else /* MULTIPLE_WORKERS */
 #if MULTIPLE_STACKS
 #ifdef DEPTH_LIMIT 
 #define UNIFY_IDB_TERM_INSTINIT \
@@ -554,7 +554,7 @@
       JMPNext();
 #endif /* DEPTH_LIMIT  */
 #endif /* MULTIPLE_STACKS */
-#endif /* defined(YAPOR) || defined(THREADS) */
+#endif /* MULTIPLE_WORKERS */
 
 #define UNIFY_IDB_TERM_END \
       BLOCK = (CELL)UNIFY_IDB_TERM_END;
@@ -748,7 +748,7 @@
 	(*_PREG) = ap->cs.p_code.TrueCodeOfPred; \
       JMPNext();
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define INDEX_PRED_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
 	PredEntry *ap = PredFromDefCode((*_PREG)); \
@@ -778,7 +778,7 @@
       } \
       JMPNext(); \
 	}
-#else /* defined(YAPOR) || defined(THREADS) */
+#else /* MULTIPLE_WORKERS */
 #define INDEX_PRED_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
 	PredEntry *ap = PredFromDefCode((*_PREG)); \
@@ -795,7 +795,7 @@
       } \
       JMPNext(); \
 	}
-#endif /* defined(YAPOR) || defined(THREADS) */
+#endif /* MULTIPLE_WORKERS */
 
 #define INDEX_PRED_END \
       BLOCK = (CELL)INDEX_PRED_END;
@@ -814,7 +814,7 @@
 	yamop *pt0; \
 	SET_ASP(YREG, E_CB*sizeof(CELL));
 	
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define EXPAND_INDEX_YAPOR_THREADS_NOPP \
 	  PELOCK(12,pe);
 
@@ -846,7 +846,7 @@
 #define EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG \
  	(*_PREG) = pt0;
 	
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define EXPAND_INDEX_UNLOCK \
 	  UNLOCKPE(12,pe);
 #endif
@@ -859,7 +859,7 @@
 	yamop *pt0; \
 	SET_ASP(YREG, E_CB*sizeof(CELL));
 	
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define EXPAND_CLAUSES_YAPOR_THREADS_NOPP \
 	  PELOCK(13,pe);
 
@@ -880,7 +880,7 @@
 	UNLOCKPE(17,pe); \
  	(*_PREG) = pt0;
 	
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define EXPAND_CLAUSES_UNLOCK \
 	  UNLOCKPE(18,pe);
 #endif
@@ -888,7 +888,7 @@
 #define EXPAND_CLAUSES_END \
 	JMPNext();
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #ifdef LOW_LEVEL_TRACER
 #define UNDEF_P_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
@@ -1013,7 +1013,7 @@
       JMPNext(); \
 	}
 #endif /* LOW_LEVEL_TRACER */
-#else /* defined(YAPOR) || defined(THREADS) */
+#else /* MULTIPLE_WORKERS */
 #ifdef LOW_LEVEL_TRACER
 #define UNDEF_P_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
@@ -1138,7 +1138,7 @@
       JMPNext(); \
 	}
 #endif /* LOW_LEVEL_TRACER */
-#endif /* defined(YAPOR) || defined(THREADS) */
+#endif /* MULTIPLE_WORKERS */
 
 #define UNDEF_P_END \
       BLOCK = (CELL)UNDEF_P_END;

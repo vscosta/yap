@@ -31,7 +31,7 @@
       }
 
 #ifdef LOW_LEVEL_TRACER
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define LBL_FAIL_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
       { \
@@ -63,7 +63,7 @@
     LBL_FAIL_LOW_LEVEL_TRACER
 #endif
 #else /* LOW_LEVEL_TRACER */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define LBL_FAIL_INSTINIT \
       BLOCKADDRESS = (CELL)(*_PREG); \
       { \

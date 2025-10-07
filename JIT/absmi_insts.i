@@ -552,7 +552,7 @@
 	UInt timestamp;
 	CACHE_Y(B);
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	if (PP != PREG->y_u.OtaLl.d->ClPred) {
 	  if (PP) UNLOCKPE(15,PP);
 	  PP = PREG->y_u.OtaLl.d->ClPred;
@@ -594,7 +594,7 @@
 	LogUpdClause *lcl = PREG->y_u.OtILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	if (PP != ap) {
 	  if (PP) UNLOCKPE(16,PP);
 	  PP = ap;
@@ -844,7 +844,7 @@
 	UInt timestamp;
 	CACHE_Y(B);
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	if (PP != PREG->y_u.OtaLl.d->ClPred) {
 	  if (PP) UNLOCKPE(15,PP);
 	  PP = PREG->y_u.OtaLl.d->ClPred;
@@ -900,7 +900,7 @@
 	LogUpdClause *lcl = PREG->y_u.OtILl.d;
 	UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	if (PP != ap) {
 	  if (PP) UNLOCKPE(16,PP);
 	  PP = ap;
@@ -1046,7 +1046,7 @@
       /* only meaningful with THREADS on! */
       /* lock logical updates predicate.  */
       Op(unlock_lu, e);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
       if (PP) {
 	UNLOCKPE(1,PP);
 	PP = NULL;
@@ -1098,21 +1098,21 @@
 	saveregs();
 	while ((t = Yap_FetchTermFromDB(cl->lusl.ClSource)) == 0L) {
 	  if (PP) UNLOCKPE(3,PP);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  PP = NULL;
 #endif
 	    if (!Yap_gc(3, ENV, CP)) {
 	      Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
 	      FAIL();
 	    }
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  PELOCK(5,ClauseCodeToLogUpdClause(PREG)->ClPred);
 	  PP = ClauseCodeToLogUpdClause(PREG)->ClPred;
 #endif
 	}
 	if (!Yap_IUnify(ARG2, t)) {
 	  setregs();
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (PP) UNLOCKPE(6,PP);
 	  PP = NULL;
 #endif
@@ -1120,7 +1120,7 @@
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
 	  setregs();
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (PP) UNLOCKPE(5,PP);
 	  PP = NULL;
 #endif
@@ -1163,7 +1163,7 @@
 	if (!Yap_IUnify(ARG2, cl->lusl.ClSource->Entry)) {
 	  setregs();
 	  UNLOCKPE(8,PP);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  PP = NULL;
 #endif
 	  FAIL();
@@ -1171,7 +1171,7 @@
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
 	  setregs();
 	  UNLOCKPE(9,PP);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  PP = NULL;
 #endif
 	  FAIL();
@@ -1256,7 +1256,7 @@
       /* try_and_mark   Label,NArgs       */
       BOp(try_and_mark, Otapl);
       check_trail(TR);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #ifdef YAPOR
       /* The flags I check here should never change during execution */
       CUT_wait_leftmost();
@@ -1424,7 +1424,7 @@
     fail:
       {
 	register tr_fr_ptr pt0 = TR;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	if (PP) {
 	  UNLOCK(PP->PELock);
 	  PP = NULL;
@@ -6561,7 +6561,7 @@
 	BOp(index_pred, e);
 	{
 	  PredEntry *ap = PredFromDefCode(PREG);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  /*
 	    we do not lock access to the predicate,
 	    we must take extra care here
@@ -6590,7 +6590,7 @@
 	  PREG = ap->CodeOfPred;
 	  /* for profiler */
 	  save_pc();
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (!PP)
 #endif
 	    UNLOCKPE(14,ap);
@@ -6619,7 +6619,7 @@
 
 	  /* update ASP before calling IPred */
 	  SET_ASP(YREG, E_CB*sizeof(CELL));
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (!PP) {
 	    PELOCK(12,pe);
 	  }
@@ -6642,7 +6642,7 @@
 	  SREG = S;
 #endif /* SHADOW_S */
 	  PREG = pt0;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (!PP) {
 	    UNLOCKPE(12,pe);
 	  }
@@ -6658,7 +6658,7 @@
 
 	  /* update ASP before calling IPred */
 	  SET_ASP(YREG, E_CB*sizeof(CELL));
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (PP == NULL) {
 	    PELOCK(13,pe);
 	  }
@@ -6675,7 +6675,7 @@
 	  /* restart index */
 	  setregs();
 	  PREG = pt0;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (!PP) {
 	    UNLOCKPE(18,pe);
 	  }
@@ -6975,7 +6975,7 @@
 	  UInt timestamp;
 	  CACHE_Y(B);
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (PP != PREG->y_u.OtaLl.d->ClPred) {
 	    if (PP) UNLOCKPE(15,PP);
 	    PP = PREG->y_u.OtaLl.d->ClPred;
@@ -7016,7 +7016,7 @@
 	  UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
 	  /* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->y_u.OtILl.d->ClCode);*/
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (PP != ap) {
 	    if (PP) UNLOCKPE(16,PP);
 	    PP = ap;
@@ -7114,7 +7114,7 @@
 	    }
 	  SET_BB(B_YREG);
 	  ENDCACHE_Y();
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 	  if (PREG == FAILCODE) {
 	    UNLOCKPE(26,PP);
 	    PP = NULL;

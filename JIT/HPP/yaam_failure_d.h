@@ -32,7 +32,7 @@
       }
 
 #ifdef LOW_LEVEL_TRACER
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define LBL_FAIL_INSTINIT \
       if ((char*)ExpEnv.debug_struc.pprint_me.native_backtrack != 0 && (char*)ExpEnv.debug_struc.pprint_me.native_backtrack != (char*)0x1) { \
 	    fprintf(stderr, "%s:%d\n", __FILE__, __LINE__); \
@@ -74,7 +74,7 @@
     LBL_FAIL_LOW_LEVEL_TRACER
 #endif
 #else /* LOW_LEVEL_TRACER */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #define LBL_FAIL_INSTINIT \
       if ((char*)ExpEnv.debug_struc.pprint_me.native_backtrack != 0 && (char*)ExpEnv.debug_struc.pprint_me.native_backtrack != (char*)0x1) { \
 	    fprintf(stderr, "%s:%d\n", __FILE__, __LINE__); \

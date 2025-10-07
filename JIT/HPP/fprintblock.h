@@ -220,7 +220,7 @@ fprint_block(YAP_BBs block) {
         case UNLOCK_LU_INSTINIT:
             fprintf(stderr, "UNLOCK_LU_INSTINIT");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case UNLOCK_LU_YAPOR_THREADS:
             fprintf(stderr, "UNLOCK_LU_YAPOR_THREADS");
             break;
@@ -278,7 +278,7 @@ fprint_block(YAP_BBs block) {
         case TRY_AND_MARK_INSTINIT:
             fprintf(stderr, "TRY_AND_MARK_INSTINIT");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #ifdef YAPOR
         case TRY_AND_MARK_YAPOR_THREADS_YAPOR:
             fprintf(stderr, "TRY_AND_MARK_YAPOR_THREADS_YAPOR");
@@ -1871,7 +1871,7 @@ fprint_block(YAP_BBs block) {
         case EXPAND_INDEX_INSTINIT:
             fprintf(stderr, "EXPAND_INDEX_INSTINIT");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_INDEX_YAPOR_THREADS_NOPP:
             fprintf(stderr, "EXPAND_INDEX_YAPOR_THREADS_NOPP");
             break;
@@ -1901,7 +1901,7 @@ fprint_block(YAP_BBs block) {
         case EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG:
             fprintf(stderr, "EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_INDEX_UNLOCK:
             fprintf(stderr, "EXPAND_INDEX_UNLOCK");
             break;
@@ -1912,7 +1912,7 @@ fprint_block(YAP_BBs block) {
         case EXPAND_CLAUSES_INSTINIT:
             fprintf(stderr, "EXPAND_CLAUSES_INSTINIT");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_CLAUSES_YAPOR_THREADS_NOPP:
             fprintf(stderr, "EXPAND_CLAUSES_YAPOR_THREADS_NOPP");
             break;
@@ -1929,7 +1929,7 @@ fprint_block(YAP_BBs block) {
         case EXPAND_CLAUSES_NOYAPOR_NOTHREADS:
             fprintf(stderr, "EXPAND_CLAUSES_NOYAPOR_NOTHREADS");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_CLAUSES_UNLOCK:
             fprintf(stderr, "EXPAND_CLAUSES_UNLOCK");
             break;

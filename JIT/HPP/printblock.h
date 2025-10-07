@@ -534,7 +534,7 @@ print_block(YAP_BBs block) {
         case UNLOCK_LU_INSTINIT:
             printf("UNLOCK_LU_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case UNLOCK_LU_YAPOR_THREADS:
             printf("UNLOCK_LU_YAPOR_THREADS\n");
             break;
@@ -577,7 +577,7 @@ print_block(YAP_BBs block) {
         case COPY_IDB_TERM_INSIDEWHILE_SECONDIFOK_INIT:
             printf("COPY_IDB_TERM_INSIDEWHILE_SECONDIFOK_INIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case COPY_IDB_TERM_INSIDEWHILE_SECONDIFOK_YAPOR_THREADS:
             printf("COPY_IDB_TERM_INSIDEWHILE_SECONDIFOK_YAPOR_THREADS\n");
             break;
@@ -591,7 +591,7 @@ print_block(YAP_BBs block) {
         case COPY_IDB_TERM_INSIDEWHILE_THIRDIFOK_INIT:
             printf("COPY_IDB_TERM_INSIDEWHILE_THIRDIFOK_INIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case COPY_IDB_TERM_INSIDEWHILE_THIRDIFOK_YAPOR_THREADS:
             printf("COPY_IDB_TERM_INSIDEWHILE_THIRDIFOK_YAPOR_THREADS\n");
             break;
@@ -602,7 +602,7 @@ print_block(YAP_BBs block) {
         case COPY_IDB_TERM_OUTSIDEWHILE_NOUNIFYARG2_INIT:
             printf("COPY_IDB_TERM_OUTSIDEWHILE_NOUNIFYARG2_INIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case COPY_IDB_TERM_OUTSIDEWHILE_NOUNIFYARG2_YAPOR_THREADS:
             printf("COPY_IDB_TERM_OUTSIDEWHILE_NOUNIFYARG2_YAPOR_THREADS\n");
             break;
@@ -610,7 +610,7 @@ print_block(YAP_BBs block) {
         case COPY_IDB_TERM_OUTSIDEWHILE_NOUNIFYARG3_INIT:
             printf("COPY_IDB_TERM_OUTSIDEWHILE_NOUNIFYARG3_INIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case COPY_IDB_TERM_OUTSIDEWHILE_NOUNIFYARG3_YAPOR_THREADS:
             printf("COPY_IDB_TERM_OUTSIDEWHILE_NOUNIFYARG3_YAPOR_THREADS\n");
             break;
@@ -644,7 +644,7 @@ print_block(YAP_BBs block) {
         case UNIFY_IDB_TERM_NOUNIFYARG2_INIT:
             printf("UNIFY_IDB_TERM_NOUNIFYARG2_INIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case UNIFY_IDB_TERM_NOUNIFYARG2_YAPOR_THREADS:
             printf("UNIFY_IDB_TERM_NOUNIFYARG2_YAPOR_THREADS\n");
             break;
@@ -652,7 +652,7 @@ print_block(YAP_BBs block) {
         case UNIFY_IDB_TERM_NOUNIFYARG3_INIT:
             printf("UNIFY_IDB_TERM_NOUNIFYARG3_INIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case UNIFY_IDB_TERM_NOUNIFYARG3_YAPOR_THREADS:
             printf("UNIFY_IDB_TERM_NOUNIFYARG3_YAPOR_THREADS\n");
             break;
@@ -712,7 +712,7 @@ print_block(YAP_BBs block) {
         case TRY_AND_MARK_INSTINIT:
             printf("TRY_AND_MARK_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #ifdef YAPOR
         case TRY_AND_MARK_YAPOR_THREADS_YAPOR:
             printf("TRY_AND_MARK_YAPOR_THREADS_YAPOR\n");
@@ -821,7 +821,7 @@ print_block(YAP_BBs block) {
         case LBL_FAIL_INSTINIT:
             printf("LBL_FAIL_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case LBL_FAIL_YAPOR_THREADS_PP:
             printf("LBL_FAIL_YAPOR_THREADS_PP\n");
             break;
@@ -2854,7 +2854,7 @@ print_block(YAP_BBs block) {
         case INDEX_PRED_INSTINIT:
             printf("INDEX_PRED_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case INDEX_PRED_YAPOR_THREADS_NOPP:
             printf("INDEX_PRED_YAPOR_THREADS_NOPP\n");
             break;
@@ -2882,7 +2882,7 @@ print_block(YAP_BBs block) {
         case EXPAND_INDEX_INSTINIT:
             printf("EXPAND_INDEX_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_INDEX_YAPOR_THREADS_NOPP:
             printf("EXPAND_INDEX_YAPOR_THREADS_NOPP\n");
             break;
@@ -2912,7 +2912,7 @@ print_block(YAP_BBs block) {
         case EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG:
             printf("EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_INDEX_UNLOCK:
             printf("EXPAND_INDEX_UNLOCK\n");
             break;
@@ -2923,7 +2923,7 @@ print_block(YAP_BBs block) {
         case EXPAND_CLAUSES_INSTINIT:
             printf("EXPAND_CLAUSES_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_CLAUSES_YAPOR_THREADS_NOPP:
             printf("EXPAND_CLAUSES_YAPOR_THREADS_NOPP\n");
             break;
@@ -2940,7 +2940,7 @@ print_block(YAP_BBs block) {
         case EXPAND_CLAUSES_NOYAPOR_NOTHREADS:
             printf("EXPAND_CLAUSES_NOYAPOR_NOTHREADS\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_CLAUSES_UNLOCK:
             printf("EXPAND_CLAUSES_UNLOCK\n");
             break;
@@ -2951,7 +2951,7 @@ print_block(YAP_BBs block) {
         case UNDEF_P_INSTINIT:
             printf("UNDEF_P_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case UNDEF_P_SETPP:
             printf("UNDEF_P_SETPP\n");
             break;

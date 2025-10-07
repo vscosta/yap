@@ -1185,7 +1185,7 @@
       BLOCKADDRESS = (CELL)(*_PREG); \
       check_trail(TR);
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #ifdef YAPOR
 #define TRY_AND_MARK_YAPOR_THREADS_YAPOR \
       CUT_wait_leftmost();

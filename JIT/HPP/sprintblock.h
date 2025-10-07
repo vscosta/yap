@@ -220,7 +220,7 @@ linear_sprint_block(YAP_BBs block, char **buf) {
         case UNLOCK_LU_INSTINIT:
             sprintf(*buf, "UNLOCK_LU_INSTINIT");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case UNLOCK_LU_YAPOR_THREADS:
             sprintf(*buf, "UNLOCK_LU_YAPOR_THREADS");
             break;
@@ -278,7 +278,7 @@ linear_sprint_block(YAP_BBs block, char **buf) {
         case TRY_AND_MARK_INSTINIT:
             sprintf(*buf, "TRY_AND_MARK_INSTINIT");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #ifdef YAPOR
         case TRY_AND_MARK_YAPOR_THREADS_YAPOR:
             sprintf(*buf, "TRY_AND_MARK_YAPOR_THREADS_YAPOR");
@@ -1871,7 +1871,7 @@ linear_sprint_block(YAP_BBs block, char **buf) {
         case EXPAND_INDEX_INSTINIT:
             sprintf(*buf, "EXPAND_INDEX_INSTINIT");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_INDEX_YAPOR_THREADS_NOPP:
             sprintf(*buf, "EXPAND_INDEX_YAPOR_THREADS_NOPP");
             break;
@@ -1901,7 +1901,7 @@ linear_sprint_block(YAP_BBs block, char **buf) {
         case EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG:
             sprintf(*buf, "EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_INDEX_UNLOCK:
             sprintf(*buf, "EXPAND_INDEX_UNLOCK");
             break;
@@ -1912,7 +1912,7 @@ linear_sprint_block(YAP_BBs block, char **buf) {
         case EXPAND_CLAUSES_INSTINIT:
             sprintf(*buf, "EXPAND_CLAUSES_INSTINIT");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_CLAUSES_YAPOR_THREADS_NOPP:
             sprintf(*buf, "EXPAND_CLAUSES_YAPOR_THREADS_NOPP");
             break;
@@ -1929,7 +1929,7 @@ linear_sprint_block(YAP_BBs block, char **buf) {
         case EXPAND_CLAUSES_NOYAPOR_NOTHREADS:
             sprintf(*buf, "EXPAND_CLAUSES_NOYAPOR_NOTHREADS");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_CLAUSES_UNLOCK:
             sprintf(*buf, "EXPAND_CLAUSES_UNLOCK");
             break;
@@ -4237,7 +4237,7 @@ sprint_block(YAP_BBs block, char **buf) {
         case UNLOCK_LU_INSTINIT:
             sprintf(*buf, "UNLOCK_LU_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case UNLOCK_LU_YAPOR_THREADS:
             sprintf(*buf, "UNLOCK_LU_YAPOR_THREADS\n");
             break;
@@ -4295,7 +4295,7 @@ sprint_block(YAP_BBs block, char **buf) {
         case TRY_AND_MARK_INSTINIT:
             sprintf(*buf, "TRY_AND_MARK_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
 #ifdef YAPOR
         case TRY_AND_MARK_YAPOR_THREADS_YAPOR:
             sprintf(*buf, "TRY_AND_MARK_YAPOR_THREADS_YAPOR\n");
@@ -5888,7 +5888,7 @@ sprint_block(YAP_BBs block, char **buf) {
         case EXPAND_INDEX_INSTINIT:
             sprintf(*buf, "EXPAND_INDEX_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_INDEX_YAPOR_THREADS_NOPP:
             sprintf(*buf, "EXPAND_INDEX_YAPOR_THREADS_NOPP\n");
             break;
@@ -5918,7 +5918,7 @@ sprint_block(YAP_BBs block, char **buf) {
         case EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG:
             sprintf(*buf, "EXPAND_INDEX_NOYAPOR_NOTHREADS_POST_SETSREG\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_INDEX_UNLOCK:
             sprintf(*buf, "EXPAND_INDEX_UNLOCK\n");
             break;
@@ -5929,7 +5929,7 @@ sprint_block(YAP_BBs block, char **buf) {
         case EXPAND_CLAUSES_INSTINIT:
             sprintf(*buf, "EXPAND_CLAUSES_INSTINIT\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_CLAUSES_YAPOR_THREADS_NOPP:
             sprintf(*buf, "EXPAND_CLAUSES_YAPOR_THREADS_NOPP\n");
             break;
@@ -5946,7 +5946,7 @@ sprint_block(YAP_BBs block, char **buf) {
         case EXPAND_CLAUSES_NOYAPOR_NOTHREADS:
             sprintf(*buf, "EXPAND_CLAUSES_NOYAPOR_NOTHREADS\n");
             break;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_WORKERS
         case EXPAND_CLAUSES_UNLOCK:
             sprintf(*buf, "EXPAND_CLAUSES_UNLOCK\n");
             break;

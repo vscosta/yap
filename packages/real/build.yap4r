@@ -1,6 +1,7 @@
 rm -f  */*/*.o */*/*.so yap4r/src/RCppExports.Cpp
 R CMD REMOVE yap4r
 R --no-save << EOF
+load.package("Rcpp")
 library(Rcpp)
 compileAttributes("yap4r")
 compileAttributes("yap4r")

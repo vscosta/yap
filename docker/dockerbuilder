@@ -97,7 +97,7 @@ RUN \
      dnf -y install git gcc g++ make cmake automake\
      readline-devel gmp-devel \
      openmpi-devel\
-    ninja-build 
+     ninja-build 
 
 
 EOF
@@ -106,7 +106,7 @@ EOF
  	    cat >> Dockerfile << EOF
 RUN  \
     pacman -Suyy --noconfirm && \
-     pacman  -S --noconfirm  git gcc make cmake\
+    pacman  -S --noconfirm  git gcc make cmake\
                  openmpi \
  ninja 
 
