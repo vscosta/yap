@@ -21,9 +21,6 @@
    @ingroup real
    @{
 */
-extern "C" {
-extern void install_real(void);
-}
 
 using namespace Rcpp;
 
@@ -69,8 +66,7 @@ yap4r::yap4r() {
   functorEvalText = YAPFunctor("text_query",1).fun();
   functorCompile =  YAPFunctor("compile",1).fun();
   functorLibrary =  YAPFunctor("library",1).fun();
-  install_real();
-  library("real");
+  library("r");
 };
 
 LogicalVector f(){
@@ -161,7 +157,7 @@ SEXP yap4r::more() {
     return f();
   if (q)
     rc = q->next();
-  std::cerr << q->namedVarTerms()->text() << "\n";
+  //  std::cerr << q->namedVarTerms()->text() << "\n";
   if (!rc) {
     failed = true;
   }

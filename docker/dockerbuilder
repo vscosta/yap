@@ -1,5 +1,7 @@
 #!/usr/bin/env bash 
 TARGET=$1
+BUILD=1
+SU=sudo
 WITH_PACKAGES=1
 WITH_CUDD=$WITH_PACKAGES
 WITH_Gecode=$WITH_PACKAGES
@@ -43,6 +45,12 @@ while [ -a $*  ] ; do
 		    ;;
 	    	 --with-threads)
                     OPTIONS+=" -DWITH_Threads=1"
+                    ;;
+	    	 --build)
+                    OPTIONS+=" -DBUILD=1"
+                    ;;
+	    	 --user-mode)
+                    OPTIONS+=" -DSU= "
                     ;;
 
         *)
@@ -300,7 +308,7 @@ RUN  dnf install -y  sqlite-devel postgresql-devel mariadb-devel unixODBC-devel
 
 EOF
 	;;
-    archlinux*)
+    Archlinux*)
  	cat >> Dockerfile << EOF
 
 RUN  \
@@ -327,5 +335,6 @@ ninja install && \
 ENV NAME=World
 
 EOF
-
-sudo docker build .
+if [ x$BUILD != x ]; then
+    $SU docker build .
+fi

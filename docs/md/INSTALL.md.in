@@ -1,8 +1,10 @@
 # Installing YAP {#INSTALL}
 
-This page give pointers on where to download YAP binaries or sources, and how to compile it.
+This page give pointers on where to download YAP binaries or sources, and how to compile it. 
 
 [TOC]
+
+
 
 ## Downloading YAP 
 
@@ -98,11 +100,16 @@ The `myddas` database-interface includes the SQLite3 code-base, so it should alw
 
 You will need to first install `python3-dev` or `devel` and the interface generator `swig`. They are available in every Linux distribution and in `brew`.
 
-The YAP to Python bridge should just build. The Python to YAP package needs to be compiled using:
+Both th YAP to Python bridge should just build. The Python to YAP package can be used with `use_module(library(python))`. To call YAP from R you should have a file a wheel file named  like
+
 ```
-pip install packages/python/yap4py
+yap4py-8.0.1-cp313-cp313-linux_x86_64.whl
 ```
-Recent Python forces you to use a virtual environment to install extra packages.
+The package file should be at main compilation directory. To install:
+```
+pip install yap4py
+```
+In recent Pythons  you may need  to be in a virtual environment to install extra packages.
 
 ### Compiling and Installing the GECODE interface.
 
@@ -127,5 +134,17 @@ make install
 
 ### Compiling and Installing the R interface
 
+You will need to have both  R and Rcpp installed. To call R from YAP just `use_module(library(real))`. To call YAP from R just use
+```
+install.packages("yap4r_1.0.tar.gz")
+```
+The package file should be at main compilation directory.
 
+## Docker files
+
+You can create  an YAP image by going into the docker directory and running the `dockerbuilder` script. In the case you need an ubuntu image, just do:
+```
+./dockerfile ubuntu
+```
+YAP supports debian, ubuntu, fedora, and arch. The script also has several options in case you need a leaner install.
 

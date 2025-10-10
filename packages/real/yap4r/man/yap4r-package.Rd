@@ -7,15 +7,15 @@
 }
 
 \author{
-V\'{\i}tor Santos Costa e-mail{vscosta@fc.up.pt}
+Vitor Santos Costa e-mail{vscosta@fc.up.pt}
 }
 
 \description{
   This package allows R programers to create and query Prolog engines  (currently one), and to query it. It is possible to compile Prolog files, and to share data between R and YAP.
 }
+\keyword{ prolog  }
 \details{
   The first step is to load the package:
-  }
 
 \code{
 library(yap4r)
@@ -29,9 +29,9 @@ y <- new(yap4r)
 and can query it:
 
 \code{
- \method{y}(query}("between(1,10,X)")
+ query$"between(1,10,X)"
 }
-\keyword{ prolog yap }
+}
 \examples{
 \dontrun{
 ## Optional simple examples of the most important functions

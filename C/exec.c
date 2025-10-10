@@ -1289,7 +1289,7 @@ static int exec_absmi(ex_handler_t handle_ints, yap_reset_t reset_mode USES_REGS
 
   Int OldBorder = LOCAL_CBorder;
   LOCAL_CBorder = LCL0 - (CELL *)B;
-  B->cp_ap=EXITCODE;
+  //  B->cp_ap=EXITCODE;
   sigjmp_buf signew, *signewp = &signew, *sigoldp = LOCAL_RestartEnv;
   if (!sigoldp)
     LOCAL_TopRestartEnv = sigoldp;

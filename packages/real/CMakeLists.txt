@@ -51,7 +51,7 @@ if (WITH_R)
     check_include_files( "R.h;Rembedded.h" HAVE_R_EMBEDDED_H )
     check_include_files( "R.h;Rinternals.h" HAVE_RINTERNALS_H )
 
-    configure_file( ${CMAKE_CURRENT_LIST_DIR}/r4yapconfig.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/R4YAPconfig.h)
+    configure_file( ${CMAKE_CURRENT_LIST_DIR}/r4yapconfig.h.cmake ${CMAKE_BINARY_DIR}/R4YAPconfig.h)
     configure_file( ${CMAKE_CURRENT_LIST_DIR}/yap4r/src/Makevars.in ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/Makevars)
     add_library(YAPR  ${REAL_SOURCES})
     target_link_libraries (YAPR ${LIBR_LIBRARIES}   libYap)
@@ -62,7 +62,10 @@ if (WITH_R)
       ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 
     )
-    if (WITH_YAP4R)
+
+        INSTALL(FILES r.yap  real.pl DESTINATION ${YAP_INSTALL_DATADIR})
+
+if (WITH_YAP4R)
       
     set_package_properties(YAP4R PROPERTIES
       DESCRIPTION "The YAP4R Extension Computing."
@@ -98,7 +101,7 @@ if (WITH_R)
       #     ) 													     #
       # ################################################################################################################### #
 
-      set (YAP4R_PACKAGE ${CMAKE_CURRENT_BINARY_DIR}/yap4r_1.0.tar.gz)
+      set (YAP4R_PACKAGE ${CMAKE_BINARY_DIR}/yap4r_1.0.tar.gz)
 
       include_directories(BEFORE ${LIBR_INCLUDE_DIRS})
       include_directories(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
@@ -107,6 +110,7 @@ if (WITH_R)
       add_custom_command(OUTPUT ${YAP4R_PACKAGE}
 	COMMAND ${LIBR_EXECUTABLE} "--slave" "-e" "\"library(Rcpp);compileAttributes('yap4r');compileAttributes('yap4r')\""
 	COMMAND ${LIBR_EXECUTABLE} CMD build yap4r
+	COMMAND ${CMAKE_COMMAND} -E rename ${CMAKE_CURRENT_BINARY_DIR}/yap4r_1.0.tar.gz ${CMAKE_BINARY_DIR}/yap4r_1.0.tar.gz
 	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/yap4r.cpp YAPR YAP++)
 
 
