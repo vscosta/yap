@@ -2,37 +2,33 @@ site_name: YAP Prolog Reference Manual
 site_url: https://www.dcc.fc.up.pt/YAP
 use_directory_urls: false
 theme:
-  name: 'readthedocs'
+  name: 'bootstrap'
   highlightjs: true
   hljs_languages:
     - prolog
-  logo: 'YAP/img/favicon.ico'
+  logo: '/img/favicon.ico'
 plugins:
   - search
-  - mkdoxy:
-      projects:
-        YAP: # name of project must be alphanumeric + numbers (without spaces)
-          src-dirs:      ../../C    ../../H    ../../include   ../../pl    ../../library   ../../os    ../../OPTYap    ../../packages ../../CXX  ../../docs/md
-          full-doc: True # if you want to generate full documentation
-          doxy-cfg-file: ../Doxyfile.dox
-             # RECURSIVE: True # search in source doxx directoriesmarkdown_extensions:
+  - autorefs
+markdown_extensions:
+- attr_list
 nav:
-   - Home: YAP/index.md
-   - INSTALL: YAP/INSTALL.md
-   - Calling YAP: YAP/CALLING_YAP.md
+   - Home: indexpage
+   - INSTALL: INSTALL
+   - Calling YAP: CALLING_YAP
    -   Built-ins:
-       - Core: YAP/group__Builtins.md
-       - Input-Output: YAP/group__InputOutput.md
-   - Programming: YAP/group__YAPProgramming.md
-   - Extensions: YAP/group__YapExtensions.md
-   - Library: YAP/group__YAPLibrary.md
-   - Available Packages: YAP/group__YAPPackages.md
-   - Foreign Language Interface : YAP/group__YAPAPI.md
+       - Core: group__Builtins
+       - Input-Output: group__InputOutput
+   - Programming: group__YAPProgramming
+   - Extensions: group__YapExtensions
+   - Library: group__YAPLibrary
+   - Available Packages: group__YAPPackages
+   - Foreign Language Interface : group__YAPAPI
    - Indices:
-       - YAP/predicates.md
-       - YAP/modules.md
-       - YAP/namespaces.md
-       - YAP/links.md
+       - predicates
+       - modules
+       - namespaces
+       - links
        - Implementation:
-           - YAP/classes.md
-           - YAP/files.md
+           - classes
+           - files

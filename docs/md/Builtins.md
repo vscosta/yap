@@ -1,5 +1,4 @@
-#  Core Prolog {#Builtins}
-
+#  Core Prolog {#CoreBuiltins}
 
 @defgroup Builtins Core Prolog YAP
 @ingroup mainpage 
@@ -20,9 +19,6 @@ Integration. In these cases, YAP follows  a reference system, currently SWI-Prol
 
 
 
-
- @defgroup InputOutput YAP  support for InputOutput
-@ingroup Builtins
 
 
 

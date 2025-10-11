@@ -103,8 +103,7 @@ if (DOXYGEN_FOUND)
     ${CMAKE_SOURCE_DIR}/packages/meld
     ${CMAKE_SOURCE_DIR}/packages/cplint
     ${CMAKE_SOURCE_DIR}/packages/swig
-    ${CMAKE_SOURCE_DIR}/packages/myddas
-    #${CMAKE_SOURCE_DIR}/packages/python
+    ${CMAKE_SOURCE_DIR}/packages/python/yapkernel
     ${CMAKE_SOURCE_DIR}/include/SWI-Prolog.h
     ${CMAKE_SOURCE_DIR}/C/absmi_insts.i
 ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h	
@@ -144,35 +143,27 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/library/dialect/swi/fli
     ${CMAKE_SOURCE_DIR}/os
-  )
+    ${CMAKE_SOURCE_DIR}/packages
+    ${CMAKE_BINARY_DIR}/yap.md
+    ${CMAKE_BINARY_DIR}/INSTALL.md
+ )
 
-    configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/md/yap.md)
-    configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/md/INSTALL.md)
+    configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/index.md)
+    configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
     add_custom_target(doc_build
     COMMAND ${CMAKE_COMMAND} -E rm -fr  mkdocs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/YAP
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/YAP/img
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/YAP/img
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/YAP/img
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/YAP/img/favicon.ico
+    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/img
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/img
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/img
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/img/favicon.ico
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/md/INSTALL.md   mkdocs/docs/YAP
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md   mkdocs/docs/YAP
-#    COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md  -- xml mkdocs/docs ${CMAKE_BINARY_DIR}
+    COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md  -- xml mkdocs/docs ${CMAKE_BINARY_DIR}
     DEPENDS STARTUP filter-bin dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
   )
-
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP/README.md
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/md/yap.md mkdocs/docs/YAP/README.md
-    DEPENDS doc_build)
-		
-add_custom_command(OUTPUT  ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP/INSTALL.md
-    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_BINARY_DIR}/md/INSTALL.md   mkdocs/docs/YAP
-    DEPENDS doc_build)
 		
     add_dependencies(filter-bin STARTUP)
     add_dependencies(dox filter-bin STARTUP)
@@ -180,7 +171,7 @@ add_custom_command(OUTPUT  ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP/INSTALL.md
 add_custom_target(mkdocs
     COMMAND mkdocs build
     WORKING_DIRECTORY mkdocs
-    DEPENDS doc_build ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP/README.md   ${CMAKE_BINARY_DIR}/mkdocs/docs/YAP/INSTALL.md
+    DEPENDS doc_build ${CMAKE_BINARY_DIR}/index.md   ${CMAKE_BINARY_DIR}/INSTALL.md
   )
   
     add_custom_target(sphinx

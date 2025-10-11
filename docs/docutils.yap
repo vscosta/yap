@@ -128,10 +128,25 @@ encode(P,S) :-
     format(string(S),'~s_~s',[String0,[C0]]).
 encode(Pred, Pred).
 
+decode_pi(P,SF) :-
+    decode(P,S),
+    check_prid(S,SF),
+    !.
+decode_pi(S,S).
+
 decode(P,S) :-
     dox2pred(P,S),
     !.
-    decode(S,S).
+decode(S,S).
+check_prid(S,SF) :-
+    sub_string(S,_,1,1,"_"),
+    sub_string(S,_,1,0,C),
+    string_codes(C,[CN]),
+    CN >= 0+0'0, CN =< 9+0'0,
+		 !,
+    sub_string(S,0,_,2,Name),
+    string_concat([Name,"/",C],SF).
+check_prid(S,S).
 
 
 pred2dox(Pred, String) :-
@@ -151,7 +166,7 @@ addch(Code,SF,Ss) :-
     format(codes(SF,Ss),'~d_',[Code]).
 
 dox2pred(String,Pred) :-
-    sub_string(String,0,3,Len,`YAP`),
+    sub_string(String,0,3,Len,"YAP"),
     sub_string(String,3,Len,0,Codes),
     fetch_chars(Len,Codes,Chars),
     string_concat(Chars,Pred).

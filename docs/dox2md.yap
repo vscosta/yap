@@ -235,7 +235,7 @@ innergroup(Status,Atts,AllLabel) -->
     link_inner(Status,Ref,Label).
 
 link_inner(Status,Ref,Label) -->
-{ decode(Label,PLabel) },
+{ decode_pi(Label,PLabel) },
     ref(Ref,PLabel),
     {
 	key_in(idir=IDir,Status),
@@ -281,7 +281,7 @@ v(Msg,S0,S0) :-
     writeln(Msg:S0).
 
 sectdef(header([],[Text]))-->
-{decode(Text,PText)},
+{decode_pi(Text,PText)},
     ["\n",PText,"\n"].
 sectdef(member(Atts,Children))-->
     {
@@ -300,7 +300,7 @@ sectdef(member(Atts,Children))-->
 %         writeln(Children:Name)
     } ,
     ["%- " ],
-{decode(Name,PName)},
+{decode_pi(Name,PName)},
     ref(Ref,PName).
 
 
@@ -310,19 +310,21 @@ sectdef(memberdef(Atts,Children))-->
 	( key_in(argsstring([],[Args]),Children) -> true ; Args = ""),
 	key_in(id(Ref),Atts),
 	get_name(Children,Name),
-	decode(Name, PName),
-	short_ref(Ref, PRef)
+	decode_pi(Name, PName)
+%	short_ref(Ref, PRef)
     },
     (
 	{key_in(definition([],[Def0]),Children),
-    	decode(Def0, Def)}
+    	decode_pi(Def0, Def)}
 
 
     ->
 
-	{format(string(Header), '\n[](){#~s}\n1. **~s~s**: \n', [PRef,Def,Args])}
+	{format(string(Header), '. [](){#~s}~s~s~n', [Ref,Def,Args])}
     ;
-{format(string(Header), '\n[](){#~s}\n1. **~s~s**: \n', [PRef,PName,Args])}
+
+	{format(string(Header), '. [](){#~s}~s~s~n', [Ref,PName,Args])}
+
     ),
     [Header],
     (	{ key_in(briefdescription([],Brief),Children) }
@@ -611,8 +613,9 @@ top_sectiondef_name(   "var", "Var" ).
 as_title(_,Props,PredTitle) :-
 key_in(title(_,[Title]), Props),
 !,
-decode(Title, PredTitle).
-as_title(Name,_,Name).
+decode_pi(Title, PredTitle).
+as_title(Title,_,PredTitle) :-
+decode_pi(Title, PredTitle).
 
 bd(blockquote,"\n~~~\n").
 bd(bold,"**").
@@ -643,7 +646,7 @@ para(P) -->
 
 
 para(ulink([url(Title)],[URL|_])) -->
-{ decode(Title, DTitle) },
+{ decode_pi(Title, DTitle) },
     !,
 {   format(string(S),"[~s](~s)", [DTitle,URL])},
 [S].
@@ -1800,7 +1803,8 @@ key_in(X,[X|_]) :- !.
 key_in(X,[_|L]) :-
     key_in(X,L).
 
-to_predicate(P,P).
+to_predicate(P,S) :-
+check_prid(P,S).
 
 strip_module_from_pred(ROS,EOS,Final):-
     sub_string(ROS,Left,3,Right,"::P"),
@@ -1824,7 +1828,7 @@ strip_module_from_pred(ROS,EOS,Final) :-
 
 get_safe_name(S,N) :-
 get_name(S,N0),
-   decode(N0,N).
+   decode_pi(N0,N).
 get_name([Name],Name) :-
 string(Name),
 !.

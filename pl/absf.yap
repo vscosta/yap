@@ -379,7 +379,7 @@ _Options_ is a list of options to guide the conversion:
   -  extensions(+ _ListOfExtensions_)
 
      List of file-name suffixes to add to try adding to the file. The
-     Default is the empty suffix, `''`.  For each extension,
+     default is `''`, the empty suffix.  For each extension,
      absolute_file_name/3 will first add the extension and then verify
      the conditions imposed by the other options.  If the condition
      fails, the next extension of the list is tried.  Extensions may
