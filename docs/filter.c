@@ -27,7 +27,7 @@ static char *protect_class(char *where, size_t arity, char *what, ssize_t sz) {
     }
   }
   *out++ = '_';
-  *out++ = arity+'A';
+  *out++ = arity+'0';
 out[0]='\0';
 return where;
 }
@@ -144,6 +144,16 @@ static bool star(char *line, char **p, bool code, char  *line0) {
   return  true;
 }
 
+static bool spaces(const char *p, ssize_t sz) {
+  ssize_t i=0;
+  while (i < sz) {
+    if (!isspace(p[i]))
+      return false;
+    i++;
+  }
+  return true;
+}
+	     
 int main(int argc, char *argv[]) {
     int current_line=1;
   size_t n;
@@ -151,6 +161,7 @@ int main(int argc, char *argv[]) {
   FILE *f;
   const char *inp = argv[1];
   bool open_comment = false;
+  bool verbatim=false;
   if (strstr(inp,".yap" ) ||
 	     strstr(inp,".ypp" ) ||
 	     strstr(inp,".pl" )) {
@@ -190,6 +201,16 @@ int main(int argc, char *argv[]) {
     if (!line) {
       current_line++;
       line0=line=p;
+     if (open_comment && (code = strstr(line,"```") >= 0 ) && spaces(line, code) && '`' != line[code+3])  {
+	fprintf(ostream, "%s", line);
+	line =  NULL;
+	verbatim= !verbatim;
+	continue;
+      }
+       if (verbatim) {
+        fprintf(ostream, "%s", line);
+	continue;
+      }
     }
     if (!open_comment) {
       if ((p = strstr(line, "/*"))) {
@@ -205,11 +226,11 @@ int main(int argc, char *argv[]) {
         line =
 	  NULL;
           open_comment = false;
-    }
+      }
     } else {
       if (!starl) {	
-    while (isspace(*p++)) n--;
-    open_comment = (p[0] == '%' && p[1] == '%' && (isspace(p[2]))) ||!p[0];
+	  while (isspace(*p++)) n--;
+	  open_comment = (p[0] == '%' && p[1] == '%' && (isspace(p[2]))) ||!p[0];
       }
     }
     if (line) {

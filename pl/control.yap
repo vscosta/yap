@@ -182,7 +182,7 @@ it is both more efficient and more portable.
 Call goal  _H_ once per each solution of goal  _H_. If goal
  _H_ has no solutions, call goal  _I_.
 
-The built-in `if/3` is similar to `->/3`, with the difference
+The built-in `if/3` is similar to ->/3, with the difference
 that it will backtrack over the test goal. Consider the following
 small data-base:
 
@@ -211,8 +211,8 @@ Y = b ? ;
 no
 ```
 
-The system will backtrack over the two solutions for `a/1` and the
-two solutions for `b/1`, generating four solutions.
+The system will backtrack over the two solutions for `a` and the
+two solutions for `b`, generating four solutions.
 
 Cuts are allowed inside the first goal  _G_, but they will only prune
 over  _G_.

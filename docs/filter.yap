@@ -149,7 +149,7 @@ output(W,command([comments(Comments) |_])) :-
 output(W,predicate(N/A,[comments(Comments) |_Clauses])) :-
     encode(N/A,S1),
     atom_string(NA,S1),
-    maplist(out_comment(W),Comments),
+    foldl(out_comment(W),Comments, false, _),
     addcomm(N/A,S1,_Found),
     findall(I,between(1,A,I),Is),
     maplist(number_atom,Is,AIs),
@@ -180,7 +180,15 @@ insert_module_tail(W) :-
     format(W,'}~n',[]).
 insert_module_tail.
 
-out_comment(W,C) :-
+out_comment(W,C, InitialVerbatim, FinalVerbatim) :-
+    sub_string(W,0,3,_,"```"),
+    !,
+    FinalVerbatim is ~InitialVerbatim,
+    format(W,'~s~n',[C]).
+out_comment(W,C, true, true) :-
+    !,
+    format(W,'~s~n',[C]),
+out_comment(W,C, false, false) :-
     simplify(C,Simplified),
     !,
     format(W,'~s~n',[Simplified]).
@@ -234,6 +242,8 @@ simplify(C, "\n") :-
     !.
 simplify(_C,"\n").
 
+simplify_slash(S, NS) :-
+    sub_string(S, 0, 3, _, _)
 simplify_slash(S, NS) :-
     sub_string(S, 0 ,_,_, "%%"),
     !,

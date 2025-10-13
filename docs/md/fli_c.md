@@ -12,10 +12,10 @@ Assume the user requires a predicate `my_process_id(Id)` which succeeds
 when  _Id_ unifies with the number of the process under which YAP is running.
 
 In this case we will create a `my_process.c` file containing the
-C-code described below.
+C-code described below:
 
-```{.c}
-#include "YapInterface.h"
+```.c
+#include <YapInterface.h>
 
 static int my_process_id(void)
 {

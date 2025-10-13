@@ -6,9 +6,20 @@ theme:
   highlightjs: true
   hljs_languages:
     - prolog
+    - c
+    - python
+    - c++
+    - java
+    - javascript
+    - R
   logo: 'img/favicon.ico'
 plugins:
   - search
+  - autorefs
+
+markdown_extensions:
+- attr_list
+
 nav:
    - Home: indexpage.md
    - INSTALL: INSTALL.md

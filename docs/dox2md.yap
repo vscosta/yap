@@ -322,10 +322,10 @@ sectdef(memberdef(Atts,Children))-->
 
     ->
 
-	{format(string(Header), '. [](){#~s}~s~s~n', [Ref,Def,Args])}
+	{format(string(Header), '[](){ #~s }   ~n~n~s~s~n', [Ref,Def,Args])}
     ;
 
-	{format(string(Header), '. [](){#~s}~s~s~n', [Ref,PName,Args])}
+	{format(string(Header), '[](){ #~s }    ~s~s~n', [Ref,PName,Args])}
 
     ),
     [Header],
@@ -1871,7 +1871,7 @@ get_name(Children,Name) :-
 
 
 anchor([id(Ref)],[]) -->
-  ["[](){#",Ref,"}\n"].
+  ["\n[](){#",Ref,"}\n"].
 
 gengroup(Ref0) :-
 abolish(visited/1),
