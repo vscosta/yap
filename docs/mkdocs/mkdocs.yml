@@ -2,33 +2,22 @@ site_name: YAP Prolog Reference Manual
 site_url: https://www.dcc.fc.up.pt/YAP
 use_directory_urls: false
 theme:
-  name: 'bootstrap'
+  name: 'readthedocs'
   highlightjs: true
   hljs_languages:
     - prolog
-  logo: '/img/favicon.ico'
+  logo: 'img/favicon.ico'
 plugins:
   - search
-  - autorefs
-markdown_extensions:
-- attr_list
 nav:
-   - Home: indexpage
-   - INSTALL: INSTALL
-   - Calling YAP: CALLING_YAP
+   - Home: indexpage.md
+   - INSTALL: INSTALL.md
+   - Calling YAP: CALLING_YAP.md
    -   Built-ins:
-       - Core: group__Builtins
-       - Input-Output: group__InputOutput
-   - Programming: group__YAPProgramming
-   - Extensions: group__YapExtensions
-   - Library: group__YAPLibrary
-   - Available Packages: group__YAPPackages
-   - Foreign Language Interface : group__YAPAPI
-   - Indices:
-       - predicates
-       - modules
-       - namespaces
-       - links
-       - Implementation:
-           - classes
-           - files
+       - Core: group__Builtins.md
+       - Input-Output: group__InputOutput.md
+   - Programming: group__YAPProgramming.md
+   - Extensions: group__YapExtensions.md
+   - Library: group__YAPLibrary.md
+   - Available Packages: group__YAPPackages.md
+   - Foreign Language Interface : group__YAPAPI.md

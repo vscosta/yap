@@ -97,6 +97,8 @@ if (DOXYGEN_FOUND)
     ${CMAKE_SOURCE_DIR}/include/cudd
     ${CMAKE_SOURCE_DIR}/docs/src
     ${CMAKE_SOURCE_DIR}/C/absmi.c
+    ${CMAKE_SOURCE_DIR}/packages/chr
+    ${CMAKE_SOURCE_DIR}/packages/CLPBN
     ${CMAKE_SOURCE_DIR}/packages/jpl
     ${CMAKE_SOURCE_DIR}/packages/prism
     ${CMAKE_SOURCE_DIR}/packages/cuda
@@ -144,7 +146,7 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
     ${CMAKE_SOURCE_DIR}/library/dialect/swi/fli
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/packages
-    ${CMAKE_BINARY_DIR}/yap.md
+    ${CMAKE_BINARY_DIR}/index.md
     ${CMAKE_BINARY_DIR}/INSTALL.md
  )
 

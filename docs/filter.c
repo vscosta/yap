@@ -12,30 +12,24 @@
 
 static FILE *ostream;
 
-static char *protect_class(char *where, char *what, ssize_t sz) {
+static char *protect_class(char *where, size_t arity, char *what, ssize_t sz) {
   ssize_t i;
   char *out = where;
-  char *p = what;
-  int ch;
-  while ((ch = *p++) &&
-	 (isalnum(ch)||ch=='_'));
-  if (!ch) {
-    strcpy(where, what);
-    return where;
-  }
-  strcpy(where, "YAP");
-  out = where + strlen("YAP");
-  for (i = 0; i < sz; i++) {
+  for (i=0;i<sz;i++) {
     int ch = what[i];
-    if (isalpha(ch)) {
+    if (isalnum(ch)) {
       *out++ = ch;
-      out[0] = '\0';
     } else {
-          sprintf(out, "%d_", ch);
-	  out += strlen(out);
+      out[0] = '_';
+      out[1] = 'A'+ch/16;
+      out[2] = 'A'+ch%16;
+      out += 3;
     }
   }
-  return where;
+  *out++ = '_';
+  *out++ = arity+'A';
+out[0]='\0';
+return where;
 }
 
 static char * infixpred_doc(char *line, char *end, ssize_t sz) {
@@ -48,7 +42,7 @@ static char * infixpred_doc(char *line, char *end, ssize_t sz) {
     char *op = strtok(NULL, "\t ");
     char *arg2 = strtok(NULL, " \t");
 
-    op = protect_class(buf, op, strlen(op));
+    op = protect_class(buf, 2, op, strlen(op));
     line = arg2+strlen(arg2)+1;
     fprintf(ostream, "@class \"%s_2\"\n \n @brief  %s %s %s ", op, 
 	    arg1, op, arg2);
@@ -78,16 +72,16 @@ static char * pred_doc(char *line, char *end, ssize_t sz) {
     if (name == NULL || name+strlen(name)==end) {
       name = prefix+strlen(prefix)+1;
       name = strtok(name, " \n");
-      fprintf(ostream, "@class %s_0\n@brief  %s",
-	      protect_class(buf,name, strlen(name)),
+      fprintf(ostream, "@class %s\n@brief  %s",
+	      protect_class(buf, 0, name, strlen(name)),
 	      name  );
       line = name+strlen(name);
     } else {
       args = strtok(NULL, ")");
       int arity = commas(args);
-      fprintf(ostream, "\n@class %s_%d \n @brief %s/%d %s(%s)",
-              protect_class(buf, name,strlen(name)),
-               arity, name, arity,  name, args);
+      fprintf(ostream, "\n@class %s \n @brief %s/%d %s(%s)",
+              protect_class(buf, arity, name,strlen(name)),
+                name, arity,  name, args);
       line = args+strlen(args)+1;
     }
   }
@@ -106,40 +100,6 @@ static char *process_doc(char *line, ssize_t sz) {
   return line;
 }
 
-#if 0
-
-char *pi;
-while (
-       line &&
-       (pi=strchr(line,'/'))!=NULL) {
--  char *pi0 = pi;
-  if (!isdigit(pi0[1]))
-    break;
-  pi0--;
-  while (pi0 >= line && (pi0[0]=='_'|| isalnum(pi0[0])))
-    pi0--;
-  pi0++;
-  fprintf(ostream,"%*s @ref %s @\"%*s/%c\""  ,(int)(pi0-line),line,
-
-	  protect_class(buf,pi0,(size_t)(pi-pi0),pi[1]),
-	  (int)(pi-pi0),pi0,pi[1] );
-  line = pi+2;
-  if (!line[0])
-    line = NULL;
- }
-
-if (line) {
-  while (pi=strstr(line+pi0,"*/")) {
-  fprintf(ostream,"%*s*/",(int)(pi-line),line);
-  line = pi+2;
- }
-
-
-if (line) {
-  fprintf(ostream ,"%s",line);
- }
-}
-#endif
 
 static bool codecomm(char *p, bool star) {
   if (star) {

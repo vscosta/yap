@@ -440,8 +440,7 @@ alphanum(':').
 addcomm(N/A,S,false) :-
     is_exported(N,A),
     \+ pred_found(_M,N,A),
-    !,
-    length(L,A),
+    !, length(L,A),
     maplist(=('?'),L),
     T =.. [N|L],
     format(ostream,'~n~n/**   @class ~s~n	 ~w     (undocumented)  **/~n~n',[S,T]).

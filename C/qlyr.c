@@ -96,8 +96,6 @@ static void QLYR_ERROR__(const char *file, const char *function, int lineno,
 
 static Atom LookupAtom(Atom oat) {
   CACHE_REGS
-    if (RepAtom(oat)->StrOfAE[0] == '\0')
-    return AtomEmpty;
   //  __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %p in saved state ",  CELL hash = (CELL)(oat) % LOCAL_ImportAtomHashTableSize;
   CELL hash = (CELL)(oat) % LOCAL_ImportAtomHashTableSize;
   import_atom_hash_entry_t *a;

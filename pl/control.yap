@@ -100,7 +100,7 @@ proven. The example verifies that all arithmetic statements in the list
 It is the same as `\+((Cond, \+(Action))`.
 
 */
-forall(Cond, Action) :- \+((Cond, \+(Action))).
+forall(Cond, Action) :- ( \+((Cond, \+Action))).
 
 /** @pred  ignore(: _Goal_)
 

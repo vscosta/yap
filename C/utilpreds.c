@@ -3974,9 +3974,9 @@ p_is_list( USES_REGS1 )
 Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
     return true;
-} return Yap_IsListTerm(Deref(ARG1));
+    }
+    return Yap_IsListTerm(Deref(ARG1));
 }
-
 bool
 Yap_IsListOrPartialListTerm(Term t)
 {

@@ -96,6 +96,7 @@ trl(compound( OAtts,_OProps) ,IDir,ODir) :-
     get_xml(IDir,Id, Atts,Children),
     key_in(kind(Kind),Atts),
     children2page([idir=IDir,odir=ODir,kind=Kind],Children,All),
+    !,
      atom_concat([ODir,"/",Id,'.md'],OFile),
     open(OFile,write,O,[]),
     format(O,'~s',[All]),
@@ -114,6 +115,7 @@ get_xml(IDir,Id,Atts,Children) :-
 children2page(State,Children,All) :-
     get_name(Children,Name),
 as_title(Name,Children,Title),
+%(Title="term_hash_E" -> spy process_all ; true ),
 	foldl(process_all(State),Children,[]-[]-[]-[]-[]-[]-[],AllRaw-Briefs-Details-Pages-Groups-Predicates-Locations),
     string_concat(AllRaw,Info),
     string_concat(Briefs,Bs),
@@ -130,6 +132,7 @@ process_all(State,Op,S0s,SFs) :-
     process(State,Op,Strings,[]),
     string_concat(Strings,SC),
     add2strings(Op,SC,S0s,SFs),!.
+process_all(_State,_Op,S0s,S0s).
 
 
 
@@ -235,7 +238,7 @@ innergroup(Status,Atts,AllLabel) -->
     link_inner(Status,Ref,Label).
 
 link_inner(Status,Ref,Label) -->
-{ decode_pi(Label,PLabel) },
+{ decode(Label,PLabel) },
     ref(Ref,PLabel),
     {
 	key_in(idir=IDir,Status),
@@ -281,7 +284,7 @@ v(Msg,S0,S0) :-
     writeln(Msg:S0).
 
 sectdef(header([],[Text]))-->
-{decode_pi(Text,PText)},
+{decode(Text,PText)},
     ["\n",PText,"\n"].
 sectdef(member(Atts,Children))-->
     {
@@ -297,10 +300,9 @@ sectdef(member(Atts,Children))-->
 	;
 	Name = "" %writeln(Children)
 	)
-%         writeln(Children:Name)
     } ,
     ["%- " ],
-{decode_pi(Name,PName)},
+{decode(Name,PName)},
     ref(Ref,PName).
 
 
@@ -310,12 +312,12 @@ sectdef(memberdef(Atts,Children))-->
 	( key_in(argsstring([],[Args]),Children) -> true ; Args = ""),
 	key_in(id(Ref),Atts),
 	get_name(Children,Name),
-	decode_pi(Name, PName)
+	decode(Name, PName)
 %	short_ref(Ref, PRef)
     },
     (
 	{key_in(definition([],[Def0]),Children),
-    	decode_pi(Def0, Def)}
+    	decode(Def0, Def)}
 
 
     ->
@@ -613,9 +615,9 @@ top_sectiondef_name(   "var", "Var" ).
 as_title(_,Props,PredTitle) :-
 key_in(title(_,[Title]), Props),
 !,
-decode_pi(Title, PredTitle).
+decode(Title, PredTitle).
 as_title(Title,_,PredTitle) :-
-decode_pi(Title, PredTitle).
+decode(Title, PredTitle).
 
 bd(blockquote,"\n~~~\n").
 bd(bold,"**").
@@ -646,7 +648,7 @@ para(P) -->
 
 
 para(ulink([url(Title)],[URL|_])) -->
-{ decode_pi(Title, DTitle) },
+{ decode(Title, DTitle) },
     !,
 {   format(string(S),"[~s](~s)", [DTitle,URL])},
 [S].
@@ -1828,7 +1830,7 @@ strip_module_from_pred(ROS,EOS,Final) :-
 
 get_safe_name(S,N) :-
 get_name(S,N0),
-   decode_pi(N0,N).
+   decode(N0,N).
 get_name([Name],Name) :-
 string(Name),
 !.
@@ -1877,7 +1879,6 @@ string_concat("/group__",Ref0,Ref),
 Kind="group",
 unix(argv([IDir,ODir,_])),
     	trl(compound([refid(Ref),kind(Kind)],[]),IDir,ODir).
-
 genclass(Ref0) :-
 abolish(visited/1),
 Kind="class",

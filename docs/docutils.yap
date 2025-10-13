@@ -97,81 +97,84 @@ encode_text(S,NS) :-
     encode(S,NS).
 
 
+
+encode("","") :-
+    !.
 encode(Pred/A,String) :-
     !,
-    (atom(Pred) -> atom_string(Pred, SPred) ; Pred = SPred),
+    (atom(Pred) ->
+     atom_string(Pred, SPred)
+     ;
+     Pred = SPred
+    ),
+    pred2dox(SPred, String0),
     (number(A) ->
      number_string(A, Arity)
-    ;
+     ;
     atom(A) ->
     atom_string(A, Arity);
     A = Arity
     ),
-    pred2dox(SPred, String0),
-    format(string(String),'~s_~s',[String0,Arity]).
-
-encode("","") :-
-    !.
-encode(P,S) :-
-    atom(P),
-    !,
-    atom_string(P,SP),
-    encode(SP,S).
-encode(P,S) :-
-    sub_string(P,_,2,0,S0),
-    string_chars(S0,[C1,C0]),
-    char_type_digit(C0),
-    C1 == '/',
-    !,
-    sub_string(P,0,_,2,Name),
-    pred2dox(Name,String0),
-    format(string(S),'~s_~s',[String0,[C0]]).
+    string_concat([String0,"_",Arity],String).
 encode(Pred, Pred).
 
-decode_pi(P,SF) :-
-    decode(P,S),
-    check_prid(S,SF),
-    !.
-decode_pi(S,S).
-
-decode(P,S) :-
-    dox2pred(P,S),
-    !.
-decode(S,S).
-check_prid(S,SF) :-
+  decode(A,SF):-
+    atom(A),
+    !,
+    atom_string(A,S),
+    decode(S,SF).
+  decode(S,SF):-
     sub_string(S,_,1,1,"_"),
     sub_string(S,_,1,0,C),
     string_codes(C,[CN]),
-    CN >= 0+0'0, CN =< 9+0'0,
+    code_type_digit(CN),
+   sub_string(S,0,_,2,Name),
 		 !,
-    sub_string(S,0,_,2,Name),
-    string_concat([Name,"/",C],SF).
-check_prid(S,S).
-
-
-pred2dox(Pred, String) :-
-    string_chars(Pred, Chars),
-    maplist(char_type_csym, Chars),
-    !,
-    String = Pred.
-pred2dox(Pred, String) :-
-    string_codes(Pred, Codes),
-    foldl(addch,Codes, SF, []),
-    string_codes(String,[0'Y,0'A,0'P|SF]).
-
-addch(Code,[Code|Ss],Ss)  :-
-    code_type_alpha(Code),
+     dox2pred(Name,Name1),
+     string_concat([Name1,"/",C],SF).
+  decode(S,SF):-
+    dox2pred(S,SF),
     !.
-addch(Code,SF,Ss) :-
-    format(codes(SF,Ss),'~d_',[Code]).
+decode(P,P).
 
-dox2pred(String,Pred) :-
-    sub_string(String,0,3,Len,"YAP"),
-    sub_string(String,3,Len,0,Codes),
-    fetch_chars(Len,Codes,Chars),
-    string_concat(Chars,Pred).
 
-fetch_chars(Len,Len,[],[]) :- !.
-fetch_chars(This,String,[S|Chars]) :-
-    sub_string(String,This,8,Left,S),
-    fetch_chars(Left,String,Chars).
+pred2dox(Pred, String) :-
+    string_codes(Pred,Chars),
+    fetch_chars(Chars,Codes,[]),
+    !,
+    string_codes(String,Codes).
+pred2dox(Pred,Pred).
+
+    dox2pred(String,Pred) :-
+    string_codes(String,Codes),
+    fetch_chars(Chars,Codes,[]),
+    !,
+    string_codes(Pred,Chars).
+    dox2pred(String,String).
+
+fetch_chars([]) -->[], !.
+fetch_chars([C|Cs]) -->
+{var(C)},
+    [0'_],
+    [A,B],
+    {A >= "A", A< "A"+16,
+     B >= "A", B< "A"+16
+     },
+     !,
+     {
+C is (A-"A")*16+(B-"A")
+    },
+fetch_chars(Cs).
+fetch_chars([C|Cs]) -->
+    {nonvar(C),
+    \+ code_type_alnum(C)},
+!,    {
+A is (C div 16)+"A",
+B is (C mod 16)+"A"
+},
+    [0'_,A,B],
+fetch_chars(Cs).
+fetch_chars([C|Cs]) -->
+    [C],
+fetch_chars(Cs).
+
