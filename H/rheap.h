@@ -1495,9 +1495,6 @@ static void RestoreAtom(AtomEntry *at USES_REGS) {
   /* this should be done before testing for wide atoms */
   at->PropsOfAE = PropAdjust(at->PropsOfAE);
 #if DEBUG_RESTORE2 /* useful during debug */
-  if (IsWideAtom(AbsAtom(at)))
-    fprintf(stderr, "Restoring %S\n", at->WStrOfAE);
-  else
     fprintf(stderr, "Restoring %s\n", at->StrOfAE);
 #endif
   RestoreEntries(RepProp(at->PropsOfAE), FALSE PASS_REGS);

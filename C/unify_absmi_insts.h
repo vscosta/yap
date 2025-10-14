@@ -752,6 +752,16 @@
       ENDD(d0);
       ENDOpRW();
 
+	Op(write_float, d);
+	BEGD(d0);
+	d0 = AbsAppl(PREG->y_u.d.d);
+	*SREG++ = d0;
+	ENDD(d0);
+LOCAL_instruction = _write_float;
+ 	PREG = NEXTOP(PREG, d);
+	GONext();
+	ENDOp();
+
       Op(get_float, xd);
       BEGD(d0);
       d0 = XREG(PREG->y_u.xd.x);
@@ -889,6 +899,16 @@
       ENDD(d0);
       ENDOp();
 
+	Op(write_bigint, N);
+	BEGD(d0);
+	d0 = PREG->y_u.N.b;
+	*SREG++ = d0;
+	ENDD(d0);
+LOCAL_instruction = _write_bigint;
+	PREG = NEXTOP(PREG, N);
+	GONext();
+	ENDOp();
+
       Op(get_bigint, xN);
 #ifdef USE_GMP
       BEGD(d0);
@@ -935,6 +955,16 @@
 #endif
       ENDOp();
 
+
+	Op(write_dbterm, D);
+	BEGD(d0);
+	d0 = PREG->y_u.D.D;
+	*SREG++ = d0;
+	ENDD(d0);
+LOCAL_instruction = _write_dbterm;
+	PREG = NEXTOP(PREG, D);
+	GONext();
+	ENDOp();
 
       Op(get_dbterm, xD);
       BEGD(d0);
@@ -2597,6 +2627,16 @@
       ENDD(d0);
       ENDOp();
 
+	Op(write_longint, i);
+	BEGD(d0);
+	d0 = AbsAppl(PREG->y_u.i.i);
+	*SREG++ = d0;
+	ENDD(d0);
+LOCAL_instruction = _write_longint;
+	PREG = NEXTOP(PREG, i);
+	GONext();
+	ENDOp();
+
       Op(unify_longint, oi);
       BEGD(d0);
       BEGP(pt0);
@@ -3427,42 +3467,6 @@
 	*SREG++ = d0;
 	ENDD(d0);
 	PREG = NEXTOP(PREG, c);
-	GONext();
-	ENDOp();
-
-	Op(write_bigint, N);
-	BEGD(d0);
-	d0 = PREG->y_u.N.b;
-	*SREG++ = d0;
-	ENDD(d0);
-	PREG = NEXTOP(PREG, N);
-	GONext();
-	ENDOp();
-
-	Op(write_dbterm, D);
-	BEGD(d0);
-	d0 = PREG->y_u.D.D;
-	*SREG++ = d0;
-	ENDD(d0);
-	PREG = NEXTOP(PREG, D);
-	GONext();
-	ENDOp();
-
-	Op(write_float, d);
-	BEGD(d0);
-	d0 = AbsAppl(PREG->y_u.d.d);
-	*SREG++ = d0;
-	ENDD(d0);
-	PREG = NEXTOP(PREG, d);
-	GONext();
-	ENDOp();
-
-	Op(write_longint, i);
-	BEGD(d0);
-	d0 = AbsAppl(PREG->y_u.i.i);
-	*SREG++ = d0;
-	ENDD(d0);
-	PREG = NEXTOP(PREG, i);
 	GONext();
 	ENDOp();
 

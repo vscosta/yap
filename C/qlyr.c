@@ -106,9 +106,7 @@ static Atom LookupAtom(Atom oat) {
       return a->val;
     }
     a = a->next;
-  }
-  if (((CELL*)oat)[1] == '\0')
-    return AtomEmpty;
+  }  return AtomEmpty;
   //  __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %p in saved state ",
   //  oat);
   QLYR_ERROR(UNKNOWN_ATOM);
@@ -1033,7 +1031,7 @@ if (flags & ForeignPredFlags) {
   if (nclauses && !(ap->PredFlags & ForeignPredFlags))
     read_clauses(stream, ap, nclauses, flags);
 #if DEBUG
-// Yap_PrintPredName( ap );
+//  Yap_DebugWriteIndicator(ap);
 #endif
 
   if (flags & HiddenPredFlag) {

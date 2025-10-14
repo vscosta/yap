@@ -254,7 +254,7 @@ static void LookupPredEntry(PredEntry *pe) {
 #if 0
   if (pe->ModuleOfPred != IDB_MODULE) {
     if (p->arity>0)
-    printf("%s:%s/%d\n",RepAtom(p->module)->StrOfAE,RepAtom(NameOfFunctor(p->u_af.f))->StrOfAE,p->arity);
+// ` ``  printf("%s:%s/%d\n",RepAtom(p->module)->StrOfAE,RepAtom(NameOfFunctor(p->u_af.f))->StrOfAE,p->arity);
   else if (p->arity==0)
     printf("%s:%s/0\n",RepAtom(p->module)->StrOfAE,RepAtom(p->u_af.a)->StrOfAE);
   }
@@ -600,6 +600,7 @@ static int SaveHash(FILE *stream) {
 static size_t save_clauses(FILE *stream, PredEntry *pp) {
   yamop *FirstC, *LastC;
 
+//  Yap_DebugWriteIndicator(pp);
   FirstC = pp->cs.p_code.FirstClause;
   LastC = pp->cs.p_code.LastClause;
   if (FirstC == NULL && LastC == NULL) {
@@ -787,7 +788,7 @@ static size_t save_program(FILE *stream) {
     AtomAdjust(me->AtomOfME);
     while (pp != NULL) {
 #if DEBUG
-//    Yap_PrintPredName( pp );
+//  Yap_DebugWriteIndicator(pp);
 #endif
       pp = PredEntryAdjust(pp);
       CHECK(mark_pred(pp));
