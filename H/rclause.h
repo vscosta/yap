@@ -1,4 +1,3 @@
-
   /* This file was generated automatically by "yap -L misc/buildops"
      please do not update */
 
@@ -13,7 +12,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     op = Yap_op_from_opcode(pc->opc);
     pc->opc = Yap_opcode(op);
 #ifdef DEBUG_RESTORE2
-    fprintf(stderr, "%s ", Yap_op_names[op]);
+//    fprintf(stderr, "%s ", Yap_op_names[op]);
 #endif
     switch (op) {
       /* instructions type D */
@@ -240,7 +239,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       break;
       /* instructions type i */
     case _write_longint:
-      IntegerInCodeAdjust(pc->y_u.i.i);
+            IntegerInCodeAdjust(pc->y_u.i.i);
       pc = NEXTOP(pc,i);
       break;
       /* instructions type l */

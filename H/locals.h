@@ -289,6 +289,8 @@ LOCAL_INIT(UInt, ImportDBRefHashTableSize, 0);
 LOCAL_INIT(UInt, ImportDBRefHashTableNum, 0);
 LOCAL_INIT(yamop *, ImportFAILCODE, NULL);
 
+LOCAL_INIT(op_numbers, instruction, 0);
+
 // exo indexing
 
 LOCAL_ARRAY(UInt, ibnds, 256);
