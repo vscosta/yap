@@ -705,7 +705,6 @@ compile(Fs) :-
 	load_files(Fs, []).
 
 /**
- @pred [ _F_ ]
  @pred consult(+ _F_)
 
 
@@ -721,9 +720,6 @@ code, the expanded version of the original source code is available by
 calling source/0 or by enabling the source flag.
 
 */
-% consult(Fs) :-
-% 	'$has_yap_or'
-% 	throw_error(context_error(consult(Fs),cla ,query).
 consult(V) :-
 	var(V), !,
 	throw_error(instantiation_error,consult(V)).
@@ -743,7 +739,6 @@ consult(Fs) :-
 
 /**
 
-@pred [ - _F_ ]
 @pred reconsult(+ _F_ )
   @pred compile(+ _F_ )
 

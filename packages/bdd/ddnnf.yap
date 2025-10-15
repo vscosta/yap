@@ -1,4 +1,4 @@
-/** @defgroup ddnnf
+/** @defgroup ddnnf CNF to DNF
     @brief converting from CNF (used by SAT solvers) to DNF.
     
 

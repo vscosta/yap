@@ -267,27 +267,7 @@ xuuu
 YAP must support bignum for the configuration you are using (check the
 YAP configuration and setup). For now, YAP only supports the GNU GMP
 library, and `void \*` will be a cast for `mpz_t`. Notice
-that [YAP_BigNumOfTerm](YAP_BigNumOfTerm) requires the number to be already
-initialized. As an example, we show how to print a bignum:
-
-```
-static int
-p_print_bignum(void)
-{
-  mpz_t mz;
-  if (!YAP_IsBigNumTerm(YAP_ARG1))
-    return FALSE;
-
-  mpz_init(mz);
-  YAP_BigNumOfTerm(YAP_ARG1, mz);
-  gmp_printf("Shows up as %Zd\n", mz);
-  mpz_clear(mz);
-  return TRUE;
-}
-```
-
-Currently, no primitives are supplied to users for manipulating data base
-references.
+that rences.
 
 A special typedef `YAP_Atom` is provided to describe Prolog
 \a atoms (symbolic constants). The two following primitives can be used
@@ -316,12 +296,12 @@ names
 
 </li>
 </ul>
-The function [YAP_LookupAtom](@ref YAP_LookupAtom) looks up an atom in the
+The function  YAP_LookupAtom() looks up an atom in the
 standard hash
-table. The function [YAP_FullLookupAtom](@ref YAP_FullLookupAtom) will also
+table. The function  YAP_FullLookupAtom() will also
 search if the<
 atom had been "hidden": this is useful for system maintenance from C
-code. The functor [YAP_AtomName](@ref YAP_AtomName) returns a pointer to the
+code. The functor  YAP_AtomName() returns a pointer to the
 string
 for the atom.
 
@@ -429,22 +409,22 @@ YAP_Term[]  _args_)
 
 </li>
 </ul>
-The [YAP_MkApplTerm() function constructs a new term, with functor
+The YAP_MkApplTerm() function constructs a new term, with functor
  _f_ (of arity  _n_), and using an array  _args_ of  _n_
 terms with  _n_ equal to the arity of the
 functor. YAP_MkNewApplTerm() builds up a compound term whose
-arguments are unbound variables. [YAP_ArgOfTerm](@ref YAP_ArgOfTerm) gives an
+arguments are unbound variables. YAP_ArgOfTerm() gives an
 argument
 to a compound term. `argno` should be greater or equal to 1 and
-less or equal to the arity of the functor.  [YAP_ArgsOfTerm](@ref
-YAP_ArgsOfTerm)
+less or equal to the arity of the functor.    
+YAP_ArgsOfTerm()
 returns a pointer to an array of arguments.
 
 Notice that the compound term constructors can call the garbage
 collector if there is not enough space in the global stack.
 
 YAP allows one to manipulate the functors of compound term. The function
-[YAP_FunctorOfTerm](@ref YAP_FunctorOfTerm) allows one to obtain a variable of
+YAP_FunctorOfTerm() allows one to obtain a variable of
 type
 `YAP_Functor` with the functor to a term. The following functions
 then allow one to construct functors, and to obtain their name and arity.
@@ -478,7 +458,7 @@ You can set  _min_ to zero if you do not know how much room you need
 but you do know you do not need a big chunk at a single go. Usually, the routine
 would usually be called together with a long-jump to restart the
 code. Slots can also be used if there is small state.
-###  Unification              {#Unifying_Terms}
+##  Unification              {#Unifying_Terms}
 
 YAP provides a single routine to attempt the unification of two Prolog
 terms. The routine may succeed or fail:
@@ -491,7 +471,7 @@ fli
 The routine attempts to unify the terms  _a_ and
  _b_ returning `TRUE` if the unification succeeds and `FALSE`
 otherwise.
-###  Strings              {#Manipulating_Strings}
+##  Strings              {#Manipulating_Strings}
 
 The YAP C-interface now includes an utility routine to copy a string
 represented as a list of a character codes to a previously allocated buffer
@@ -571,7 +551,7 @@ These C-interface functions are useful when converting Prolog lists to arrays:
 </ul>
 They return the number of integers scanned, up to a maximum of <tt>sz</tt>,
 and <tt>-1</tt> on error.
-###  Memory Allocation              {#Memory_Allocation}
+##  Memory Allocation              {#Memory_Allocation}
 
 The next routine can be used to ask space from the Prolog data-base:
 
@@ -583,7 +563,7 @@ The next routine can be used to ask space from the Prolog data-base:
 The routine returns a pointer to a buffer allocated from the code area,
 or `NULL` if sufficient space was not available.
 
-The space allocated with [YAP_AllocSpaceFromYAP](@ref YAP_AllocSpaceFromYAP) can
+The space allocated with YAP_AllocSpaceFromYAP() can
 be released
 back to YAP by using:
 
@@ -595,7 +575,7 @@ back to YAP by using:
 The routine releases a buffer allocated from the code area. The system
 may crash if `buf` is not a valid pointer to a buffer in the code
 area.
-###  Controlling YAP Streams from `C`              {#Controlling_Streams}
+##  Controlling YAP Streams from `C`              {#Controlling_Streams}
 
 The C-Interface also provides the C-application with a measure of
 control over the YAP Input/Output system. The first routine allows one
@@ -650,7 +630,7 @@ The available flags are `YAP_INPUT_STREAM`,
 `YAP_BINARY_STREAM`, and `YAP_SEEKABLE_STREAM`. By default, the
 stream is supposed to be at position 0. The argument  _name_ gives
 the name by which YAP should know the new stream.
-###  Utility Functions in `C`              {#Utility_Functions}
+##  Utility Functions in `C`              {#Utility_Functions}
 
 The C-Interface  provides the C-application with a a number of utility
 functions that are useful.
@@ -734,7 +714,7 @@ ignore_variables));
 The first three arguments follow `term_has/4`. The last argument
 indicates what to do if we find a variable: if `0` fail, otherwise
 ignore the variable.
-###  From `C` back to Prolog              {#Calling_YAP_From_C}
+##  From `C` back to Prolog              {#Calling_YAP_From_C}
 
 There are several ways to call Prolog code from C-code. By default, the
 `YAP_RunGoal()` should be used for this task. It assumes the engine
@@ -774,7 +754,7 @@ this is possible,  _Goal_ will become invalid after executing
   if (out == 0) return FALSE;
 ```
 
-### Runnin Goals
+## Runnin Goals
 
 The following functions complement  _YAP_RunGoal_:
 
@@ -854,7 +834,7 @@ Notice that you cannot create new slots if an YAP_ExnterGoal goal is open.
  <li>`YAP_Bool` YAP_RetryGoal(`YAP_dogoalinfo \*`  _infop_) @anchor YAP_RetryGoal
 
 
-Backtrack to a query created by [YAP_EnterGoal](@ref YAP_EnterGoal). The query
+Backtrack to a query created by YAP_EnterGoal(). The query
 is
 given by the handle  _infop_. Returns whether a new solution could
 be be found.
@@ -863,13 +843,13 @@ be be found.
  <li>`YAP_Bool` YAP_LeaveGoal(`YAP_Bool`  _backtrack_, @anchor YAP_LeaveGoal
 
 `YAP_dogoalinfo \*`  _infop_)
-Exit a query query created by [YAP_EnterGoal](@ref YAP_EnterGoal). If
+Exit a query query created by YAP_EnterGoal(). If
 `backtrack` is `TRUE`, variable bindings are undone and Heap
 space is recovered.  Otherwise, only stack space is recovered, ie,
 `LeaveGoal` executes a cut.
 </li>
 </ul>
-Next, follows an example of how to use [YAP_EnterGoal](@ref YAP_EnterGoal):
+Next, follows an example of how to use YAP_EnterGoal():
 
 ```
 void
@@ -903,7 +883,7 @@ finding the first solution to the goal, but you can call
 
 Notice that during execution, garbage collection or stack shifting may
 have moved the terms
-###  Module Manipulation in C              {#Module_Manipulation_in_C}
+##  Module Manipulation in C              {#Module_Manipulation_in_C}
 
 YAP allows one to create a new module from C-code. To create the new
 code it is sufficient to call:
@@ -928,8 +908,8 @@ possible by using:
 </li>
 </ul>
 Notice that this function returns a term, and not an atom. You can
-[YAP_AtomOfTerm](@ref YAP_AtomOfTerm) to extract the corresponding Prolog atom.
-###  Miscellaneous C Functions              {#Miscellaneous_ChYFunctions}
+YAP_AtomOfTerm() to extract the corresponding Prolog atom.
+##  Miscellaneous C Functions              {#Miscellaneous_ChYFunctions}
 
 <ul>
  <li>`void` YAP_Throw(`YAP_Term exception`)
@@ -988,7 +968,7 @@ of such arguments.
 
 </li>
 </ul>
-###  Writing predicates in C              {#Writing_C}
+##  Writing predicates in C              {#Writing_C}
 
 We will distinguish two kinds of predicates:
 
@@ -1119,12 +1099,11 @@ static int start_n100(void)
 ```
 
 The routine starts by getting the dereference value of the argument.
-The call to [YAP_PRESERVE_DATA](@ref YAP_PRESERVE_DATA) is used to initialize
+The call to YAP_PRESERVE_DATA() is used to initialize
 the memory
 which will hold the information to be preserved across
 backtracking. The first argument is the variable we shall use, and the
-second its type. Note that we can only use [YAP_PRESERVE_DATA](@ref
-YAP_PRESERVE_DATA)
+second its type. Note that we can only use YAP_PRESERVE_DATA()
 once, so often we will want the variable to be a structure. This data
 is visible to the garbage collector, so it should consist of Prolog
 terms, as in the example. It is also correct to store pointers to
@@ -1138,13 +1117,12 @@ required to provide the next solution, and exits by calling
 
 If the argument was not a variable, the routine then checks if it was an
 integer, and if so, if its value is positive and less than 100. In that
-case it exits, denoting success, with [YAP_cut_succeed](@ref YAP_cut_succeed),
+case it exits, denoting success, with YAP_cut_succeed(),
 or
-otherwise exits with [YAP_cut_fail](@ref YAP_cut_fail) denoting failure.
+otherwise exits with YAP_cut_fail() denoting failure.
 
-The reason for using for using the functions [YAP_cut_succeed](@ref
-YAP_cut_succeed) and
-[YAP_cut_fail](@ref YAP_cut_fail) instead of just returning a non-zero value in
+The reason for using for using the functions YAP_cut_succeed() and
+YAP_cut_fail() instead of just returning a non-zero value in
 the
 first case, and zero in the second case, is that otherwise, if
 backtracking occurred later, the routine `continue_n100` would be
@@ -1173,11 +1151,11 @@ static int continue_n100(void)
 }
 ```
 
-Note that again the macro [YAP_PRESERVED_DATA](@ref YAP_PRESERVED_DATA) is used
+Note that again the macro YAP_PRESERVED_DATA() is used
 at the
 beginning of the function to access the data preserved from the previous
 solution.  Then it checks if the last solution was found and in that
-case exits with [YAP_cut_succeed](@ref YAP_cut_succeed) in order to cut any
+case exits with YAP_cut_succeed() in order to cut any
 further
 backtracking.  If this is not the last solution then we save the value
 for the next solution in the data structure and exit normally with 1
@@ -1186,7 +1164,7 @@ function `YAP_unify` to bind the argument of the call to the value
 saved in ` n100_state-\>next_solution`.
 
 Note also that the only correct way to signal failure in a backtrackable
-predicate is to use the [YAP_cut_fail](@ref YAP_cut_fail) macro.
+predicate is to use the YAP_cut_fail() macro.
 
 Backtrackable predicates should be declared to YAP, in a way
 similar to what happened with deterministic ones, but using instead a
@@ -1223,8 +1201,7 @@ YAP_IntOfTerm(n100_data->next_solution));
   return TRUE;
 }
 ```
-Notice that we have to use [YAP_PRESERVED_DATA_CUT](@ref
-YAP_PRESERVED_DATA_CUT): this is
+Notice that we have to use YAP_PRESERVED_DATA_CUT(): this is
 because the Prolog engine is at a different state during cut.
 
 If no work is required at cut, we can use:
@@ -1237,7 +1214,7 @@ init_n100(void)
 }
 ```
 in this case no code is executed at cut time.
-###  Changes to the C-Interface in YAP4              {#YAP4_Notes}
+##  Changes to the C-Interface in YAP4              {#YAP4_Notes}
 
 YAP4 includes several changes over the previous `load_foreign_files/3`
 interface. These changes were required to support the new binary code
@@ -1271,7 +1248,7 @@ collection or stack shifting. Prolog terms should instead be stored as
 arguments to the backtrackable procedure.
 
 
-###  YAP as a Library {#YAPAsLibrary}
+##  YAP as a Library {#YAPAsLibrary}
 
 YAP can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:
@@ -1318,7 +1295,7 @@ program contains two facts for the procedure <tt>b</tt>:
 #include <stdio.h>
 
 int
-main(int argc, char *argv[]) {
+main(int argc, char *argv) {
   if (YAP_FastInit("saved_state") == YAP_BOOT_ERROR)
     exit(1);
   if (YAP_RunGoal(YAP_MkAtomTerm(YAP_LookupAtom("do")))) {

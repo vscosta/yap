@@ -1,16 +1,13 @@
 ///
 //  @file blobs.c
-//  @bried Support of SWI-like atom-extension blobs.
-//
-//  blobs.c
-//  yap
+//  @brief Support of SWI-like atom-extension blobs.
 //
 //  Created by VITOR SANTOS COSTA on 09/05/15.
 //  Copyright (c) 2015 VITOR SANTOS COSTA. All rights reserved.
 //
 
 /// @defgroup BlobsImplementation Implementation of Blobs 
-/// @ingroup SWIFLI-Implementation
+/// @ingroup Implementation
 /// @{
 
 #include <stdio.h>
@@ -235,7 +232,7 @@ Atom x = at;
   return x->rep.blob[0].data;
 }
 
-void YAP_register_blob_type(blob_type_t *type) {
+ void YAP_register_blob_type(blob_type_t *type) {
   type->next = (void *)BlobTypes;
   BlobTypes = (void *)type;
 }
