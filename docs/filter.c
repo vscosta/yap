@@ -32,7 +32,7 @@ out[0]='\0';
 return where;
 }
 
-static char * infixpred_doc(char *line, char *end, ssize_t sz) {
+static bool infixpred_doc(char *line, char *end, ssize_t sz) {
   char *pred;
   char buf[4096];
   if ((pred = strstr(line, "@infixpred")) !=NULL && end && pred <end)        {
@@ -46,8 +46,9 @@ static char * infixpred_doc(char *line, char *end, ssize_t sz) {
     line = arg2+strlen(arg2)+1;
     fprintf(ostream, "@class \"%s_2\"\n \n @brief  %s %s %s ", op, 
 	    arg1, op, arg2);
+    return true;
   }
-  return line;
+  return false;
 }
 
 static int commas(char *args) {
@@ -61,7 +62,7 @@ static int commas(char *args) {
   return nargs;
 }
 
-static char * pred_doc(char *line, char *end, ssize_t sz) {
+static bool pred_doc(char *line, char *end, ssize_t sz) {
   char *name, *args, *pred, *start = line;
   char buf[4096];
 
@@ -84,20 +85,17 @@ static char * pred_doc(char *line, char *end, ssize_t sz) {
                 name, arity,  name, args);
       line = args+strlen(args)+1;
     }
+    return true;
   }
-  return line;
+  return false;
 }
 
 static char *process_doc(char *line, ssize_t sz) {
   char *end = line+sz;
-  line = infixpred_doc(line, end, sz);
-  if ( sz == end-line)
-  line = pred_doc(line, end, sz);
-  if (line[0]) {
-    fprintf(ostream,"%s",line);
-    line = NULL;
-  }
-  return line;
+  if (! infixpred_doc(line, end, sz) &&
+      ! pred_doc(line, end, sz))
+    fprintf(ostream, "%.*s*", (int)sz, line);
+  return line+sz;
 }
 
 
@@ -125,22 +123,20 @@ static bool star(char *line, char **p, bool code, char  *line0) {
   }
   line = *p;
   if((*p= strstr(line, "*/"))) {
-    if (code) {
+    *p += 2;
+   if (code) {
 	  process_doc(line, *p - line);
 	} else {
-	  fprintf(ostream, "%.*s*/", (int)(*p-line), line);
-	}
-	      *p += 2;
-          return false;
-	    
-      } else {
+      fprintf(ostream, "%.*s", (int)(*p-line), line);
+   }
+   return false;
+  }
 	if (code) {
-	  process_doc(line, strlen(line));
+	   process_doc(line, strlen(line));
 	} else {
 	  fprintf(ostream, "%s", line);
 	}
 	*p = NULL;
-}
   return  true;
 }
 
@@ -195,14 +191,17 @@ int main(int argc, char *argv[]) {
   bool starl = false;
   // line -> current unvisited line
   // line0 -> true start of current line
-  while (line || // line is still alive
-         getline(&p, &n, f) > 0) {
+  // start the line by line loop 
+  while (!feof(f) && (line || // line is still alive
+		      getline(&p, &n, f) > 0)) {
     // line0 is NULL if this is a new line
+    /// we need our stuff
     if (!line) {
       current_line++;
       line0=line=p;
-     if (open_comment && (code = strstr(line,"```") >= 0 ) && spaces(line, code) && '`' != line[code+3])  {
-	fprintf(ostream, "%s", line);
+    }
+     if (open_comment && (code = strstr(line,"```")  ) && spaces(line, code))  {
+       fprintf(ostream, "%s", line);
 	line =  NULL;
 	verbatim= !verbatim;
 	continue;
@@ -214,62 +213,55 @@ int main(int argc, char *argv[]) {
     }
     if (!open_comment) {
       if ((p = strstr(line, "/*"))) {
-          code = codecomm(p, true);
+        code = codecomm(p, true);
+	if (p!=line) {
+        fprintf(ostream, "%.*s", (int)(p - line), line);
+	}
         open_comment = true;
+	line = p;
         starl = true;
       } else      if((p=strstr(line,"//"))) {
-          code = codecomm(p, false);
+        code = codecomm(p, false);
         open_comment = true;
-          starl = false;
-     } else {
-        fprintf(ostream, "%s", line);
-        line =
-	  NULL;
-          open_comment = false;
-      }
-    } else {
-      if (!starl) {	
-	  while (isspace(*p++)) n--;
-	  open_comment = (p[0] == '%' && p[1] == '%' && (isspace(p[2]))) ||!p[0];
+	if (p!=line) {
+        fprintf(ostream, "%.*s", (int)(p - line), line);
+	}
+	line = p;
+        starl = false;
+      
       }
     }
-    if (line) {
-    if ( open_comment) {
-      if (line < p) {
-        fprintf(ostream, "%.*s", (int)(p - line), line);
-	line = p;
+    if ( open_comment && !starl) {	
+	  while (isspace(*p++)) n--;
+	  open_comment = (p[0] == '/' && p[1] == '/' && (isspace(p[2]))) ||!p[0];
       }
+
+      if (line) {
+
+   
       if (starl){
         open_comment = star(line, &p, code, line0);
         line = p;
-        if (p)
-	  continue;
-      }    
-      else {
+      }
+      if (line) {
    	if (code) {
 	  process_doc(line, strlen(line));
 	} else {
 	  fprintf(ostream, "%s", line);
+	  line = NULL;
 	}
-	line = NULL;
-      }
-
-
     } else  {
-          fprintf(ostream, "%s", line);
+      	  fprintf(ostream, "%s", line);
         line = NULL;
         }
-    }
-  if (!line) {
-      free(line0);
+    
+    if (!line ) {
+      if (line0)
+	free(line0);
       line0 = p =
 	NULL;
-    if (feof(f)) {
-      exit(0);
-    }
     }
   }
-
 }
 
 

@@ -1,6 +1,6 @@
 
 /**
-@defgroup YAP_Gecode5and+ClPbBFDbC Programming Finite Domain Constraints in YAP/Gecode
+@defgroup YAP_Gecode5_CLP Programming Finite Domain Constraints in YAP/Gecode
 @ingroup YAP_Gecode5
 @{
 

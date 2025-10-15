@@ -18,14 +18,14 @@
 
 /**
   @file predtypes.yap
-  @brief YAP bootstrap
+  @brief YAP 
 
   @defgroup YAPPredtypes Declaring a type of predicate: 
     - dynamic (logical_updates)
     - multifile,
     - meta_predicate.
     
-      @ingroup predimpl
+      @ingroup Builtins
 
 @{
 

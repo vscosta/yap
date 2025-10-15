@@ -105,7 +105,7 @@ trl(compound( OAtts,_OProps) ,IDir,ODir) :-
 trl(compound( OAtts,_OProps),_,_):-
     key_in(refid(Id),OAtts),
     writeln(failed:Id).
-
+ 
 get_xml(IDir,Id,Atts,Children) :-
     atom_concat([IDir,Id,'.xml'], IFile),
     catch(xml_load(IFile,XML),Error,(format(user_error,'failed while processsing ~w: ~w',[IFile,                      Error]),fail)),
@@ -132,7 +132,8 @@ process_all(State,Op,S0s,SFs) :-
     process(State,Op,Strings,[]),
     string_concat(Strings,SC),
     add2strings(Op,SC,S0s,SFs),!.
-process_all(_State,_Op,S0s,S0s).
+process_all(State,Op,S0s,S0s):-
+    writeln(failed:Op:State).
 
 
 
@@ -322,10 +323,10 @@ sectdef(memberdef(Atts,Children))-->
 
     ->
 
-	{format(string(Header), '[](){ #~s }   ~n~n~s~s~n', [Ref,Def,Args])}
+	{format(string(Header), '. [](){#~s}~s~s~n', [Ref,Def,Args])}
     ;
 
-	{format(string(Header), '[](){ #~s }    ~s~s~n', [Ref,PName,Args])}
+	{format(string(Header), '. [](){#~s}~s~s~n', [Ref,PName,Args])}
 
     ),
     [Header],
@@ -1871,7 +1872,7 @@ get_name(Children,Name) :-
 
 
 anchor([id(Ref)],[]) -->
-  ["\n[](){#",Ref,"}\n"].
+  ["[](){#",Ref,"}\n"].
 
 gengroup(Ref0) :-
 abolish(visited/1),

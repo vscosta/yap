@@ -23,7 +23,7 @@
         showprofres/1], []).
 
 /** @defgroup The_Count_Profiler The Count Profiler
-@ingroup Profiling
+@ingroup Builtins
 @{
 
 The count profiler works by incrementing counters at procedure entry or

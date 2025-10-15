@@ -33,7 +33,7 @@
 /**
 
 @defgroup LoadForeign Access to Foreign Language Programs
-@ingroup fli_c_cxx
+@ingroup YAPAPI
 
 @{
 

@@ -54,7 +54,6 @@ apt install libgmp-dev libreadline-dev
    - arch, gentoo should have it
    - brew: just install the packages.
 
-
 3. Make a directory where you will compile YAP. Mote that `cmake` does not allow compiling on the `yap` main directory, and most often we use a sub-directory. An example:
 ```
 mkdir yap/build
@@ -90,7 +89,6 @@ We include a number of packages that are useful extensions to
 Prolog. Of these `xml2yap`, a proof of concept interface to XML data,
 and `yap-lbfgs`, an interface to LBFGS search, should just compile.
 
-The `myddas` database-interface includes the SQLite3 code-base, so it should always compile.
 
 ### Compiling and Installing the Python3 interface
 
@@ -142,5 +140,5 @@ You can create  an YAP image by going into the docker directory and running the 
 ```
 ./dockerfile ubuntu
 ```
-YAP supports debian, ubuntu, fedora, and arch. The script also has several options in case you need a leaner install.
+YAP supports debian, ubuntu, fedora, and arch. The script also has several options in case you want faster compilation or experimenting with threads.
 
