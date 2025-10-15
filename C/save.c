@@ -204,7 +204,7 @@ static FILE *splfild = NULL;
 #ifdef DEBUG_RESTORE4
 static FILE *errout;
 #else
-#define errout GLOBAL_stderr
+#define errout stderr
 #endif
 
 #endif /* DEBUG */
@@ -1251,7 +1251,7 @@ static void restore_heap(void) {
 static void ShowEntries(pp) PropEntry *pp;
 {
   while (!EndOfPAEntr(pp)) {
-    fprintf(GLOBAL_stderr, "Estou a ver a prop %x em %x\n", pp->KindOfPE, pp);
+    fprintf(stderr, "Estou a ver a prop %x em %x\n", pp->KindOfPE, pp);
     pp = RepProp(pp->NextOfPE);
   }
 }
@@ -1264,7 +1264,7 @@ static void ShowAtoms() {
       AtomEntry *at;
       at = RepAtom(HashPtr->Entry);
       do {
-        fprintf(GLOBAL_stderr, "Passei ao %s em %x\n", at->StrOfAE, at);
+        fprintf(stderr, "Passei ao %s em %x\n", at->StrOfAE, at);
         ShowEntries(RepProp(at->PropsOfAE));
       } while (!EndOfPAEntr(at = RepAtom(at->NextOfAE)));
     }
@@ -1276,7 +1276,7 @@ static void ShowAtoms() {
       AtomEntry *at;
       at = RepAtom(HashPtr->Entry);
       do {
-        fprintf(GLOBAL_stderr, "Passei ao %s em %x\n", at->StrOfAE, at);
+        fprintf(stderr, "Passei ao %s em %x\n", at->StrOfAE, at);
         ShowEntries(RepProp(at->PropsOfAE));
       } while (!EndOfPAEntr(at = RepAtom(at->NextOfAE)));
     }
@@ -1309,7 +1309,7 @@ static int commit_to_saved_state(const char *s, CELL *Astate, CELL *ATrail,
   /*
    * This should be another file, like the log file
    */
-  errout = GLOBAL_stderr;
+  errout = stderr;
 #endif
   return mode;
 }
