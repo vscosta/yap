@@ -1,3 +1,4 @@
+
 if (WITH_R)
 
   find_package(LibR)
@@ -5,25 +6,25 @@ if (WITH_R)
 
   if (LIBR_FOUND)
 
-  # PROJECT ( YAP_REAL C )
+    # PROJECT ( YAP_REAL C )
 
-  set(YAP4R_SOURCES
-    yap4r/R/zzz.R
-    yap4r/NAMESPACE
-    yap4r/DESCRIPTION
-    yap4r/src/yap4r.cpp
-  )
+    set(YAP4R_SOURCES
+      yap4r/R/zzz.R
+      yap4r/NAMESPACE
+      yap4r/DESCRIPTION
+      yap4r/src/yap4r.cpp
+    )
 
-  file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R)
+    file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R)
 
 
-  set(REAL_SOURCES real.c)
+    set(REAL_SOURCES real.c)
 
-  # LIBR_FOUND
-  # LIBR_HOME
-  # LIBR_INCLUDE_DIRS
-  # LIBR_DOC_DIR
-  # LIBR_LIBRARIES
+    # LIBR_FOUND
+    # LIBR_HOME
+    # LIBR_INCLUDE_DIRS
+    # LIBR_DOC_DIR
+    # LIBR_LIBRARIES
 
     set_package_properties(R PROPERTIES
       DESCRIPTION "The R Project for Statistical Computing."
@@ -63,15 +64,15 @@ if (WITH_R)
 
     )
 
-        INSTALL(FILES r.yap  real.pl DESTINATION ${YAP_INSTALL_DATADIR})
+    INSTALL(FILES r.yap  real.pl DESTINATION ${YAP_INSTALL_DATADIR})
 
-if (WITH_YAP4R)
+    if (WITH_YAP4R)
       
-    set_package_properties(YAP4R PROPERTIES
-      DESCRIPTION "The YAP4R Extension Computing."
-      URL "https://www.r-project.org/")
+      set_package_properties(YAP4R PROPERTIES
+	DESCRIPTION "The YAP4R Extension Computing."
+	URL "https://www.r-project.org/")
 
-    set(LIBR_INCLUDE_DIRS "${LIBR_HOME}/include" CACHE PATH "R include directory")
+      set(LIBR_INCLUDE_DIRS "${LIBR_HOME}/include" CACHE PATH "R include directory")
       check_include_file(  "Rcpp" HAVE_RCPP ${Rcpp_INCLUDE_DIRS})
 
       add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap4r/DESCRIPTION
@@ -101,6 +102,13 @@ if (WITH_YAP4R)
       #     ) 													     #
       # ################################################################################################################### #
 
+
+
+
+
+
+
+      
       set (YAP4R_PACKAGE ${CMAKE_BINARY_DIR}/yap4r_1.0.tar.gz)
 
       include_directories(BEFORE ${LIBR_INCLUDE_DIRS})

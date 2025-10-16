@@ -1,5 +1,6 @@
 :- dynamic exported/2, defines_module/1.
 
+:- include(yapops).
 
 %:- use_module(library(lists)).
 append([], L, L).
