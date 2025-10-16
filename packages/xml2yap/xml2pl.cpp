@@ -39,7 +39,7 @@ ok = true;
   std::string s = inpt.text();
   doc = pugi::xml_document();
 //  std::cerr << s.c_str() << "\n";
-    pugi::xml_parse_result result = doc.load_file(s.c_str());
+pugi::xml_parse_result result = doc.load_file(s.c_str() );
 
   if (result.status!=pugi::status_ok) {
     std::cerr << "Error in " <<  s.c_str() << ": " << result.description() << "\n";
@@ -155,14 +155,20 @@ CACHE_REGS
 	}
 	case pugi::node_pcdata:
 	  {
-	  return val2term(node.value());
+	 // std::cerr << node.name() << "+ " <<node.value()<<"?\n";
+	    return val2term(node.value());
 	  }
       case pugi::node_cdata:
 	{
+	//  std::cerr << node.name() << "+ " <<node.value()<<"\n";
+	  return val2term(node.value());
+	}
+      case pugi::node_pi:
+	{
+//	  std::cerr << node.name() << "+ " <<node.value()<<"\n";
 	  return val2term(node.value());
 	}
       case pugi::node_comment:
-      case pugi::node_pi:
       case pugi::node_declaration:
       case pugi::node_doctype:
 	return TermEmpty;

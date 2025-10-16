@@ -9,7 +9,7 @@
 
 /**
   @defgroup  CharacterCodes Character Encoding and Manipulation.
-  @ingroup InputOutput
+  @ingroup YAPInputOutput
   @{
 
 The Prolog library includes a set of built-in predicates designed to

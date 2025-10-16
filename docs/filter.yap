@@ -145,7 +145,7 @@ predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
                         predicates(More,N/A,Preds,L0).
 
 output(W,command([comments(Comments) |_])) :-
-    maplist(out_comment(W),Comments ).
+    foldl(out_comment(W),Comments, false, _ ).
 output(W,predicate(N/A,[comments(Comments) |_Clauses])) :-
     encode(N/A,S1),
     atom_string(NA,S1),
@@ -172,22 +172,22 @@ insert_module_header(W) :-
     %    format(ostream,'class Predicate(M),
     !,
     format(W,'namespace ~s~n{~n',[M]).
-insert_module_header.
+insert_module_header(_).
 
 insert_module_tail(W) :-
     defines_module(_M),
     !,
     format(W,'}~n',[]).
-insert_module_tail.
+insert_module_tail(_).
 
 out_comment(W,C, InitialVerbatim, FinalVerbatim) :-
-    sub_string(W,0,3,_,"```"),
+    sub_string(C,0,3,_,"```"),
     !,
-    FinalVerbatim is ~InitialVerbatim,
+    (InitialVerbatim == true ->  FinalVerbatim = false ; FinalVerbatim = true),
     format(W,'~s~n',[C]).
 out_comment(W,C, true, true) :-
     !,
-    format(W,'~s~n',[C]),
+    format(W,'~s~n',[C]).
 out_comment(W,C, false, false) :-
     simplify(C,Simplified),
     !,
@@ -242,8 +242,6 @@ simplify(C, "\n") :-
     !.
 simplify(_C,"\n").
 
-simplify_slash(S, NS) :-
-    sub_string(S, 0, 3, _, _)
 simplify_slash(S, NS) :-
     sub_string(S, 0 ,_,_, "%%"),
     !,
@@ -346,6 +344,27 @@ trl_pred(L,NewLine) :-
 			    atom_string( At, Name),
 			    defines_module(Mod),
 			    assert(pred_found(Mod,At,2)),
+			    sub_string(L,0,Bef,_, Prefix),
+			    string_concat([Prefix,"@class ",DoxName,"\n       ",NameArgs," ",RL],NewLine).
+trl_pred(L,NewLine) :-
+    sub_string(L,Bef,Sz,_After,"@prefixpred"),
+    A0 is Bef+Sz,
+    skip_whitespace(A0,L,A1),
+    A1>A0,
+    block(A1,L,B1),
+	       skip_whitespace(B1,L,A2),
+	A2>A1,	
+		block(A2,L,B2),
+			   !,
+			    L2 is B1-A1,
+			    L1 is B2-A1,
+			    sub_string(L,A1,L2,_,Name),
+			    sub_string(L,A1,L1,_,NameArgs),
+					    sub_string(L,B2,_,0,RL),
+	    encode(Name/1,DoxName),
+			    atom_string( At, Name),
+			    defines_module(Mod),
+			    assert(pred_found(Mod,At,1)),
 			    sub_string(L,0,Bef,_, Prefix),
 			    string_concat([Prefix,"@class ",DoxName,"\n       ",NameArgs," ",RL],NewLine).
 trl_pred(L,L).

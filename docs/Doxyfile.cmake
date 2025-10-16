@@ -136,6 +136,8 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
 
     doxygen_add_docs(
     dox
+    ${CMAKE_BINARY_DIR}/index.md
+    ${CMAKE_BINARY_DIR}/INSTALL.md
     ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/C
     ${CMAKE_SOURCE_DIR}/H
@@ -146,8 +148,6 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
     ${CMAKE_SOURCE_DIR}/library/dialect/swi/fli
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/packages
-    ${CMAKE_BINARY_DIR}/index.md
-    ${CMAKE_BINARY_DIR}/INSTALL.md
  )
 
     configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/index.md)

@@ -4,7 +4,7 @@
 ///
 /// @defgroup YapErrorCodes YAP Supported Error Codes
 ///
-/// @ingroup ErrorC
+/// @ingroup YAPErrors
 ///
 /// @{
 ///

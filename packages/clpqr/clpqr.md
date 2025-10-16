@@ -1,5 +1,5 @@
 # Constraint Logic Programming over Rationals and Reals  {#CLPQR}
-@defgroup CLPQR
+@defgroup CLPQR The CLPP(QR) Leuven Implementation
 @ingroup YAPPackages
 
 YAP now uses the CLP(R) package developed by <em>Leslie De Koninck</em>,
