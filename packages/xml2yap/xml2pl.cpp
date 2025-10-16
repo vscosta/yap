@@ -15,6 +15,12 @@ extern "C"  bool xml_load();
 
 /**
  * @addtogroup XML4PL
+
+
+
+
+
+
  *@{
  * The class XML2YAP demonstrates  a non-validating XML to Prolog parser. The code uses the PUGI parser.
  */
