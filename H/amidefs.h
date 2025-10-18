@@ -277,11 +277,12 @@ typedef struct yami {
       CELL next;
     } c;
     struct {
+      void * unused;
       Term                D;
       CELL next;
     } D;
     struct {
-      Term                b;
+      CELL                *b;
       CELL next;
     } N;
     struct {
@@ -504,7 +505,7 @@ typedef struct yami {
     } oc;
     struct {
       OPCODE              opcw;
-      Term                b;
+      CELL *b;
       CELL next;
     } oN;
     struct {
@@ -514,6 +515,7 @@ typedef struct yami {
     } od;
     struct {
       OPCODE              opcw;
+      void * unused;
       Term                  D;
       CELL next;
     } oD;
@@ -541,7 +543,7 @@ typedef struct yami {
     } os;
     struct {
       OPCODE              opcw;
-      Term    ut;
+      CELL *ut;
       CELL next;
     } ou;
     struct {
@@ -725,7 +727,7 @@ typedef struct yami {
     } xc;
     struct {
       wamreg                x;
-      Term                  b;
+      CELL *                b;
       CELL next;
     } xN;
     struct {
@@ -735,6 +737,7 @@ typedef struct yami {
     } xd;
     struct {
       wamreg                x;
+      void * unused;
       Term                  D;
       CELL next;
     } xD;
@@ -767,7 +770,7 @@ typedef struct yami {
     } xx;
     struct {
       wamreg                x;
-      Term                  ut;
+      CELL *                  ut;
       CELL next;
     } xu;
     struct {

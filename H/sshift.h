@@ -564,16 +564,13 @@ CodeVarAdjust__ (Term var USES_REGS)
 }
 
 
-#if TAGS_FAST_OPS
-
-INLINE_ONLY Term BlobTermInCodeAdjust__ (Term CACHE_TYPE);
-
-INLINE_ONLY Term
-BlobTermInCodeAdjust__ (Term t USES_REGS)
+INLINE_ONLY CELL *
+BlobTermInCodeAdjust__ (CELL * t USES_REGS)
 {
-  return (Term) (CharP(t) - LOCAL_HDiff);
+  return  (CELL*)(CharP(t) + LOCAL_HDiff);
 }
 
+#if 0
 
 INLINE_ONLY Term CodeComposedTermAdjust__ (Term CACHE_TYPE);
 
@@ -585,14 +582,6 @@ CodeComposedTermAdjust__ (Term t USES_REGS)
 
 
 #else
-
-INLINE_ONLY Term BlobTermInCodeAdjust__ (Term CACHE_TYPE);
-
-INLINE_ONLY Term
-BlobTermInCodeAdjust__ (Term t USES_REGS)
-{
-  return (Term) (CharP(t) + LOCAL_HDiff);
-}
 
 INLINE_ONLY Term CodeComposedTermAdjust__ (Term CACHE_TYPE);
 
@@ -715,8 +704,6 @@ CodeAddrAdjust__ (CODEADDR addr USES_REGS)
 }
 
 
-INLINE_ONLY char * CodeCharPAdjust__ (char * CACHE_TYPE);
-
 INLINE_ONLY char *
 CodeCharPAdjust__ (char * addr USES_REGS)
 {
@@ -724,8 +711,6 @@ CodeCharPAdjust__ (char * addr USES_REGS)
     return NULL;
   return addr + LOCAL_HDiff;
 }
-
-INLINE_ONLY const char * CodeConstCharPAdjust__ (const char * CACHE_TYPE);
 
 INLINE_ONLY const char *
 CodeConstCharPAdjust__ (const char * addr USES_REGS)
@@ -735,8 +720,6 @@ CodeConstCharPAdjust__ (const char * addr USES_REGS)
   return addr + LOCAL_HDiff;
 }
 
-INLINE_ONLY void * CodeVoidPAdjust__ (void * CACHE_TYPE);
-
 INLINE_ONLY void *
 CodeVoidPAdjust__ (void * addr USES_REGS)
 {
@@ -744,8 +727,6 @@ CodeVoidPAdjust__ (void * addr USES_REGS)
     return NULL;
   return (void *)((char *)addr + LOCAL_HDiff);
 }
-
-INLINE_ONLY struct halt_hook *HaltHookAdjust__ (struct halt_hook * CACHE_TYPE);
 
 INLINE_ONLY struct halt_hook *
 HaltHookAdjust__ (struct halt_hook * addr USES_REGS)
@@ -1020,7 +1001,6 @@ IsOldH__ (CELL reg USES_REGS)
 {
   return (int) ((CharP (reg) == CharP (LOCAL_OldH)));
 }
-
 
 
 

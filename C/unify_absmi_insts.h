@@ -829,7 +829,7 @@ LOCAL_instruction = _write_float;
 	FAIL();
       }
       BEGP(pt1);
-      pt1 = RepAppl(PREG->y_u.xu.ut);
+      pt1 = PREG->y_u.xu.ut;
       PREG = NEXTOP(PREG, xu);
       if (
 	  pt1[1] != pt0[1] ||
@@ -847,7 +847,7 @@ LOCAL_instruction = _write_float;
       /* set d1 to be the new structure we are going to create */
       START_PREFETCH(xc);
       BEGD(d1);
-      d1 = PREG->y_u.xu.ut;
+      d1 = AbsAppl(PREG->y_u.xu.ut);
       PREG = NEXTOP(PREG, xu);
       YapBind(pt0, d1);
       GONext();
@@ -901,7 +901,7 @@ LOCAL_instruction = _write_float;
 
 	Op(write_bigint, N);
 	BEGD(d0);
-	d0 = PREG->y_u.N.b;
+	d0 = AbsAppl(PREG->y_u.N.b);
 	*SREG++ = d0;
 	ENDD(d0);
 LOCAL_instruction = _write_bigint;
@@ -927,7 +927,7 @@ LOCAL_instruction = _write_bigint;
 	{
 	  FAIL();
 	}
-      if (Yap_gmp_tcmp_big_big(d0,PREG->y_u.xN.b))
+      if (Yap_gmp_tcmp_big_big(d0,AbsAppl(PREG->y_u.xN.b)))
 	FAIL();
       PREG = NEXTOP(PREG, xN);
       ENDP(pt0);
@@ -941,7 +941,7 @@ LOCAL_instruction = _write_bigint;
       /* set d1 to be the new structure we are going to create */
       START_PREFETCH(xN);
       BEGD(d1);
-      d1 = PREG->y_u.xN.b;
+      d1 = AbsAppl(PREG->y_u.xN.b);
       PREG = NEXTOP(PREG, xN);
       YapBind(pt0, d1);
       GONext();
@@ -2566,7 +2566,7 @@ LOCAL_instruction = _write_dbterm;
       }
       ENDD(d0);
       BEGP(pt1);
-      pt1 = RepAppl(PREG->y_u.ou.ut);
+      pt1 = PREG->y_u.ou.ut;
       PREG = NEXTOP(PREG, ou);
       if (
 	  pt1[1] != pt0[1]
@@ -2578,7 +2578,7 @@ LOCAL_instruction = _write_dbterm;
 
       derefa_body(d0, pt0, ustring_unk, ustring_nonvar);
       BEGD(d1);
-      d1 = PREG->y_u.ou.ut;
+      d1 = AbsAppl(PREG->y_u.ou.ut);
       PREG = NEXTOP(PREG, ou);
       Bind_Global(pt0, d1);
       GONext();
@@ -2606,7 +2606,7 @@ LOCAL_instruction = _write_dbterm;
       }
       ENDD(d0);
       BEGP(pt1);
-      pt1 = RepAppl(PREG->y_u.ou.ut);
+      pt1 = PREG->y_u.ou.ut;
       PREG = NEXTOP(PREG, ou);
       if (
 	  pt1[1] != pt0[1]
@@ -2618,7 +2618,7 @@ LOCAL_instruction = _write_dbterm;
 
       derefa_body(d0, S_SREG, ulstring_unk, ulstring_nonvar);
       BEGD(d1);
-      d1 = PREG->y_u.ou.ut;
+      d1 = AbsAppl(PREG->y_u.ou.ut);
       PREG = NEXTOP(PREG, ou);
       Bind_Global(S_SREG, d1);
       GONext();
@@ -2747,7 +2747,7 @@ LOCAL_instruction = _write_longint;
 	  FAIL();
 	}
       ENDD(d1);
-      if (Yap_gmp_tcmp_big_big(d0,PREG->y_u.oN.b))
+      if (Yap_gmp_tcmp_big_big(d0,AbsAppl(PREG->y_u.oN.b)))
 	FAIL();
       PREG = NEXTOP(PREG, oN);
       ENDP(pt0);
@@ -2755,7 +2755,7 @@ LOCAL_instruction = _write_longint;
 
       derefa_body(d0, pt0, ubigint_unk, ubigint_nonvar);
       BEGD(d1);
-      d1 = PREG->y_u.oN.b;
+      d1 = AbsAppl(PREG->y_u.oN.b);
       PREG = NEXTOP(PREG, oN);
       Bind_Global(pt0, d1);
       GONext();
@@ -2787,7 +2787,7 @@ LOCAL_instruction = _write_longint;
 	  FAIL();
 	}
       ENDD(d0);
-      if (Yap_gmp_tcmp_big_big(d0,PREG->y_u.oN.b))
+      if (Yap_gmp_tcmp_big_big(d0,AbsAppl(PREG->y_u.oN.b)))
 	FAIL();
       PREG = NEXTOP(PREG, oN);
       ENDP(pt0);
@@ -2795,7 +2795,7 @@ LOCAL_instruction = _write_longint;
 
       derefa_body(d0, S_SREG, ulbigint_unk, ulbigint_nonvar);
       BEGD(d1);
-      d1 = PREG->y_u.oN.b;
+      d1 = AbsAppl(PREG->y_u.oN.b);
       PREG = NEXTOP(PREG, oN);
       Bind_Global(S_SREG, d1);
       GONext();
@@ -3259,7 +3259,7 @@ LOCAL_instruction = _write_longint;
 
       Op(put_bigint, xN);
       BEGD(d0);
-      d0 = PREG->y_u.xN.b;
+      d0 = AbsAppl(PREG->y_u.xN.b);
       XREG(PREG->y_u.xN.x) = d0;
       PREG = NEXTOP(PREG, xN);
       GONext();

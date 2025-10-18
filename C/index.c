@@ -1341,7 +1341,7 @@ static void add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno) {
     case _unify_l_string:
       if (argno == 1) {
         clause->Tag = AbsAppl((CELL *)FunctorString);
-        clause->ucd.t_ptr = cl->y_u.ou.ut;
+        clause->ucd.t_ptr = AbsAppl(cl->y_u.ou.ut);
         return;
       }
       cl = NEXTOP(cl, ou);

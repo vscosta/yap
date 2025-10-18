@@ -488,15 +488,9 @@ static inline OPCODE OpcodeAdjust(OPCODE OP) { return LookupOPCODE(OP); }
 #define AtomEntryAdjust(P) (P)
 #define GlobalEntryAdjust(P) (P)
 #define BlobTermInCodeAdjust(P) BlobTermInCodeAdjust__(P PASS_REGS)
-#if TAGS_FAST_OPS
-static inline Term BlobTermInCodeAdjust__(Term t USES_REGS) {
-  return (Term)((char *)(t)-LOCAL_HDiff);
+static inline CELL *BlobTermInCodeAdjust__(CELL *t USES_REGS) {
+  return (CELL*)((char *)(t) + LOCAL_HDiff);
 }
-#else
-static inline Term BlobTermInCodeAdjust__(Term t USES_REGS) {
-  return (Term)((char *)(t) + LOCAL_HDiff);
-}
-#endif
 #define DBTermAdjust(P) DBTermAdjust__(P PASS_REGS)
 static inline DBTerm *DBTermAdjust__(DBTerm *dbtp USES_REGS) {
   return (DBTerm *)(CharP(dbtp) + LOCAL_HDiff);

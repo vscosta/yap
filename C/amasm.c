@@ -952,7 +952,7 @@ inline static yamop *a_wblob(CELL rnd1, op_numbers opcode,
   if (pass_no) {
     code_p->opc = emit_op(opcode);
     code_p->y_u.N.b =
-        AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
+        ((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
   }
   *clause_has_blobsp = TRUE;
   GONEXT(N);
@@ -994,7 +994,7 @@ inline static yamop *a_ublob(CELL rnd1, op_numbers opcode, op_numbers opcode_w,
     code_p->opc = emit_op(opcode);
     code_p->y_u.oN.opcw = emit_op(opcode_w);
     code_p->y_u.oN.b =
-        AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
+        ((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
   }
   *clause_has_blobsp = TRUE;
   GONEXT(oN);
@@ -1010,7 +1010,7 @@ inline static yamop *a_ustring(CELL rnd1, op_numbers opcode,
     code_p->opc = emit_op(opcode);
     code_p->y_u.ou.opcw = emit_op(opcode_w);
     code_p->y_u.ou.ut =
-        AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
+      (CELL*)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]);
   }
   *clause_has_blobsp = TRUE;
   GONEXT(ou);
@@ -1245,8 +1245,8 @@ inline static yamop *a_rb(op_numbers opcode, int *clause_has_blobsp,
   if (pass_no) {
     code_p->opc = emit_op(opcode);
     code_p->y_u.xN.x = emit_x(cip->cpc->rnd2);
-    code_p->y_u.xN.b = AbsAppl(
-        (CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
+    code_p->y_u.xN.b = 
+      (CELL*)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]);
   }
   *clause_has_blobsp = TRUE;
   GONEXT(xN);
@@ -1259,8 +1259,8 @@ inline static yamop *a_rstring(op_numbers opcode, int *clause_has_blobsp,
   if (pass_no) {
     code_p->opc = emit_op(opcode);
     code_p->y_u.xu.x = emit_x(cip->cpc->rnd2);
-    code_p->y_u.xu.ut = AbsAppl(
-        (CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
+    code_p->y_u.xu.ut = 
+        (CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]);
   }
   *clause_has_blobsp = TRUE;
   GONEXT(xu);
@@ -3583,7 +3583,7 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
     case if_not_op:
       code_p = a_ifnot(_if_not_then, code_p, pass_no, cip);
       break;
-    case index_dbref_op:
+   case index_dbref_op:
       code_p = a_e(_index_dbref, code_p, pass_no);
       break;
     case index_blob_op:

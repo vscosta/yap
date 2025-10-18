@@ -667,7 +667,6 @@ static int try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level,
     siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_AUX_BOTCH);
   }
   // if (g < 16)
-  return false;
   /* store ground term away */
   HR = CellPtr(cglobs->cint.freep);
   if ((dbt = Yap_StoreTermInDB(t)) == NULL) {

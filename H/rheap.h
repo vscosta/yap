@@ -282,10 +282,8 @@ static char SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 static Term ConstantTermAdjust__(Term t USES_REGS) {
   if (IsAtomTerm(t))
     return AtomTermAdjust(t);
+  if (IsIntTerm(t))
   return t;
-}
-
-static Term DBGroundTermAdjust__(Term t USES_REGS) {
   /* The term itself is restored by dbtermlist */
   if (IsPairTerm(t)) {
     return AbsPair(PtoHeapCellAdjust(RepPair(t)));
