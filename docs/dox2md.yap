@@ -95,9 +95,9 @@ trl(compound( OAtts,_OProps) ,IDir,ODir) :-
     assert_static(visited(Id)),
     get_xml(IDir,Id, Atts,Children),
     key_in(kind(Kind),Atts),
-    children2page([idir=IDir,odir=ODir,kind=Kind],Children,All),
+    (children2page([idir=IDir,odir=ODir,kind=Kind],Children,All)),
     !,
-     atom_concat([ODir,"/",Id,'.md'],OFile),
+     atom_concat([ODir,'/',Id,'.md'],OFile),
     open(OFile,write,O,[]),
     format(O,'~s',[All]),
     close(O).
@@ -1842,7 +1842,7 @@ get_name(Children,Name) :-
     ;
     NameS = [Name]
     ;
-    NameS = Name
+xf    NameS = Name
     ),
     string(Name),
     !.

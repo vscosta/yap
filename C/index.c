@@ -1330,17 +1330,17 @@ static void add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno) {
     case _unify_bigint:
     case _unify_l_bigint:
       if (argno == 1) {
-        clause->Tag = AbsAppl((CELL *)FunctorBigInt);
-        clause->ucd.t_ptr = cl->y_u.oc.c;
+        clause->Tag = AbsAppl((CELL *)cl->y_u.oN.b[0]);
+        clause->ucd.t_ptr = AbsAppl(cl->y_u.oN.b);
         return;
       }
-      cl = NEXTOP(cl, oc);
+      cl = NEXTOP(cl, oN);
       argno--;
       break;
     case _unify_string:
     case _unify_l_string:
       if (argno == 1) {
-        clause->Tag = AbsAppl((CELL *)FunctorString);
+        clause->Tag = AbsAppl((CELL*)FunctorString);
         clause->ucd.t_ptr = AbsAppl(cl->y_u.ou.ut);
         return;
       }
@@ -1387,10 +1387,6 @@ static void add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno) {
 #endif
     case _get_dbterm:
       cl = NEXTOP(cl, xc);
-      break;
-    case _unify_dbterm:
-    case _unify_l_dbterm:
-      cl = NEXTOP(cl, oc);
       break;
     case _unify_idb_term:
     case _copy_idb_term: {

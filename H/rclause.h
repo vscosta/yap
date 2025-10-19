@@ -291,16 +291,11 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->y_u.o.opcw = OpcodeAdjust(pc->y_u.o.opcw);
       pc = NEXTOP(pc,o);
       break;
-      /* instructions type oD */
-    case _unify_dbterm:
-    case _unify_l_dbterm:
-      pc->y_u.oD.opcw = OpcodeAdjust(pc->y_u.oD.opcw);
-      pc->y_u.oD.D = ConstantTermAdjust(pc->y_u.oD.D);
-      pc = NEXTOP(pc,oD);
-      break;
       /* instructions type oN */
     case _unify_bigint:
     case _unify_l_bigint:
+    case _unify_bigint_write:
+    case _unify_l_bigint_write:
       pc->y_u.oN.opcw = OpcodeAdjust(pc->y_u.oN.opcw);
       pc->y_u.oN.b = BlobTermInCodeAdjust(pc->y_u.oN.b);
       pc = NEXTOP(pc,oN);
