@@ -332,19 +332,16 @@ PredEntry *Yap_new_pred(Term t, Term tmod, bool mkLU, const char *pname) {
 #define DBGroundTermAdjust(X) (X)
 #define rehash(A, B, C)
 
-static Term BlobTermInCodeAdjust(Term t) {
+static CELL * BlobTermInCodeAdjust(CELL *t) {
   CACHE_REGS
-#if TAGS_FAST_OPS
-  return t - LOCAL_ClDiff;
-#else
   return t + LOCAL_ClDiff;
-#endif
 }
 
 static Term ConstantTermAdjust(Term t) {
   if (IsAtomTerm(t))
     return AtomTermAdjust(t);
-  return t;
+  if (IsIntTerm(t)) return t;
+  return DBGroundTermAdjust(t);
 }
 
 #include "rclause.h"

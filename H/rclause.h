@@ -17,7 +17,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     switch (op) {
       /* instructions type D */
     case _write_dbterm:
-      pc->y_u.D.D = DBGroundTermAdjust(pc->y_u.D.D);
+      pc->y_u.D.D = ConstantTermAdjust(pc->y_u.D.D);
       pc = NEXTOP(pc,D);
       break;
       /* instructions type Illss */
@@ -195,7 +195,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       break;
       /* instructions type d */
     case _write_float:
-      DoubleInCodeAdjust(pc->y_u.d.d);
+//      DoubleInCodeAdjust(pc->y_u.d.d);
       pc = NEXTOP(pc,d);
       break;
       /* instructions type e */
@@ -239,7 +239,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       break;
       /* instructions type i */
     case _write_longint:
-            IntegerInCodeAdjust(pc->y_u.i.i);
+//            IntegerInCodeAdjust(pc->y_u.i.i);
       pc = NEXTOP(pc,i);
       break;
       /* instructions type l */
@@ -291,16 +291,11 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->y_u.o.opcw = OpcodeAdjust(pc->y_u.o.opcw);
       pc = NEXTOP(pc,o);
       break;
-      /* instructions type oD */
-    case _unify_dbterm:
-    case _unify_l_dbterm:
-      pc->y_u.oD.opcw = OpcodeAdjust(pc->y_u.oD.opcw);
-      pc->y_u.oD.D = DBGroundTermAdjust(pc->y_u.oD.D);
-      pc = NEXTOP(pc,oD);
-      break;
       /* instructions type oN */
     case _unify_bigint:
     case _unify_l_bigint:
+    case _unify_bigint_write:
+    case _unify_l_bigint_write:
       pc->y_u.oN.opcw = OpcodeAdjust(pc->y_u.oN.opcw);
       pc->y_u.oN.b = BlobTermInCodeAdjust(pc->y_u.oN.b);
       pc = NEXTOP(pc,oN);
@@ -320,7 +315,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_l_float:
     case _unify_l_float_write:
       pc->y_u.od.opcw = OpcodeAdjust(pc->y_u.od.opcw);
-      DoubleInCodeAdjust(pc->y_u.od.d);
+//      DoubleInCodeAdjust(pc->y_u.od.d);
       pc = NEXTOP(pc,od);
       break;
       /* instructions type ofa */
@@ -339,7 +334,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _unify_longint:
     case _unify_longint_write:
       pc->y_u.oi.opcw = OpcodeAdjust(pc->y_u.oi.opcw);
-      IntegerInCodeAdjust(pc->y_u.oi.i);
+//      IntegerInCodeAdjust(pc->y_u.oi.i);
       pc = NEXTOP(pc,oi);
       break;
       /* instructions type ollll */
@@ -543,7 +538,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _get_dbterm:
     case _put_dbterm:
       pc->y_u.xD.x = XAdjust(pc->y_u.xD.x);
-      pc->y_u.xD.D = DBGroundTermAdjust(pc->y_u.xD.D);
+      pc->y_u.xD.D = ConstantTermAdjust(pc->y_u.xD.D);
       pc = NEXTOP(pc,xD);
       break;
       /* instructions type xN */
@@ -564,7 +559,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _get_float:
     case _put_float:
       pc->y_u.xd.x = XAdjust(pc->y_u.xd.x);
-      DoubleInCodeAdjust(pc->y_u.xd.d);
+//      DoubleInCodeAdjust(pc->y_u.xd.d);
       pc = NEXTOP(pc,xd);
       break;
       /* instructions type xfa */
@@ -579,7 +574,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _get_longint:
     case _put_longint:
       pc->y_u.xi.x = XAdjust(pc->y_u.xi.x);
-      IntegerInCodeAdjust(pc->y_u.xi.i);
+//      IntegerInCodeAdjust(pc->y_u.xi.i);
       pc = NEXTOP(pc,xi);
       break;
       /* instructions type xl */
