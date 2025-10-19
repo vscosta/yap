@@ -331,12 +331,6 @@
     case _unify_void_write:
       cl = NEXTOP(cl,o);
       break;
-    case _unify_dbterm:
-      cl = NEXTOP(cl,oD);
-      break;
-    case _unify_l_dbterm:
-      cl = NEXTOP(cl,oD);
-      break;
     case _unify_bigint:
       cl = NEXTOP(cl,oN);
       break;

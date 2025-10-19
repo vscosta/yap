@@ -1001,21 +1001,6 @@ inline static yamop *a_ublob(CELL rnd1, op_numbers opcode, op_numbers opcode_w,
   return code_p;
 }
 
-// strings are blobs
-inline static yamop *a_ustring(CELL rnd1, op_numbers opcode,
-                               op_numbers opcode_w, int *clause_has_blobsp,
-                               yamop *code_p, int pass_no,
-                               struct intermediates *cip) {
-  if (pass_no) {
-    code_p->opc = emit_op(opcode);
-    code_p->y_u.ou.opcw = emit_op(opcode_w);
-    code_p->y_u.ou.ut =
-      (CELL*)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]);
-  }
-  *clause_has_blobsp = TRUE;
-  GONEXT(ou);
-  return code_p;
-}
 
 inline static yamop *a_udbt(CELL rnd1, op_numbers opcode, op_numbers opcode_w,
                             int *clause_has_dbtermp, yamop *code_p, int pass_no,
@@ -3155,12 +3140,12 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       *clause_has_blobsp = TRUE;
       code_p = a_ri(_put_longint, code_p, pass_no, cip->cpc);
       break;
+    case put_string_op:
     case put_bigint_op:
       code_p = a_rb(_put_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
-    case put_string_op:
-      code_p = a_rstring(_put_bigint, clause_has_blobsp, code_p, pass_no, cip);
-      break;
+//      code_p = a_rb(_put_bigint, clause_has_blobsp, code_p, pass_no, cip);
+//      break;
     case put_dbterm_op:
       code_p = a_dbt(_put_dbterm, clause_has_dbtermp, code_p, pass_no, cip);
       break;
@@ -3229,16 +3214,17 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       code_p =
           a_ui(_unify_longint, _unify_longint_write, code_p, pass_no, cip->cpc);
       break;
-    case unify_bigint_op:
-      code_p = a_ublob(cip->cpc->rnd1, _unify_bigint, _unify_atom_write,
+    case unify_string_op:
+      code_p = a_ublob(cip->cpc->rnd1, _unify_string, _unify_bigint_write,
                        clause_has_blobsp, code_p, pass_no, cip);
       break;
-    case unify_string_op:
-      code_p = a_ustring(cip->cpc->rnd1, _unify_string, _unify_atom_write,
-                         clause_has_blobsp, code_p, pass_no, cip);
+    case unify_bigint_op:
+      code_p = a_ublob(cip->cpc->rnd1, _unify_bigint, _unify_bigint_write,
+                       clause_has_blobsp, code_p, pass_no, cip);
       break;
+
     case unify_dbterm_op:
-      code_p = a_udbt(cip->cpc->rnd1, _unify_dbterm, _unify_atom_write,
+      code_p = a_udbt(cip->cpc->rnd1, _unify_atom, _unify_atom_write,
                       clause_has_dbtermp, code_p, pass_no, cip);
       break;
     case unify_last_num_op:
@@ -3253,19 +3239,19 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
       break;
     case unify_last_longint_op:
       *clause_has_blobsp = TRUE;
-      code_p = a_ui(_unify_l_longint, _unify_l_longint_write, code_p, pass_no,
+      code_p = a_ui(_unify_l_longint, _unify_l_bigint_write, code_p, pass_no,
                     cip->cpc);
       break;
     case unify_last_bigint_op:
-      code_p = a_ublob(cip->cpc->rnd1, _unify_l_bigint, _unify_l_atom_write,
+      code_p = a_ublob(cip->cpc->rnd1, _unify_l_bigint, _unify_l_bigint_write,
                        clause_has_blobsp, code_p, pass_no, cip);
       break;
     case unify_last_string_op:
-      code_p = a_ustring(cip->cpc->rnd1, _unify_l_string, _unify_l_atom_write,
+      code_p = a_ublob(cip->cpc->rnd1, _unify_l_string, _unify_l_bigint_write,
                          clause_has_blobsp, code_p, pass_no, cip);
       break;
     case unify_last_dbterm_op:
-      code_p = a_udbt(cip->cpc->rnd1, _unify_l_dbterm, _unify_l_atom_write,
+      code_p = a_udbt(cip->cpc->rnd1, _unify_l_atom, _unify_l_atom_write,
                       clause_has_dbtermp, code_p, pass_no, cip);
       break;
     case write_num_op:

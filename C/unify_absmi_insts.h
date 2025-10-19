@@ -2767,6 +2767,13 @@ LOCAL_instruction = _write_longint;
 #endif
       ENDOp();
 
+
+   OpW(unify_bigint_write, oN);
+      * SREG++ = AbsAppl(PREG->y_u.oN.b);
+      PREG = NEXTOP(PREG, oN);
+      GONextW();
+      ENDOpW();
+
       Op(unify_l_bigint, oN);
 #ifdef USE_GMP
       BEGD(d0);
@@ -2788,7 +2795,7 @@ LOCAL_instruction = _write_longint;
 	}
       ENDD(d0);
       if (Yap_gmp_tcmp_big_big(d0,AbsAppl(PREG->y_u.oN.b)))
-	FAIL();
+	FAIL();      
       PREG = NEXTOP(PREG, oN);
       ENDP(pt0);
       GONext();
@@ -2807,56 +2814,13 @@ LOCAL_instruction = _write_longint;
 #endif
       ENDOp();
 
-      Op(unify_dbterm, oD);
-      BEGD(d0);
-      BEGP(pt0);
-      pt0 = SREG++;
-      d0 = *pt0;
-      deref_head(d0, udbterm_unk);
-    udbterm_nonvar:
-      BEGD(d1);
-      /* we have met a preexisting dbterm */
-      d1 = PREG->y_u.oD.D;
-      PREG = NEXTOP(PREG, oD);
-      UnifyBound(d0,d1);
-      ENDD(d1);
-
-      derefa_body(d0, pt0, udbterm_unk, udbterm_nonvar);
-      BEGD(d1);
-      d1 = PREG->y_u.oD.D;
-      PREG = NEXTOP(PREG, oD);
-      Bind_Global(pt0, d1);
+   Op(unify_l_bigint_write, od);
+      SREG[0] = AbsAppl(PREG->y_u.oN.b);
+      PREG = NEXTOP(PREG, od);
       GONext();
-      ENDD(d1);
-      ENDP(pt0);
-      ENDD(d0);
       ENDOp();
 
-      Op(unify_l_dbterm, oD);
-      BEGD(d0);
-      CACHE_S();
-      READ_IN_S();
-      d0 = *S_SREG;
-      deref_head(d0, uldbterm_unk);
-    uldbterm_nonvar:
-      BEGD(d1);
-      /* we have met a preexisting dbterm */
-      d1 = PREG->y_u.oD.D;
-      PREG = NEXTOP(PREG, oD);
-      UnifyBound(d0,d1);
-      ENDD(d1);
-
-      derefa_body(d0, S_SREG, uldbterm_unk, uldbterm_nonvar);
-      BEGD(d1);
-      d1 = PREG->y_u.oD.D;
-      PREG = NEXTOP(PREG, oD);
-      Bind_Global(S_SREG, d1);
-      GONext();
-      ENDD(d1);
-      ENDCACHE_S();
-      ENDD(d0);
-      ENDOp();
-
+  
       OpRW(unify_list, o);
       *--SP = Unsigned(SREG + 1);
       *--SP = READ_MODE;
