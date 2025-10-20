@@ -74,7 +74,7 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_QUIET YES )
     set(DOXYGEN_REFERENCES_LINK_SOURCE NO)
     set(DOXYGEN_REPEAT_BRIEF NO)
-    set(DOXYGEN_SHOW_FILES YES)
+#    set(DOXYGEN_SHOW_FILES YES)
     set(DOXYGEN_SHOW_NAMESPACES NO )
     set(DOXYGEN_TOC_INCLUDE_HEADINGS 5  )
     set(DOXYGEN_XML_PROGRAMLISTING NO)
@@ -120,6 +120,7 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
     ${CMAKE_SOURCE_DIR}/C/Tags_32*
     */_CPack_Packages/*
     packages/sat/*-*/*
+packages/*-*/pug*
   )
 
     set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
@@ -136,8 +137,7 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
 
     doxygen_add_docs(
     dox
-    ${CMAKE_BINARY_DIR}/index.md
-    ${CMAKE_BINARY_DIR}/INSTALL.md
+    ${CMAKE_BINARY_DIR}/yap.md
     ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/C
     ${CMAKE_SOURCE_DIR}/H
@@ -150,30 +150,34 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
     ${CMAKE_SOURCE_DIR}/packages
  )
 
-    configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/index.md)
-    configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
-
     add_custom_target(doc_build
     COMMAND ${CMAKE_COMMAND} -E rm -fr  mkdocs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/img
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/img
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/YAP.md  mkdocs/docs
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/INSTALL.md  mkdocs/docs
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/img
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/img/favicon.ico
     COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
     COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md  -- xml mkdocs/docs ${CMAKE_BINARY_DIR}
     DEPENDS STARTUP filter-bin dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
   )
+
+configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/YAP.md)
+#configure_file( docs/mainpage.h.cmake ${CMAKE_BINARY_DIR}/mainpage.h)
+    configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
+
 		
-    add_dependencies(filter-bin STARTUP)
+    Add_dependencies(filter-bin STARTUP)
     add_dependencies(dox filter-bin STARTUP)
 
 add_custom_target(mkdocs
-    COMMAND mkdocs build
+		  COMMAND mkdocs build
     WORKING_DIRECTORY mkdocs
-    DEPENDS doc_build ${CMAKE_BINARY_DIR}/index.md   ${CMAKE_BINARY_DIR}/INSTALL.md
+    DEPENDS doc_build ${CMAKE_BINARY_DIR}/mainpage.h   ${CMAKE_BINARY_DIR}/INSTALL.md
   )
   
     add_custom_target(sphinx

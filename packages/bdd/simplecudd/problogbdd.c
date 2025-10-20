@@ -620,12 +620,12 @@ double* read_util_file(char *filename){
 		}
 		utils[i++] = line;
     }
-	fclose(file);
 	if(i!=nb_lines) {
 		fprintf(stderr,"The number of lines field of %i does not match the number of lines in the file %i.\n",nb_lines,i);
 				fclose(file);
 				exit(1);
-	}
+	} else 	fclose(file);
+
 	if (params.debug) for(i=0;i<nb_lines;i++){ fprintf(stderr,"utils[%i]=%g\n", i,utils[i]); }
 	return utils;
 }
