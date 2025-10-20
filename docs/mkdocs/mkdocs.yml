@@ -19,9 +19,10 @@ plugins:
 
 markdown_extensions:
 - attr_list
+- footnotes
 
 nav:
-   - Home: yap.md
+   - Home: YAP.md
    - INSTALL: INSTALL.md
    - Calling YAP: CALLING_YAP.md
    -   Built-ins:

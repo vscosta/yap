@@ -25,7 +25,7 @@
 
 /**
 @defgroup YAPOS Access to Operating System Functionality
-@ingroup YAPInputOutput
+@ingroup InputOutput
 
 The following built-in predicates allow access to the process API functionality.
 

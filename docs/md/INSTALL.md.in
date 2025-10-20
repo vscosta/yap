@@ -37,7 +37,7 @@ It may be useful to know:
 ## Compiling and Installing YAP
 -------------
 
-YAP-@YAP_FULL_VERSION@ is a [cmake](https://www.cmake.org) based
+YAP is a [cmake](https://www.cmake.org) based
 system. We use `cmake` because it supports mosts popular software, can
 generate Makefiles, Ninja, Apple's XCode, VisualStudio and ANdroid
 Studio, and because it includes packaging suppport. The steps required

@@ -9,7 +9,7 @@
 
 /**
  * @defgroup EdIO (DEC-10) Edinburgh  Input/Output
- * @ingroup YAPInputOutput
+ * @ingroup InputOutput
  *
  * @brief  Input/Output according to the DEC-10 Prolog. PLease consider using the ISO standard predicates for new code.
  *
