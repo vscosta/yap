@@ -13,11 +13,20 @@
 
 /**
  @file python.pl
- @brief 
-
- @file python.pl
- @brief API Definition
+ @brief  Python to C Interface
 */
+
+/** @defgroup Python Prolog to/from Python library
+ * @ingroup YAPPackages
+ * @{
+ * The YAP Python interface supports both calling Python from Prolog and Prolog from Python.
+ *
+ * Please look at python.pl for more information, and to real.pl and real.c
+ * for related work.
+ *
+ * @}
+ *
+ */
 
 :- module(python,
 	  [
@@ -54,12 +63,48 @@
 	  ]).
 
 
-/**
-
-@addtogroup py4yap
+/** @addtogroup Py4YAP  Prolog interface to python.
+    @ingroup Python
 
 @{
- */
+
+  @author               Vitor Santos Costa
+  @version      0:0:5, 2012/10/8
+  @license      Perl Artistic License
+
+PY4YAP the YAP4PY SWIG package, thatis used to if you want to embedd Prolog with Python.
+
+The interface should be activated by consulting the python library. It
+ boots a Python image.
+:- 
+
+To best define the interface, one has to address two opposite goals:
+    - make it as similar to python as possible
+    - make all embedded language interfaces (python, R, Java) as
+similar as possible.
+
+   YAP supports the following translation between Prolog and Python:
+
+| *Prolog*      | *Pyhon*       |          *Prolog Examples*             |
+|:-------------:|:-------------:|---------------------------------------:|
+| Numbers       | Numbers       | 2.3
+|               |               | 1545
+|               |               |
+| Atom          | Symbols       | var
+| $Atom         |               | $var [ = var]
+| `string`      | 'string'      | \`hello\`
+| "string"      |        '      | "hello"
+|               |               |
+| Atom(...)     | Symb(...)     | f( a, b, named=v)
+| E.F(...)      | E.F (...)     | mod.f( a) [ = [mod\|f(a)] ]
+| Atom()        |               | f() [ = '()'(f) ]
+| Lists         | Lists         | [1,2,3]
+| t(....)       | Tuples        | t(1,2,3) to (1,2,3)
+| (..., ...)    |               | (1,2,3)[ = (1,(2,3))]
+| {.=., .=.}    | Dict          | {\`one\`: 1, \`two\`: 2, \`three\`: 3}
+
+*/
+
 
 /************************************************************************************************************
 
@@ -102,21 +147,44 @@ Data types are
 
 :- initialization( load_foreign_files([],['YAPPython'], init_python_dll), now ).
 
-
+/**
+ * @pred import(File)
+ *
+ * load  a module file  into the Python scape.
+ *
+ */
 import( F ) :- catch( python:python_import(F), _, fail ).
 
 user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 
+/**
+ * @prefixpred F ()
+ *
+ * evaluate F as a funtion without arguments.
+ *
+ */
 F() :-
     python:python_proc(F() ).
 
 
- := (P1 , P2 ) :- !,
+/**
+ * @infixpred V := F
+ *
+ * evaluate F as a Python exressiom_.
+ *
+ */
+:= (P1 , P2 ) :- !,
      := P1,
     := P2.
 
 := F :- catch( python:python_proc(F), _, fail ).
 
+/**
+ * @infixpred V := F
+ *
+ * evaluate F as a Python exress and match the result to _V_.
+ *
+ */
 V := F :-
     python:python_assign(F, V).
 
@@ -128,6 +196,11 @@ user:(V <- F) :-
 	V := F.
 */
 
+/**
+  @pred(E,V)
+
+ Same as :=/2: call E and match the result to _V_.
+*/
 python(Exp, Out) :-
 	Out := Exp.
 
@@ -136,6 +209,11 @@ start_python :-
 	python:python_import('inspect'),
 	at_halt(end_python).
 
+/**
+  * @pred add_cwd_to_python
+  *
+  * This utility adds the current directory to Python's search path.
+*/
 add_cwd_to_python :-
     unix(getcwd(Dir)),
     sys.path.append( Dir),

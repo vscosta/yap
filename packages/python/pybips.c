@@ -1,11 +1,9 @@
 /** @file pybips.c
  *  @brief Python builtins   
  *
- * @addtogroup Py4YAP Python Built-Ins
- * @ingroup Py4YAP
+ * @addtogroup Py4YAP
  *
- * The Python engine includes a large number of Python built-ins. Some
- * of them are interfaced here.
+ * The Python engine includes a large number of Python built-ins.
  */
 
 ///@{

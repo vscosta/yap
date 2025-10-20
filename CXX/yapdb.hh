@@ -71,19 +71,50 @@ protected:
 
   PredEntry *getPred(Term &t, Term &tm, CELL *&outp);  ///< auxiliary routine to find a predicate in the current module.
 
-  PredEntry *asPred() { return ap; };
+  PredEntry *asPred() { return ap; }; ///< strip the obect layer
 
   ///< Empty constructor for predicates
   ///
   /// Just do nothing.
-  inline YAPPredicate() {ap = NULL;};
+  inline YAPPredicate() {ap = NULL;}; ///< empty predicate
+
+  
   YAPPredicate(Term &to, Term &tmod, CELL *&ts, const char *pname);
   
-  ///< Term constructor for predicates
+  ///< 1. Term constructor for predicates
   ///
   /// It is just a call to getPred
+
   inline YAPPredicate(Term t, CELL *&v)  {
-    CACHE_REGS
+    CACHE_R
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
       
     if (t) {
       Term tm = Yap_CurrentModule();
@@ -270,7 +301,7 @@ public:
   bool assertFact(YAPTerm *tuple, bool last = true);   ///< add a new tuple
 
   void *retractClause(YAPTerm skeleton, bool all = false);   ///< retract at least the first clause matching the predicate.
-
+  
   // YAPTerm clause(size_t index, YAPPredicate p) { return YAPTerm(); };   ///< return the Nth clause (if source is available)
 
   YAPTerm *nextClause() { return nullptr; };   ///< return the Nth clause (if source is available)
@@ -294,8 +325,15 @@ public:
   YAPFLIP(const char *name, uintptr_t arity, YAPModule module = YAPModule())
       : YAPPredicate(YAPAtom(name), arity, module) {
       YAP_UserCPredicate(name, 0, arity);
-  };
-  bool addCall(CPredicate call) { return Yap_AddCallToFli(ap, call); }
+       };
+  bool addCall(CPredicate call) { return Y
+
+
+
+
+
+
+ap_AddCallToFli(ap, call); }
   bool addRetry(CPredicate call) { return Yap_AddRetryToFli(ap, call); }
   bool addCut(CPredicate call) { return Yap_AddCutToFli(ap, call); }
 
