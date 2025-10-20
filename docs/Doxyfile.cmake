@@ -84,6 +84,11 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_SOURCE_BROWSER YES)
     #set(DOXYGEN_VERBATIM_HEADERS NO)
 
+
+configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/YAP.md)
+#configure_file( docs/mainpage.h.cmake ${CMAKE_BINARY_DIR}/mainpage.h)
+    configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
+
     #  set (Doxygen::doxygen doxygen-yap)
     set(DOXYGEN_EXCLUDE
     CMakeLists.txt
@@ -102,7 +107,7 @@ if (DOXYGEN_FOUND)
     ${CMAKE_SOURCE_DIR}/packages/jpl
     ${CMAKE_SOURCE_DIR}/packages/prism
     ${CMAKE_SOURCE_DIR}/packages/cuda
-    ${CMAKE_SOURCE_DIR}/packages/meld
+````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````    ${CMAKE_SOURCE_DIR}/packages/meld
     ${CMAKE_SOURCE_DIR}/packages/cplint
     ${CMAKE_SOURCE_DIR}/packages/swig
     ${CMAKE_SOURCE_DIR}/packages/python/yapkernel
@@ -118,12 +123,17 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
     */CMakeFiles/*
     ${CMAKE_SOURCE_DIR}/H/Tags_24*
     ${CMAKE_SOURCE_DIR}/C/Tags_32*
-    */_CPack_Packages/*
+    */_Cpack_Packages/*
     packages/sat/*-*/*
 packages/*-*/pug*
   )
 
-    set(DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx *.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown *.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl *.vhd *.vhdl *.ucf *.qsf *.ice)
+
+set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
+*.java *.ii *.ixx *.ipp *.i++ *.inl *.idl *.ddl *.odl *.h *.hh *.hxx
+*.hpp *.h++ *.cs *.d *.php *.php4 *.php5 *.phtml *.inc *.m *.markdown
+*.md *.mm *.dox *.py *.pyw *.f90 *.f95 *.f03 *.f08 *.f *.for *.tcl
+*.vhd *.vhdl *.ucf *.qsf *.ice)
 
 
     add_executable(filter-bin docs/filter.c)
@@ -137,7 +147,7 @@ packages/*-*/pug*
 
     doxygen_add_docs(
     dox
-    ${CMAKE_BINARY_DIR}/yap.md
+    ${CMAKE_BINARY_DIR}/YAP.md
     ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/C
     ${CMAKE_SOURCE_DIR}/H
@@ -151,40 +161,28 @@ packages/*-*/pug*
  )
 
     add_custom_target(doc_build
-    COMMAND ${CMAKE_COMMAND} -E rm -fr  mkdocs
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  mkdocs
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/img
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/YAP.md  mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/INSTALL.md  mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png  mkdocs/docs/img
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico mkdocs/docs/img/favicon.ico
-    COMMAND ${CMAKE_COMMAND} -E make_directory mkdocs/docs/javascripts
-    COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md  -- xml mkdocs/docs ${CMAKE_BINARY_DIR}
-    DEPENDS STARTUP filter-bin dox ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS}
+    COMMAND ${CMAKE_COMMAND} -E rm -fr  ${CMAKE_BINARY_DIR}/mkdocs
+    COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs
+    COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs
+    COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs/img
+    COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs/javascripts
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  ${CMAKE_BINARY_DIR}/mkdocs
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/YAP.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/INSTALL.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png ${CMAKE_BINARY_DIR}/mkdocs/docs/img
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico ${CMAKE_BINARY_DIR}/mkdocs/docs/img/favicon.ico
+    COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md.yap  -- ${CMAKE_BINARY_DIR}/xml ${CMAKE_BINARY_DIR}/mkdocs/docs ${CMAKE_BINARY_DIR}
+    DEPENDS STARTUP filter-bin dox docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS} 
   )
-
-configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/YAP.md)
-#configure_file( docs/mainpage.h.cmake ${CMAKE_BINARY_DIR}/mainpage.h)
-    configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
-
 		
     Add_dependencies(filter-bin STARTUP)
     add_dependencies(dox filter-bin STARTUP)
 
 add_custom_target(mkdocs
-		  COMMAND mkdocs build
+    COMMAND mkdocs build
     WORKING_DIRECTORY mkdocs
-    DEPENDS doc_build ${CMAKE_BINARY_DIR}/mainpage.h   ${CMAKE_BINARY_DIR}/INSTALL.md
-  )
-  
-    add_custom_target(sphinx
-    COMMAND breathe-apidoc -f -o source/dox -p YAP -g class,group ../xml
-    COMMAND make html
-    WORKING_DIRECTORY sphinx
-    DEPENDS dox
-  )
+    DEPENDS doc_build
+    )
 
 endif()
