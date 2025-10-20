@@ -12,7 +12,7 @@
  *  @{
  *  @brief Symbols and associated propeeties.
  *
- *    @tableofcontents
+
  *
  *
  * Prolog interns symbols, called *atoms* in a Hash table, usually
