@@ -16,7 +16,7 @@
 
 /**
  @defgroup absf File Name Resolution
- @ingroup YAPInputOutput
+ @ingroup InputOutput
 
 @{
 

@@ -86,8 +86,7 @@ if (DOXYGEN_FOUND)
     #set(DOXYGEN_VERBATIM_HEADERS NO)
 
 
-configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/YAP.md)
-configure_file( docs/md/index.md.cmake ${CMAKE_BINARY_DIR}/index.md)
+configure_file( docs/md/yap.md.cmake ${CMAKE_BINARY_DIR}/index.md)
 #configure_file( docs/mainpage.h.cmake ${CMAKE_BINARY_DIR}/mainpage.h)
     configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
@@ -149,7 +148,7 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
 
     doxygen_add_docs(
     dox
-    ${CMAKE_BINARY_DIR}/YAP.md
+    ${CMAKE_BINARY_DIR}/index.md
     ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/C
     ${CMAKE_SOURCE_DIR}/H
@@ -169,7 +168,7 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
     COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs/img
     COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs/javascripts
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  ${CMAKE_BINARY_DIR}/mkdocs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/YAP.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/INSTALL.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png ${CMAKE_BINARY_DIR}/mkdocs/docs/img

@@ -11,20 +11,24 @@
 
 @{
 
-  @author               Vitor Santos Costa
-  @version      0:0:5, 2012/10/8
-  @license      Perl Artistic License
+Py4YAP is a package designed to embedd  Python objects into Prolog programs.
 
-PY4YAP the YAP4PY SWIG package, thatis used to if you want to embedd Prolog with Python.
-
-The interface should be activated by consulting the python library. It
+The interface should activates by consulting the `python`  library. It
  boots a Python image.
-:- 
+ ```
+:- use_module(library(python)).
+```
+Python is invoked through the operators :=/1 and := 2. Classes, methods and fields can be used through Python's standard Python. Python modules are impprted through a call to import_module/1. A simple example:
+```
+:- [library(python)].
 
-To best define the interface, one has to address two opposite goals:
-    - make it as similar to python as possible
-    - make all embedded language interfaces (python, R, Java) as
-similar as possible.
+main :-
+    import_module( matplotlib.pyplot ),
+    Plt = matplotlib.pyplot,
+    := Plt.plot([1,2,3,4]),
+    := Plt.ylabel(`some numbers`),
+    := Plt.show().
+```
 
    YAP supports the following translation between Prolog and Python:
 

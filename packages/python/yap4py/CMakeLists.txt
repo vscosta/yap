@@ -33,8 +33,6 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   set(YAP4PY_PY __main__.py yap4py/yapi.py)
 
   #  configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
-  configure_file("YAP4PY.md" README.md)
-  configure_file("doxy.py.cmake" doxy.py)
   configure_file(yap4py/__init__.py.in yap4py/__init__.py)
   configure_file(setup.py.in setup.py)
 

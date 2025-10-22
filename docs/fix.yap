@@ -20,7 +20,6 @@ main :-
 main.
 
 do(D,F) :-
-   writeln(F),
     atom_concat([D,'/',F], File),
       atom_string(File,FString),
     generate(FString, Kind),
