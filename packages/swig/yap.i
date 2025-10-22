@@ -1,6 +1,5 @@
 // supports Java and Python
 
-
 /* example.i */
 #if PYTHONSWIG
 %module(directors = "1", package="yap4py") yap

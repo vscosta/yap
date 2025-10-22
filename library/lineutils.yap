@@ -28,6 +28,12 @@
 	   filter/1,
 	   filter/3,
 	   file_filter/3,
+	   filter_chars/3,
+	   file_filter_chars/3,
+	   filter_atom/3,
+	   file_filter_atom/3,
+ 	   filter_string/3,
+	   file_filter_string/3,
        file_select/2,
 		file_filter_with_initialization/5,
 		file_filter_with_start_end/5,
@@ -36,6 +42,7 @@
 	  ]).
 
 /** @defgroup line_utils Line Manipulation Utilities
+
 @ingroup YAPLibrary
 @{
 
@@ -53,16 +60,21 @@ available by loading the
 	filter(2),
 	filter(+,+,2),
 	file_filter(+,+,2),
+	filter_atom(+,+,2),
+	file_filter_atom(+,+,2),
+	filter_chars(+,+,2),
+	file_filter_chars(+,+,2),
+	filter_string(+,+,2),
+	file_filter_string(+,+,2),
 	file_filter_with_initialization(+,+,3,+,:),
 	file_filter_with_start_end(+,+,2,2,2),
 	process(+,1).
 
-:- use_module(library(lists),
+:- use_module((lists),
 	      [member/2,
 	       append/3]).
 
-:- use_module(library(readutil),
-	      [read_line_to_codes/2]).
+:- use_module((readutil)).
 
 /**
  @pred search_for(+ _Char_,+ _Line_)
@@ -98,7 +110,7 @@ integer(N) -->
 	"-", !,
 	natural(0, N0),
 	N is -N0.
-vzinteger(N) -->
+integer(N) -->
 	natural(0, N).
 
 /** @pred scan_natural(? _Nat_,+ _Line_,+ _RestOfLine_)
@@ -396,6 +408,39 @@ For every line  _LineIn_ in stream  _StreamInp_, execute
 `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
 stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
 nothing will be output but execution continues with the next
+wwwwqline. As an example, consider a procedure to select the second and
+fifth field of a CSV table :
+```
+select(Sep, In, Out) :-
+	fields(In, Sep, [_,F2,_,_,F5|_]),
+        fields(Out,Sep, [F2,F5]).
+
+select :-
+       filter(",",
+```
+
+*/
+filter(StreamInp, StreamOut, Command) :-
+	repeat,
+	read_line_to_codes(StreamInp, Line),
+	(
+	 Line == end_of_file
+	->
+	 !
+	;
+	 call(Command, Line, NewLine),
+	 ground(NewLine),
+	 format(StreamOut, '~s~n', [NewLine]),
+	 fail
+	).
+
+
+/** @pred filter(+ _StreamInp_, + _StreamOut_, + _Goal_)
+
+For every line  _LineIn_ in stream  _StreamInp_, execute
+`call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
+stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
+nothing will be output but execution continues with the next
 line. As an example, consider a procedure to select the second and
 fifth field of a CSV table :
 ```
@@ -422,8 +467,135 @@ filter(StreamInp, StreamOut, Command) :-
 	 fail
 	).
 
-filter(G) :-
-	filter(user_input, user_output, G).
+/** @pred filter(+ _StreamInp_, + _StreamOut_, + _Goal_)
+
+For every line  _LineIn_ in stream  _StreamInp_, execute
+`call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
+stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
+nothing will be output but execution continues with the next
+line. As an example, consider a procedure to select the second and
+fifth field of a CSV table :
+```
+select(Sep, In, Out) :-
+	fields(In, Sep, [_,F2,_,_,F5|_]),
+        fields(Out,Sep, [F2,F5]).
+
+select :-
+       filter(",",
+```
+
+*/
+filter(StreamInp, StreamOut, Command) :-
+	repeat,
+	read_line_to_codes(StreamInp, Line),
+	(
+	 Line == end_of_file
+	->
+	 !
+	;
+	 call(Command, Line, NewLine),
+	 ground(NewLine),
+	 format(StreamOut, '~s~n', [NewLine]),
+	 fail
+	).
+
+/** @pred filter_chars(+ _StreamInp_, + _StreamOut_, + _Goal_)
+
+For every line  _LineIn_ in stream  _StreamInp_, execute
+`call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
+stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
+nothing will be output but execution continues with the next
+line. As an example, consider a procedure to select the second and
+fifth field of a CSV table :
+```
+select(Sep, In, Out) :-
+	fields(In, Sep, [_,F2,_,_,F5|_]),
+        fields(Out,Sep, [F2,F5]).
+
+select :-
+       filter_chars([',']).
+ 
+```
+
+*/
+filter_chars(StreamInp, StreamOut, Command) :-
+	repeat,
+	read_line_to_chars(StreamInp, Line),
+	(
+	 Line == end_of_file
+	->
+	 !
+	;
+	 call(Command, Line, NewLine),
+	 ground(NewLine),
+	 format(StreamOut, '~s~n', [NewLine]),
+	 fail
+	).
+
+/** @pred filter_string(+ _StreamInp_, + _StreamOut_, + _Goal_)
+
+For every line  _LineIn_ in stream  _StreamInp_, execute
+`call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
+stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
+nothing will be output but execution continues with the next
+line. As an example, consider a procedure to select the second and
+fifth field of a CSV table :
+```
+select(Sep, In, Out) :-
+	fields(In, Sep, [_,F2,_,_,F5|_]),
+        fields(Out,Sep, [F2,F5]).
+
+select :-
+       filter_string(",",
+```
+
+*/
+filter_string(StreamInp, StreamOut, Command) :-
+	repeat,
+	read_line_to_string(StreamInp, Line),
+	(
+	 Line == end_of_file
+	->
+	 !
+	;
+	 call(Command, Line, NewLine),
+	 ground(NewLine),
+	 format(StreamOut, '~s~n', [NewLine]),
+	 fail
+	).
+
+/** @pred filter_atom(+ _StreamInp_, + _StreamOut_, + _Goal_)
+
+For every line  _LineIn_ in stream  _StreamInp_, execute
+`call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
+stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
+nothing will be output but execution continues with the next
+line. As an example, consider a procedure to select the second and
+fifth field of a CSV table :
+```
+select(Sep, In, Out) :-
+	fields(In, Sep, [_,F2,_,_,F5|_]),
+        fields(Out,Sep, [F2,F5]).
+
+select :-
+       filter_atom(",",
+```
+
+*/
+filter_atom(StreamInp, StreamOut, Command) :-
+	repeat,
+	read_line_to_atom(StreamInp, Line),
+	(
+	 Line == end_of_file
+	->
+	 !
+	;
+	 call(Command, Line, NewLine),
+	 ground(NewLine),
+	 format(StreamOut, '~s~n', [NewLine]),
+	 fail
+	).
+
 
 /** @pred process(+ _StreamInp_, + _Goal_) is meta
 
@@ -467,6 +639,78 @@ file_filter(Inp, Out, Command) :-
 	close(StreamInp),
 	close(StreamOut).
 
+/**
+  * @pred file_filter_chars(+ _FileIn_, + _FileOut_, + _Goal_)  is meta
+  *
+  * @param _FileIn_  File to process
+  * @param _FileOut_ Output file, often user_error
+  * @param _Goal_ to be metacalled, receives FileIn and FileOut as
+  * extra arguments
+  *
+  * @return succeeds
+
+  For every line  _LineIn_ in file  _FileIn_, execute
+  `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to file
+  _FileOut_.
+
+  The input stream is accessible through the alias `filter_chars_input`, and
+  the output stream is accessible through `filter_chars_output`.
+*/
+file_filter_chars(Inp, Out, Command) :-
+	open(Inp, read, StreamInp, [alias(filter_chars_input)]),
+	open(Out, write, StreamOut),
+	filter_chars(StreamInp, StreamOut, Command),
+	close(StreamInp),
+	close(StreamOut).
+
+/**
+  * @pred file_filter_string(+ _FileIn_, + _FileOut_, + _Goal_)  is meta
+  *
+  * @param _FileIn_  File to process
+  * @param _FileOut_ Output file, often user_error
+  * @param _Goal_ to be metacalled, receives FileIn and FileOut as
+  * extra arguments
+  *
+  * @return succeeds
+
+  For every line  _LineIn_ in file  _FileIn_, execute
+  `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to file
+  _FileOut_.
+
+  The input stream is accessible through the alias `filter_string_input`, and
+  the output stream is accessible through `filter_string_output`.
+*/
+file_filter_string(Inp, Out, Command) :-
+	open(Inp, read, StreamInp, [alias(filter_string_input)]),
+	open(Out, write, StreamOut),
+	filter_string(StreamInp, StreamOut, Command),
+	close(StreamInp),
+	close(StreamOut).
+
+/**
+  * @pred file_filter_string(+ _FileIn_, + _FileOut_, + _Goal_)  is meta
+  *
+  * @param _FileIn_  File to process
+  * @param _FileOut_ Output file, often user_error
+  * @param _Goal_ to be metacalled, receives FileIn and FileOut as
+  * extra arguments
+  *
+  * @return succeeds
+
+  For every line  _LineIn_ in file  _FileIn_, execute
+  `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to file
+  _FileOut_.
+
+  The input stream is accessible through the alias `filter_string_input`, and
+  the output stream is accessible through `filter_string_output`.
+*/
+file_filter_string(Inp, Out, Command) :-
+	open(Inp, read, StreamInp, [alias(filter_string_input)]),
+	open(Out, write, StreamOut),
+	filter_string(StreamInp, StreamOut, Command),
+	close(StreamInp),
+	close(StreamOut).
+
 /** @pred file_filter_with_initialization(+ _FileIn_, + _FileOut_, + _Goal_, + _FormatCommand_,   + _Arguments_)
 
 Same as file_filter/3, but before starting the filter execute
@@ -481,6 +725,22 @@ file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-
 	close(StreamInp),
 	close(StreamOut).
 
+
+/** @pred file_filter_with_start_end(+ FileIn, + FileOut, + Goal, + StartGoal,   + EndGoal)
+
+Same as file_filter/3, but before starting the filter execute
+_StartGoal_,  and call _ENdGoal_ as an epilog.
+
+The input stream are always accessible through `filter_output` and `filter_input`.
+*/
+file_filter_with_start_end(Inp, Out, Command, StartGoal, EndGoal) :-
+	open(Inp, read, StreamInp, [alias(filter_input)]),
+	open(Out, write, StreamOut, [alias(filter_output)]),
+	call( StartGoal, StreamInp, StreamOut ),
+	filter(StreamInp, StreamOut, Command),
+	call( EndGoal, StreamInp, StreamOut ),
+	close(StreamInp),
+	close(StreamOut).
 
 /** @pred file_filter_with_start_end(+ FileIn, + FileOut, + Goal, + StartGoal,   + EndGoal)
 

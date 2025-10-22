@@ -1,4 +1,4 @@
-#  Core Prolog {#CoreBuiltins}
+#  Core Prolog {#Builtins}
 
 @defgroup Builtins Core Prolog YAP
 @ingroup mainpage 

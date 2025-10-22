@@ -6,30 +6,32 @@ theme:
   highlightjs: true
   hljs_languages:
     - prolog
-    - c
-    - python
-    - c++
-    - java
-    - javascript
-    - R
-  logo: 'img/favicon.ico'
+  logo: 'YAP/img/favicon.ico'
 plugins:
   - search
-  - autorefs
-
-markdown_extensions:
-- attr_list
-- footnotes
-
+  - mkdoxy:
+      projects:
+        YAP: # name of project must be alphanumeric + numbers (without spaces)
+          src-dirs:      ../../C    ../../H    ../../include   ../../pl    ../../library   ../../os    ../../OPTYap    ../../packages ../../CXX  ../../docs/md
+          full-doc: True # if you want to generate full documentation
+          doxy-cfg-file: ../Doxyfile.dox
+             # RECURSIVE: True # search in source doxx directoriesmarkdown_extensions:
 nav:
    - Home: YAP.md
    - INSTALL: INSTALL.md
-   - Calling YAP: CALLING_YAP.md
-   -   Built-ins:
-       - Core: group__Builtins.md
-       - Input-Output: group__InputOutput.md
-   - Programming: group__YAPProgramming.md
-   - Extensions: group__YapExtensions.md
-   - Library: group__YAPLibrary.md
-   - Available Packages: group__YAPPackages.md
-   - Foreign Language Interface : group__YAPAPI.md
+   - Calling CALLING_YAP.md
+   - Core: YAP/group__Builtins.md
+   - Input-Output: YAP/group__InputOutput.md
+   - Programming: YAP/group__YAPProgramming.md
+   - Extensions: YAP/group__YapExtensions.md
+   - Library: YAP/group__YAPLibrary.md
+   - Available Packages: YAP/group__YAPPackages.md
+   - Foreign Language Interface : YAP/group__YAPAPI.md
+   - Indices:
+       - YAP/modules.md
+       - YAP/namespaces.md
+       - YAP/links.md
+       - Implementation:
+           - YAP/classes.md
+           - YAP/files.md
+

@@ -53,9 +53,9 @@
           *valp = 0;
           return 2;
       }
-      Yap_encoding_error(ptr[0],NULL,NULL,NULL,"bad UTF-8 sequence while trying to input");
-      *valp = -1;
-      return  1;
+      //Yap_encoding_error(ptr[0],NULL,NULL,NULL,"bad UTF-8 sequence while trying to input");
+      *valp = -0;
+      return  -1;
   }
   return rc < 1 ? 1 : rc;
 }

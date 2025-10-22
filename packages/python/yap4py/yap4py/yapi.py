@@ -4,8 +4,8 @@
 ##
 
 """
-   @defgroup yap4py Calling Prolog from Python
-   @ingroup python
+   @defgroup YAP4y Calling Prolog from Python
+   @ingroup pPython
    @{
 
    Next, we include a number of classes directed towards calling YAP in
@@ -99,6 +99,9 @@ class EngineArgs( YAPEngineArgs ):
 
 
 class v(YAPVarTerm):
+    """
+    Create a new Prolog variable
+    """
     def __init__(self):
         YAPVarTerm()
 
@@ -107,8 +110,26 @@ class v(YAPVarTerm):
 
 
 class YAPShell:
-
+    """
+    Interacting with Prolog
+    """
     def numbervars( self ):
+        """
+        Bind Query Variables to names and return the mapping as a dictionary
+
+        ou can print it out, the left-side is the variable name,
+        the right side wraps a handle to a variable
+
+
+        atom match either symbols, or if no symbol exists, sttrings, In this case
+        variable names should match strings
+        ```
+        for eq in vs:
+           if not isinstance(eq[0],str):
+               print( "Error: Variable Name matches a Python Symbol")
+               return
+        ```
+        """
         Dict = {}
         self.engine.goal(show_answer( self, Dict), True)
 
@@ -128,27 +149,27 @@ class YAPShell:
 
     def query_prolog(self, query):
         """
-        # construct a query from a one-line string
-        # q is opaque to Python
-        #
-        # q = engine.query(self.python_query(, s))
-        #
-        #        # vs is the list of variables
-        # you can print it out, the left-side is the variable name,
-        # the right side wraps a handle to a variable
+        command to construct and execute a query from a one-line string, notice
+        q is opaque to Python.
 
+        Returned as a list. Depending on  the last character:
+        . `*` all answers
+        . `?` one more answer
+        . `#` execute as Python
+        The  user can also press:
+        . `?` one more answer
+        
 
-        # atom match either symbols, or if no symbol exists, sttrings, In this case
-        # variable names should match strings
-        #for eq in vs:
-        #    if not isinstance(eq[0],str):
-        #        print( "Error: Variable Name matches a Python Symbol")
-        #        return
-        #        return
-        g = None
+        
+        ```
+        q = engine.query(s)
+        ```
         """
         try:
-            engine = self.engine
+          """
+          Demo command line interpreter (CLI), use it as a starting point.
+          """
+          engine = self.engine
             
             loop = False
             bindings = []

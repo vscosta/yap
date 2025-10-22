@@ -86,36 +86,7 @@ protected:
   /// It is just a call to getPred
 
   inline YAPPredicate(Term t, CELL *&v)  {
-    CACHE_R
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-      
+    CACHE_REGS
     if (t) {
       Term tm = Yap_CurrentModule();
       ap = getPred(t, tm, v);
@@ -326,14 +297,7 @@ public:
       : YAPPredicate(YAPAtom(name), arity, module) {
       YAP_UserCPredicate(name, 0, arity);
        };
-  bool addCall(CPredicate call) { return Y
-
-
-
-
-
-
-ap_AddCallToFli(ap, call); }
+  bool addCall(CPredicate call) { return Yap_AddCallToFli(ap, call); }
   bool addRetry(CPredicate call) { return Yap_AddRetryToFli(ap, call); }
   bool addCut(CPredicate call) { return Yap_AddCutToFli(ap, call); }
 

@@ -24,20 +24,8 @@
 
 main:-
     unix(argv(Params)),
-    main_process(Params).
-
-main_process([IDir,ODir,_]) :-
-    exists_directory(IDir),
-!,
-    (
-	sub_atom(IDir,_,1,0,'/')
-    ->
-    IDir= InputDir
-    ;
-    atom_concat(IDir,'/',InputDir)
-    ),
     directory_files(InputDir,Fs),
-    forall(member(F,Fs),do(InputDir,ODir,F)).
+    forall(member(F,Fs),do(InputDir,F)).
 main_process([IDir,ODir,_]) :-
     exists_directory(IDir),
    !,

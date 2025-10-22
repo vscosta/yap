@@ -231,6 +231,85 @@ static Int read_line_to_string(USES_REGS1) {
 }
 
 /**
+   @pred read_line_to_atom( +_Stream_, -_Atom_)
+
+   If _Stream_ is a readable text stream, unify _Atom_ with
+   the Prolog atom storing the codes forming the first line of the stream.
+
+     If the stream is exhausted, unify _Codes_ with `end_of_file`.
+ */
+static Int read_line_to_atom(USES_REGS1) {
+  int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
+  Int status;
+  UInt max_inp, buf_sz;
+  unsigned char *buf;
+  size_t sz;
+  StreamDesc *st = GLOBAL_Stream + sno;
+  utf8proc_int32_t ch;
+
+  if (sno < 0)
+    return false;
+  status = GLOBAL_Stream[sno].status;
+  if (status & Past_Eof_Stream_f) {
+    return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
+  }
+  max_inp = (ASP - HR) / 2 - 1024;
+  buf = (unsigned char *)TR;
+  buf_sz = (unsigned char *)LOCAL_TrailTop - buf;
+ 
+    if (buf_sz > max_inp) {
+      buf_sz = max_inp;
+    }
+    if (st->status & Binary_Stream_f) {
+      char *b = (char *)TR;
+      sz = fread(b, 1, buf_sz, GLOBAL_Stream[sno].file);
+    } else {
+      unsigned char *pt = buf;
+      do {
+         ch = st->stream_wgetc_for_read(sno);
+        if (ch < 127) {
+          if (ch < 0) {
+            break;
+          }
+          *pt++ = ch;
+        } else {
+          pt += get_utf8(pt, 4, &ch);
+          if (pt + 4 == buf + buf_sz)
+            break;
+        }
+      } while (ch != '\n');
+      sz = pt - buf;
+    
+  if (sz == -1 || sz == 0) {
+    if (GLOBAL_Stream[sno].status & Past_Eof_Stream_f) {
+      return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
+    }
+    return false;
+  }
+  if (GLOBAL_Stream[sno].status & Past_Eof_Stream_f || buf[sz - 1] == 10) {
+    /* we're done */
+
+    if (!(GLOBAL_Stream[sno].status & Past_Eof_Stream_f)) {
+      /* handle CR before NL */
+      if ((Int)sz - 2 >= 0 && buf[sz - 2] == 13)
+        buf[sz - 2] = '\0';
+      else {
+        buf[sz - 1] = '\0';
+      }
+      return Yap_unify(ARG2, MkAtomTerm(Yap_UTF8ToAtom((const unsigned char *)TR PASS_REGS)));
+    }
+  }
+    
+  buf += (buf_sz - 1);
+  max_inp -= (buf_sz - 1);
+  if (max_inp <= 0) {
+    Yap_Error(RESOURCE_ERROR_STACK, ARG1, NULL);
+  }
+    }
+    return FALSE;
+}
+
+/**
    @pred read_stream_to_codes( +_Stream_, -Codes, ?_Tail_)
 
    If _Stream_ is a readable text stream, unify _String_ with
@@ -415,6 +494,7 @@ void Yap_InitReadUtil(void) {
     Term cm = CurrentModule;
   CurrentModule = READUTIL_MODULE;
   Yap_InitCPred("read_line_to_string", 2, read_line_to_string, SyncPredFlag);
+  Yap_InitCPred("read_line_to_atom", 2, read_line_to_atom, SyncPredFlag);
   Yap_InitCPred("read_line_to_codes", 3, read_line_to_codes, SyncPredFlag);
   Yap_InitCPred("read_line_to_codes", 2, read_line_to_codes2, SyncPredFlag);
   Yap_InitCPred("read_line_to_chars", 3, read_line_to_chars, SyncPredFlag);

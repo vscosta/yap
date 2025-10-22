@@ -37,21 +37,33 @@ xml_pretty_print(S) :-
     maplist(pp(0),Gs).
 
 pp(D,Node) :-
-    Node=..[Name,[L|Tree]],
-    format(',~n~*c~q( ~q ',[D,0' ,Name,L]),
-    D1 is D+1,
-    gopp(D1,Tree),
-    format(' )',[]).
-
-
-gopp(_D,[Tree]) :-
+    string(Node),
     !,
-    format(', ~q',[Tree]).
-gopp(D1,Tree) :-
+    format('~*c"~s"~n' , [D,0' ,Node]).
+pp(D,[Node]) :-
+    string(Node),
+    !,
+    format('~*c["~s"]~n' , [D,0' ,Node]).
+pp(D,Node) :-
+    Node=..[Name,Atts,Tree],
+    format('~*c(~q ',[D,0' ,Name]),
+maplist(watt, Atts),
+nl,
+    D1 is D+1,
     maplist(pp(D1),Tree),
-    !.
-gopp(_D,Tree) :- format(', ~q',[Tree]).
+    format('~*c)~n',[D,0' ]).
 
-	
+watt(Att) :-
+    atom(Att),
+    !,
+    format('~s ', [Att]).
+watt(Att) :-
+    string(Att),
+    !,
+    format('~s ', [Att]).
+watt(Att) :-
+    Att =.. [N,A],
+    format('~s=~w ', [N,A]).
+
 %% @}
 

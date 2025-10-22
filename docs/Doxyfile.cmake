@@ -6,6 +6,7 @@ get_target_property(YAP_SOURCES libYap SOURCES)
 file( MAKE_DIRECTORY md )
 
 set(DOX_MD_FILES
+  ${CMAKE_BINARY_DIR}/index.md
   ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md
   ${CMAKE_SOURCE_DIR}/docs/md/AttributedVariables.md
   ${CMAKE_SOURCE_DIR}/docs/md/Builtins.md
@@ -86,6 +87,7 @@ if (DOXYGEN_FOUND)
 
 
 configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/YAP.md)
+configure_file( docs/md/index.md.cmake ${CMAKE_BINARY_DIR}/index.md)
 #configure_file( docs/mainpage.h.cmake ${CMAKE_BINARY_DIR}/mainpage.h)
     configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
 
@@ -107,7 +109,7 @@ configure_file( docs/md/yap.md.in ${CMAKE_BINARY_DIR}/YAP.md)
     ${CMAKE_SOURCE_DIR}/packages/jpl
     ${CMAKE_SOURCE_DIR}/packages/prism
     ${CMAKE_SOURCE_DIR}/packages/cuda
-````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````    ${CMAKE_SOURCE_DIR}/packages/meld
+    ${CMAKE_SOURCE_DIR}/packages/meld
     ${CMAKE_SOURCE_DIR}/packages/cplint
     ${CMAKE_SOURCE_DIR}/packages/swig
     ${CMAKE_SOURCE_DIR}/packages/python/yapkernel
@@ -172,8 +174,9 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png ${CMAKE_BINARY_DIR}/mkdocs/docs/img
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico ${CMAKE_BINARY_DIR}/mkdocs/docs/img/favicon.ico
-    COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md.yap  -- ${CMAKE_BINARY_DIR}/xml ${CMAKE_BINARY_DIR}/mkdocs/docs ${CMAKE_BINARY_DIR}
-    DEPENDS STARTUP filter-bin dox docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS} 
+      #           COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md.yap  -- ${CMAKE_BINARY_DIR}/xml ${CMAKE_BINARY_DIR}/mkdocs/docs ${CMAKE_BINARY_DIR}
+      
+    DEPENDS STARTUP filter-bin  docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS} 
   )
 		
     Add_dependencies(filter-bin STARTUP)
@@ -181,7 +184,8 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
 
 add_custom_target(mkdocs
     COMMAND mkdocs build
-    WORKING_DIRECTORY mkdocs
+  COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/fix.yap -- site/YAP
+  WORKING_DIRECTORY mkdocs
     DEPENDS doc_build
     )
 

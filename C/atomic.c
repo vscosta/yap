@@ -1373,7 +1373,10 @@ restart_aux:
   j = IntOfTerm(EXTRA_CBACK_ARG(3, 2)); // offset in UNICODE
   // string, always
   // increases by 1
-  s = (s0 + i) + get_utf8((unsigned char *)s0 + i, -1, &chr);
+  int sz;
+    
+  s = (s0 + i) + (sz=get_utf8((unsigned char *)s0 + i, -1, &chr));
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");
   if (s[0]) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(s - s0);
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(j + 1);
@@ -1440,7 +1443,8 @@ restart_aux:
       if (ns == NULL) {
         cut_fail(); // silently fail?
       }
-      get_utf8(ns, -1, &chr);
+      if (get_utf8(ns, -1, &chr)<0)
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");	
       if (chr == '\0')
         cut_fail();
       if (Yap_unify(ARG3, MkIntegerTerm(chr)))
@@ -1504,7 +1508,8 @@ restart_aux:
         }
       }
       utf8proc_int32_t chr;
-      get_utf8(ns, -1, &chr);
+      if (get_utf8(ns, -1, &chr)<0)
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");	
       if (chr != '\0') {
         return Yap_unify(ARG3, MkIntegerTerm(chr));
       }
@@ -1564,7 +1569,8 @@ restart_aux:
         }
       }
       utf8proc_int32_t chr;
-      get_utf8(ns, -1, &chr);
+  if (get_utf8(ns, -1, &chr)<0)
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");	
       if (chr != '\0') {
         return Yap_unify(ARG3, MkCharTerm(chr));
       }
@@ -2707,6 +2713,8 @@ static Int sub_atom( USES_REGS1 )
     Yap_ThrowError(TYPE_ERROR_INTEGER, tmid, "sub_string/5");
     return false;
   } else {
+    mask |= SUB_STRING_HAS_MID;
+    bnds++;
     midv = IntegerOfTerm(tmid);
       if (midv > sz)
 	return false;
@@ -2714,8 +2722,6 @@ static Int sub_atom( USES_REGS1 )
       Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, tmid, "sub_string/5");
       { return false; }
     };
-    mask |= SUB_STRING_HAS_MID;
-    bnds++;
   }
   Term ttop = Deref(ARG4);
   Int topv;
@@ -2726,12 +2732,12 @@ static Int sub_atom( USES_REGS1 )
     return false;
   } else {
     topv = IntegerOfTerm(ttop);
+    mask |= SUB_STRING_HAS_LAST;
+    bnds++;
     if (topv < 0) {
       Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, ttop, "sub_string/5");
       { return false; }
     };
-    mask |= SUB_STRING_HAS_LAST;
-    bnds++;
   }
   Term tout = Deref(ARG5);
   const unsigned char *out;
@@ -2817,7 +2823,7 @@ static Int sub_atom( USES_REGS1 )
      unsigned char *tmp = malloc((pf-inp1)+1);
       memcpy(tmp,inp1,(pf-inp1));
       tmp[pf-inp1] = '\0';
-      bool rc = Yap_unify(ARG5,MkAtomTerm(Yap_ULookupAtom(tmp)));
+      bool rc = Yap_unify(ARG4,MkAtomTerm(Yap_ULookupAtom(tmp)));
       free(tmp);
       return rc;
   } else {
@@ -2901,7 +2907,7 @@ static Int cont_current_atom(USES_REGS1) {
      unsigned char *tmp = malloc((pf-inp1)+1);
       memcpy(tmp,inp1,(pf-inp1));
       tmp[pf-inp1] = '\0';
-      bool rc = Yap_unify(ARG5,MkUStringTerm(tmp));
+      bool rc = Yap_unify(ARG4,MkUStringTerm(tmp));
       free(tmp);
       return rc;
   } else {
