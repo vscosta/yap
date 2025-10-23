@@ -10,9 +10,12 @@
  
 :- include(docutils).
 
-:-dynamic pred_found/3, exported/3, defines_module/1,visited/1.
+:-dynamic exported/3, defines_module/1,visited/1.
 
+:- dynamic defines_module/1.
 defines_module(prolog).
+
+:- dynamic defined/1.
 
 :- initialization(main).
 
@@ -39,25 +42,14 @@ main :-
     \+ visited(File),
     %    valid_suffix(ValidSuffix),
     %    sub_atom(Y,_,_,0,ValidSuffix),
-    file_directory_name(Y, Dir),
-    \+ visited(Y),
-    assert(visited(Y)),
-    working_directory(OldD,Dir),
-    current_source_module(M0,M0),
     open(Y,read,S,[alias(loop_stream)]),
     script(S),
-    findall(O, user:entry(S,O), Info),
-%spy trl,
-     predicates(Info, true/0, Preds, _),
-     insert_module_header(W),
-     maplist(output(W),Preds),
-     working_directory(_,OldD),
-     current_source_module(_,M0),
+    trl(S,W),
      insert_module_tail(W),
      flush_output,
- %    fail,
-     halt.
- main.
+     close(S).
+ %    fail.
+ 
 
  /*
  atom_concat('cat ',File,Command),
@@ -78,94 +70,81 @@ main :-
      script(S).
  script(_).
 
- /**
+comments( W, Comments ) :-
+    forall(
+member(Comment, Comments),
+    out_comment(W,Comment, false, _ )
+).
+    
+/**
   * @pred entry(+Stream, -Units).
   * Obtain text units
   */
- user:entry(S,O) :-
+ trl(S,W) :-
      repeat,
-     read_clause(S,T,[comments(Comments0),variable_names(Vs)]),
-     merge_comments(Comments0, Comments),
-     (
-	T == end_of_file
+     read_clause(S,T,[comments(Comments),variable_names(Vs)]),
+     comments( W, Comments ) ,
+     (	T == end_of_file
        ->
-       O = directive(end_of_file, Comments, Vs),
-       !
+            !,
+  O = directive(end_of_file, Comments, Vs)
        ;
-       T = ( :- Directive )
+        T = ( :- Directive )
        ->
        (
-	 dxpand(Directive),
-	 fail
+	 dxpand(Directive)
 	 ;
 	 O = directive(Directive, Comments, Vs)
-       )
+       ),
+	 fail
        ;
 
-       T = (( Grammar --> Expansion ))
+       T = (( Grammar --> _Expansion ))
        ->
        functor(Grammar,Name,Arity),      
        A is Arity+2,
-       O = clause(Name/A, Grammar, Expansion, Comments, Vs)
+       predicate_definition(Name/A,W),
+       fail
        ;
-       T = (( Head :- Body ))
+       T = (( Head :- _Body ))
        ->
        functor(Head,Name,Arity),
-       O = clause(Name/Arity,Head,Body,Comments,Vs)
+       predicate_definition(Name/Arity, W),
+       fail
        ;
        functor(T,Name,Arity),
-       O=clause(Name/Arity,Head,true,Comments,Vs)
+       predicate_definition(Name/Arity, W),
+       fail
      ).
 
  %% initial directive
   % predicates([H|_],_,_,_) :-
   %     writeln(H),
   %     fail.
-% predicates([H|_],Ctx,_,_) :- writeln(Ctx:H),fail.
- predicates([],_,[],[]).
- predicates([directive(Directive,Comments,Vs)|More],Ctx,
-	    [command([comments(Comments),  body(Directive, Vs,true/0),[]])|Preds], L0) :-
-     !,
-     predicates(More,Ctx,Preds,L0).
- % change of predicate
- predicates([clause(N/A,Head,Body,Comments,Vs)|More],Ctx,
-	    [predicate(N/A,[comments(Comments), head_body(Head, Body, Vs)|L0])|Preds], L0) :-
-     Ctx \= N/A,
-     !,
-     predicates(More,N/A,Preds,L0).
- % new predicate
- predicates([clause(N/A,Head,Body,Comments,Vs)|More],[],
 
-	    [predicate(N/A,[comments(Comments), head_body(Head, Body, Vs)|L0])|Preds], L0) :-
-    !,
-    predicates(More,N/A,Preds,L0).
-% predicate continuation
-predicates([clause(N/A,Head,Body,Comments,Vs)|More],N/A,
-	   Preds, [comments(Comments), head_body(Head, Body, Vs)|L0]) :-
-                        predicates(More,N/A,Preds,L0).
 
-output(W,command([comments(Comments) |_])) :-
-    foldl(out_comment(W),Comments, false, _ ).
-output(W,predicate(N/A,[comments(Comments) |_Clauses])) :-
+predicate_definition(N/A,_W) :-
+    defined(N/A),
+    !.
+predicate_definition(N/A,W) :-
+    assert(defined(N/A)),
     encode(N/A,S1),
     atom_string(NA,S1),
-    foldl(out_comment(W),Comments, false, _),
-    addcomm(N/A,S1,_Found),
     findall(I,between(1,A,I),Is),
     maplist(number_atom,Is,AIs),
     maplist(atom_concat('int ARG'),AIs,NIs),
     (
-      is_exported(N,A)
+      is_exported(N,0)
       ->
-      (
-      A==0 ->
       format(W,' class  ~s {        ~w();~n};~n~n~n',[ S1,NA])
       ;
+      is_exported(NA,_)
+->
       T =.. [NA|NIs],
       format(W,' class  ~s {        ~w();~n};~n~n~n',[ S1,T])
-      );
-    true
-    ) .
+;
+true
+    ).
 
 insert_module_header(W) :-
     current_source_module(M,M),
@@ -198,24 +177,19 @@ simplify(C,Simplified) :-
     sub_string(C,4,1,_,Space),
     sp(Space),
     !,
-    sub_string(C,5,_,0,SlashStar),
-    string_list_concat(ListSlashStar, "\n", SlashStar),
+    string_list_concat(ListSlashStar, "\n", C),
     maplist(simplify_slash, ListSlashStar,  S),
-    string_list_concat(["/**< "| S], "\n", Simplified).
+    string_list_concat(S, "\n", Simplified).
 simplify(C,Simplified) :-
     sub_string(C,0,3,_,"/**"),
     sub_string(C,3,1,_,Space),
     sp(Space),
     !,
-    sub_string(C,4,_,0,SlashStar),
-    string_list_concat(ListSlashStar, "\n", SlashStar),
-    maplist(simplify_slash, ListSlashStar,  [H0|S]),
-    string_concat("/** ", H0, H),
-    string_list_concat([H|S], "\n", Simplified).
+    string_list_concat(ListSlashStar, "\n", C),
+    maplist(simplify_slash, ListSlashStar,  S),
+    string_list_concat(S, "\n", Simplified).
 simplify(C,C) :-
     sub_string(C,0,3,_,"/*"),
-    sub_string(C,3,1,_,Space),
-    sp(Space),
     !.
 simplify(C,Simplified) :-
     sub_string(C,0,4,_,"%%<"),
@@ -240,7 +214,7 @@ simplify(C,Simplified) :-
 simplify(C, "\n") :-
     sub_string(C,0,1,_,"%"),
     !.
-simplify(_C,"\n").
+simplify(C,C).
 
 simplify_slash(S, NS) :-
     sub_string(S, 0 ,_,_, "%%"),
@@ -476,7 +450,6 @@ addcomm(N/A,S,false) :-
 addcomm(_,_,_).
 
 
-:- initialization(main).
 
 user:directive(S,_M) :-
      repeat,
@@ -554,6 +527,7 @@ decls(File) :-
      working_directory(_,OldD),
      current_source_module(_,M0).
 
+
 is_exported(N,_) :-
     string(N),
     string_concat(`$`,_,N),
@@ -571,24 +545,6 @@ is_exported(N,A) :-
     defines_module(Mod),
     exported(Mod,N,A).
 
-merge_comments(M0, MF) :-
-    merge_comments(M0, "", "", MF).
-
-merge_comments([],_, "",[]) :-
-    !.
-merge_comments([],_, C, [C]).
-merge_comments([C1|Cs],"%%", C0,Csf) :-
-    sub_string(C1,0,1,_,"%"),
-    !,
-    string_concat(C0,C1,Cn),
-    merge_comments(Cs, "%%", Cn, Csf).
-merge_comments([C1|Cs],"%%", C0, [ C0,C1|Csf]) :-
-    merge_comments(Cs, "",  "", Csf).
-merge_comments([C1|Others],"", "", Csf) :-
-    sub_string(C1,0,2,_,"%%"),
-    !,
-    merge_comments(Others, "", C1, Csf).
-
-merge_comments([C1|Others],"", "", [C1|Csf]) :-
-    !,
-    merge_comments(Others, "", "", Csf).
+list([]) :- !.
+list([_|L]) :-
+    list(L).

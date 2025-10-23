@@ -1575,6 +1575,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
   if (args && args[READ_COMMENTS].used) {
     fe->scanner.store_comments = (args[READ_COMMENTS].used);
     fe->scanner.ecomms = args[READ_COMMENTS].tvalue;
+    fe->scanner.tcomms = TermNil;
   } else {
     fe->scanner.store_comments = false;
      fe->scanner.ecomms = TermNil;

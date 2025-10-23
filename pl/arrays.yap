@@ -24,15 +24,11 @@
    @{
 
 */
-%
-% These are the array built-in predicates. They will only work if
-% YAP_ARRAYS is defined in Yap.h
-%
 
 /** @pred  array( +Name, +Size )
 
 
-Creates a new dynamic array. The array is allocated in the global stack (or heap). Elements can be any term.xs
+Creates a new dynamic array. The array is allocated in the global stack (or heap). Elements can be any term.
 
 The  _Size_ must evaluate to an
 integer. The  _Name_ may be either an atom (named array) or an
