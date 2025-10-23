@@ -1,6 +1,6 @@
 #!/usr/bin/env bash 
 TARGET=$1
-BUILD=1
+BUILD=¨¨
 SU=sudo
 WITH_PACKAGES=1
 WITH_CUDD=$WITH_PACKAGES
