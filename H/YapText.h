@@ -1398,18 +1398,26 @@ static inline Term Yap_WCharsToString(const wchar_t *s USES_REGS) {
 }
 
 static inline Atom Yap_ConcatAtoms(Term t1, Term t2 USES_REGS) {
-  seq_tv_t inpv[2], out;
-  inpv[0].val.t = t1;
-  inpv[0].type = YAP_STRING_ATOM ;
-  inpv[1].val.t = t2;
-  inpv[1].type = YAP_STRING_ATOM;
-  out.type = YAP_STRING_ATOM;
-  out.val.uc = NULL;
-  if (!Yap_Concat_Text(2, inpv, &out PASS_REGS)) {
-    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
-    return NULL;
-  }
-  return out.val.a;
+  const char *s1 = RepAtom(AtomOfTerm(t1))->StrOfAE;
+  const char *s2 = RepAtom(AtomOfTerm(t2))->StrOfAE;
+  char *s= (char*)malloc(strlen(s1)+strlen(s2)+1);
+  strcpy(s,s1);
+  strcat(s,s2);
+  Atom at = Yap_LookupAtom(s);
+  free(s);
+  return at;
+}
+
+
+static inline Term Yap_ConcatStrings(Term t1, Term t2 USES_REGS) {
+  const char *s1 = StringOfTerm(t1);
+  const char *s2 = StringOfTerm(t2); 
+  char *s = (char *)malloc(strlen(s1)+strlen(s2)+1);
+  strcpy(s,s1);
+  strcat(s,s2);
+  Term t = MkStringTerm(s);
+  free(s);
+  return t;
 }
 
 static inline Atom Yap_ConcatAtomics(Term t1, Term t2 USES_REGS) {
@@ -1427,46 +1435,7 @@ static inline Atom Yap_ConcatAtomics(Term t1, Term t2 USES_REGS) {
   return out.val.a;
 }
 
-static inline Term Yap_ConcatStrings(Term t1, Term t2 USES_REGS) {
-  seq_tv_t inpv[2], out;
-  const char *s1, *s2;
-  if (IsStringTerm(t1)) {
-    s1 = StringOfTerm(t1);
-    if (s1[0] == '\0')
-      return t2;
-    if (IsStringTerm(t2)) {
-      s2 = StringOfTerm(t2);
-      if (s2[0] == '\0')
-	return t1;
-    }
-    char *s;
-    Term t = AbsAppl(HR);
-    size_t sz = strlen(s1)+strlen(s2)+1;
-    size_t request = (sz + CELLSIZE - 1) / CELLSIZE; // request is in cells >= 1
-    HR[0] = (CELL) FunctorString;
-    HR[1] = request;
-    HR[1 + request] = 0;
-    s = stpcpy((char *)(HR + 2), s1);
-    strcpy(s,s2);
-    HR[2 + request] = CloseExtension(HR);
-    HR += 3 + request;
-    return t;
-
-  }
-  inpv[0].val.t = t1;
-  inpv[0].type = YAP_STRING_STRING;
-  inpv[1].val.t = t2;
-  inpv[1].type = YAP_STRING_STRING;
-  out.type = YAP_STRING_STRING;
-
-  if (!Yap_Concat_Text(2, inpv, &out PASS_REGS) &&!LOCAL_Error_TYPE){
-    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
-    Yap_ThrowError(LOCAL_Error_TYPE, t1, "");
-  }
-  return out.val.t;
-}
-
-static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
+  static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
 				  size_t max USES_REGS) {
   Atom a3 = AtomOfTerm(t1);
   if(cut == 0){

@@ -48,14 +48,15 @@
                                                     size_t n,
                                                     utf8proc_int32_t *valp USES_REGS) {
      utf8proc_ssize_t rc = utf8proc_iterate(ptr, n, valp);
-  if (rc <= 0) {
+     if (rc <= 0) {
       if (ptr[0] == 0xC0 && ptr[1] == 0x80) {
           *valp = 0;
           return 2;
-      }
+      }	Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER_CODE, MkIntTerm(rc), "get_utf8 on buffer at %p", ptr);
+
       //Yap_encoding_error(ptr[0],NULL,NULL,NULL,"bad UTF-8 sequence while trying to input");
       *valp = -0;
-      return  -1;
+      return  0;
   }
   return rc < 1 ? 1 : rc;
 }

@@ -4,7 +4,6 @@
  * a MD directpry/
   */ 
 
-/* #t4970 nE44T This program first */
 :- set_prolog_flag(double_quotes, string).
 
 :- include(docutils).
@@ -18,7 +17,10 @@
    load_foreign_files([Lib],[],libxml_yap_init).
 */
 
-:- load_foreign_files([],['YAPxml'],libxml_yap_init).
+:- add_to_path('../library').
+:- add_to_path('../packages/xml4yap').
+
+%:- load_foreign_files(['packages/xml2yap/libYAPxml'],[],libxml_yap_init).
 
 :-  initialization(main).
 
@@ -26,7 +28,18 @@ main:-
     unix(argv(Params)),
     main_process(Params).
 
-main_process([IDir,ODir,_]) :-
+main_process([IDir,ODir,Home]) :-
+    exists_directory(Home  ),
+    (
+	sub_atom(Home,_,1,0,'/')
+    ->
+    H = Home
+    ;
+    atom_concat(H,'/',Home)
+    ),
+    atom_concat(H,'packages/xml2yap/libYAPxml', LibPath),
+    load_foreign_files([LibPath],[],libxml_yap_init),
+    atom_concat(IDir,'/',InputDir),
     exists_directory(IDir),
 !,
     (
@@ -97,39 +110,39 @@ scan(compound(OAtts,_OProps) , IDir,_ODir) :-
     true
     ).
 
-do(IDir,ODir,'.') :-
+do(_IDir,_ODir,'.') :-
     !.
-do(IDir,ODir,'..') :-
-    !.
-do(_IDir,_ODir,F) :-
-    atom_concat(Id,'_8h.xml]',F),
+do(_IDir,_ODir,'..') :-
     !.
 do(_IDir,_ODir,F) :-
-    atom_concat(Id,'_8c.xml]',F),
+    atom_concat(_,'_8h.xml',F),
     !.
 do(_IDir,_ODir,F) :-
-    atom_concat(Id,'_8cxx.xml]',F),
+    atom_concat(_,'_8c.xml',F),
     !.
 do(_IDir,_ODir,F) :-
-    atom_concat(Id,'_8pl.xml]',F),
+    atom_concat(_,'_8cxx.xml',F),
     !.
 do(_IDir,_ODir,F) :-
-    atom_concat(Id,'_8yap.xml]',F),
+    atom_concat(_,'_8pl.xml',F),
     !.
 do(_IDir,_ODir,F) :-
-    atom_concat(Id,'_8ypp.xml]',F),
+    atom_concat(_,'_8yap.xml',F),
     !.
-do(IDir,ODir,'..') :-
-    atom_concat(Id,'_8md.xml]',F),
+do(_IDir,_ODir,F) :-
+    atom_concat(_,'_8ypp.xml',F),
     !.
-do(IDir,ODir,'..') :-
-    atom_concat(Id,'_8cpp.xml]',F),
+do(_IDir,_ODir,F) :-
+    atom_concat(_,'_8md.xml',F),
     !.
-do(IDir,ODir,'..') :-
-    atom_concat(Id,'_8pl.xml]',F),
+do(_IDir,_ODir,F) :-
+    atom_concat(_,'_8cpp.xml',F),
     !.
-do(IDir,ODir,'..') :-
-    atom_concat(Id,'_8yap.xml]',F),
+do(_IDir,_ODir,F) :-
+    atom_concat(_,'_8pl.xml',F),
+    !.
+do(_IDir,_ODir,F) :-
+    atom_concat(_,'_8yap.xml',F),
     !.
 do(IDir,ODir,F) :-
     atom_concat(Id, '.xml',F),

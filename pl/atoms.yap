@@ -14,7 +14,7 @@
  */
 
 :- system_module_( '$_atoms', [
-			      atom_concat/2,
+			      atom_concat/
 			      string_concat/2,
         atomic_list_concat/2,
         atomic_list_concat/3,
@@ -126,44 +126,21 @@ atom_concat(Xs,At) :-
 	 '$process_atom_holes'(Unbound)
         ).
 
-% the constraints are of the form hole: HoleAtom, Begin, Atom, End
-'$atom_concat_constraints'([At], 0, At, []) :- !.
-'$atom_concat_constraints'([At0], mid(Next, At), At, [hole(At0, Next, At, end)]) :-  !.
-% just slice first atom
-'$atom_concat_constraints'([At0|Xs], 0, At, Unbound) :-
-	atom(At0), !,
-	sub_atom(At0, 0, _Sz, L, _Ata ),
-	sub_atom(At, _, L, 0, Atr ), %remainder
-	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
-% first hole: Follow says whether we have two holes in a row, At1 will be our atom
-'$atom_concat_constraints'([At0|Xs], 0, At, [hole(At0, 0, At, Next)|Unbound]) :-
-	 '$atom_concat_constraints'(Xs, mid(Next,_At1), At, Unbound).
-% end of a run
-'$atom_concat_constraints'([At0|Xs], mid(end, At1), At, Unbound) :-
-	atom(At0), !,
-	sub_atom(At, Next, _Sz, L, At0),
-	sub_atom(At, 0, Next, Next, At1),
-	sub_atom(At, _, L, 0, Atr), %remainder
-	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
-'$atom_concat_constraints'([At0|Xs], mid(Next,At1), At, Next, [hole(At0, Next, At, Follow)|Unbound]) :-
-	 '$atom_concat_constraints'(Xs, mid(Follow, At1), At, Unbound).
+'$atom_concat_constraints'([],  ``).
+    '$atom_concat_constraints'([V],  V) :-
+!.
+'$atom_concat_constraints'([V|Vs],  At) :-
+    sub_atom(At,0,_,Extra, V),
+    sub_atom(At,_,Extra,0, More),
+    '$atom_concat_constraints'(Vs,  More).
 
-'$process_atom_holes'([]).
-'$process_atom_holes'([hole(At0, Next, At1, End)|Unbound]) :- End == end, !,
-	sub_atom(At1, Next, _, 0, At0),
-	 '$process_atom_holes'(Unbound).
-'$process_atom_holes'([hole(At0, Next, At1, Follow)|Unbound]) :-
-	sub_atom(At1, Next, Sz, _Left, At0),
-	Follow is Next+Sz,
-	 '$process_atom_holes'(Unbound).
-
-atom_concat(A,B,C) :-
-    ( det_atom_concat(A,B,C,D)
-    ->
-    D == true
-    ;
-    non_det_atom_concat(A,B,C)
-    ).
+'$atom_concat_constraints'([],  '').
+    '$atom_concat_constraints'([V],  V) :-
+!.
+'$atom_concat_constraints'([V|Vs],  At) :-
+    sub_atom(At,0,_,Extra, V),
+    sub_atom(At,_,Extra,0, More),
+    '$atom_concat_constraints'(Vs,  More).
 
 /** @pred  atomic_list_concat(+ _As_,? _A_)
 
@@ -223,6 +200,21 @@ atomic_list_concat(L, El, At) :-
 	'$add_els'([B|L],El,NL).
 '$add_els'(L,_,L).
 
+/**
+  @pred atom_concat(_A1_,_A2,_A3_)
+
+  The concatenation of _A1_ and _A2_ should be _A3_. The
+  predicate can have multiple solutions.
+
+  */
+atom_concat(A,B,At) :-
+    var(At),
+    !,
+    '$atom_concat'(A,B,At).
+atom_concat(A,B,At) :-
+    sub_atom(At,0,Len,M,A),
+    sub_atom(At,Len,M,0,B).
+
 /** @pred  atom_list_concat(+ _As_,? _A_)
 
 Alias for atom_cooncat/2.
@@ -261,7 +253,7 @@ L = [gnu, gnat]
 */
 atom_list_concat(L, El, At) :-
 	var(El), !,
-	throw_error(instantiation_error,atomc_list_concat(L,El,At)).
+	throw_error(instantiation_error,atom_list_concat(L,El,At)).
 atom_list_concat(L, El, At) :-
 	ground(L), !,
 	'$add_els'(L,El,LEl),
@@ -276,6 +268,24 @@ atom_list_concat(L, El, At) :-
         sub_atom(At, _, Left, 0, At1),
 	'$atom_list_concat_all'( At1, El, L).
 '$atom_list_concat_all'( At, _El, [At]).
+
+
+/**
+@pred string_concat(_T1_,_T2_,_T3_)
+
+Similar to atom_concat/3 but it expects strings  as arguments.
+  The concatenation of _A1_ and _A2_ should be _A3_. The
+  predicate can have multiple solutions.
+
+  */
+string_concat(A,B,At) :-
+    var(At),
+    !,
+    '$string_concat'(A,B,At).
+string_concat(A,B,At) :-
+    sub_string(At,0,Len,M,A),
+    sub_string(At,Len,M,0,B).
+
 
 
 /** @pred  string_list_concat(+ _As_,? _A_)
@@ -326,11 +336,12 @@ string_list_concat(L, El, At) :-
 	'$string_list_concat_all'( At, El, L).
 
 '$string_list_concat_all'( At, El, [A|L]) :-
-	sub_string(At, Pos, 1, Left, El), !,
+	sub_string(At, Pos, _, Left, El),
         sub_string(At, 0, Pos, _, A),
         sub_string(At, _, Left, 0, At1),
 	'$string_list_concat_all'( At1, El, L).
 '$string_list_concat_all'( At, _El, [At]).
+'$string_list_concat_all'( '' , _El, []).
 
 /** @pred  current_atom( _A_)
 

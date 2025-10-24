@@ -332,6 +332,19 @@ restart_aux:
   return false;
 }
 
+static Int atom_concat3(USES_REGS1) {
+  Term t1;
+  Term t2;
+  t1 = Deref(ARG1);
+  t2 = Deref(ARG2);
+  must_be_atom(t2);
+  must_be_atom(t1);
+  int l = push_text_stack();
+  Atom at = Yap_ConcatAtoms(t1, t2 PASS_REGS);
+  pop_text_stack(l);
+  return Yap_unify(MkAtomTerm(at), ARG3);
+}
+
 /**
  * @pred string_to_atomic(?S, ?Atomic)
  *
@@ -672,6 +685,20 @@ static Int atom_codes(USES_REGS1) {
   pop_text_stack(l);
   return rc;
 }
+
+static Int string_concat3(USES_REGS1) {
+  Term t1;
+  Term t2;
+  t1 = Deref(ARG1);
+  must_be_string(t2);
+  t2 = Deref(ARG2);
+  must_be_string(t1);
+  Term at = Yap_ConcatStrings(t1, t2 PASS_REGS);
+  return Yap_unify((at), ARG3);
+}
+
+
+
 /**
  * @pred string_codes(?Atom, ?Codes)
  *
@@ -998,157 +1025,6 @@ static Int number_string(USES_REGS1) {
 }
 
 
-static Int cont_atom_concat3(USES_REGS1) {
-  Term t3;
-  Atom ats[2];
-  Int i, max;
-restart_aux:
-  t3 = Deref(ARG3);
-  i = IntOfTerm(EXTRA_CBACK_ARG(3, 1));
-  max = IntOfTerm(EXTRA_CBACK_ARG(3, 2));
-  EXTRA_CBACK_ARG(3, 1) = MkIntTerm(i + 1);
-
-  int l = push_text_stack();
-  bool rc = Yap_SpliceAtom(t3, ats, i, max PASS_REGS);
-  pop_text_stack(l);
-  if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
-    if (rc) {
-      if (i < max) {
-        return (Yap_unify(ARG1, MkAtomTerm(ats[0])) &&
-                Yap_unify(ARG2, MkAtomTerm(ats[1])));
-      }
-      return do_cut(Yap_unify(ARG1, MkAtomTerm(ats[0])) &&
-                    Yap_unify(ARG2, MkAtomTerm(ats[1])));
-    } else {
-      cut_fail();
-    }
-  }
-  /* Error handling */
-  if (LOCAL_Error_TYPE) {
-    if (Yap_HandleError("atom_concat/3")) {
-      goto restart_aux;
-    }
-    cut_fail();
-  }
-  cut_fail();
-}
-
-/**
-  @pred atom_concat(_A1_,_A2,_A3_)
-
-  The concatenation of _A1_ and _A2_ should be _A3_. The
-  predicate can have multiple solutions.
-
-  */
-static Int det_atom_concat3(USES_REGS1) {
-  Term t1;
-  Term t2, t3, o;
-  Atom at;
-  bool  g1, g2, g3;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  t3 = Deref(ARG3);
-  g1 = IsAtomTerm(t1) ? 1: 0;
-  if (!g1) {
-    if (IsNumTerm(t1)) {
-      t1 = MkAtomTerm(Yap_NumberToAtom(t1 PASS_REGS));
-      g1=1;
-    }
-  }
-  g2 = IsAtomTerm(t2) ? 1: 0;
-  if (!g2) {
-    if (IsNumTerm(t2)) {
-      t2 = MkAtomTerm(Yap_NumberToAtom(t2 PASS_REGS));
-      g2=1;
-    }
-  }
-  g3 = IsAtomTerm(t3) ? 1: 0;
-    int l = push_text_stack();
-  if (g1 && g2) {
-    if ((at=Yap_ConcatAtoms(t1, t2 PASS_REGS))) {
-      o = Yap_unify(t3,MkAtomTerm(at));
-    } else {
-      o = false;
-    }
-
-  } else if (g1 && g3) {
-    if ((at=Yap_SubtractHeadAtom(t3, t1 PASS_REGS))) {
-      o = Yap_unify(t2,MkAtomTerm(at));
-    } else {
-      o = false;
-    }
-  } else if (g2 && g3) {
-    if ((at=Yap_SubtractTailAtom(t3, t2 PASS_REGS))) {
-      o = Yap_unify(t1,MkAtomTerm(at));
-    } else {
-      o = false;
-    }
-  } else {
-    pop_text_stack(l);
-    return false;
-  }
-    pop_text_stack(l);
-    (o == true ? Yap_unify(ARG4,TermTrue) :  Yap_unify(ARG4,TermFalse) );
-   return true;
-   }
-
-static Int non_det_atom_concat3(USES_REGS1) {
-  Term t1;
-  Term t2, t3, ot;
-  Atom at;
-
-  int  g1, g2, g3;
-  int  v1, v2, v3;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  t3 = Deref(ARG3);
-  g1 = IsAtomTerm(t1) ? 1: 0;
-  if (!g1) {
-    if (IsNumTerm(t1)) {
-      t1 = MkAtomTerm(Yap_NumberToAtom(t1 PASS_REGS) );
-      g1=1;
-    }
-  }
-  g2 = IsAtomTerm(t2) ? 1: 0;
-  if (!g2) {
-    if (IsNumTerm(t2)) {
-      t2 = MkAtomTerm(Yap_NumberToAtom(t2 PASS_REGS));
-      g2=1;
-    }
-  }
-  g3 = IsAtomTerm(t3) ? 1: 0;
-  if (!g3) {
-    if (IsNumTerm(t3)) {
-      t3 = MkAtomTerm(Yap_NumberToAtom(t3 PASS_REGS));
-      g3=1;
-    }
-  }
-  v1 = !Yap_IsGroundTerm(t1) ? 1: 0;
-  v2 = !Yap_IsGroundTerm(t2) ? 1: 0;
-  v3 = !Yap_IsGroundTerm(t3) ? 1: 0;
-  if (g3) {
-    Int len = Yap_AtomToUnicodeLength(t3 PASS_REGS);
-    if (len <= 0) {
-      cut_fail();
-    }
-    EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3, 2) = MkIntTerm(len);
-    { return cont_atom_concat3(PASS_REGS1); }
-  } else {
-    do_cut(true);
-    if (g1+g2+g3+v1+v2+v3 == 3)
-      Yap_ThrowError(INSTANTIATION_ERROR, v1 ? t1 : t2, "atom_concat");
-    if (g1+v1 == 0)
-      Yap_ThrowError(TYPE_ERROR_ATOM, t1,  "atom_concat");
-    if (g2+v2 == 0)
-      Yap_ThrowError(TYPE_ERROR_ATOM, t2,  "atom_concat");
-    return false;
-  }
-  ot = ARG5;
-    bool rc = at && Yap_unify(ot, MkAtomTerm(at));
-    return rc;
-}
-
 #define CastToNumeric(x) CastToNumeric__(x PASS_REGS)
 
 static Term CastToNumeric__(Atom at USES_REGS) {
@@ -1258,104 +1134,6 @@ restart_aux:
   cut_fail();
 }
 
-static Int cont_string_concat3(USES_REGS1) {
-  Term t3;
-  Term ts[2];
-  size_t i, max;
-restart_aux:
-  t3 = Deref(ARG3);
-  i = IntOfTerm(EXTRA_CBACK_ARG(3, 1));
-  max = IntOfTerm(EXTRA_CBACK_ARG(3, 2));
-  EXTRA_CBACK_ARG(3, 1) = MkIntTerm(i + 1);
-  int l;
-  l = push_text_stack();
-  bool rc = Yap_SpliceString(t3, ts, i, max PASS_REGS);
-  pop_text_stack(l);
-  if (!rc) {
-    cut_fail();
-  } else {
-    if (i < max) {
-      return Yap_unify(ARG1, ts[0]) && Yap_unify(ARG2, ts[1]);
-    }
-    return do_cut(Yap_unify(ARG1, ts[0]) && Yap_unify(ARG2, ts[1]));
-    cut_succeed();
-  }
-  /* Error handling */
-  if (LOCAL_Error_TYPE) {
-    if (Yap_HandleError("string_concat/3")) {
-      goto restart_aux;
-    } else {
-      return FALSE;
-    }
-  }
-  cut_fail();
-}
-
-/**
-@pred string_concat(_T1_,_T2_,_T3_)
-
-Similar to atom_concat/3 it expects strings  as arguments.
-*/
-
-static Int string_concat3(USES_REGS1) {
-  Term t1;
-  Term t2, t3, ot;
-  Term s;
-
-  int  g1, g2, g3;
-  int  v1, v2, v3;
-  t1 = Deref(ARG1);
-  t2 = Deref(ARG2);
-  t3 = Deref(ARG3);
-  g1 = IsStringTerm(t1) ? 1: 0;
-  g2 = IsStringTerm(t2) ? 1: 0;
-  g3 = IsStringTerm(t3) ? 1: 0;
-  v1 = !Yap_IsGroundTerm(t1) ? 1: 0;
-  v2 = !Yap_IsGroundTerm(t2) ? 1: 0;
-  v3 = !Yap_IsGroundTerm(t3) ? 1: 0;
-  if (g1 && g2) {
-    int l = push_text_stack();
-    while ((s = Yap_ConcatStrings(t1, t2 PASS_REGS))==0) {
-      Yap_dogc(PASS_REGS1);
-    }
-    pop_text_stack(l);
-    ot = ARG3;
-  } else if (g1 && g3) {
-    int l = push_text_stack();
-    s = Yap_SubtractHeadString(t3, t1 PASS_REGS);
-    pop_text_stack(l);
-    ot = ARG2;
-  } else if (g2 && g3) {
-    int l = push_text_stack();
-    s = Yap_SubtractTailString(t3, t2 PASS_REGS);
-    pop_text_stack(l);
-    ot = ARG1;
-  } else if (g3) {
-    Int len = Yap_StringToUnicodeLength(t3 PASS_REGS);
-    if (len <= 0) {
-      cut_fail();
-    }
-    EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3, 2) = MkIntTerm(len);
-    { return cont_string_concat3(PASS_REGS1); }
-  } else {
-    do_cut(true);
-    if (g1+g2+g3+v1+v2+v3 == 3) {
-
-      Yap_ThrowError(INSTANTIATION_ERROR, v1 ? t1 : t2, "string_concat");
-    }
-    if (g1+v1 == 0)
-      Yap_ThrowError(TYPE_ERROR_STRING, t1,  "string_concat");
-    if (g2+v2 == 0)
-      Yap_ThrowError(TYPE_ERROR_STRING, t2,  "string_concat");
-    Yap_ThrowError(TYPE_ERROR_STRING, t3,  "string_concat");
-    return false;
-  }
-  if (s) {
-    return do_cut(Yap_unify(ot, s) );
-  }
-  cut_fail();
-}
 
 static Int cont_string_code3(USES_REGS1) {
   Term t2;
@@ -2943,12 +2721,8 @@ static Int current_atom(USES_REGS1) { /* current_atom(?Atom)
 void Yap_InitBackAtoms(void) {
   Yap_InitCPredBack("$current_atom", 1, 2, current_atom, cont_current_atom,
                     SafePredFlag | SyncPredFlag);
-  Yap_InitCPredBack("non_det_atom_concat", 3, 2, non_det_atom_concat3, cont_atom_concat3, 0);
   Yap_InitCPredBack("atomic_concat", 3, 2, atomic_concat3, cont_atomic_concat3,
                     0);
-  Yap_InitCPredBack("string_concat", 3, 2, string_concat3, cont_string_concat3,
-                    0);
-
 
 
 }
@@ -2960,7 +2734,6 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("sub_string_fetch", 4, sub_string_fetch, 0);
   Yap_InitCPredBack("string_code", 3, 1, string_code3, cont_string_code3, 0);
   Yap_InitCPred("name", 2, name, 0);
-  Yap_InitCPred("det_atom_concat", 4, det_atom_concat3, SafePredFlag);
   Yap_InitCPred("string_to_atom", 2, string_to_atom, 0);
   Yap_InitCPred("atom_to_string", 2, atom_to_string, 0);
   Yap_InitCPred("string_to_atomic", 2, string_to_atomic, 0);
@@ -2984,7 +2757,9 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("atom_number", 2, atom_number, 0);
   Yap_InitCPred("string_number", 2, string_number, 0);
   Yap_InitCPred("$atom_concat", 2, atom_concat2, 0);
+  Yap_InitCPred("$atom_concat", 3, atom_concat3, 0);
   Yap_InitCPred("$string_concat", 2, string_concat2, 0);
+  Yap_InitCPred("$string_concat", 3, string_concat3, 0);
   Yap_InitCPred("atomic_concat", 2, atomic_concat2, 0);
   Yap_InitCPred("atomics_to_string", 2, atomics_to_string2, 0);
   Yap_InitCPred("atomics_to_string", 3, atomics_to_string3, 0);
