@@ -4,8 +4,8 @@
 ##
 
 """
-   @defgroup YAP4y Calling Prolog from Python
-   @ingroup pPython
+   @defgroup YAP4Py Calling Prolog from Python
+   @ingroup gPython
    @{
 
    Next, we include a number of classes directed towards calling YAP in

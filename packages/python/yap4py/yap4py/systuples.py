@@ -1,5 +1,16 @@
+"""
+@file systuples.py
+
 
 from collections import namedtuple
+
+@defgroup NamedTuples Collected Nametuples
+@ingroup YAP4Py
+
+Use these tuples to construct calls, eg queries.
+
+"""
+
 
 
 

@@ -1,5 +1,14 @@
 // supports Java and Python
 
+%pythonbegin %{
+"""
+@file yap.py
+
+@defgroup PyCxx
+@ingroup YAP4Py
+"""
+%}
+
 /* example.i */
 #if PYTHONSWIG
 %module(directors = "1", package="yap4py") yap

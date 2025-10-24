@@ -36,6 +36,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   configure_file(yap4py/__init__.py.in yap4py/__init__.py)
   configure_file(setup.py.in setup.py)
 
+
   INCLUDE_DIRECTORIES(${Python3_LIBRARY_DIRS}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/packages/python
   )
   

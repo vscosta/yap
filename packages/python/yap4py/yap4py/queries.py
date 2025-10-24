@@ -1,9 +1,18 @@
+"""
+@file queries.py
+
+@defgroup PyQueries A more Pythonic approach to query construction that allows for iteration
+@ingroup YAP4Py
+
+"""
 
 from yap4py.yap import YAPQuery, YAPEngine
 from collections import namedtuple
 
 class Query (YAPQuery):
-    """Goal is a predicate instantiated under a specific environment """
+    """Python support for querying iteratively.
+
+    Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
         self.gate = None
         self.bindings = []

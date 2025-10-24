@@ -1,4 +1,13 @@
+"""
+  @file predicates.py
 
+  @defgroup Predicates
+  @ingroup YAP4Py
+
+  @brief a short layer for predicate manipulation
+"""
+  
+  
 from yap4py.yap import YAPEngine, YAPPredicate, YAPPrologPredicate
 from collections import namedtuple
 
@@ -12,6 +21,7 @@ library = namedtuple('library', 'listfiles')
 
 
 class Asserta:
+        """ make assserta easier"""
     def __init__(self, eng):
         self.engine = eng
         self.goal = namedtuple('asserta', 'clause' )
@@ -25,6 +35,7 @@ class Asserta:
 asserta = Asserta(YAPEngine).run
 
 class Assertz(Predicate):
+    """ make asssertz easier"""
     def __init__(self, eng):
         self.engine = eng
         self.goal = namedtuple('assertz', 'clause' )

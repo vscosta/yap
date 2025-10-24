@@ -513,21 +513,24 @@ public:
 };
 
 /**
- * @class YapListTerm  list
+ * @class YapListTerm
+
+true list
  */
 class X_API YAPListTerm : public YAPTerm {
 public:
- 
-  YAPListTerm() { mk(TermNil); /* else type_error */ } /// Create an empty list term.
- 
-  YAPListTerm(Term t0) { mk(t0); /* else type_error */ } /// Create a list term out of a standard term. Check if a valid operation.
-
-  YAPListTerm(Term ts[], size_t n); /// Create a list term out of an array of terms.
-
-  YAPListTerm(std::vector<Term>); /// Create a list term out of a vector of terms.
-
-  YAPListTerm(std::vector<YAPTerm>); /// Create a list term out of a vector of YAPTerms.
-size_t length() { /// Return the number of elements in a list term.
+  /// Create an empty list term.
+YAPListTerm() { mk(TermNil); /* else type_error */ }
+ /// Create a list term out of a standard term. Check if a valid operation.
+  YAPListTerm(Term t0) { mk(t0); /* else type_error */ } 
+/// Create a list term out of an array of terms.
+  YAPListTerm(Term ts[], size_t n); 
+/// Create a list term out of a vector of terms.
+  YAPListTerm(std::vector<Term>); 
+ /// Create a list term out of a vector of YAPTerms.
+  YAPListTerm(std::vector<YAPTerm>);
+  /// Return the number of elements in a list term.
+  size_t length() { 
     Term *tailp;
     Term t1 = gt();
     return Yap_SkipList(&t1, &tailp);
