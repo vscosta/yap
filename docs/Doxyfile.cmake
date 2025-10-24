@@ -109,7 +109,7 @@ configure_file( docs/md/yap.md.cmake ${CMAKE_BINARY_DIR}/index.md)
     ${CMAKE_SOURCE_DIR}/packages/CLPBN
     ${CMAKE_SOURCE_DIR}/packages/jpl
     ${CMAKE_SOURCE_DIR}/packages/prism
-    ${CMAKE_SOURCE_DIR}/packages/myddas
+    ${CMAKE_SOURCE_DIR}/packages/myddas 
     ${CMAKE_SOURCE_DIR}/packages/cuda
     ${CMAKE_SOURCE_DIR}/packages/meld
     ${CMAKE_SOURCE_DIR}/packages/cplint
@@ -162,6 +162,8 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
     ${CMAKE_SOURCE_DIR}/library/dialect/swi/fli
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/packages
+    ${CMAKE_BINARY_DIR}/packages/python/yap4py
+    ${CMAKE_BINARY_DIR}/packages/myddas   
  )
 
     add_custom_target(doc_build
@@ -176,9 +178,9 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png ${CMAKE_BINARY_DIR}/mkdocs/docs/img
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico ${CMAKE_BINARY_DIR}/mkdocs/docs/img/favicon.ico
-      #           COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md.yap  -- ${CMAKE_BINARY_DIR}/xml ${CMAKE_BINARY_DIR}/mkdocs/docs ${CMAKE_BINARY_DIR}
+             COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md.yap  -- ${CMAKE_BINARY_DIR}/xml ${CMAKE_BINARY_DIR}/mkdocs/docs ${CMAKE_BINARY_DIR}
       
-    DEPENDS STARTUP filter-bin  docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS} 
+    DEPENDS STARTUP filter-bin  docs/mkdocs/mkdocs.yml ${CMAKE_SOURCE_DIR}/docs/dox2md.yap ${MD_TARGETS} dox
   )
 		
     Add_dependencies(filter-bin STARTUP)
@@ -186,9 +188,9 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
 
 add_custom_target(mkdocs
     COMMAND mkdocs build
-  COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/fix.yap -- site/YAP
+#  COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/fix.yap -- site/YAP
   WORKING_DIRECTORY mkdocs
-    DEPENDS doc_build
+    DEPENDS doc_build dox
     )
 
 endif()
