@@ -19,11 +19,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      run: apt  apt -y update && apt -y upgrade &&     apt -y install git gcc g++ make cmake  \
-      autotools-dev automake autoconf perl-base m4 doxygen   \
-      libreadline-dev libgmp-dev     openmpi-bin libopenmpi-dev \
-      swig ninja-build    mkdocs      r-cran-rcppl\
-         minisat libcryptominisat5-dev
+      run: apt  apt -y update && apt -y upgrade &&     apt -y install git gcc g++ make cmake    autotools-dev automake autoconf perl-base m4 doxygen   libreadline-dev libgmp-dev     openmpi-bin libopenmpi-dev \
+      swig ninja-build    mkdocs      r-cran-rcpp    minisat libcryptominisat5-dev
       
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
