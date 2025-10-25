@@ -5,55 +5,11 @@
 #include "Yap.h"
 #include <Python.h>
 
-/** @defgroup Py4YAP  Prolog interface to python.
-    @ingroup Python
-
+/**
+   @defgroup PyBuilts Py4YAP builtins
+    @ingroup Py4YAP
     @{
-
-Py4YAP is a package designed to embedd  Python objects into Prolog programs.
-
-The interface  activates by consulting the `python`  library. It
- boots a Python image.
- ```
-:- use_module(library(python)).
-```
-
-Python is invoked through the operators :=/1 and := 2. Classes,
-methods and fields can be used through Python's standard
-Python. Python modules are impprted through a call to
-import_module/1. A simple example:
-
-``` :- [library(python)].
-
-main :-
-    import_module( matplotlib.pyplot ),
-    plt = matplotlib.pyplot,
-    := plt.plot([1,2,3,4]),
-    := plt.ylabel(`some numbers`),
-    := plt.show().
-```
-
-   YAP supports the following translation between Prolog and Python:
-
-| *Prolog*      | *Pyhon*       |          *Prolog Examples*             |
-|:-------------:|:-------------:|---------------------------------------:|
-| Numbers       | Numbers       | 2.3
-|               |               | 1545
-|               |               |
-| Atom          | Symbols       | var
-|
-| `string`      | 'hello'      | `hello`
-| "string"      |        '      | "hello"
-|               |               |
-| Atom(...)     | Symb(...)     | f( a, b, named=v)
-| E.F(...)      | E.F (...)     | mod.f( a) [ = [mod\|f(a)] ]
-| Atom()        |               | f() [ = '()'(f) ]
-| Lists         | Lists         | [1,2,3]
-| t(....)       | Tuples        | t(1,2,3) to (1,2,3)
-| (..., ...)    |               | (1,2,3)[ = (1,(2,3))]
-| {.=., .=.}    | Dict          | {\`one\`: 1, \`two\`: 2, \`three\`: 3}
-
-*/
+ */
 
 
 #ifdef _XOPEN_SOURCE
@@ -406,3 +362,4 @@ extern void YAPPy_ThrowError__(const char *file, const char *function,
 #endif
 
 
+/// @}

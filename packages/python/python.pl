@@ -1,3 +1,4 @@
+
 % % % -*-Mode : Prolog; -*-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    Author:        Vitor Santos Costa
@@ -18,12 +19,9 @@
 
 /** @addtogroup Py4YAP 
 
- * The YAP Python interface supports both calling Python from Prolog and Prolog from Python.
+
  *
- * Please look at python.pl for more information, and to real.pl and real.c
- * for related work.
- *
- * @}
+ * @{
  *
  */
 

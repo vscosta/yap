@@ -452,10 +452,23 @@ separatedescription([D|Detailed]) -->
     separatedescription( Detailed).
 
 
+codeline(codeline(_,Highlights)) -->
+    foldl(highlight,Highlights),
+    [ "\n"].
 
-mkraw(codeline(_,Line)) -->
-    [ "\n"],
-    rawl(Line).
+highlight(highlight(_,Line)) -->
+    foldl(rawt,Line).
+
+rawt(Text) -->
+{string(Text) },
+!,
+[" "],
+[Text].
+rawt(ref([refid(Id)|_],[Info])) -->
+!,
+ref(Id,Info).
+rawt(Text) -->
+{writeln(ugh:Text)}.
 
 rawl([]) -->
     !.
@@ -473,6 +486,7 @@ raw(highlight(_,Text)) -->
 
 raw(Text) -->
 {string(Text) },
+!,
 [" "],
 [Text].
 
@@ -708,23 +722,6 @@ bd(s, "~~").
 	       bd(ref,"\"").
 bd(underline, "<ins>").
 
-para(P) -->
-    {
-	P=..[N,_,A],
-(	bd(N,H)->true;H="")
-    },
-    [H],
-    (
-	{string(A)}
-    ->
-    [A]
-    ;
-    description(A)
-    ),
-!,
-    [H].
-para(P) -->
-{writeln(para(P))}.
 
 para(ulink([url(Title)],[URL|_])) -->
 { decode(Title, DTitle) },
@@ -738,8 +735,8 @@ para(preformatted([],Text)) -->
 para(programlisting(_,Text)) -->
 
     [ "```\n"],
-    foldl(mkraw,Text),
-    ["\n```\n"].
+    foldl(codeline,Text),
+    ["```\n"].
 
 
 para(javadocliteral([],Text)) -->
@@ -763,7 +760,7 @@ para(simplesect([kind(Kind)|Text])) -->
 [" "],
 description(Text).
 para(table(_,Text)) -->
-    unimpl(table,Text). % docTableType
+   table(Text). % docTableType
 para(heading(_,Text)) -->
     unimpl(heading,Text). % docHeadingType
 para(dotfile(_,Text)) -->
@@ -830,8 +827,6 @@ para('acute'(_,_))  -->
     [     "<acute/>"].
 para('micro'(_,_))  -->
     [     "<micro/>"].
-para('para'(_,_))  -->
-    [      "<para/>"].
 para('middot'(_,_))  -->
     [    "<middot/>"].
 para('cedil'(_,_))  -->
@@ -1824,6 +1819,23 @@ para('Less'(_,_)) -->
     [ "&lt;"].
 para('Greater'(_,_)) -->
     [ "&lt;"].
+para(P) -->
+    {
+	P=..[N,_,A],
+(	bd(N,H)->true;H="")
+    },
+    [H],
+    (
+	{string(A)}
+    ->
+    [A]
+    ;
+    description(A)
+    ),
+!,
+    [H].
+para(P) -->
+{writeln(para(P))}.
 %<!-- end workaround for xsd.exe -->
 unimpl(Cmd,Arg) -->
     { format(user_error,'unimplemented: ~w (called with ~w)',[Cmd,Arg]) }.
@@ -1965,3 +1977,31 @@ unix(argv([IDir,ODir,_])),
     	trl(compound([refid(Ref0),kind(Kind)],[]),IDir,ODir).
 
  % 
+table([Row|Rows]) -->
+["\n\n"],
+row(Row),
+centering(Row),
+foldl(row,Rows),
+["\n\n"].
+
+row(row(_,Entries)) -->
+foldl(entry,Entries),
+["  |\n"].
+
+entry(entry([thead(_),align(_)],Info)) -->
+    ["|     "],
+   foldl(para,Info).
+
+centering(row([],Entries)) -->
+foldl(align,Entries),
+["|\n"].
+
+align(entry([thead("yes"),align("center")],_Info)) -->
+!,
+    ["|:                 :"].
+align(entry([thead("yes"),align("right")],_Info)) -->
+!,
+    ["|                 :"].
+align(entry([thead("yes"),align("left")],_Info)) -->
+!,
+    ["|:                 "].
