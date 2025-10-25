@@ -3,17 +3,18 @@
 ##
 ##
 
-"""
-   @defgroup YAP4Py Calling Prolog from Python
-   @ingroup gPython
+"""@defgroup YAPI Interpreting Prolog from Python
+   @ingroup YAP4Py
    @{
 
    Next, we include a number of classes directed towards calling YAP in
 a pythonic way. The code relies on the YAP C++ interface, that is exported to
 module yap4py.yap.
 
-We rely on the similarity between namedtuples and terms. Defaults are at systuples.
-Query execution is implemented in the queries module.
+This module implements a Prolog top-level through the class Python
+We rely on the similarity between namedtuples and terms. Mapping
+examples are at systuples.py.  Iterative query execution is implemented in the
+queries.py module.
 
 """
 
@@ -259,3 +260,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+"""
+@}
+"""

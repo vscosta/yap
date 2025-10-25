@@ -19,8 +19,8 @@
 
 :- add_to_path('../library').
 :- add_to_path('../packages/xml4yap').
+:- load_foreign_files([],['YAPxml'],libxml_yap_init).
 
-%:- load_foreign_files(['packages/xml2yap/libYAPxml'],[],libxml_yap_init).
 
 :-  initialization(main).
 

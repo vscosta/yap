@@ -2,17 +2,14 @@
 @file systuples.py
 
 
-from collections import namedtuple
-
 @defgroup NamedTuples Collected Nametuples
 @ingroup YAP4Py
 
-Use these tuples to construct calls, eg queries.
+Use these tuples to construct calls to Prolog goals.
 
 """
 
-
-
+from collections import namedtuple
 
 bindvars = namedtuple('bindvars', 'list')
 compile = namedtuple('compile', 'file')

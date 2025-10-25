@@ -6,6 +6,7 @@
 
 @defgroup PyCxx
 @ingroup YAP4Py
+@{
 """
 %}
 

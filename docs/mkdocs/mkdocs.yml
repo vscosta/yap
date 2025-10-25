@@ -21,7 +21,7 @@ markdown_extensions:
 - attr_list
 
 nav:
-   - Home: indexpage.md
+   - Home: index.md
    - INSTALL: INSTALL.md
    - Calling YAP: CALLING_YAP.md
    -   Built-ins:
