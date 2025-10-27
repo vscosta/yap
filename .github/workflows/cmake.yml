@@ -19,7 +19,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      run: apt  apt -y update && apt -y upgrade &&     apt -y install git gcc g++ make cmake    autotools-dev automake autoconf perl-base m4 doxygen   libreadline-dev libgmp-dev     openmpi-bin libopenmpi-dev \
+      run: apt  apt -y update && apt -y upgrade &&  \
+      apt -y install git gcc g++ make cmake    autotools-dev automake autoconf perl-base m4 doxygen 
+        libreadline-dev libgmp-dev     openmpi-bin libopenmpi-dev \
       swig ninja-build    mkdocs      r-cran-rcpp    minisat libcryptominisat5-dev
       
     - name: Configure CMake
