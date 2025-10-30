@@ -288,6 +288,7 @@ mksys(op(A,B,C)) :-
 
 :- use_module('dialect.yap').
 :- use_module('dbload.yap').
+:- use_module('namedargs.yap').
 :- use_module('ypp.yap').
 :- use_module('../os/chartypes.yap').
 :- ensure_loaded('../os/edio.yap').

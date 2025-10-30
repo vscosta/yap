@@ -7,7 +7,7 @@ information on version @YAP_FULL_VERSION@ of YAP (<em>Yet Another
 	Prolog</em> ).
 
 
-![The YAP Logo](yap_256x256x32.png)
+![The YAP Logo](img/yap_256x256x32.png)
 
 The manual is organised as follows:
 
@@ -15,17 +15,17 @@ The manual is organised as follows:
 
 2. [Calling YAP](CALLING_YAP.md) explains how YAP cam be called from an Unix command prompt;
 
-1. [Core Builtins](Builtins) provides information on the core system;
+1. [Core Builtins](group__Builtins) provides information on the core system;
 
-1. [Programming Features](YAPProgramming)  concentrates on how to write programs in YAP;
+1. [Programming Features](group__YAPProgramming)  concentrates on how to write programs in YAP;
 
-1. [YAP Library](YAPLibrary)  describesextra functionality;
+1. [YAP Library](group__YAPLibrary)  describesextra functionality;
 
-1. [Extensions](YapExtensions documents) are a number of improvements over the original Prolog language;
+1. [Extensions](group__YapExtensions documents) are a number of improvements over the original Prolog language;
 
-1. [YAP to and from C/C++](YAPAPI) presents the YAP--C interfaces;
+1. [YAP to and from C/C++](group__YAPAPI) presents the YAP--C interfaces;
 	
-1.  [Packages](YAPPackages) describes more complex libraries.
+1.  [Packages](group__YAPPackages) describes more complex libraries.
 	
 	
 NOTE: this version of YAP is still experimental, documentation may be missing or out of date.

@@ -102,13 +102,6 @@ sub_atom(Text,Below, Mid, Above,  Out) :-
       
       
 
-/**
- * @addtogroup Predicates_on_Text
- *
- * @{
- *
-*/
-
 /** @pred  atom_concat(+ As, ? A)
 
 
@@ -208,13 +201,16 @@ atomic_list_concat(L, El, At) :-
 
   */
 atom_concat(A,B,At) :-
-    var(At),
+    (
+      var(A), var(B)
+   ->
     !,
-    '$atom_concat'(A,B,At).
-atom_concat(A,B,At) :-
     sub_atom(At,0,Len,M,A),
-    sub_atom(At,Len,M,0,B).
-
+    sub_atom(At,Len,M,0,B)
+    ;
+    '$atom_concat'(A,B,At)
+    ).
+			      
 /** @pred  atom_list_concat(+ _As_,? _A_)
 
 Alias for atom_cooncat/2.
@@ -409,7 +405,7 @@ string_code(I,S,C) :-
      true
     ),
     '$get_string_code'(I,S,C).
-
+o
 
 /**
 @}

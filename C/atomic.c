@@ -335,14 +335,41 @@ restart_aux:
 static Int atom_concat3(USES_REGS1) {
   Term t1;
   Term t2;
+  Term t3;
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
-  must_be_atom(t2);
-  must_be_atom(t1);
-  int l = push_text_stack();
-  Atom at = Yap_ConcatAtoms(t1, t2 PASS_REGS);
-  pop_text_stack(l);
-  return Yap_unify(MkAtomTerm(at), ARG3);
+  t3 = Deref(ARG3);
+  if (IsVarTerm(t3)) {
+    if (IsVarTerm(t1)||IsVarTerm(t2)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, t2, "atom_concat/3");
+      return false;
+    }
+    if (!IsAtomTerm(t1)) {
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");
+       return false;
+    }
+    if (!IsAtomTerm(t2)) {
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG2,"char_code/2");
+       return false;
+    }
+    return Yap_unify(ARG3, MkAtomTerm(Yap_ConcatAtoms(t1,t2 PASS_REGS)));
+  } else if (IsVarTerm(t2)) {
+    if (!IsAtomTerm(t1)) {
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");
+       return false;
+    }
+    return Yap_unify(ARG2, MkAtomTerm(Yap_SubtractHeadAtom(t3,t1 PASS_REGS)));
+  } else {
+    if (!IsAtomTerm(t2)) {
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG2,"char_code/2");
+       return false;
+    }
+    if (!IsAtomTerm(t3)) {
+      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG3,"char_code/2");
+       return false;
+    }
+    return Yap_unify(ARG1, MkAtomTerm(Yap_SubtractTailAtom(t3,t2 PASS_REGS)));
+  }
 }
 
 /**
@@ -690,8 +717,8 @@ static Int string_concat3(USES_REGS1) {
   Term t1;
   Term t2;
   t1 = Deref(ARG1);
-  must_be_string(t2);
   t2 = Deref(ARG2);
+  must_be_string(t2);
   must_be_string(t1);
   Term at = Yap_ConcatStrings(t1, t2 PASS_REGS);
   return Yap_unify((at), ARG3);
