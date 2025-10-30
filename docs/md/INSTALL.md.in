@@ -76,7 +76,7 @@ cmake ..
 make
 ```
 	Useful flags include `-j` for parallel execution, and `-C` for setting a build directory.
-	
+ 	
 6. Install:
 ```
 make install

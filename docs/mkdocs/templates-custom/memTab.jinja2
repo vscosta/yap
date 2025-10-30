@@ -1,0 +1,68 @@
+{% filter indent(config.get('indent_level', 0), True) %}
+{# This template is used inside of member.py #}
+
+
+{% macro trl(name) -%}
+  {{ name[0] -}}
+  {{ name[1] -}}
+  {% set l =  name|list  -%}
+  {% for i in range( l|length)  -%}
+  {%  if name[i]== '_' and i+2 < loop.length -%}
+  {% set lft = "ABCDEFGHIJKLMNOPQRSTU".index(name[i+1]) -%}
+  {% set rgt = "ABCDEFGHIJKLMNOPQRSTU".index(name[i+2]) -%}
+  {% set s = "{0:c}".format(lft*16+rgt) -%}
+  {{ s -}}
+{%  elif i>=2  and not  ( name[i-1] == "_" or  name[i-2] == "_" ) -%}
+  {{ name[i] -}}
+{%- endif %}
+{%- endfor %}
+  {{ "/" -}}
+  {{ name[-1] -}}
+{%- endmacro %}
+
+
+
+{%- if node.has(visibility, kinds, static) -%}
+
+{%- if parent is none -%}
+## {{title}}
+{%- else -%}
+## {{title}} inherited from {{node.name}}
+
+See [{{node.name_long}}]({{node.url}})
+{%- endif %}
+
+
+| Name |
+| :--- |
+{% for member in node.query(visibility, kinds, static) -%}
+{%- if member.is_class and member.name_short[-2] == "_" and member.name_short[-1]|int(-1) > -1 -%}
+| [**{{trl(member.name_long) if node.is_group else trk(member.name_short)}}**]({{member.url}}) {{member.suffix}}<br>{{member.brief}}  |
+{%- endif %}
+{% endfor -%}
+
+| Type | Name |
+| ---: | :--- |
+{% for member in node.query(visibility, kinds, static) -%}
+
+   {%- if member.is_group -%}
+| module | [**{{member.title}}**]({{member.url}}) {{member.suffix}}<br>{{member.brief}} |
+{%- elif member.is_file -%}
+| file | [**{{member.name_short}}**]({{member.url}}) {{member.suffix}}<br>{{member.brief}} |
+{%- elif member.is_dir -%}
+| dir | [**{{member.name_short}}**]({{member.url}}) {{member.suffix}}<br>{{member.brief}} |
+{%- elif member.is_namespace -%}
+| {{member.kind.value}} | [**{{member.name_long if node.is_group else member.name_short}}**]({{member.url}}) {{member.suffix}}<br>{{member.brief}} |
+{%- elif member.is_class or member.is_interface or member.is_struct -%}
+| {{member.kind.value}} | [**{{member.name_long if node.is_group else member.name_short}}**]({{member.url}}) {{member.suffix}}<br>{{member.brief}} |
+{%- elif member.is_enum or member.is_function or member.is_variable or member.is_union or member.is_typedef -%}
+| {{member.prefix}} {{member.type}} | [**{{member.name_long if node.is_group else member.name_short}}**]({%- if parent %}{{member.url}}{%- else -%}#{{member.anchor}}{%- endif -%}) {{member.params}} {{member.suffix}}<br>{{member.brief}} |
+{%- else -%}
+| {{member.prefix}} {{member.type}} | [**{{member.name_long if node.is_group else member.name_short}}**]({{member.url}}) {{member.params}} {{member.suffix}}<br>{{member.brief}} |
+{%- endif %}
+{% endfor -%}
+
+{%- endif -%}
+
+
+{%- endfilter %}

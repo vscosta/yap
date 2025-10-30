@@ -2,10 +2,10 @@
  *   @file yapie.hh
  *
  *   @defgroup FLI_YAP-cplus-error-handling Error Handling in the C++ YAP API.
+ *   @ingroup FLI_YAPXX
  *
  *   @brief  error handling in C++ and OO languages
  *
- *   @ingroup FLI_YAP++
  *  
  *
  *   @{

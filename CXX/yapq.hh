@@ -2,9 +2,9 @@
 *   @file yapq.hh
  *
  *   @defgroup FLI_YAP-cplus-query-handling Query Handling in the YAP interface.
+ *   @ingroup FLI_YAPXX
  *   @brief Engine and Query Management
  *
- *   @ingroup FLI_YAP++
  *
  * @{
  *

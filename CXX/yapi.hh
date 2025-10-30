@@ -26,13 +26,13 @@ extern "C" {
 
 /**
  *
- *   @defgroup FLI_YAP++ An object oriented interface for YAP.
+ *   @defgroup FLI_YAPXX An object oriented interface for YAP.
  *   @ingroup YAPAPI
  *
-1 *   @{
+ * @brief C++ wrapper to access Prolog terms, predicates and queries
  *
+ *   @{
  *
- * @brief C++ wrapper to terms, predicates and queries
  *
  * This new interface is designed to be object oriented and to fit
  * naturally with the swig interface language generator. It uses ideas
