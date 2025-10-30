@@ -535,15 +535,16 @@ YAPListTerm() { mk(TermNil); /* else type_error */ }
     Term t1 = gt();
     return Yap_SkipList(&t1, &tailp);
   }
- 
-  Term &operator[](size_t n); /// Extract the nth element.
-
-  Term car(); /// Extract the first element of a list.
-
-  Term cdr(); /// Extract the tail elements of a list.
-
-  Term dup(); /// copy a list.
- inline bool nil() {/// Check if the list is empty.
+  /// Extract the nth element.
+  Term &operator[](size_t n);
+ /// Extract the first element of a list.
+  Term car();
+ /// Extract the tail elements of a list.
+  Term cdr();
+ /// copy a list.
+ Term dup();
+ /// Check if the list is empty.
+ inline bool nil() {
     return gt() == TermNil;
   }
 
@@ -556,15 +557,15 @@ YAPListTerm() { mk(TermNil); /* else type_error */ }
  */
 class X_API YAPConjunctiveTerm : public YAPTerm {
 public:
-  
-  YAPConjunctiveTerm() { mk(TermTrue); /* else type_error */ }  /// create a true term
-
-  YAPConjunctiveTerm(Term t0) { mk(t0); /* else type_error */ }  ///Create a conjunctive term out of a term.
-
-  YAPConjunctiveTerm(const Term ts[], size_t n);  /// Create a conjunctive term out of an array of terms.
-
-  YAPConjunctiveTerm(std::vector<Term>); /// Create a conjunctive term out of an array of terms.
-    size_t length() { /// Return the number of elements in a conjunction
+    /// create a true term
+  YAPConjunctiveTerm() { mk(TermTrue); /* else type_error */ }
+ ///Create a conjunctive term out of a term.
+  YAPConjunctiveTerm(Term t0) { mk(t0); /* else type_error */ } 
+ /// Create a conjunctive term out of an array of terms.
+  YAPConjunctiveTerm(const Term ts[], size_t n); 
+ /// Create a conjunctive term out of an array of terms.
+  YAPConjunctiveTerm(std::vector<Term>);
+    size_t length() {
 	    size_t n=1;
     Term t1 = gt();
     while (IsApplTerm(t1) && FunctorOfTerm(t1)==FunctorComma) {
@@ -574,12 +575,12 @@ public:
     return n;
   }
 
- 
-  Term &operator[](size_t n); /// Extract the nth element.
-  
-  Term car(); /// Extract the first element of a listconjunction.
- 
-  Term cdr(); /// Extract the tail elements of a conjunction.
+  /// Extract the nth element.
+  Term &operator[](size_t n);
+   /// Extract the first element of a list conjunction.
+  Term car();
+  /// Extract the tail elements of a conjunction.
+  Term cdr();
 };
 
 /**
