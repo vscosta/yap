@@ -6,7 +6,6 @@ at Universidade do Porto.  This document provides User
 information on version @YAP_FULL_VERSION@ of YAP (<em>Yet Another
 	Prolog</em> ).
 
-
 ![The YAP Logo](yap_256x256x32.png)
 
 The manual is organised as follows:

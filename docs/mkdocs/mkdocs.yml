@@ -16,9 +16,21 @@ theme:
 plugins:
   - search
   - autorefs
+  - mkdoxy:
+      enabled: False
+      doxy-bin-path: "echo"
+      projects:
+        YAP:
+          src-dirs: ../../
+          full-doc: True
+          template-dir: templates-custom
+      save-api: .
+      emojis-enabled: True
 
 markdown_extensions:
-- attr_list
+   - attr_list
+   - def_list
+
 
 nav:
    - Home: index.md
@@ -32,3 +44,11 @@ nav:
    - Library: group__YAPLibrary.md
    - Available Packages: group__YAPPackages.md
    - Foreign Language Interface : group__YAPAPI.md
+   - Indices:
+       - YAP/modules.md
+       - YAP/namespaces.md
+       - YAP/links.md
+       - Implementation:
+           - YAP/classes.md
+           - YAP/files.md
+

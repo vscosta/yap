@@ -7,20 +7,20 @@
 #endif
 
 /**
- *   @defgroup FLI_YAP-cplus-term-handling Term Handling in the YAP interface.
- *
- *   @{
- *
- *   @ingroup FLI_YAP++
- *
- *
- * These classes offer term construction and access. Terms are seens
- * as objects that inherit from a virtual class, Currently, all
- * terms must reside in the stack and may be moved around during
- * garbage collection. Term objects use an handle, in the SWI-Prolog style.
- *
- * Notice that terms  are forcefully destroyed during backtracking.
- *
+   @defgroup FLI_YAP-cplus-term-handling Term Handling in the YAP interface.
+
+   @{
+
+   @ingroup FLI_YAPXX
+
+
+ These classes offer term construction and access. Terms are seem as
+ objects that inherit from a virtual class, Sub-classes support
+ common cases sucas as atomic constants, numbers, pairs and compound
+ terms.  Currently, all terms must reside in the stack and may be
+ moved around during garbage collection. Term objects use an handle,
+ in the SWI-Prolog style, to safely access the stack.
+
  */
 
 #include <vector>
@@ -36,22 +36,26 @@ X_API extern Term YAP_MkCharPTerm(char *n);
 }
 
 /**
- * @brief Generic class for Prolog Terms.
- *
- * The class YAPTerm provides the ability to construct and manipulate Prolog terms. Operations include:
- * 1. constructors that generate terms ranging from other terms to, source text.
- * 2. term type testing, extraction and construction.
- * 3. several built-ins for term manipulation, including unification, copying, and variant testing;
- *
- * The YAPTerm class has several sub-classes, mostly corresponding to diverse types of terms. Also, YAP
- * provides two utility sub-classes: lists and conjunctions.
- *
+ @brief Generic class for Prolog Terms.
+
+ The class YAPTerm provides the ability to construct and manipulate Prolog
+  terms. Operations include:
+
+ 1. constructors that generate terms ranging from other terms to, source text.
+
+ 2. term type testing, extraction and construction.
+
+ 3. several built-ins for term manipulation, including unification, copying, and variant testing;
+
+ The YAPTerm class has several sub-classes, mostly corresponding to diverse types of terms. Also, YAP
+ provides two utility sub-classes: lists and conjunctions.
+
  ~~~
  a :- b(Z).
  ~~~
- * YAPTerm is implemented on top of the slot or handle mechanism. This provides protection against stack shifting or
- * garbage collection, but in YAP it requires the programmer to explicitely release the handles. This can be done through pop_t() or through synch points.
- */
+ YAPTerm is implemented on top of the slot or handle mechanism. This provides protection against stack shifting or
+ garbage collection, but in YAP it requires the programmer to explicitely release the handles. This can be done through pop_t() or through synch points.
+*/
 class X_API YAPTerm {
   friend class YAPPredicate;
   friend class YAPPrologPredicate;
@@ -62,19 +66,62 @@ class X_API YAPTerm {
   friend class YAPListTerm;
   friend class YAPConjunctiveTerm;
 
-protected:
-yhandle_t hdl; /// a handle to stack representation of the term, equivalent to SWI-Prolog's term_t; this is the only dynamic structure in a YAPTerm
+ protected:
+  /// a handle to stack representation of the term, equivalent to SWI-Prolog's term_t; this is the only dynamic structure in a YAPTerm.
+yhandle_t hdl;
 
 public:
+   /// add an empy term object
+  YAPTerm() { hdl = 0; };
+  
+/// private method to convert from Term (internal YAP representation) to YAPTerm 
+  YAPTerm(Term tn) { mk(tn); };
+#ifdef SWIGPYTHON
+//   YAPTerm(struct _object *inp) {
+// Term tinp = pythonToYAP(inp);
+//  t = Yap_InitSlot(tinp);
+//}
+#endif
 
-Term gt() { /// convert from YAPTerm to term (same as term())
+  /// Generic pointer to term
+  /// YAPTerm(void *ptr);
+
+YAPTerm(void *ptr) {
+  CACHE_REGS
+  mk(MkIntegerTerm((Int)ptr));
+}
+   /// parse string s and initialise.
+  YAPTerm(char *s) {
+    Term tp = 0;
+    mk(YAP_ReadBuffer(s, &tp));
+  }
+
+/// construct a term out of an integer (you may prefer the more specific class YAPIntegerTerm)
+  YAPTerm(long int num) { 
+    CACHE_REGS mk(MkIntegerTerm(num)); };
+
+  YAPTerm(double num) { /// construct a term out of an double (if you know object type use
+    CACHE_REGS mk(MkFloatTerm(num)); };
+  
+  YAPTerm(std::string &name, std::vector<YAPTerm>  ts) { /// extract the tag of a term, after dereferencing.
+    arity_t arity = ts.size();
+    Functor f = Yap_MkFunctor(Yap_LookupAtom(name.c_str()),arity);
+    std::vector<Term> nts(arity);
+    for (arity_t i=0;i<arity;i++)
+      nts[i] = ts[i].gt();
+    mk(Yap_MkApplTerm(f,arity,nts.data()));
+    };
+
+  /// convert from YAPTerm to term (or get(), same as term())
+Term gt() {
     CACHE_REGS
     // fprintf(stderr,"?%d,%lx,%p\n",t,LOCAL_HandleBase[t], HR);
     // Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
     return Yap_GetFromSlot(hdl);
-  }; 
+  };
 
-  Term pop_t() {/// get the Prolog term corresponding to the YAPTerm, and try to recover space 
+  /// get the Prolog term corresponding to the YAPTerm, discarding all variables created since
+  Term pop_t() {
 
     CACHE_REGS
     // fprintf(stderr,"?%d,%lx,%p\n",t,LOCAL_HandleBase[t], HR);
@@ -87,28 +134,13 @@ Term gt() { /// convert from YAPTerm to term (same as term())
     // fprintf(stderr,"+%d,%lx,%p,%p",t,t0,HR,ASP); Yap_DebugPlWriteln(t0);
   };
 
-  void put(Term t0) { /// copy a term to an YAPTerm
+   /// copy a term to a new  YAPTerm
+  void put(Term t0) {
     CACHE_REGS
     Yap_PutInHandle(hdl, t0);
     // fprintf(stderr,"+%d,%lx,%p,%p",t,t0,HR,ASP); Yap_DebugPlWriteln(t0);
   };
 
-YAPTerm(Term tn) { mk(tn); }; ///< private method to convert from Term (internal YAP representation) toYAPTerm 
-#ifdef SWIGPYTHON
-//   YAPTerm(struct _object *inp) {
-// Term tinp = pythonToYAP(inp);
-//  t = Yap_InitSlot(tinp);
-//}
-#endif
-  YAPTerm() { hdl = 0; }; ///< do nothing constructor
-  
-  // YAPTerm(yhandle_t i) { t = i; };
-  YAPTerm(void *ptr); ///< pointer to term
-  
-  YAPTerm(char *s) { /// parse string s and construct a term.
-    Term tp = 0;
-    mk(YAP_ReadBuffer(s, &tp));
-  }
 
 #if 1
   virtual ~YAPTerm(){ /// Term destructor, tries to recover slot
@@ -126,21 +158,7 @@ YAPTerm(Term tn) { mk(tn); }; ///< private method to convert from Term (internal
           */
   };
 #endif
- 
-  YAPTerm(long int num) { /// construct a term out of an integer (if you know object type use YAPIntegerTerm)
-    CACHE_REGS mk(MkIntegerTerm(num)); };
 
-  YAPTerm(double num) { /// construct a term out of an double (if you know object type use
-    CACHE_REGS mk(MkFloatTerm(num)); };
-  
-  YAPTerm(std::string &name, std::vector<YAPTerm>  ts) { /// extract the tag of a term, after dereferencing.
-    arity_t arity = ts.size();
-    Functor f = Yap_MkFunctor(Yap_LookupAtom(name.c_str()),arity);
-    std::vector<Term> nts(arity);
-    for (arity_t i=0;i<arity;i++)
-      nts[i] = ts[i].gt();
-    mk(Yap_MkApplTerm(f,arity,nts.data()));
-    };
 YAP_tag_t tag();
 
 

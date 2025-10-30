@@ -8,11 +8,11 @@
 /**
  *
  *   @defgroup FLI_YAP-cplus-interface-atoms Prolog Atoms
- *   @ingroup FLI_YAP++
+ *   @ingroup FLI_YAPXX
  *  @{
  *  @brief Symbols and associated propeeties.
  *
-
+ *
  *
  *
  * Prolog interns symbols, called *atoms* in a Hash table, usually
