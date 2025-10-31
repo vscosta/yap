@@ -9,6 +9,7 @@
 :- set_prolog_flag(double_quotes, string).
  
 :- include(docutils).
+:- include(yapops).
 
 :-dynamic exported/3, defines_module/1,visited/1.
 
@@ -218,23 +219,38 @@ simplify(C,C).
 
 simplify_slash(S, NS) :-
     sub_string(S, 0 ,_,_, "%%"),
+    sub_string(S,2,1,_,Space),
+    sp(Space),
     !,
-    sub_string(S, 3 ,_,0, IS),
+    sub_string(S, 3,_,0, IS),
+    simplify_slash_star(IS,NS).
+simplify_slash(S, NS) :-
+    sub_string(S, 0 ,_,_, " *"),
+    sub_string(S,2,1,_,Space),
+    sp(Space),
+    !,
+    sub_string(S, 3,_,0, IS),
     simplify_slash_star(IS,NS).
 simplify_slash(S, NS) :-
     sub_string(S, 0 ,_,_, "%!"),
+    sub_string(S,2,1,_,Space),
+    sp(Space),
     !,
     sub_string(S, 3 ,_,0, IS),
     simplify_slash_star(IS,NS).
 simplify_slash(S,NS) :-
     sub_string(S, 0 ,_,_, "%%<"),
+    sub_string(S,3,1,_,Space),
+    sp(Space),
     !,
-    sub_string(S, 3 ,_,0, IS),
+    sub_string(S, 4,_,0, IS),
     simplify_slash_star(IS,NS).
 simplify_slash(S, NS) :-
     sub_string(S, 0 ,_,_, "%"),
+    sub_string(S,1,1,_,Space),
+    sp(Space),
     !,
-    sub_string(S, 1 ,_,0, IS),
+    sub_string(S, 2 ,_,0, IS),
     simplify_slash_star(IS,NS).
 simplify_slash(S, NS) :- 
     simplify_slash_star(S,NS).
