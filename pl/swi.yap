@@ -5,7 +5,7 @@
   * 
   * @brief  SWI Emulation support
   *
-  * @ingroup dialects
+  * @ingroup YAPLibrary
   * 
   * 
 */

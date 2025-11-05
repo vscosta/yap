@@ -20,7 +20,7 @@
  * @file scanner.c
  * 
  * @defgroup Scanner Scanner Implementation.
- * @ingroup ParserImplementation
+ * @ingroup Parser
  *
  * @{
  *
@@ -1088,22 +1088,21 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       while (true) {
         if (ch == 10 && !(Yap_GetModuleEntry(CurrentModule)->flags & M_MULTILINE)) {
 	  ch = Yap_encoding_error( 10, st, LOCAL_tokptr,LOCAL_toktide,          "in ISO a new linea terminates a string" );
-	}
-	if (ch == EOFCHAR) {
-	          	st->status |= Push_Eof_Stream_f;
-			add_ch_to_buff('\0');
-		  break;
-         }
-        if (charp > (unsigned char *)TokImage + (imgsz - 1)) {
+       if (charp > (unsigned char *)TokImage + (imgsz - 1)) {
           size_t sz = charp - (unsigned char *)TokImage;
           TokImage =
               Realloc(TokImage, (imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE)));
           if (TokImage == NULL) {
             return CodeSpaceError(t, p, l);
           }
-          charp = (unsigned char *)TokImage + sz;
-          break;
-        }
+       }
+o	  break;
+       }
+	if (ch == EOFCHAR) {
+	          	st->status |= Push_Eof_Stream_f;
+			add_ch_to_buff('\0');
+		  break;
+         }
         else if (ch == quote) {
           ch = getchrq(st);
 

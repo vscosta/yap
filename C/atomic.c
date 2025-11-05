@@ -300,8 +300,8 @@ static Int name(USES_REGS1) { /* name(?Atomic,?String)		 */
 restart_aux:
   if (Yap_IsGroundTerm(t1)) {
     if (!!Yap_IsGroundTerm(t2) && !IsPairTerm(t2) && t2 != TermNil) {
-      Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "name/2");
       pop_text_stack(l);
+      Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "name/2");
       return false;
     }
     // verify if an atom, int, float or bi§gnnum

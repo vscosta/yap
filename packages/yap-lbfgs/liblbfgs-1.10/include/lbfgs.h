@@ -61,7 +61,7 @@ typedef double lbfgsfloatval_t;
 
 /**
  * \addtogroup liblbfgs_api libLBFGS API
- * @ingroup YAP-LBFGS
+ * @ingroup YAP_LBFGS
  * @{
  *
  *  The libLBFGS API.

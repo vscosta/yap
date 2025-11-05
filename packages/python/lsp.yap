@@ -86,12 +86,12 @@ user:pred_def(Ob, S) :-
     fail.
 user:pred_def(_Ob, _Name).
 
-name2symbol(Name,t(F,L1,0)) :-
+name2symbol(Name,t(F,Lines,0)) :-
     strip_module(Name,Mod,N),
     current_predicate(N,Mod:G),
     functor(G,N,_Ar),
     predicate_property(Mod:G,file(F) ),
-    predicate_property(Mod:G,line_count(L)).
+    predicate_property(Mod:G,line_count(Lines)).
 
 get_ref(N/A,M,Ref) :-
 	scanner:use(predicate,N/A,M,_N0/_A0,_M0,File,L0-C0,LF-CF,LL0-LC0,LLF-LCF),
@@ -134,13 +134,8 @@ user:complete(Self,Prefix,_Pos) :-
 %% @pred validate_uri(Self,URI)
 %%
 %% check for errors or warnings in the file pointed to by URI. Obj is the
-%% Python caller
-%%
-user:validate_uri(Self,URI) :-
-    string_concat(`file://`,S,URI),
-    atom_string(File,S),
-    absolute_file_name(File,Path,[file_type(prolog)]),
-    validate_file(Self,Path).
+%% absolute_file_name(File,Path,[file_type(prolog)]),
+%%    validate_file(Self,Path).
 
 :- dynamic lsp_on/0.
 
@@ -168,7 +163,7 @@ user:portray_message(A,B):-
     lsp_on,
     q_msg(A,B).
 
-q_info(Exc, LN, Pos, Size, ErrN, ErrT) :-
+q_info(Inf, LN, Pos, Size, ErrN, ErrorMsg) :-
    (
       exception_property(`parserLine` , Inf, LN0)
     ->
@@ -210,24 +205,24 @@ q_info(Exc, LN, Pos, Size, ErrN, ErrT) :-
 writeln(user_error,Pos),
     ( Sev == error
   ->
-      Sv = `error` 
+      Sev = `error` 
   ;
-Sv = `warning`
+Sev = `warning`
 ),
-    Err =..LErr,
-    q_msgs(LErr,ErrorMsg,Sev,S),
+    Inf =..LErr,
+    q_msgs(LErr,ErrorMsg,Sev,ErrorMsg).
 
-q_msg(_warning, error( style_check(singletons(singletons,[VName,LN,Pos|_Culprit],_), Exc)) :-
+q_msg(_warning, error( style_check(singletons(singletons,[VName,LN,Pos|_Culprit],_),Exc))) :-
     lsp_on,
     !,
-atom_length(VName,Size),
+    atom_length(VName,Size),
     format(string(S),'~a is a singleton variable',[VName]),
-   recordz(msg,t(`warning`,0,` `,S,LN,Size,Pos),_).
-q_msg(Sev, error(Err,Inf)) :-
-q_info(Exc, LN, Pos, Size, ErrN, ErrT),
+   recordz(msg,t(`warning`,0,Exc,S,LN,Size,Pos),_).
+q_msg(Sev, error(ErrN,Inf)) :-
+    q_info(Inf, LN, Pos, Size, ErrN, ErrT),
     lsp_on,
-     recordz(msg,t(Sv,ErrN,ErrT,S,LN,Size,Pos),_).
-
+    recordz(msg,t(Sev,ErrN,ErrT,LN,Size,Pos),_).
+                          
 
 q_msgs([A1], Extra, N,S) :-
     format(string(S),'~s: ~w.~n~s',[N,A1,Extra]).
@@ -270,7 +265,6 @@ user:highlight_text(Text,Self):-
 highlight_and_convert_stream(Self,Stream) :-
     scan_stream(Stream,Ts),
     close(Stream),
-    writeln(Ts),
     symbols(Ts,LTsf),
     (var(Self)
     ->

@@ -213,7 +213,7 @@ ins([ t(comment(A),L,P,_)|Ts] ,L0,P0,Lvl) -->
      DL is L-L0,
      L1 is L+1,
      (DL>0->DP=P;DP is P-P0),
-      tt(comment,V),
+          /,,,,,,mmmmmmmmmmmmmmmmm tt(comment,V),
       check_doc(A,Doc)
     },
     [DL,DP,S,V,Doc],
@@ -241,7 +241,7 @@ ins([ t(comment(A,Doc),L,0,_Sz)|Ts] ,L0,_P0,Lvl) -->
     {sub_string(A,S,1,RSz,`\n`),
      RSz > 0,
      !,
-     sub_string(A,_Sz,RSz,0,Rest),
+     sub_string(A,_,RSz,0,Rest),
 DL is L-L0,
      tt(comment,V)
     },
@@ -251,7 +251,7 @@ ins([ t(comment(_A,Doc),L,0,Sz)|Ts] ,L0,_,Lvl) -->
     !,
     {
      DL is L-L0,
-     tt(comment,V)
+  yyy   tt(comment,V)
     },
     [DL,0,Sz,V,Doc],
      {indent(L,Lvl,Ts)},
@@ -400,3 +400,6 @@ check_doc(S,D) :-
     !,
     modifier(documentation,D).
 check_doc(_,0).
+
+
+

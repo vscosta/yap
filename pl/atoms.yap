@@ -212,8 +212,22 @@ atom_concat(A,B,At) :-
     !,
     '$atom_concat'(A,B,At).
 atom_concat(A,B,At) :-
-    sub_atom(At,0,Len,M,A),
-    sub_atom(At,Len,M,0,B).
+    (    A==B
+      -> 
+      sub_atom(At,Len,Len,0,B),
+    sub_atom(At,0,Len,Len,A)
+      ;     
+nonvar(A)
+      ->
+    sub_atom(At,0,Len,Sz,A),
+      sub_atom(At,Len,Sz,0,B)
+      ;
+      sub_atom(At,Len,Sz,0,B),
+    sub_atom(At,0,Len,Sz,A)
+
+
+
+    ).
 
 /** @pred  atom_list_concat(+ _As_,? _A_)
 

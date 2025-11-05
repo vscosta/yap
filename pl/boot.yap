@@ -327,7 +327,7 @@ mksys(op(A,B,C)) :-
 
 also available  _CurrentModule_:term_expansion( _T_,- _X_),
 
-This user-defined predicate is called by `expand_term/3` to
+This user-defined predicate is called by expand_term/3 to
 preprocess all terms read when consulting a file. If it succeeds:
 
 +
@@ -361,11 +361,18 @@ as directives.
 /** @pred  exception(+ _Exception_, + _Context_, - _Action_)
 
 
-Dynamic predicate, normally not defined. Callreded by the Prolog system on run-time exceptions that can be repaired `just-in-time`. The values for  _Exception_ are described below. See also catch/3 and throw/1.
-If this hook preodicate succeeds it must instantiate the  _Action_ argument to the atom `fail` to make the operation fail silently, `retry` to tell Prolog to retry the operation or `error` to make the system generate an exception. The action `retry` only makes sense if this hook modified the environment such that the operation can now succeed without error.
+Dynamic predicate, normally not defined. Calleded by the Prolog
+system on run-time exceptions that can be repaired `just-in-time`. The
+values for _Exception_ are described below. See also catch/3 and
+throw/1.  If this hook preodicate succeeds it must instantiate the
+_Action_ argument to the atom `fail` to make the operation fail
+silently, `retry` to tell Prolog to retry the operation or `error` to
+make the system generate an exception. The action `retry` only makes
+sense if this hook modified the environment such that the operation
+can now succeed without error.
 
 + `undefined_predicate`
- _Context_ is instantiated to a predicate-indicator ( _Module:Name/Arity_). If the predicate fails Prolog will generate an existence_error exception. The hook is intended to implement alternatives to the SWI built-in autoloader, such as autoloading code from a database. Do not use this hook to suppress existence errors on predicates. See also `unknown`.
+ _Context_ is instantiated to a predicate-indicator ( _Module:Name/Arity_). If the predicate fails Prolog will generate an existence_error exception. The hook is intended to implement alternatives to the SWI built-in autoloader, such as autoloading code from a database. Do not use this hook to suppress existence errors on predicates. See also unknown/2.
 + `undefined_global_variable`
  _Context_ is instantiated to the name of the missing global variable. The hook must call nb_setval/2 or b_setval/2 before returning with the action retry.
 
@@ -385,4 +392,3 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 %% @}
  
-

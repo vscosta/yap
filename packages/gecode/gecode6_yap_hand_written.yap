@@ -22,7 +22,7 @@
 
 /** @defgroup YAP_Gecode Gecode Interface
 
-@ingroup YAP_packages
+@ingroup YAPPackages
 @{
 
 

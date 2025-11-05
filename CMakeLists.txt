@@ -14,7 +14,7 @@ project(YAP)
 
 set(YAP_MAJOR_VERSION 8)
 set(YAP_MINOR_VERSION 0)
-set(YAP_PATCH_VERSION 1)
+set(YAP_PATCH_VERSION 2)
 
 # Sets the version of CMake required to build the native
 # library. You should either keep the default value or  pass a

@@ -7,7 +7,7 @@
 
 /**
  * @addtogroup Py4YAP
- * @ingroup PYTHON
+ * @ingroup Python
  * @brief make Python talk to YAP
  * @{
  */

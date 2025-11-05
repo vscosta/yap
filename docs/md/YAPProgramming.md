@@ -1,6 +1,6 @@
-# Developing Programs in YAP                 {#YAPProgramming}
+# Programming in YAP                 {#YAPProgramming}
 
-@defgroup YAPProgramming Developing Programs in YAP
+@defgroup YAPProgrammings Developing Programs in YAP
 @ingroup mainpage
 
 we present the main predicates and directives available to load

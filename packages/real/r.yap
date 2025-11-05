@@ -11,7 +11,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /**
- * @file r.pl
+ * @file real.yap
  */
 /**
  * @brief Prolog component of r_interface
@@ -604,8 +604,8 @@ index_comma( _ ) -->
      !,
      ",".
 
-/* obsolete ?
-%% codes_string(Codes,Quoted).
+%% @pred codes_string(Codes,Quoted).
+#
 % check a list is full of (utf ?) codes
 % while replacing any " with \" to produce Quoted from Ascii
 %
@@ -624,7 +624,7 @@ char_my_utf8( C ) :-
 char_my_utf8( C ) :-
 	char_type(C,white).
 
-%% ascii_code_sew( C, Q, T ).
+%% @pred ascii_code_sew( C, Q, T ).
 %  Sew C or its quoted form on list Q with its tail returned in T.
 %
 sew_code( 34, [0'\\,0'"|T], T ) :- !.
@@ -679,7 +679,7 @@ add_atom(A) -->
 
 check_quoted(true, _) --> !, "TRUE".
 check_quoted(false, _) --> !, "FALSE".
-check_quoted(A, _) --> { is_R_variable(A) }, !,
+ocheck_quoted(A, _) --> { is_R_variable(A) }, !,
 	{ format(codes(Codes), '~a', [A]) },
 	Codes.
 check_quoted(A, _) -->
@@ -717,7 +717,8 @@ fresh_r_variable(Plv) :-
      \+ is_rvar(Plv),
      !.
 
-% hmmmm
+%% @pred binry/1
+%
 % originally this (binary/1) included a call to exist,
 % this rightly fails on lm(speeds~exprs)
 % we are converting this to an operators version and we might
@@ -823,4 +824,3 @@ eval_text( Text ) :-
 :- initialization( set_prolog_flag( double_quotes, string) ).
 
 %% @}
-

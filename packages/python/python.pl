@@ -17,13 +17,13 @@
  @brief  Python to C Interface
 */
 
-/** @addtogroup Py4YAP 
+/** @addtogroup Py4YAP  Prolog interface to python.
+  @ingroup Python
+
+@{
+*/
 
 
- *
- * @{
- *
- */
 
 :- module(python,
 	  [
@@ -58,13 +58,6 @@
 	%        (<-)/2,
 	'()'/1, '{}'/1
 	  ]).
-
-
-/** @addtogroup Py4YAP  Prolog interface to python.
-  @ingroup Python
-
-@{
-*/
 
 
 :- use_module(library(lists)).
@@ -174,7 +167,7 @@ load_text(FileAtom,Module) :-
     load_files(Module:atom(FileAtom), []).
 
 load_text(FileString,Module) :-
-    string(FileString),
+    string(FileStrinbg),
     load_files(Module:string(FileString), []).
 
 

@@ -708,8 +708,12 @@ p_arg( USES_REGS1 )
   } else if (IsAtomTerm(d0)) {
     Functor f = FunctorOfTerm(Deref(ARG2));
     i = Yap_LookupAtomIndex(MkAtomTerm(NameOfFunctor(f)), d0, ArityOfFunctor(f) PASS_REGS);
+    if (i<0) {
+	  Yap_ThrowError(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
+	return(false);
+     }
     } else {
-	if (!IsBigIntTerm( d0 ))
+	//if (!IsBigIntTerm( d0 ))
 	  Yap_ThrowError(TYPE_ERROR_INTEGER,d0,"arg 1 of arg/3");
 	return(false);
       }	
@@ -1303,3 +1307,6 @@ cont_genarg( USES_REGS1 )
 }
 
 /// @}
+
+
+
