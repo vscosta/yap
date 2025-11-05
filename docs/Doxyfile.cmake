@@ -3,7 +3,6 @@
 
 get_target_property(YAP_SOURCES libYap SOURCES)
 
-file( MAKE_DIRECTORY md )
 
 set(DOX_MD_FILES
   ${CMAKE_BINARY_DIR}/index.md
@@ -66,31 +65,40 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_INPUT_FILTER ${CMAKE_BINARY_DIR}/filter)
     set(DOXYGEN_JAVADOC_AUTOBRIEF      YES)
     set(DOXYGEN_LAYOUT_FILE ${CMAKE_SOURCE_DIR}/docs/assets/DoxygenLayout.xml)
-    set(DOXYGEN_MACRO_EXPANSION YES)
+    set(DOXYGEN_MACRO_EXPANSION NO)
     set(DOXYGEN_MARKDOWN_SUPPORT YES)
     set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C NO)
-    set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_PROLOG YES)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set(DOXYGEN_OUTPUT_LANGUAGE English)
     set(DOXYGEN_PREDEFINED ${PREDEFINED} )
-    set(DOXYGEN_QUIET YES )
+    set(DOXYGEN_QUIET NO )
     set(DOXYGEN_REFERENCES_LINK_SOURCE NO)
     set(DOXYGEN_REPEAT_BRIEF NO)
     set(DOXYGEN_SEPARATE_MEMBER_PAGES NO)
-    set(DOXYGEN_SHOW_FILES NO)
-    set(DOXYGEN_SHOW_NAMESPACES NO )
+    set(DOXYGEN_SHOW_FILES NO )
+    set(DOXYGEN_SHOW_NAMESPACES YES)
     set(DOXYGEN_TOC_INCLUDE_HEADINGS 5  )
     set(DOXYGEN_XML_PROGRAMLISTING NO)
     #set(DOXYGEN_ALIASES "pred{2(}=@class P\\10  P\\1\\2" Bold{1}="<b>\\1</b>" )
     set(DOXYGEN_INCLUDE_PATH ${INCLUDE_DIRECTORIES}  ${CMAKE_SOURCE_DIR}/H/generated  ${CMAKE_SOURCE_DIR}/H  ${CMAKE_SOURCE_DIR}/include   ${CMAKE_SOURCE_DIR}/os   ${CMAKE_SOURCE_DIR}/OPTYap   ${CMAKE_SOURCE_DIR}/CXX ${CMAKE_BINARY_DIR})
     set(DOXYGEN_EXAMPLE_PATH  ${CMAKE_SOURCE_DIR}/docs/md)
     set(DOXYGEN_SOURCE_BROWSER NO)
-    #set(DOXYGEN_VERBATIM_HEADERS NO)
+    set(DOXYGEN_RECURSIVE YES)
+   #set(DOXYGEN_VERBATIM_HEADERS NO)
 
+
+file( REMOVE_RECURSE mkdocs )
+file( REMOVE_RECURSE xml )
+file( MAKE_DIRECTORY mkdocs)
+  file( MAKE_DIRECTORY mkdocs/docs)
 
 configure_file( docs/md/yap.md.cmake ${CMAKE_BINARY_DIR}/index.md)
 #configure_file( docs/mainpage.h.cmake ${CMAKE_BINARY_DIR}/mainpage.h)
     configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
+configure_file( docs/md/yap.md.cmake ${CMAKE_BINARY_DIR}/index.md)
+#configure_file( docs/mainpage.h.cmake ${CMAKE_BINARY_DIR}/mainpage.h)
+    configure_file( docs/md/INSTALL.md.in ${CMAKE_BINARY_DIR}/INSTALL.md)
+    configure_file( docs/mkdocs/mkdocs.yml.cmake ${CMAKE_BINARY_DIR}/mkdocs/mkdocs.yml)
 
     #  set (Doxygen::doxygen doxygen-yap)
     set(DOXYGEN_EXCLUDE
@@ -98,10 +106,9 @@ configure_file( docs/md/yap.md.cmake ${CMAKE_BINARY_DIR}/index.md)
     CMakeCache.txt
     ${CMAKE_SOURCE_DIR}/pl/boot2.yap
     ${CMAKE_SOURCE_DIR}/library/apply.yap
-    ${CMAKE_SOURCE_DIR}/library/dialect/bprolog
+    ${CMAKE_SOURCE_DIR}/library/dialect
     ${CMAKE_SOURCE_DIR}/library/clp
-    ${CMAKE_SOURCE_DIR}/swi/library/clp
-    ${CMAKE_SOURCE_DIR}/swi/console
+    ${CMAKE_SOURCE_DIR}/swi
     ${CMAKE_SOURCE_DIR}/include/cudd
     ${CMAKE_SOURCE_DIR}/docs/src
     ${CMAKE_SOURCE_DIR}/C/absmi.c
@@ -129,7 +136,7 @@ ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
     ${CMAKE_SOURCE_DIR}/C/Tags_32*
     */_Cpack_Packages/*
     packages/sat/*-*/*
-packages/*-*/pug*
+#packages/*-*/pug*
   )
 
 
@@ -141,54 +148,49 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
 
 
     add_executable(filter-bin docs/filter.c)
-
+    Add_dependencies(filter-bin STARTUP)
     set_target_properties(filter-bin PROPERTIES OUTPUT_NAME filter)
     set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS YAPSTARTUP="${CMAKE_BINARY_DIR}/startup.yss")
     set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS YAPBIN="${CMAKE_BINARY_DIR}/yap")
     set_property(TARGET filter-bin APPEND PROPERTY COMPILE_DEFINITIONS PLFILTER="${CMAKE_CURRENT_SOURCE_DIR}/docs/filter.yap")
 
 
+  doxygen_add_docs(
+    dox
+    ${CMAKE_BINARY_DIR}/index.md
+    ${CMAKE_SOURCE_DIR}/docs/md
+    ${CMAKE_SOURCE_DIR}/C
+    ${CMAKE_SOURCE_DIR}/H
+    ${CMAKE_SOURCE_DIR}/include
 
- #    doxygen_add_docs(
- #    dox
- #    ${CMAKE_BINARY_DIR}/index.md
- #    ${CMAKE_SOURCE_DIR}/docs/md
- #    ${CMAKE_SOURCE_DIR}/C
- #    ${CMAKE_SOURCE_DIR}/H
- #    ${CMAKE_SOURCE_DIR}/include
- #    ${CMAKE_SOURCE_DIR}/CXX
- #    ${CMAKE_SOURCE_DIR}/pl
- #    ${CMAKE_SOURCE_DIR}/library
- #    ${CMAKE_SOURCE_DIR}/library/dialect/swi/fli
- #    ${CMAKE_SOURCE_DIR}/os
- #    ${CMAKE_SOURCE_DIR}/packages
- #    ${CMAKE_BINARY_DIR}/packages/python/yap4py
- #    ${CMAKE_BINARY_DIR}/packages/myddas   
- # )
+    ${CMAKE_SOURCE_DIR}/pl
+    ${CMAKE_SOURCE_DIR}/library
+    ${CMAKE_SOURCE_DIR}/library/dialect/swi/fli
+    ${CMAKE_SOURCE_DIR}/os
+    ${CMAKE_SOURCE_DIR}/packages
+    ${CMAKE_BINARY_DIR}/packages/python/yap4py
+    ${CMAKE_BINARY_DIR}/packages/myddas   
+ )
 
+  
     add_custom_target(doc_build
-    COMMAND ${CMAKE_COMMAND} -E rm -fr  ${CMAKE_BINARY_DIR}/mkdocs
-    COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs
-    COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs/img
-    COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs/javascripts
-    COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/templates-custom
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/mkdocs.yml  ${CMAKE_BINARY_DIR}/mkdocs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/mkdocs/templates-custom/memTab.jinja2  ${CMAKE_BINARY_DIR}/mkdocs/templates-custom
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
+    COMMAND ${CMAKE_COMMAND} -E rm -fr  ${CMAKE_BINARY_DIR}/mkdocs/site
+      COMMAND ${CMAKE_COMMAND} -E make_directory  mkdocs/docs/javascripts
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/index.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/INSTALL.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
+     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/md/CALLING_YAP.md  ${CMAKE_BINARY_DIR}/mkdocs/docs
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/yap_256x256x32.png ${CMAKE_BINARY_DIR}/mkdocs/docs/img
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico ${CMAKE_BINARY_DIR}/mkdocs/docs/img/favicon.ico
-     DEPENDS STARTUP filter-bin  docs/mkdocs/mkdocs.yml ${MD_TARGETS}
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico ${CMAKE_BINARY_DIR}/mkdocs/docs/img/favicon.ico
+      COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md.yap  -- ${CMAKE_BINARY_DIR}/xml ${CMAKE_BINARY_DIR}/mkdocs/docs ${CMAKE_BINARY_DIR}
+       
+     DEPENDS STARTUP filter-bin mkdocs/mkdocs.yml ${MD_TARGETS} dox ${CMAKE_SOURCE_DIR}/docs/dox2md.yap dox 
   )
 		
-    Add_dependencies(filter-bin STARTUP)
 
 add_custom_target(mkdocs
     COMMAND mkdocs build
   WORKING_DIRECTORY mkdocs
-    DEPENDS doc_build
+    DEPENDS doc_build dox
     )
 
 endif()

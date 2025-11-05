@@ -1,0 +1,56 @@
+
+
+{% macro trl(name) -%}
+  {% set len  =  name|list|length()  -%}
+  
+  {% set j  = -3  -%}
+{% for i in name -%}
+u{% if i  == "_" -%}
+  {%  set ch = 47 -%}
+  {%  if loop.revindex > 4  and loop.nextitem >= "A" and loop.nextitem <= "U" and name[loop.index0+2]  >= "A"  and name[loop.index0+2] <= "U" -%}
+  {% set lft = "ABCDEFGHIJKLMNOPQRSTU".index( loop.nextitem) -%}
+  {% set rgt = "ABCDEFGHIJKLMNOPQRSTU".index(name[loop.index0+2]) -%}
+  {% set ch = lft*16+rgt -%}
+  {% endif -%}
+  {{ "{0:c}".format(ch) -}} 
+ {%  elif loop.index0 > 1 and loop.previtem != "_" and  name[loop.index0-2] != "_"  -%}
+  {{ i  -}}
+ {%  elif loop.index0 == 1 and loop.previtem != "_" -%}
+  {{ i -}}
+ {%  elif loop.index0 == 0 -%}	
+  {{ i  -}}
+ {%  elif loop.index == len -%}	
+  {{ i  -}}
+{% endif %}
+{%- endfor %}
+{%- endmacro %}
+
+{% filter indent(config.get('indent_level', 0), True) %}
+# Predicate Index
+
+{% for letter, children in dictionary.items() %}
+## {{letter}}
+
+{% for node in children|sort(attribute='name_short') -%}
+{%- if node.name_short[-2] == "_" and node.name_short[-1]|int(-1) > -1 -%}
+* [**"{{trl(node.name_short)}}"**]({{node.url}})
+{% elif node.parent.is_language -%}
+ ([**"{{trl(node.parent.name_long)}}"**]({{node.parent.url}}))
+{% endif -%}
+{% endfor %}
+{% endfor %}
+# Other Classes Index
+
+{% for letter, children in dictionary.items() %}
+## {{letter}}
+
+{% for node in children|sort(attribute='name_short') -%}
+{%- if node.name_short[-2] != "_" or node.name_short[-1]|int(-1) == -1 -%}
+* [**"{{node.name_short}}"**]({{node.url}})
+{% if node.parent.is_language -%}
+ ([**"{{node.parent.name_long}}"**]({{node.parent.url}}))
+{% endif -%}
+{% endif -%}
+{% endfor %}
+{% endfor %}
+{% endfilter %}

@@ -720,6 +720,7 @@ static Int string_concat3(USES_REGS1) {
   t2 = Deref(ARG2);
   must_be_string(t2);
   must_be_string(t1);
+  must_be_string(t2);
   Term at = Yap_ConcatStrings(t1, t2 PASS_REGS);
   return Yap_unify((at), ARG3);
 }
@@ -1374,8 +1375,8 @@ restart_aux:
         }
       }
       utf8proc_int32_t chr;
-  if (get_utf8(ns, -1, &chr)<0)
-      Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");	
+      if (get_utf8(ns, -1, &chr)<0)
+	Yap_ThrowError(TYPE_ERROR_CHARACTER,ARG1,"char_code/2");	
       if (chr != '\0') {
         return Yap_unify(ARG3, MkCharTerm(chr));
       }

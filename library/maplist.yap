@@ -100,6 +100,7 @@ expands_to/3
 :- use[_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(occurs), [sub_term/2]).
 */
+
 /**
   * @defgroup maplist Map List and Term Operations
   * @ingroup YAPLibrary
@@ -182,7 +183,6 @@ maplist(Pred, [In|ListIn]) :-
 /** @pred maplist( 2:Pred, + _List1_,+ _List2_)
 
 Apply  _Pred_ on all successive pairs of elements from
-
  _List1_ and
  _List2_. Fails if  _Pred_ can not be applied to a
 pair. See the next example.
@@ -192,7 +192,9 @@ eqall(L1,L2) :- maplist(=,L1,L2).
 
 eqall([X,Y,Z], LF).
 ?- eqall([1,2,3],L).
-?- eqall(
+?- eqall(L,[1,2,3].
+?- eqall([1,X,3],[A,2,C]).
+```
 
 */
 maplist(_, [], []).

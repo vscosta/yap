@@ -17,20 +17,21 @@ plugins:
   - search
   - autorefs
   - mkdoxy:
-      enabled: False
-      doxy-bin-path: "echo"
+      # debug: true
+      ignore-errors: true
       projects:
         YAP:
-          src-dirs: ../../
+          src-dirs:       ${CMAKE_SOURCE_DIR}/CXX  
           full-doc: True
-          template-dir: templates-custom
-      save-api: .
-      emojis-enabled: True
+          doxy-cfg-file: ${CMAKE_BINARY_DIR}/Doxyfile.dox
 
 markdown_extensions:
-   - attr_list
-   - def_list
-
+  - attr_list
+  - def_list
+  - toc:
+      permalink: True
+  - admonition
+  - markdown.extensions.md_in_html
 
 nav:
    - Home: index.md
@@ -45,10 +46,10 @@ nav:
    - Available Packages: group__YAPPackages.md
    - Foreign Language Interface : group__YAPAPI.md
    - Indices:
-       - YAP/modules.md
-       - YAP/namespaces.md
-       - YAP/links.md
+       - modules.md
+       - namespaces.md
+       - links.md
        - Implementation:
-           - YAP/classes.md
-           - YAP/files.md
+           - classes.md
+           - files.md
 
