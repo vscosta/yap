@@ -384,13 +384,8 @@ static Int scan_stream(USES_REGS1) {
   st = GLOBAL_Stream+inp_stream;
   Term end = TermNil;
   LOCAL_tokptr = NULL;
-  while (true) {
-    LOCAL_ErrorMessage = "trying to scan after end of input";
-    if (st->status & (Past_Eof_Stream_f)) {
-      post_process_eof(st);
-      return YAP_SCANNING_ERROR;
-    }
-      TokEntry * t = 
+  while (!feof(st->file)) {
+       TokEntry * t = 
       Yap_tokenizer(GLOBAL_Stream + inp_stream, &params);
     while (t) {
       if (t->TokSize==0) {
@@ -413,7 +408,12 @@ static Int scan_stream(USES_REGS1) {
     *VarOfTerm(end) = TermNil;
 
   LOCAL_tokptr = NULL;
-  
+     LOCAL_ErrorMessage = "trying to scan after end of input";
+     if ((st->status & Past_Eof_Stream_f)==0) {
+      post_process_eof(st);
+      return YAP_SCANNING_ERROR;
+    }
+
   return Yap_unify(ARG2, tout);
 }
 

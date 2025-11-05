@@ -25,7 +25,7 @@
 /**
   @defgroup Deb_Interaction Interacting with the debugger
 @ingroup YAPProgramming
-fli_c_cxx
+
 @brief YAP includes a procedural debugger, based on Byrd's four port model.
 
 In this

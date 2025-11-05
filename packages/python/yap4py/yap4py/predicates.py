@@ -21,7 +21,8 @@ library = namedtuple('library', 'listfiles')
 
 
 class Asserta:
-        """ make assserta easier"""
+    """ make assserta easier
+    """
     def __init__(self, eng):
         self.engine = eng
         self.goal = namedtuple('asserta', 'clause' )
@@ -49,7 +50,8 @@ class Assertz(Predicate):
 assertz = Assertz(YAPEngine).run
 
 class PrologPredicate( YAPPrologPredicate ):
-    """ Interface to Prolog  Predicate"""
-
+    """
+    Interface to Prolog  Predicate
+    """
     def __init__(self, t, module=None):
         super().__init__(t)

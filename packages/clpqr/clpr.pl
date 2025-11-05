@@ -39,10 +39,10 @@
 */
 
 /** @addtogroup YAP_YAP_clpqr  CLP(QR)
-  @ingroup YAP_YAP_packages
+  @ingroup YAPPackages
   @{
   */
-
+o
 /** @defgroup YAP_YAP_clpr_implementation  CLP(QR) Predicates
   @ingroup YAP_YAP_clpqr
   @{

@@ -731,7 +731,7 @@ section_else.
 /** @pred    if( : _Goal_)
 
   Compile subsequent code only if  _Goal_ succeeds.  For enhanced
-portability,  _Goal_ is processed by `expand_goal/2` before execution.
+portability,  _Goal_ is processed by `expand_goal/2` before execution.     
 If an error occurs, the error is printed and processing proceeds as if
  _Goal_ has failed.
 

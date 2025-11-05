@@ -3,7 +3,7 @@
 */
 
     /**
-    @defgroup SAT
+    @defgroup SAT Propositional Satisfaction Solevrs
     @ingroup  YAPPackages
     @brief Calling a SAT solver from Prolog
     @{

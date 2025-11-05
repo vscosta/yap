@@ -1,5 +1,5 @@
 /**
-  * @file xml2pl.c reads an XML document by using the pugi library
+  * @file xml2pl.cpp reads an XML document by using the pugi library
   *
   */
 #include "yapi.hh"

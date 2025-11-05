@@ -1,4 +1,4 @@
-/*************************************************************************
+/** ***********************************************************************
  *                                                                       *
  *       YAP Prolog    @(#)amidefs.h    1.3 3/15/90                      *
  *                                                                       *
@@ -8,8 +8,8 @@
  *                                                                       *
  **************************************************************************
  *                                                                       *
- * File:                amidefs.h                                                *
- * comments:    Abstract machine peculiarities                           *
+ * @File:                amidefs.h                                                *
+ * @brief:    Abstract machine peculiarities                           *
  *                                                                       *
  * Last rev:     $Date: 2008-07-22 23:34:49 $                                                    *
  * $Log: not supported by cvs2svn $
@@ -61,6 +61,11 @@
  *                                                                       *
  *************************************************************************/
 
+/**
+   @defgroup amidefs Inlines and type definitons ffor the emulator
+   @ingroup Implementation
+   @{
+ */
 #ifndef AMIDEFS_H
 
 #define AMIDEFS_H 1
@@ -1127,3 +1132,6 @@ typedef enum {
 
 extern int Yap_IUnify( CELL d0,  CELL d1);
 extern void Yap_TrimTrail(void);
+
+/** @} */
+

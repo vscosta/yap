@@ -159,19 +159,9 @@ class YAPShell:
         . `#` execute as Python
         The  user can also press:
         . `?` one more answer
-        
-
-        
-        ```
-        q = engine.query(s)
-        ```
         """
         try:
-          """
-          Demo command line interpreter (CLI), use it as a starting point.
-          """
-          engine = self.engine
-            
+            engine = self.engine
             loop = False
             bindings = []
             engine.q = TopQuery(engine, query)
@@ -261,6 +251,5 @@ def main():
 if __name__ == "__main__":
     main()
 
-"""
-@}
-"""
+#!        @}
+

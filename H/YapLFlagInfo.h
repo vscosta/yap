@@ -48,6 +48,12 @@ YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false",
     set the system to look for undefined procedures */
 
   
+YAP_FLAG(BACKTRACE_FLAG, "backtrace+flag", true, booleanFlag, "false",
+             NULL),
+  /**< 
+   read-write flag, when `true` YAP display the executio stack when handling an error */
+    
+ 
 YAP_FLAG(BREAK_LEVEL_FLAG, "break_level", true, nat, "0",
              NULL),
   /**< 

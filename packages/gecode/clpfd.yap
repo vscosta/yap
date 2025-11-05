@@ -1,7 +1,7 @@
 
 /**
 @defgroup YAP_Gecode5_CLP Programming Finite Domain Constraints in YAP/Gecode
-@ingroup YAP_Gecode5
+@ingroup YAP_Gecode
 @{
 
 The gecode/clp(fd) interface is designed to use the GECODE functionality

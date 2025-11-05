@@ -613,6 +613,9 @@ code_stream(Stream, S, L) :-
 close_codes(Stream, L, L) :-
     close(Stream).
 
+stack_info( _Desc,_, _LC) -->
+    { current_prolog_flag(backtrace, false ) },
+    !.
 stack_info( Desc,_, LC) -->
     {
      query_exception(prologStack, Desc, Stack),
@@ -790,7 +793,7 @@ domain_error(encoding, Opt) --> !,
 domain_error(flag_value, [Opt,Flag]) --> !,
 					 [ 'invalid value ~w for flag ~w' - [Opt,Flag] ].
 domain_error(flag_value, Opt) --> !,
-				  [ 'invalid value ~w for flag' - [Opt] ].
+				  [ 'invalid value ~w forf lag' - [Opt] ].
 domain_error(io_mode, Opt) --> !,
 			       [ 'invalid io mode ~w' - [Opt] ].
 domain_error(mutable, Opt) --> !,

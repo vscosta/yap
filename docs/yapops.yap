@@ -44,6 +44,20 @@ op(500, xfx, '+='),
                   op(700,  xf, #\=),
 		  op(500, yfx, '<=>'),
 		  op(500, yfx, '=>'),
+	op(600,xfy,~),
+	op(600,fy,~),
+	op(600,yfx,'..'),
+	% op(400,yfx,'%x%'),  % function exists
+	% op(400,yfx,'%%'),   % mod
+	% op(400,yfx,'%/%'),  % //
+	op(300,yfx,@*@),  % op(300,yfx,'%*%'),  % matrix multiplication: inner product
+	op(300,yfx,@^@),  % op(300,yfx,'%o%'),  % outer product ?
+	% op(400,yfx,'%in%'), % function can be called instead
+	op(400,yfx,$),
+	op(400,yfx,@),
+	op(150,yf,i),  % complex number
+	op(800,fx,@),
+	op(400,xfy,=+ ),
                   op(450, xfx, ..), % should bind more tightl	   op(100,fy,$),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),

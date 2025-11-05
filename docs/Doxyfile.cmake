@@ -38,7 +38,7 @@ find_host_package(Doxygen
 if (DOXYGEN_FOUND)
     list (APPEND PREDEFINED "YAP_FLAG(A,B,C,D,E,F)=B"  )
     set(DOXYGEN_ALLOW_UNICODE_NAMES YES)
-    set(DOXYGEN_ALWAYS_DETAILED_SEC NO)
+    set(DOXYGEN_ALWAS_DETAILED_SEC NO)
     set(DOXYGEN_AUTOLINK_SUPPORT YES  )
     set(DOXYGEN_BRIEF  "The YAP Prolog Compiler Manual")
     set(DOXYGEN_CASE_SENSE_NAMES YES)
@@ -71,7 +71,8 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
     set(DOXYGEN_OUTPUT_LANGUAGE English)
     set(DOXYGEN_PREDEFINED ${PREDEFINED} )
-    set(DOXYGEN_QUIET NO )
+    set(DOXYGEN_PYTHON_DOCTRING NO )
+    set(DOXYGEN_QUIET YES )
     set(DOXYGEN_REFERENCES_LINK_SOURCE NO)
     set(DOXYGEN_REPEAT_BRIEF NO)
     set(DOXYGEN_SEPARATE_MEMBER_PAGES NO)
@@ -110,6 +111,8 @@ configure_file( docs/md/yap.md.cmake ${CMAKE_BINARY_DIR}/index.md)
     ${CMAKE_SOURCE_DIR}/library/clp
     ${CMAKE_SOURCE_DIR}/swi
     ${CMAKE_SOURCE_DIR}/include/cudd
+    ${CMAKE_SOURCE_DIR}/packages/bdd/include/cudd
+    ${CMAKE_SOURCE_DIR}/packages/xml
     ${CMAKE_SOURCE_DIR}/docs/src
     ${CMAKE_SOURCE_DIR}/C/absmi.c
     ${CMAKE_SOURCE_DIR}/packages/chr

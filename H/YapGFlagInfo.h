@@ -447,7 +447,7 @@ YAP_FLAG(INFORMATIONAL_MESSAGES_FLAG, "informational_messages", true,
 
 YAP_FLAG(INTEGER_ROUNDING_FUNCTION_FLAG, "integer_rounding_function", true,
              isatom, "toward_zero", NULL),
-		     /**< controls integer rounding function, is iso `
+/**< controls integer rounding function, is iso
 
     Read-only flag telling the rounding function used for integers. Takes the
     value `toward_zero` for the current version of YAP.
@@ -644,8 +644,8 @@ YAP_FLAG(RESOURCE_DATABASE_FLAG, "resource_database", false, isatom,            
 
 YAP_FLAG(SAVED_PROGRAM_FLAG, "saved_program", false, booleanFlag, "false",
              NULL),
-		     /**<`saved_program`
-    if `true` YAP booted from a `yss` file, usually `startup.yss'. If
+/**<`saved_program`
+    if `true` YAP booted from a `yss` file, usually `startup.yss`. If
     `false`, YAP booted from a Prolog file, by default `boot.yap`.
 		    */
      
