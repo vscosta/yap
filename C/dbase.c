@@ -5083,7 +5083,6 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
   prev = queue_fetch(&q0, t, first PASS_REGS);
   if (!prev || !(prev)->next)
     return false;
-      
   cur_instance = (prev)->next;
   CELL *oldH = HR;
        tr_fr_ptr oldTR = TR;
@@ -5105,6 +5104,8 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
     } else {
       rc = Yap_unify(*t, TDB);
     }
+    if (!release)
+      return rc;
     if (rc) {
 	if (release) {
 	  if (cur_instance == father_key->FirstInQueue) {

@@ -125,9 +125,9 @@ user:pred_refs(Ob,URI,Line,Ch) :-
 	).
 
 
-user:complete(Self,Prefix,_Pos) :-
-	completions(Prefix,_,FCs),
-	( var(Self)-> Self = FCs ; Self.items := FCs ).
+user:complete(Self,_Line,_Pos,Prefix) :-
+    completions(Prefix,FCs),
+    ( var(Self)-> Self = FCs ; Self.items := FCs ).
 
     user:add_dir(Self,URI):-
 	string_concat(`file://`, FS, URI),
