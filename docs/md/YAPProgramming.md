@@ -1,6 +1,5 @@
-# Programming in YAP                 {#YAPProgramming}
-
-@defgroup YAPProgrammings Developing Programs in YAP
+ Programs in YAP                 {#YAPProgramming}
+s Developing Programs in YAP
 @ingroup mainpage
 
 we present the main predicates and directives available to load
@@ -17,5 +16,7 @@ we present the main predicates and directives available to load
  @ingroup YAPProgramming
 @brief we present the main predicates and directives available to load
    files and to control the Prolog environment.
+
+
 
 

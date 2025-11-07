@@ -650,7 +650,7 @@ unload_file_(_).
 	;
 	predicate_property(M:P, file(File)),
     functor(P,N,A),
-	abolish(M:N/A)
+	abolish(M:N,A)
 	),
 	fail.
 '$unload_file'(File) :-

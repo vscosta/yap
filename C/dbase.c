@@ -5045,13 +5045,12 @@ bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
 
    
 static  QueueEntry *queue_fetch(  QueueEntry *prev, Term *t, bool first USES_REGS ) {
-  tr_fr_ptr oldTR = TR;
-  HB = LCL0;
-  if (!prev)
+   if (!prev)
     return NULL;
-  return prev->next;
    while ((prev)->next) {
-     bool matches = Yap_unify((prev)->next->DBT->Entry, *t);
+     HB = HR;
+     tr_fr_ptr oldTR = TR;
+       bool matches = Yap_unify((prev)->next->DBT->Entry, *t);
       while (oldTR < TR) {
 	CELL d1 = TrailTerm(TR - 1);
 	TR--;
@@ -5061,9 +5060,9 @@ static  QueueEntry *queue_fetch(  QueueEntry *prev, Term *t, bool first USES_REG
       HB = B->cp_h;
      if (LOCAL_Error_TYPE) 
        return NULL;
-     if (matches)
+     if (matches) {
        return prev;
-     else if (!(prev)->next) {
+     }     else if (!(prev)->next) {
        return NULL;
      }
      prev=(prev->next);
@@ -5075,24 +5074,20 @@ static  QueueEntry *queue_fetch(  QueueEntry *prev, Term *t, bool first USES_REG
    
 bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
                         bool release USES_REGS) {
-  CELL *oldH = HR;
-  tr_fr_ptr oldTR = TR;
-  QueueEntry q0;
+   QueueEntry q0;
 //  q0.next = father_key->FirstInQueue;
   QueueEntry *cur_instance, *prev;
   Term TDB;
   q0.next = father_key->FirstInQueue;
   prev=&q0;
-//	 . queue_fetch(&q0, t, first PASS_REGS) ;
- while ( prev->next) {
-    cur_instance = (prev)->next;
-    while ((TDB = GetDBTerm(cur_instance->DBT, false PASS_REGS)) == 0L) {
-        while (oldTR < TR) {
-          CELL d1 = TrailTerm(TR - 1);
-          TR--;
-          /* normal variable */
-          RESET_VARIABLE(d1);
-        }
+  prev = queue_fetch(&q0, t, first PASS_REGS);
+  if (!prev || !(prev)->next)
+    return false;
+      
+  cur_instance = (prev)->next;
+  CELL *oldH = HR;
+       tr_fr_ptr oldTR = TR;
+  while ((TDB = GetDBTerm(cur_instance->DBT, false PASS_REGS)) == 0L) {
 	HR=oldH;
       if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -5101,8 +5096,7 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
           return false;
         }
       }
-      oldTR = TR;
-      oldH = HR;
+     oldH = HR;
     }
     bool rc;
     if (*t==0) {
@@ -5136,16 +5130,18 @@ bool Yap_dequeue_tqueue(db_queue *father_key, Term *t, bool first,
           RESET_VARIABLE(d1);
         }
       }
-      return true;
+       HR = oldH;
+     return true;
     } else {
+      HR = oldH;
       if (first) {
 	return false;
       }
-    }
-      HR = oldH;
       prev = prev->next;
-  }
-  return false;
+   }
+
+   return false;
+   
 }
 
 bool Yap_dequeue_vqueue(db_queue *father_key, Term *t, bool first USES_REGS) {

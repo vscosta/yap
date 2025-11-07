@@ -154,7 +154,7 @@ pred2dox(Pred,Pred).
     dox2pred(String,String).
 
 fetch_chars([]) -->[], !.
-fetch_chars([C|Cs]) -->
+nnfetch_chars([C|Cs]) -->
 {var(C)},
     [0'_],
     [A,B],
