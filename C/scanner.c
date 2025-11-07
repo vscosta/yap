@@ -1096,7 +1096,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             return CodeSpaceError(t, p, l);
           }
        }
-o	  break;
+	  break;
        }
 	if (ch == EOFCHAR) {
 	          	st->status |= Push_Eof_Stream_f;
