@@ -139,7 +139,7 @@ YAP_ARCH.
   */
   
 YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true,
-	   booleanFlag, "false", Yap_set_fpu_exceptions),
+	   booleanFlag, "true", Yap_set_fpu_exceptions),
 	   /**<
     Read-write flag telling whether arithmetic exceptions generate
     Prolog exceptions.

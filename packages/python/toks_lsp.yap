@@ -213,7 +213,7 @@ ins([ t(comment(A),L,P,_)|Ts] ,L0,P0,Lvl) -->
      DL is L-L0,
      L1 is L+1,
      (DL>0->DP=P;DP is P-P0),
-          /,,,,,,mmmmmmmmmmmmmmmmm tt(comment,V),
+         tt(comment,V),
       check_doc(A,Doc)
     },
     [DL,DP,S,V,Doc],
@@ -251,7 +251,7 @@ ins([ t(comment(_A,Doc),L,0,Sz)|Ts] ,L0,_,Lvl) -->
     !,
     {
      DL is L-L0,
-  yyy   tt(comment,V)
+     tt(comment,V)
     },
     [DL,0,Sz,V,Doc],
      {indent(L,Lvl,Ts)},

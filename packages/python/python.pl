@@ -167,7 +167,7 @@ load_text(FileAtom,Module) :-
     load_files(Module:atom(FileAtom), []).
 
 load_text(FileString,Module) :-
-    string(FileStrinbg),
+    string(FileString),
     load_files(Module:string(FileString), []).
 
 

@@ -143,7 +143,7 @@ volatile(P) :-
 	% always finish with a throw to make sure we clean stacks.
         setup_call_catcher_cleanup(
 	'$run_at_thread_start',
-G,
+catch(G,E,error(E)),
  Port,
    (
     '$thread_zombie_self'(Id0),
@@ -1099,7 +1099,7 @@ thread_send_message(Term) :-
 
 Place  _Term_ in the given queue or default queue of the indicated
 thread (which can even be the message queue of itself (see
-thread_self/1). Any term can be placed in a message queue, but note that
+vthread_self/1). Any term can be placed in a message queue, but note that
 the term is copied to the receiving thread and variable-bindings are
 thus lost. This call returns immediately.
 
@@ -1175,10 +1175,9 @@ thread_get_message(Queue, Term) :-
       ->
       !
       ;
-      '$message_queue_send'(Queue, Any),
-      fail
-      ;
-    '$mbox_get_message'(Queue, Term)      
+    '$message_queue_send'(Queue, Any) ,
+        '$mbox_get_message'(Queue, Term)     
+
       ).
 
 

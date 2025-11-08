@@ -9,7 +9,6 @@
  *
 */
 
-
 :- module(rbtrees,
 	  [rb_new/1,
 	   rb_empty/1,		% ?T

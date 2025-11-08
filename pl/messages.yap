@@ -270,9 +270,6 @@ translate_message(throw(BALL)) -->
     [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
 translate_message( Term ) -->
     message(Term), !.
-
-
-
 translate_message(error(style_check(singletons,Culprit,Cl),Exc))-->
     !,
     {
