@@ -1,3 +1,4 @@
+#!/home/vsc/venv/bin/python3
 ###########################################################################
 # Copyright(c) Open Law Library. All rights reserved.                      #
 # See ThirdPartyNotices.txt in the project root for additional notices.    #
@@ -92,27 +93,29 @@ def validate_yap(ls,uri,source,version):
     logging.info(str(ls.errors))
     if ls.errors:
         for (myuri, uri_diags) in ls.errors.items():
-            types.PublishDiagnosticsParams(
-                uri=myuri,
-                version=version,
-                diagnostics=
-                [types.Diagnostic(
-                    message=msg,
-                    severity = ls.sev_as_enum(sev),
-                    range=types.Range(
-                        start=types.Position(line=line - 1, character=col),
-                        end=types.Position(line=line - 1, character=col+1)
-                    ),
+            ls.text_document_publish_diagnostics(
+                types.PublishDiagnosticsParams(
+                    uri=myuri,
+                    version=version,
+                    diagnostics=
+                    [types.Diagnostic(
+                        message=msg,
+                        severity = ls.sev_as_enum(sev),
+                        range=types.Range(
+                            start=types.Position(line=line - 1, character=col),
+                            end=types.Position(line=line - 1, character=col+1)
+                        ),
+                    )
+                     for (sev, msg,line,col) in uri_diags]
                 )
-                for (sev, msg,line,col) in uri_diags]
-                )
+            )
 
 def init_doc(ls, uri, text_document):
     try:
         source = text_document.source
         ls.errors = {}
         ls.errors[uri] = []
-        validate_yap(ls, uri,source,text_document.version)
+        return validate_yap(ls, uri,source,text_document.version)
         
     except Exception as e:
         logging.info(f'Error ocurred: {e}')
@@ -266,8 +269,8 @@ def did_change(ls:YAPLanguageServer , params: types.DidOpenTextDocumentParams):
     """Parse each document when it is changed"""
     uri = params.text_document.uri
     doc = ls.workspace.get_text_document(uri)
-    init_doc(ls,uri,doc)
-    return semantic_tokens(ls,uri,doc)
+    return init_doc(ls,uri,doc)
+    ;; return semantic_tokens(ls,uri,doc)
 
 @server.feature(
     types.TEXT_DOCUMENT_COMPLETION,
@@ -277,7 +280,7 @@ def completions(ls: YAPLanguageServer, params: types.CompletionParams = None) ->
     """Returns completion items."""
     ls.items = []
     document = ls.workspace.get_text_document(params.text_document.uri)
-    current_line = document.lines[params.position.line-1]
+    current_line = document.lines[params.position.line]
     print(current_line,params.position.character)
     try:
         ls.engine.goal(complete(ls,current_line,params.position.character,current_line[:params.position.character].strip()))

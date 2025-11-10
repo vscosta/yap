@@ -178,28 +178,36 @@ user:validate_text(Self,URI,S) :-
     retract(lsp_on).
 
 
-q_msg(informational, _, _, _,  _) :-
+q_msg(informational, _, _, _,  _, _) :-
+val    !,
+    fail.
+q_msg(help, _, _, _,  _, _) :-
     !,
     fail.
-q_msg(help, _, _, _,  _) :-
+q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_),Desc),S,Line0,Column,Siz) :-
     !,
-    fail.
-q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_P),_),S,Line,Column) :-
-    !,
+    Line0 is Line-1,
+    exception_property(parserSize, Desc, Siz),
     format(string(S), 'singleton variable ~s.~n ', [VName]).
-q_msg(warning, error(style_check(multiple,_,_I ) ,Desc ), S, L0,C0) :-
+q_msg(warning, error(style_check(multiple,_,_I ) ,Desc ), S, L0,C0,Siz) :-
     !,
-    exception_property(parserLine, Desc, L0),
+    exception_property(parserLine, Desc, L1),
+    L0 is L1-1,
     exception_property(parserLinePos, Desc, C0),
+    exception_property(parserSize, Desc, Siz),
     format(string(S), 'previously defined.~n',[]).
-q_msg(warning, error(style_check(discontiguous,_,_I ), Desc), S, L0,C0) :-
+q_msg(warning, error(style_check(discontiguous,_,_I ), Desc), S, L0,C0, Siz) :-
     !,
-    exception_property(parserLine, Desc, L0),
+    exception_property(parserLine, Desc, L1),
+    L0 is L1-1,
     exception_property(parserLinePos, Desc, C0),
+    exception_property(parserSize, Desc, Siz),
     S = "discontiguous.~n".
-q_msg(_error, error(syntax_error(_Msg), Desc), "syntax error",L0,C0) :-
+q_msg(_error, error(syntax_error(_Msg), Desc), "syntax error",L0,C0, Siz) :-
     !,	    
-    exception_property(parserLine, Desc, L0),
+    exception_property(parserLine, Desc, L1),
+    exception_property(parserSize, Desc, Siz),
+    L0 is L1-1,
     exception_property(parserLinePos, Desc, C0).
 
 
@@ -248,16 +256,15 @@ highlight_and_convert_stream(Self,Stream) :-
 user:portray_message(A,B):-
     writeln(B),
     my(Self,URI),
-    q_msg(A,B,S,Line,Column),
+    q_msg(A,B,S,Line,Column, Size),
     !,
     (var(Self)
     ->
-	writeln(URI/t(S,Line,Column))
+	writeln(URI/t(S,Line,Column,Size))
     ;
     % assertz(lsp(URI,t(A,S,Line,Column)),
-    Self.errors[URI].append(t(A,S,Line,Column))
+    Self.errors[URI].append(t(A,S,Line,Column,Size))
     ),
-    !,			     
     fail.
 
 :- writeln(ok).
