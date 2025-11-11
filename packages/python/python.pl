@@ -23,6 +23,7 @@
 @{
 */
 
+:- initialization( load_foreign_files([],['YAPPython'], init_python_dll), now ).
 
 
 :- module(python,
@@ -80,7 +81,6 @@
 			 (:=)/1,
 			 (:=)/2.
 
-:- initialization( load_foreign_files([],['YAPPython'], init_python_dll), now ).
 
 /**
  * @pred import(File)

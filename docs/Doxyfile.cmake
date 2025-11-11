@@ -23,7 +23,7 @@ file( MAKE_DIRECTORY sphinx )
 file( MAKE_DIRECTORY sphinx/source)
 file( MAKE_DIRECTORY sphinx/source/images)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/Makefile DESTINATION sphinx)
-file( COPY ${DOX_MD_FILES} DESTINATION sphinx/source)
+#file( COPY ${DOX_MD_FILES} DESTINATION sphinx/source)
 
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/conf.py DESTINATION sphinx/source)
 file( COPY ${CMAKE_SOURCE_DIR}/docs/sphinx/source/index.rst DESTINATION sphinx/source)

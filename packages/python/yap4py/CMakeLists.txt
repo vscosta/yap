@@ -18,6 +18,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/systuples.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/predicates.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/queries.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/lsp.py
     ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__main__.py)
 
 
@@ -46,18 +47,21 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   # inform we are compiling YAP
   # s used in MSYS
 
-  
-  #   INSTALL ( TARGETS  ${SWIG_MODULE_Py2YAP_REAL_NAME}
-  #   RUNTIME  DESTINATION ${PYTHON_MODULE_PATH}
-  #   	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
-  #   	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}
-  # )
+  foreach (filename ${PYTHON_SOURCES})
+    cmake_path(GET  filename FILENAME NAME)
+  add_custom_command( OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap4py/${NAME} 
+  COMMAND ${CMAKE_COMMAND} -E copy ${filename}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/
+  DEPENDS ${filename}
+  )
+list( APPEND PYTHON_COPIES ${CMAKE_CURRENT_BINARY_DIR}/yap4py/${NAME} )
+endforeach()
 
   add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/_yap.cxx
-    COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-    COMMAND ${CMAKE_COMMAND} -E copy yap4py/stub.cxx  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -module "yap"  -addextern -doxygen  -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS}   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/_yap.cxx  -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/py4yap.h   ${SWIG_SOURCES})
-
+    COMMAND ${CMAKE_COMMAND} -E copy yap4py/stub.cxx  ${CMAKE_CURRENT_BINARY_DIR}/yap4py§
+    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -module "yap"  -addextern -doxygen  -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS}   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/_yap.cxx  -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/_yap.h   ${SWIG_SOURCES}
+    DEPENDS ${PYTHON_COPIES}  ${CMAKE_SOURCE_DIR}/packages/python/py4yap.h   ${SWIG_SOURCES}
+  )
+  
   add_custom_target(YAP4PY ALL
     COMMAND pip wheel --wheel-dir ${CMAKE_BINARY_DIR} .
     DEPENDS  ${SWIG_SOURCES} YAP++ Py4YAP ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/_yap.cxx
@@ -86,6 +90,7 @@ if ( Python3_Development_FOUND AND SWIG_FOUND)
   #      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/doc
   #      COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile.xml
   #      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  
   #      DEPENDS ${c_headers};${c_sources};${cpp_sources};${cpp_headers}
   #      )
   #

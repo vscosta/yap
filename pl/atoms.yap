@@ -202,10 +202,11 @@ atomic_list_concat(L, El, At) :-
   */
 atom_concat(A,B,At) :-
     (
-      var(A), var(B)
+      nonvar(A), nonvar(B)
    ->
-    !,
-    '$atom_concat'(A,B,At).
+	      !,
+	      '$atom_concat'(A,B,At)
+		  ).
 atom_concat(A,B,At) :-
     (    A==B
       -> 
