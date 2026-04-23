@@ -24,6 +24,38 @@
 
 #include "YapStreams.h"
 
+typedef struct FEnv {
+  scanner_params scanner; /// scanner interface
+  Term qq, tp, sp, np, vprefix, scan;
+  int StartCharCount;
+  int StartLineCount;
+  int StartLinePos;
+  Term cmod;           /// initial position of the term to be read.
+  Term t, t0;          /// the output term
+  TokEntry *tokstart;  /// the token list
+  TokEntry *toklast;   /// the last token
+  CELL *old_H;         /// initial H, will be reset on stack overflow.
+  xarg *args;          /// input args
+  bool reading_clause; /// read_clause
+  size_t nargs;        /// arity of current procedure
+  encoding_t enc;      /// encoding of the stream being read
+  char * msg;          /// Error  Messagge
+  Term user_file_name; ///stream name inn case it closes
+  int top_stream;      /// last open stream
+} FEnv;
+
+typedef struct renv {
+  Term bq;
+  bool ce, sw;
+  Term sy;
+  UInt cpos;
+  int prio;
+  int ungetc_oldc;
+  int had_ungetc;
+  bool seekable;
+} REnv;
+
+
 extern bool IsStreamTerm(Term t);
 
 #define Yap_initStream(sno, fd, name, io_mode, file_name, encoding, flags,     \
@@ -97,7 +129,6 @@ extern void init_read_data(ReadData _PL_rd, struct stream_desc *s);
 typedef int (*GetsFunc)(int, UInt, char *);
 
 extern void Yap_InitStdStreams(void);
-extern Term Yap_StreamPosition(int);
 #define Yap_CloseStream(id)                                                    \
   Yap_CloseStream__(__FILE__, __FUNCTION__, __LINE__, id)
 extern void Yap_CloseStream__(const char *file, const char *function,
@@ -287,8 +318,12 @@ extern int ConsoleGetc(int sno);
 extern int ConsolePutc(int sno, int ch);
 
 extern int ReadlineGetc(int sno);
-  
-inline static Term StreamPositionToTerm(int charcount, int linecount,
+
+///
+/// Convert a string position to a Prolog term
+/// that can be understood by `term_location`
+///
+inline Term Yap_StreamPosition(int charcount, int linecount,
                                         int linestart) {
   CACHE_REGS
   Term sargs[5];
@@ -299,32 +334,32 @@ inline static Term StreamPositionToTerm(int charcount, int linecount,
   return Yap_MkApplTerm(FunctorStreamPos, 5, sargs);
 }
 
-inline static Term StreamPosition(int sno) {
-  CACHE_REGS
-    
-  int cpos;
 
-  cpos = GLOBAL_Stream[sno].charcount;
-  LOCAL_StartCharCount = cpos;
-  LOCAL_StartLineCount = GLOBAL_Stream[sno].linecount;
-  LOCAL_StartLinePos = cpos + 1 - GLOBAL_Stream[sno].linestart;
-  return StreamPositionToTerm(cpos, LOCAL_StartLineCount, LOCAL_StartLinePos);
+
+inline static Term Yap_CurrentStreamPosition(int sno ) {
+
+  StreamDesc *st = GLOBAL_Stream+sno;
+  return   Yap_StreamPosition(
+			      st->charcount,
+			      st->linecount,
+			      st->linestart);
 }
 
-inline static Term StreamPositionAtStart    (int sno) {
-  CACHE_REGS
-     Term sargs[5];
-  sargs[0] = MkIntTerm( LOCAL_StartCharCount);
-  sargs[1] = MkIntTerm(LOCAL_StartLineCount);
-  sargs[2] = MkIntTerm(LOCAL_StartCharCount-1-LOCAL_StartLineCount);
-  sargs[3] = sargs[4] = MkIntTerm(0);
-  return Yap_MkApplTerm(FunctorStreamPos, 5, sargs);
+inline static void Yap_SaveStreamPosition(int sno, FEnv *fe) {
+ 
+ CACHE_REGS
+   StreamDesc *st = GLOBAL_Stream+sno;
+  fe->StartCharCount = st->charcount,
+ fe->StartLineCount = st-> linecount;
+   fe->StartLinePos = st->linestart;;
 }
 
-inline static Term CurrentPositionToTerm(void) {
+inline static Term Yap_SavedStreamPosition(FEnv *fe) {
   CACHE_REGS
-  return StreamPositionToTerm(LOCAL_StartCharCount, LOCAL_StartLineCount,
-                              LOCAL_StartLinePos);
+  return   Yap_StreamPosition(
+				fe->StartCharCount,
+				fe->StartLineCount,
+			      fe->StartLinePos);
 }
 
 char *Yap_MemExportStreamPtr(int sno);

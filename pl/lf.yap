@@ -319,7 +319,6 @@
     ;
     open(Y, read, Stream, [])
     ),
-    writeln(M),
     '$load_file'(Type,File,Stream,Y, M, Opts, Call),
 %    set_prolog_flag(autoload,OldAutoload),
     close(Stream).
@@ -327,10 +326,8 @@
 '$load_stream'(Type,File,Stream, Y, M, Opts, Call) :-
     '$mk_opts'(Opts,File,Stream,M,Call,TOpts),
     b_setval('$opts',Opts),
-writeln(start:File),
     '$lf'(always, Type, File, Y,  Stream, M, Call, Opts, TOpts),
     retractall(user:'$is_stream'( File)),
-writeln(close:File),
      close(Stream),
      !.
 

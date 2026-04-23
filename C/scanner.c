@@ -34,7 +34,7 @@
  * when called should produce the next char or -1 if none availlable. The
  * scanner will stop producing tokens when it either finds an end of file
  * (-1) or a token consisting of just '.' followed by a blank or control
- * char. Scanner errors will be signalled by the scanner exiting with a non-
+ * char. Scanner errors will be signalled by the scanner exiting with a non-b
  * zero  ErrorMsg and ErrorPos. Note that, even in this case, the scanner
  * will try to find the end of the term. A function char
  * *AllocScannerMemory(nbytes) should be supplied for allocating (temporary)
@@ -948,8 +948,8 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       return p;
     } 
   }
-  params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
-  // Yap_setCurrentSourceLocation(st);
+  int sno = st - GLOBAL_Stream;
+  params->tposOUTPUT = Yap_CurrentStreamPosition(  sno );
   do {
     int quote, isvar;
     unsigned char *charp, *mp;
@@ -967,10 +967,11 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       p->TokNext = t;
     p = t;
   restart:
-    /* where the terma ctually starts */
-    LOCAL_StartLinePos = t->TokLinePos = GetCurInpLineStart(st);
-    LOCAL_StartLineCount = t->TokLine = GetCurInpLine(st);
-    LOCAL_StartLinePos = t->TokOffset = GetCurInpOffset(st);
+    /* where the term actually starts */
+    t->TokLinePos = GetCurInpLineStart(st);
+    t->TokLine = GetCurInpLine(st);
+    t->TokOffset = GetCurInpOffset(st);
+    Yap_SaveStreamPosition( sno, params->fe); 
     switch (chtype(ch)) {
     case CC:
       charp = (unsigned char *)TokImage;

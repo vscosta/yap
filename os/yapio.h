@@ -103,7 +103,6 @@ extern char *Yap_AllocScannerMemory(unsigned int);
 
 /* routines in iopreds.c */
 extern FILE *Yap_FileDescriptorFromStream(Term);
-extern Int Yap_FirstLineInParse(void);
 extern int Yap_CheckIOStream(Term, char *);
 #if defined(YAPOR) || defined(THREADS)
 extern void Yap_LockStream(void *);

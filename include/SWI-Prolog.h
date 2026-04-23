@@ -39,7 +39,7 @@ extern "C" {
 #include <YapConfig.h>
 #include <YapInterface.h>
 #else
-#include <Yap/YapInterface.h>
+#include <YapInterface.h>
 #endif
 #endif
 #include <stdarg.h>

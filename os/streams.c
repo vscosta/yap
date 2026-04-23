@@ -509,7 +509,7 @@ stream_type(int sno,
 static bool
 stream_position(int sno,
                 Term t2 USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
-  Term tout = StreamPosition(sno);
+  Term tout = Yap_CurrentStreamPosition(sno);
   return Yap_unify(t2, tout);
 }
 
@@ -1375,8 +1375,6 @@ static Int
   return (Yap_unify(ARG2, tout));
 }
 
-Term Yap_StreamPosition(int sno) { return StreamPosition(sno); }
-
 static Int p_show_stream_position(
     USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
   Term tout;
@@ -1385,7 +1383,7 @@ static Int p_show_stream_position(
                       "stream_position/2");
   if (sno < 0)
     return (FALSE);
-  tout = StreamPosition(sno);
+  tout = Yap_CurrentStreamPosition(sno);
   return Yap_unify(ARG2, tout);
 }
 

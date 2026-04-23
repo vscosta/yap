@@ -48,6 +48,7 @@ typedef struct scanner_extra_params {
   bool store_comments; //
   bool get_eot_blank;
   YAP_Term stored_scan;
+  struct FEnv *fe;
 } scanner_params;
 
 
