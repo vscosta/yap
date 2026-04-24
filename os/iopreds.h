@@ -323,7 +323,7 @@ extern int ReadlineGetc(int sno);
 /// Convert a string position to a Prolog term
 /// that can be understood by `term_location`
 ///
-inline Term Yap_StreamPosition(int charcount, int linecount,
+static inline Term Yap_StreamPosition(int charcount, int linecount,
                                         int linestart) {
   CACHE_REGS
   Term sargs[5];
