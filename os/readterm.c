@@ -963,7 +963,7 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
       }
     }
   }
-  return 0;
+  return Yap_StreamPosition(1,0,0);
 }
 static bool is_goal(Term t)
 {
@@ -1042,11 +1042,11 @@ static bool complete_clause_processing(FEnv *fe, int sno, TokEntry *tokstart) {
     v_vnames = get_varnames(fe, tokstart);
     vs = fe->scanner.stored_scan;
     v_pos =get_stream_position(fe, tokstart);
-    Term t,state = MkPairTerm(
-			      fe->t,
-			      MkPairTerm(v_vnames,
-					 MkPairTerm(StreamName(sno),
-						    MkPairTerm(v_pos, TermNil))));
+    Term t, state = MkPairTerm(
+                fe->t,
+                MkPairTerm(v_vnames, MkPairTerm(StreamName(sno),
+                                                MkPairTerm(v_pos, TermNil))));
+    
     Yap_SetBacktrackableGlobalVal(AtomCurrentClause,(t=MkVarTerm()) PASS_REGS);
     YapBind(VarOfTerm(t),state);
     //    Yap_DebugPlWriteln(state);

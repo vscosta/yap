@@ -205,24 +205,24 @@ current_prolog_flag(compiler_top_level, scanner:scanner_loop)
 	op(P,OPSEC,M:OP).
 '$exec_directive'(set_prolog_flag(F,V), _, _, _, _) :-
 	set_prolog_flag(F,V).
-'$exec_directive'(ensure_loaded(Fs), _, M, _, Loc) :-
-	load_files(M:Fs, [if(changed),'consulted_at'(Loc)]).
+'$exec_directive'(ensure_loaded(Fs), _, M, _, _Loc) :-
+	load_files(M:Fs, [if(changed)]).
 '$exec_directive'(char_conversion(IN,OUT), _, _, _, _) :-
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M, _, _) :-
 	'$public'(P, M).
-'$exec_directive'(compile(Fs), _, M, _, Loc) :-
-    load_files(M:Fs, ['consulted_at'(Loc)]).
-'$exec_directive'(reconsult(Fs), _, M, _, Loc) :-
-    load_files(M:Fs, ['consulted_at'(Loc)]).
-'$exec_directive'(consult(Fs), _, M, _, Loc) :-
-    load_files(M:Fs, [consult(consult),'consulted_at'(Loc)]).
-'$exec_directive'(use_module(F), _, M, _, Loc) :-
-    load_files(M:F,[if(not_loaded),must_be_module(true),'consulted_at'(Loc)]).
-'$exec_directive'(reexport(F), _, M, _, Loc) :-
-    load_files(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true),'consulted_at'(Loc)]).
-'$exec_directive'(reexport(F,Spec), _, M, _, Loc) :-
-    load_files(M:F, [if(not_loaded), silent(true), imports(Spec), reexport(true),must_be_module(true),'consulted_at'(Loc)]).
+'$exec_directive'(compile(Fs), _, M, _, _Loc) :-
+    load_files(M:Fs, []).
+'$exec_directive'(reconsult(Fs), _, M, _, _Loc) :-
+    load_files(M:Fs, []).
+'$exec_directive'(consult(Fs), _, M, _, _Loc) :-
+    load_files(M:Fs, [consult(consult)]).
+'$exec_directive'(use_module(F), _, M, _, _Loc) :-
+    load_files(M:F,[if(not_loaded),must_be_module(true)]).
+'$exec_directive'(reexport(F), _, M, _, _Loc) :-
+    load_files(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)]).
+'$exec_directive'(reexport(F,Spec), _, M, _, _Loc) :-
+    load_files(M:F, [if(not_loaded), silent(true), imports(Spec), reexport(true),must_be_module(true)]).
 '$exec_directive'(use_module(F, Is), _, M, _, _Loc) :-
 	use_module(M:F, Is ).
 '$exec_directive'(use_module(Mod,F,Is), _,M, _, _Loc) :-

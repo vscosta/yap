@@ -523,7 +523,9 @@ prolog_load_context_(term, Term ) :-
     nonvar(T),
     T = [Term|_].
 prolog_load_context_(term_position, Position ) :-
-    '$position_before_read_term'(loop_stream, Position).
+    nb_current('$current_clause', T),
+    nonvar(T),
+    T = [_,_,_,Position].
 
 % if the file exports a module, then we can
 % be imported from any module.
