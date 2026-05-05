@@ -594,6 +594,7 @@ Port,
 
 
 '$meta_hook'(MG,M:NG) :-
+     nb_getval(creep,creep),
     '$yap_strip_module'(MG,M,G),
     functor(G,N,A),    
     N\=throw,

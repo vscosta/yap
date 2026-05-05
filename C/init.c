@@ -1189,10 +1189,10 @@ static void InitScratchPad(int wid) {
   REMOTE_ScratchPad(wid).msz = SCRATCH_START_SIZE;
 }
 
-static CELL * InitHandles(int wid) {
-  REMOTE_CurSlot(wid) = 0;
-  REMOTE_NSlots(wid) = 0;
-  REMOTE_SlotBase(wid) = NULL;
+static CELL *InitHandles(int wid) {
+  
+   CACHE_REGS
+ Yap_NewHandles(0);
   return NULL;
 }
 

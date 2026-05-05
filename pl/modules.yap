@@ -468,6 +468,7 @@ export_list(Module, List) :-
 '$add_to_imports'([], _, _).
 % no need to import from the actual module
 '$add_to_imports'([T|_Tab], Module, ContextModule) :-
+T\=Module,
     catch('$do_import'(T, Module, ContextModule),_,fail),
     fail.
 '$add_to_imports'([_T|Tab], Module, ContextModule) :-
@@ -528,7 +529,7 @@ export_list(Module, List) :-
     !,
     (M2 == M0
     ->
-	'$redefine_import'( M2, M1, M0, N/K)
+	'$redefine_import'( M2, M1, M0, M1, N/K)
     ;
 	'$check_import'(M0, M2, N, K)
     ).
@@ -816,7 +817,7 @@ module_state.
     '$check_module_exports'(Exports,File,Mod).
 
 '$check_module_undefineds'(File,Mod) :-
-    module_predicate(Mod,N,A,undefined),
+     module_predicate(Mod,N,A,undefined),
     functor(P,N,A),
     \+ '$is_proxy_predicate'(P, Mod),
     \+ functor_predicate(prolog,N,A,_),

@@ -56,6 +56,13 @@
         '$set_encoding'/1,
         '$use_module'/3]).
 
+load_files(MFs, Opts) :-
+    '_exec_load_files'(MFs,Opts, goal, [], 0).
+
+load_files(MFs) :-
+    '_exec_load_files'(MFs,[], goal, [], 0).
+
+
 :- use_system_module( '$_absf', ['$full_filename'/2]).
 
 :- use_system_module( '$_boot', ['$clear_reconsulting'/0,
@@ -73,6 +80,8 @@
         '$extend_exports'/3]).
 
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
+
+:- dynamic '$source_file'/2.
 
 /**
 
@@ -99,109 +108,6 @@ files and to set-up the Prolog environment. We discuss
 
 @{
  */
-
-/**
-
- @pred load_files(+_Files_, +_Options_)
-
-Implementation of the consult/1 family. Execution is controlled by the
-following flags:
-
-+ consult(+ _Mode_)
-
-    This extension controls the type of file to load. If  _Mode_ is:
-
-  `consult`, clauses are added to the data-base, unless from the same file;
-  `reconsult`, clauses are recompiled,
-  `db`, these are facts that need to be added to the data-base,
-  `exo`, these are facts with atoms and integers that can be stored in a compact representation (see exoload/1).
-
-+ silent(+ _Bool_)
-
-    If true, load the file without printing a message. The specified
-    value is the default for all files loaded as a result of loading
-    the specified files.
-
-+ stream(+ _Input_)
-
-    This SWI-Prolog extension compiles the data from the stream
-    _Input_. If this option is used, _Files_ must be a single atom
-    which is used to identify the source-location of the loaded
-    clauses as well as remove all clauses if the data is re-consulted.
-
-    This option is added to allow compiling from non-file locations
-    such as databases, the web, the user (see consult/1) or other
-    servers.
-
-+ compilation_mode(+ _Mode_)
-
-    This extension controls how procedures are compiled. If _Mode_ is
-    `compact` clauses are compiled and no source code is stored; if it
-    is `source` clauses are compiled and source code is stored; if it
-    is `assert_all` clauses are asserted into the data-base.
-
-+ encoding(+ _Encoding_)
-
-    Character encoding used in consulting files. Please (see
-    [Encoding](@ref Encoding)) for supported encodings.
-
-+ expand(+ _Bool_)
-
-    If `true`, run the filenames through expand_file_name/2 and load
-    the returned files. Default is false, except for consult/1 which
-    is intended for interactive use.
-
-+ if(+ _Condition_)
-
-    Load the file only if the specified _Condition_ is satisfied. The
-    value `true` the file unconditionally, `changed` loads the file if
-    it was not loaded before, or has been modified since it was loaded
-    the last time, `not_loaded` loads the file if it was not loaded
-    before.
-
-+ imports(+ _ListOrAll_)
-
-    If `all` and the file is a module file, import all public
-    predicates. Otherwise import only the named predicates. Each
-    predicate is referred to as `\<name\>/\<arity\>`. This option has
-    no effect if the file is not a module file.
-
-+ must_be_module(+ _Bool_)
-
-    If true, raise an error if the file is not a module file. Used by
-    use_module/1 and use_module/2.
-
-+ qcompile(+ _Value_)
-
-    SWI-Prolog flag that controls whether loaded files should be also
-    compiled into `qly` files. The default value is obtained from the flag
-    `qcompile`:
-
-   `never`, no `qly` file is generated unless the user calls
- qsave_file/1 and friends, or sets the qcompile option in
- load_files/2;
-
-  `auto`, all files are qcompiled.
-
-  `large`, files above 100KB are qcompiled.
-
-  `part`, not supported in YAP.
-
-+ autoload(+ _Autoload_)
-
-SWI-compatible option where if _Autoload_ is `true` undefined
-  predicates are loaded on first call.
-
-+ derived_from(+ _File_)
-
-    SWI-compatible option to control make/0. Currently not supported.
-
-*/
-
-load_files(Files0,Opts) :-
-    '$yap_strip_module'(Files0,M,Files),
-    '$load_files'(Files,M,Opts,M:load_files(Files,Opts)).
-
 
 
 /* exo_files(+ _Files_)
@@ -256,23 +162,12 @@ db_files(Fs) :-
 
 
 '$csult'(Fs) :-
-	 skip_list(_, Fs ,L),
-	 L \== [],
-	 !,
+     is_list(Fs),
+    !,
+    load_files(Fs,[consult(consult)]).
+'$csult'(Fs) :-
 	 python:python_proc( Fs ) .
-'$csult'(Fs) :-
-	'$extract_minus'(Fs, MFs), !,
-	load_files(MFs,[]).
-'$csult'(Fs) :-
-	load_files(Fs,[consult(consult)]).
 
-
-'$csult_in_mod'(M, -F ) :- load_files(M:F,[]).
-'$csult_in_mod'(M, F ) :-  load_files(M:F,[consult(consult)]).
-
-'$extract_minus'([], []).
-'$extract_minus'([-F|Fs], [F|MFs]) :-
-	'$extract_minus'(Fs, MFs).
 
 %% @}
 
@@ -398,7 +293,7 @@ initialization(_G,_OPT).
 SWI-compatible predicate. _FileName_ is the absolute and canonical path for a loaded source file
 */ 
 source_file(FileName) :-
-	'$source_file'(FileName, __).
+	recorded('$source_file','$source_file'(FileName, _),_).
 
 /**
 @pred source_file(:Pred,?File	)
@@ -523,36 +418,33 @@ prolog_load_context_(term, Term ) :-
     nonvar(T),
     T = [Term|_].
 prolog_load_context_(term_position, Position ) :-
-    nb_current('$current_clause', T),
+   '__B_getval__'('$current_clause', T, fail),
     nonvar(T),
     T = [_,_,_,Position].
+prolog_load_context_(term_position, '$term_position'(0,1,0,0,0)).
 
 % if the file exports a module, then we can
 % be imported from any module.
 '$file_loaded'(F0, TargetModule, M) :-
-    (
-	atom_concat(Prefix, '.qly', F0 );
+     file_directory_name(F0,''),
+    !,
+    '$file_was_loaded'(F0,TargetModule, M).
+'$file_loaded'(F0, TargetModule, M) :-
+( atom_concat(Prefix, '.qly', F0 )
+ -> true
+    ;
 	Prefix=F0
     ),
-    (
-    user:'$is_stream'(F0)
-       ->
-F0 = F
-;
-	absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)])
-    ;
-    F0 = F
-    ),
+    absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
+    '$file_was_loaded'(F,TargetModule, M).
 
-    '$ensure_file_loaded'(F,TargetModule, M).
-
-'$ensure_file_loaded'(F, TargetModule,   NM) :-
+'$file_was_loaded'(F, TargetModule,   NM) :-
     % make sure: it either defines a new module or it was loaded in the same context
     ('$module'(F,NM,_P,_) ->
 	 true
     ;
     % loaded from the same module, but does not define a module.
-    '$source_file'(F, NM), % that does not define a module
+    recorded('$source_file','$source_file'(F, _),_),  % that does not define a kmodule
     NM==TargetModule
     ).
 
@@ -560,12 +452,12 @@ F0 = F
 % be imported from any module.
 '$file_unchanged'(F0, TargetModule, NM) :-
     '$file_loaded'(F0, TargetModule, NM),
-    '$source_file'(F0, Age),
+    user:'$source_file'(F0, Age),
     time_file64(F0,CurrentAge),
     ( Age == CurrentAge ; Age = -1).
 
 	% inform the file has been loaded and is now available.
-'$tell_loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, _TOpts, Opts) :-
+'$tell_loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, Opts) :-
     prolog_load_context(directory, Dir),
 	(
 	 % if we are reconsulting, always start from scratch
@@ -581,20 +473,21 @@ F0 = F
 	;
 	 Reconsult = Reconsult0
 	),
-		(
-		  Reconsult \== consult,
-		  unload_file(F),
-		  fail
+    (
+     Reconsult \== consult
+      ->
+     unload_file(F),
+     fail
 	;
-	
-	    var(Reconsult)
-	    ->
-		Reconsult = reconsult
-	    ;
-	    Reconsult = Reconsult0
+     
+     var(Reconsult)
+     ->
+     Reconsult = reconsult
+	;
+     Reconsult = Reconsult0
 	),
-	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0),
-	assert('$source_file'(F,Age)),
+	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0), 
+    recorded('$source_file','$source_file'(F, Age),_),
 	% modules are logically loaded only once
 
 	(
@@ -620,7 +513,7 @@ make :-
 make.
 
 unload_file(File) :-
-    retract(user:'$is_stream'(File)),
+    file_directory_name(File,''),
     !,
     unload_file_(File).
 unload_file(F) :-
@@ -664,7 +557,8 @@ unload_file_(_).
     unload_module(DonorM),
     fail.
 '$unload_file'(File) :-
-	'$retractall_lu'('$source_file'(File,_Age),prolog),
+	retractall('$source_file','$source_file'(File,_Age), R),
+    erase(R),  
 	fail.
 '$unload_file'(File) :-
 	recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
@@ -926,7 +820,7 @@ prolog_library(File) :-
     set_prolog_flag(verbose_load,Old).
 
 '$full_filename'(File,File) :-
-    user:'$is_stream'(File),
+     file_directory_name(File,''),
     !.
 '$full_filename'(File0,File) :-
 	absolute_file_name(File0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File).

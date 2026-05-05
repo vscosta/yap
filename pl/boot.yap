@@ -281,7 +281,7 @@ mksys(op(A,B,C)) :-
 %:- ( recorded('$lf_loaded',_,R), erase(R), fail ; true ).
 %:- ( recorded('$module',_,R), erase(R), fail ; true ).
 
-
+%:- start_low_level_trace.
 :- style_check([+discontiguous,+multiple,+single_var]).
 
 %
@@ -293,6 +293,7 @@ mksys(op(A,B,C)) :-
 
 :- multifile
 	prolog:comment_hook/3.
+%:- stop_low_level_trace.
 
 :- source.
 

@@ -46,7 +46,7 @@ identical_member/2,
 	   randomize/2
 	  ]).
 
-:- use_module(library(maplist)).
+%:- use_module(library(maplist)).
 
 /**  
  * @addtogroup lists List Predicates in the Prolog Library

@@ -2378,7 +2378,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
     UNLOCKPE(33, pred);
     return false;
   }
-  if (pred->PredFlags & StandardPredFlag) {
+  if (pred->PredFlags & StandardPredFlag && CurrentModule) {
     UNLOCKPE(33, pred);
     Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t, "assert/1");
     return (FALSE);
@@ -4514,8 +4514,8 @@ static Int predicate_flags(
 struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {
   CACHE_REGS
   if (pe->PredFlags & LogUpdatePredFlag)
-    return pe;
-  if ( (pe->PredFlags  & SystemPredFlags ||
+    return pe;  
+  if ( ((pe->PredFlags  & SystemPredFlags && CurrentModule)||
 	( pe->cs.p_code.NOfClauses >0))) {
      if (CurrentModule != PROLOG_MODULE)
        Yap_ThrowError(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateToIndicator(pe),NULL);

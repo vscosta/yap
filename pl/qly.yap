@@ -561,7 +561,7 @@ qload_module(Mod) :-
 @pred qload_file(+ _F_)
 
 Restores a previously saved state of YAP contaianing a qly file  _F_.
-
+v
 */
 qload_file( F0 ) :-
     StartMsg = loading_module,
@@ -602,14 +602,15 @@ qload_file( F0 ) :-
     '$exec_initialization_goals'.
 
 '$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
-    '$source_file'( FilePl, _Age),
+   reorded('$source_file','$source_file'(FilePl,_Age), _R),
    !.
 '$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
-    retract('$source_file'( FilePl, Age)),
+ recorded('$source_file','$source_file'(FilePl,Age),    retract(user:'$source_file'( FilePl, Age)),
     ( FilePl == user_input -> Age = 0 ; time_file64(FilePl, Age) ),
-    recordaifnot('$source_file','$source_file'( FilePl, Age), _),
+    recorda('$source_file','$source_file'( FilePl, Age))),
+    asserta(user:'$source_file'( FilePl, Age)),
     fail.
-'$qload_file'(S, _SourceModule, _File, _FilePl, _F0, _ImportList, _TOpts) :-
+'$qload_file'(S, _SourceModule, xo_File, _FilePl, _F0, _ImportList, _TOpts) :-
     '$qload_file_preds'(S),
         fail.
 '$qload_file'(_S, _SourceModule, F, _FilePl, _F0, _ImportList, _TOpts) :-
@@ -643,3 +644,5 @@ qload_file( F0 ) :-
     retractall(user:'$file_property'(_)).
 
 %% @}
+
+

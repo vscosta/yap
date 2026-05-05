@@ -37,6 +37,7 @@ LOCAL_ARRAY(char, Prompt, MAX_PROMPT + 1);
 
 LOCAL_INIT(bool, DebEvent, false);
 
+
 LOCAL_INITF(encoding_t, encoding, Yap_DefaultEncoding());
 LOCAL_INIT(bool, quasi_quotations, false);
 LOCAL_INIT(UInt, default_priority, 1200);

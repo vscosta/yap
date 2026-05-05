@@ -143,7 +143,7 @@ static int setListElement(term_t t, SEXP s_str, SEXP sexp) {
     if (shape != 1) {
       Ureturn FALSE;
     }
-    str = CHAR(CHARACTER_DATA(s_str)[0]);
+    str = CHAR(STRING_ELT(s_str,0));
   } else {
     Ureturn FALSE;
   }
@@ -410,13 +410,13 @@ int term_to_S_el(term_t t, int objtype, size_t index, SEXP ans) {
 
     if (PL_get_chars(t, &s, CVT_ATOM | CVT_STRING | CVT_LIST | BUF_DISCARDABLE |
                                 REP_UTF8)) {
-      CHARACTER_DATA(ans)[index] = mkCharCE(s, CE_UTF8);
+SET_STRING_ELT(ans,index, mkCharCE(s, CE_UTF8));
       return TRUE;
     } else {
       if (PL_get_arg(1, t, t) &&
           PL_get_chars(t, &s, CVT_ATOM | CVT_STRING | CVT_LIST |
                                   BUF_DISCARDABLE | REP_UTF8)) {
-        CHARACTER_DATA(ans)[index] = mkCharCE(s, CE_UTF8);
+        SET_STRING_ELT(ans,index, mkCharCE(s, CE_UTF8));
         return TRUE;
       }
     }
@@ -500,7 +500,7 @@ static int sexp_to_S_el(SEXP sin, size_t index, SEXP ans) {
   case STRSXP: {
     if (TYPEOF(sin) != STRSXP)
       return FALSE;
-    CHARACTER_DATA(ans)[index] = CHARACTER_DATA(sin)[0];
+    SET_STRING_ELT(ans, index,  STRING_ELT(sin,0));
   } break;
   case INTSXP: {
     if (TYPEOF(sin) != INTSXP)
@@ -546,10 +546,10 @@ static int sexp_to_S_el(SEXP sin, size_t index, SEXP ans) {
     case CPLXSXP:
     case INTSXP:
     case REALSXP:
-      VECTOR_DATA(ans)[index] = Rf_coerceVector(sin, type);
+      SET_VECTOR_ELT(ans,index, Rf_coerceVector(sin, type));
       break;
     case VECSXP:
-      VECTOR_DATA(ans)[index] = VECTOR_DATA(sin)[0];
+      SET_VECTOR_ELT(ans,index,  VECTOR_ELT(sin,0));
       break;
     default:
       return FALSE;
@@ -930,8 +930,9 @@ static int pl_to_defun(term_t t, SEXP *ansP) {
   if (!PL_get_arg(2, t, body)) {
     Ureturn FALSE;
   }
+extern SEXP Rf_allocSExp(SEXPTYPE);
 
-  PROTECT_AND_COUNT(clo_R = allocSExp(CLOSXP));
+  PROTECT_AND_COUNT(clo_R = Rf_allocVector(CLOSXP,1));
   if (!clo_R) {
     Ureturn FALSE;
   }

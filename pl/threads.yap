@@ -1394,8 +1394,8 @@ thread_local(X) :-
  * The same as thread_local/1: it declares a dynamic predicate that is
  * local to a thread.
  */
-private(P) :-
-    thread_local(P).
+%private(P) :-
+%    thread_local(P).
 
 
 /**

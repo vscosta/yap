@@ -1251,20 +1251,21 @@ static Int source_mode(USES_REGS1) {
   return true;
 }
 
-static Int set_undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
-  PredEntry *pe;
-  Term mod = CurrentModule;
-  Term t = Deref(ARG1);
-  if (t == TermFastFail) {
-    UndefHook = PredFail;
-  }
-  pe = Yap_get_pred(Deref(ARG1), mod, "undefined/1");
-  if (!pe || pe->OpcodeOfPred == UNDEF_OPCODE) {
-    return false;
-  }
-  UndefHook = pe;
-  return true;
-}
+// unused static Int set_undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
+//  PredEntry *pe;
+//  Term mod = CurrentModule;
+//  Term t = Deref(ARG1);
+//  if (t == TermFastFail) {//
+//    UndefHook = PredFail;
+//  }
+//   //  pe = Yap_get_pred(Deref(ARG1), mod, "undefined/1");
+//  if (!pe || pe->OpcodeOfPred == UNDEF_OPCODE) {
+//    return false;
+//  }
+//  UndefHook = pe;
+//
+//  return true;
+//}
 
 
 

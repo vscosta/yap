@@ -909,7 +909,7 @@ add_subdirectory(library/mpi)
 
 add_subDIRECTORY(packages/python)
 
-add_subDIRECTORY(packages/real)
+#add_subDIRECTORY(packages/real)
 
 if (WITH_PROBLOG)
     if (CUDD_FOUND)

@@ -16,7 +16,7 @@ extern "C"{
 
 #undef ERROR
 #if HAVE_R_INTERNALS_H
-#include <Rinternals.h>
+//#include <Rinternals.h>
 #endif
 #if HAVE_R_EMBEDDED_H
 #include <Rembedded.h>

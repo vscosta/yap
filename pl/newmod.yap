@@ -116,17 +116,19 @@ set_module_property(Mod, class(Class)) :-
 '$add_module_on_file'( DonorM, DonorF0, _, Exports, Location) :-
     (DonorM= prolog -> DonorF = user_input ;
      DonorM= user -> DonorF = user_input ;
-     DonorF0 = DonorF),
+     DonorF0 = DonorF
+     ),
     '$m_normalize'(Exports,DonorM,Tab),
     '$sort'( Tab, AllExports ),
     % last, export to the host.
     asserta('$module'(DonorF,DonorM, AllExports, Location)),
    (
-       recorded('$source_file','$source_file'( DonorF, Time), R), erase(R),
-       fail
+    recorded('$source_file','$source_file'(DonorF,Time), R),
+    erase(R),
+    fail
    ;
-   recorda('$source_file','$source_file'( DonorF, Time), _) 
-	).
+    recordaifnot('$source_file','$source_file'(DonorF,Time),_)
+    ).
 
 '$operators'([],_).
 '$operators'([op(A,B,C)|AllExports0], DonorM) :-

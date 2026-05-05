@@ -27,7 +27,7 @@
 /*	      prolog:dif/1,
 	      prolog:dif/2,
 	      prolog:when/2,
-%	      prolog:block/1,
+	      prolog:block/1,
 	      prolog:wait/1,
 	      prolog:frozen/2,
 	      prolog:freeze/2 */
