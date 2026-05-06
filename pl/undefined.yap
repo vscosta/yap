@@ -80,7 +80,9 @@ followed by the failure of that call.
 %%   - $undefp must deal with recursive undefinesa
 %%   - dynamic and multi-file predicates are always defined, even if 0 clauses.
     %%
-    
+
+:- meta_predicate('$undefp'(0)).
+   
 '$undefp'(G0) :-
     current_prolog_flag(unknown, Flag),
 '$exit_undefp',

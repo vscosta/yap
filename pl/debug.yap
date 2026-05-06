@@ -538,10 +538,12 @@ trace(MGoal) :-
 %% execute non stop will skip the first spy...
 '$step'(   system_procedure,MG,Ctx,GoalNumber) :-
     !,
-    gated_call(
    '$meta_hook'(MG,NMG),
+    gated_call(
+(         nb_setval(creep,zip),
+    '$stop_debugger'
+    ),
     (
-      '$stop_debugger',
       '$execute_non_stop'(NMG)
     ),
 Port,
@@ -562,9 +564,8 @@ Port,
     Port,       
     '$interact'(Port, NM:NG, Ctx,GoalNumber)
     ).
-'$step'(   undefined_procedure,MG,_,GoalNumber) :-
-    '$undefp__'(MG, NM:NewG),
-    '$debug_goal'(NewG, NM,  inner,GoalNumber).
+'$step'(   undefined_procedure,MG,Ctx,GoalNumber) :-
+     '$step'(   system_procedure,MG,Ctx,GoalNumber).
 '$step'(   static_procedure,MG,Ctx,GoalNumber) :-
     current_choice_point(CP),
     gated_call(
@@ -594,9 +595,10 @@ Port,
 
 
 '$meta_hook'(MG,M:NG) :-
+     current_prolog_flag(debug,true),
      nb_getval(creep,creep),
     '$yap_strip_module'(MG,M,G),
-    functor(G,N,A),    
+    functor(G,N,A),  
     N\=throw,
     functor(PredDef,N,A),
     G  =..[_|As],

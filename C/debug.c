@@ -112,7 +112,7 @@ static Int p_setspy(USES_REGS1) { /* '$set_spy'(+Fun,+M)	 */
     return false;
   }
   while (pe->OpcodeOfPred == INDEX_OPCODE) {
-    int i = 0;
+    int i;
     for (i = 0; i < pe->ArityOfPE; i++) {
       XREGS[i + 1] = MkVarTerm();
     }
