@@ -8,10 +8,10 @@
 	      validate_text/3,
 symbol_at/3,
 definition/3,
-refs/2,
+refs/3,
 file_symbols/2,
 workspace_symbols/1,
-analyse/4,
+analyse/5,
 complete/2]).
 
     /*
@@ -82,16 +82,25 @@ complete(Prefix, FCs) :-
     /**
     read the line and store some info.
     */
-user:term_expansion(G, g) :-
+user:term_expansion(G, GF) :-
     lsp(on),
-    !, 
     prolog_load_context(file, F ),
     prolog_load_context(term_position, Pos ),
+    current_source_module(M, M ),
     arg(2, Pos, Line),
-    current_source_module(M,M),
-    analyse(G,Line,F,M).
+    analyse(G,Line,F,M,GF),
+    !.
 
-analyse((A0:- B),Line,File,Module) :-
+analyse((:- G), L, F, M, (:- g)) :-
+ !,
+ directive(G, L, F, M).
+analyse((:- _G), _L, _F, _M, (:- g)) :-
+  !.
+analyse(Cl, L, F, M, g) :-
+ rule(Cl, L, F, M).
+analyse(_G, _L, _F, _M,  g).
+
+rule((A0:- B),Line,File,Module) :-
     strip_module(Module:A0,MH,A),
     functor(A,Na,Ar),
     (    
@@ -102,31 +111,33 @@ analyse((A0:- B),Line,File,Module) :-
     assert(def(Na,Ar,MH,Line,File,predicate))
     ),
     body(B,Line,File,Module,MH:Na/Ar).
-analyse(( :- module(M,Ls)),L,F,M0) :-
-    assert(def(''.0,M,L,F,module)),
+directive(module(M,Ls),L,F,M0) :-
+    assert(def('',0,M,L,F,module)),
     assert(use('',0,M,'',0,M0,L,F,module)),
     current_source_module(M0,M),
     maplist(mod(L,F,M),Ls).
-analyse(( :- op(A,B,C)), _Line,_File,M) :- 
+directive(op(A,B,C), _Line,_File,M) :- 
     op(A,B,M:C).
-analyse(( :- use_module(_A)), _Line,_File,_M) :- 
+directive(use_module(_A), _Line,_File,_M) :- 
     !.
-analyse(( :- use_module(_A,_B)), _Line,_File,_M) :- 
+directive(use_module(_A,_B), _Line,_File,_M) :- 
     !.
-analyse(( :- load_files(_A,_B)), _Line,_File,_M) :- 
+directive(load_files(_A,_B), _Line,_File,_M) :- 
     !.
-analyse(( :- ensure_loaded(_A)), _Line,_File,_M) :- 
+directive(ensure_loaded(_A), _Line,_File,_M) :- 
     !.
-analyse(( :- consult(_A)), _Line,_File,_M) :- 
+directive(consult(_A), _Line,_File,_M) :- 
     !.
-analyse(( :- reconsult(_A)), _Line,_File,_M) :- 
+directive(reconsult(_A), _Line,_File,_M) :- 
     !.
-analyse(( :- compile(_A)), _Line,_File,_M) :- 
+directive(compile(_A), _Line,_File,_M) :- 
     !.
-analyse(( :- _), _Line,_File,_M) :- 
+directive(use_module(_A,_B,_C), _Line,_File,_M) :- 
     !.
-analyse(( :- use_module(_A,_B,_C)), _Line,_File,_M) :- 
-    !.
+directive((A,B), Line,File,M) :- 
+    !,
+    directive(A, Line,File,M),
+    directive(B, Line,File,M).
 
 body(A,_L,_F,_M,_) :-
     var(A),
@@ -183,9 +194,11 @@ validate_text(URI,S,Ts) :-
     retractall(use(_,_,_,_,_,_,_,File,_)),
     retractall(dec(_,_,_,_,File,_)),
     open(string(S),read,Stream),
+    current_source_module(DefaultModule,user),
     assert(lsp(on)),
     load_files(File,[stream(Stream)]),
     %close(Stream),
+    current_source_module(_,DefaultModule),
     retractall(lsp(_)),
     findall(T,retract(m(T)),Ts).
 
@@ -216,11 +229,11 @@ I = _:Name/_,
  EndCol is Column+Len,
     S = "discontiguous.~n".
 q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,1,L1,1)) :-
-    !,
-Desc \= [],
     exception_property(parserLine, Desc, L),
-L1 is L+1.
-
+    !,
+    L1 is L+1.
+q_msg(_,Error,t("ignored",Msg,1,0,2,0)) :-
+    term_to_string(Error,Msg).
 
 add_file(Self, D, File) :-
     absolute_file_name(File, Path,
@@ -301,9 +314,10 @@ user:portray_message(A,B):-
     lsp(on),
     !,
     (
-    q_msg(A,B,T)
+     q_msg(A,B,T),
+     A \= "ignored"
     ->
-    assert(m(T))
+     assert(m(T))
        ;
     true
     ).

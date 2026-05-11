@@ -754,9 +754,10 @@ Term YAPEngine::fun(Term t, Term tmod, bool release) {
   Functor f;
   Atom name;
   yhandle_t  h;
-
   Term g = AbsAppl(HR);
- if (IsApplTerm(t)) {
+  //volatile static int vsc = 1;
+  //while (vsc);
+  if (IsApplTerm(t)) {
     ts = RepAppl(t);
     f = (Functor)ts[0];
     name = NameOfFunctor(f);
@@ -780,7 +781,9 @@ Term YAPEngine::fun(Term t, Term tmod, bool release) {
     HR[0] = (CELL)Yap_MkFunctor(AtomDot, 3);
     HR[1] = ts[0];
     HR[2] = ts[1];
-    arity = 2;
+    arity = 3;
+    RESET_VARIABLE(HR+3);
+    HR+=4;
     name = AtomDot;
   } else {
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);

@@ -768,6 +768,7 @@ void Yap_ThrowExistingError(void) {
 Term MkSysError(yap_error_descriptor_t *i) {
   CACHE_REGS
   Term et = MkAddressTerm(i);
+  //return err2list(i);
   return Yap_MkApplTerm(FunctorException, 1, &et);
 }
 

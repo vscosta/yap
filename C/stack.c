@@ -2245,7 +2245,8 @@ static bool JumpToEnv(USES_REGS1) {
       // first, we re already there,
     if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
       while   (B->cp_b)
-	B = B->cp_b;
+        B = B->cp_b;
+      P = FAILCODE;
       Yap_absmi(0);
       extern void Yap_CloseStreams(void);
       Yap_CloseStreams();

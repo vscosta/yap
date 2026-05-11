@@ -882,7 +882,7 @@ static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
       }
     }
   }
-  return 0;
+  return TermNil;
 }
 
 static Term get_singletons(FEnv *fe, bool var_only, TokEntry *tokstart) {
@@ -902,7 +902,7 @@ static Term get_singletons(FEnv *fe, bool var_only, TokEntry *tokstart) {
       }
     }
   }
-  return 0;
+  return TermNil;
 }
 
 
@@ -1021,9 +1021,9 @@ static bool complete_processing(FEnv *fe, int sno, TokEntry *tokstart) {
   }
   // trail must be ok by now.]
   if (fe->t) {
-    return (!v1 || Yap_unify(v1, fe->vprefix)) &&
-           (!v2 || Yap_unify(v2, fe->np)) &&
-	   (!v3 || Yap_unify(v3, fe->sp)) &&
+    return (!v1 ||!fe->vprefix|| !Yap_unify(v1, fe->vprefix)) &&
+           (!v2 || !fe->np || Yap_unify(v2, fe->np)) &&
+	   (!v3 || !fe->sp || Yap_unify(v3, fe->sp)) &&
 	   (! vs ||  !fe->scan || Yap_unify(vs, fe->scan)) &&
            (!tpos || !fe->tp || Yap_unify(fe->tp, tpos));
   }
@@ -1032,7 +1032,8 @@ static bool complete_processing(FEnv *fe, int sno, TokEntry *tokstart) {
 
 static bool complete_clause_processing(FEnv *fe, int sno, TokEntry *tokstart) {
   CACHE_REGS
-  Term v_vprefix, v_vnames, v_pos, vs=0;
+  Term v_vprefix, v_vnames, v_pos, vs = 0;
+  Term state;
 
   if (fe->t) {
     if (fe->vprefix)
@@ -1042,30 +1043,40 @@ static bool complete_clause_processing(FEnv *fe, int sno, TokEntry *tokstart) {
     v_vnames = get_varnames(fe, tokstart);
     vs = fe->scanner.stored_scan;
     v_pos =get_stream_position(fe, tokstart);
-    Term t, state = MkPairTerm(
+    state = MkPairTerm(
                 fe->t,
                 MkPairTerm(v_vnames, MkPairTerm(StreamName(sno),
                                                 MkPairTerm(v_pos, TermNil))));
     
-    Yap_SetBacktrackableGlobalVal(AtomCurrentClause,(t=MkVarTerm()) PASS_REGS);
-    YapBind(VarOfTerm(t),state);
+//    YapBind(VarOfTerm(t),state);
     //    Yap_DebugPlWriteln(state);
   } else {
-    v_pos = 0;
-    v_vnames = 0;
+    if (LOCAL_toktide) {
+      v_pos =
+        Yap_StreamPosition(LOCAL_toktide->TokOffset, LOCAL_toktide->TokLine,LOCAL_toktide->TokLinePos);
+
+
+    } else {
+      v_pos = TermNil;
+
+    }
+    state = MkPairTerm(TermNil, MkPairTerm(StreamName(sno),
+                                  MkPairTerm(v_pos, TermNil)));
   }
   Yap_clean_tokenizer();
 
   // trail must be ok by now.]
+    Yap_SetGlobalVal(AtomCurrentClause,state PASS_REGS);
   if (fe->t) {
-    return (!fe->vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
-	   (!fe->scanner.store_comments
+    return (!fe->vprefix || !v_vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
+           (!fe->scanner.store_comments || !fe->scanner.tcomms
+            || !fe->scanner.ecomms
 	    || Yap_unify(fe->scanner.tcomms, fe->scanner.ecomms)) &&
-	   (!fe->np || Yap_unify(v_vnames, fe->np)) &&
-	   (!fe->scan ||   Yap_unify(vs, fe->scan)) &&
-	   (!fe->tp || Yap_unify(v_pos, fe->tp)) ;
+	   (!fe->np ||!v_vnames||  Yap_unify(v_vnames, fe->np)) &&
+	   (!fe->scan || !vs||  Yap_unify(vs, fe->scan)) &&
+	   (!fe->tp || !v_pos || Yap_unify(v_pos, fe->tp)) ;
   }
-  return true;
+  return false;
 }
 
 static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
@@ -1285,6 +1296,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   Term action = re->sy;
   if (action == TermFail || action == TermDec10) {
     Term sc[2];
+    
     sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
     sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
     sc[1] = MkSysError(LOCAL_ActiveError);
@@ -1399,8 +1411,9 @@ static Term exit_parser(int sno, yhandle_t y0, yap_error_descriptor_t *new,
 Term Yap_read_term(int sno, Term opts, bool clause) {
   CACHE_REGS
 
-  yap_error_descriptor_t new0, *new =&new0, *old = NULL;
-#if EMACS
+  yap_error_descriptor_t new0, *new = &new0, *old = NULL;
+  bzero(&new0,sizeof(yap_error_descriptor_t)); 
+#if EMACS 
   int emacs_cares = FALSE;
 #endif
   Term rc;
@@ -1444,9 +1457,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
 	}
 	warn_singletons(fe, sno, LOCAL_tokptr);
 	if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
-	  return false;
-        if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
-	  return false;
+          return false;
 	done = complete_clause_processing(fe,sno, LOCAL_tokptr);
       }
       else

@@ -4166,9 +4166,11 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
   if ((ex_mode = Yap_HasException(PASS_REGS1)))
     {
       old = LOCAL_ActiveError;
+//      Yap_ResetException(&new);
       LOCAL_ActiveError = &new;
-      Yap_ResetException(&new);
-    }
+    } else {
+    old = NULL;
+  }
 
   cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
   cint.CurrentPred = ap;
@@ -4200,7 +4202,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
     }
     Yap_ReleaseCMem(&cint);
     CleanCls(&cint);
-   if (ex_mode) {
+   if (old) {
       LOCAL_ActiveError = old;
     }
     return FAILCODE;
@@ -4219,6 +4221,9 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
         Yap_ReleaseCMem(&cint);
         CleanCls(&cint);
+   if (old) {
+      LOCAL_ActiveError = old;
+    }
         return FAILCODE;
       }
       goto restart_index;
@@ -4231,7 +4236,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
     }
     Yap_ReleaseCMem(&cint);
     CleanCls(&cint);
-   if (ex_mode) {
+   if (old) {
       LOCAL_ActiveError = old;
     }
      return *labp;
@@ -4243,16 +4248,13 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
     }
     Yap_ReleaseCMem(&cint);
     CleanCls(&cint);
-   if (ex_mode) {
+   if (old) {
       LOCAL_ActiveError = old;
     }
     return FAILCODE;
   }
   Yap_ReleaseCMem(&cint);
   CleanCls(&cint);
-   if (ex_mode) {
-      LOCAL_ActiveError = old;
-    }
   *labp = indx_out;
   if (ap->PredFlags & LogUpdatePredFlag) {
     /* add to head of current code children */
@@ -4283,6 +4285,9 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
   if (expand_clauses) {
     P = indx_out;
     recover_ecls_block(expand_clauses);
+  }
+  if (old) {
+      LOCAL_ActiveError = old;
   }
   return indx_out;
 }

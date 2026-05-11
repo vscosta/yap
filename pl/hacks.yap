@@ -22,7 +22,6 @@
 %%
 %% @brief Access and Manipulation of YAD's internals
 
-:- module('$yap_hacks').
 
 /**
   *
