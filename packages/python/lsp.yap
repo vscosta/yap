@@ -44,10 +44,20 @@ add_dir/2
     %%
     %% symbol(AllSymbowls)
     %%
-file_symbols(URI, All) :-
+uri_symbols(URI, All) :-
     string_concat("file://", FileS, URI),
     string_to_atom(FileS, File),
     findall(t(Name,Line), defa(Name,Line,File),All).
+
+file_symbols(File, All) :-
+   absolute_file_name(File, Path,
+    [ file_type(prolog),
+      access(read),
+expand(true),
+      file_errors(fail)
+      ]),
+    validate_source_file(Path,_),
+   findall(t(Name,Line), defa(Name,Line,Path),All).
 
 defa(Word,Line,File) :-
     def(Name,_,_,Line,File,_),
@@ -180,7 +190,11 @@ validate_file(File, Errors) :-
 			 access(read),
 expand(true),
 			 file_errors(fail)
-		       ]),
+      ]),
+    validate_source_file(Path, DefaultModule, Errors).
+
+
+validate_source_file(Path, DefaultModule, Errors) :-
     assert(lsp(on)),
     load_files(Path,[]),
     retractall(lsp(_)),
@@ -221,17 +235,19 @@ I = _:Name/_,
     atom_length(Name, Len),
  EndCol is Column+Len.
 q_msg(warning, error(style_check(discontiguous,_,_I ), _Desc), t("warning",S, L,Column, L, EndCol)) :-
-    !,
+.    !,
 Column=0,
     format(string(S), 'discontiguous definition for ~w.~n',[I]),
 I = _:Name/_,
     atom_length(Name, Len),
  EndCol is Column+Len,
     S = "discontiguous.~n".
-q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,1,L1,1)) :-
+q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,LPos,L,LP1)) :-
     exception_property(parserLine, Desc, L),
+    exception_property(parserLinePos, Desc, LPos),
+    exception_property(parserSize, Desc, Size),
     !,
-    L1 is L+1.
+    LP1 is LPos+Size.
 q_msg(_,Error,t("ignored",Msg,1,0,2,0)) :-
     term_to_string(Error,Msg).
 
