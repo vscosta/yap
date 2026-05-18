@@ -286,10 +286,9 @@ translate_message(error(style_check(What,Culprit,Cl),Exc))-->
   main_message(error(style_check(What,Culprit,Cl),Exc),  Level, LC ).
 translate_message(error(syntax_error(E), [])) -->
     {
-     consult_depth(LC),
-      error_descriptor(Info, Desc),
-     Level = error
-    },
+     consult_depth(LC)
+      },
+      [ '~N~*|% syntax error ~s' -   [LC, E] ].
 translate_message(error(syntax_error(E), Info)) -->
     {
      consult_depth(LC),

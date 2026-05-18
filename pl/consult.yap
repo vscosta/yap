@@ -444,8 +444,8 @@ prolog_load_context_(term_position, '$term_position'(0,1,0,0,0)).
 	 true
     ;
     % loaded from the same module, but does not define a module.
-    recorded('$source_file','$source_file'(F, _),_),  % that does not define a kmodule
-    NM==TargetModule
+      prolog_load_context( stream, OldF),
+      recorded('$lf_loaded','$lf_loaded'( F, _M, _Reconsult, _UserFile, OldF, _Line, _Opts), _)
     ).
 
 % if the file exports a module, then we can

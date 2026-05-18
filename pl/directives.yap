@@ -123,7 +123,7 @@
 '$lf_args'(load_files(Fs, Spec), Fs, Spec).
 '$lf_args'(reconsult(Fs), Fs, []).
 '$lf_args'(reexport(Fs), Fs, [if(not_loaded), silent(true), reexport(true),must_be_module(true)]).
-'$lf_args'(reexport(Fs, Spec),Fs, [if(not_loaded),must_be_module(true),import(Spec)]).
+'$lf_args'(reexport(Fs, Spec),Fs, [reexport(true),if(not_loaded),must_be_module(true),import(Spec)]).
 '$lf_args'(use_module(Fs), Fs, [if(not_loaded),must_be_module(true)]).
 '$lf_args'(use_module(Fs,Spec), Fs, [if(not_loaded),must_be_module(true),import(Spec)]).
 '$lf_args'(use_module(Fs,Spec), Fs, [if(not_loaded),must_be_module(true),import(Spec)]).

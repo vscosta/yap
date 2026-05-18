@@ -1,18 +1,20 @@
+
 /*
  * Language Server support
  *
  */
 
 :- module(lsp, [
-	      validate_file/2,
-	      validate_text/3,
-symbol_at/3,
-definition/3,
-refs/3,
-file_symbols/2,
-workspace_symbols/1,
-analyse/5,
-complete/2]).
+  validate_file/2,
+  validate_text/3,
+  validate_source/3,
+  symbol_at/3,
+  definition/3,
+  refs/3,
+  file_symbols/2,
+  workspace_symbols/1,
+  analyse/5,
+  complete/2]).
 
     /*
 highlight_text/2,pred_def/4,
@@ -29,9 +31,9 @@ add_dir/2
 
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
-:- use_module(library(toks_lsp)).
 :- reexport(library(python)).
 :- use_module(library(yapi)).
+:- use_module(library(toks_lsp)).
 :- use_module(library(hacks)).
 :- use_module(library(completions)).
 
@@ -56,7 +58,7 @@ file_symbols(File, All) :-
 expand(true),
       file_errors(fail)
       ]),
-    validate_source_file(Path,_),
+    validate_file(Path,_),
    findall(t(Name,Line), defa(Name,Line,Path),All).
 
 defa(Word,Line,File) :-
@@ -185,16 +187,16 @@ validate_file(File, Errors) :-
 %    atom_string(File, SFile),
     %    string_concat("file://",SFile,URI),
     current_source_module(DefaultModule,user),
-   absolute_file_name(File, Path,
+    absolute_file_name(File, Path,
     [ file_type(prolog),
-			 access(read),
-expand(true),
-			 file_errors(fail)
+      access(read),
+      expand(true),
+      file_errors(fail)
       ]),
-    validate_source_file(Path, DefaultModule, Errors).
+    validate_source(Path, DefaultModule, Errors).
 
 
-validate_source_file(Path, DefaultModule, Errors) :-
+validate_source(Path, DefaultModule, Errors) :-
     assert(lsp(on)),
     load_files(Path,[]),
     retractall(lsp(_)),
@@ -226,21 +228,21 @@ q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_),_Desc),t(
     !,
     format(string(S), 'singleton variable ~s.~n ', [VName]),
     atom_length(VName, Len),
- EndCol is Column+Len.
+    EndCol is Column+Len.
 q_msg(warning, error(style_check(multiple,[F0|L],I ) ,_Desc ), t("warning",S, L,Column,L,EndCol)) :-
     !,
-Column=0,
+    Column=0,
     format(string(S), '~w previously defined at ~s.~n',[I,F0]),
-I = _:Name/_,
+    I = _:Name/_,
     atom_length(Name, Len),
- EndCol is Column+Len.
+    EndCol is Column+Len.
 q_msg(warning, error(style_check(discontiguous,_,_I ), _Desc), t("warning",S, L,Column, L, EndCol)) :-
-.    !,
-Column=0,
+    !,
+    Column=0,
     format(string(S), 'discontiguous definition for ~w.~n',[I]),
-I = _:Name/_,
+    I = _:Name/_,
     atom_length(Name, Len),
- EndCol is Column+Len,
+    EndCol is Column+Len,
     S = "discontiguous.~n".
 q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,LPos,L,LP1)) :-
     exception_property(parserLine, Desc, L),
@@ -254,7 +256,7 @@ q_msg(_,Error,t("ignored",Msg,1,0,2,0)) :-
 add_file(Self, D, File) :-
     absolute_file_name(File, Path,
 			   [ file_type(prolog),
-relative_to(D),
+			     relative_to(D),
 			     access(read),
 			     file_errors(fail)
 			     ]),
@@ -329,12 +331,13 @@ highlight_text(Text, LTsf):-
 user:portray_message(A,B):-
     lsp(on),
     !,
+    writeln(user_error,B),
     (
      q_msg(A,B,T),
      A \= "ignored"
     ->
      assert(m(T))
-       ;
+      ;
     true
     ).
 
