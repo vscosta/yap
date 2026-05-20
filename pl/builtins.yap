@@ -106,7 +106,7 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 */
 ';'(X,Y) :-
     current_choice_point(CP),
-    current_source_module(M),
+    current_source_module(M,M),
     (
 	X=(A->B)
 	      ->

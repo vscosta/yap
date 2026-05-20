@@ -584,43 +584,6 @@ static void split_megaclause(PredEntry *ap) {
 static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   yamop *BaseAddr;
 
-#ifdef DEBUG
-  CACHE_REGS
-  if (GLOBAL_Option['i' - 'a' + 1]) {
-    Term tmod = ap->ModuleOfPred;
-    if (!tmod)
-      tmod = TermProlog;
-    Yap_DebugPutc(stderr, '\t');
-    Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(stderr, ':');
-    if (ap->ModuleOfPred == IDB_MODULE) {
-      Term t = Deref(ARG1);
-      if (IsAtomTerm(t)) {
-        Yap_DebugPlWrite(t);
-      } else if (IsIntegerTerm(t)) {
-        Yap_DebugPlWrite(t);
-      } else {
-        Functor f = FunctorOfTerm(t);
-        Atom At = NameOfFunctor(f);
-        Yap_DebugPlWrite(MkAtomTerm(At));
-        Yap_DebugPutc(stderr, '/');
-        Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
-      }
-    } else {
-      if (ap->ArityOfPE == 0) {
-        Atom At = (Atom)ap->FunctorOfPred;
-        Yap_DebugPlWrite(MkAtomTerm(At));
-      } else {
-        Functor f = ap->FunctorOfPred;
-        Atom At = NameOfFunctor(f);
-        Yap_DebugPlWrite(MkAtomTerm(At));
-        Yap_DebugPutc(stderr, '/');
-        Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
-      }
-    }
-    Yap_DebugPutc(stderr, '\n');
-   }
-#endif
   /* Do not try to index a dynamic predicate  or one whithout args */
   if (is_dynamic(ap)) {
     Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
@@ -647,10 +610,6 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
     ap->OpcodeOfPred = ap->CodeOfPred->opc;
   }
-#ifdef DEBUG
-  if (GLOBAL_Option['i' - 'a' + 1])
-    Yap_DebugPutc(stderr, '\n');
-#endif
 }
 
 void Yap_IPred(PredEntry *p, UInt NSlots, yamop *next_pc) {
@@ -2657,15 +2616,15 @@ static  Term gpred(PredEntry *pe)
 {
     Term out = TermStaticProcedure;
     MegaClause *mcl;
+   if (pe->PredFlags & ProxyPredFlag)
+	return  TermProxyProcedure;
+   if (pe->PredFlags & LogUpdatePredFlag)
+      return TermUpdatableProcedure;
     if (pe->PredFlags & SystemPredFlags ||
 	pe->ModuleOfPred == PROLOG_MODULE)
 	return  TermSystemProcedure;
     if (is_foreign(pe))
 	return  TermForeignProcedure;
-   if (pe->PredFlags & ProxyPredFlag)
-	return  TermProxyProcedure;
-   if (pe->PredFlags & LogUpdatePredFlag)
-      return TermUpdatableProcedure;
     if (pe->PredFlags & MegaClausePredFlag)
 	return  TermMegaProcedure;
     if (out==TermMegaProcedure) {
