@@ -17,13 +17,13 @@ static foreign_t array_to_python_list(term_t addr, term_t type, term_t szt,
     double *v = (double *)src;
     for (i = 0; i < sz; i++) {
       PyObject *x = PyFloat_FromDouble(v[i]);
-      PyList_SET_ITEM(list, i, x);
+      PyList_SetItem(list, i, x);
     }
   } else {
     YAP_Int *v = (YAP_Int *)src;
     for (i = 0; i < sz; i++) {
       PyObject *x = PyFloat_FromDouble(v[i]);
-      PyList_SET_ITEM(list, i, x);
+      PyList_SetItem(list, i, x);
     }
   }
   if (PL_is_variable(py)) {
@@ -125,26 +125,26 @@ static foreign_t prolog_list_to_python_list(YAP_Term plist, YAP_Term pyt, YAP_Te
     {
       pyErrorAndReturn( false);
     }
-  if (sz > PyList_GET_SIZE(pyl))
+  if (sz > PyList_Size(pyl))
     pyErrorAndReturn( false);
   for  (i=0; i < sz; i++) {
     if (!YAP_SkipList(&plist, &targ)) {
       pyErrorAndReturn( false);
     }
     PyObject *t = yap_to_python(*targ, true, NULL, true);
-    PyList_SET_ITEM(pyl, i, t);
+    PyList_SetItem(pyl, i, t);
   }
   if (IsVarTerm(tlen)) {
     Yap_unify(tlen, MkIntTerm(sz));
   } else {
-    python_assign(tlen, PyLong_FromUnsignedLong(sz), NULL);
+    assign_obj(NULL,PyLong_FromUnsignedLong(sz), tlen, true);
   }
   pyErrorAndReturn( true);
 }
 
 install_t install_pl2pl(void) {
-  PL_register_foreign("array_to_python_list", 4, array_to_python_list, 0);
-  PL_register_foreign("array_to_python_tuple", 4, array_to_python_tuple, 0);
-  PL_register_foreign("array_to_python_view", 5, array_to_python_view, 0);
-  PL_register_foreign("prolog_list_to_python_list", 3, prolog_list_to_python_list, 0);
+  PL_register_foreign_in_module("python", "array_to_python_list", 4, array_to_python_list, 0);
+  PL_register_foreign_in_module("python", "array_to_python_tuple", 4, array_to_python_tuple, 0);
+  PL_register_foreign_in_module("python", "array_to_python_view", 5, array_to_python_view, 0);
+  PL_register_foreign_in_module("python", "prolog_list_to_python_list", 3, prolog_list_to_python_list, 0);
 }

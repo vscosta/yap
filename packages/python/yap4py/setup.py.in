@@ -36,9 +36,10 @@ if v[:2] < (3,3):
 #-----------------------------------------------------------------------------
 
 pjoin = os.path.join
-
+extra_inc=[]
 my_extra_link_args = []
 if platform.system() == 'Darwin':
+    extra_inc=['/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include']
     my_extra_link_args = ['-Wl,-rpath','-Wl,${Python3_SITEARCH}/yap4py']
     so = 'dylib'
 #or dll in glob('yap/dlls/*'):
@@ -46,33 +47,25 @@ if platform.system() == 'Darwin':
 
 native_sources = ['yap4py/_yap.cxx']
 
-includes = ['-I@CMAKE_BINARY_DIR@',
-            '-I@CMAKE_SOURCE_DIR@',
-            '-I@CMAKE_SOURCE_DIR@/H',
-            '-I@GMP_INCLUDE_DIR@',
-            '-I@CMAKE_SOURCE_DIR@/H/generated',
-            '-I@CMAKE_SOURCE_DIR@/utf8proc',
-            '-I@CMAKE_SOURCE_DIR@/OPTYap',
-            '-I@CMAKE_SOURCE_DIR@/os',
-            '-I@CMAKE_SOURCE_DIR@/include',
-            '-I@CMAKE_SOURCE_DIR@/packages/python',
-            '-I'+os.path.dirname('@SWIG_EXECUTABLE@'),
-	    '-I@CMAKE_SOURCE_DIR@/CXX',
-            '-I.']
-
-
 include_dirs = ['@CMAKE_BINARY_DIR@',
+            '@CMAKE_SOURCE_DIR@',
             '@CMAKE_SOURCE_DIR@/H',
-            '@GMP_INCLUDE_DIRS@',
+            '@GMP_INCLUDE_DIR@',
             '@CMAKE_SOURCE_DIR@/H/generated',
             '@CMAKE_SOURCE_DIR@/utf8proc',
             '@CMAKE_SOURCE_DIR@/OPTYap',
             '@CMAKE_SOURCE_DIR@/os',
             '@CMAKE_SOURCE_DIR@/include',
             '@CMAKE_SOURCE_DIR@/packages/python',
+            ''+os.path.dirname('@SWIG_EXECUTABLE@'),
 	    '@CMAKE_SOURCE_DIR@/CXX',
             '.']
 
+
+includes = [ '-I'+i for i in include_dirs ]
+
+
+    
 # Get the long description from the README file
 opts = [ '-c++', '-py3']
 opts += includes
@@ -111,29 +104,21 @@ version_ns = {'__version__':'@YAP_MAJOR_VERSION@.@YAP_MINOR_VERSION@.@YAP_PATCH_
 setup_args = dict(
     ext_modules     = extensions,
     py_modules      = ['yap4py/yap'],
-    name            = "yap4py",
+
+name            = "yap4py",
     version         = version_ns['__version__'],
     scripts         = glob(pjoin('scripts', '*')),
     zip_safe        = False,
     packages        = packages,
+    
     include_package_data    = True,
     description     = "YAP in Python",
     author          = 'YAP Development Team',
     author_email    = 'ipython-dev@scipy.org',
     url             = 'http://ipython.org',
-    license         = 'BSD',
     install_requires = [],
     platforms       = "Linux, Mac OS X, Windows",
     keywords        = ['Interactive', 'Interpreter', 'Shell', 'Web'],
-    classifiers     = [
-        'Intended Audience :: Developers',
-        'Intended Audience :: System Administrators',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-    ],
 )
 
 if __name__ == '__main__':

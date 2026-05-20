@@ -6,7 +6,7 @@
 #include "YapInterface.h"
 #include "py4yap.h"
 
-PyObject *py_Main;
+PyObject *py_Main, *py_User;
 
 void pyErrorHandler__(int line, const char *file, const char *code) {
   // this code is called if a Python error is found.
@@ -41,7 +41,7 @@ static foreign_t python_represent( term_t name, term_t tobj) {
     python_release_GIL(stackp);
     pyErrorAndReturn(false);
   }
-  foreign_t b = python_assign(YAP_GetFromSlot(name), e, NULL);
+  foreign_t b = assign_obj(NULL, e, YAP_GetFromSlot(name),true);
   python_release_GIL(stackp);
   pyErrorAndReturn(b);
 }
@@ -247,6 +247,7 @@ PyGILState_Release(gstate);
   pyErrorAndReturn(out);
 }
 
+
 static foreign_t assign_python(term_t exp, term_t name) {
   PyStart();
   //  term_t stackp = python_acquire_GIL();
@@ -257,7 +258,16 @@ static foreign_t assign_python(term_t exp, term_t name) {
     pyErrorAndReturn(false);
   }
   //stackp = python_acquire_GIL();
-  foreign_t b = python_assign(YAP_GetFromSlot(name), e, NULL);
+    PyErr_Clear();
+    bool b;
+    Term t = Yap_GetFromHandle(name);
+  if (IsVarTerm(t)) {
+    // if (context == NULL) // prevent a.V= N*N[N-1]
+    b = Yap_unify(t,pythonToYAP(e));
+  } else {
+
+    b = assign_obj(NULL,e, t, true);
+  }
   pyErrorAndReturn(b);
 }
 
@@ -683,15 +693,17 @@ static int python_import(term_t mname) {
     pModule = PyImport_ImportModule(s0);
   }
   
-  if (pModule == NULL) {
+  if (pModule == NULL ) {
     pyErrorAndReturn(false);
-  } PyObject *  ctx = PyModule_GetDict(py_Main);
+  }
+  if (py_Main) {
+   PyObject *  ctx = PyModule_GetDict(py_Main);
     PyDict_SetItemString(ctx, s0, pModule);
-
-
     if (do_as) {
         PyDict_SetItemString(ctx, as, pModule);
     }
+  }
+
     
     //    python_release_GIL(t0);
     return true;
@@ -818,4 +830,5 @@ install_t install_pypreds(void) {
   PL_register_foreign_in_module("python", "end_python", 0, end_python, 0);
   PL_register_foreign_in_module("jupyter", "jupyter", 1, python_jupyter, 0);
   init_python_vfs();
+    install_pl2pl();
 }

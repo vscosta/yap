@@ -434,13 +434,6 @@ notrace(G) :-
       GoalNo > TargetGoal
     ).      
       
-
-
-'$run_deb'(_Port,Ctx,_GN) :-
-'$run_deb'(_Port,Ctx,_GN) :-
-    '$continue_debugging'.
-
-
 '$exit_goal'(Ctx, _GN):-
     '$continue_debugging'(Ctx).
 

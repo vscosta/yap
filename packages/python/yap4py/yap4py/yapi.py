@@ -19,21 +19,13 @@ queries.py module.
 """
 
 from collections import namedtuple
-import readline
-import copy
 import sys
-import asyncio
 
-try:
-    from yap4py.yap import *
-except Exception as e:
-    print(e)
-    sys.exit(0)
-from yap4py.systuples import python_query, python_show_query, show_answer, v0, compile, set_prolog_flag
-from yap4py.queries import TopQuery, Query
+from yap4py.systuples import show_answer, set_prolog_flag
+from yap4py.queries import top_query
 from os.path import join, dirname
+from yap4py.yap import YAPEngine, YAPEngineArgs, YAPVarTerm
 
-import sys
 
 yap_lib_path = dirname(__file__)
 
@@ -58,7 +50,6 @@ async def print_err(s):
 library = namedtuple('library', 'filelib')
 load_files = namedtuple('load_files', 'files opts')
 load_text = namedtuple('load_text', 'text')
-set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
 
 class Engine( YAPEngine ):
     """
@@ -75,12 +66,13 @@ class Engine( YAPEngine ):
         if not args:
             args = EngineArgs(**kwargs)
             args.setEmbedded(True)
-        if self_contained:
+        if False and self_contained:
             yap_lib_path = dirname(__file__)
             args.setYapShareDir(join(yap_lib_path, "prolog"))
             args.setYapPLDIR(yap_lib_path)
-            args.setSavedState(join(yap_lib_path, "startup.yss"))
+            args.setSavedState(join(yape_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
+        self.data = []
         self.load_library( "yapi")
 
     def run(self, g, m=None, release=False):
@@ -91,7 +83,13 @@ class Engine( YAPEngine ):
 
     def set_prolog_flag(self, name, v):
         self.run(set_prolog_flag(name, v), None, False)
-            
+
+    def set_data(self, v):
+        self.data = v
+
+    def get_data(self):
+        return self.data
+
 class EngineArgs( YAPEngineArgs ):
     """ Interface to EngineOptions class"""
     def __init__(self, args=None,**kwargs):
@@ -99,16 +97,16 @@ class EngineArgs( YAPEngineArgs ):
 
 
 
-class v(YAPVarTerm):
+class V(YAPVarTerm):
     """
     Create a new Prolog variable
     """
     def __init__(self):
         YAPVarTerm()
 
-    def binding(self):
-        return self.term()
-
+    def t(self):
+        t = self.term()
+        return t
 
 class YAPShell:
     """
@@ -163,15 +161,12 @@ class YAPShell:
         try:
             engine = self.engine
             loop = False
-            bindings = []
-            engine.q = TopQuery(engine, query)
-            q = engine.q
+            q = top_query(engine, query)
             for _ in q:
-                if q.bindings:
-                    bindings += [engine.q.bindings]
-                    print( bindings )
                 if q.done():
-                    return True, bindings
+                    q.close()
+                    q = None
+                    return True
                 if loop:
                     continue
                 s = input("more(;), all(*), no(\\n), python(#)?  ").lstrip()
@@ -187,24 +182,22 @@ class YAPShell:
                     continue
                 else:
                     break
-            if self.engine.q:
-                self.engine.q.close()
-                self.engine.q = None
-            print("No (more) answers")
-            return True, bindings
+            if q:
+                q.close()
+                q = None
+                print("No (more) answers")
+                return True
         except Exception as e:
-            if not self.engine.q:
-                return False, None
-            self.engine.q.close()
-            self.engine.q = None
-            print("Exception",e)
             e.errorNo = 0
+            if q:
+                q.close()
+                q = None
+            print("Exception",e)
             raise
 
     def live(self, engine, **kwargs):
         try:
             loop = True
-            self.engine.q = None
             while loop:
                 try:
                     s = input("?- ")
@@ -224,7 +217,7 @@ class YAPShell:
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
                     raise
-            engine.close()
+            # engine.close()
         except Exception as e:
             print("Exception",e)
             e.errorNo = 0
@@ -241,7 +234,6 @@ class YAPShell:
         self.engine = engine
 
         self.live(engine)
-        self.engine.q = None
 
 
 def main():

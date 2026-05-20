@@ -7,12 +7,13 @@
 
  :- module(yapi, [
 	       yapi_query/2,
-	       term_to_dict/4
+	       term_to_dict/4,
+top_goal/2
  	   ]).
 
 :- set_prolog_flag(verbose_load, false).
 
-:- use_module(library(python)).
+:- use_module( library(python)).
 
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
@@ -73,25 +74,24 @@ argi(N,I,I1) :-
     atomic_concat('A',I,N),
     I1 is I+1.
 
-:- meta_predicate user:top_query(+,:),
+:- meta_predicate user:top_goal(+,:),
 		  yapi_query(+,:),
 		  yapi_query(0,?,+).
 
-
+user:top_goal(Sel,Text) :-
+    top_goal(Sel,Text).
 /**
   * @pred top_goal(Self, Text)
   * how the YAP Jupyter kernels calls a goal in the cell.
   */
-user:top_goal( Self, MString		) :-
+top_goal( Self, MString		) :-
     yapi_query( Self, MString	).
 
 yapi_query( Engine, MString) :-
-    current_source_module(_,user),
-    module(user),
-    strip_module(MString,_M,String),
+    strip_module(MString,M,String),
     atomic_to_term( String, Goal, Vs ),
     strip_module(Goal,_,G),
-    catch( yapi_query( user:G, Vs, Engine ), E, writeln(E)).
+    catch( yapi_query( M:G, Vs, Engine ), E, writeln(E)).
 
 yapi_query( Goal, Vs, Engine ) :-
     query_to_answer(Goal,Vs,Port,GVs,LGs),

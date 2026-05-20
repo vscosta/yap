@@ -10,120 +10,115 @@
 
 #include "py4yap.h"
 #include "pyerrors.h"
-
+static PyObject *op(const char *s, PyObject *pArgs);
 
 static PyObject *read_symbol( PyObject *ctx, const char *s) {
   PyObject *out;
   if (!ctx)
-      return NULL;
+    return NULL;
 #if PY_VERSION_HEX >= 0x030D0000
-  if ((PyObject_GetOptionalAttrString(ctx, s, &out))) {
+  if ((PyObject_GetOptionalAttrString(ctx, s, &out))>0) {
     return out;
   }
-  #else
+#else
   if ((out=PyObject_GetAttrString(ctx, s))) {
     return out;
   }
-  #endif
-      if( PyModule_Check(ctx)) {
-         ctx = PyModule_GetDict(ctx);
-     }                                                                                                                                                                                                                                 if ( PyDict_Check(ctx)) {
-      if ((out = PyDict_GetItemString(ctx, s))) {
-    Py_INCREF(out);
-	return out;
-      }
+#endif
+  if( PyModule_Check(ctx)) {
+    ctx = PyModule_GetDict(ctx);
+  }
+  if ( PyDict_Check(ctx)) {
+    if ((out = PyDict_GetItemString(ctx, s))) {
+      Py_INCREF(out);
+      return out;
     }
-     if (PyErr_Occurred())
-       PyErr_Clear();
-    return NULL;
-    }
+  }
+  if (PyErr_Occurred())
+    PyErr_Clear(); 
+  return NULL;
+}
 
-static PyObject *Lookup(PyObject *ctx, const char *s) {
+static PyObject *Lookup(PyObject *ctx, PyObject *pArgs,const char *s) {
   PyObject *out;
-    if (strcmp(s, "none") == 0)
-      return Py_None;
-    else if (strcmp(s, "true") == 0) {
-      return Py_True;
-    }
-    else if (strcmp(s, "false") == 0) {
-      return Py_False;
-    }
-    else if (strcmp(s, "[]") == 0) {
-      out = PyList_New(0);
-    }
-    else if (strcmp(s, "{}") == 0) {
-      out = PyDict_New();
+  if (strcmp(s, "none") == 0)
+    return Py_None;
+  else if (strcmp(s, "true") == 0) {
+    return Py_True;
+  }
+  else if (strcmp(s, "false") == 0) {
+    return Py_False;
+  }
+  else if (strcmp(s, "[]") == 0) {
+    out = PyList_New(0);
+  }
+  else if (strcmp(s, "{}") == 0) {
+    out = PyDict_New();
+    return out;
+  } else if ((out = op( s, pArgs))) {
+    return out;
+  }
+  if (ctx) {
+    out = read_symbol(ctx, s);
+    return out;
+  } else {
+    if ((out = PyImport_ImportModule(s)))
+	return out;
+  if (py_Main && (out = read_symbol(py_Main ,s))!=NULL)
       return out;
-    }
-    if (ctx) {
-      out = read_symbol(ctx, s);
+  if (py_User && (out = read_symbol(py_User ,s))!=NULL)
       return out;
-    } else {
-      if ((out = read_symbol(py_Context ,s))!=NULL)
-      	return out;
-
-      if ((out = read_symbol(PyEval_GetBuiltins(),s))!= NULL)
-	return out;
-      if (	   (out = read_symbol(PyEval_GetLocals(),s))!=NULL)
-	return out;
-      if (           (out = read_symbol(PyEval_GetGlobals(),s))!=NULL)
-	return out;
-      if (       (out = read_symbol(py_Main,s))!=NULL)
-          return out;
-      if (       (out = read_symbol(py_Context,s))!=NULL)
-          return out;
-    }
-         return NULL;
+    if ((out = read_symbol(PyEval_GetBuiltins(),s))!= NULL)
+      return out;
+   if (	   (out = read_symbol(PyEval_GetLocals(),s))!=NULL)
+      return out;
+    if (           (out = read_symbol(PyEval_GetGlobals(),s))!=NULL)
+      return out;
+    PyErr_Clear();
+    if (       (out = read_symbol(py_User,s))!=NULL)
+      return out;
+    PyErr_Clear();
+    if (       (out = read_symbol(py_Context,s))!=NULL)
+      return out;
+    PyErr_Clear();
+  }
+  return NULL;
 }
 
 
-PyObject *PythonLookup(const char *s, PyObject *ctx) {
+PyObject *PythonLookup(const char *s,PyObject * pArgs,PyObject *ctx) {
   PyObject *o;
-  o = Lookup(ctx, s);
+  o = Lookup(ctx, pArgs,s);
   return o;
 }
 
 PyObject *assign_symbol(const char *s, PyObject *ctx, PyObject *v) {
-	PyObject *dict;
-	if (!ctx) {
-		ctx = py_Main;
-    }
-	if (!ctx) {
-		ctx = py_Context;
-    }
-    if (PyModule_Check(ctx)) {
-        dict = PyModule_GetDict(ctx);
-	} else if (PyDict_Check(ctx)) {
-		dict = ctx;
-	} else {
-		dict = NULL;
-	}
-      if (dict && (PyDict_SetItemString(dict, s, v) >= 0)) {
-		  return v;
-    }
-     if (ctx && (PyObject_SetAttrString(ctx, s, v) >= 0)) {
-		 return v;
-	}
-    return NULL;
-
-}
-
-
-
-PyObject *find_term_obj(PyObject *ob, YAP_Term *yt, bool eval) {
-  YAP_Term hd;
-
-  // Yap_DebugPlWriteln(yt);
-  while (YAP_IsPairTerm(*yt)) {
-    hd = YAP_HeadOfTerm(*yt);
-    *yt = YAP_TailOfTerm(*yt);
-    ob = yap_to_python(hd, true, ob, false);
-    if (!ob) {
-      return Py_None;
-    }
+  PyObject *dict;
+  if (!ctx) {
+    ctx = py_Main;
   }
-  return ob;
+  if (!ctx) {
+    ctx = py_Main;
+  }
+  if (PyModule_Check(ctx)) {
+    dict = PyModule_GetDict(ctx);
+  } else if (PyDict_Check(ctx)) {
+    dict = ctx;
+  } else {
+    dict = NULL;
+  }
+  if (dict && (PyDict_SetItemString(dict, s, v) >= 0)) {
+    return v;
+  }
+  if (ctx && (PyObject_SetAttrString(ctx, s, v) >= 0)) {
+    return v;
+  }
+  return NULL;
+
 }
+
+
+
 
 #if PY_MAJOR_VERSION >= 3
 static PyStructSequence_Field pnull[] = {
@@ -146,8 +141,8 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
   if (!legal_symbol(s) || !Py_f2p) {
     PyObject *o1;
     o1 = PyTuple_New(2);
-    PyTuple_SET_ITEM(o1, 0, PyUnicode_FromString(s));
-    PyTuple_SET_ITEM(o1, 1, tuple);
+    PyTuple_SetItem(o1, 0, PyUnicode_FromString(s));
+    PyTuple_SetItem(o1, 1, tuple);
     return o1;
   }
 
@@ -162,8 +157,8 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     {
       PyObject *o1;
       o1 = PyTuple_New(2);
-      PyTuple_SET_ITEM(o1, 0, PyUnicode_FromString(s));
-      PyTuple_SET_ITEM(o1, 1, tuple);
+      PyTuple_SetItem(o1, 0, PyUnicode_FromString(s));
+      PyTuple_SetItem(o1, 1, tuple);
       return o1;
     } PyStructSequence_Desc *desc = PyMem_Calloc(sizeof(PyStructSequence_Desc), 1);
     char *tnp;
@@ -183,7 +178,7 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
       Py_TPFLAGS_BASETYPE|
       Py_TPFLAGS_HEAPTYPE;
     // don't do this: we cannot add a type as an atribute.
-    // PyModule_AddGObject(py_Main, s, (PyObject *)typp);
+    // PyModule_AddGObject(py_User, s, (PyObject *)typp);
     if (d && !PyDict_Contains(d, key)) {
       PyDict_SetItem(d, key, (void*)typp);
       Py_INCREF(key);
@@ -337,7 +332,7 @@ static PyObject *bip_float(term_t t, bool eval) {
     o = PyFloat_FromDouble(PyLong_AsLong(pVal));
     \
     #if PY_MAJOR_VERSION < 3
-  } else if (PyInt_Check(pVal)) {
+      } else if (PyInt_Check(pVal)) {
     o = PyFloat_FromDouble(PyInt_AsLong(pVal));
 #endif
   } else if (PyFloat_Check(pVal)) {
@@ -709,7 +704,7 @@ static PyObject *bip_int(term_t t) {
 	      Py_DECREF(v);
 	      return NULL;
 	    }
-	    PyList_SET_ITEM(v, i, w);
+	    PyList_SetItem(v, i, w);
 	    Py_INCREF(w);
 	    ilow += istep;
 	  }
@@ -718,9 +713,77 @@ static PyObject *bip_int(term_t t) {
 
 #endif // BIPS
 
+	static PyObject *op(const char *s, PyObject *pArgs) {
+	  if (!strcmp("+",s)) {
+	    if (PySequence_Check(PySequence_GetItem(pArgs,0)))
+	      return Lookup(py_Ops,pArgs,"concat");
+	    else
+	      return  Lookup(py_Ops,pArgs, "add");
+	  }
+	  if (!strcmp("in",s)) {
+	    return  Lookup(py_Ops, pArgs,"contains");
+	  }
+	  if (!strcmp("/",s)) {
+	    return  Lookup(py_Ops,pArgs, "truediv");
+	  }
+	  if (!strcmp("//",s)) {
+	    return  Lookup(py_Ops,pArgs, "floordiv");
+	  }
+		     
+	  if (!strcmp("&",s)) {
+	    return  Lookup(py_Ops,pArgs, "and_");
+	  }
+	  if (!strcmp("^",s)) {
+	    return  Lookup(py_Ops,pArgs, "xor");
+	  }
+	  if (!strcmp("~",s)) {
+	    return  Lookup(py_Ops,pArgs, "xor");
+	  }
+	  if (!strcmp("|",s)) {
+	    return  Lookup(py_Ops,pArgs, "or_");
+	  }
+	  if (!strcmp("**",s)) {
+	    return  Lookup(py_Ops,pArgs, "pow");
+	  }
+	  if (!strcmp("is",s)) {
+	    return  Lookup(py_Ops,pArgs, "is_");
+	  }
+	  if (!strcmp("*",s)) {
+	    return  Lookup(py_Ops, pArgs,"mul");
+	  }
+	  if (!strcmp("@",s)) {
+	    return  Lookup(py_Ops, pArgs,"matmul");
+	  }
+	  if (!strcmp("-",s)) {
+	    return  Lookup(py_Ops, pArgs,"neg");
+	  }
+	  if (!strcmp(">>",s)) {
+	    return  Lookup(py_Ops,pArgs, "rshift");
+	  }
+	  if (!strcmp("%",s)) {
+	    return  Lookup(py_Ops,pArgs, "mod");
+	  }
+	  if (!strcmp("<",s)) {
+	    return  Lookup(py_Ops,pArgs, "lt");
+	  }
+	  if (!strcmp("==",s)) {
+	    return  Lookup(py_Ops,pArgs, "eq");
+	  }
+	  if (!strcmp("!=",s)) {
+	    return  Lookup(py_Ops, pArgs,"ne");
+	  }
+	  if (!strcmp(">=",s)) {
+	    return  Lookup(py_Ops,pArgs, "ge");
+	  }
+	  if (!strcmp(">",s)) {
+	    return  Lookup(py_Ops,pArgs, "gt");
+	  }
+	  return NULL;
+	}
+
 
 	PyObject *compound_to_pytree(YAP_Term t, PyObject *context, bool cvt) {
-	  PyObject *o = py_Main;
+	  PyObject *o = py_User;
 	  YAP_Functor fun;
 	  YAP_Atom name;
 	  size_t arity;
@@ -762,16 +825,16 @@ static PyObject *bip_int(term_t t) {
 	      pArg = yap_to_python(tleft, false, NULL, cvt);
 	      if (pArg) {
 		/* pArg reference stolen here: */
-		PyTuple_SET_ITEM(out, i, pArg);
+		PyTuple_SetItem(out, i, pArg);
 		Py_INCREF(pArg);
 	      }
 	    }
-	    PyObject *c = PythonLookup(s, o);
+	    PyObject *c = PythonLookup(s,out, o);
 
 	    if (c && PyCallable_Check(c)) {
 	      PyObject *n = PyTuple_New(arity);
-	      PyTuple_SET_ITEM(n, 0, c);
-	      PyTuple_SET_ITEM(n, 1, out);
+	      PyTuple_SetItem(n, 0, c);
+	      PyTuple_SetItem(n, 1, out);
 	      return n;
 	    }
 	    if (cvt)
@@ -788,7 +851,7 @@ static PyObject *bip_int(term_t t) {
 #define bad "<0>"
  
 	PyObject *compound_to_pyeval(YAP_Term t, PyObject *context, bool cvt) {
-	  PyObject *o = py_Main;
+	  PyObject *o = py_User;
 	  YAP_Atom name;
 	  size_t arity;
 	  //Yap_DebugPlWriteln(t);
@@ -805,8 +868,8 @@ static PyObject *bip_int(term_t t) {
 	      name = AtomDot;
 	    } else {
 	      fun = FunctorOfTerm(t);
-	    name = NameOfFunctor(fun);
-	    arity = ArityOfFunctor(fun);
+	      name = NameOfFunctor(fun);
+	      arity = ArityOfFunctor(fun);
 	    }
 	    const char *s = AtomName(name);
 	    if (!strcmp(s,"t") || !strcmp(s,"tuple")) {
@@ -857,8 +920,8 @@ static PyObject *bip_int(term_t t) {
 		if (pArg == NULL) {
 		  pArg = Py_None;
 		} else
-		/* pArg reference stolen here: */
-		Py_INCREF(pArg);
+		  /* pArg reference stolen here: */
+		  Py_INCREF(pArg);
 		PyTuple_SetItem(pArgs, i - 1, pArg);
 	      
 
@@ -880,33 +943,34 @@ static PyObject *bip_int(term_t t) {
 	    fprintf(stderr,"\n" );
 #endif
 	    PyObject *
-		ys = PythonLookup(s, context);
+	      ys = PythonLookup(s,pArgs, context);
 	    if (!ys)  ys =PyUnicode_FromString(s);
-		  if ( ys && PyCallable_Check(ys)) {
-		    if (!pArgs)
-		      pArgs = PyTuple_New(0);
-		    CHECK_CALL(ys, pArgs, pyDict);
-		      Py_DECREF(pArgs);
-		      Py_DECREF(ys);
-		      //		    PyObject_Print(rc, stderr, 0);
-		    return rc;
-		  } else {
-		    PyObject *rc;
-		    if (cvt)
-		      rc = term_to_nametuple(s, arity, pArgs);
-		    else {
-		      rc = PyTuple_New(2);
-		      PyTuple_SetItem(rc, 0, ys);
-		      PyTuple_SetItem(rc, 1, pArgs);
-		    }
-		return rc;
-	     }
+	    if ( ys && (PyCallable_Check(ys) || (ys=op(s,pArgs)))) {
+	      if (!pArgs)
+		pArgs = PyTuple_New(0);
+	      CHECK_CALL(ys, pArgs, pyDict);
+	      Py_DECREF(pArgs);
+	      Py_DECREF(ys);
+	      //		    PyObject_Print(rc, stderr, 0);
+	      return rc;
+	    } else {
+	      PyObject *rc;
+	      if (cvt)
+		rc = term_to_nametuple(s, arity, pArgs);
+	      else {
+		rc = PyTuple_New(2);
+		PyTuple_SetItem(rc, 0, ys);
+		PyTuple_SetItem(rc, 1, pArgs);
+	      }
+	      return rc;
+	    }
 	  
 	  }
 	  return NULL;
 
-	  }
+	}
    
 	
            
 	/** @} */
+

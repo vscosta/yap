@@ -2,10 +2,10 @@
 #include "py4yap.h"
 
 
-O_API bool init_python_dll(void);
+extern O_API bool init_python_dll(void);
 
 
-O_API bool init_python_dll(void) {
+bool init_python_dll(void) {
     do_init_python();
     install_pypreds();
     return 1;

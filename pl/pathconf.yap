@@ -161,7 +161,7 @@ file_search_path(path, C) :-
 
   Thus, `compile(library(A))` will search for a file using
   library_directory/1 to obtain the prefix,
-  whereas 'compile(system(A))` would look at the `host_type` flag.
+  whereas `compile(system(A))` would look at the `host_type` flag.
 
 */
 :- multifile file_search_path/2.

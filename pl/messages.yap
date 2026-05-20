@@ -1405,10 +1405,10 @@ prolog:print_message_(Level, _Msg) :-
     Level \= error,
     Level \= warning,
     !.
-prolog:print_message_(_, _Msg) :-
-    % first step at hook processing
-    '$conditional_compilation_skip'(true),
-    !.
+% prolog:print_message_(_, _Msg) :-
+%     % first step at hook processing
+%     '$conditional_compilation_skip'(true),
+%     !.
 prolog:print_message_(force(_Severity), Msg) :- !,
     print(user_error,Msg).
 % This predicate has more hooks than a pirate ship!

@@ -12,6 +12,7 @@
  * @{
  */
 
+//#include "Atoms.h"
 #include "py4yap.h"
 
 
@@ -41,94 +42,34 @@ typedef struct {
   const char *f;
 } op2f_t;
 
-PyObject *py_OpMap;
-
-static op2f_t ops[] = {
-//> Addition: a + b -> add(a, b)
-//> Concatenation: seq1 + seq2 -> concat(seq1, seq2)
-  { "+", 2, "add" },
-//> Containment Test: obj in seq -> contains(seq, obj)
-  { "in", 2, "contains" },
-  //> Division: a / b -> truediv(a, b)
-  { "/", 2, "divmod" },
-  ///> Division: a // b -> floordiv(a, b)
-  { "//", 2, "floordiv" },
-  ////> Bitwise And: a & b -> and_(a, b)
-  { "&", 2, "and_" },
-  //> Bitwise Exclusive Or: a ^ b -> xor(a, b)
-  { "^", 2, "xor" },
-  //> Bitwise Inversion: ~ a -> invert(a)
-  { "~", 1, "invert" },
-  //> Bitwise Or: a | b -> or_(a, b)
-  { "|", 2, "or_" },
-  //> Exponentiation: a ** b -> pow(a, b)
-  { "**", 2, "pow" },
-  //> Identity: a is b -> is_(a, b)
-  { "is", 2, "is_" },
-  //> Identity: a is not b -> is_not(a, b)
-  { "is", 2, "is_not" },
-  //> Indexed Assignment: obj[k] = v -> setitem(obj, k, v)
-  //  { "=", 2, "setitem" },
-  //> Indexed Deletion: del obj[k] -> delitem(obj, k)
-  //  { "obj[k]", 2, "delitem" },
-  //> Indexing: obj[k] -> getitem(obj, k),
-  //  { "->", 1, "getitem" },
-  //> Left Shift: a << b -> lshift(a, b)
-  { "<<", 2, "lshift" },
-  //> Modulo: a % b -> mod(a, b)  },
-  { "%", 2, "mod" },
-  //> Multiplication: a * b -> mul(a, b)
-    { "*", 2, "mul" },
-    //> Matrix Multiplication: a @ b -> matmul(a, b)
-    { "@", 2, "matmul" },
-    //> Negation (Arithmetic): - a -> neg(a)
-    { "~",1, "neg" },
-    //> Negation (Logical): not a -> not_(a)
-    { "not", 1, "not_" },
-    //> Positive: + a -> pos(a)
-    //{ "+", 1, "pos" },
-    //> Right Shift: a >> b -> rshift(a, b)
-    { ">>", 2, "rshift" },
-    //> Slice Assignment: seq[i:j] = values -> setitem(seq, slice(i, j), values)
-//> Slice Deletion: del seq[i:j] -> delitem(seq, slice(i, j))
-//> Slicing: seq[i:j] -> getitem(seq, slice(i, j))
-//> String Formatting: s % obj -> mod(s, obj)
-//> Subtraction: a - b -> sub(a, b)
-    { "-", 2, "sub" },
-    //> Truth Test: obj -> truth(obj)
-//> Ordering: a < b -> lt(a, b)
-    { "<", 2, "lt" },
-    //> Ordering: a <= b -> le(a, b)
-    { "<=", 2, "le" },
-    //> Equality: a == b -> eq(a, b)
-    { "==", 2, "eq" },
-    //> Difference: a != b -> ne(a, b)
-    { "!=", 2, "ne" },
-    //> Ordering: a >= b -> ge(a, b)
-    { ">=", 2, "ge" },
-    //>  Ordering: a > b -> gt(a, b)
-    { ">", 2, "gt" }
-};
-
-
 static void add_modules(USES_REGS1) {
 
   //Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
   py_Atoms= PyDict_New();
-
-  /* if ((py_Main = PyImport_ImportModule("__main__"))!=NULL) */
-  /* Py_INCREF(py_Main); */
+  if (py_Atoms) {
+    Py_INCREF(py_Atoms);
+  }
+  if ((py_Main = PyImport_ImportModule("__main__"))!=NULL) {
+    Py_INCREF(py_Main);
+  } else {
+    py_Main = PyModule_New("__main__");
+  }
+  py_User = PyModule_New("user");
   
-  //     py_Sys =  PyImport_ImportModule("sys");
-     py_Np = PyImport_ImportModule("numpy");
-     //     py_Ops = PyModule_GetDict(PyImport_ImportModule("_operator"));
+  py_Sys =  PyImport_ImportModule("sys");
+  py_Np = PyImport_ImportModule("numpy");
+  if (py_Np) {
+    Py_INCREF(py_Np);
+  } else {
 
-     if (py_Np) {Py_INCREF(py_Np);
-     } else {
-       Yap_ThrowError(DOMAIN_ERROR_MISSING_LIBRARY,MkStringTerm("numpy"), " Missin Python library");
-     }
-     //Py_INCREF(py_Ops);
-
+  }
+  py_Ops = PyImport_ImportModule("operator");
+  if (py_Ops) {
+    Py_INCREF(py_Ops);
+  } else {
+    Yap_ThrowError(DOMAIN_ERROR_MISSING_LIBRARY,MkStringTerm("operator"), " Missin Python operator library");
+  }
+  
   //  op = pyDict_GetItemString(py_Main, "__builtins__");
   PyObject *py_Yapex = PyImport_ImportModule("yap4py.yapi");
   if (py_Yapex) {
@@ -137,21 +78,15 @@ static void add_modules(USES_REGS1) {
   } else {
     py_Context = PyDict_New();
   }
-  int i;
-  py_OpMap = PyDict_New();
-  for (i=0; i<sizeof(ops)/sizeof(*ops);i++) {
-      PyDict_SetItemString(py_OpMap,ops[i].op,
-			   PyUnicode_FromString(ops[i].f));
-  }
-  Py_f2p = PythonLookup("f2p", NULL);
+  Py_f2p = PythonLookup("f2p",NULL, NULL);
   if (!Py_f2p)
     Py_f2p = PyList_New(16);
-  {
+  Py_INCREF(Py_f2p);
+ {
     int i;
     for (i=0; i < 16; i++)
       PyList_SetItem(Py_f2p,i,PyDict_New());
   }
-    Py_INCREF(Py_f2p);
   init_python_vfs();
 }
 
@@ -162,6 +97,7 @@ static void add_modules(USES_REGS1) {
   ATOM_A = PL_new_atom("A");
   ATOM_V = PL_new_atom("V");
   ATOM_builtin = PL_new_atom("__builtin__");
+
   ATOM_comma = PL_new_atom(",");
   ATOM_colon = PL_new_atom(":");
   ATOM_true = PL_new_atom("true");
@@ -212,18 +148,58 @@ static bool libpython_initialized = false;
 X_API bool do_init_python(void) {
 CACHE_REGS
   //  char **argv;
-  if ( libpython_initialized)
-    return true;
-  libpython_initialized = true;
-    term_t t = PL_new_term_ref();
-    if (!Py_IsInitialized()) {
-    Yap_CloseReadline();
-    Py_InitializeEx(0);
+if ( libpython_initialized) {
+  return true;
+}
+   libpython_initialized = true;
+   term_t t = PL_new_term_ref();
+   if (!Py_IsInitialized()) {
+     Yap_Embedded = true;
+/*   PyInitConfig *config = PyInitConfig_Create(); */
+   /*   if (config == NULL) { */
+   /*     fprintf(stderr,"PYTHON INIT ERROR: memory allocation failed\n"); */
+   /*     return -1; */
+   /*   } */
+
+   /*   // Enable the Python Development Mode */
+   /*   if (PyInitConfig_SetInt(config, "dev_mode", 1) < 0) { */
+   /*     goto error; */
+   /*   } */
+   /*   // Enable the Python Development Mode */
+   /*   if (PyInitConfig_SetInt(config, "dev_mode", 1) < 0) { */
+   /*     goto error; */
+   /*   } */
+   /*   if (PyInitConfig_SetInt(config, "install_signal_handlers", 0) < 0) { */
+   /*     goto error; */
+   /*   } */
+   /*   // Initialize Python with the configuration */
+   /*   if (Py_InitializeFromInitConfig(config) < 0) { */
+   /*     goto error; */
+   /*   } */
+   /*   PyInitConfig_Free(config); */
+   /*   return 0; */
+   /* error: */
+   /*   exit(1); */
+   /* } else { */
+//      Yap_CloseReadline();
     }
     //  PyGILState_Ensure();
-  py_Sys =  PyDict_GetItemString (PySys_GetObject("modules"),"sys");
-  py_Main = PyDict_GetItemString (PySys_GetObject("modules"),"__main__");
- PyObject  *builtins = PyEval_GetBuiltins(), *globals =PyDict_New();
+   Py_Initialize();
+  /*  const char *s = PyUnicode_AsUTF8(PyDict_GetItemString (PySys_GetObject("modules"),"sys")); */
+  /*     char *ns =  */
+  /* if (py_Sys) { */
+  /*   const char *path = PyUnicode_AsUTF8(PyDict_GetItemString (py_sys,"path")), */
+  /*   *cwd = get_current_directory(); */
+  /*   char *np = mallo(cstrlen(path))+strlen(':')+strlen(cwd)+1; */
+  /*   strcpy(np,cwd); */
+  /*   strcat(np,":"); */
+  /*   strcat(np,path); */
+  /*   yDict_SetItemString (py_sys,"path",PyUnicode_FromString(np); */
+  /* } */
+  //  py_Main = PyDict_GetItemString (PySys_GetObject("modules"),"__maingre__");
+  PyObject* py_Main = PyModule_GetDict(PyImport_AddModule("__main__"));
+  PyObject  *builtins = PyEval_GetBuiltins(), *globals =PyDict_New();
+  add_modules(PASS_REGS1);
  if (builtins)
    PyDict_SetItemString(globals, "__builtins__", builtins);
     PyDict_SetItemString(globals, "sys",(py_Sys));
@@ -262,13 +238,10 @@ CACHE_REGS
 
 
   Yap_create_prolog_flag("python_export_string_as", true,  YAP_MkAtomTerm(YAP_LookupAtom ("term")),  YAP_MkAtomTerm(YAP_LookupAtom ("term")));
-    Yap_set_flag(MkAtomTerm(Yap_LookupAtom("back_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
-    //  Yap_set_flag(MkAtomTerm(Yap_LookupAtom("single_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
+      Yap_set_flag(MkAtomTerm(Yap_LookupAtom("back_quotes")),MkAtomTerm(Yap_LookupAtom("codes")));
     Yap_set_flag(MkAtomTerm(Yap_LookupAtom("double_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
   PL_reset_term_refs(t);
-  install_pl2pl();
-  add_modules(PASS_REGS1);
-  //    python_output();
+//  python_output();
   return true;
 }
 
