@@ -440,7 +440,6 @@ notrace(G) :-
     ).      
       
 
-
 '$debug_next'(Port,Ctx,GN) :-
     '$zip_at_port'(Port,Ctx,GN),
 !.

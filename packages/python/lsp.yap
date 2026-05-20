@@ -229,7 +229,7 @@ q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_),_Desc),t(
     format(string(S), 'singleton variable ~s.~n ', [VName]),
     atom_length(VName, Len),
     EndCol is Column+Len.
-q_msg(warning, error(style_check(multiple,[F0|L],I ) ,_Desc ), t("warning",S, L,Column,L,EndCol)) :-
+ q_msg(warning, error(style_check(multiple,[F0|L],I ) ,_Desc ), t("warning",S, L,Column,L,EndCol)) :-
     !,
     Column=0,
     format(string(S), '~w previously defined at ~s.~n',[I,F0]),
