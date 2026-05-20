@@ -103,10 +103,10 @@ user:term_expansion(G, GF) :-
     analyse(G,Line,F,M,GF),
     !.
 
-analyse((:- G), L, F, M, (:- g)) :-
+analyse((:- G), L, F, M, (:- true)) :-
  !,
  directive(G, L, F, M).
-analyse((:- _G), _L, _F, _M, (:- g)) :-
+analyse((:- _G), _L, _F, _M, (:- true)) :-
   !.
 analyse(Cl, L, F, M, g) :-
  rule(Cl, L, F, M).
@@ -204,6 +204,7 @@ validate_source(Path, DefaultModule, Errors) :-
     current_source_module(_,DefaultModule).
     
 validate_text(URI,S,Ts) :-
+      writeln(user_error, URI),
     string_concat("file://", FileAsS, URI),
     atom_string(FileAsS, File),
     retractall(def(_,_,_,_,File,_)),

@@ -154,7 +154,7 @@ if ( libpython_initialized) {
    libpython_initialized = true;
    term_t t = PL_new_term_ref();
    if (!Py_IsInitialized()) {
-     Yap_Embedded = true;
+     GLOBAL_Embedded = true;
 /*   PyInitConfig *config = PyInitConfig_Create(); */
    /*   if (config == NULL) { */
    /*     fprintf(stderr,"PYTHON INIT ERROR: memory allocation failed\n"); */

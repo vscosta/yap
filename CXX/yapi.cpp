@@ -755,8 +755,8 @@ Term YAPEngine::fun(Term t, Term tmod, bool release) {
   Atom name;
   yhandle_t  h;
   Term g = AbsAppl(HR);
-  volatile static int vsc = 1;
-  while (vsc);
+//  volatile static int vsc = 1;
+//  while (vsc);
   if (IsApplTerm(t)) {
     ts = RepAppl(t);
     f = (Functor)ts[0];
