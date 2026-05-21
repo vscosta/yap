@@ -108,11 +108,14 @@ analyse((:- G), L, F, M, (:- true)) :-
  directive(G, L, F, M).
 analyse((:- _G), _L, _F, _M, (:- true)) :-
   !.
-analyse(Cl, L, F, M, g) :-
- rule(Cl, L, F, M).
-analyse(_G, _L, _F, _M,  g).
+analyse(Cl, L, F, M, Na) :-
+ rule(Cl, L, F, M, Na).
+analyse(_G, _L, _F, _M,  Na) :-
+    strip_module(G,_MH,A),
+    functor(A,Na,_Ar),
+   .
 
-rule((A0:- B),Line,File,Module) :-
+rule((A0:- B),Line,File,Module,Na) :-
     strip_module(Module:A0,MH,A),
     functor(A,Na,Ar),
     (    
@@ -232,16 +235,16 @@ q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_),_Desc),t(
     EndCol is Column+Len.
  q_msg(warning, error(style_check(multiple,[F0|L],I ) ,_Desc ), t("warning",S, L,Column,L,EndCol)) :-
     !,
-    Column=0,
+    Column=1,
     format(string(S), '~w previously defined at ~s.~n',[I,F0]),
-    I = _:Name/_,
+    I = Name/_,
     atom_length(Name, Len),
     EndCol is Column+Len.
 q_msg(warning, error(style_check(discontiguous,_,_I ), _Desc), t("warning",S, L,Column, L, EndCol)) :-
     !,
-    Column=0,
+    Column=1,
     format(string(S), 'discontiguous definition for ~w.~n',[I]),
-    I = _:Name/_,
+    I = Name/_,
     atom_length(Name, Len),
     EndCol is Column+Len,
     S = "discontiguous.~n".

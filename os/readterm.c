@@ -382,6 +382,9 @@ static Int scan_stream(USES_REGS1) {
   scanner_params params;
   StreamDesc *st;
   memset(&params, 0, sizeof(scanner_params));
+  FEnv fe0;
+  memset(&fe0, 0, sizeof(fe0));
+  params.fe = &fe0;
   params.store_comments = true;
   /* needs to change LOCAL_output_stream for write */
   inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");

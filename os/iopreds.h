@@ -344,10 +344,11 @@ inline static Term Yap_CurrentStreamPosition(int sno ) {
 			      st->linecount,
 			      st->linestart);
 }
-
 inline static void Yap_SaveStreamPosition(int sno, FEnv *fe) {
  
- CACHE_REGS
+  CACHE_REGS
+  if (!fe)
+  return;
    StreamDesc *st = GLOBAL_Stream+sno;
   fe->StartCharCount = st->charcount,
  fe->StartLineCount = st-> linecount;
@@ -355,7 +356,7 @@ inline static void Yap_SaveStreamPosition(int sno, FEnv *fe) {
 }
 
 inline static Term Yap_SavedStreamPosition(FEnv *fe) {
-  CACHE_REGS
+    CACHE_REGS
   return   Yap_StreamPosition(
 				fe->StartCharCount,
 				fe->StartLineCount,
