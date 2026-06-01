@@ -90,10 +90,10 @@ current_source_module(M,M),
     '$pick_files_for_loading'(UserNamePath, M0, M, Opts, FileLocation).
 '$pick_files_for_loading'(StreamName, M0, M, Opts, FileLocation) :-
     '$memberchk'(stream(Stream), Opts),
-strip_module(M:StreamName,M1,Name),
-atom(Name),
-!,
-    '$load_stream'(  Name, Stream, M0, M1, Opts, FileLocation ).
+    strip_module(M:StreamName,M1,ActualName),
+    atom( ActualName),
+    !,
+    '$load_stream'(  ActualName, Stream, M0, M1, Opts, FileLocation ).
 '$pick_files_for_loading'(UserNamePath, M0, M, Opts, FileLocation) :-
     % first argument s
  '$memberchk'(consult(db),Opts),

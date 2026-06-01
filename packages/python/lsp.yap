@@ -1,5 +1,5 @@
-
-/*
+/**
+  * @file lsp.yap
  * Language Server support
  *
  */
@@ -15,7 +15,6 @@
   workspace_symbols/1,
   analyse/5,
   complete/2]).
-
     /*
 highlight_text/2,pred_def/4,
 pred_def/2,
@@ -25,8 +24,15 @@ add_dir/2
   ]).
 */
     
+
 :- set_prolog_flag(double_quotes, string).
 
+/**
+ Uses a program db:
+- definition
+- declaration
+- use
+*/
 :- dynamic state/2, lsp_on/0, use/9, def/6, dec/6.
 
 :- use_module(library(lists)).
@@ -44,13 +50,18 @@ add_dir/2
 
 
     %%
-    %% symbol(AllSymbowls)
+    %% 
+    %%
+    %% Report all symbols for a URI
     %%
 uri_symbols(URI, All) :-
     string_concat("file://", FileS, URI),
     string_to_atom(FileS, File),
     findall(t(Name,Line), defa(Name,Line,File),All).
 
+%%
+%% report all symbols defined in a file
+%%
 file_symbols(File, All) :-
    absolute_file_name(File, Path,
     [ file_type(prolog),
@@ -64,7 +75,9 @@ expand(true),
 defa(Word,Line,File) :-
     def(Name,_,_,Line,File,_),
     atom_string(Name,Word).
-    
+
+%%
+%% all symbols for  a project
 workspace_symbols(All) :-
     findall(t(Name,Line,URI), symbol_in_def(Name,Line,URI), All).
 
@@ -75,7 +88,7 @@ symbol_in_def(Word,Line,URI) :-
     string_concat("file://", FileS, URI).
 
     %%
-    %%
+    %% complete given  a prefix
     
 complete(Prefix, FCs) :-
     completions(Prefix,FCs),
@@ -103,17 +116,26 @@ user:term_expansion(G, GF) :-
     analyse(G,Line,F,M,GF),
     !.
 
+analyse((?- _G), _L, _F, _M, (?- true)) :-
+ !.
 analyse((:- G), L, F, M, (:- true)) :-
  !,
  directive(G, L, F, M).
-analyse((:- _G), _L, _F, _M, (:- true)) :-
-  !.
-analyse(Cl, L, F, M, Na) :-
- rule(Cl, L, F, M, Na).
-analyse(_G, _L, _F, _M,  Na) :-
-    strip_module(G,_MH,A),
-    functor(A,Na,_Ar),
-   .
+% now let us look for use-defs in rules.
+analyse((H:-B), L, F, M, Na) :-
+!,
+ rule((H:-B), L, F, M, Na).
+% facts are just defs
+analyse(H0, Line, File, MH0,  Na) :-
+    strip_module(MH0:H0,MH,H),
+    functor(H,Na,Ar),
+    (    
+    def(Na,Ar,MH,_,_,predicate)
+       ->
+    true
+       ;
+    assert(def(Na,Ar,MH,Line,File,predicate))
+    ).
 
 rule((A0:- B),Line,File,Module,Na) :-
     strip_module(Module:A0,MH,A),
@@ -153,6 +175,8 @@ directive((A,B), Line,File,M) :-
     !,
     directive(A, Line,File,M),
     directive(B, Line,File,M).
+% ignore other directives.
+directive(_, _Line,_File,_M).
 
 body(A,_L,_F,_M,_) :-
     var(A),
@@ -207,9 +231,8 @@ validate_source(Path, DefaultModule, Errors) :-
     current_source_module(_,DefaultModule).
     
 validate_text(URI,S,Ts) :-
-      writeln(user_error, URI),
     string_concat("file://", FileAsS, URI),
-    atom_string(FileAsS, File),
+    atom_string(File, FileAsS),
     retractall(def(_,_,_,_,File,_)),
     retractall(use(_,_,_,_,_,_,_,File,_)),
     retractall(dec(_,_,_,_,File,_)),
@@ -254,6 +277,9 @@ q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,LPos
     exception_property(parserSize, Desc, Size),
     !,
     LP1 is LPos+Size.
+q_msg(_error, error(existence_error(source_sink,File), _Desc),  t("warning",S, 1,0,2,0))  :-
+  !,
+    format(string(S),"source_sink (file) ~s does not exist",File).
 q_msg(_,Error,t("ignored",Msg,1,0,2,0)) :-
     term_to_string(Error,Msg).
 
@@ -313,7 +339,7 @@ definition(Line,Pos,t(URI,L,1,Sz)) :-
 
     
 user:highlight_uri( URI, Text, LTsf):-
-	string_concat(`file://`,S,URI),
+      string_concat("file://",S,URI),
 	atom_string(File,S),
 	open(string(Text),read,Stream,[alias(File)]),
 	set_stream(Stream,file_name(File)),
@@ -345,6 +371,8 @@ user:portray_message(A,B):-
     true
     ).
 
+%%
+% to add
 
 
 

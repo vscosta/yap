@@ -22,6 +22,7 @@
 	   split/5,
        split_unquoted/3,
 	   fields/2,
+	   field_chars/2,
 	   fields/3,
 	   glue/3,
 	   copy_line/2,
@@ -340,6 +341,22 @@ using the blank characters  as field separators.
 */
 fields(String, Strings) :-
 	dofields(" 	",  First, More, String, []),
+	(
+	  First = [], More = []
+	->
+	  Strings = []
+	;
+	  Strings = [First|More]
+	).
+
+ /** @pred field_chars(+ _Line_,- _Split_)
+
+Unify  _Words_ with a set of chars obtained from  _Line_ by
+using the blank characters  as field separators.
+
+*/
+fields(String, Strings) :-
+	dofields([' ','\t'],  First, More, String, []),
 	(
 	  First = [], More = []
 	->
