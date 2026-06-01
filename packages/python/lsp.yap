@@ -271,12 +271,13 @@ q_msg(warning, error(style_check(discontiguous,_,_I ), _Desc), t("warning",S, L,
     atom_length(Name, Len),
     EndCol is Column+Len,
     S = "discontiguous.~n".
-q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,LPos,L,LP1)) :-
+q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,LP0,L,LP1)) :-
     exception_property(parserLine, Desc, L),
     exception_property(parserLinePos, Desc, LPos),
     exception_property(parserSize, Desc, Size),
     !,
-    LP1 is LPos+Size.
+    LP0 is LPos-1,
+    LP1 is LP0+Size.
 q_msg(_error, error(existence_error(source_sink,File), _Desc),  t("warning",S, 1,0,2,0))  :-
   !,
     format(string(S),"source_sink (file) ~s does not exist",File).

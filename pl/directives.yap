@@ -114,19 +114,20 @@
 '$directive'(reexport(_)).
 '$directive'(reexport(_,_)).
 
+
 '$lf_args'([H|T],[H|T],[]) :-is_list([H|T]).
 '$lf_args'(compile(Fs), Fs, []).
 '$lf_args'(consult(Fs), Fs, [reconsult(consult)]).
 '$lf_args'(consult(Fs), Fs, [reconsult(consult)]).
-'$lf_args'(ensure_loaded(Fs), Fs, [if(changed)]).
+'$lf_args'(ensure_loaded(Fs), Fs, [if(changed),silent(true)]).
 '$lf_args'(load_files(Fs), Fs, []).
 '$lf_args'(load_files(Fs, Spec), Fs, Spec).
 '$lf_args'(reconsult(Fs), Fs, []).
-'$lf_args'(reexport(Fs), Fs, [if(not_loaded), silent(true), reexport(true),must_be_module(true)]).
-'$lf_args'(reexport(Fs, Spec),Fs, [reexport(true),if(not_loaded),must_be_module(true),import(Spec)]).
-'$lf_args'(use_module(Fs), Fs, [if(not_loaded),must_be_module(true)]).
-'$lf_args'(use_module(Fs,Spec), Fs, [if(not_loaded),must_be_module(true),import(Spec)]).
-'$lf_args'(use_module(Fs,Spec), Fs, [if(not_loaded),must_be_module(true),import(Spec)]).
+'$lf_args'(reexport(Fs), Fs, [if(changed), silent(true), reexport(true),must_be_module(true)]).
+'$lf_args'(reexport(Fs, Spec),Fs, [reexport(true),if(changed),must_be_module(true),import(Spec)]).
+'$lf_args'(use_module(Fs), Fs, [if(changed), silent(true), must_be_module(true)]).
+'$lf_args'(use_module(Fs,Spec), Fs, [if(changed), silent(true),must_be_module(true),import(Spec)]).
+'$lf_args'(use_module(Fs,Spec), Fs, [if(changed), silent(true),must_be_module(true),import(Spec)]).
 
 '$exec_directives'((G1,G2), Mode, M, VL, Pos) :-
     !,
