@@ -951,8 +951,11 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v;
 
-    
-
+  if (tokstart) {
+    while (tokstart->Tok == Comment_tok)
+      tokstart = tokstart->TokNext;
+    return Yap_StreamPosition(tokstart->TokOffset,tokstart->TokLine,tokstart->TokLinePos);
+  }
   if (fe->tp) {
     while (true) {
       fe->old_H = HR;
@@ -966,6 +969,7 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
       }
     }
   }
+    
   return Yap_StreamPosition(1,0,0);
 }
 static bool is_goal(Term t)
