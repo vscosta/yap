@@ -1,0 +1,16 @@
+MANIFEST.in
+README
+README.md
+pyproject.toml
+yap4py/__init__.py
+yap4py/__main__.py
+yap4py/lsp.py
+yap4py/predicates.py
+yap4py/queries.py
+yap4py/systuples.py
+yap4py/yapi.py
+yap4py.egg-info/PKG-INFO
+yap4py.egg-info/SOURCES.txt
+yap4py.egg-info/dependency_links.txt
+yap4py.egg-info/entry_points.txt
+yap4py.egg-info/top_level.txt
