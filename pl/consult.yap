@@ -382,6 +382,31 @@ source_file_property( F, load_context(M,OldF:Line,Opts)) :-
 prolog_load_context(module, X) :-
         current_source_module(Y,Y),
         Y = X.
+prolog_load_context(directory, DirName) :-
+        ( source_location(F, _)
+        -> file_directory_name(F, DirName) ;
+          working_directory( DirName, DirName )
+        ).
+prolog_load_context(file, Path ) :-
+(
+    stream_property(Stream,alias(include_stream))
+  ->
+  stream_property(Stream, file_name(Path))
+;
+    prolog_load_context(source, Path )
+).
+prolog_load_context(source, SourceName) :-
+    (
+      stream_property(loop_stream, file_name(SourceName) )
+    ;
+      SourceName = user_input
+).
+prolog_load_context(stream, Stream) :-
+    stream_property(Stream, alias(loop_stream) ).
+prolog_load_context(term, Term ) :-
+    b_getval('$current_clause', T),
+    nonvar(T),
+    T = [Term|_].
 prolog_load_context(variable_names, Term ) :-
     (
     b_getval('$current_clause', T),
@@ -391,38 +416,14 @@ prolog_load_context(variable_names, Term ) :-
     ;
     Term = []
     ).
-prolog_load_context(Option,Result) :-
-%      '__NB_getval__'('$consulting_file', [_|_], fail),
-      prolog_load_context_(Option,Result).
-
-prolog_load_context_(directory, DirName) :-
-        ( source_location(F, _)
-        -> file_directory_name(F, DirName) ;
-          working_directory( DirName, DirName )
-        ).
-prolog_load_context_(file, Path ) :-
-    stream_property(Stream,alias(include_stream)),
-    stream_property(Stream, file_name(Path) ),
-    !.
-prolog_load_context_(file, Path ) :-
-    prolog_load_context_(source, Path ).
-prolog_load_context_(source, SourceName) :-
-    stream_property(loop_stream, file_name(SourceName) ),
-    !.
-prolog_load_context_(source, user_input).
-
-prolog_load_context_(stream, Stream) :-
-    stream_property(Stream, alias(loop_stream) ).
-prolog_load_context_(term, Term ) :-
-    b_getval('$current_clause', T),
-    nonvar(T),
-    T = [Term|_].
-prolog_load_context_(term_position, Position ) :-
-   '__B_getval__'('$current_clause', T, fail),
-    nonvar(T),
-    T = [_,_,_,Position],
-    !.
-prolog_load_context_(term_position, '$term_position'(0,1,0,0,0)).
+prolog_load_context(term_position, Position ) :-
+   ( b_getval('$current_clause', T),
+     nonvar(T)
+       ->
+    T = [_,_,_,Position]
+    ;
+     Position = '$position'(0,1,0,0,0)
+     ).
 
 % if the file exports a module, then we can
 % be imported from any module.

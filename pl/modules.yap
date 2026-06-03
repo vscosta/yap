@@ -536,14 +536,13 @@ T\=Module,
 '$check_import'(_,_,_,_).
 
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
-    '__NB_getval__'('$lf_status', TOpts, fail),
-    '$lf_opt'(redefine_module, TOpts, Action), !,
+%    current_prolog_flag(redefine_warnings, Action),
     '$redefine_action'(Action, M1, M2, Mod, ContextM, N/K).
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
     '$redefine_action'(false, M1, M2, Mod, ContextM, N/K).
 
 
-'$redefine_action'(ask, M1, M2, M, _, N/K) :-
+'$redefine_action'(true, M1, M2, M, _, N/K) :-
     stream_property(user_input,tty(true)), !,
     format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,M2]),
     format(user_error,'            Do you want to import it from ~w ? [y, n, e or h] ',M),

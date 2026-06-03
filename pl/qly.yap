@@ -585,14 +585,11 @@ qload_file( F0 ) :-
     working_directory(OldD, DirName),
     nb_setval('$consulting_file',[]),
     '$q_header'( S, Type ),
-	'$lf_option'(last_opt, LastOpt),
-	functor( TOpts, opt, LastOpt ),
-	'$lf_default_opts'(1, LastOpt, TOpts),
     ( Type == module ->
 	  '$qload_module'(S , Mod, File, SourceModule)
     ;
       Type == file ->
-	  '$qload_file'(S, SourceModule, File, FilePl, F0, all, TOpts)
+	  '$qload_file'(S, SourceModule, File, FilePl, F0, all )
     ),
     close(S),
     working_directory( _, OldD),
@@ -601,32 +598,32 @@ qload_file( F0 ) :-
     print_message(informational, loaded(EndMsg, File, Mod, T, H)),
     '$exec_initialization_goals'.
 
-'$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
+'$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList) :-
    reorded('$source_file','$source_file'(FilePl,_Age), _R),
    !.
-'$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
+'$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList) :-
  recorded('$source_file','$source_file'(FilePl,Age),    retract(user:'$source_file'( FilePl, Age)),
     ( FilePl == user_input -> Age = 0 ; time_file64(FilePl, Age) ),
     recorda('$source_file','$source_file'( FilePl, Age))),
     asserta(user:'$source_file'( FilePl, Age)),
     fail.
-'$qload_file'(S, _SourceModule, xo_File, _FilePl, _F0, _ImportList, _TOpts) :-
+'$qload_file'(S, _SourceModule, xo_File, _FilePl, _F0, _ImportList) :-
     '$qload_file_preds'(S),
         fail.
-'$qload_file'(_S, _SourceModule, F, _FilePl, _F0, _ImportList, _TOpts) :-
+'$qload_file'(_S, _SourceModule, F, _FilePl, _F0, _ImportList) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
     recordaifnot('$source_file','$source_file'( F, Age), _),
     fail.
-'$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList, _TOpts) :-
+'$qload_file'(_S, _SourceModule, _File, FilePl, F0, _ImportList ) :-
     b_setval('$user_source_file', F0 ),
     '$ql_process_directives'( FilePl ),
     fail.
-'$qload_file'(_S, SourceModule, _File,  FilePl, _F0, ImportList, TOpts) :-
-	'$import_to_current_module'(FilePl, SourceModule, ImportList, _, TOpts).
+'$qload_file'(_S, SourceModule, _File,  FilePl, _F0, ImportList) :-
+	'$import_to_current_module'(FilePl, SourceModule, ImportList).
 
 '$ql_process_directives'( FilePl ) :-
-    user:'$file_property'( '$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts) ),
-    recorda('$lf_loaded','$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts), _),
+	  user:'$file_property'( '$lf_loaded'( FilePl, M, Reconsult, OldF, UserFile, Line, Opts)),
+    recorda('$lf_loaded','$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts ), _),
     fail.
 '$ql_process_directives'( _FilePl ) :-
     user:'$file_property'( multifile( List ) ),
