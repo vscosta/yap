@@ -956,22 +956,8 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
       tokstart = tokstart->TokNext;
     return Yap_StreamPosition(tokstart->TokOffset,tokstart->TokLine,tokstart->TokLinePos);
   }
-  if (fe->tp) {
-    while (true) {
-      fe->old_H = HR;
-
-      if (setjmp(LOCAL_IOBotch) == 0) {
-        if ((v = Yap_SavedStreamPosition(fe))) {
-          return v;
-        }
-      } else {
-        reset_regs( tokstart, fe);
-      }
-    }
-  }
-    
-  return Yap_StreamPosition(1,0,0);
 }
+
 static bool is_goal(Term t)
 {
   if (!IsApplTerm(t))
@@ -1131,8 +1117,6 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream, TokEntry *tokstart) {
   if (fe->sp && !Yap_unify(TermNil, fe->sp))
     fe->t = 0;
   if (fe->vprefix && !Yap_unify(TermNil, fe->vprefix))
-    fe->t = 0;
-  if (fe->tp && !Yap_unify(fe->tp, Yap_SavedStreamPosition(fe)))
     fe->t = 0;
 #if DEBUG
   if (GLOBAL_Option['p' - 'a' + 1]) {
@@ -1372,7 +1356,7 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   TokEntry *tokstart;
 
   LOCAL_toktide= tokstart = LOCAL_tokptr;
-  Yap_SaveStreamPosition(inp_stream, fe);
+  Yap_SaveStreamPosition(inp_stream, tokstart, fe);
   fe->tokstart = tokstart;
   fe->t = Yap_Parse(re->prio, fe->enc, fe->cmod);
   fe->toklast = LOCAL_tokptr;

@@ -344,15 +344,25 @@ inline static Term Yap_CurrentStreamPosition(int sno ) {
 			      st->linecount,
 			      st->linestart);
 }
-inline static void Yap_SaveStreamPosition(int sno, FEnv *fe) {
- 
+
+/// save the current stream position on the read emvironment and on the token
+inline static void Yap_SaveStreamPosition(int sno, TokEntry *t, FEnv *fe) {
   CACHE_REGS
   if (!fe)
   return;
    StreamDesc *st = GLOBAL_Stream+sno;
-  fe->StartCharCount = st->charcount,
- fe->StartLineCount = st-> linecount;
-   fe->StartLinePos = st->linestart;;
+  t->TokOffset =   fe->StartCharCount = GetCurInpOffset(st);
+  t->TokLine = fe->StartLineCount = GetCurInpLine(st);
+  t->TokLinePos =  fe->StartLinePos = GetCurInpLineStart(st);
+}
+/// save the current stream position on the read emvironment and on the token
+inline static void Yap_SetTokenStreamPosition(StreamDesc *st, TokEntry *t) {
+  CACHE_REGS
+  if (!st)
+  return;
+  t->TokOffset = GetCurInpOffset(st);
+  t->TokLine = GetCurInpLine(st);
+  t->TokLinePos = GetCurInpLineStart(st);
 }
 
 inline static Term Yap_SavedStreamPosition(FEnv *fe) {

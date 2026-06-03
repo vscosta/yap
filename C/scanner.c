@@ -193,12 +193,14 @@ typedef struct scanner_extra_alloc {
   void *filler;
 } ScannerExtraBlock;
 
-#define CodeSpaceError(t, p, l) CodeSpaceError__(t, p, l PASS_REGS)
-static TokEntry *CodeSpaceError__(TokEntry *t, TokEntry *p,
+#define CodeSpaceError(st, t, p, l) CodeSpaceError__(st, t, p, l PASS_REGS)
+static TokEntry *CodeSpaceError__(struct stream_desc *st,
+                                  TokEntry *t, TokEntry *p,
                                   TokEntry *l USES_REGS) {
   LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
   LOCAL_ErrorMessage = "Code Space Overflow";
   if (t) {
+    Yap_SetTokenStreamPosition( st, t);
     t->Tok = eot_tok;
     t->TokInfo = TermOutOfHeapError;
   }
@@ -893,13 +895,19 @@ const char *Yap_tokText(void *tokptre) {
 }
 
 
-TokEntry *add_eot(TokEntry *p USES_REGS)
+TokEntry *add_eot(TokEntry *p, StreamDesc *st USES_REGS)
 {
   TokEntry *tokptr = Malloc(sizeof(TokEntry));
   tokptr->TokNext = NULL;
+  if (st) {
+  tokptr->TokLine = GetCurInpLine(st);
+  tokptr->TokLinePos = GetCurInpLineStart(st);
+  tokptr->TokOffset = GetCurInpOffset(st);
+  } else {
   tokptr->TokLine = 1;
   tokptr->TokLinePos =0;
   tokptr->TokOffset = 0;
+  }
   tokptr->Tok = Ord(eot_tok);
   tokptr->TokInfo = TermEof;
   if (p) {
@@ -934,7 +942,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
   p = NULL; /* Just to make lint happy */
 
   if( st->status &  Push_Eof_Stream_f) {
-    p = t = add_eot(p PASS_REGS);
+    p = t = add_eot(p, st PASS_REGS);
     return p;
   } else {
        och = ch;
@@ -944,7 +952,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	ch = getchr(st);
       }
     if( ch == EOF) {
-      p = t = add_eot(p PASS_REGS);
+      p = t = add_eot(p, st PASS_REGS);
       return p;
     } 
   }
@@ -959,7 +967,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     memset(t,0,sizeof(TokEntry));
     t->TokNext = NULL;
     if (t == NULL) {
-      return CodeSpaceError(t, p, l);
+      return CodeSpaceError(st, t, p, l);
     }
     if (!l)
       l = t;
@@ -968,10 +976,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     p = t;
   restart:
     /* where the term actually starts */
-    t->TokLinePos = GetCurInpLineStart(st);
-    t->TokLine = GetCurInpLine(st);
-    t->TokOffset = GetCurInpOffset(st);
-    Yap_SaveStreamPosition( sno, params->fe); 
+      Yap_SaveStreamPosition( sno, t,  params->fe); 
     switch (chtype(ch)) {
     case CC:
       charp = (unsigned char *)TokImage;
@@ -984,7 +989,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
             TokImage = Realloc(TokImage, imgsz);
             if (!TokImage) {
-              return CodeSpaceError(t, p, l);
+              return CodeSpaceError(st, t, p, l);
             }
             charp = (unsigned char *)TokImage + sz;
           }
@@ -1004,7 +1009,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       t->Tok = Ord(kind = Comment_tok);
       if (ch==EOF) {
 	st->status |= Push_Eof_Stream_f;
-	t = add_eot(t PASS_REGS);
+	t = add_eot(t, st PASS_REGS);
       }
       break;
 
@@ -1025,7 +1030,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           TokImage = Realloc(p0, imgsz);
 
           if (TokImage == NULL) {
-            return CodeSpaceError(t, p, l);
+            return CodeSpaceError(st, t, p, l);
           }
           charp = (unsigned char *)TokImage + (charp - p0);
         }
@@ -1033,7 +1038,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
       }
       while (ch == '\'' && isvar && params->ce) {
         if (charp == (unsigned char *)AuxSp - 1024) {
-          return CodeSpaceError(t, p, l);
+          return CodeSpaceError(st, t, p, l);
         }
         safe_add_ch_to_buff(ch);
         ch = getchr(st);
@@ -1045,7 +1050,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         /* don't do this in iso */
         ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
-          return CodeSpaceError(t, p, l);
+          return CodeSpaceError(st, t, p, l);
         }
         t->TokSize = strlen(TokImage);
         t->TokInfo = MkAtomTerm(ae);
@@ -1096,7 +1101,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           TokImage =
               Realloc(TokImage, (imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE)));
           if (TokImage == NULL) {
-            return CodeSpaceError(t, p, l);
+            return CodeSpaceError(st, t, p, l);
           }
        }
        break;
@@ -1143,7 +1148,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	}
       }
       if (ch == EOF) {
-	t = add_eot(t PASS_REGS);
+	t = add_eot(t, st PASS_REGS);
 	return l;
       }
       break;
@@ -1160,6 +1165,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 	int pch = Yap_peekWide(st-GLOBAL_Stream);
 	if(chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
 	  t->TokInfo = TermDot;
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
 	  t->Tok = Ord(eot_tok);
 	  return l;
 	}
@@ -1177,7 +1185,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
             TokImage = Realloc(TokImage, imgsz);
             if (!TokImage) {
-              return CodeSpaceError(t, p, l);
+              return CodeSpaceError(st,t, p, l);
             }
             charp = (unsigned char *)TokImage + sz;
           }
@@ -1210,7 +1218,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
             imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
             TokImage = Realloc(TokImage, imgsz);
             if (!TokImage) {
-              return CodeSpaceError(t, p, l);
+              return CodeSpaceError(st,t, p, l);
             }
             charp = (unsigned char *)TokImage + sz;
           }
@@ -1220,12 +1228,12 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         add_ch_to_buff('\0');
         ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
-          return CodeSpaceError(t, p, l);
+          return CodeSpaceError(st, t, p, l);
         }
 	t->TokSize = strlen(TokImage);
         t->TokInfo = MkAtomTerm(ae);
         if (t->TokInfo == (CELL)NIL) {
-          return CodeSpaceError(t, p, l);
+          return CodeSpaceError(st, t, p, l);
         }
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
@@ -1291,6 +1299,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           qq_t *qq = (qq_t *)calloc(sizeof(qq_t), 1);
           if (!qq) {
             LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
             return l;
@@ -1298,6 +1309,9 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
           if (cur_qq) {
             LOCAL_ErrorMessage = "quasi quote in quasi quote";
             //                      Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
             return l;
@@ -1335,6 +1349,9 @@ t->Tok = Ord(kind = Name_tok);
           LOCAL_ErrorMessage = "quasi quoted's || without {|";
           //          Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
           cur_qq = NULL;
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermError;
           return l;
@@ -1369,7 +1386,7 @@ t->Tok = Ord(kind = Name_tok);
           } else if (chtype(ch) == EF) {
 
 	  st->status |= Push_Eof_Stream_f;
-	    p = add_eot(t PASS_REGS);
+	  p = add_eot(t, st PASS_REGS);
 	    return l;
           } else {
             charp += put_utf8(charp, ch);
@@ -1380,6 +1397,9 @@ t->Tok = Ord(kind = Name_tok);
         mp = malloc(len + 1);
         if (mp == NULL) {
           LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermOutOfHeapError;
           return l;
@@ -1395,7 +1415,7 @@ t->Tok = Ord(kind = Name_tok);
         qq->end.linepos = st->charcount  - st->linestart;
         qq->end.charno = st->charcount - 1;
         if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+          return CodeSpaceError(st, t, p, l);
         }
         //        Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
         solo_flag = FALSE;
@@ -1405,16 +1425,20 @@ t->Tok = Ord(kind = Name_tok);
       t->Tok = Ord(kind = Ponctuation_tok);
       break;
     case EF:
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
       t->TokNext = NULL;
+      Yap_SetTokenStreamPosition(st, t);
       if (!l) {
 
 	Yap_EOF_Stream(st);
 	 l=t;
        } else {
   	 	  st->status |= Push_Eof_Stream_f;
-	  p = add_eot(t PASS_REGS);
+		  p = add_eot(t, st PASS_REGS);
 
 
        }
@@ -1429,6 +1453,9 @@ t->Tok = Ord(kind = Name_tok);
 	       ch, ch, chtype(ch));
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = MkIntTerm(0);
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
     }
     }
     if (LOCAL_ErrorMessage) {
