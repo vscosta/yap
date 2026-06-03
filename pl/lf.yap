@@ -134,6 +134,7 @@ current_source_module(M,M),
 
 '$load_stream'(StreamName,Stream,M0, M, Opts, FileLocation) :-
     '$accept_path'(StreamName,M, Opts),
+    set_stream(Stream,file_name(StreamName)),
     '$prepare_load_file'(StreamName,StreamName,M,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,State, FileLocation),
     '$prepare_loop'(Stream,StreamName, Opts),
     '$do_loop'(Stream, Opts,_),
