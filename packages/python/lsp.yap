@@ -54,6 +54,7 @@ add_dir/2
     %%
     %% Report all symbols for a URI
     %%
+
 uri_symbols(URI, All) :-
     string_concat("file://", FileS, URI),
     string_to_atom(FileS, File),
@@ -62,6 +63,7 @@ uri_symbols(URI, All) :-
 %%
 %% report all symbols defined in a file
 %%
+
 file_symbols(File, All) :-
    absolute_file_name(File, Path,
     [ file_type(prolog),
@@ -77,12 +79,13 @@ defa(Word,Line,File) :-
     atom_string(Name,Word).
 
 %%
+
 %% all symbols for  a project
 workspace_symbols(All) :-
     findall(t(Name,Line,URI), symbol_in_def(Name,Line,URI), All).
 
 symbol_in_def(Word,Line,URI) :-
-    def(Name,_,_,Line,File,_),
+def(Name,_,_,Line,File,_),
     string_to_atom(Word,Name),
     string_to_atom(FileS, File),
     string_concat("file://", FileS, URI).
@@ -99,6 +102,7 @@ complete(Prefix, FCs) :-
 %% @pred validate_uri(Self,URI)
 %%
 %% check for errors or warnings in the file pointed to by URI. Obj is the
+
 %% absolute_file_name(File,Path,[file_type(prolog)]),
 %%    validate_file(Self,Path).
 
@@ -133,7 +137,8 @@ analyse(H0, Line, File, MH0,  Na) :-
     def(Na,Ar,MH,_,_,predicate)
        ->
     true
-       ;
+	;
+      writeln(user_error,(Na,Ar,MH,Line,File,predicate)),
     assert(def(Na,Ar,MH,Line,File,predicate))
     ).
 
@@ -251,11 +256,12 @@ q_msg(informational, _, _) :-
 q_msg(help, _, _) :-
     !,
     fail.
-q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_),_Desc),t("warning",S, Line,Column, Line,EndCol)) :-
+q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_),_Desc),t("warning",S, Line,Column1, Line,EndCol)) :-
     !,
     format(string(S), 'singleton variable ~s.~n ', [VName]),
     atom_length(VName, Len),
-    EndCol is Column+Len.
+    Column1 is Column-1,
+    EndCol is Column1+Len.
  q_msg(warning, error(style_check(multiple,[F0|L],I ) ,_Desc ), t("warning",S, L,Column,L,EndCol)) :-
     !,
     Column=1,
@@ -276,7 +282,7 @@ q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,LP0,
     exception_property(parserLinePos, Desc, LPos),
     exception_property(parserSize, Desc, Size),
     !,
-    LP0 is LPos-1,
+    LP0 is LPos,
     LP1 is LP0+Size.
 q_msg(_error, error(existence_error(source_sink,File), _Desc),  t("warning",S, 1,0,2,0))  :-
   !,
@@ -302,7 +308,8 @@ add_file(Self, D, File) :-
     
 symbol_at(Line, Pos, Word) :-
     open(string(Line),read,Stream,[alias(data)]),
-    scan_stream(Stream,Ts),
+     writeln(user_error, Line),
+   scan_stream(Stream,Ts),
     close(Stream),
     at(Ts, Pos, Symbol),
     !,
@@ -322,7 +329,8 @@ definition(Line,Pos,t(URI,L,1,Sz)) :-
     symbol_at(Line, Pos, Word),
     string_length(Word,Sz),
     atom_string(NA,Word),
-    def(NA,_Ar,_MH,L,File,predicate),
+    def(NA,_Ar,_MH,L1,File,predicate),
+    L1 is L-1,
     atom_string(File, FileS),
     string_concat("file://", FileS, URI).
 
@@ -362,7 +370,6 @@ highlight_text(Text, LTsf):-
 user:portray_message(A,B):-
     lsp(on),
     !,
-    writeln(user_error,B),
     (
      q_msg(A,B,T),
      A \= "ignored"
