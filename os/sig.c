@@ -252,7 +252,6 @@ static void HandleSIGSEGV(int sig, void *sipv, void *uap) {
     fprintf(stderr, "%% likely bug in YAP, segmentation violation");
 #if HAVE_BACKTRACE
       void *callstack[256];
-      int i;
       int frames = backtrace(callstack, 256);
 backtrace_symbols_fd(callstack, frames, 2);
 Yap_dump_stack(stderr);

@@ -427,36 +427,33 @@ prolog_load_context(term_position, Position ) :-
 
 % if the file exports a module, then we can
 % be imported from any module.
-'$file_loaded'(F0, TargetModule, M) :-
-     file_directory_name(F0,''),
-    !,
-    '$file_was_loaded'(F0,TargetModule, M).
-'$file_loaded'(F0, TargetModule, M) :-
+'$file_loaded'(F0, TargetModule) :-
 ( atom_concat(Prefix, '.qly', F0 )
  -> true
     ;
 	Prefix=F0
     ),
     absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
-    '$file_was_loaded'(F,TargetModule, M).
+    '$file_was_loaded'(F,TargetModule).
 
-'$file_was_loaded'(F, _TargetModule,   NM) :-
-    % make sure: it either defines a new module or it was loaded in the same context
-    ('$module'(F,NM,_P,_) ->
-	 true
-    ;
+'$file_was_loaded'(F, M ) :-
+s    % make sure: it either defines a new module or it was loaded in the same context
+    '$module'(F,_InnerM,_P,_),
+    !.
+'$file_was_loaded'(F, M ) :-
     % loaded from the same module, but does not define a module.
-      prolog_load_context( stream, OldF),
-      recorded('$lf_loaded','$lf_loaded'( F, _M, _Reconsult, _UserFile, OldF, _Line, _Opts), _)
-    ).
+      recorded('$lf_loaded','$lf_loaded'( F, M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _),
+      !.
 
 % if the file exports a module, then we can
 % be imported from any module.
-'$file_unchanged'(F0, TargetModule, NM) :-
-    '$file_loaded'(F0, TargetModule, NM),
+'$file_did_not_change'(F0, Mod) :-
+    '$file_unchamged'(F0, Mod),
+    % last access
     user:'$source_file'(F0, Age),
+    % last change
     time_file64(F0,CurrentAge),
-    ( Age == CurrentAge ; Age = -1).
+    Age >= CurrentAge.
 
 	% inform the file has been loaded and is now available.
 '$tell_loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, Opts) :-
@@ -466,7 +463,8 @@ prolog_load_context(term_position, Position ) :-
 	 Reconsult0 \== consult,
 	 Reconsult0 \== not_loaded,
 	 Reconsult0 \== changed,
-%	 retractall('$source_file'(F, _)),
+	 Retractall
+	 ('$source_file'(F, _)),
 	 fail
 	;
 	 var(Reconsult0)
@@ -490,7 +488,7 @@ prolog_load_context(term_position, Position ) :-
 	),
 	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0), 
     recorded('$source_file','$source_file'(F, Age),_),
-	% modules are logically loaded only once
+xs	% modules are logically loaded only once
 
 	(
 	    '$module'(F,_DonorM, _AllExports, _Line) ->

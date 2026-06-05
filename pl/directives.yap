@@ -127,7 +127,6 @@
 '$lf_args'(reexport(Fs, Spec),Fs, [reexport(true),if(changed),must_be_module(true),import(Spec)]).
 '$lf_args'(use_module(Fs), Fs, [if(changed), silent(true), must_be_module(true)]).
 '$lf_args'(use_module(Fs,Spec), Fs, [if(changed), silent(true),must_be_module(true),import(Spec)]).
-'$lf_args'(use_module(Fs,Spec), Fs, [if(changed), silent(true),must_be_module(true),import(Spec)]).
 
 '$exec_directives'((G1,G2), Mode, M, VL, Pos) :-
     !,

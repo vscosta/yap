@@ -526,17 +526,22 @@ T\=Module,
 	fail.
 '$check_import'(M0, M1, N, K) :-
     '$import'(M2, M1, _, _, N,K),
-    !,
+(M1== M2
+    ->
+    !
+    ;
     (M2 == M0
     ->
 	'$redefine_import'( M2, M1, M0, M1, N/K)
-    ;
+;
 	'$check_import'(M0, M2, N, K)
-    ).
+    )
+  ).
 '$check_import'(_,_,_,_).
 
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
-%    current_prolog_flag(redefine_warnings, Action),
+    current_prolog_flag(redefine_warnings, Action),
+    !,
     '$redefine_action'(Action, M1, M2, Mod, ContextM, N/K).
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
     '$redefine_action'(false, M1, M2, Mod, ContextM, N/K).
@@ -728,6 +733,8 @@ ls_imports :-
     fail.
 ls_imports.
 
+unload_module(Mod) :-
+writeln(Mod),fail.
 unload_module(user) :-
     !.
 unload_module(prolog) :-
@@ -745,8 +752,8 @@ unload_module(Mod) :-
 % remove imported modules
 unload_module(Mod) :-
      '$module'( _, Mod, _, Exports),
-    '$memberchk'( op(X, _Y, Op), Exports ),
-    op(X, 0, Mod:Op),
+    member( op(_X, Y, Mod:Op), Exports ),
+    op( 0, Y, Mod:Op),
      fail.
 unload_module(Mod) :-
     module_predicate(Mod,N,A,_),

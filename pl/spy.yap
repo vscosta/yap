@@ -2,7 +2,8 @@
   * @file spy.yap
  * @brief debugger operation.
  */
-:- system_module_( '$_debug', [debug/0,
+
+/* :- system_module_( '$_debug', [debug/0,
         debugging/0,
         leash/1,
         nodebug/0,
@@ -24,6 +25,8 @@
 :- use_system_module( '$_modules', ['$meta_expansion'/6]).
 
 :- use_system_module( '$_preds', ['$clause'/4]).
+
+*/
 
 :- multifile prolog:debug_action_hook/1.
 

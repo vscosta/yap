@@ -116,12 +116,26 @@ current_source_module(M,M),
     strip_module(M:UserNamePath,M1,NamePath),
 '$load_file'(NamePath, M0, M1, Opts,FileLocation).
 
+prolog:c0trace(G) :-
+    gated_call(start_low_level_trace,
+	       user:G,
+	       _,
+	       stop_low_level_trace).
+
 '$load_file'(UserNamePath, M0, M, Opts,FileLocation) :-
     % writeln(UserNamePath:'$file_to_abs_path'),
     '$file_to_abs_path'(UserNamePath,AbsPath, Opts, FileLocation),
-    % writeln('$acces_path'),
-    '$accept_path'(AbsPath,M, Opts),
-    % writeln('prepare_path'),
+    % writeln('$acces_path'=AbsPath),
+%(atom_concat(_,'lists.yap', AbsPath)
+%    -> c0trace(( '$accept_path'(AbsPath,M, Opts) -> fail ; true ));
+    (
+    '$accept_path'(AbsPath,M, Opts)
+    ->
+    true;
+   '$import_module'(_InnerModule,M, AbsPath, Opts),
+    fail
+    ),
+     writeln(prepare_load_file=AbsPath),
     '$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,State, FileLocation),
     % writeln('pen_path'),
     '$open_stream'(AbsPath, Opts, Stream),
@@ -142,8 +156,7 @@ current_source_module(M,M),
 
 '$file_to_abs_path'(UserName,AbsPath, Opts, FileLocation) :-   
    ( '$memberchk'(expand(Expand),Opts) -> true ; Expand = true ),
-    (   absolute_file_name(UserName, AbsPath, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(Expand)]) 
-     ->
+    (   absolute_file_name(UserName, AbsPath, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(Expand)]) ->
      Type = prolog
 	;
      absolute_file_name(UserName, AbsPath, [access(read),file_type(qly),file_errors(fail),solutions(first),expand(Expand)])
@@ -156,12 +169,20 @@ current_source_module(M,M),
 % first case: we have the file already loaded, or at
 % list declared, so we can reuse it.
 '$accept_path'(AbsPath, OuterModule, Opts) :-
-    ( '$memberchk'(if(If), Opts) -> true ; If = true),
-    '$accept'(If,AbsPath,InnerModule,OuterModule),
+    '$memberchk'(if(not_loaded), Opts),
+    '$file_was_loaded'(AbsPath, OuterModule),
     !,
-    '$import_module'(InnerModule,OuterModule, AbsPath, Opts),
-    fail.
-%
+   fail.
+
+ 
+% first case: we have the file already loaded, or at
+% list declared, so we can reuse it.
+'$accept_path'(AbsPath, OuterModule, Opts) :-
+    '$memberchk'(if(unchanged), Opts),
+    '$file_unchanged'(AbsPath, OuterModule)
+   !,
+   fail.
+
 %
 % case 2: we have a loop
 '$accept_path'(AbsPath, _, _Opts) :-
@@ -171,17 +192,10 @@ current_source_module(M,M),
     !,
     throw(error(compile_loop(AbsPath),compiling(Files)),load_files(AbsPath)).
 %
-% case 3: we can load the file.
+% case 3: we must reload the file.
 %
+'$accept_path'(_,_,_).
 
-'$accept_path'(_AbsPath, _, _Opts).
-    
-'$accept'(not_loaded,UserNamePath,InnerModule,OuterModule) :-
-     '$file_loaded'(UserNamePath, OuterModule, InnerModule),
-    !.
-'$accept'(unchanged,UserNamePath,InnerModule, OuterModule) :-
-   '$file_unchanged'(UserNamePath, OuterModule, InnerModule),
-    !.
 
 '$do_loop'(Stream, Opts,_) :-
  ('$memberchk'( consult(Cs), Opts) -> true ; Cs = reconsult),

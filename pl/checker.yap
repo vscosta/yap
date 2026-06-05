@@ -158,8 +158,6 @@ separated by clauses from other procedures.
 */
 
 :- op(1150, fx, [multifile,discontiguous]).
-
-
 /**
 @}
 */

@@ -77,3 +77,4 @@ prolog:'$protect'.
 '$visible'('$qq_open').
 '$visible'('$live').
 '$visible'('$import').
+'$visible'('$init_debugger').
