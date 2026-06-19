@@ -436,19 +436,19 @@ prolog_load_context(term_position, Position ) :-
     absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
     '$file_was_loaded'(F,TargetModule).
 
-'$file_was_loaded'(F, M ) :-
-s    % make sure: it either defines a new module or it was loaded in the same context
-    '$module'(F,_InnerM,_P,_),
+'$file_was_loaded'(F,_OuterMod, InnerM ) :-
+    % make sure: it either defines a new module or it was loaded in the same context
+    '$module'(F,InnerM,_P,_),
     !.
-'$file_was_loaded'(F, M ) :-
+'$file_was_loaded'(F,	M, M ) :-
     % loaded from the same module, but does not define a module.
       recorded('$lf_loaded','$lf_loaded'( F, M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _),
       !.
 
 % if the file exports a module, then we can
 % be imported from any module.
-'$file_did_not_change'(F0, Mod) :-
-    '$file_unchamged'(F0, Mod),
+ '$file_did_not_change'(F0, Mod, Imod) :-
+    '$file_was_loaded'(F0, Mod, Imod),
     % last access
     user:'$source_file'(F0, Age),
     % last change
@@ -456,47 +456,24 @@ s    % make sure: it either defines a new module or it was loaded in the same co
     Age >= CurrentAge.
 
 	% inform the file has been loaded and is now available.
-'$tell_loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, Opts) :-
-    prolog_load_context(directory, Dir),
-	(
-	 % if we are reconsulting, always start from scratch
-	 Reconsult0 \== consult,
-	 Reconsult0 \== not_loaded,
-	 Reconsult0 \== changed,
-	 Retractall
-	 ('$source_file'(F, _)),
-	 fail
-	;
-	 var(Reconsult0)
-	->
-	 Reconsult = consult
-	;
-	 Reconsult = Reconsult0
-	),
-    (
-     Reconsult \== consult
+'$tell_loaded'(F, _UserFile, M, _OldF, _Line, _Reconsult0f, _Reconsult, _Dir, _Opts) :-
+    '$module'(F,M,_P,_),
+    !,
+    fail.
+ '$tell_loaded'(F, UserFile, M, OldF, Line, _Reconsult0, Reconsult, Dir, Opts) :-
+		  prolog_load_context(directory, Dir),
+    (Reconsult \== consult
       ->
-     unload_file(F),
-     fail
-	;
-     
-     var(Reconsult)
-     ->
-     Reconsult = reconsult
-	;
-     Reconsult = Reconsult0
-	),
+     unload_file(F)),
+    
 	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0), 
-    recorded('$source_file','$source_file'(F, Age),_),
-xs	% modules are logically loaded only once
+    (recorded('$source_file','$source_file'(F, _Age),Ref), erase(Ref) ->
+    recorda('$source_file','$source_file'(F, Age),Ref), erase(Ref)
+    ;
+    true),
+	% modules are logically loaded only once
 
-	(
-	    '$module'(F,_DonorM, _AllExports, _Line) ->
-	    true
-	;
-
-	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _)
-	).
+	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
 
 /** @pred make
 
@@ -557,8 +534,7 @@ unload_file_(_).
     unload_module(DonorM),
     fail.
 '$unload_file'(File) :-
-	retractall('$source_file','$source_file'(File,_Age), R),
-    erase(R),  
+	retractall('$source_file'(File,_Age)),
 	fail.
 '$unload_file'(File) :-
 	recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
@@ -587,7 +563,7 @@ unload_file_(_).
 term_expansion/2, goal_expansion/2 and the expansion of
 grammar rules to compile sections of the source-code
 conditionally. One of the reasons for introducing conditional
-compilation is to simplify writing portable code.
+compilation is to simplify riting portable code.
 
 
 Note that these directives can only be appear as separate terms in the
@@ -715,7 +691,7 @@ QEnd of cond  itional compilation.
     nb_setval('$conditional_compilation_level',[run]).
 
 '$conditional_compilation_get_state'(state(LB)) :-
-    catch(nb_getval('$conditional_compilation_level', LB), _Undef,
+a    catch(nb_getval('$conditional_compilation_level', LB), _Undef,
 ('$conditional_compilation_init',
 '$conditional_compilation_get_state'(state(LB)) )
 ).

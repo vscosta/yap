@@ -138,8 +138,8 @@ analyse(H0, Line, File, MH0,  Na) :-
        ->
     true
 	;
-      writeln(user_error,(Na,Ar,MH,Line,File,predicate)),
-    assert(def(Na,Ar,MH,Line,File,predicate))
+`   Line1 is Line-1,
+    assert(def(Na,Ar,MH,Line1,File,predicate))
     ).
 
 rule((A0:- B),Line,File,Module,Na) :-
@@ -149,15 +149,17 @@ rule((A0:- B),Line,File,Module,Na) :-
     def(Na,Ar,MH,_,_,predicate)
        ->
     true
-       ;
-    assert(def(Na,Ar,MH,Line,File,predicate))
+	;
+      Line1 is Line-1,
+      assert(def(Na,Ar,MH,Line1,File,predicate))
     ),
     body(B,Line,File,Module,MH:Na/Ar).
 directive(module(M,Ls),L,F,M0) :-
-    assert(def('',0,M,L,F,module)),
-    assert(use('',0,M,'',0,M0,L,F,module)),
+L1 is L-1,
+    assert(def('',0,M,L1,F,module)),
+    assert(use('',0,M,'',0,M0,L1,F,module)),
     current_source_module(M0,M),
-    maplist(mod(L,F,M),Ls).
+    maplist(mod(L1,F,M),Ls).
 directive(op(A,B,C), _Line,_File,M) :- 
     op(A,B,M:C).
 directive(use_module(_A), _Line,_File,_M) :- 
@@ -203,7 +205,8 @@ body((A->B),L,F,M,P0) :-
     body(B,L,F,M,P0).
 body(A,L,F,M,M0:Na0/Ar0) :-
     functor(A,NA,Ar),
-    assert(use(NA,Ar,M,Na0,Ar0,M0,L,F,predicate)).
+L1 is L-1,
+    assert(use(NA,Ar,M,Na0,Ar0,M0,L1,F,predicate)).
 
 
 mod(Line,File,M,N/A) :- assert(dec(N,A,M,Line,File,export(predicate))).
@@ -282,7 +285,7 @@ q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,LP0,
     exception_property(parserLinePos, Desc, LPos),
     exception_property(parserSize, Desc, Size),
     !,
-    LP0 is LPos,
+    LP0 is LPos-1,
     LP1 is LP0+Size.
 q_msg(_error, error(existence_error(source_sink,File), _Desc),  t("warning",S, 1,0,2,0))  :-
   !,

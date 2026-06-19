@@ -878,7 +878,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     r->errorMsgLen = 0;
     r->errorMsg = NULL;
   }
-  int 1sno = Yap_CheckAlias(AtomLoopStream);
+//  int sno = Yap_CheckAlias(AtomLoopStream);
   if (type != SYNTAX_ERROR) {
     const char *s =  RepAtom(Yap_source_name())->StrOfAE;
      r->parserFile = strcpy(malloc(strlen(s)+1),s);

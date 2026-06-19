@@ -205,7 +205,7 @@ is_list(L),
 '$exec_directive'(reexport(Fs), Status, M, VList, Loc) :-
 	 '_exec_load_files'(M:Fs,[if(not_loaded),must_be_module(true),reexport(true), silent(true)], Status, VList, Loc).
 '$exec_directive'(reexport(Fs,Spec), Status, M, VList, Loc) :-
- 	 '_exec_load_files'(M:Fs,[if(not_loaded),imports(Spec),must_be_module(true),reexport(true), silent(true)], Status, VList, Loc).
+      '_exec_load_files'(M:Fs,[if(not_loaded),imports(Spec),must_be_module(true),reexport(true), silent(true)], Status, VList, Loc).
 '$exec_directive'(use_module(Fs), Status, M, VList, Loc) :-
  	 '_exec_load_files'(M:Fs,[if(not_loaded),must_be_module(true), silent(true)], Status, VList, Loc).
 '$exec_directive'(use_module(Fs,Is), Status, M, VList, Loc) :-

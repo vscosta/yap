@@ -212,9 +212,9 @@ listing(Stream, [MV|MVs]) :- !,
     (
 	M == Mod
     ->
-      format( Stream, ':- ~q.~n', [PredDef])
+      format( Stream, ':- meta_predicate( ~q ).~n', [PredDef])
     ;
-      format( Stream, ':- ~q:~q.~n', [M,PredDef])
+      format( Stream, ':- meta_predicate( ~q:~q ).~n', [M,PredDef])
      ),
      fail.
 '$list_clauses'(Stream, _M, _Pred) :-

@@ -98,7 +98,7 @@ set_module_property(Mod, class(Class)) :-
 	must_be_of_type( module, Mod),
 	must_be_of_type( atom, Class).
 
-'$add_module_on_file'( DonorM, DonorF, _HostM, Exports, _LocationF) :-
+'$add_module_on_file'( DonorM, DonorF, _HostM, Exports, _Location) :-
     '$module'(OtherF, DonorM, OExports, _),
     % the module has been found, are we reconsulting?
     (
@@ -118,8 +118,9 @@ set_module_property(Mod, class(Class)) :-
      DonorM= user -> DonorF = user_input ;
      DonorF0 = DonorF
      ),
-    '$m_normalize'(Exports,DonorM,Tab),
-    '$sort'( Tab, AllExports ),
+(retract('$module'(DonorF,DonorM, AllExports0, Location)) -> true ; AllExports0 =  []),
+'$m_normalize'(Exports,DonorM,Tab,AllExports0),
+'$sort'( Tab, AllExports ),
     % last, export to the host.
     asserta('$module'(DonorF,DonorM, AllExports, Location)),
    (
@@ -172,7 +173,7 @@ before.
 
 Re-exporting predicates must be used with some care. Please, take into
 account the following observations:
-
+1
 <ul>
   + The `reexport` declarations must be the first declarations to
   follow the `module` declaration.  </li>
@@ -187,21 +188,6 @@ account the following observations:
   the file may result in incorrect execution.
 
 */
-'$reexport'(M, _, M ) :-
-    !.
-'$reexport'(user, _, _M ) :-
-    !.
-'$reexport'(HostM, AllReExports, _DonorM ) :-
-%       writeln(r0:DonorM/HostM),
-    ( retract('$module'( HostF, HostM, AllExports, Location)) -> true ; HostF = user_input,AllExports=[] ,Location='$stream_position'(0,1,0,0)),
-    '$append'( AllReExports, AllExports, Everything0 ),
-    '$sort'( Everything0, Everything ),
-    '$operators'(AllReExports, HostM),
-%    '$operators'(AllReExports, DonorM),
-    %    writeln(r:DonorM/HostM),
-    asserta('$module'(HostF,HostM, Everything, Location)).
-
-
 
 /**
 @}
@@ -233,16 +219,26 @@ This predicate actually exports _Module to the _ContextModule_.
 '$import_module'(DonorM, HostM,File, Opts) :-
     DonorM \= HostM,
     '$module'(File, DonorM, Exports, _),
-    ignore(member(imports(Imports),Opts)),
+(
+    '$memberchk'(imports(Imports),Opts)
+    ->
+    true
+    ;
+         Imports = all
+    ),
     '$filter'(Imports, Exports, Tab),
     '$add_to_imports'(Tab, DonorM, HostM),
-    (     '$memberchk'(reexport(true),Opts)
+     (     '$memberchk'(reexport(true),Opts)
     ->
-    '$reexport'(HostM, Tab, DonorM )
+    % reexport
+    retract('$module'(HostFile, HostM, InitialExports, HostLocation)),
+    '$m_normalize'(Imports, HostM, HostTab, InitialExports),
+    '$operators'(HostTab,HostM),
+    asserta('$module'( HostFile,HostM, HostTab, HostLocation))
     ;
-    true
+   true
     ),
-    !.
+   !.
 
 /**
 
@@ -298,44 +294,18 @@ This predicate actually exports _Module to the _ContextModule_.
  _Imports is what the ContextModule needed.																			
 */
 
-'$import_module'(DonorM, HostM, F, _Opts) :-
-    DonorM ==  HostM,
-    !,
-    (
-	'$source_file_scope'( F, M)
-    ->
-    true;
-	assert('$source_file_scope'( F, M) )
-    ).
-'$import_module'(DonorM, HostM, File, _Opts) :-
-    \+
-	'$module'(File, DonorM, _ModExports, _),                                                                 
-	% enable loading C-predicates from a different file
-	recorded( '$load_foreign_done', [File, DonorM], _),
-	'$import_foreign'(File, DonorM, HostM ),
-	fail.
-'$import_module'(DonorM, HostM,File, Opts) :-
-    DonorM \= HostM,
-    '$module'(File, DonorM, Exports, _),
-    ignore(member(imports(Imports),Opts)),
-    '$filter'(Imports, Exports, Tab),
-    '$add_to_imports'(Tab, DonorM, HostM),
-    (     '$memberchk'(reexport(true),Opts)
-    ->
-    '$reexport'(HostM,Tab, DonorM )
-    ;
-    true
-    ),
-    !.
-'$import_module'(_, _, _, _).
 
-'$m_normalize'([],_, []).
-'$m_normalize'([Decl|Ls], M, [NDecl|NLs]) :-
-    '$m_norm'(Decl,M,NDecl),
+'$m_normalize'(Decls,M,NormalizedDecls):-
+'$m_normalize'(Decls,M,NormalizedDecls, []).
+
+
+'$m_normalize'([],_,ODecls,ODecls) :-  !.
+'$m_normalize'([Decl|Ls], M, [NDecl|NDecls], RDecls) :-
+'$m_norm'(Decl,M,NDecl),
     !,
-    '$m_normalize'(Ls, M, NLs).
-'$m_normalize'([Decl|Ls], M, [Decl|NLs]) :-
-    '$m_normalize'(Ls, M, NLs).
+    '$m_normalize'(Ls, M, NDecls, RDecls).
+'$m_normalize'([Decl|Ls], M, [Decl|NDecls], RDecls):-
+	'$m_normalize'(Ls, M, NDecls, RDecls).
 
 '$m_norm'(N/A, _M, N/A-N/A).
 '$m_norm'(N//A, _M, N/A2-N/A2) :- A2 is A+2.
@@ -398,4 +368,9 @@ This predicate actually exports _Module to the _ContextModule_.
     [P0-P/N2].
 '$select_p'(_P,_E,F,F).
 
+
+lsmods:-
+'$module'(F,M,N,_L),
+format('~s in ~s export ~w~n',[M,F,N]),	
+fail.
 

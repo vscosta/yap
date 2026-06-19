@@ -241,7 +241,7 @@ use_module(User, I) :-
     strip_module(User,HostM,user),
     !,
     user \= HostM,
-    '$m_normalize'(I,HostM,NI),
+    '$m_normalize'(I,HostM,NI, []),
     forall(member(D,NI),'$do_import'(D, user, HostM)).
 
 use_module(F,Is) :-
@@ -752,7 +752,7 @@ unload_module(Mod) :-
 % remove imported modules
 unload_module(Mod) :-
      '$module'( _, Mod, _, Exports),
-    member( op(_X, Y, Mod:Op), Exports ),
+    current_op(_X, Y, Mod:Op),
     op( 0, Y, Mod:Op),
      fail.
 unload_module(Mod) :-

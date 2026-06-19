@@ -127,19 +127,14 @@ prolog:c0trace(G) :-
     '$file_to_abs_path'(UserNamePath,AbsPath, Opts, FileLocation),
     % writeln('$acces_path'=AbsPath),
 %(atom_concat(_,'lists.yap', AbsPath)
-%    -> c0trace(( '$accept_path'(AbsPath,M, Opts) -> fail ; true ));
-    (
-    '$accept_path'(AbsPath,M, Opts)
-    ->
-    true;
-   '$import_module'(_InnerModule,M, AbsPath, Opts),
-    fail
-    ),
-     writeln(prepare_load_file=AbsPath),
-    '$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,State, FileLocation),
+% -> c0trace(( '$accept_path'(AbsPath,M, Opts) -> fail ; true ));
+    '$accept_path'(AbsPath,M, Opts), writeln(new_file=AbsPath),
+    '$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts,
+    OldLoadVerbose,Verbose,T0,H0,D0,Source,State, FileLocation),
     % writeln('pen_path'),
     '$open_stream'(AbsPath, Opts, Stream),
     % writeln('prepare_loop'),
+    !,
     '$prepare_loop'(Stream,AbsPath, Opts),
     % writeln(do_loop),
     '$do_loop'(Stream, Opts,_),
@@ -166,35 +161,43 @@ prolog:c0trace(G) :-
      throw(error(existence_error(source_sink,UserName),FileLocation))
      ).
 
+% fi% case 2: we have a loop
+'$accept_path'(AbsPath, OuterModule, Opts) :-
+    '__NB_getval__'('$consulting_file', Files, fail),
+    % % writeln(l(AbsPath, Files)),
+%writeln(in:AbsPath:Files),
+    '$memberchk'( l(AbsPath,_), Files),
+    !,
+%writeln(got),
+      '$module'(AbsPath,M,_P,_),
+    '$import_module'(M,OuterModule,AbsPath, Opts),
+    fail.
+
 % first case: we have the file already loaded, or at
 % list declared, so we can reuse it.
 '$accept_path'(AbsPath, OuterModule, Opts) :-
     '$memberchk'(if(not_loaded), Opts),
-    '$file_was_loaded'(AbsPath, OuterModule),
+    '$file_was_loaded'(AbsPath, OuterModule, M),
     !,
+%writeln(rec),
+    '$import_module'(M,OuterModule,AbsPath, Opts),
    fail.
 
- 
-% first case: we have the file already loaded, or at
+%first case: we have the file already loaded, or at
 % list declared, so we can reuse it.
 '$accept_path'(AbsPath, OuterModule, Opts) :-
     '$memberchk'(if(unchanged), Opts),
-    '$file_unchanged'(AbsPath, OuterModule)
+    '$file_unchanged'(AbsPath, OuterModule, M),
    !,
-   fail.
+%writeln(clean),
+      '$import_module'(M,OuterModule,AbsPath, Opts),
+ fail.
 
 %
-% case 2: we have a loop
-'$accept_path'(AbsPath, _, _Opts) :-
-    '__NB_getval__'('$consulting_file', Files, fail),
-    % % writeln(l(AbsPath, Files)),
-    '$memberchk'( l(AbsPath,_), Files),
-    !,
-    throw(error(compile_loop(AbsPath),compiling(Files)),load_files(AbsPath)).
 %
 % case 3: we must reload the file.
 %
-'$accept_path'(_,_,_).
+'$accept_path'(_,_,_) :- writeln(ok).
 
 
 '$do_loop'(Stream, Opts,_) :-
@@ -202,7 +205,9 @@ prolog:c0trace(G) :-
     '$loop'(Stream, Cs).
 
 '$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,State, Location) :-
-    '$conditional_compilation_get_state'(State),
+%   writeln(l(AbsPath)),
+stop_low_level_trace,
+ '$conditional_compilation_get_state'(State),
   (
 	'$memberchk'(source_module(OuterModule),Opts)
    ->
@@ -235,7 +240,7 @@ prolog:c0trace(G) :-
     (
      true %Reconsult == reconsult
      ->
-     unload_file(AbsPath)
+     unload_file_(AbsPath)
      ;
      true
      ),
@@ -284,7 +289,7 @@ prolog:c0trace(G) :-
 
     
 '$skip_unix_header'(Stream) :-
-	peek_char(Stream, '#'), !, % 35 is ASCII for '#
+    peek_char(Stream, '#'), !, % 35 is ASCII for '#
     skip(Stream, 10),
     '$skip_unix_header'(Stream).
 '$skip_unix_header'(_).
