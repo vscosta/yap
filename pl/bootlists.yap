@@ -17,9 +17,10 @@
 /** @pred memberchk(+ _Element_, + _Set_)
 
 
-As member/2, but may only be used to test whether a known
- _Element_ occurs in a known Set.  In return for this limited use, it
-is more efficient when it is applicable.
+
+As member/2, but may only be used to test whether a known _Element_
+ occurs in a known Set.  In return for this limited use, it is more
+ efficient when it is applicable.
 
 
 */
@@ -137,3 +138,16 @@ prolog:length(L, M) :-
 
 %% @}
 
+%%   @pred ord_subset(+Set1, +Set2)
+%   is true when every element of the ordered set Set1 appears in the
+%   ordered set Set2.
+
+'$ord_subset'([], _) :- !.
+'$ord_subset'([Head1|Tail1], [Head2|Tail2]) :-
+	compare(Order, Head1, Head2),
+	'$ord_subset'(Order, Head1, Tail1, Head2, Tail2).
+
+'$ord_subset'(=, _, Tail1, _, Tail2) :-
+	'$ord_subset'(Tail1, Tail2).
+'$ord_subset'(>, Head1, Tail1, _, Tail2) :-
+	'$ord_subset'([Head1|Tail1], Tail2).

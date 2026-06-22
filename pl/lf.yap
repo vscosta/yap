@@ -128,7 +128,6 @@ prolog:c0trace(G) :-
     % writeln('$acces_path'=AbsPath),
 %(atom_concat(_,'lists.yap', AbsPath)
 % -> c0trace(( '$accept_path'(AbsPath,M, Opts) -> fail ; true ));
-    '$accept_path'(AbsPath,M, Opts), writeln(new_file=AbsPath),
     '$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts,
     OldLoadVerbose,Verbose,T0,H0,D0,Source,State, FileLocation),
     % writeln('pen_path'),
@@ -206,7 +205,7 @@ prolog:c0trace(G) :-
 
 '$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,State, Location) :-
 %   writeln(l(AbsPath)),
-stop_low_level_trace,
+writeln('OK'),
  '$conditional_compilation_get_state'(State),
   (
 	'$memberchk'(source_module(OuterModule),Opts)
@@ -313,7 +312,7 @@ enter_compiler(Stream,Status) :-
     (
      Clause == end_of_file
      ->
-
+writeln('EX'),
      !
 	;
      '$conditional_compilation_skip'(Clause)
@@ -392,14 +391,13 @@ call_compiler(G, Where,_VL, Pos) :-
      OldLoadVerbose = Verbose
      ),
     % required to boot
-    (
-     Verbose == true
-     ->
      H0	 is heapused, '$cputime'(T0,_),
      StartMessage = loading,
-     print_message(informational, loading(StartMessage, UserFile))
-	;
-     true
+(Verbose == true
+  ->
+  print_message(informational, loading(StartMessage, UserFile))
+    ;
+  true
      ).
 
 '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,_) :-
@@ -441,33 +439,24 @@ strip_module(Fs,_M,S),
 '$include'(File) :-
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(File,Y,Dir,Stream),
-    working_directory(Dir0, Dir),
-    stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
+     working_directory(Dir0, Dir),
+   stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
     ignore(recordzifnot('$includes', (Old ->Y),_)),
     set_stream(Stream, [encoding(Encoding), alias(include_stream)] ),
     print_message(informational, loading(including, Y)),
     %b_getval('$consulting_file',[l(_,Reconsult)|_Files]), 
     '$loop'(Stream,reconsult),
+writeln('OK2'),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     current_source_module(Mod,Mod),
     print_message(informational, loaded(included, Y, Mod, T, H)),
     working_directory(_Dir, Dir0).
 
-'$stream_and_dir'(F,F,Dir,_Stream) :-
-file_directory_name(F,'.'),
-    !,
-    working_directory(_Dir, Dir).
-'$stream_and_dir'(user_input,user_input,Dir,user_input) :-
-	!,
-    working_directory(_Dir, Dir).
 '$stream_and_dir'(File,Y,Dir,Stream) :-
     absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
-    ( open(Y, read, Stream) 	->
-     true ;
-     throw(error(permission_error(input,stream,Y),include(File)))
-     ),
-    file_directory_name(Y, Dir).
+open(Y,read,Stream),
+file_directory_name(Y, Dir).
 
 
 

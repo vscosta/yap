@@ -313,7 +313,7 @@ bool
 assign_obj(PyObject* ctx, PyObject *val, YAP_Term yt, bool eval) {
   YAP_Term hd;
 
-  Term t = yt;
+  //Term t = yt;
   //  ctx = find_term_obj(ctx,&t,val);
   // Yap_DebugPlWriteln(yt);
       ssize_t len;

@@ -692,5 +692,4 @@ xadd_random([],[]).
 xadd_random([H|L],[_R-H|NL]) :-
 xadd_random(L,NL).
 
-
 /** @} */

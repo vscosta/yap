@@ -270,7 +270,7 @@ Last, when you configure YAP you need to add the options --with-cidd --enable-bd
 @ingroup YAP_ProbLog1
 @{
 
-To use ProbLog, the ProbLog module has to be loaded at the top of your Prolog programs. This is done with the following statement:
+To use ProbLog, the ProbLog module has to be loaded at the top of your Prolog programs. This is done with the following statement
 ```
 :- use_module(library(problog)).
 ```

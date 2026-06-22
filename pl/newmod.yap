@@ -105,8 +105,11 @@ set_module_property(Mod, class(Class)) :-
 	DonorF \= OtherF
 	->
 	throw_error(permission_error(module,redefined,DonorM, OtherF, DonorF),module(DonorM,Exports) )
-    ;
-    OExports == Exports
+	;
+      '$m_normalize'(Exports,DonorM,Tab,OExports),
+writeln(2:Tab),
+      '$sort'( Tab, AllExports ),
+      '$ord_subset'(OExports , AllExports )
     ->
     !
     ;
@@ -120,9 +123,11 @@ set_module_property(Mod, class(Class)) :-
      ),
 (retract('$module'(DonorF,DonorM, AllExports0, Location)) -> true ; AllExports0 =  []),
 '$m_normalize'(Exports,DonorM,Tab,AllExports0),
+
 '$sort'( Tab, AllExports ),
     % last, export to the host.
     asserta('$module'(DonorF,DonorM, AllExports, Location)),
+writeln('>>>>>>>>>>>>>>>'+'$module'(DonorF,DonorM, AllExports, Location)),
    (
     recorded('$source_file','$source_file'(DonorF,Time), R),
     erase(R),
@@ -211,7 +216,7 @@ This predicate actually exports _Module to the _ContextModule_.
     ).
 */
 '$import_module'(DonorM, HostM, File, _Opts) :-
-	'$module'(File, DonorM, _ModExports, _),                                
+    '$module'(File, DonorM, _ModExports, _),
 	% enable loading C-predicates from a different file
 	recorded( '$load_foreign_done', [File, DonorM], _),
 	'$import_foreign'(File, DonorM, HostM ),
@@ -219,26 +224,23 @@ This predicate actually exports _Module to the _ContextModule_.
 '$import_module'(DonorM, HostM,File, Opts) :-
     DonorM \= HostM,
     '$module'(File, DonorM, Exports, _),
-(
-    '$memberchk'(imports(Imports),Opts)
-    ->
-    true
-    ;
-         Imports = all
-    ),
+    ignore('$memberchk'(imports(Imports),Opts)),
     '$filter'(Imports, Exports, Tab),
-    '$add_to_imports'(Tab, DonorM, HostM),
-     (     '$memberchk'(reexport(true),Opts)
-    ->
-    % reexport
-    retract('$module'(HostFile, HostM, InitialExports, HostLocation)),
-    '$m_normalize'(Imports, HostM, HostTab, InitialExports),
-    '$operators'(HostTab,HostM),
-    asserta('$module'( HostFile,HostM, HostTab, HostLocation))
-    ;
-   true
-    ),
-   !.
+   '$add_to_imports'(Tab, DonorM, HostM),
+        '$do_reexport'(HostM, Opts).
+
+'$do_reexport'(HostM, Opts) :-
+    '$memberchk'(reexport(true),Opts),
+      !,
+	retract('$module'(HostFile, HostM, HostTab, HostLocation)),
+ignore( '$memberchk'(imports(Imports),Opts) ),
+    HostM:'$m_normalize'(Imports, HostM, HostTab, InitialExports),
+writeln('_________________'+'$m_normalize'(Imports, HostM, HostTab, InitialExports)),
+writeln(1:'$sort'(InitialExports),
+'$sort'(InitialExports, FinalExports),
+ '$operators'(HostTab,HostM),
+    asserta('$module'( HostFile,HostM, FinalExports, HostLocation) ).
+'$do_reexport'(_, _).
 
 /**
 
@@ -296,7 +298,7 @@ This predicate actually exports _Module to the _ContextModule_.
 
 
 '$m_normalize'(Decls,M,NormalizedDecls):-
-'$m_normalize'(Decls,M,NormalizedDecls, []).
+    '$m_normalize'(Decls,M,NormalizedDecls, []).
 
 
 '$m_normalize'([],_,ODecls,ODecls) :-  !.

@@ -197,7 +197,7 @@ if ( libpython_initialized) {
   /*   yDict_SetItemString (py_sys,"path",PyUnicode_FromString(np); */
   /* } */
   //  py_Main = PyDict_GetItemString (PySys_GetObject("modules"),"__maingre__");
-  PyObject* py_Main = PyModule_GetDict(PyImport_AddModule("__main__"));
+  //PyObject* py_Main = PyModule_GetDict(PyImport_AddModule("__main__"));
   PyObject  *builtins = PyEval_GetBuiltins(), *globals =PyDict_New();
   add_modules(PASS_REGS1);
  if (builtins)

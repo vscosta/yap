@@ -434,11 +434,12 @@ prolog_load_context(term_position, Position ) :-
 	Prefix=F0
     ),
     absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
-    '$file_was_loaded'(F,TargetModule).
+    '$file_was_loaded'(F,TargetModule),
+writeln(F:TargetModule).
 
-'$file_was_loaded'(F,_OuterMod, InnerM ) :-
-    % make sure: it either defines a new module or it was loaded in the same context
+'$file_was_loaded'(F,_OuterMod, InnerM ) :-    % make sure: it either defines a new module or it was loaded in the same context
     '$module'(F,InnerM,_P,_),
+writeln(F:InnerM),
     !.
 '$file_was_loaded'(F,	M, M ) :-
     % loaded from the same module, but does not define a module.
@@ -691,7 +692,7 @@ QEnd of cond  itional compilation.
     nb_setval('$conditional_compilation_level',[run]).
 
 '$conditional_compilation_get_state'(state(LB)) :-
-a    catch(nb_getval('$conditional_compilation_level', LB), _Undef,
+    catch(nb_getval('$conditional_compilation_level', LB), _Undef,
 ('$conditional_compilation_init',
 '$conditional_compilation_get_state'(state(LB)) )
 ).

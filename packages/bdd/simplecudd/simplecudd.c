@@ -1689,14 +1689,14 @@ int GetParam(char *inputline, int iParam) {
 
 void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd) {
   char buf, *inputline;
-  int icur, maxlinesize, iline, index, iloop, iQsize, i, iRoot; //ivalue,inQ,
+  int icur, maxlinesize,  index, iloop, iQsize, i, iRoot; //ivalue,inQ,
 //  double dvalue;
   DdNode **Q, **Q2, *h_node, *l_node, *curnode;
   hisqueue *his;
   hisnode *hnode;
   iloop = 1;
   icur = 0;         // Pointer for inputline buffer location
-  iline = 1;        // Current file line (first after header)
+  //iline = 1;        // Current file line (first after header)
   maxlinesize = 80; // inputline starting buffer size
   inputline = (char *) malloc(sizeof(char) * maxlinesize);
   curnode = bdd;
@@ -1861,7 +1861,7 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
         free(inputline);
         exit(-1);
       }
-      iline++;
+      //iline++;
     } else if (buf != ' ' && buf != '\t') {
       inputline[icur] = buf;
       icur += 1;

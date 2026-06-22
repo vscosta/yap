@@ -949,13 +949,13 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
 
 static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v;
-
+ 
   if (tokstart) {
     while (tokstart->Tok == Comment_tok)
       tokstart = tokstart->TokNext;
     return Yap_StreamPosition(tokstart->TokOffset,tokstart->TokLine,tokstart->TokLinePos);
   }
+  return Yap_StreamPosition(0,1,0);
 }
 
 static bool is_goal(Term t)

@@ -237,15 +237,10 @@ the graphs library is implemented on top of the red-black trees library, and som
 Unfortunately it is still not possible to change argument order.
 
 **/
-use_module(User, I) :-
-    strip_module(User,HostM,user),
-    !,
-    user \= HostM,
-    '$m_normalize'(I,HostM,NI, []),
-    forall(member(D,NI),'$do_import'(D, user, HostM)).
 
 use_module(F,Is) :-
-    load_files(F, [if(not_loaded),must_be_module(true),imports(Is)] ).
+   load_files(F, [if(not_loaded),must_be_module(true),imports(Is)] ).
+
 
 
 '$process_hidden_module'(TNew,M) :-
@@ -291,7 +286,7 @@ use_module(M,F,Is) :-
     ignore(M=M1),
     '$use_module'(M,M1,Is).
 use_module(_M,F,Is) :-
-    use_module(F,Is).
+load_files(F, [if(not_loaded),must_be_module(true),imports(Is)] ).
 
 
 '$use_module'(M, M1, Is) :-
@@ -426,7 +421,7 @@ export_resource(op(Prio,Assoc,Name)) :-
 '$current_module'(Mod),
     op(Prio,Assoc,Mod:Name),
     
-    prolog_load_context(file, File),
+    prolog_load_context(stream, File),
     (
 	clause('$module'(File,Mod,ExportedPreds,Pos),R)
     ->
@@ -751,7 +746,7 @@ unload_module(Mod) :-
     fail.
 % remove imported modules
 unload_module(Mod) :-
-     '$module'( _, Mod, _, Exports),
+    % '$module'( _, Mod, _, Exports),
     current_op(_X, Y, Mod:Op),
     op( 0, Y, Mod:Op),
      fail.
