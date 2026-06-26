@@ -269,14 +269,9 @@ qsave_file(F0, State) :-
 
 
 '$qsave_file_'(File, UserF, _State) :-
-    ( File == user_input -> Age = 0 ; time_file64(File, Age) ),
-    '$current_module'(M),
-    assert(user:'$file_property'( '$lf_loaded'( UserF, Age, M) ) ),
-    '$set_owner_file'( '$file_property'( _ ), user, File ),
-    fail.
-'$qsave_file_'(File, UserF, _State) :-
     recorded('$lf_loaded','$lf_loaded'( File, M, Reconsult, UserFile, OldF, Line, Opts), _),
-    assert(user:'$file_property'( '$lf_loaded'( UserF, M, Reconsult, UserFile, OldF, Line, Opts) ) ),
+      ( File == user_input -> Age = 0 ; time_file64(File, Age) ),
+  assert(user:'$file_property'( '$lf_loaded'( UserF, Age, M, Reconsult, UserFile, OldF, Line, Opts) ) ),
     '$set_owner_file'( '$file_property'( _ ), user, File ),
     fail.
 '$qsave_file_'(File, _UserF, _State) :-
@@ -601,15 +596,6 @@ qload_file( F0 ) :-
 '$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList) :-
    reorded('$source_file','$source_file'(FilePl,_Age), _R),
    !.
-'$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList) :-
- recorded('$source_file','$source_file'(FilePl,Age),    retract(user:'$source_file'( FilePl, Age)),
-    ( FilePl == user_input -> Age = 0 ; time_file64(FilePl, Age) ),
-    recorda('$source_file','$source_file'( FilePl, Age))),
-    asserta(user:'$source_file'( FilePl, Age)),
-    fail.
-'$qload_file'(S, _SourceModule, xo_File, _FilePl, _F0, _ImportList) :-
-    '$qload_file_preds'(S),
-        fail.
 '$qload_file'(_S, _SourceModule, F, _FilePl, _F0, _ImportList) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),
     recordaifnot('$source_file','$source_file'( F, Age), _),
@@ -622,8 +608,10 @@ qload_file( F0 ) :-
 	'$import_to_current_module'(FilePl, SourceModule, ImportList).
 
 '$ql_process_directives'( FilePl ) :-
+    asserta(user:'$source_file'( FilePl, Age)),
 	  user:'$file_property'( '$lf_loaded'( FilePl, M, Reconsult, OldF, UserFile, Line, Opts)),
-    recorda('$lf_loaded','$lf_loaded'( FilePl, M, Reconsult, UserFile, OldF, Line, Opts ), _),
+	(catch(time_file64(FilePl, Age),_,fail) -> true ; Age = 0),
+    recorda('$lf_loaded','$lf_loaded'( FilePl,Age, M, Reconsult, UserFile, OldF, Line, Opts ), _),
     fail.
 '$ql_process_directives'( _FilePl ) :-
     user:'$file_property'( multifile( List ) ),

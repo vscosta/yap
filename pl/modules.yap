@@ -397,7 +397,7 @@ export_resource(P) :-
 	clause('$module'(File,Mod,ExportedPreds,Pos),_,R)
     ->
     (
-	member(P,ExportedPreds)
+	'$memberchk'(P,ExportedPreds)
     ->
     true
     ;
@@ -728,8 +728,6 @@ ls_imports :-
     fail.
 ls_imports.
 
-unload_module(Mod) :-
-writeln(Mod),fail.
 unload_module(user) :-
     !.
 unload_module(prolog) :-
@@ -748,6 +746,7 @@ unload_module(Mod) :-
 unload_module(Mod) :-
     % '$module'( _, Mod, _, Exports),
     current_op(_X, Y, Mod:Op),
+\+    current_op(_X, Y, prolog:Op),
     op( 0, Y, Mod:Op),
      fail.
 unload_module(Mod) :-

@@ -1630,12 +1630,12 @@ static int Yap_source_stream(void) {
     return sno;
   }
   if ((sno = Yap_CheckAlias(AtomUserIn)) >= 0) {
-    return GLOBAL_Stream[sno].linecount;
+    return sno;
   }
   if ( Yap_GetGlobal(AtomConsultingFile) == TermNil) {
-    return GLOBAL_Stream[0].linecount;
+    return -1;
   } else {
-    return 1;
+    return 1; // user input
   }
 
 }

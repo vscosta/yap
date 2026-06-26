@@ -134,6 +134,7 @@ initialize_prolog :-
 %:- start_low_level_trace.
 :- compile('error.yap').
 %:- stop_Low_level_trace.
+:- compile(	 'sort.yap').
 
 
 :- ['utils.yap',
@@ -143,7 +144,7 @@ initialize_prolog :-
     % lists is often used.
    	 '../os/yio.yap',
 	 'debug.yap',
-	 'checker.yap',
+  'checker.yap',
 	 'depth_bound.yap',
 	 'ground.yap',
 	 'listing.yap',
@@ -158,7 +159,6 @@ initialize_prolog :-
 	 'load_foreign.yap',
 %	 'save.yap',
 	 'setof.yap',
-	 'sort.yap',
 	 'statistics.yap',
 	 'strict_iso.yap',
 	 'tabling.yap',

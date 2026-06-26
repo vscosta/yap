@@ -114,7 +114,8 @@ current_source_module(M,M),
     '$pick_files_for_loading'(UserNamePath, M0, M,Opts, FileLocation).
     '$pick_files_for_loading'(UserNamePath, M0, M, Opts,FileLocation) :-
     strip_module(M:UserNamePath,M1,NamePath),
-'$load_file'(NamePath, M0, M1, Opts,FileLocation).
+    '$file_to_abs_path'(NamePath,AbsPath, Opts, FileLocation),
+'$load_file'(UserNamePath, AbsPath, M0, M1, Opts,FileLocation).
 
 prolog:c0trace(G) :-
     gated_call(start_low_level_trace,
@@ -122,9 +123,19 @@ prolog:c0trace(G) :-
 	       _,
 	       stop_low_level_trace).
 
-'$load_file'(UserNamePath, M0, M, Opts,FileLocation) :-
+'$load_file'(_UserNamePath, AbsPath, _M0, _M, _Opts, _FileLocation) :-
+    '__NB_getval__'('$consulting_file', Files, fail),
+    % % writeln(l(AbsPath, Files)),
+%writeln(in:AbsPath:Files),
+    '$memberchk'( l(AbsPath,_), Files),
+    !.
+'$load_file'(_UserNamePath, AbsPath, OuterModule, _M, Opts, _FileLocation) :-
+    ('$memberchk'(if(If),Opts) -> true ; If = true ),
+  '$use_loaded_file'(If, AbsPath, OuterModule, InnerModule),
+  !,
+    '$import_module'(InnerModule,OuterModule,AbsPath, Opts).
+'$load_file'(UserNamePath,AbsPath, OuterModule, M, Opts,FileLocation) :-
     % writeln(UserNamePath:'$file_to_abs_path'),
-    '$file_to_abs_path'(UserNamePath,AbsPath, Opts, FileLocation),
     % writeln('$acces_path'=AbsPath),
 %(atom_concat(_,'lists.yap', AbsPath)
 % -> c0trace(( '$accept_path'(AbsPath,M, Opts) -> fail ; true ));
@@ -138,10 +149,9 @@ prolog:c0trace(G) :-
     % writeln(do_loop),
     '$do_loop'(Stream, Opts,_),
     % writeln(xlose),
-    '$close_stream'(Stream,AbsPath, Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,M0, OuterModule,State,FileLocation).
+    '$close_stream'(Stream,AbsPath, Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,M, OuterModule,State,FileLocation).
 
 '$load_stream'(StreamName,Stream,M0, M, Opts, FileLocation) :-
-    '$accept_path'(StreamName,M, Opts),
     set_stream(Stream,file_name(StreamName)),
     '$prepare_load_file'(StreamName,StreamName,M,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,State, FileLocation),
     '$prepare_loop'(Stream,StreamName, Opts),
@@ -160,52 +170,12 @@ prolog:c0trace(G) :-
      throw(error(existence_error(source_sink,UserName),FileLocation))
      ).
 
-% fi% case 2: we have a loop
-'$accept_path'(AbsPath, OuterModule, Opts) :-
-    '__NB_getval__'('$consulting_file', Files, fail),
-    % % writeln(l(AbsPath, Files)),
-%writeln(in:AbsPath:Files),
-    '$memberchk'( l(AbsPath,_), Files),
-    !,
-%writeln(got),
-      '$module'(AbsPath,M,_P,_),
-    '$import_module'(M,OuterModule,AbsPath, Opts),
-    fail.
-
-% first case: we have the file already loaded, or at
-% list declared, so we can reuse it.
-'$accept_path'(AbsPath, OuterModule, Opts) :-
-    '$memberchk'(if(not_loaded), Opts),
-    '$file_was_loaded'(AbsPath, OuterModule, M),
-    !,
-%writeln(rec),
-    '$import_module'(M,OuterModule,AbsPath, Opts),
-   fail.
-
-%first case: we have the file already loaded, or at
-% list declared, so we can reuse it.
-'$accept_path'(AbsPath, OuterModule, Opts) :-
-    '$memberchk'(if(unchanged), Opts),
-    '$file_unchanged'(AbsPath, OuterModule, M),
-   !,
-%writeln(clean),
-      '$import_module'(M,OuterModule,AbsPath, Opts),
- fail.
-
-%
-%
-% case 3: we must reload the file.
-%
-'$accept_path'(_,_,_) :- writeln(ok).
-
-
 '$do_loop'(Stream, Opts,_) :-
  ('$memberchk'( consult(Cs), Opts) -> true ; Cs = reconsult),
     '$loop'(Stream, Cs).
 
 '$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,State, Location) :-
 %   writeln(l(AbsPath)),
-writeln('OK'),
  '$conditional_compilation_get_state'(State),
   (
 	'$memberchk'(source_module(OuterModule),Opts)
@@ -312,7 +282,6 @@ enter_compiler(Stream,Status) :-
     (
      Clause == end_of_file
      ->
-writeln('EX'),
      !
 	;
      '$conditional_compilation_skip'(Clause)
@@ -446,7 +415,6 @@ strip_module(Fs,_M,S),
     print_message(informational, loading(including, Y)),
     %b_getval('$consulting_file',[l(_,Reconsult)|_Files]), 
     '$loop'(Stream,reconsult),
-writeln('OK2'),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     current_source_module(Mod,Mod),

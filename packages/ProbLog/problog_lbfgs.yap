@@ -241,11 +241,11 @@ xsetting(induce,problog).
 :- use_module(library(maplist)).
 :- use_module(library(bdd)).
 :- use_module(library(lbfgs)).
-:- use_module(library(library))).
 :- use_module(library(problog/print_learning)).
-:- use_module(library(problog/utils)).
+:- use_module(library(problog/utils_learning)).
 :- use_module(library(problog/os)).
-:- use_modulelibrary((lbdd)).
+:- use_module(library(problog/lbdd)).
+:- use_module(library(problog/pbmath)).
 
 
 % used to indicate the state of the system

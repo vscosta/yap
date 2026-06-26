@@ -70,7 +70,7 @@ name with the `:/2` operator.
     set_module_property(N,type(system)).
 
 '$mk_system_predicates'( Ps ) :-
-    member(Name/A , Ps),
+    '$memberchk'(Name/A , Ps),
     '$new_system_predicate'(Name, A, prolog),
     fail.
 '$mk_system_predicates'( _Ps ).
@@ -107,7 +107,6 @@ set_module_property(Mod, class(Class)) :-
 	throw_error(permission_error(module,redefined,DonorM, OtherF, DonorF),module(DonorM,Exports) )
 	;
       '$m_normalize'(Exports,DonorM,Tab,OExports),
-writeln(2:Tab),
       '$sort'( Tab, AllExports ),
       '$ord_subset'(OExports , AllExports )
     ->
@@ -127,7 +126,6 @@ writeln(2:Tab),
 '$sort'( Tab, AllExports ),
     % last, export to the host.
     asserta('$module'(DonorF,DonorM, AllExports, Location)),
-writeln('>>>>>>>>>>>>>>>'+'$module'(DonorF,DonorM, AllExports, Location)),
    (
     recorded('$source_file','$source_file'(DonorF,Time), R),
     erase(R),
@@ -215,6 +213,8 @@ This predicate actually exports _Module to the _ContextModule_.
 	assert('$source_file_scope'( F, M) )
     ).
 */
+'$import_module'(DonorM, user_input, File, Opts) :-
+    '$import_module'(DonorM, user, File, Opts).  
 '$import_module'(DonorM, HostM, File, _Opts) :-
     '$module'(File, DonorM, _ModExports, _),
 	% enable loading C-predicates from a different file
@@ -227,21 +227,35 @@ This predicate actually exports _Module to the _ContextModule_.
     ignore('$memberchk'(imports(Imports),Opts)),
     '$filter'(Imports, Exports, Tab),
    '$add_to_imports'(Tab, DonorM, HostM),
-        '$do_reexport'(HostM, Opts).
+        '$do_reexport'(Tab, HostM, Opts).
 
-'$do_reexport'(HostM, Opts) :-
+'$do_reexport'(Tab, HostM, Opts) :-
     '$memberchk'(reexport(true),Opts),
       !,
 	retract('$module'(HostFile, HostM, HostTab, HostLocation)),
-ignore( '$memberchk'(imports(Imports),Opts) ),
-    HostM:'$m_normalize'(Imports, HostM, HostTab, InitialExports),
-writeln('_________________'+'$m_normalize'(Imports, HostM, HostTab, InitialExports)),
-writeln(1:'$sort'(InitialExports),
-'$sort'(InitialExports, FinalExports),
- '$operators'(HostTab,HostM),
-    asserta('$module'( HostFile,HostM, FinalExports, HostLocation) ).
-'$do_reexport'(_, _).
+    '$m_concat'(Tab, HostTab, NewHostTab),
+    asserta('$module'( HostFile,HostM, NewHostTab, HostLocation) ).
+'$do_reexport'(_,_, _).
 
+'$m_concat'([], L, L) :-
+  !.
+'$m_concat'(L, [], L) :-
+  !.
+'$m_concat'([Exp1|L1], [Exp2|L2], LF) :-
+    ( Exp1 @< Exp2 ->
+      LF = [Exp1|NLF],
+      '$m_concat'(L1, [Exp2|L2], NLF)
+	;
+      Exp1 @> Exp2 ->
+      LF = [Exp2|NLF],
+       '$m_concat'([Exp1|L1], L2, NLF)
+	;
+      %% should verify here
+      LF = [Exp2|NLF],
+      '$m_concat'(L1, L2, NLF)
+      ).
+      
+      
 /**
 
   @pred reexport(+F) is directive
@@ -351,20 +365,20 @@ This predicate actually exports _Module to the _ContextModule_.
      '$select_ms'(L,E, LI,L0).
 
 '$select_p'(P/N,E,    [P0-P/N|F],   F) :-
-    member(P0-P/N,E),
+    '$memberchk'(P0-P/N,E),
     !.
 '$select_p'(op(A,B,C),_E,    [op(A,B,C)|F],   F) :-
-%    member(P0-P/N,_E),
+%    '$memberchk'(P0-P/N,_E),
     !,
     [op(A,B,C)].
 '$select_p'(P//N,E,    [P0-P/N|F],   F) :-
     (var(N)
     ->
-	member(P0-P/N2,E),
+	'$memberchk'(P0-P/N2,E),
 	N is N2-2
     ;
     N2 is N+2,
-    member(P0-P/N2,E)
+    '$memberchk'(P0-P/N2,E)
     ),
     !,
     [P0-P/N2].

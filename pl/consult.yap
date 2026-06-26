@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-  *	 YAP Prolog  							 *
+*	 YAP Prolog  							 *
 *									 *
   *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -249,7 +249,7 @@ initialization(_G,_OPT).
 
 
 '$exec_initialization_goals'(_LC) :-
-    set_prolog_flag(optimise, true),
+   set_prolog_flag(optimise, true),
 	recorded('$blocking_code',_LC,R),
 	erase(R),
 	fail.
@@ -280,7 +280,11 @@ initialization(_G,_OPT).
     '$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
-    catch(load_files(user:X, [silent(true)]), _Error, error_handler),
+    set_stream(user_input,alias(loop_stream)),
+ current_source_module(OldM,user),
+
+ catch(load_files(X, [silent(true),reconsult(reconsult)]), _Error, error_handler),
+ current_source_module(_,OldM),
   % still need to run -g or -z
     get_value('$top_level_goal',[]),
     !,
@@ -293,7 +297,7 @@ initialization(_G,_OPT).
 SWI-compatible predicate. _FileName_ is the absolute and canonical path for a loaded source file
 */ 
 source_file(FileName) :-
-	recorded('$source_file','$source_file'(FileName, _),_).
+ recorded('$lf_loaded','$lf_loaded'( FileName, _, _M, _Reconsult, _UserFile, _OldF, _Line, _Opts),_).
 
 /**
 @pred source_file(:Pred,?File	)
@@ -328,7 +332,7 @@ source_file_property( I, included_from(F)) :-
        recorded('$includes',(I->F), _).
 
 source_file_property( F, load_context(M,OldF:Line,Opts)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, M, _Reconsult, _UserFile, OldF, Line, Opts), _).
+	recorded('$lf_loaded','$lf_loaded'( F, _,M , _Reconsult, _UserFile, OldF, Line, Opts), _).
 
 /** @pred prolog_load_context(? _Key_, _Value_)
  * 
@@ -425,6 +429,13 @@ prolog_load_context(term_position, Position ) :-
      Position = '$position'(0,1,0,0,0)
      ).
 
+'$use_loaded_file'(not_loaded, AbsPath, OuterModule, InnerModule) :-
+'$file_was_loaded'(AbsPath, OuterModule, InnerModule ),
+!.
+'$use_loaded_file'(changed, AbsPath, OuterModule, InnerModule) :-
+ '$file_did_not_change'(AbsPath, OuterModule, InnerModule ).
+
+
 % if the file exports a module, then we can
 % be imported from any module.
 '$file_loaded'(F0, TargetModule) :-
@@ -434,16 +445,15 @@ prolog_load_context(term_position, Position ) :-
 	Prefix=F0
     ),
     absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
-    '$file_was_loaded'(F,TargetModule),
-writeln(F:TargetModule).
+    '$file_was_loaded'(F,TargetModule,_).
 
-'$file_was_loaded'(F,_OuterMod, InnerM ) :-    % make sure: it either defines a new module or it was loaded in the same context
+'$file_was_loaded'(F,_OuterMod, InnerM ) :-
+    % make sure: it either defines a new module or it was loaded in the same context
     '$module'(F,InnerM,_P,_),
-writeln(F:InnerM),
     !.
 '$file_was_loaded'(F,	M, M ) :-
     % loaded from the same module, but does not define a module.
-      recorded('$lf_loaded','$lf_loaded'( F, M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _),
+      recorded('$lf_loaded','$lf_loaded'( F, _, M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _),
       !.
 
 % if the file exports a module, then we can
@@ -451,30 +461,34 @@ writeln(F:InnerM),
  '$file_did_not_change'(F0, Mod, Imod) :-
     '$file_was_loaded'(F0, Mod, Imod),
     % last access
-    user:'$source_file'(F0, Age),
-    % last change
+  '$file_age'(F0, Age),
+  % last change
     time_file64(F0,CurrentAge),
     Age >= CurrentAge.
 
 	% inform the file has been loaded and is now available.
-'$tell_loaded'(F, _UserFile, M, _OldF, _Line, _Reconsult0f, _Reconsult, _Dir, _Opts) :-
-    '$module'(F,M,_P,_),
-    !,
-    fail.
  '$tell_loaded'(F, UserFile, M, OldF, Line, _Reconsult0, Reconsult, Dir, Opts) :-
-		  prolog_load_context(directory, Dir),
-    (Reconsult \== consult
+    prolog_load_context(directory, Dir),
+    (
+      
+      recorded('$lf_loaded','$lf_loaded'( F, _A, _, _lt, _UserFile, _OldF, _Line, _Opts), R)
+	->
+	  (
+	  Reconsult \== consult
       ->
-     unload_file(F)),
-    
+      unload_file(F)
+	;
+      erase(R)
+	    )
+	;
+      true
+      ),
 	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0), 
-    (recorded('$source_file','$source_file'(F, _Age),Ref), erase(Ref) ->
-    recorda('$source_file','$source_file'(F, Age),Ref), erase(Ref)
-    ;
-    true),
 	% modules are logically loaded only once
+	recorda('$lf_loaded','$lf_loaded'( F, Age, M, Reconsult, UserFile, OldF, Line, Opts), _).
 
-	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _).
+'$file_age'(F,Age) :-
+    recorded('$lf_loaded','$lf_loaded'( F, Age, _M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _).
 
 /** @pred make
 
@@ -485,7 +499,7 @@ just goes through every loaded file and verifies whether reloading is needed.
 */
 
 make :-
-	recorded('$lf_loaded','$lf_loaded'(F1,_M,reconsult,_,_,_,_),_),
+	recorded('$lf_loaded','$lf_loaded'(F1,_,_M,reconsult,_,_,_,_),_),
 	load_files(F1, [if(changed)]),
 	fail.
 make.
@@ -496,16 +510,18 @@ unload_file(File) :-
     unload_file_(File).
 unload_file(F) :-
     absolute_file_name(F,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File),
-    unload_file_(File).
+     unload_file_(File).
 
 
 unload_file_(File) :-
-     recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
-     '$unload_file'(File),
-     erase(R),
-     fail.
-unload_file_(_).
+     '$unload_file'(File).
 
+'$unload_file'(File) :-
+    '$module'(File,DonorM, _AllExports, _),
+   DonorM \= prolog,
+    DonorM \= user,
+    unload_module(DonorM),
+ fail.
 '$unload_file'(File) :-
     current_predicate(N,M:P),
     M \= prolog,
@@ -529,16 +545,7 @@ unload_file_(_).
 	),
 	fail.
 '$unload_file'(File) :-
-    '$module'(File,DonorM, _AllExports, _),
-    DonorM \= prolog,
-    DonorM \= user,
-    unload_module(DonorM),
-    fail.
-'$unload_file'(File) :-
-	retractall('$source_file'(File,_Age)),
-	fail.
-'$unload_file'(File) :-
-	recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
+	recorded('$lf_loaded','$lf_loaded'(File,_,_M,_,_,_,_,_),R),
 	erase(R),
 	fail.
 '$unload_file'(_F).

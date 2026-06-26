@@ -88,6 +88,7 @@ expands_to/3
        scanl(5, +, +, +, +, -),
        scanl(6, +, +, +, +, +, -).
 
+:- dynamic ids/1.
 
 /*
 
@@ -792,7 +793,7 @@ expand_rule1(sumlist).
 */
 
 goal_expansion(Call0, M0:NG) :-
-    prolog_load_context(source,_),
+    current_source_module(source,_),
     current_prolog_flag( goal_expansion_allowed, true ),
     strip_module(Call0,M0,Call),
     Call =.. [Meta,M0Goal|LinkArgs],
@@ -805,13 +806,14 @@ goal_expansion(Call0, M0:NG) :-
     new_name(G,NewName),
     newvs(LinkArgs, LinkVs),
     HCall =.. [Meta,M0Goal|LinkVs],
-    (
+writeln(G+'      '+NewName),    (
       findall(NewClause,
  (
      clause(maplist:HCall,Body),
       once(process(Body, Meta, HCall,Args,M1:G,NewName,NewClause))
 	),
-	NewClauses),
+      NewClauses),
+writeln(NewClauses),
       compile_clauses(NewClauses),
       fail
     ;

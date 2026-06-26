@@ -567,7 +567,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
       opos=	ftell(GLOBAL_Stream[sno].file);
 #endif
       err_line = e->parserLine;
-      Int msgstartpos = Yap_Max(startpos, errpos - 200);
+      Int msgstartpos = Yap_Max(startpos, errpos );
       if (msgstartpos >= errpos) {
 	bufb = NULL;
       } else {

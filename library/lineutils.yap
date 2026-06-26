@@ -355,7 +355,7 @@ Unify  _Words_ with a set of chars obtained from  _Line_ by
 using the blank characters  as field separators.
 
 */
-fields(String, Strings) :-
+field_chars(String, Strings) :-
 	dofields([' ','\t'],  First, More, String, []),
 	(
 	  First = [], More = []
