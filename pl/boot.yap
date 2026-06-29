@@ -134,7 +134,7 @@ initialize_prolog :-
 %:- start_low_level_trace.
 :- compile('error.yap').
 %:- stop_Low_level_trace.
-:- compile(	 'sort.yap').
+:-  compile(	 'sort.yap').
 
 
 :- ['utils.yap',

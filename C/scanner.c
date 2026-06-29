@@ -219,21 +219,17 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
   return l;
 }
 
-static Term number_encoding_error(int ch, enum_seq_type_t code, struct stream_desc *st)
+ static Term empty_term(int ch, enum_seq_type_t code, struct stream_desc *st,  TokEntry* l, TokEntry *p,  char msg[])
 {
   CACHE_REGS
-  if (st->status & FailOnScanError_Stream_f)
-     return TermNil;
-   LOCAL_ErrorMessage=malloc(2048);
-   snprintf(LOCAL_ErrorMessage, 2047,
-            "unexpected character %c while  reading quoted text", (char)code);
-   return Yap_encoding_error(ch, st, LOCAL_tokptr, LOCAL_toktide,
-                             LOCAL_ErrorMessage);
+char *msg=malloc(2048);
+   snprintf(msg, 2047, "empty term:", (char)code);
+   if (!p)
+     return Yap_syntax_error(MkStringTerm(""), st - GLOBAL_Stream, l, p, msg);
+   free(msg);
 }
 
-
-
-extern double atof(const char *);
+bextern double atof(const char *);
 
 static Term float_send(char *s, int sign) {
   Float f = (Float)(sign * atof(s));
@@ -1163,13 +1159,17 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     case SY: {
       if (ch == '.') {
 	int pch = Yap_peekWide(st-GLOBAL_Stream);
-	if(chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
-	  t->TokInfo = TermDot;
-	  t->TokLine = GetCurInpLine(st);
-	  t->TokLinePos = GetCurInpLineStart(st);
-	  t->TokOffset = GetCurInpOffset(st);
-	  t->Tok = Ord(eot_tok);
-	  return l;
+        if (chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
+	  if (l) {
+	    t->TokInfo = TermDot;
+	    t->TokLine = GetCurInpLine(st);
+	    t->TokLinePos = GetCurInpLineStart(st);
+	    t->TokOffset = GetCurInpOffset(st);
+	    t->Tok = Ord(eot_tok);
+            return l;
+          } else {
+
+	  }
 	}
       }
       if (ch == '`')
