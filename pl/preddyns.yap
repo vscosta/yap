@@ -331,7 +331,7 @@ retractall(MT) :- !,
     !,
     ( '$purge_clauses'(T,M), fail ; true ).
 '$retractall_lu'(T,M) :-
-    '$log_update_clause'(T,M,_,R),
+    clause(M:T,_,R),
 	erase(R),
 	fail.
 '$retractall_lu'(_,_).

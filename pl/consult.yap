@@ -413,14 +413,15 @@ prolog_load_context_(source, user_input).
 
 prolog_load_context_(stream, Stream) :-
     stream_property(Stream, alias(loop_stream) ).
-prolog_load_context_(term, Term ) :-
+prolog_load_context(term, Term ) :-
     b_getval('$current_clause', T),
     nonvar(T),
     T = [Term|_].
-prolog_load_context_(term_position, Position ) :-
+prolog_load_context(term_position, Position ) :-
    '__B_getval__'('$current_clause', T, fail),
     nonvar(T),
-    T = [_,_,_,Position].
+    T = [_,_,Position|_],
+    !.
 prolog_load_context_(term_position, '$term_position'(0,1,0,0,0)).
 
 % if the file exports a module, then we can
@@ -438,7 +439,7 @@ prolog_load_context_(term_position, '$term_position'(0,1,0,0,0)).
     absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
     '$file_was_loaded'(F,TargetModule, M).
 
-'$file_was_loaded'(F, TargetModule,   NM) :-
+'$file_was_loaded'(F, _TargetModule,   NM) :-
     % make sure: it either defines a new module or it was loaded in the same context
     ('$module'(F,NM,_P,_) ->
 	 true

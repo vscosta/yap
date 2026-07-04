@@ -191,6 +191,7 @@ clause(V0,Q,R) :-
 '$clause'(dynamic_procedure,P,M,Q,R) :-
 	'$some_recordedp'(M:P), !,
 	'$recordedp'(M:P,(P:-Q),R).
+
 '$clause'(system_procedure,P,M,Q,R) :-
 	\+ '$undefined'(P,M),
 	functor(P,Name,Arity),

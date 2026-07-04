@@ -805,11 +805,11 @@ goal_expansion(Call0, M0:NG) :-
     new_name(G,NewName),
     newvs(LinkArgs, LinkVs),
     HCall =.. [Meta,M0Goal|LinkVs],
-      (
-	findall(NewClause,
+    (
+      findall(NewClause,
  (
      clause(maplist:HCall,Body),
-      process(Body, Meta, HCall,Args,M1:G,NewName,NewClause)
+      once(process(Body, Meta, HCall,Args,M1:G,NewName,NewClause))
 	),
 	NewClauses),
       compile_clauses(NewClauses),
