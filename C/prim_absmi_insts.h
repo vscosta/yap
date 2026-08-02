@@ -33,13 +33,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_vv_unk, plus_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, plus_vv_nvar_unk, plus_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -67,7 +67,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -101,13 +101,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vv_unk, plus_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, plus_y_vv_nvar_unk, plus_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -138,7 +138,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -169,13 +169,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_vv_unk, minus_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, minus_vv_nvar_unk, minus_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -203,7 +203,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_cv_unk, minus_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -237,13 +237,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_vv_unk, minus_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, minus_y_vv_nvar_unk, minus_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -274,7 +274,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_cv_unk, minus_y_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -304,13 +304,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, times_vv_unk, times_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, times_vv_nvar_unk, times_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -338,7 +338,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, times_vc_unk, times_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -372,13 +372,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vv_unk, times_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, times_y_vv_nvar_unk, times_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -409,7 +409,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vc_unk, times_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -430,7 +430,7 @@
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         Int div = IntOfTerm(d1);
         if (div == 0) {
-          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR,d1);
+          Yap_AbsmiError(EVALUATION_ERROR_ZERO_DIVISOR, d1, PREG, NULL);
         }
         d0 = MkIntTerm(IntOfTerm(d0) / div);
       } else {
@@ -444,13 +444,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_vv_unk, div_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, div_vv_nvar_unk, div_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -478,7 +478,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_vc_unk, div_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -494,7 +494,7 @@
       if (IsIntTerm(d0)) {
         Int div = IntOfTerm(d0);
         if (div == 0) {
-          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR,d0);
+          Yap_AbsmiError(EVALUATION_ERROR_ZERO_DIVISOR, d1, PREG, NULL);
           FAIL();
         }
         d0 = MkIntegerTerm(d1 / div);
@@ -509,7 +509,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_cv_unk, div_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -530,7 +530,7 @@
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         Int div = IntOfTerm(d1);
         if (div == 0) {
-          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR, d0);
+          Yap_AbsmiError(EVALUATION_ERROR_ZERO_DIVISOR, d0, PREG, NULL);
           FAIL();
         }
         d0 = MkIntTerm(IntOfTerm(d0) / div);
@@ -548,13 +548,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vv_unk, div_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, div_y_vv_nvar_unk, div_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -585,7 +585,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vc_unk, div_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -601,7 +601,7 @@
       if (IsIntTerm(d0)) {
         Int div = IntOfTerm(d0);
         if (div == 0) {
-          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR,d0);
+          Yap_AbsmiError(EVALUATION_ERROR_ZERO_DIVISOR, d0, PREG, NULL);
           FAIL();
         }
         d0 = MkIntegerTerm(d1 / div);
@@ -620,7 +620,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_cv_unk, div_y_cv_nvar);
-      Yap_AbsmiError(INSTANTIATION_ERROR);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -651,13 +651,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, and_vv_unk, and_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, and_vv_nvar_unk, and_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -685,7 +685,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, and_vc_unk, and_vc_nvar);
-      Yap_AbsmiError(INSTANTIATION_ERROR);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -719,13 +719,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vv_unk, and_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, and_y_vv_nvar_unk, and_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -756,7 +756,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vc_unk, and_y_vc_nvar);
-      Yap_AbsmiError(INSTANTIATION_ERROR);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -787,13 +787,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, or_vv_unk, or_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, or_vv_nvar_unk, or_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -820,7 +820,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, or_vc_unk, or_vc_nvar);
-      Yap_AbsmiError(INSTANTIATION_ERROR);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -854,13 +854,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vv_unk, or_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, or_y_vv_nvar_unk, or_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -891,7 +891,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vc_unk, or_y_vc_nvar);
-      Yap_AbsmiError(INSTANTIATION_ERROR);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -922,13 +922,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, xor_vv_unk, xor_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, xor_vv_nvar_unk, xor_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -955,7 +955,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, xor_vc_unk, xor_vc_nvar);
-      Yap_AbsmiError(INSTANTIATION_ERROR);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -989,13 +989,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, xor_y_vv_unk, xor_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, xor_y_vv_nvar_unk, xor_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1026,7 +1026,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, xor_y_vc_unk, xor_y_vc_nvar);
-      Yap_AbsmiError(INSTANTIATION_ERROR);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL); 
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1061,13 +1061,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_vv_unk, sll_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, sll_vv_nvar_unk, sll_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1095,7 +1095,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_vc_unk, sll_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1126,7 +1126,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_cv_unk, sll_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1164,13 +1164,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vv_unk, sll_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, sll_y_vv_nvar_unk, sll_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1201,7 +1201,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vc_unk, sll_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1235,7 +1235,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_cv_unk, sll_y_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1270,13 +1270,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_vv_unk, slr_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, slr_vv_nvar_unk, slr_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1304,7 +1304,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_vc_unk, slr_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1335,7 +1335,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_cv_unk, slr_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1373,13 +1373,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vv_unk, slr_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, slr_y_vv_nvar_unk, slr_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1410,7 +1410,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vc_unk, slr_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
@@ -1435,7 +1435,7 @@
       }
     }
       if (d0 == 0L) {
-        Yap_AsmError(LOCAL_Error_TYPE,d0);
+        Yap_AbsmiError(LOCAL_Error_TYPE,d0, PREG, NULL);
         FAIL();
       }
       BEGP(pt0);
@@ -1447,7 +1447,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_cv_unk, slr_y_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -2110,11 +2110,11 @@ Int i;
       } else {
         if (IsBigIntTerm(d0))
           FAIL();
-        Yap_AsmError(TYPE_ERROR_INTEGER, d0);
+        Yap_AbsmiError(TYPE_ERROR_INTEGER, d0, PREG, NULL);
         FAIL();
       }
 if (i<0) {
-  Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, d0);
+  Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, d0, PREG, NULL);
   FAIL();
 }
 
@@ -2130,7 +2130,7 @@ if (i<0) {
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor)d1)) {
-          Yap_AsmError(TYPE_ERROR_COMPOUND, AbsAppl(pt0));
+          Yap_AbsmiError(TYPE_ERROR_COMPOUND, AbsAppl(pt0), PREG, NULL);
           FAIL();
         }
 	if (i==0 ||i > ArityOfFunctor((Functor)d1)) {
@@ -2152,14 +2152,14 @@ if (i<0) {
         ENDP(pt0);
       } else {
 	if (!IsAtomTerm(d1))
-	  Yap_AsmError(TYPE_ERROR_COMPOUND, d1);
+	  Yap_AbsmiError(TYPE_ERROR_COMPOUND, d1, PREG, NULL);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_unk, arg_arg2_nvar);
       saveregs();
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       ;
       setregs();
       ENDP(pt0);
@@ -2169,7 +2169,7 @@ if (i<0) {
       BEGP(pt0);
       deref_body(d0, pt0, arg_arg1_unk, arg_arg1_nvar);
       saveregs();
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ;
       setregs();
       ENDP(pt0);
@@ -2204,14 +2204,14 @@ if (i<0) {
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor)d1)) {
-          Yap_AsmError(TYPE_ERROR_COMPOUND,XREG(PREG->y_u.xxn.xi));
+          Yap_AbsmiError(TYPE_ERROR_COMPOUND,XREG(PREG->y_u.xxn.xi), PREG, NULL);
           FAIL();
         }
         if ((Int)d0 == 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
           /* don't complain here for Prolog compatibility
              if ((Int)d0 <= 0) {
              saveregs();
-Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
+	     Yap_AbsmiError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO, PREG, NULL);
              MkIntegerTerm(d0),"arg 1 of arg/3");
              setregs();
              }
@@ -2228,7 +2228,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
             saveregs();
-            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, XREG(PREG->y_u.xxn.xi));
+            Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, XREG(PREG->y_u.xxn.xi),PREG, NULL);
           }
           FAIL();
         }
@@ -2237,13 +2237,13 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         GONext();
         ENDP(pt0);
       } else {
-        Yap_AsmError(TYPE_ERROR_COMPOUND, XREG(PREG->y_u.xxn.xi));
+        Yap_AbsmiError(TYPE_ERROR_COMPOUND, XREG(PREG->y_u.xxn.xi), PREG, NULL);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_vc_unk, arg_arg2_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR, XREG(PREG->y_u.xxn.xi));
+      Yap_AbsmiError(INSTANTIATION_ERROR, XREG(PREG->y_u.xxn.xi), PREG, NULL);
       ENDP(pt0);
       FAIL();
       ENDD(d1);
@@ -2275,12 +2275,12 @@ arg_y_arg1_nvar:
       } else {
         if (IsBigIntTerm(d0))
           FAIL();
-        Yap_AsmError(TYPE_ERROR_INTEGER, XREG(PREG->y_u.yxx.x1));
+         Yap_AbsmiError(TYPE_ERROR_INTEGER, XREG(PREG->y_u.yxx.x1),PREG, NULL);
         FAIL();
       }
         if (i < 0) {   
              saveregs();
-	     Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO ,d0);
+	     Yap_AbsmiError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO ,d0, PREG, NULL);
              saveregs();
           FAIL();
         }
@@ -2299,7 +2299,7 @@ arg_y_arg1_nvar:
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor)d1)) {
-          Yap_AsmError(TYPE_ERROR_COMPOUND,XREG(PREG->y_u.yxx.x2));
+          Yap_AbsmiError(TYPE_ERROR_COMPOUND,XREG(PREG->y_u.yxx.x2), PREG, NULL);
           FAIL();
         }
 	if (i==0 ||i > ArityOfFunctor((Functor)d1)) {
@@ -2318,7 +2318,7 @@ arg_y_arg1_nvar:
         if (i != 1 && i != 2) {
           if ((Int)i < 0) {
             saveregs();
-            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, YREG[PREG->y_u.yxx.y]);
+            Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, YREG[PREG->y_u.yxx.y], PREG, NULL);
           }
           FAIL();
         }
@@ -2330,20 +2330,20 @@ arg_y_arg1_nvar:
         ENDP(pt1);
         ENDP(pt0);
       } else {
-          Yap_AsmError(TYPE_ERROR_COMPOUND, d1);
+        Yap_AbsmiError(TYPE_ERROR_COMPOUND, d1, PREG, NULL);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_unk, arg_y_arg2_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       ENDP(pt0);
       FAIL();
       ENDD(d1);
 
       BEGP(pt0);
       deref_body(d0, pt0, arg_y_arg1_unk, arg_y_arg1_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt0);
       FAIL();
       ENDD(d0);
@@ -2377,7 +2377,7 @@ arg_y_arg1_nvar:
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor)d1)) {
-          Yap_AsmError(TYPE_ERROR_COMPOUND, XREG(PREG->y_u.yxn.xi));
+          Yap_AbsmiError(TYPE_ERROR_COMPOUND, XREG(PREG->y_u.yxn.xi), PREG, NULL);
           FAIL();
         }
          BEGP(pt1);
@@ -2396,7 +2396,7 @@ arg_y_arg1_nvar:
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
             saveregs();
-            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, YREG[PREG->y_u.yxn.y]);
+            Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, YREG[PREG->y_u.yxn.y], PREG, NULL);
           }
           FAIL();
         }
@@ -2408,13 +2408,13 @@ arg_y_arg1_nvar:
         GONext();
         ENDP(pt0);
       } else {
-        Yap_AsmError(TYPE_ERROR_COMPOUND,YREG[PREG->y_u.yxn.y]);
+        Yap_AbsmiError(TYPE_ERROR_COMPOUND,YREG[PREG->y_u.yxn.y], PREG, NULL);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_vc_unk, arg_y_arg2_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       ENDP(pt0);
       FAIL();
       ENDD(d1);
@@ -2451,15 +2451,15 @@ arg_y_arg1_nvar:
         saveregs();
         if (IsBigIntTerm(d1)) {
             setregs();
-          Yap_AsmError(RESOURCE_ERROR_STACK,d1);
+            Yap_AbsmiError(RESOURCE_ERROR_STACK, d1, PREG, NULL);
         } else {
             setregs();
-          Yap_AsmError(TYPE_ERROR_INTEGER,d1);
+            Yap_AbsmiError(TYPE_ERROR_INTEGER,d1, PREG, NULL);
         }
         FAIL();
       }
       if (!IsAtomTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM, d0);
+        Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG,  NULL);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -2477,7 +2477,7 @@ arg_y_arg1_nvar:
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM, d0);
+          Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
           FAIL();
         }
         if (!IsAtomTerm(d0)) {
@@ -2489,8 +2489,8 @@ arg_y_arg1_nvar:
 	if (HR + (d1+MinStackGap) > ASP) {
           /* make sure we have something to show for our trouble */
 	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL))) {
-            Yap_AsmError(RESOURCE_ERROR_STACK,   d1);
-	    } else {
+            Yap_AbsmiError(RESOURCE_ERROR_STACK,   d1, PREG, NULL);
+	  } else {
 	      LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
 	    }
             JMPNext();
@@ -2516,12 +2516,12 @@ arg_y_arg1_nvar:
         PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx), Osbpp), l);
         GONext();
       } else {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
+        Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1),PREG, NULL);
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2, func2s_nvar2);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2529,7 +2529,7 @@ arg_y_arg1_nvar:
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_unk, func2s_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -2560,13 +2560,13 @@ arg_y_arg1_nvar:
       if (IsIntegerTerm(d1)) {
         d1 = IntegerOfTerm(d1);
 	if (d1 <0) {
-	  Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
+	  Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1), PREG, NULL);
 	}
       } else { 
         if (IsBigIntTerm(d1)) {
-          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
+          Yap_AbsmiError(RESOURCE_ERROR_STACK, d1, PREG, NULL);
         } else {
-          Yap_AsmError(TYPE_ERROR_INTEGER, d1);
+          Yap_AbsmiError(TYPE_ERROR_INTEGER, d1, PREG, NULL);
         }
         FAIL();
       }
@@ -2587,7 +2587,7 @@ arg_y_arg1_nvar:
 	if (HR + (d1+MinStackGap) > ASP) {
           /* make sure we have something to show for our trouble */
 	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL))) {
-            Yap_AsmError(RESOURCE_ERROR_STACK, d1);
+            Yap_AbsmiError(RESOURCE_ERROR_STACK, d1, PREG, NULL);
 	  } else {
 	LOCAL_ActiveError->errorNo =YAP_NO_ERROR;
 	}
@@ -2595,7 +2595,7 @@ arg_y_arg1_nvar:
       }
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM, d0);
+          Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
           FAIL();
         }
         if (!IsAtomTerm(d0)) {
@@ -2626,12 +2626,12 @@ arg_y_arg1_nvar:
         PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc), Osbpp), l);
         GONext();
       } else {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,d1);
+        Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,d1, PREG, NULL);
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2_cv, func2s_nvar2_cv);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2665,7 +2665,7 @@ arg_y_arg1_nvar:
       BEGD(d1);
       d1 = PREG->y_u.xxn.c;
       if (!IsAtomicTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM,d0);
+        Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -2687,12 +2687,12 @@ arg_y_arg1_nvar:
         GONext();
       }
       if (!IsAtomTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM,d0);
+        Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
         FAIL();
       }
       /* now let's build a compound term */
       if (!IsAtomTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM,d0);
+        Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
         FAIL();
       }
       BEGP(pt1);
@@ -2708,8 +2708,8 @@ arg_y_arg1_nvar:
         saveregs();
         if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) ) {
                          setregs();
-          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
-          JMPNext();
+			 Yap_AbsmiError(RESOURCE_ERROR_STACK, d1, PREG, NULL);
+			 JMPNext();
         } else {
           setregs();
         }
@@ -2731,7 +2731,7 @@ arg_y_arg1_nvar:
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_x_unk_vc, func2s_x_nvar_vc);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -2769,15 +2769,15 @@ arg_y_arg1_nvar:
         saveregs();
         if (IsBigIntTerm(d1)) {
             setregs();
-          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
+            Yap_AbsmiError(RESOURCE_ERROR_STACK, d1, PREG,NULL);
         } else {
             setregs();
-          Yap_AsmError(TYPE_ERROR_INTEGER, d1);
+            Yap_AbsmiError(TYPE_ERROR_INTEGER, d1, PREG, NULL);
         }
         FAIL();
       }
       if (!IsAtomicTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM, d0);
+        Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -2796,7 +2796,7 @@ arg_y_arg1_nvar:
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM, d0);
+          Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
           FAIL();
         }
         BEGP(pt1);
@@ -2812,7 +2812,7 @@ arg_y_arg1_nvar:
           saveregs();
 	  if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL) )) {
             setregs();
-            Yap_AsmError(RESOURCE_ERROR_STACK, d1);
+            Yap_AbsmiError(RESOURCE_ERROR_STACK, d1, PREG, NULL);
             JMPNext();
           } else {
             setregs();
@@ -2842,12 +2842,12 @@ arg_y_arg1_nvar:
         ENDP(pt1);
         GONext();
       } else {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
+        Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1), PREG, NULL);
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk2, func2s_y_nvar2);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2855,7 +2855,7 @@ arg_y_arg1_nvar:
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk, func2s_y_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -2888,9 +2888,9 @@ arg_y_arg1_nvar:
         d1 = IntegerOfTerm(d1);
       } else {
         if (IsBigIntTerm(d1)) {
-          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
+          Yap_AbsmiError(RESOURCE_ERROR_STACK, d1, PREG, NULL);
         } else {
-          Yap_AsmError(TYPE_ERROR_INTEGER, d1);
+          Yap_AbsmiError(TYPE_ERROR_INTEGER, d1, PREG, NULL);
         }
         FAIL();
       }
@@ -2912,7 +2912,7 @@ arg_y_arg1_nvar:
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM,d0);
+          Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
           FAIL();
         }
         if (!IsAtomTerm(d0)) {
@@ -2928,7 +2928,7 @@ arg_y_arg1_nvar:
           saveregs();
           if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) ) {
             setregs();
-            Yap_AsmError(RESOURCE_ERROR_STACK, d1);
+            Yap_AbsmiError(RESOURCE_ERROR_STACK, d1, PREG, NULL);
             JMPNext();
           } else {
             setregs();
@@ -2958,12 +2958,12 @@ arg_y_arg1_nvar:
         ENDP(pt1);
         GONext();
       } else {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
+        Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1), PREG, NULL);
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk_cv, func2s_y_nvar_cv);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2997,7 +2997,7 @@ arg_y_arg1_nvar:
       BEGD(d1);
       d1 = PREG->y_u.yxn.c;
       if (!IsAtomicTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM,d0);
+        Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -3025,12 +3025,12 @@ arg_y_arg1_nvar:
         GONext();
       }
       if (!IsAtomTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM,d0);
+        Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
         FAIL();
       }
       /* now let's build a compound term */
       if (!IsAtomTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM,d0);
+        Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
         FAIL();
       }
       BEGP(pt1);
@@ -3046,8 +3046,8 @@ arg_y_arg1_nvar:
         saveregs();
         if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL)) ) {
                          setregs();
-          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
-          JMPNext();
+			 Yap_AbsmiError(RESOURCE_ERROR_STACK, d1,PREG, NULL);
+			 JMPNext();
         } else {
           setregs();
         }
@@ -3072,7 +3072,7 @@ arg_y_arg1_nvar:
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk_vc, func2s_y_nvar_vc);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3124,7 +3124,7 @@ ARG3 = HR[1];
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xx_unk, func2f_xx_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3179,7 +3179,7 @@ ARG3 = HR[1];
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xy_unk, func2f_xy_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3235,7 +3235,7 @@ ARG3 = HR[1];
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yx_unk, func2f_yx_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3293,7 +3293,7 @@ ARG3 = HR[1];
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yy_unk, func2f_yy_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3397,11 +3397,11 @@ ARG3 = HR[1];
       if (IsIntTerm(d1))
         d1 = IntOfTerm(d1);
       else {
-        Yap_AsmError(TYPE_ERROR_INTEGER, d1);
+        Yap_AbsmiError(TYPE_ERROR_INTEGER, d1, PREG, NULL);
         FAIL();
       }
       if (!IsAtomicTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM,d0);
+        Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
         FAIL();
       } /* We made it!!!!! we got in d0 the name, in d1 the arity and
          * in pt0 the variable to bind it to. */
@@ -3413,7 +3413,7 @@ ARG3 = HR[1];
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM,d0);
+          Yap_AbsmiError(TYPE_ERROR_ATOM, d0, PREG, NULL);
           FAIL();
         }
         BEGP(pt1);
@@ -3429,7 +3429,7 @@ ARG3 = HR[1];
           saveregs();
           if (!Yap_growstack((d1+2 * MinStackGap)*sizeof(CELL))) {
                            setregs();
-            Yap_AsmError(INSTANTIATION_ERROR,d1);
+			   Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
           } else {
             setregs();
           }
@@ -3443,7 +3443,7 @@ ARG3 = HR[1];
         HR = pt1;
         ENDP(pt1);
       } else if ((Int)d1 < 0) {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
+        Yap_AbsmiError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1), PREG, NULL);
         FAIL();
       }
       /* else if arity is 0 just pass d0 through */
@@ -3454,7 +3454,7 @@ ARG3 = HR[1];
 
       BEGP(pt1);
       deref_body(d1, pt1, func_var_3unk, func_var_3nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d1);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d1, PREG, NULL);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -3462,7 +3462,7 @@ ARG3 = HR[1];
 
       BEGP(pt1);
       deref_body(d0, pt1, func_var_2unk, func_var_2nvar);
-      Yap_AsmError(INSTANTIATION_ERROR,d0);
+      Yap_AbsmiError(INSTANTIATION_ERROR, d0, PREG, NULL);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();

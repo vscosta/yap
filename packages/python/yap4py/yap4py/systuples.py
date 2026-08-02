@@ -21,7 +21,7 @@ foreign = namedtuple('foreign', 'filedbms')
 jupyter_cell = namedtuple('jupyter_cell','jupyter_program jupyter_query self')
 jupyter_query = namedtuple('jupyter_query', 'query server')
 library = namedtuple('library', 'file')
-load_file = namedtuple('load_file', ['file','module','recover'],defaults=
+load_files = namedtuple('load_files', ['file','module','recover'],defaults=
                        [None,False])
 streams = namedtuple('ostreams', ' text')
 predicate_property = namedtuple('predicate_property', 'pred prop')

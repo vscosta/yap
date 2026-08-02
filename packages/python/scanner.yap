@@ -15,9 +15,9 @@
 :- reexport(library(matrix)).
 :- use_module(library(maplist)).
 :- use_module(library(lists)).
-:- use_module(library(python)).
+:- use_module((python)).
 
-:- use_module(library(toks_lsp)).
+:- use_module((toks_lsp)).
 
 :- dynamic( [compiling/1,loaded/1,  use/10, def/8, ws/3] ).
 :- multifile( [compiling/1,  use/10, def/8, ws/3] ).

@@ -707,7 +707,7 @@ F	String1			String		1
 F	StyleCheck		StyleCheck	3
 F	Sub			Sub		2
 F	Sum			Sum		2
-F	SyntaxError		SyntaxError	4
+F	SyntaxError		SyntaxError	5
 F	ShortSyntaxError	SyntaxError	1
 F	SyntaxErrors		SyntaxErrors	1
 F	TermExpansion		TermExpansion	2

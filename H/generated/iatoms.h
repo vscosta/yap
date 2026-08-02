@@ -703,7 +703,7 @@
   FunctorStyleCheck = Yap_MkFunctor(AtomStyleCheck,3);
   FunctorSub = Yap_MkFunctor(AtomSub,2);
   FunctorSum = Yap_MkFunctor(AtomSum,2);
-  FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,4);
+  FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,5);
   FunctorShortSyntaxError = Yap_MkFunctor(AtomSyntaxError,1);
   FunctorSyntaxErrors = Yap_MkFunctor(AtomSyntaxErrors,1);
   FunctorTermExpansion = Yap_MkFunctor(AtomTermExpansion,2);

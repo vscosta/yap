@@ -162,7 +162,10 @@ LOCAL_INIT_RESTORE(struct global_entry *, GlobalVariables, NULL, PtoGlobalEAdjus
 LOCAL_INIT(int, AllowRestart, FALSE);
 
 LOCAL(struct buffer_ds, mpi_buffer);
-
+LOCAL(int, StartCharCount);
+LOCAL(  int, StartLineCount);
+LOCAL(  int, StartLinePos);
+  
 // Thread Local Area for Fast Storage of Intermediate Compiled Code
 LOCAL_INIT(struct mem_blk *, CMemFirstBlock, NULL);
 LOCAL_INIT(UInt, CMemFirstBlockSz, 0L);

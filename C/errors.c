@@ -131,6 +131,7 @@ if (strcmp(ks, q) == 0) {						\
   }
 
 static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
+  bzero(i, sizeof(yap_error_descriptor_t));
   set_key_i(errorNo, "errorNo", q, i, t);
   set_key_i(errorClass, "errorClass", q, i, t);
   set_key_s(errorAsText, "errorAsText", q, i, t);
@@ -679,7 +680,10 @@ Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
     Term *o = (HR);
     HR += 3;
     o[0] = (CELL)FunctorError;
-    o[1] = ft0;
+    if (type == SYNTAX_ERROR && i->culprit_t) {
+      o[1] = i->culprit_t;
+} else
+      o[1] = ft0;
     o[2] = TermNil;
     return AbsAppl(o);
   }
@@ -698,6 +702,24 @@ Yap_pushErrorContext(bool link, yap_error_descriptor_t *new_error,
   LOCAL_ActiveError = new_error;
   return old_error;
 }
+
+void Yap_AbsmiError__(const char *file, const char *function, int lineno,
+                      yap_error_number type, Term where, yamop *pc, char *msg, ... ) {
+  CACHE_REGS
+  if (LOCAL_ActiveError->errorNo == YAP_NO_ERROR) {
+    return;
+  }
+  va_list ap;
+  char tmp[4096];
+  va_start(ap,msg);
+  if (pc) {
+    vsnprintf(tmp, 4095,msg,ap);
+  }
+  va_end(ap);
+  pop_text_stack(1);
+  Yap_ThrowError__(file, function, lineno, type, where, tmp, NULL);
+}
+/// complete delayed error.
 
 /* static void */
 /* reset_error_description(void) { */
@@ -846,7 +868,7 @@ CACHE_REGS
 
 bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
-                       Term where, Term extra, const char *s) {
+                       Term culprit_t, Term extra, const char *s) {
   CACHE_REGS
     if (type!= EVALUATION_ERROR_UNDEFINED ) { //&& LOCAL_Undef_CP == NULL) {
     if (!Yap_pc_add_location(r, P, B, ENV))
@@ -856,8 +878,8 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
  if (type != USER_DEFINED_EVENT &&
      type != USER_DEFINED_ERROR ) {
 
-   if (where)
-     r->culprit_t = Yap_SaveTerm(where);
+   if (culprit_t)
+     r->culprit_t = Yap_SaveTerm(culprit_t);
    r->culprit = NULL;
    r->errorAsText = Yap_errorName(type);
    r->errorAsText2 = Yap_errorName2(type);
@@ -878,15 +900,12 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     r->errorMsgLen = 0;
     r->errorMsg = NULL;
   }
-  int sno = Yap_CheckAlias(AtomLoopStream);
   if (type != SYNTAX_ERROR) {
     const char *s =  RepAtom(Yap_source_name())->StrOfAE;
-    sno = Yap_CheckAlias(AtomLoopStream);
      r->parserFile = strcpy(malloc(strlen(s)+1),s);
-     r->parserLine = r->parserFirstLine = r->parserLastLine = Yap_source_line_no();
-    r->parserPos = Yap_source_pos();
+     r->parserLine = LOCAL_StartLineCount;
     r->parserSize = 0;
-    r->parserLinePos = Yap_source_line_pos();
+    r->parserLinePos = LOCAL_StartLinePos;
   }
 
 

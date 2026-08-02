@@ -1,4 +1,4 @@
-/*************************************************************************
+ /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -284,12 +284,12 @@ translate_message(error(style_check(What,Culprit,Cl),Exc))-->
     Level = warning },
     location( Desc, Level, parser, LC),
   main_message(error(style_check(What,Culprit,Cl),Exc),  Level, LC ).
-translate_message(error(syntax_error(E), [])) -->
+translate_message(error(syntax_error(syntax_error(E,_,_,_,_)), [])) -->
     {
      consult_depth(LC)
       },
       [ '~N~*|% syntax error ~s' -   [LC, E] ].
-translate_message(error(syntax_error(E), Info)) -->
+translate_message(error(syntax_error(syntax_error(E,_,_,_,_)), Info)) -->
     {
      consult_depth(LC),
       error_descriptor(Info, Desc),
@@ -297,7 +297,7 @@ translate_message(error(syntax_error(E), Info)) -->
     },
       %{start_low_level_trace},
     syntax_location( Desc, Level,full , LC),
-   main_message(error(syntax_error(E),Info) , Level, LC ),
+   main_message(error(syntax_error(syntax_error(E,_,_,_,_)),Info) , Level, LC ),
     c_goal( Desc, Level, LC ),
     extra_info( Desc, Level, LC ),
     stack_info( Desc, Level, LC ),
@@ -478,11 +478,11 @@ main_message(error(style_check(multiple,[F0|L0],I      ), _Info),_Level, _LC) --
 	       nl,
 '~a:~d:0: has original definition for ~q'-[F0,L0,I],
 	       nl ].
-main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
+main_message( error(syntax_error(syntax_error(Msg,_,_,_,_)),_Info), _Level, _LC ) -->
     {string(Msg);atom(Msg)},
     !,
     [  '[ Syntax Error:~n      ~s~n]'-[Msg]   ].
-main_message( error(syntax_error(Msg),_Info), _Level, _LC ) -->
+main_message( error(syntax_error(syntax_error(Msg,_,_,_,_))), _Level, _LC ) -->
     !,
     [  '[ Syntax Error:~n      ~w~n]'-[Msg]   ].
 main_message(error(ErrorInfo,_), _Level, LC) -->
@@ -508,7 +508,7 @@ main_error_message(representation_error(Type),LC) -->
     [ '~*|%%% YAP cannot represent as ~w.' - [LC, Type] ].
 main_error_message(resource_error(Who),LC) -->
     [ '~*|%%% ~q.' - [LC,Who]].
-main_error_message(syntax_error(Who),LC) -->
+main_error_message(syntax_error(syntax_error(Who,_,_,_,_)),LC) -->
     [ '~*|%%% ~w while parsing.' - [ LC,Who]].
 main_error_message(type_error(callable,PredicateIndicator),LC) -->
     { fix_pi(PredicateIndicator, Who) },
@@ -524,8 +524,11 @@ main_error_message(system_error(Who, In),LC) -->
     [ '~*|%%% ~q ~q.' - [LC,Who, In]].
 main_error_message(uninstantiation_error(T),LC) -->
     [ '~*|%%% found ~q, expected unbound variable.' - [LC,T]].
-main_error_message(warning(Type,Culprit),LC) -->
-    [ '~*|%%% ~a: ~q.' - [LC,Type,Culprit]].
+main_error_message(no_predicate_match(M, Name),LC) -->
+    [ '~*|%%% no predicate in module ~a matches ~a.' -[LC,M,Name]].
+main_error_message(warning(Type,_Culprit),LC) -->
+    [nl],
+    main_error_message( Type,LC ).
 
 fix_pi(Var, Var) :-
     var(Var),
@@ -554,7 +557,7 @@ fix_pi(PI, PI) .
 display_consulting( _F, Level, Info, LC) -->
     {  LC > 0,
        error_descriptor(Info, Desc),
-       query_exception(prologParserFile, Desc, F0),
+       query_exception(prologParserFilre, Desc, F0),
        query_exception(prologParserLine, Desc, L),
        integer(L)
 %       ,       F \= F0

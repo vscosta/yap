@@ -1,4 +1,4 @@
-
+ 
 /*
  * Language Server support
  *
@@ -14,7 +14,7 @@
   file_symbols/2,
   workspace_symbols/1,
   analyse/5,
-  complete/2]).
+  complete/3]).
 
     /*
 highlight_text/2,pred_def/4,
@@ -25,19 +25,21 @@ add_dir/2
   ]).
 */
     
+
 :- set_prolog_flag(double_quotes, string).
 
 :- dynamic state/2, lsp_on/0, use/9, def/6, dec/6.
 
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
-:- reexport(library(python)).
-:- use_module(library(yapi)).
-:- use_module(library(toks_lsp)).
 :- use_module(library(hacks)).
-:- use_module(library(completions)).
 
-:- use_module(library(scanner)).
+:- reexport((python)).
+:- use_module((yapi)).
+:- use_module((toks_lsp)).
+:- use_module((completions)).
+
+:- use_module((scanner)).
 
 %:- python_import(lsprotocol.types as t).
 %:- python_import(pygls.server).
@@ -49,13 +51,13 @@ add_dir/2
 uri_symbols(URI, All) :-
     string_concat("file://", FileS, URI),
     string_to_atom(FileS, File),
-    findall(t(Name,Line), defa(Name,Line,File),All).
+findall(t(Name,Line), defa(Name,Line,File),All).
 
 file_symbols(File, All) :-
    absolute_file_name(File, Path,
     [ file_type(prolog),
       access(read),
-expand(true),
+      expand(true),
       file_errors(fail)
       ]),
     validate_file(Path,_),
@@ -68,8 +70,9 @@ defa(Word,Line,File) :-
 workspace_symbols(All) :-
     findall(t(Name,Line,URI), symbol_in_def(Name,Line,URI), All).
 
-symbol_in_def(Word,Line,URI) :-
+symbol_in_def(Word,Line1,URI) :-
     def(Name,_,_,Line,File,_),
+Line1 is Line-1,
     string_to_atom(Word,Name),
     string_to_atom(FileS, File),
     string_concat("file://", FileS, URI).
@@ -77,10 +80,10 @@ symbol_in_def(Word,Line,URI) :-
     %%
     %%
     
-complete(Prefix, FCs) :-
-    completions(Prefix,FCs),
+complete(Prefix, Insert,FCs) :-
+    completions(Prefix,Insert,FCs),
     !.
-    complete(_Prefix, []).
+    complete(_Prefix, _, []).
 
 %%
 %% @pred validate_uri(Self,URI)
@@ -94,35 +97,48 @@ complete(Prefix, FCs) :-
     /**
     read the line and store some info.
     */
+
 user:term_expansion(G, GF) :-
     lsp(on),
     prolog_load_context(file, F ),
     prolog_load_context(term_position, Pos ),
+writeln((Pos   )),
     current_source_module(M, M ),
     arg(2, Pos, Line),
     analyse(G,Line,F,M,GF),
     !.
 
-analyse((:- G), L, F, M, (:- g)) :-
+analyse((:- G), L, F, M, (:- true)) :-
  !,
  directive(G, L, F, M).
-analyse((:- _G), _L, _F, _M, (:- g)) :-
+analyse((:- _G), _L, _F, _M, (:- true)) :-
   !.
 analyse(Cl, L, F, M, g) :-
+!,
  rule(Cl, L, F, M).
-analyse(_G, _L, _F, _M,  g).
+analyse(G, L, F, M,  g) :-
+rule((G :- true), L, F, M).
 
 rule((A0:- B),Line,File,Module) :-
     strip_module(Module:A0,MH,A),
-    functor(A,Na,Ar),
-    (    
-    def(Na,Ar,MH,_,_,predicate)
-       ->
-    true
-       ;
-    assert(def(Na,Ar,MH,Line,File,predicate))
-    ),
-    body(B,Line,File,Module,MH:Na/Ar).
+    functor(A,Na ,Ar),
+
+
+store(Na,Ar,MH,Line,File),
+   body(B,Line,File,Module,MH:Na/Ar).
+
+store(Na,Ar,MH,Line,File) :-
+    def(Na,Ar,MH,L,F,predicate),
+F == File,
+L == Line,
+!.
+store(Na,Ar,MH,_Line,_File) :-
+    retract(def(Na,Ar,MH,_L,_F,predicate)),
+      fail.
+store(Na,Ar,MH,Line,File) :-
+    assert(def(Na,Ar,MH,Line,File,predicate)).
+
+
 directive(module(M,Ls),L,F,M0) :-
     assert(def('',0,M,L,F,module)),
     assert(use('',0,M,'',0,M0,L,F,module)),
@@ -191,8 +207,7 @@ validate_file(File, Errors) :-
     [ file_type(prolog),
       access(read),
       expand(true),
-      file_errors(fail)
-      ]),
+      file_errors(fail)]),
     validate_source(Path, DefaultModule, Errors).
 
 
@@ -204,6 +219,7 @@ validate_source(Path, DefaultModule, Errors) :-
     current_source_module(_,DefaultModule).
     
 validate_text(URI,S,Ts) :-
+    writeln(user_error,"Here we go = "=URI ),
     string_concat("file://", FileAsS, URI),
     atom_string(FileAsS, File),
     retractall(def(_,_,_,_,File,_)),
@@ -212,11 +228,13 @@ validate_text(URI,S,Ts) :-
     open(string(S),read,Stream),
     current_source_module(DefaultModule,user),
     assert(lsp(on)),
-    load_files(File,[stream(Stream)]),
+    load_files(File,[stream(Stream), if(true)]),
     %close(Stream),
     current_source_module(_,DefaultModule),
     retractall(lsp(_)),
-    findall(T,retract(m(T)),Ts).
+    findall(T,retract(m(T)),Ts),
+    writeln(user_error,ts=Ts).
+
 
 q_msg(informational, _, _) :-
     !,
@@ -224,34 +242,33 @@ q_msg(informational, _, _) :-
 q_msg(help, _, _) :-
     !,
     fail.
-q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_),_Desc),t("warning",S, Line,Column, Line,EndCol)) :-
+q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_),_Desc),t("warning",S, Line1,Column1, Line1,EndCol)) :-
     !,
+    Line1 is Line-1,
+    Column1 is Column-1,
     format(string(S), 'singleton variable ~s.~n ', [VName]),
     atom_length(VName, Len),
     EndCol is Column+Len.
-q_msg(warning, error(style_check(multiple,[F0|L],I ) ,_Desc ), t("warning",S, L,Column,L,EndCol)) :-
+q_msg(warning, error(style_check(multiple,[F0,L,Column],I ) ,Desc ), t("warning",S, L,Column,L,EndCol)) :-
     !,
-    Column=0,
-    format(string(S), '~w previously defined at ~s.~n',[I,F0]),
+    format(string(S), '~w previously defined at file ~s.~n',[Desc,F0]),
     I = _:Name/_,
     atom_length(Name, Len),
     EndCol is Column+Len.
-q_msg(warning, error(style_check(discontiguous,_,_I ), _Desc), t("warning",S, L,Column, L, EndCol)) :-
+q_msg(warning, error(style_check(discontiguous,[_,L,Column], I ), _Desc), t("warning",S, L,Column, L, EndCol)) :-
     !,
-    Column=0,
     format(string(S), 'discontiguous definition for ~w.~n',[I]),
     I = _:Name/_,
     atom_length(Name, Len),
     EndCol is Column+Len,
     S = "discontiguous.~n".
-q_msg(_error, error(syntax_error(_Msg), Desc),  t("error","syntax error", L,LPos,L,LP1)) :-
-    exception_property(parserLine, Desc, L),
-    exception_property(parserLinePos, Desc, LPos),
-    exception_property(parserSize, Desc, Size),
+q_msg(_error, error(syntax_error(syntax_error(Msg,_,L,LPos,Size)), _Desc),  t("error",S, L1,LPos,L1,LP1)) :-
     !,
+    L1 is L-1,
+    format(string(S), 'syntax error: ~s.~n',[Msg]),
     LP1 is LPos+Size.
-q_msg(_,Error,t("ignored",Msg,1,0,2,0)) :-
-    term_to_string(Error,Msg).
+
+ 
 
 add_file(Self, D, File) :-
     absolute_file_name(File, Path,
@@ -266,7 +283,6 @@ add_file(Self, D, File) :-
 	 )),
     !,
     validate_file(Self,Path).
-    add_file(_,_,_).
 
     
 symbol_at(Line, Pos, Word) :-

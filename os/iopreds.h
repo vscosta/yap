@@ -7,6 +7,7 @@
  *									 *
  *************************************************************************/
 
+#include "YapHeap.h"
 #ifndef IOPREDS_H
 #define IOPREDS_H 1
 
@@ -27,9 +28,6 @@
 typedef struct FEnv {
   scanner_params scanner; /// scanner interface
   Term qq, tp, sp, np, vprefix, scan;
-  int StartCharCount;
-  int StartLineCount;
-  int StartLinePos;
   Term cmod;           /// initial position of the term to be read.
   Term t, t0;          /// the output term
   TokEntry *tokstart;  /// the token list
@@ -345,21 +343,19 @@ inline static Term Yap_CurrentStreamPosition(int sno ) {
 			      st->linestart);
 }
 
-inline static void Yap_SaveStreamPosition(int sno, FEnv *fe) {
- 
- CACHE_REGS
-   StreamDesc *st = GLOBAL_Stream+sno;
-  fe->StartCharCount = st->charcount,
- fe->StartLineCount = st-> linecount;
-   fe->StartLinePos = st->linestart;;
+inline static void Yap_SaveStreamPosition(StreamDesc *s) {
+  CACHE_REGS
+  LOCAL_StartCharCount = s->charcount;
+  LOCAL_StartLineCount = s->linecount;
+  LOCAL_StartLinePos = s->linestart;
 }
 
-inline static Term Yap_SavedStreamPosition(FEnv *fe) {
+inline static Term Yap_SavedStreamPosition(void) {
   CACHE_REGS
   return   Yap_StreamPosition(
-				fe->StartCharCount,
-				fe->StartLineCount,
-			      fe->StartLinePos);
+			      LOCAL_StartCharCount,
+				LOCAL_StartLineCount,
+			      LOCAL_StartLinePos);
 }
 
 char *Yap_MemExportStreamPtr(int sno);

@@ -6,25 +6,63 @@
 
 :- module( completer,
 	   [
-	       completer/2
+	       completer/3
 	   ]).
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
-:-	 use_module(library(python)).
+
 
 %% completer( +Text, +PythonCell )
-% 
-% Tries to complete the current text. The list with the set of completions
-% is stored in the
-% `matches` field of the python object.
-%
-completer(S, Cs) :-
+%% 
+%% Tries to complete the current text. The list with the set of completions
+%% is stored in the
+%% `matches` field of the python object.
+%%
+
+completer( S, InsertPoint, Cs) :-
+line2toks(S,Toks),
+toks(InsertPoint, S, Info , Toks,  []),
+all_expansions(Info, Cs).
+
+
+toks(InsertPoint, S, info(Type, LeftSide, RightSide, Prefix,  Suffix) ) -->
+    prefix(InsertPoint, S, Prefix),
+what_to_expand(InsertPoint, S, Suffix, Type, LeftSide, RightSide).
+
+prefix(InsertPoint, S,[Tok|Prefix]) -->
+[Tok],
+{arg(3,Tok,Beg),
+  arg(4,Tok,Size),
+  Beg +Size < InsertPoint
+  },
+!,
+prefix(InsertPoint, S,Prefix).
+prefix(InsertPoint, S, _) -->
+[Tok],
+{arg(3,Tok,Beg),
+    Beg >= InsertPoint},
+!,
+{ throw(error(domain(nothing_to_complete,S,InsertPoint ),[])) }.
+prefix(_,_,[]) -->
+[].
+
+what_to_expand(InsertPoint, S, Toks,  Type, LeftSide, RightSide, [Tok|Toks], Toks) :-
+Tok = t(TypeVal,_,Beg,Size),
+functor(TypeVal,Type,_),
+NSz is InsertPoint-Beg,
+    sub_string(S, Beg, NSz, _,LeftSide),
+RightSize is Size - NSz,
+    sub_string(S, InsertPoint,RightSize,_,RightSide)  .
+
+   
+all_expansions(Info, Cs) :-
+	setof( Completion, complete(Info, Completion), Cs), writeln(user_error,Cs).
+
+line2toks(S, Tokens) :-
 	open_mem_read_stream(S, St),
 	scan_stream(St, Tokens),
-	close(St),
-	strip_final_tokens(Tokens, MyTokens),
-	setof( Completion, complete(MyTokens, Completion), Cs), writeln(user_error,Cs).
+close(St).
 
 
 strip_final_tokens([], []) :- !.
@@ -32,7 +70,8 @@ strip_final_tokens([t('EOT',_,_,_)|_Ts], []) :- !.
 strip_final_tokens( [t(A,_,_,_)|Ts], [A|NTs] )  :-
 		  strip_final_tokens(Ts,NTs).
 
-complete([atom(E),l, atom(C),l,A|_],Completion) :-
+/*
+complete([atom, (E),l, atom(C),l,A|_],Completion) :-
 	 isconsult(E),
 	  library(C,Lib),
 	  %D=l,
@@ -51,9 +90,11 @@ complete([atom(A),l,-,'['|_],Completion) :-
 	 isconsult(A),
 	file_or_library( A, ACompletion),
 atom_string(ACompletion, Completion).
-complete( [atom(F)|_], Completion) :-
-	predicate( F, Pred, Arity ),
-	cont( Arity, F, Pred, ACompletion),
+*/
+complete( info(atom, F, _, _,_), Completion) :-
+string_atom(F,Name),
+  predicate( Name, Pred, Arity ),
+	cont( Arity, Name, Pred, ACompletion),
 atom_string(ACompletion, Completion).
 
 isconsult( atom(use_module) ).
@@ -64,8 +105,6 @@ isconsult( atom(reconsult) ).
 isconsult( atom(load_files) ).
 isconsult( '['   ).
 
-arg([']'|_]).
-arg([l|_]).
 
 file_or_library(F,C) :-
 	library(F,C).
@@ -86,8 +125,8 @@ check_file(F0,C) :-
 	atom_concat(Pat,C,C0).
 
 check_library( Lib, F, C) :-
-	atom_concat( F, '*'	, Pat),
-	LibF =.. [Lib(Pat)],
+    atom_concat( F, '*'	, Pat),
+	LibF =.. [Lib,Pat],
 	absolute_file_name( LibF, Lib, [glob(true)]  ),
 	file_directory_name( Lib, Name),
 	( atom_concat(C, '.yap', Name) -> true ;

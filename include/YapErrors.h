@@ -49,7 +49,7 @@ BEGIN_ERRORS()
 
 /* ISO_ERRORS */
 
-  E(YAP_NO_ERROR, YAPC_NO_ERROR,"no_error") /// default state
+E(YAP_NO_ERROR, YAPC_NO_ERROR,"no_error") /// default state
 //> bad option to absolute_file_name
 E(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, DOMAIN_ERROR,
   "absolute_file_name_option")

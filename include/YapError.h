@@ -64,6 +64,7 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
                              yap_error_number err, YAP_Term wheret, const char *msg, ...)
     ;
 
+
 #define Yap_NilError(id, ...)                                                  \
 Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 #define Yap_InitError(id, t,...)					\

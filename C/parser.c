@@ -608,8 +608,8 @@ loop:
 static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
                       Term cmod USES_REGS) {
   /* parse term with priority prio */
-  Volatile Term t;
-  Volatile Functor func;
+  Volatile Term t = TermNil;
+  Volatile Functor func = NULL;
   Volatile VarEntry *varinfo;
   Volatile int curprio = 0, opprio, oplprio, oprprio;
   Volatile Atom opinfo;
@@ -846,8 +846,11 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     NextToken;
     break;
   default:
-    syntax_msg("line %d: expected operator, got \'%s\'", LOCAL_tokptr->TokLine,
-               Yap_tokText(LOCAL_tokptr));
+    if (func)
+      syntax_msg("failed parsing %s\%d'", RepAtom(NameOfFunctor(func))->StrOfAE,
+                 ArityOfFunctor(func));
+    else
+      syntax_msg("failed parsing %s'", Yap_TermToBuffer( t,0));
     FAIL;
   }
 
@@ -965,7 +968,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
       }
     }
     if (LOCAL_tokptr->Tok <= Ord(String_tok)) {
-      syntax_msg("line %d: expected operator, got \'%s\'",
+      syntax_msg("line %d: expected operator or bracket, got \'%s\'",
                  LOCAL_tokptr->TokLine, Yap_tokText(LOCAL_tokptr));
       FAIL;
     }
@@ -1028,7 +1031,7 @@ JMPBUFF FailBuff;
     LOCAL_Error_TYPE =SYNTAX_ERROR; 
       size_t sz = strlen("bracket or operator expected.");
       LOCAL_ErrorMessage =malloc(sz+1);
-      strncpy(LOCAL_ErrorMessage, "bracket or operator expected.", sz  );
+      strncpy(LOCAL_ErrorMessage, "expected bracket or operatorsu.", sz  );
   }
    return (0L);
 }

@@ -93,8 +93,7 @@ mode and the existing spy-points, when the debugger is on.
 	'$u_spy'(A/N,Command,M),
 	fail
     ;
-    Error =..[M:A],
-    print_message(warning,no_match(Error))
+	  print_message(warning,no_predicate_match(M.A))
 	).
 
 '$spy_gen'(M,A,S,N) :-

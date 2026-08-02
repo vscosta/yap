@@ -401,8 +401,6 @@ extern Term Yap_Eval__(Term t USES_REGS);
   { if (IsAttVar(VarOfTerm(t)) || Yap_has_signal(YAP_WAKEUP_SIGNAL)) { Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__); }
 #define Yap_BinError(id)						\
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
-#define Yap_AbsmiError(id)						\
-  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 
 
 #include "inline-only.h"

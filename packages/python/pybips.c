@@ -949,8 +949,8 @@ static PyObject *bip_int(term_t t) {
 	      if (!pArgs)
 		pArgs = PyTuple_New(0);
 	      CHECK_CALL(ys, pArgs, pyDict);
-	      Py_DECREF(pArgs);
-	      Py_DECREF(ys);
+//	      Py_DECREF(pArgs);
+//	      Py_DECREF(ys);
 	      //		    PyObject_Print(rc, stderr, 0);
 	      return rc;
 	    } else {

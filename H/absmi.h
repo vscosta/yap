@@ -2485,12 +2485,14 @@ extern yamop *headoftrace;
   }\
   }
 
+extern void Yap_AbsmiError__(const char *file, const char *function, int lineno,
+                             yap_error_number err, Term culprit, yamop *pc, char *msg,...)
+    ;
 
-#define Yap_AsmError(e, d)                                                     \
-  {                                                                            \
-    saveregs();                                                                \
-    Yap_ThrowError(e, d, "while executing inlined built-in");                  \
-    setregs();                                                                 \
-  }
+
+#define Yap_AbsmiError(id, inp, pcreg, ...) \
+Yap_AbsmiError__(__FILE__, __FUNCTION__,  __LINE__, id, inp,pcreg, __VA_ARGS__ )
+
+
 
 #endif // ABSMI_H

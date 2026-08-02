@@ -19,6 +19,7 @@
 
 #include "Regs.h"
 
+#include "YapCompoundTerm.h"
 #include "YapFlags.h"
 #include "YapHeap.h"
 #include "YapTags.h"
@@ -1744,14 +1745,15 @@ bool Yap_multiple(PredEntry *ap, Term mode USES_REGS) {
 	falseGlobalPrologFlag(DISCONTIGUOUS_WARNINGS_FLAG))) {
     return false;
    }
-   if (ap->cs.p_code.NOfClauses > 0) {
-     StaticClause* c = ClauseCodeToStaticClause(ap->cs.p_code.LastClause);
-     if (c->ClOwner && c->ClOwner == (Yap_source_name())) {
-       // avoid repeating warnings
-       return false;
-     }
+   if (ap->cs.p_code.NOfClauses == 0) {
+     return false;
    }
-   return  ap->cs.p_code.NOfClauses > 0 && ap->src.OwnerFile != AtomNil &&
+   StaticClause* c = ClauseCodeToStaticClause(ap->cs.p_code.LastClause);
+   if (c->ClOwner && c->ClOwner == (Yap_source_name())) {
+     // avoid repeating warnings
+     return false;
+   }
+   return  ap->src.OwnerFile != AtomNil &&
      Yap_source_stream_name() != ap->src.OwnerFile;
 }
 
@@ -2146,17 +2148,6 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
 	Yap_MkLogPred(p);
       }
     } else {
-      multiple =Yap_multiple(p, t1 PASS_REGS);
-      if (multiple) {
-	if (t1==TermReconsult) {
-	  purge_clauses(p);
-	}
-	m_culprit = MkPairTerm(
-			       MkAtomTerm(p->src.OwnerFile),
-			       MkIntTerm(p->src.OwnerLine)
-			       );
-      }
-      discontiguous = Yap_discontiguous(p, t1 PASS_REGS);
       if (discontiguous) {
 	StaticClause *cl = ClauseCodeToStaticClause(p->cs.p_code.LastClause);
 	if (cl->ClFlags & FactMask) {
@@ -2166,39 +2157,52 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
 	} else{
 	  d_culprit = MkIntTerm(1);
 	}
-	d_culprit = MkPairTerm(MkAtomTerm(Yap_source_name()),d_culprit);
-  }
-
-
-
+	d_culprit = MkPairTerm(MkAtomTerm(Yap_source_name()),MkPairTerm(d_culprit, MkPairTerm(MkIntTerm(0),TermNil)));
+      }
+    }
+    multiple =Yap_multiple(p, t1 PASS_REGS);
+    if (multiple) {
+      StaticClause *cl = ClauseCodeToStaticClause(p->cs.p_code.LastClause);
+      if (cl->ClFlags & FactMask) {
+	m_culprit =  MkIntTerm(cl->usc.ClLine);
+      } else if (cl->ClFlags & SrcMask) {
+	m_culprit = MkIntTerm(cl->usc.ClSource->ag.line_number);
+      } else{
+	m_culprit = MkIntTerm(1);
+      }
+      m_culprit = MkPairTerm(MkAtomTerm(Yap_source_name()),MkPairTerm(m_culprit,MkPairTerm(MkIntTerm(0),TermNil)));
+      //Yap_unify(Term t0, Term t1);
+      if (t1==TermReconsult) {
+	purge_clauses(p);
+      }
+    }
     if (trueGlobalPrologFlag(PROFILING_FLAG)) {
       p->PredFlags |= ProfiledPredFlag;
       if (!Yap_initProfiler(p)) {
+	    return false;
+	  }
+	} else {
+	  p->PredFlags &= ~ProfiledPredFlag;
+	}
+	if (CALL_COUNTING) {
+	  p->PredFlags |= CountPredFlag;
+	} else {
+	  p->PredFlags &= ~CountPredFlag;
+	}
+	if (p->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) {
+	  p->OpcodeOfPred = Yap_opcode(_spy_pred);
+      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+	}
+      /* we are redefining a prolog module predicate */
+      if (Yap_constPred(p)) {
+	UNLOCKPE(30, p);
+	Atom at = p->ArityOfPE == 0? (Atom)p->FunctorOfPred : NameOfFunctor(p->FunctorOfPred);
+	addcl_permission_error(at, p->ArityOfPE, false);
 	return false;
       }
-    } else {
-      p->PredFlags &= ~ProfiledPredFlag;
-    }
-    if (CALL_COUNTING) {
-      p->PredFlags |= CountPredFlag;
-    } else {
-      p->PredFlags &= ~CountPredFlag;
-    }
-    if (p->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) {
-      p->OpcodeOfPred = Yap_opcode(_spy_pred);
-      p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-    }
-  }
-  /* we are redefining a prolog module predicate */
-  if (Yap_constPred(p)) {
-    UNLOCKPE(30, p);
-    Atom at = p->ArityOfPE == 0? (Atom)p->FunctorOfPred : NameOfFunctor(p->FunctorOfPred);
-    addcl_permission_error(at, p->ArityOfPE, false);
-     return false;
-  }
-  yhandle_t ytref, yt;
-  yt = Yap_InitHandle(t);
-  ytref = Yap_InitHandle(tref);
+      yhandle_t ytref, yt;
+      yt = Yap_InitHandle(t);
+      ytref = Yap_InitHandle(tref);
 
   /* separate assert in current file from reconsult
     if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
@@ -3261,7 +3265,8 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yhandle_t yth, yha
    LogUpdClause *cl;
   Term rtn;
   cl = Yap_FollowIndexingCode(
-      pe, i_code, yth, NEXTOP(PredLogUpdClause->CodeOfPred, Otapl), cp_ptr);
+
+			      pe, i_code, yth, NEXTOP(PredLogUpdClause->CodeOfPred, Otapl), cp_ptr);
   if (cl == NULL) {
     return FALSE;
   }

@@ -35,6 +35,7 @@
 
 #include "YapError.h"
 #include "YapTags.h"
+#include "YapText.h"
 #include "Yapproto.h"
 #include "Yatom.h"
 #include "tab.macros.h"
@@ -1909,8 +1910,16 @@ static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,
         p->prologPredName = AtomName(NameOfFunctor(pe->FunctorOfPred));
     else
         p->prologPredName = AtomName((Atom) (pe->FunctorOfPred));
-    p->prologPredArity = pe->ArityOfPE;
-    p->prologPredFile = AtomName(pe->src.OwnerFile);
+   p->prologPredArity = pe->ArityOfPE;
+   if (pe->src.OwnerFile) {
+     p->prologPredFile = AtomName(pe->src.OwnerFile);
+   } else if (AtomLoopStream) {
+     int sno = Yap_FindStreamForAlias(AtomLoopStream);
+     if (sno)
+       p->prologPredFile =  GLOBAL_Stream[sno].name;
+     else
+       p->prologPredFile = NULL;
+   }
     p->prologPredLine = get_clause_line(pe, cl);
     }
     return p;

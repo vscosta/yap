@@ -7,10 +7,10 @@
 
 :- module( completions,
 	   [
-	       completions/2
+	       completions/3
 	   ]).
-:-	 use_module(library(completer)).
 :-	 use_module(library(maplist)).
+:-	 use_module(library(completer)).
 
 /**
  *  @defgroup YAPCompleter  Call Prolog completer from Python
@@ -22,14 +22,14 @@
  *  Help the user by trying to guess what she will type next.
  */
 
-%% @pred completions( +Text, +PythonCompleterObject )
+%% @pred completions( +Text, +InsertPoint, -PythonCompleterObject )
 % 
 % Tries to complete the current text. The list with the set of completions
 % is stored in the
 % `matches` field of the python object.
 %
-completions(Text, FCs) :-
-    completer(Text,Cs),
+completions(Text, InsertPoint, FCs) :-
+    completer(Text,InsertPoint, Cs),
     maplist(atom_string, Cs, FCs).
 
 	

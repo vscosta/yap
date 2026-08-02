@@ -32,6 +32,8 @@
  */
 
 
+#include "Yap.h"
+#include "YapTags.h"
 #define _GNU_SOURCE
 
 
@@ -162,6 +164,15 @@ int Yap_open_buf_read_stream(void *spt, const char *buf, size_t nchars,
   } else {
     sno = st-GLOBAL_Stream;
   }
+  if (fname == NULL) {
+    char *buf = malloc(16);
+    snprintf(buf,15,"/mem/stream/%d",sno);
+    fname = st->name = Yap_LookupAtom(buf);
+    uname = st->user_name = MkAtomTerm(st->name);
+    free(buf);
+
+
+  }
        FILE* f =st->file = fmemopen((void *)buf, nchars, "r");
   st->vfs = NULL;
   st->u.mem_string.buf = (char *)buf;
@@ -194,7 +205,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   }
   buf = pop_output_text_stack(l, buf);
   sno = Yap_open_buf_read_stream(NULL,buf, strlen(buf) , &LOCAL_encoding,
-                                 MEM_BUF_MALLOC, Yap_LookupAtom(Yap_StrPrefix((char *)buf,16)), TermNone);
+                                 MEM_BUF_MALLOC, NULL, TermEmpty);
   t = Yap_MkStream(sno);
   return Yap_unify(ARG2, t);
 }

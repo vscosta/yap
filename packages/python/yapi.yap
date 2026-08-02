@@ -13,13 +13,12 @@ top_goal/2
 
 :- set_prolog_flag(verbose_load, false).
 
-:- use_module( library(python)).
-
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
 :- use_module( library(terms) ).
 
+:- use_module( python ).
 
 :- python_import(
        yap4py.predicates ).
