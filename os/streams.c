@@ -542,7 +542,7 @@ SetBuffering(int sno, Atom at) { /* '$set_bufferingt'(+Stream,-ErrorMessage)  */
   } else {
     CACHE_REGS
     LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
-    LOCAL_ErrorMessage = "in set_stream/2:buffer";
+    const_error_message( "in set_stream/2:buffer");
     return false;
   }
   return true;
@@ -944,7 +944,7 @@ static bool do_set_stream(int sno,
           GLOBAL_Stream[sno].status |= Repeat_Eof_Stream_f;
         } else {
           LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
-          LOCAL_ErrorMessage = "in set_stream/2:eof_action";
+          const_error_message("in set_stream/2:eof_action");
           rc = false;
         }
         break;
@@ -984,7 +984,8 @@ static bool do_set_stream(int sno,
           GLOBAL_Stream[sno].status |= RepError_Prolog_f;
         } else {
           LOCAL_Error_TYPE = DOMAIN_ERROR_OUT_OF_RANGE;
-          LOCAL_ErrorMessage = "in set_stream/2:eof_action";
+
+	  const_error_message( "in set_stream/2:eof_action");
           rc = false;
         }
       } break;
@@ -1163,7 +1164,7 @@ static Int current_input(USES_REGS1) { /* current_input(?Stream) */
     return TRUE;
   } else if (!IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorStream ||
              !IsIntTerm((t1 = ArgOfTerm(1, t1)))) {
-    Yap_Error(DOMAIN_ERROR_STREAM, t1, "current_input/1");
+    Yap_ThrowError(DOMAIN_ERROR_STREAM, t1, "current_input/1");
     return FALSE;
   } else {
     return LOCAL_c_input_stream == IntOfTerm(t1);
@@ -1206,7 +1207,7 @@ static Int current_output(USES_REGS1) { /* current_output(?Stream) */
     return TRUE;
   } else if (!IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorStream ||
              !IsIntTerm((t1 = ArgOfTerm(1, t1)))) {
-    Yap_Error(DOMAIN_ERROR_STREAM, t1, "current_output/1");
+    Yap_ThrowError(DOMAIN_ERROR_STREAM, t1, "current_output/1");
     return FALSE;
   } else {
     return (LOCAL_c_output_stream == IntOfTerm(t1));
@@ -1229,7 +1230,7 @@ static Int current_error(USES_REGS1) { /* current_error(?Stream) */
     return TRUE;
   } else if (!IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorStream ||
              !IsIntTerm((t1 = ArgOfTerm(1, t1)))) {
-    Yap_Error(DOMAIN_ERROR_STREAM, t1, "current_error/1");
+    Yap_ThrowError(DOMAIN_ERROR_STREAM, t1, "current_error/1");
     return FALSE;
   } else {
     return (LOCAL_c_error_stream == IntOfTerm(t1));
@@ -1399,39 +1400,39 @@ static Int
   }
   tin = Deref(ARG2);
   if (IsVarTerm(tin)) {
-    Yap_Error(INSTANTIATION_ERROR, tin, "set_stream_position/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, tin, "set_stream_position/2");
     return (FALSE);
   } else if (!(IsApplTerm(tin))) {
-    Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+    Yap_ThrowError(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
     return (FALSE);
   }
   if (FunctorOfTerm(tin) == FunctorStreamPos) {
     if (IsVarTerm(tp = ArgOfTerm(1, tin))) {
-      Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);
     } else if (!IsIntTerm(tp)) {
-      Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+      Yap_ThrowError(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
     }
     if (!(GLOBAL_Stream[sno].status & Seekable_Stream_f)) {
-      Yap_Error(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,
+      Yap_ThrowError(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,
                 "set_stream_position/2");
       return (FALSE);
     }
     char_pos = IntOfTerm(tp);
     if (IsVarTerm(tp = ArgOfTerm(2, tin))) {
-      Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);
     } else if (!IsIntTerm(tp)) {
-      Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+      Yap_ThrowError(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
     }
     GLOBAL_Stream[sno].charcount = char_pos;
     if (IsVarTerm(tp = ArgOfTerm(3, tin))) {
-      Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);
     } else if (!IsIntTerm(tp)) {
-      Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+      Yap_ThrowError(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
     }
     int linecount = IntOfTerm(tp);
@@ -1439,17 +1440,17 @@ static Int
     if (fseek(GLOBAL_Stream[sno].file, (long)(char_pos), 0) == -1) {
 
 
-      Yap_Error(SYSTEM_ERROR_INTERNAL, tp,
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, tp,
                 "fseek failed for set_stream_position/2");
       return (FALSE);
     }
     GLOBAL_Stream[sno].stream_getc = PlGetc;
   } else if (FunctorOfTerm(tin) == FunctorStreamEOS) {
     if (IsVarTerm(tp = ArgOfTerm(1, tin))) {
-      Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, tp, "set_stream_position/2");
       return (FALSE);
     } else if (tp != MkAtomTerm(AtomAt)) {
-      Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
+      Yap_ThrowError(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
       return (FALSE);
     }
     if (!(GLOBAL_Stream[sno].status & Seekable_Stream_f)) {
@@ -1494,11 +1495,11 @@ static Int p_stream_select(USES_REGS1) {
   Term tout = TermNil, ti, Head;
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "stream_select/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "stream_select/3");
     return FALSE;
   }
   if (!IsPairTerm(t1)) {
-    Yap_Error(TYPE_ERROR_LIST, t1, "stream_select/3");
+    Yap_ThrowError(TYPE_ERROR_LIST, t1, "stream_select/3");
     return (FALSE);
   }
   FD_ZERO(&readfds);
@@ -1525,7 +1526,7 @@ static Int p_stream_select(USES_REGS1) {
   }
   t2 = Deref(ARG2);
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "stream_select/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "stream_select/3");
     return (FALSE);
   }
   if (IsAtomTerm(t2)) {
@@ -1533,42 +1534,42 @@ static Int p_stream_select(USES_REGS1) {
       /* wait indefinitely */
       ptime = NULL;
     } else {
-      Yap_Error(DOMAIN_ERROR_TIMEOUT_SPEC, t1, "stream_select/3");
+      Yap_ThrowError(DOMAIN_ERROR_TIMEOUT_SPEC, t1, "stream_select/3");
       return (FALSE);
     }
   } else {
     Term t21, t22;
 
     if (!IsApplTerm(t2) || FunctorOfTerm(t2) != FunctorModule) {
-      Yap_Error(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
+      Yap_ThrowError(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
       return (FALSE);
     }
     t21 = ArgOfTerm(1, t2);
     if (IsVarTerm(t21)) {
-      Yap_Error(INSTANTIATION_ERROR, t2, "stream_select/3");
+      Yap_ThrowError(INSTANTIATION_ERROR, t2, "stream_select/3");
       return (FALSE);
     }
     if (!IsIntegerTerm(t21)) {
-      Yap_Error(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
+      Yap_ThrowError(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
       return (FALSE);
     }
     timeout.tv_sec = IntegerOfTerm(t21);
     if (timeout.tv_sec < 0) {
-      Yap_Error(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
+      Yap_ThrowError(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
       return (FALSE);
     }
     t22 = ArgOfTerm(2, t2);
     if (IsVarTerm(t22)) {
-      Yap_Error(INSTANTIATION_ERROR, t2, "stream_select/3");
+      Yap_ThrowError(INSTANTIATION_ERROR, t2, "stream_select/3");
       return (FALSE);
     }
     if (!IsIntegerTerm(t22)) {
-      Yap_Error(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
+      Yap_ThrowError(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
       return (FALSE);
     }
     timeout.tv_usec = IntegerOfTerm(t22);
     if (timeout.tv_usec < 0) {
-      Yap_Error(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
+      Yap_ThrowError(DOMAIN_ERROR_TIMEOUT_SPEC, t2, "stream_select/3");
       return (FALSE);
     }
     ptime = &timeout;
@@ -1576,10 +1577,10 @@ static Int p_stream_select(USES_REGS1) {
   /* do the real work */
   if (select(fdmax + 1, &readfds, &writefds, &exceptfds, ptime) < 0) {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "stream_select/3 (select: %s)",
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "stream_select/3 (select: %s)",
               strerror(errno));
 #else
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "stream_select/3 (select)");
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "stream_select/3 (select)");
 #endif
   }
   while (t1 != TermNil) {

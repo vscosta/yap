@@ -83,7 +83,7 @@ bool Yap_isDirectory(const char *FileName) {
   }
   return S_ISDIR(buf.st_mode);
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
             "stat not available in this configuration");
   return false;
 #endif
@@ -99,7 +99,7 @@ bool Yap_Exists(const char *f) {
     if (_access(f, 0) == 0)
     return true;
   if (errno == EINVAL) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
   }
   return false;
 #elif HAVE_ACCESS
@@ -107,11 +107,11 @@ bool Yap_Exists(const char *f) {
         return true;
     }
     if (errno == EINVAL) {
-        Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
+        Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
     }
     return false;
 #else
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
             "access not available in this configuration");
   return false;
 #endif
@@ -434,10 +434,10 @@ static Int p_sh(USES_REGS1) { /* sh				 */
     shell = "/bin/sh";
   if (system(Yap_VFAlloc(shell)) < 0) {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s in sh/0",
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s in sh/0",
               strerror(errno));
 #else
-    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "in sh/0");
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "in sh/0");
 #endif
     return FALSE;
   }
@@ -449,7 +449,7 @@ static Int p_sh(USES_REGS1) { /* sh				 */
   system(shell);
   return (TRUE);
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
             "sh not available in this configuration");
   return (FALSE);
 #endif /* MSH */
@@ -524,7 +524,7 @@ static Int p_shell(USES_REGS1) { /* '$shell'(+SystCommand) */
   system(shell);
   return TRUE;
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
             "shell not available in this configuration");
   return FALSE;
 #endif
@@ -542,7 +542,7 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "argument to system/1 unbound");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "argument to system/1 unbound");
     return FALSE;
   } else if (IsAtomTerm(t1)) {
     cmd = RepAtom(AtomOfTerm(t1))->StrOfAE;
@@ -552,7 +552,7 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
       char *cmd0 = malloc(PATH_MAX+1);
     if (!Yap_GetName(cmd0, MAX_PATH, t1)) {
       //freecmd);
-      Yap_Error(TYPE_ERROR_ATOM, t1, "argument to system/1");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t1, "argument to system/1");
       return false;
     }
   }
@@ -579,7 +579,7 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
                        &si,        // Pointer to STARTUPINFO structure
                        &pi)        // Pointer to PROCESS_INFORMATION structure
     ) {
-      Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "CreateProcess failed (%d).\n",
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, ARG1, "CreateProcess failed (%d).\n",
                 GetLastError());
       return FALSE;
     }
@@ -600,10 +600,10 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
 #endif
   if (system(cmd)) {
 #if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, t1, "%s in system(%s)",
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, t1, "%s in system(%s)",
               strerror(errno), cmd);
 #else
-    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, t1, "in system(%s)", cmd);
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, t1, "in system(%s)", cmd);
 #endif
     return FALSE;
   }
@@ -617,7 +617,7 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
   return (TRUE);
 #undef command
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "sh not available in this machine");
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "sh not available in this machine");
   return (FALSE);
 #endif
 #endif /* HAVE_SYSTEM */
@@ -630,14 +630,14 @@ static Int p_mv(USES_REGS1) { /* rename(+OldName,+NewName)   */
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "first argument to rename/2 unbound");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "first argument to rename/2 unbound");
   } else if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "first argument to rename/2 not atom");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "first argument to rename/2 not atom");
   }
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "second argument to rename/2 unbound");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "second argument to rename/2 unbound");
   } else if (!IsAtomTerm(t2)) {
-    Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
   } else {
     oldname = RepAtom(AtomOfTerm(t1))->StrOfAE;
     newname = RepAtom(AtomOfTerm(t2))->StrOfAE;
@@ -645,10 +645,10 @@ static Int p_mv(USES_REGS1) { /* rename(+OldName,+NewName)   */
       unlink(newname);
     if (r != 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, t2, "%s in rename(%s,%s)",
+      Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, t2, "%s in rename(%s,%s)",
                 strerror(errno), oldname, newname);
 #else
-      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, t2, "in rename(%s,%s)", oldname,
+      Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, t2, "in rename(%s,%s)", oldname,
                 newname);
 #endif
       return false;
@@ -656,7 +656,7 @@ static Int p_mv(USES_REGS1) { /* rename(+OldName,+NewName)   */
     return true;
   }
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
             "rename/2 not available in this machine");
 #endif
   return false;
@@ -695,12 +695,12 @@ static Int p_getenv(USES_REGS1) {
   const char *s, *so;
 
   if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "first arg of getenv/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, t1, "first arg of getenv/2");
     return (FALSE);
   } else     if (IsStringTerm(t1)) {
       s = StringOfTerm(t1);
   } else if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "first arg of getenv/2");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "first arg of getenv/2");
     return (FALSE);
   } else
     s = RepAtom(AtomOfTerm(t1))->StrOfAE;
@@ -709,7 +709,7 @@ static Int p_getenv(USES_REGS1) {
   to = MkAtomTerm(Yap_LookupAtom(so));
   return (Yap_unify_constant(ARG2, to));
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
             "getenv not available in this configuration");
   return (FALSE);
 #endif
@@ -723,28 +723,28 @@ static Int p_putenv(USES_REGS1) {
   char *p0, *p;
 
     if (IsVarTerm(t1)) {
-        Yap_Error(INSTANTIATION_ERROR, t1, "first arg to putenv/2");
+        Yap_ThrowError(INSTANTIATION_ERROR, t1, "first arg to putenv/2");
         return (FALSE);
     } else     if (IsStringTerm(t1)) {
             s = StringOfTerm(t1);
   } else if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "first arg to putenv/2");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, "first arg to putenv/2");
     return (FALSE);
   } else
     s = RepAtom(AtomOfTerm(t1))->StrOfAE;
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "second arg to putenv/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, t2, "second arg to putenv/2");
     return (FALSE);
   } else     if (IsStringTerm(t2)) {
       s2 = StringOfTerm(t2);
   } else if (!IsAtomTerm(t2)) {
-    Yap_Error(TYPE_ERROR_ATOM, t2, "second arg to putenv/2");
+    Yap_ThrowError(TYPE_ERROR_ATOM, t2, "second arg to putenv/2");
     return (FALSE);
   } else
     s2 = RepAtom(AtomOfTerm(t2))->StrOfAE;
   while (!(p0 = p = Yap_AllocAtomSpace(strlen(s) + strlen(s2) + 3))) {
     if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -756,14 +756,14 @@ static Int p_putenv(USES_REGS1) {
   if (putenv(p0) == 0)
     return TRUE;
 #if HAVE_STRERROR
-  Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "in putenv(%s)",
+  Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "in putenv(%s)",
             strerror(errno), p0);
 #else
-  Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "in putenv(%s)", p0);
+  Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "in putenv(%s)", p0);
 #endif
   return FALSE;
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+  Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
             "putenv not available in this configuration");
   return FALSE;
 #endif
@@ -956,25 +956,25 @@ static Int p_win_registry_get_value(USES_REGS1) {
   int l = push_text_stack();
 
   if (IsVarTerm(Key)) {
-    Yap_Error(INSTANTIATION_ERROR, Key,
+    Yap_ThrowError(INSTANTIATION_ERROR, Key,
               "argument to win_registry_get_value unbound");
     pop_text_stack(l);
     return FALSE;
   }
   if (!IsAtomTerm(Key)) {
-    Yap_Error(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
+    Yap_ThrowError(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
     pop_text_stack(l);
     return FALSE;
   }
   KeyAt = AtomOfTerm(Key);
   if (IsVarTerm(Name)) {
-    Yap_Error(INSTANTIATION_ERROR, Key,
+    Yap_ThrowError(INSTANTIATION_ERROR, Key,
               "argument to win_registry_get_value unbound");
     pop_text_stack(l);
     return FALSE;
   }
   if (!IsAtomTerm(Name)) {
-    Yap_Error(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
+    Yap_ThrowError(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
     pop_text_stack(l);
     return FALSE;
   }
@@ -982,7 +982,7 @@ static Int p_win_registry_get_value(USES_REGS1) {
 
   k = WideStringFromAtom(KeyAt PASS_REGS);
   if (!(key = reg_open_key(k, FALSE))) {
-    Yap_Error(EXISTENCE_ERROR_KEY, Key, "argument to win_registry_get_value");
+    Yap_ThrowError(EXISTENCE_ERROR_KEY, Key, "argument to win_registry_get_value");
     pop_text_stack(l);
     return FALSE;
   }

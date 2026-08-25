@@ -401,7 +401,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
     CACHE_REGS
     save_machine_regs();
     LOCAL_Error_Size = 3*ncls*sizeof(CELL);
-    LOCAL_ErrorMessage = "not enough space to index";
+    const_error_message( "not enough space to index");
     Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
     return NULL;
   }
@@ -420,7 +420,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
       CACHE_REGS
       save_machine_regs();
       LOCAL_Error_Size = dsz;
-      LOCAL_ErrorMessage = "not enough space to generate indices";
+      const_error_message( "not enough space to generate indices" );
       Yap_FreeCodeSpace((void *)i);
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return NULL;

@@ -194,6 +194,10 @@ LOCAL_INIT(bool, delay, false);
 /// pointer to an exception term, from throw
 LOCAL(jmp_buf, IOBotch);
 
+
+/** interface to ErrorMessage, a field that contains a current error message.
+    The interface ensures space is recovered after use */
+
 /// tokenizer support (should be private to the tokenizer).
 LOCAL(TokEntry *, tokptr);
 LOCAL(TokEntry *, toktide);

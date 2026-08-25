@@ -49,7 +49,7 @@ static inline CELL *ArenaLimit(Term arena) {
 /* pointer to top of an arena */
 static inline CELL *ArenaPt(Term arena) { return RepAppl(arena); }
 
-static inline UInt ArenaSzW(Term arena) {
+static inline size_t ArenaSzW(Term arena) {
     return big2arena_szW(RepAppl(arena));
 }
 

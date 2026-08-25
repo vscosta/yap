@@ -176,7 +176,7 @@ static int IsEmptyWakeUp(Term atts) {
 
 void Yap_MkEmptyWakeUp(Atom mod) {
   if (MaxEmptyWakeups == MAX_EMPTY_WAKEUPS)
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermTrue,
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermTrue,
               "too many modules that do not wake up");
   EmptyWakeups[MaxEmptyWakeups++] = mod;
 }
@@ -502,7 +502,7 @@ static Int BindAttVar(attvar_record *attv USES_REGS) {
             Bind_Global_NonAtt(&(attv->Done), AbsAttVar(attv2));
           }
         } else {
-          Yap_Error(SYSTEM_ERROR_INTERNAL, value,
+          Yap_ThrowError(SYSTEM_ERROR_INTERNAL, value,
                     "attvar was bound when unset");
           return false;
         }
@@ -512,7 +512,7 @@ static Int BindAttVar(attvar_record *attv USES_REGS) {
     }
     return true;
   } else {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, (CELL) & (attv->Done),
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, (CELL) & (attv->Done),
               "attvar was bound when set");
     return (FALSE);
   }
@@ -551,7 +551,7 @@ static Int put_att(USES_REGS1) {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
         if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -561,7 +561,7 @@ static Int put_att(USES_REGS1) {
     if ((tatts = SearchAttsForModule(attv->Atts, mfun)) == 0) {
       while (!(tatts = BuildAttTerm(mfun, ar PASS_REGS))) {
         if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -575,7 +575,7 @@ static Int put_att(USES_REGS1) {
     PutAtt(IntegerOfTerm(Deref(ARG4)), tatts, Deref(ARG5) PASS_REGS);
     return TRUE;
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of put_attributes/2");
     return FALSE;
   }
@@ -599,7 +599,7 @@ static Int rm_att(USES_REGS1) {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
         if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -610,7 +610,7 @@ static Int rm_att(USES_REGS1) {
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts, mfun))) {
       while (!(tatts = BuildAttTerm(mfun, ar PASS_REGS))) {
         if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       }
@@ -620,7 +620,7 @@ static Int rm_att(USES_REGS1) {
     }
     return TRUE;
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp, "first argument of rm_att/2");
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp, "first argument of rm_att/2");
     return (FALSE);
   }
 }
@@ -649,14 +649,14 @@ static Int put_atts(USES_REGS1) {
       while (!(attv = SetNewAttVar(Deref(ARG2) PASS_REGS))) {
 	LOCAL_Error_Size = sizeof(attvar_record);
 	if (!Yap_dogc(PASS_REGS1)) {
-	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
     return Yap_unify(ARG1, AbsAttVar(attv));
   }
   }else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of put_att/2");
     return FALSE;
   }
@@ -735,7 +735,7 @@ static Int get_atts(USES_REGS1) {
       }
       return TRUE;
     } else {
-      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      /* Yap_ThrowError(INSTANTIATION_ERROR,inp,"get_att/2"); */
       return FALSE;
     }
   } else {
@@ -760,11 +760,11 @@ static Int free_att(USES_REGS1) {
       tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)), tatts);
       return (tout == TermVoidAtt);
     } else {
-      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      /* Yap_ThrowError(INSTANTIATION_ERROR,inp,"get_att/2"); */
       return TRUE;
     }
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of free_att/2");
     return (FALSE);
   }
@@ -806,7 +806,7 @@ static Int get_att(USES_REGS1) {
       }
       return TRUE;
     } else {
-      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      /* Yap_ThrowError(INSTANTIATION_ERROR,inp,"get_att/2"); */
       return FALSE;
     }
   } else {
@@ -827,11 +827,11 @@ static Int has_atts(USES_REGS1) {
       attv = RepAttVar(VarOfTerm(inp));
       return SearchAttsForModule(attv->Atts, mfun) != 0;
     } else {
-      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      /* Yap_ThrowError(INSTANTIATION_ERROR,inp,"get_att/2"); */
       return FALSE;
     }
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of has_atts/2");
     return (FALSE);
   }
@@ -848,7 +848,7 @@ static Int bind_attvar(USES_REGS1) {
     }
     return (true);
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of bind_attvar/2");
     return (false);
   }
@@ -865,7 +865,7 @@ static Int set_attvar(USES_REGS1) {
     }
   }
   
-  Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+  Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
 	    "first argument of bind_attvar/2");
   return (false);
 }
@@ -892,7 +892,7 @@ static Int unbind_attvar(USES_REGS1) {
     }
     return (TRUE);
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of bind_attvar/2");
     return (FALSE);
   }
@@ -909,7 +909,7 @@ static Int get_all_atts(USES_REGS1) {
     }
     return TRUE;
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of get_all_atts/2");
     return FALSE;
   }
@@ -955,7 +955,7 @@ static Int modules_with_atts(USES_REGS1) {
     }
     return Yap_unify(ARG2, TermNil);
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of modules_with_attributes/2");
     return FALSE;
   }
@@ -1043,7 +1043,7 @@ static Int put_attr(USES_REGS1) {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
         if (!Yap_dogc(PASS_REGS1)) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
 	inp = Deref(ARG1);
@@ -1180,7 +1180,7 @@ static Int swi_all_atts(USES_REGS1) {
     }
     return Yap_unify(ARG2, TermNil);
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of get_all_swi_atts/2");
     return FALSE;
   }
@@ -1237,7 +1237,7 @@ static Int all_attvars(USES_REGS1) {
     return false;
   }
     if (!(out = AllAttVars(PASS_REGS1))) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return false;
     } else {
       return Yap_unify(ARG1, out);

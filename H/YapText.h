@@ -133,6 +133,13 @@ typedef enum
 
 #include "iopreds.h"
 
+#define Yap_encoding_error(ch,st,ptr, tide,msg,... ) Yap_encoding_error__(__FILE__, __FUNCTION__, __LINE__,ch,st, ptr, tide, msg, __VA_ARGS__ )
+
+extern int Yap_encoding_error__(const char *file, const char *function,
+                               int lineno,
+				int ch,struct stream_desc *st,
+                                 TokEntry *ptr, TokEntry *tide, const char *msg, ...);
+
 #include "YapUTF8.h"
 
 #define YAP_TYPE_MASK 0x0FFF
@@ -241,7 +248,23 @@ inline static Term MkCharTerm(Int c) {
   return MkAtomTerm(Yap_ULookupAtom(cs));
 }
 
-extern unsigned char *Yap_readText(seq_tv_t *inp USES_REGS);
+typedef enum {
+  FROM_CURRENT_FRAME, /** data is removed at frame end */
+  FROM_HIGHER_FRAME,
+  FROM_MALLOC,
+  FROM_CODE_SPACE,
+  FROM_STACK_SPACE
+  } b_int;
+
+
+typedef struct buf_info_struct{
+  unsigned char *buf;
+  size_t sz;
+  b_int status;
+} buf_info;
+
+
+extern unsigned char *Yap_readText(seq_tv_t *inp, buf_info *buf USES_REGS);
 extern bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS);
 extern bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS);
 extern bool Yap_Concat_Text(int n, seq_tv_t inp[], seq_tv_t *out USES_REGS);

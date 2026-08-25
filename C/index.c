@@ -2942,7 +2942,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_dogc(PASS_REGS1)) {
       CleanCls(&cint);
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres == 2) {
@@ -2950,7 +2950,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     LOCAL_Error_Size = recover_from_failed_susp_on_cls(&cint, LOCAL_Error_Size);
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
       CleanCls(&cint);
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   } else if (setjres == 4) {
@@ -2958,14 +2958,14 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_growtrail(LOCAL_Error_Size, FALSE)) {
       CleanCls(&cint);
-      Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   } else if (setjres != 0) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       CleanCls(&cint);
       return NULL;
     }
@@ -3017,7 +3017,7 @@ return ap->CodeOfPred;
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
         Yap_ReleaseCMem(&cint);
         CleanCls(&cint);
-        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
         return NULL;
       }
       goto restart_index;
@@ -3593,7 +3593,7 @@ static yamop **expand_index(struct intermediates *cint) {
       break;
     case _trust:
       /* we should never be here */
-      Yap_Error(SYSTEM_ERROR_COMPILER, TermNil, "found trust in expand_index");
+      Yap_ThrowError(SYSTEM_ERROR_COMPILER, TermNil, "found trust in expand_index");
       labp = NULL;
       ipc = NULL;
       break;
@@ -3881,7 +3881,7 @@ static yamop **expand_index(struct intermediates *cint) {
       break;
     default:
       if (alt == NULL) {
-        Yap_Error(SYSTEM_ERROR_COMPILER, t,
+        Yap_ThrowError(SYSTEM_ERROR_COMPILER, t,
                   "unexpected instruction %d at expand_index ", op);
         labp = NULL;
         ipc = NULL;
@@ -4138,7 +4138,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
 #if defined(YAPOR) || defined(THREADS)
       }
 #endif
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       CleanCls(&cint);
       return FAILCODE;
     }
@@ -4218,7 +4218,7 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
     if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint,
                                  cint.i_labelno + 1)) == NULL) {
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
-        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
         Yap_ReleaseCMem(&cint);
         CleanCls(&cint);
    if (old) {
@@ -4804,7 +4804,7 @@ static path_stack_entry *kill_clause(yamop *ipc, yamop *bg, yamop *lt,
   /* weird case ????? */
   if (!start->y_u.Illss.s) {
     /* ERROR */
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Illss.s == 0 %p", ipc);
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "Illss.s == 0 %p", ipc);
     return sp;
   }
   if (start->y_u.Illss.s == 1) {

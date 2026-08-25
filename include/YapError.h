@@ -83,6 +83,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 #define Yap_do_warning(id, inp,  ...)					\
   Yap_do_warning__(__FILE__, __FUNCTION__, __LINE__, id, inp,  __VA_ARGS__)
 
+
 #ifdef YAP_TERM_H
 /**
  * make sure next argument is a bound instance of type

@@ -114,7 +114,8 @@ static PyObject *s_to_python(const char *s, bool eval, PyObject *p0) {
  */
 X_API PyObject *string_to_python(const char *s, bool eval, PyObject *p0) {
 
-  char *buf = malloc(strlen(s) + 1), *child;
+  char *buf = malloc(strlen(s) + 1);
+  const char*child;
   while ((child = strchr(s, '.')) != NULL) {
     size_t len = child - s;
     strncpy(buf, s, len);
@@ -328,7 +329,7 @@ switch (YAP_TagOfTerm(t)) {
       }
       if (fun == FunctorBrackets) {
 
-	PyObject *rc;
+//	PyObject *rc;
 	YAP_Term targ = YAP_ArgOfTerm(1,t);
 	return PyObject_CallMethodNoArgs(o, PyUnicode_FromString(AtomTermName( targ)));
       }

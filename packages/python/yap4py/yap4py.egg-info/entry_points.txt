@@ -1,0 +1,2 @@
+[console_scripts]
+yapi = yap4py:yapi

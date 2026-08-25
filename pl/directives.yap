@@ -65,8 +65,12 @@
  '$all_directives'((G1,G2)) :- !,
          '$all_directives'(G1),
          '$all_directives'(G2).
- '$all_directives'(G) :- !,
-         '$directive'(G).
+ '$all_directives'(G) :- 
+    '$lf_args'(G,_,_),
+!.
+ '$all_directives'(G) :- 
+    '$directive'(G),
+!.
 
  %:- '$multifile'( '$directive'/1, prolog ).
  %:
@@ -104,60 +108,48 @@
 '$directive'(wait(_)).
 '$directive'(set_prolog_flag(_,_)).
 
-'$directive'([H|T]) :- is_list([H|T]).
-'$directive'(compile(_)).
-'$directive'(consult(_)).
-'$directive'(ensure_loaded(_)).
-'$directive'(load_files(_)).
-'$directive'(load_files(_,_)).
-'$directive'(reconsult(_)).
-'$directive'(reexport(_)).
-'$directive'(reexport(_,_)).
+
 
 '$lf_args'([H|T],[H|T],[]) :-is_list([H|T]).
 '$lf_args'(compile(Fs), Fs, []).
 '$lf_args'(consult(Fs), Fs, [reconsult(consult)]).
-'$lf_args'(consult(Fs), Fs, [reconsult(consult)]).
-'$lf_args'(ensure_loaded(Fs), Fs, [if(changed)]).
+'$lf_args'(reconsult(Fs), Fs, [reconsult(reconsult)]).
+'$lf_args'(ensure_loaded(Fs), Fs, [if(not_loaded),silent(true)]).
 '$lf_args'(load_files(Fs), Fs, []).
 '$lf_args'(load_files(Fs, Spec), Fs, Spec).
-'$lf_args'(reconsult(Fs), Fs, []).
 '$lf_args'(reexport(Fs), Fs, [if(not_loaded), silent(true), reexport(true),must_be_module(true)]).
 '$lf_args'(reexport(Fs, Spec),Fs, [reexport(true),if(not_loaded),must_be_module(true),import(Spec)]).
-'$lf_args'(use_module(Fs), Fs, [if(not_loaded),must_be_module(true)]).
-'$lf_args'(use_module(Fs,Spec), Fs, [if(not_loaded),must_be_module(true),import(Spec)]).
-'$lf_args'(use_module(Fs,Spec), Fs, [if(not_loaded),must_be_module(true),import(Spec)]).
+'$lf_args'(use_module(Fs), Fs, [if(not_loaded), silent(true), must_be_module(true)]).
+'$lf_args'(use_module(Fs,Spec), Fs, [if(not_loaded), silent(true),must_be_module(true),import(Spec)]).
+
 
 '$exec_directives'((G1,G2), Mode, M, VL, Pos) :-
     !,
     '$exec_directives'(G1, Mode, M, VL, Pos),
     '$exec_directives'(G2, Mode, M, VL, Pos).
-'$exec_directives'(MG, Mode, M, _VL, Pos) :-
-strip_module(MG,M,G),
-'$lf_args'(G, Fs, Opts),
-    !,
-    '_exec_load_files'(Fs,  Opts, Mode, [], Pos).
-'$exec_directives'(M:G, Mode, M, VL, Pos) :-
-strip_module(M:G,M,G),
-    !,
-    '$exec_directives'(G, Mode, M, VL, Pos).
+
+   
 '$exec_directives'(G, Mode, M, VL, Pos) :-
     '$exec_directive'(G, Mode, M, VL, Pos).
 
 
+'$exec_directive'(G, Mode, M, _VL, Pos) :-
+strip_module(M:G,M1,G1),
+    '$lf_args'( G1,  Fs, Opts),
+    !,
+    setup_call_cleanup(
+    current_source_module(M0,M1),
+    '_exec_load_files'(M:Fs, Opts, Mode, [], Pos),
+    current_source_module(_,M0)
+    ).
 '$exec_directive'(multifile(D), _, M, _, _) :-
 	'$system_catch'('$multifile'(D, M), M,
 	      Error,
 	      error_handler(Error, top)).
-'$exec_directive'(M:G, Mode, _M, VL, Pos) :-
-    !,
-
-    '$exec_directive'(G, Mode, M, VL, Pos).
 '$exec_directive'(discontiguous(D), _, M, _, _) :-
 	'$discontiguous'(D,M).
 '$exec_directive'(use_module(Mod,F,Is), _,M, _, _Loc) :-
     use_module(Mod,M:F,Is).
-
 
 /** @pred initialization(+ _G_) is iso
 
@@ -186,31 +178,8 @@ Similar to initialization/1, but allows  specifying when
       Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
 
 */
-'$exec_directive'(L, Status, M, VL, Pos) :-
-is_list(L),
-    !,
-    lists:member(A,L),
-    '$exec_directives'(A, Status, M, VL, Pos).
-% The many ways of loading a file.
-'$exec_directive'(ensure_loaded(Fs), Status,M, VList, Loc) :-
-	 '_exec_load_files'(M:Fs,[if(changed)], Status, VList, Loc).
-'$exec_directive'(compile(Fs), Status, M, VList, Loc) :-
-	 '_exec_load_files'(M:Fs,[], Status, VList, Loc).
-'$exec_directive'(reconsult(Fs), Status,M, VList, Loc) :-
-	 '_exec_load_files'(M:Fs,[], Status, VList, Loc).
-'$exec_directive'(consult(Fs), Status,M, VList, Loc) :-
-	 '_exec_load_files'(M:Fs,[consult(consult)], Status, VList, Loc).
-'$exec_directive'(use_module(Fs),Status,M, VList, Loc) :-
-	 '_exec_load_files'(M:Fs,[if(not_loaded),must_be_module(true)], Status, VList, Loc).
-'$exec_directive'(reexport(Fs), Status, M, VList, Loc) :-
-	 '_exec_load_files'(M:Fs,[if(not_loaded),must_be_module(true),reexport(true), silent(true)], Status, VList, Loc).
-'$exec_directive'(reexport(Fs,Spec), Status, M, VList, Loc) :-
- 	 '_exec_load_files'(M:Fs,[if(not_loaded),imports(Spec),must_be_module(true),reexport(true), silent(true)], Status, VList, Loc).
-'$exec_directive'(use_module(Fs), Status, M, VList, Loc) :-
- 	 '_exec_load_files'(M:Fs,[if(not_loaded),must_be_module(true), silent(true)], Status, VList, Loc).
-'$exec_directive'(use_module(Fs,Is), Status, M, VList, Loc) :-
- 	 '_exec_load_files'(M:Fs,[if(not_loaded),imports(Is),must_be_module(true), silent(true)], Status, VList, Loc).
 
+% The many ways of loading a file.
 '$exec_directive'(initialization(D), _, M, _, _) :-
 	'$initialization'(M:D).
 '$exec_directive'(initialization(D,OPT), _, M, _, _) :-
@@ -256,8 +225,6 @@ current_prolog_flag(compiler_top_level, scanner:scanner_loop)
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M, _, _) :-
 	'$public'(P, M).
-'$exec_directive'(use_module(Mod,F,Is), _,M, _, _Loc) :-
-    use_module(Mod,M:F,Is).
 '$exec_directive'(block(BlockSpec), _, _, _, _) :-
 	'$block'(BlockSpec).
 '$exec_directive'(wait(BlockSpec), _, _, _, _) :-

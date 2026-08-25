@@ -41,7 +41,7 @@ static Int
 LoadForeign(StringList ofiles, StringList libs,
 	    char *proc_name, YapInitProc *init_proc)
 {
-  strcpy(LOCAL_ErrorSay,"load_foreign not supported in this version of Yap");
+    const_error_message( "load_foreign not supported in this version of Yap");
   return LOAD_FAILLED;
 }
 
@@ -49,18 +49,21 @@ void *
 Yap_LoadForeignFile(char *file, int flags)
 {
   /* not implemented */
+    const_error_message( "load_foreign not supported in this version of Yap");
   return NULL;
 }
 
 int
 Yap_CallForeignFile(void *handle, char *f)
 {
+    const_error_message( "load_foreign not supported in this version of Yap");
   return FALSE;
 }
 
 int
 Yap_CloseForeignFile(void *handle)
 {
+    const_error_message( "load_foreign not supported in this version of Yap");
   return -1;
 }
 

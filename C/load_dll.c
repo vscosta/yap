@@ -94,17 +94,18 @@ LoadForeign(StringList ofiles, StringList libs,
     if ((file=Yap_AbsoluteFile(file, true)) &&
 	(handle=LoadLibrary(file)) != 0)
       {
-       LOCAL_ErrorMessage = NULL;
+	reset_error_message();
 	if (*init_proc == NULL)
 	  *init_proc = (YapInitProc)GetProcAddress((HMODULE)handle, proc_name);
       } else {
       char *buf = malloc(1024);
-   FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		 NULL, GetLastError(),
-		 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, 1023,
-		 NULL);
-	//fprintf(stderr,"WinError: %s\n", LOCAL_ErrorSay);
-      }
+      FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		    NULL, GetLastError(),
+		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, 1023,
+		    NULL);
+      // fprintf(stderr,"WinError: %s\n", buf);
+      free(buf);
+    }
     ofiles = ofiles->next;
   }
   /* load libraries first so that their symbols are available to
@@ -122,7 +123,8 @@ LoadForeign(StringList ofiles, StringList libs,
 
     if((handle=LoadLibrary(LOCAL_FileNameBuf)) == 0)
     {
-/*      strcpy(LOCAL_ErrorSay,dlerror());*/
+/*      char *msg = malloc(512);
+    strcpy(msg, dlerror());*/
       return LOAD_FAILLED;
     }
 
@@ -133,7 +135,7 @@ LoadForeign(StringList ofiles, StringList libs,
   }
 
   if(*init_proc == NULL) {
-    LOCAL_ErrorMessage = "Could not locate initialization routine";
+    const_error_message( "Could not locate initialization routine");
     return LOAD_FAILLED;
   }
 

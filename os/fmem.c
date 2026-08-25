@@ -230,16 +230,12 @@ int Yap_open_buf_write_stream(int sno, encoding_t enc) {
   st->vfs = NULL;
   st->buf.on = true;
   st->nbuf = NULL;
+  st->nsize = 0;
   st->status |= (Seekable_Stream_f|CloseOnException_Stream_f);
   #if HAVE_OPEN_MEMSTREAM
-  st->nsize=0;
   st->file = open_memstream(&st->nbuf, &st->nsize);
-  #else
-  if (st->nbuf == NULL) {
-     st->nbuf = malloc(32*K);
-     st->nsize=32*K-1;
-  }
-   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
+#else
+  st->file = fmemopen(NULL,  0, "w");
   #endif
   Yap_DefaultStreamOps(st);
   return sno;

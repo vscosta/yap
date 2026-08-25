@@ -3573,7 +3573,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   src = Yap_PopHandle(y1);
   inp_clause = Yap_PopHandle(y0);
   h0 = HR;
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   LOCAL_nperm = 0;
   }
   my_clause = inp_clause;

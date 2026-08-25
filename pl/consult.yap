@@ -233,14 +233,17 @@ initialization(_G,_OPT).
 	    error_handler 
 	   ) ->
       true ;
-      format(user_error,':- ~w failed.~n',[G])
+     prolog_load_context(stream,Stream),
+     prolog_load_context( position,'$position'(_,L,P,_,_)),
+     format(user_error,'directive :- ~w failed at ~s:~d,~d.~n',[G,Stream,L,P])
     )
     ;
     OPT == after_load
     ->
-    '__NB_getval__'('$consulting_file', [LC|_], fail),
+    prolog_load_context(position,Pos),
+    prolog_load_context(stream,LC),
     strip_module(G,M,H),
-    recordz('$initialization_queue',q(LC,M:H),_)
+    recordz('$initialization_queue',q(LC-Pos,M:H),_)
 	;
 	 OPT == restore
 	->
@@ -255,7 +258,9 @@ initialization(_G,_OPT).
 	fail.
 % system goals must be performed first
 '$exec_initialization_goals'(LC) :-
-    recorded('$initialization_queue',q(LC,G),R),
+    recorded('$initialization_queue',q(LC-Pos,G),R),
+    arg(2,Pos,Line),
+    arg(3,Pos,Col),
 	'$conditional_compilation_get_state'(State),
 	'$conditional_compilation_init',
 	 erase(R),
@@ -267,7 +272,7 @@ initialization(_G,_OPT).
 	->
 	    	 true %format(user_error,':- ~w ok.~n',[G]),
 	;
-  	 format(user_error,':- ~q failed.~n',[G])
+  	 print_message(warning,error(warning(unexpected_failure,[LC,Line,Col],  G),[]))
 	 ),
 	'$conditional_compilation_set_state'(State),
 	fail.
@@ -396,6 +401,10 @@ prolog_load_context(module, X) :-
     current_source_module(Y,Y),
     Y = X.
 prolog_load_context(source, Path ) :-
+    stream_property(loop_stream, alias(input_strean) )
+      ->
+Path = user_input
+;
     stream_property(loop_stream, file_name(Path) ).
 prolog_load_context(stream, Stream) :-
     stream_property(Stream, alias(loop_stream) ).
@@ -406,7 +415,7 @@ prolog_load_context(term, Term ) :-
 prolog_load_context(term_position, Position ) :-
    '__B_getval__'('$current_clause', T, fail),
     nonvar(T),
-    T = [_,_,_,Position].
+    T = [_,_,Position|_].
 prolog_load_context(variable_names, Term ) :-
     '__B_getval__'('$current_clause', T, fail),
     nonvar(T),

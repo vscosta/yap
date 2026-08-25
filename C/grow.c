@@ -793,16 +793,16 @@ static_growheap(size_t esize, bool fix_code, struct intermediates *cip, tr_fr_pt
   if (size < YAP_ALLOC_SIZE)
     size = YAP_ALLOC_SIZE;
   size = AdjustPageSize(size);
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   if (!Yap_ExtendWorkSpace(size)) {
     Int min_size = AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+MinHeapGap);
 
-    LOCAL_ErrorMessage = NULL;
+    reset_error_message();
     if (size < min_size) size = min_size;
     minimal_request = size;
     size = Yap_ExtendWorkSpaceThroughHole(size);
     if (size < 0) {
-      LOCAL_ErrorMessage = "Database crashed against Stacks";
+      const_error_message( "Database crashed against Stacks");
       return FALSE;
     }
   }
@@ -913,23 +913,23 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     size = AdjustPageSize(size);
   }
   /* adjust to a multiple of 256) */
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   LOCAL_PrologMode |= GrowStackMode;
   start_growth_time = Yap_cputime();
   if (do_grow) {
     if (!GLOBAL_AllowGlobalExpansion) {
-      LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
+      const_error_message( "Global Stack crashed against Local Stack" );
       LeaveGrowMode(GrowStackMode);
       return 0;
     }
     if (!GLOBAL_AllowGlobalExpansion || !Yap_ExtendWorkSpace(size)) {
       /* always fails when using malloc */
-      LOCAL_ErrorMessage = NULL;
+      reset_error_message();
       size += AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+MinHeapGap);
       minimal_request = size;
       size = Yap_ExtendWorkSpaceThroughHole(size);
       if (size < 0) {
-	LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
+	const_error_message(  "Global Stack crashed against Local Stack");;
 	LeaveGrowMode(GrowStackMode);
 	return 0;
       }
@@ -1538,18 +1538,18 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
   ADDR old_LOCAL_GlobalBase = LOCAL_GlobalBase;
 
   if (!GLOBAL_AllowGlobalExpansion) {
-    LOCAL_ErrorMessage = "Database crashed against stacks";
+    const_error_message( "Database crashed against stacks"  );
     return FALSE;
   }
   if (!Yap_ExtendWorkSpace(size)) {
     /* make sure stacks and trail are contiguous */
 
-    LOCAL_ErrorMessage = NULL;
+    reset_error_message();
     minimal_request = AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+4*MinHeapGap+request);
 
     size = Yap_ExtendWorkSpaceThroughHole(minimal_request);
     if (size < 0) {
-      LOCAL_ErrorMessage = "Database crashed against stacks";
+      const_error_message( "Database crashed against stacks" );
       return FALSE;
     }
     YAPEnterCriticalSection();
@@ -1632,7 +1632,7 @@ growstack(size_t size USES_REGS)
   if (size < YAP_ALLOC_SIZE)
     size = YAP_ALLOC_SIZE;
   size = AdjustPageSize(size);
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
   LOCAL_stack_overflows++;
@@ -1667,7 +1667,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   LOCAL_PrologMode |= GrowStackMode;
   /* adjust to a multiple of 256) */
   size = AdjustPageSize((ADDR)LCL0-LOCAL_GlobalBase);
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
   LOCAL_stack_overflows++;
@@ -1727,9 +1727,9 @@ static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_f
     show_stacks();
     fprintf(stderr, "%% growing the trail " UInt_FORMAT " bytes\n", size);
   }
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   if (!GLOBAL_AllowTrailExpansion) {
-    LOCAL_ErrorMessage = "Trail Overflow";
+    const_error_message( "Trail Overflow" );
     return FALSE;
   }
 #if USE_SYSTEM_MALLOC
@@ -1738,7 +1738,7 @@ static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_f
   YAPEnterCriticalSection();
   if (!Yap_ExtendWorkSpace(size)) {
     YAPLeaveCriticalSection();
-    LOCAL_ErrorMessage = NULL;
+    reset_error_message();
     if (contiguous_only) {
       /* I can't expand in this case */
       LOCAL_trail_overflows--;

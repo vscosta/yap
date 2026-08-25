@@ -880,7 +880,7 @@ static int ExtendWorkSpace(Int s, int fixed_allocation) {
   }
   b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
   if (!b) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
     snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
               "VirtualAlloc could not commit %ld bytes", (long int)s);
     LOCAL_PrologMode = OldPrologMode;
@@ -1073,7 +1073,7 @@ static MALLOC_T mmap_extension(Int s, MALLOC_T base, int fixed_allocation) {
     char file[256];
     strncpy(file, "/tmp/YAP.TMPXXXXXX", 256);
     if (mkstemp(file) == -1) {
-      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      new_error_message(MAX_ERROR_MSG_SIZE+1);
 #if HAVE_STRERROR
       snprintf5(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
                 "mkstemp could not create temporary file %s (%s)", file,
@@ -1095,27 +1095,27 @@ static MALLOC_T mmap_extension(Int s, MALLOC_T base, int fixed_allocation) {
 #endif /* HAVE_MKSTEMP */
     fd = open(file, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd < 0) {
-      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      new_error_message(MAX_ERROR_MSG_SIZE+1);
       snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
                 "mmap could not open %s", file);
       return (MALLOC_T)-1;
     }
     if (lseek(fd, s, SEEK_SET) < 0) {
-      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      new_error_message(MAX_ERROR_MSG_SIZE+1);
       snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
                 "mmap could not lseek in mmapped file %s", file);
       close(fd);
       return (MALLOC_T)-1;
     }
     if (write(fd, "", 1) < 0) {
-      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      new_error_message(MAX_ERROR_MSG_SIZE+1);
       snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
                 "mmap could not write in mmapped file %s", file);
       close(fd);
       return (MALLOC_T)-1;
     }
     if (unlink(file) < 0) {
-      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      new_error_message(MAX_ERROR_MSG_SIZE+1);
       snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
                 "mmap could not unlink mmapped file %s", file);
       close(fd);
@@ -1132,7 +1132,7 @@ static MALLOC_T mmap_extension(Int s, MALLOC_T base, int fixed_allocation) {
       ,
       fd, 0);
   if (close(fd) == -1) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
 #if HAVE_STRERROR
     snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
               "mmap could not close file (%s) ]\n", strerror(errno));
@@ -1172,7 +1172,7 @@ static int ExtendWorkSpace(Int s, int fixed_allocation) {
   a = mmap_extension(s, base, fixed_allocation);
   LOCAL_PrologMode = OldPrologMode;
   if (a == (MALLOC_T)-1) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
 #if HAVE_STRERROR
     snprintf5(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
               "could not allocate %d bytes (%s)", (int)s, strerror(errno));
@@ -1185,7 +1185,7 @@ static int ExtendWorkSpace(Int s, int fixed_allocation) {
   if (fixed_allocation) {
     if (a != WorkSpaceTop) {
       munmap((void *)a, (size_t)s);
-      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      new_error_message(MAX_ERROR_MSG_SIZE+1);
       snprintf5(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
                 "mmap could not grow memory at %p, got %p", WorkSpaceTop, a);
       LOCAL_PrologMode = OldPrologMode;
@@ -1248,21 +1248,21 @@ static int ExtendWorkSpace(Int s) {
   LOCAL_PrologMode = ExtendStackMode;
   /* mapping heap area */
   if ((shm_id = shmget(IPC_PRIVATE, (size_t)s, SHM_R | SHM_W)) == -1) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
     snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
               "could not shmget %d bytes", s);
     LOCAL_PrologMode = OldPrologMode;
     return (FALSE);
   }
   if ((ptr = (MALLOC_T)shmat(shm_id, WorkSpaceTop, 0)) == (MALLOC_T)-1) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
     snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, "could not shmat at %p",
               MMAP_ADDR);
     LOCAL_PrologMode = OldPrologMode;
     return (FALSE);
   }
   if (shmctl(shm_id, IPC_RMID, 0) != 0) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
     snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
               "could not remove shm segment", shm_id);
     LOCAL_PrologMode = OldPrologMode;
@@ -1314,7 +1314,7 @@ static int ExtendWorkSpace(Int s) {
 
   LOCAL_PrologMode = ExtendStackMode;
   if (ptr == ((MALLOC_T)-1)) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
     snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
               "could not expand stacks over %d bytes", s);
     LOCAL_PrologMode = OldPrologMode;
@@ -1429,14 +1429,14 @@ static int ExtendWorkSpace(Int s) {
     LOCAL_PrologMode = ExtendStackMode;
   ptr = (MALLOC_T)realloc((void *)Yap_HeapBase, total_space);
   if (ptr == NULL) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
     snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
               "could not allocate %d bytes", s);
     LOCAL_PrologMode = OldPrologMode;
     return FALSE;
   }
   if (ptr != (MALLOC_T)Yap_HeapBase) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
     snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
               "could not expand contiguous stacks  %d bytes", s);
     LOCAL_PrologMode = OldPrologMode;
@@ -1444,7 +1444,7 @@ static int ExtendWorkSpace(Int s) {
   }
 #if MBIT
   if ((CELL)ptr & MBIT) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    new_error_message(MAX_ERROR_MSG_SIZE+1);
     snprintf5(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
               "memory at %p conflicts with MBIT %lx", ptr, (unsigned long)MBIT);
     LOCAL_PrologMode = OldPrologMode;
@@ -1578,7 +1578,7 @@ size_t Yap_ExtendWorkSpaceThroughHole(size_t s) {
     WorkSpaceTop += 512 * 1024;
     if (ExtendWorkSpace(s, MAP_FIXED)) {
       Yap_add_memory_hole((ADDR)WorkSpaceTop0, (ADDR)WorkSpaceTop - s);
-      LOCAL_ErrorMessage = NULL;
+      reset_error_message();
       return WorkSpaceTop - WorkSpaceTop0;
     }
 #if defined(_WIN32)
@@ -1596,7 +1596,7 @@ size_t Yap_ExtendWorkSpaceThroughHole(size_t s) {
       WorkSpaceTop += 512 * 1024;
       if (ExtendWorkSpace(s, MAP_FIXED)) {
         Yap_add_memory_hole((ADDR)WorkSpaceTop0, (ADDR)WorkSpaceTop - s);
-        LOCAL_ErrorMessage = NULL;
+	reset_error_meessage();
         return WorkSpaceTop - WorkSpaceTop0;
       }
 #if defined(_WIN32)

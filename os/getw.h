@@ -4,7 +4,7 @@
 
 inline int post_process_weof(StreamDesc *st) {
   Yap_EOF_Stream(st);
-      Yap_encoding_error(-1,NULL,NULL,NULL,"bad UTF-8 sequence while trying to input");  return -1;
+  Yap_encoding_error(-1,NULL,NULL,NULL,"bad UTF-8 sequence while trying to input", NULL);  return -1;
 }
   static int  get_wide_UTF8(StreamDesc *st, int ch)
 {
@@ -21,10 +21,11 @@ inline int post_process_weof(StreamDesc *st) {
   }
   // we consumed 4 characters and still got error;
   // let us drop the last 3
-  return Yap_encoding_error(ch,NULL,NULL,NULL,"found bad UTF-8 sequence while trying to output");
+  return Yap_encoding_error(ch,NULL,NULL,NULL,"found bad UTF-8 sequence while trying to output", NULL);
 }
 
 /// compose a wide char from a sequence of getchars
+
 ///  this is a slow lane routine, called if no specialised code
 ///  isavailable.
 extern int get_wchar(int sno) {

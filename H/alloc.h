@@ -146,10 +146,10 @@ extern MALLOC_T calloc(size_t,size_t);
 
 #else
 
+void Yap_add_memory_hole(ADDR M, ADDR H);
 
 #endif
 
-void Yap_add_memory_hole(ADDR, ADDR);
 
 #define SCRATCH_START_SIZE        K64
 #define SCRATCH_INC_SIZE          K64

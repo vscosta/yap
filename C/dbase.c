@@ -283,7 +283,7 @@ static DBProp FetchIntDBPropFromKey(Int key, int flag, int new,
     if (INT_KEYS == NULL) {
       CACHE_REGS
       LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-      LOCAL_ErrorMessage = "could not allocate space";
+      const_error_message("could not allocate space");
       return NULL;
     }
   }
@@ -470,7 +470,7 @@ static int resize_int_keys(UInt new_size) {
   if (new == NULL) {
     YAPLeaveCriticalSection();
     LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-    LOCAL_ErrorMessage = "could not allocate space";
+    const_error_message("could not allocate space");
     return FALSE;
   }
   Yap_LUClauseSpace += sizeof(Prop) * new_size;
@@ -529,7 +529,7 @@ static PredEntry *new_lu_int_key(Int key) {
     if (INT_LU_KEYS == NULL) {
       CACHE_REGS
       LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-      LOCAL_ErrorMessage = "could not allocate space";
+      const_error_message( "could not allocate space" );
       return NULL;
     }
   }
@@ -1376,7 +1376,7 @@ static void sf_include(SFKeep *sfp, struct db_globs *dbg) SFKeep *sfp;
       j += 2;
     } else {
       LOCAL_Error_TYPE = TYPE_ERROR_DBTERM;
-      LOCAL_ErrorMessage = "wrong term in SF";
+      const_error_message(  "wrong term in SF");
       return (NULL);
     }
   }

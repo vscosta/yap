@@ -324,7 +324,7 @@ current_module(Mod) :-
 Succeeds if  _M_ is a module associated with the file  _F_, that is, if _File_ is the source for _M_. If _M_ is not declared in a file, _F_ unifies with `user`.
  */
 current_module(Mod,TFN) :-
-    ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
+    ( atom(Mod) -> true ;  '$all_current_modules'(Mod) ),
     ('$module'(TFN,Mod,_Publics, _) -> true ; TFN = user_input ).
 
 system_module(Mod) :-
@@ -703,9 +703,15 @@ module_property(Mod, exports(Es)) :-
     ->
     true
     ;
-    Mod==user
+    Mod==prolog
     ->
-    findall( P, (current_predicate(user:P)), Es)
+    findall( N/A, (predicate_property(Mod:P0, public),functor(P0,N,A)), Es)
+    ).
+module_property(Mod, imports(Es)) :-
+    (
+        '$module'(_,Mod,Es,_)
+    ->
+    true
     ;
     Mod==prolog
     ->
@@ -788,7 +794,7 @@ module_state.
     !,
     '$simplify_functors'(ExpL, CallL),
     '$check_module_exports'(CallL,File,Mod),
-    '$check_module_undefineds'(File,Mod).
+'$check_module_undefineds'(File,Mod).
 '$check_module'(_File,_Mod).
 
 '$simplify_functors'([], []).
@@ -800,23 +806,16 @@ module_state.
 
 '$check_module_exports'([],_,_Mod).
 '$check_module_exports'([N/A|Exports],File,Mod) :-
-     functor_predicate(Mod,N,A,_),
+     functor(G,N,A),
+'$undefined'(G,Mod),
     !,
+    print_message(warning, error(style_check(undefined_export,[File,1,0],Mod:N/A),[])),
     '$check_module_exports'(Exports,File,Mod).
-'$check_module_exports'([N/A|Exports],File,Mod) :-
-    functor_predicate(prolog,N,A,_),
-    !,
-    '$check_module_exports'(Exports,File,Mod).
-'$check_module_exports'([N/A|Exports],File,Mod) :-
-    '$import'(_,Mod,_,_,N,A),
-    !,
-    '$check_module_exports'(Exports,File,Mod).
-'$check_module_exports'([NE/AE|Exports],File,Mod) :-
-    format(string(Msg),`module ~a  exports procedure ~q, but this procedure is not defined or imported in the module`,[Mod,NE/AE]),
-    print_message(warning, error(warning(export_undefined,Mod:NE/AE),[parserFile=File,parserLine=1,parserPos=0,errorMsg=Msg,prologConsulting=true,parserReadingCode=true,File=File ])),
+'$check_module_exports'([_|Exports],File,Mod) :-
     '$check_module_exports'(Exports,File,Mod).
 
-'$check_module_undefineds'(File,Mod) :-
+
+-'$check_module_undefineds'(File,Mod) :-
      module_predicate(Mod,N,A,undefined),
     functor(P,N,A),
     \+ '$is_proxy_predicate'(P, Mod),
@@ -824,11 +823,11 @@ module_state.
     \+  '$import'(_,Mod,_,P,_,_),
     '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),
-    format(string(Msg),`could not find a definition for ~q within the module ~a or its imports`,[NE/AE,Mod]),
-    print_message(warning, error(warning(undefined_in_module,Mod:
-    NE/AE),[parserReadingCode=true,parserPos=0, parserFile=File,parserLine=Line,errorMsg = Msg,prologConsulting=true ])),
+    print_message(warning, error(warning(undefined_in_module,[File,Line,0].Mod: NE/AE),[])),
     fail.
 '$check_module_undefineds'(_,_Mod).
+
+
 
 %% @}
 

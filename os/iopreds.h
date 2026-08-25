@@ -262,6 +262,10 @@ extern char *Yap_VFAlloc(const char *path);
 
 extern Term Yap_memStreamToTerm(int output_stream, Functor f, Term inp);
 inline static YAP_Atom StreamFullName(int i) {
+  if (i == LOCAL_c_input_stream &&
+      GLOBAL_Stream[i].status &
+      (Null_Stream_f | Tty_Stream_f | Socket_Stream_f))
+    return AtomUserIn;
   if (GLOBAL_Stream[i].name)
     return GLOBAL_Stream[i].name;
   else if (GLOBAL_Stream[i].user_name != 0 &&
@@ -285,6 +289,23 @@ inline static Term StreamName(int i) {
   return MkAtomTerm((Atom)StreamFullName(i));
 }
 
+
+inline static YAP_Atom StreamTextName(int sno) {
+    YAP_Atom name;
+    StreamDesc *st = GLOBAL_Stream+sno;
+    if (sno == LOCAL_c_input_stream &&
+        st->status &
+        (Null_Stream_f | Tty_Stream_f | Socket_Stream_f)) {
+      name = AtomUserIn;
+    } else if (st->name) {
+      name = st->name;
+    } else if (st->user_name) {
+      name = AtomOfTerm(st->user_name);
+    } else {
+      name = Yap_LookupAtom("??stream");
+    }
+    return name;
+}
 
 inline static void console_count_output_char(int ch, StreamDesc *s) {
   CACHE_REGS

@@ -15,12 +15,14 @@
 *									 *
 *************************************************************************/
 
+/*
 :- system_module_( style_checker, [no_style_check/1,
         style_check/1], ['$check_term'/5,
         '$sv_warning'/2,
         '$syntax_check_discontiguous'/2,
         '$syntax_check_multiple'/2,
         '$syntax_check_single_var'/2]).
+*/
 
 %% @{
 
@@ -72,7 +74,6 @@ The style_check/1 built-in is now deprecated. Please use
   **/
 %
 % A Small style checker for YAP
-
 style_check(V) :- var(V), !, fail.
 /*style_check(V) :-
 	\+atom(V),
@@ -158,8 +159,6 @@ separated by clauses from other procedures.
 */
 
 :- op(1150, fx, [multifile,discontiguous]).
-
-
 /**
 @}
 */

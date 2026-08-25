@@ -66,16 +66,19 @@ LoadForeign(StringList ofiles, StringList libs,
 
   /* load wants to follow the LIBRARY_PATH */
   if (ofiles->next != NULL || libs != NULL) {
-    strcpy(LOCAL_ErrorSay," Load Failed: in AIX you must load a single object file");
+    new_error_message( 512);
+    strcpy(msg," Load Failed: in AIX you must load a single object file");
     return LOAD_FAILLED;
   }
   if (!Yap_AbsoluteFileInBuffer(AtomName(ofiles->name), LOCAL_FileNameBuf, MAX_PATH, true)) {
-    strcpy(LOCAL_ErrorSay, " Trying to open unexisting file in LoadForeign ");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage, " Trying to open unexisting file in LoadForeign ");
     return LOAD_FAILLED;
   }
   /* In AIX, just call load and everything will go in */
   if ((*init_proc=((YapInitProc *)load(LOCAL_FileNameBuf,0,NULL))) == NULL) {
-    strcpy(LOCAL_ErrorSay,sys_errlist[errno]);
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage,sys_errlist[errno]);
     return LOAD_FAILLED;
   }
   return LOAD_SUCCEEDED;

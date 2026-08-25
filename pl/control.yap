@@ -559,7 +559,6 @@ Write YAP's boot message.
 
 */
 version :-
-    start_low_level_trace,
     '$version_specs'(Specs),
     print_message(informational, version(Specs)).
 

@@ -10,9 +10,8 @@
  *
 */
 :- module(lbdd,[
-	      set_tunable/3,
-	prob2log/4,
-	log2prob/4,
+  set_tunable/3,
+  log2prob/4,
 	bind_maplist/3,
 	get_prob/2,
 	store_gradient/3]
@@ -20,7 +19,7 @@
 
 :- use_module(library('problog/flags')).
 :- use_module(library('problog/logger')).
-:- use_module(library('problog/pbmath')).
+:- reexport(library('problog/pbmath')).
 :- use_module(library(matrix)).
 :- use_module(library(lists)).
 :- use_module(library(maplist)).

@@ -189,11 +189,9 @@ account the following observations:
 */
 '$reexport'(M, _, M ) :-
     !.
-'$reexport'(user, _, _M ) :-
-    !.
 '$reexport'(HostM, AllReExports, _DonorM ) :-
 %       writeln(r0:DonorM/HostM),
-    ( retract('$module'( HostF, HostM, AllExports, Location)) -> true ; HostF = user_input,AllExports=[] ,Location='$stream_position'(0,1,0,0)),
+     retract('$module'( HostF, HostM, AllExports, Location)),
     '$append'( AllReExports, AllExports, Everything0 ),
     '$sort'( Everything0, Everything ),
     '$operators'(AllReExports, HostM),
@@ -233,17 +231,17 @@ This predicate actually exports _Module to the _ContextModule_.
 '$import_module'(DonorM, HostM,File, Opts) :-
     DonorM \= HostM,
     '$module'(File, DonorM, Exports, _),
-    ignore(member(imports(Imports),Opts)),
+    ignore('$memberchk'(imports(Imports),Opts)),
     '$filter'(Imports, Exports, Tab),
-    '$add_to_imports'(Tab, DonorM, HostM),
-    (     '$memberchk'(reexport(true),Opts)
-    ->
+  '$add_to_imports'(Tab, DonorM, HostM),
+    (  (   '$memberchk'(reexport(true),Opts) ; HostM == user )
+      ->
     '$reexport'(HostM, Tab, DonorM )
     ;
     true
     ),
     !.
-
+'$import_module'(_DonorM, _HostM,_File, _Opts).
 /**
 
   @pred reexport(+F) is directive

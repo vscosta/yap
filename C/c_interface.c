@@ -387,7 +387,7 @@ X_API Term YAP_MkBlobTerm(unsigned int sz) {
 
   while (HR + (sz + 2) > ASP - 1024) {
     if (!doexpand((sz + 2) * sizeof(CELL))) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil,
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
                 "YAP failed to grow the stack while constructing a blob: %s",
                 LOCAL_ErrorMessage);
       return TermNil;
@@ -476,7 +476,7 @@ X_API YAP_Atom YAP_LookupAtom(const char *c) {
     a = Yap_LookupAtom(c);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
                   LOCAL_ErrorMessage);
       }
     } else {
@@ -494,7 +494,7 @@ X_API YAP_Atom YAP_LookupWideAtom(const wchar_t *c) {
     a = Yap_NWCharsToAtom(c, -1 PASS_REGS);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
                   LOCAL_ErrorMessage);
       }
     } else {
@@ -512,7 +512,7 @@ X_API YAP_Atom YAP_FullLookupAtom(const char *c) {
     at = Yap_FullLookupAtom(c);
     if (at == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-        Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
                   LOCAL_ErrorMessage);
       }
     } else {
@@ -1319,7 +1319,7 @@ X_API void *YAP_ReallocSpaceFromYap(void *ptr, size_t size) {
   BACKUP_MACHINE_REGS();
   while ((new_ptr = Yap_ReallocCodeSpace(ptr, size)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }
@@ -1334,7 +1334,7 @@ X_API void *YAP_AllocSpaceFromYap(size_t size) {
 
   while ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }
@@ -1460,7 +1460,8 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   Term t;
   BACKUP_H();
 
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
+  
   while (!(t = Yap_BufferToTerm(s, TermNil))) {
     if (LOCAL_Error_TYPE) {
       if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
@@ -1490,7 +1491,7 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
           RECOVER_H();
           return 0L;
         }
-        LOCAL_ErrorMessage = NULL;
+	reset_error_message();
         RECOVER_H();
         return 0;
       }
@@ -1916,7 +1917,7 @@ X_API Term YAP_NewOpaqueObject(YAP_opaque_tag_t blob_tag, size_t cells) {
 
   Term t = Yap_AllocExternalDataInStack( cells + 2);
    if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL,t,
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL,t,
               "clean opaque: bad blob with tag " UInt_FORMAT, blob_tag);
     return FALSE;
   }
@@ -2704,7 +2705,7 @@ X_API void *YAP_Record(Term t) {
     if (!Yap_growheap(FALSE, sizeof(struct record_list), NULL)) {
       /* be a good neighbor */
       Yap_FreeCodeSpace((void *)dbterm);
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "using YAP_Record");
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "using YAP_Record");
       return NULL;
     }
   }
@@ -2733,7 +2734,7 @@ X_API Term YAP_Recorded(void *handle) {
     } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_growglobal(NULL)) {
-        Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+        Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                   LOCAL_ErrorMessage);
         RECOVER_MACHINE_REGS();
         return FALSE;
@@ -2741,7 +2742,7 @@ X_API Term YAP_Recorded(void *handle) {
     } else {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_growstack(dbterm->NOfCells * CellSize)) {
-        Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         RECOVER_MACHINE_REGS();
         return FALSE;
       }
@@ -3084,7 +3085,7 @@ X_API Int YAP_AtomToInt(YAP_Atom At) {
   if (AtomTranslations == MaxAtomTranslations) {
     TR_Atoms = realloc(TR_Atoms,sizeof(atom_t) * 2 * MaxAtomTranslations);
     if (TR_Atoms == NULL) {
-      Yap_Error(SYSTEM_ERROR_INTERNAL, MkAtomTerm(At),
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, MkAtomTerm(At),
                 "No more room for translations");
       return -1;
     }
@@ -3109,7 +3110,7 @@ X_API Int YAP_FunctorToInt(YAP_Functor f) {
     TR_Functors = realloc(TR_Functors,sizeof(functor_t) * 2 *
                                         MaxFunctorTranslations);
     if (TR_Functors == NULL) {
-      Yap_Error(SYSTEM_ERROR_INTERNAL, MkAtomTerm(At),
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, MkAtomTerm(At),
                 "No more room for translations");
       return -1;
     }

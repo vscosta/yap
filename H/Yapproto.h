@@ -283,7 +283,7 @@ extern UInt Yap_ArenaSz(Term arena);
 /* grow.c */
 extern Int Yap_total_stack_shift_time(void);
 extern void Yap_InitGrowPreds(void);
-extern UInt Yap_InsertInGlobal(CELL *, UInt,CELL **);
+extern UInt Yap_InsertInGlobal(CELL *where, size_t howmuch, CELL **at);
 extern int Yap_growheap(bool, size_t, void *);
 extern int Yap_growstack(size_t);
 extern int Yap_growtrail(size_t, bool);

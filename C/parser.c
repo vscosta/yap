@@ -70,16 +70,11 @@ extern const char *Yap_tokText(void *tokptr);
 
 static void syntax_msg(const char *msg, ...) {
   CACHE_REGS
+  new_error_message(MAX_ERROR_MSG_SIZE+1);
   va_list ap;
-  if (!LOCAL_Error_TYPE ||
-      (LOCAL_Error_TYPE == SYNTAX_ERROR)) {
-    if (!LOCAL_ErrorMessage) {
-      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE + 1);
-    }
-    va_start(ap, msg);
-    vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, msg, ap);
-    va_end(ap);
-  }
+  va_start(ap, msg);
+  vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, msg, ap);
+  va_end(ap);
 }
 
 #define TRY(S, P)                                                              \
@@ -244,8 +239,8 @@ static Term Singletons(VarEntry *p, bool var_only, Term l USES_REGS) {
 	  if (var_only) {
 	    t[0] = MkAtomTerm(p->VarRep);
 	  } else {
-          t[0] = MkPairTerm(MkAtomTerm(p->VarRep),MkPairTerm(MkIntTerm(p->lineno),MkPairTerm(MkIntTerm(p->linepos ),
-											     MkPairTerm(MkAtomTerm(Yap_source_name()),TermNil))));
+          t[0] = MkPairTerm(MkAtomTerm(p->VarRep),MkPairTerm(MkAtomTerm(Yap_source_name()),MkPairTerm(MkIntTerm(p->lineno),MkPairTerm(MkIntTerm(p->linepos ),
+											     TermNil))));
 	  }
           t[1] = p->VarAdr;
           o = Yap_MkApplTerm(FunctorEq, 2, t);
@@ -388,7 +383,7 @@ inline static void GNextToken(USES_REGS1) {
   bool tide = LOCAL_tokptr == LOCAL_toktide;
   
   if (LOCAL_tokptr->Tok == Ord(eot_tok)) {
-    LOCAL_ErrorMessage = NULL;
+    reset_error_message();
     return;
   }
   if (tide) {
@@ -402,9 +397,8 @@ inline static void checkfor(Term c, JMPBUFF *FailBuff,
   if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok) || LOCAL_tokptr->TokInfo != c) {
     char s[1024];
     strncpy(s, Yap_tokText(LOCAL_tokptr), 1023);
-    syntax_msg("line %d: expected to find "
-               "\'%c....................................\', found %s",
-               LOCAL_tokptr->TokLine, c, s);
+    syntax_msg("line %d: expected to find %s, found %s",
+               LOCAL_tokptr->TokLine,  RepAtom(AtomOfTerm(c))->StrOfAE,s);
     FAIL;
   }
   NextToken;
@@ -981,8 +975,7 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
   CACHE_REGS
   // ensure that if we throw an exception
   // t will be 0.
-    LOCAL_ActiveError->errorMsg=NULL;
-    LOCAL_ActiveError->errorMsgLen=0;
+  reset_error_message();
   Volatile Term t = 0;
 JMPBUFF FailBuff;
   sigjmp_buf *sigold = LOCAL_RestartEnv;
@@ -990,13 +983,13 @@ JMPBUFF FailBuff;
     LOCAL_TopRestartEnv = &(FailBuff.JmpBuff);
   LOCAL_RestartEnv = &FailBuff.JmpBuff;
   yhandle_t sls = Yap_StartSlots();
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   LOCAL_toktide = LOCAL_tokptr;
 
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
     LOCAL_ActiveError->errorMsg=NULL;
     LOCAL_ActiveError->errorMsgLen=0;
-    LOCAL_ParserAuxSp = LOCAL_ParserAuxBase = Malloc(4096*sizeof(CELL));
+    LOCAL_ParserAuxSp = LOCAL_ParserAuxBase = calloc(1,4097),
     LOCAL_ParserAuxMax =   LOCAL_ParserAuxBase+4096;
     t = ParseTerm(prio, &FailBuff, enc, cmod PASS_REGS);
 #if DEBUG
@@ -1023,15 +1016,13 @@ JMPBUFF FailBuff;
   if ((LOCAL_tokptr == NULL || LOCAL_tokptr->TokInfo == TermEof ||LOCAL_tokptr->Tok == Ord(eot_tok)) &&
        t != 0) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
-    LOCAL_ErrorMessage = NULL;
+    reset_error_message();
     return t;
     
       }
   if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
     LOCAL_Error_TYPE =SYNTAX_ERROR; 
-      size_t sz = strlen("bracket or operator expected.");
-      LOCAL_ErrorMessage =malloc(sz+1);
-      strncpy(LOCAL_ErrorMessage, "expected bracket or operatorsu.", sz  );
+    syntax_msg( "expected bracket or operators."  );
   }
    return (0L);
 }

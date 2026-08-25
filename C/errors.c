@@ -81,6 +81,9 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_TERMIOS_H
+#include <termios.h>
+#endif
 #if HAVE_EXECINFO_H
 #include <execinfo.h>
 #endif
@@ -756,12 +759,18 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
                       yap_error_number type, Term where, const char *msg, ...) {
   CACHE_REGS
   va_list ap;
+  char *tmp = NULL;
+    if (GLOBAL_Stream[LOCAL_c_input_stream].status & Tty_Stream_f &&
+	(GLOBAL_Stream[LOCAL_c_input_stream].file )) {
+      tcflush( fileno(GLOBAL_Stream[LOCAL_c_input_stream].file), TCIFLUSH );
+  }
   if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
     return;
   }
-  char tmp[4096];
+  new_error_message(4096);
   va_start(ap,msg);
   if (msg) {
+    tmp = malloc(4096);
     vsnprintf(tmp, 4095,msg,ap);
   }
   va_end(ap);
@@ -857,9 +866,8 @@ CACHE_REGS
     size_t bsize = 32;
     if (buf) bsize += strlen(buf)+1;
     if (msg) bsize += strlen(msg)+1;
-      i->errorMsg = malloc(bsize);
+    new_error_message(bsize);
       snprintf(i->errorMsg, bsize-1,  "%% %s:  text: %s...", msg, buf);
-      i->errorMsgLen = strlen(i->errorMsg);
   //  return Yap_SaveTerm(Yap_MkErrorTerm(i));
   // return MkStringTerm(i->errorMsg);
 
@@ -889,16 +897,11 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
    
  type = LOCAL_ActiveError ->errorNo;
 
- 
-  if (s && s[0]) {
-    size_t sz = r->errorMsgLen = strlen(s);
-    char *ns = malloc(sz+1);
-    memcpy(ns, s, sz+1);
-    r->errorMsg = ns;
-    r->errorMsgLen = sz;
+
+ if (s && s[0]) {
+   const_error_message(s);
   } else {
-    r->errorMsgLen = 0;
-    r->errorMsg = NULL;
+    reset_error_message();
   }
   if (type != SYNTAX_ERROR) {
     const char *s =  RepAtom(Yap_source_name())->StrOfAE;
@@ -1194,7 +1197,7 @@ static Int close_error(USES_REGS1) {
    return true;
   LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
   memset(LOCAL_CommittedError, 0, sizeof(yap_error_descriptor_t));
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   free(LOCAL_CommittedError);
   LOCAL_CommittedError = NULL;
   return true;

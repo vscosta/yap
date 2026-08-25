@@ -640,6 +640,7 @@ static int check_header(CELL *info, CELL *ATrail, CELL *AStack,
     }
   }
   if (strcmp(pp, msg) != 0) {
+    new_error_message(PATH_MAX+1);
     strncpy(LOCAL_ErrorMessage, "saved state %s  failed to match version ID",PATH_MAX);
     return FAIL_RESTORE;
   }
@@ -689,15 +690,16 @@ static int check_header(CELL *info, CELL *ATrail, CELL *AStack,
     if (Yap_HeapBase != NULL &&
         lc_size + gb_size >
             Unsigned(LOCAL_LocalBase) - Unsigned(LOCAL_GlobalBase)) {
-      if (LOCAL_ErrorMessage != NULL)
-        LOCAL_ErrorMessage = "could not allocate enough stack space";
+      if (LOCAL_ErrorMessage == NULL) {
+        const_error_message("could not allocate enough stack space");
+      }
       return FAIL_RESTORE;
     }
     if (Yap_HeapBase != NULL &&
         (tr_size = get_cell()) >
             Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase)) {
       if (LOCAL_ErrorMessage != NULL)
-        LOCAL_ErrorMessage = "could not allocate enough trail space";
+        const_error_message( "could not allocate enough trail space");
       return FAIL_RESTORE;
     }
   } else {
@@ -727,9 +729,9 @@ static int get_heap_info(USES_REGS1) {
   OldHeapUsed = (Int)get_cell();
   if (LOCAL_ErrorMessage)
     return -1;
-  FreeBlocks = (BlockHeader *)get_cellptr();
-  if (LOCAL_ErrorMessage)
-    return -1;
+  /* FreeBlocks = (BlockHeader *)get_cellptr(); */
+  /* if (LOCAL_ErrorMessage) */
+  /*   return -1; */
   AuxBase = (ADDR)get_cellptr();
   if (LOCAL_ErrorMessage)
     return -1;
@@ -964,7 +966,7 @@ static int get_coded(int flag, OPCODE old_ops[] USES_REGS) {
   if (myread(splfild, my_end_msg, 256) < 0)
     return -1;
   if (strcmp(end_msg, my_end_msg) != 0) {
-    LOCAL_ErrorMessage = "bad trailing CRC in saved state";
+    const_error_message(  "bad trailing CRC in saved state");
     return -1;
   }
   return 1;
@@ -972,12 +974,14 @@ static int get_coded(int flag, OPCODE old_ops[] USES_REGS) {
 
 /* restore some heap registers */
 static void restore_heap_regs(USES_REGS1) {
+#if 0
   if (HeapTop) {
     HeapTop = AddrAdjust(HeapTop);
     *((YAP_SEG_SIZE *)HeapTop) = InUseFlag;
   }
   // HeapMax = HeapUsed = OldHeapUsed;
   HeapLim = LOCAL_GlobalBase;
+#endif
 }
 
 /* adjust abstract machine registers */
@@ -1152,16 +1156,18 @@ static void RestoreFreeSpace(USES_REGS1) {
   }
 #else
   /* restores the list of free space, with its curious structure */
-  BlockHeader *bpt, *bsz;
+  /* BlockHeader *bpt, *bsz; */
 
-  if (FreeBlocks != NULL)
-    FreeBlocks = BlockAdjust(FreeBlocks);
-  bpt = FreeBlocks;
+  /* if (FreeBlocks != NULL) */
+  /*   FreeBlocks = BlockAdjust(FreeBlocks); */
+  /* bpt = FreeBlocks; */
+
   if (AuxSp != NULL)
     AuxSp = CellPtoHeapAdjust(AuxSp);
   if (AuxTop != NULL)
     AuxTop = AddrAdjust(AuxTop);
-  while (bpt != NULL) {
+#if 0
+  le (bpt != NULL) {
     if (bpt->b_next != NULL) {
       bsz = bpt->b_next = BlockAdjust(bpt->b_next);
       while (bsz != NULL) {
@@ -1176,7 +1182,8 @@ static void RestoreFreeSpace(USES_REGS1) {
       bpt->b_next_size = BlockAdjust(bpt->b_next_size);
     bpt = bpt->b_next_size;
   }
-  *((YAP_SEG_SIZE *)HeapTop) = InUseFlag;
+  YAP_SEG_SIZE *)HeapTop) = InUseFlag;
+#endif
 #endif
 }
 
@@ -1330,7 +1337,7 @@ static int try_open(const char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack,
   if ((mode = commit_to_saved_state(inpf, Astate, ATrail, AStack, AHeap)) !=
       FAIL_RESTORE) {
     CACHE_REGS
-    LOCAL_ErrorMessage = NULL;
+      reset_error_message();
     return mode;
   }
   return mode;
@@ -1342,6 +1349,7 @@ static int OpenRestore(const char *fname,  CELL *Astate,
   CACHE_REGS
 
   int mode;
+  reset_error_message();
   if (fname && fname[0] && (mode = try_open(fname, Astate, ATrail, AStack, AHeap,
                                    streamp)) != FAIL_RESTORE) {
     setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
@@ -1604,7 +1612,7 @@ static Int p_restore(USES_REGS1) {
 #endif /* YAPOR */
 #ifdef THREADS
   if (GLOBAL_NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
               "cannot perform save: more than a worker/thread running");
     return (FALSE);
   }

@@ -235,7 +235,7 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
       if (ASP-HR < 1024) {
 	FindClose(hFind);
 	if (!Yap_dogc(PASS_REGS1)) {
-	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+	  Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	  return false;
 	}
           hFind = FindFirstFile(u, &find);

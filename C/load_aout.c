@@ -176,7 +176,8 @@ LoadForeign(StringList ofiles,
   /* prepare the magic */
   if (strlen(o_files) + strlen(l_files) + strlen(proc_name) +
 	    strlen(GLOBAL_Executable) > 2*PATH_MAX) {
-    strcpy(LOCAL_ErrorSay, " too many parameters in load_foreign/3 ");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage, " too many parameters in load_foreign/3 ");
     return LOAD_FAILLED;
   }
   sprintf(command, "/usr/bin/ld -N -A %s -o %s -u _%s %s %s -lc",
@@ -185,12 +186,14 @@ LoadForeign(StringList ofiles,
   /* now, do the magic */
   if (system(command) != 0) {
     unlink(tfile);
-    strcpy(LOCAL_ErrorSay," ld returned error status in load_foreign_files ");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage," ld returned error status in load_foreign_files ");
     return LOAD_FAILLED;
   }
   /* now check the music has played */
   if ((fildes = open(tfile, O_RDONLY)) < 0) {
-    strcpy(LOCAL_ErrorSay," unable to open temp file in load_foreign_files ");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage," unable to open temp file in load_foreign_files ");
     return LOAD_FAILLED;
   }
   /* it did, get the mice */
@@ -205,7 +208,8 @@ LoadForeign(StringList ofiles,
   firstloadImSz = loadImageSize;
   /* now fetch the space we need */
   if (!(FCodeBase = Yap_AllocCodeSpace((int) loadImageSize))) {
-    strcpy(LOCAL_ErrorSay," unable to allocate space for external code ");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage," unable to allocate space for external code ");
     return LOAD_FAILLED;
   }
   /* now, a new incantation to load the new foreign code */
@@ -216,17 +220,20 @@ LoadForeign(StringList ofiles,
   /* and do it */ 
   if (system(command) != 0) {
     unlink(tfile);
-    strcpy(LOCAL_ErrorSay," ld returned error status in load_foreign_files ");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage," ld returned error status in load_foreign_files ");
     return LOAD_FAILLED;
   }
   if ((fildes = open(tfile, O_RDONLY)) < 0) {
-    strcpy(LOCAL_ErrorSay," unable to open temp file in load_foreign_files ");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage," unable to open temp file in load_foreign_files ");
     return LOAD_FAILLED;
   }
   read(fildes, (char *) &header, sizeof(header));
   loadImageSize = header.a_text + header.a_data + header.a_bss;
   if (firstloadImSz < loadImageSize) {
-    strcpy(LOCAL_ErrorSay," miscalculation in load_foreign/3 ");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage," miscalculation in load_foreign/3 ");
     return LOAD_FAILLED;
   }
   /* now search for our init function */
@@ -237,11 +244,13 @@ LoadForeign(StringList ofiles,
     func_info[0].n_un.n_name = entry_fun;
     func_info[1].n_un.n_name = NULL;
     if (nlist(tfile, func_info) == -1) {
-      strcpy(LOCAL_ErrorSay," in nlist(3) ");
+      new_error_message(512);
+    strcpy(LOCAL_ErrorMessage," in nlist(3) ");
       return LOAD_FAILLED;
     }
     if (func_info[0].n_type == 0) {
-      strcpy(LOCAL_ErrorSay," in nlist(3) ");
+      new_error_message(512);
+    strcpy(LOCAL_ErrorMessage," in nlist(3) ");
       return LOAD_FAILLED;
     }
     *init_proc = (YapInitProc)(func_info[0].n_value);

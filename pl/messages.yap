@@ -3,7 +3,8 @@
 *	 YAP Prolog 							 *
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 ** Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
 **************************************************************************
 *									 *
@@ -26,13 +27,13 @@
 */
 
 
-:- module('$messages',
+%:- module('messages',
 	      % message//1,
 	      % message_to_string/2,
 	      % print_message_lines/3,
 	      % print_message/2,
 	      % print_warning/1
-	  [query_exception/3]).
+%	  [query_exception/3]).
 
 /**
 
@@ -183,7 +184,7 @@ translate_message( breakpoints(L)) -->
     list_of_preds(L).
 translate_message( clauses_not_together(P)) -->
 	!,
-    [ 'Discontiguous definition of ~q.' - [P] ].
+	[ 'Discontiguous definition of ~q.' - [P] ].
 translate_message( debug(debug)) -->
 	!,
     [ 'Debug mode on.' - [] ].
@@ -242,11 +243,11 @@ translate_message( abort(user)) --> !,
 translate_message( loading(_,F)) --> { F == user }, !.
 translate_message( loading(What,FileName)) --> !,
 	{ consult_depth(LC) },
-	[ '~N~*|% ~s ~w...' - [LC, What, FileName] ].
+	[ '~N~*|% ~w ~s...' - [LC, What, FileName] ].
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
         { consult_depth(LC) },
-	[ '~N~*|% ~s ~a in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
+	[ '~N~*|% ~s ~w in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
 translate_message(signal(SIG,_)) -->
     !,
     [ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
@@ -258,51 +259,80 @@ translate_message(trace_help) -->
     [ '   Please enter a valid debugger command (h for help).'  ].
 translate_message(version(yap(Mj,Mi,Patch,_),VersionGit,AT,Saved)) -->
     !,
-    {      sub_atom( VersionGit, 0, 8, _, VERSIONGIT
-		   ) },
+    {      sub_atom( VersionGit, 0, 8, _, VERSIONGIT  ) },
     [ 'YAP ~d.~d.~d-~a (compiled  ~a)~n' - [Mj,Mi, Patch, VERSIONGIT,  AT],
      'database loaded from ~a~n' - [Saved] ].
 translate_message(myddas_version(Version)) -->
     !,
-    [ 'MYDDAS version ~a' - [Version] ].
+        [ 'MYDDAS version ~a' - [Version] ].
 translate_message(throw(BALL)) -->
     !,
     [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
-translate_message( Term ) -->
-    message(Term), ! .
-translate_message(error(style_check(singletons,Culprit,Cl),Exc))-->
-    !,
-    {
-    consult_depth(LC),
-      Level = warning },
-    main_message(error(style_check(singletons,Culprit,Cl),Exc),  Level, LC ).
-translate_message(error(style_check(What,Culprit,Cl),Exc))-->
-    !,
-    {
-       error_descriptor(Exc, Desc),
-    consult_depth(LC),
-    Level = warning },
-    location( Desc, Level, parser, LC),
-  main_message(error(style_check(What,Culprit,Cl),Exc),  Level, LC ).
-translate_message(error(syntax_error(syntax_error(E,_,_,_,_)), [])) -->
-    {
-     consult_depth(LC)
-      },
-      [ '~N~*|% syntax error ~s' -   [LC, E] ].
-translate_message(error(syntax_error(syntax_error(E,_,_,_,_)), Info)) -->
-    {
+translate_message(error(syntax_error(syntax_error(Msg,File,Line,Pos,_)), Info)) -->
+    { 
      consult_depth(LC),
       error_descriptor(Info, Desc),
-     Level = error
+     Level = error,
+    (string(Msg);atom(Msg))
+},
+    [ '~*|~s:~d:~d: ~s: syntax error ~s' - [ LC,File,Line,Pos,Level, Msg], nl ],
+    syntax_error_details(LC,Level,File,Desc).
+translate_message(error( style_check(singletons,[VName,F0,Line,Column],P), _Exc)) -->
+    !,
+    {
+      clause_to_indicator(P, I),
+    consult_depth(LC),
+     Level = warning
+      },
+    [
+	'~*|~s:~d:~d: ~s singleton variable ~s in ~q.' -
+	[  LC,F0, Line, Column, Level, VName, I],
+	nl,
+	nl
+    ].
+translate_message(error(style_check(undefined_export,[F,L,C], M:N/A),_Exc)) -->
+    {
+     consult_depth(LC),
+     Level = warning
     },
       %{start_low_level_trace},
-    syntax_location( Desc, Level,full , LC),
-   main_message(error(syntax_error(syntax_error(E,_,_,_,_)),Info) , Level, LC ),
-    c_goal( Desc, Level, LC ),
-    extra_info( Desc, Level, LC ),
-    stack_info( Desc, Level, LC ),
     !,
-    [nl].
+    [  '~N~*|~s:~d:~d: ~s: module ~s exports predicate ~p, but ~p is neither defined nor visible in ~s.' - [ LC,F,L,C,Level,M,N/A,N/A,M],
+nl,
+nl].
+translate_message(error(style_check(undefined_in_module,[F,L,C], M:N/A),_Exc)) -->
+    !,
+    {
+    consult_depth(LC),
+     Level = warning
+    },
+    [  '~*|~s:~d:~d: ~s: predicate ~p is neither defined nor imported in module ~a'-
+ [LC,F,L,C,Level,N/A,M],
+nl,
+nl].
+translate_message(error(style_check(discontiguous,[F,L,C,F0,L0,C0],I), _Exc)) -->
+    !,
+   {
+     consult_depth(LC),
+     Level = warning
+    },
+ 	[  '~*|~s:~d:~d: ~s: discontiguous definition for ~p.' - [ LC,F,L,C,Level,I],
+nl,
+	   '~*|~s:~d:~d:  this is the initial definition for ~p.' - [LC, F0,L0,C0,I],
+	   nl
+	].
+translate_message(error(style_check(multiple,[F,L,C,F0,L0,C0],I      ), _Info)) -->
+    !,
+   {
+     consult_depth(LC),
+     Level = warning
+    },
+       	[  '~*|~s:~d:~d: ~s: multiple definition of ~p.' - [ LC,F,L,C,Level,I],
+nl,
+	   '~*|~s:~d:~d:   this is the initial definition for ~p.' - [LC, F0,L0,C0,I],
+	   nl
+
+	].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
     { consult_depth(LC),
@@ -313,7 +343,7 @@ translate_message(error(Exc, Info)) -->
  {
      consult_depth(LC),
         error_descriptor(Info, Desc),
-	Level = error,
+	Level = error ,
      Exc \= exception(_)
     },
     !,
@@ -329,6 +359,8 @@ translate_message(error(Descriptor,exception(Error))) -->
 	!,
     [ 'ERROR NOT RECOGNISED - ~w unsupported both by YAP system code and by  user hooks:' -  [Descriptor] , nl],
     [ '~@' - ['print_exception'(Error)] ,nl].
+translate_message( Term ) -->
+    message(Term), ! .
 translate_message(Throw) -->
     !, 
     [Throw].
@@ -338,40 +370,39 @@ seq([A|Args]) -->
     [['~w '] - A],
     seq(Args).
 
-/** @pred location: output error location.
- *
- */
-:- set_prolog_flag(discontiguous_warnings, false).
-
-syntax_location( Desc, Level, _More, _LC ) -->
+syntax_error_details(LC,Level,File,Desc) -->
     {
-     query_exception(parserReadingCode, Desc, true),
-     query_exception(parserLine, Desc, LN), 
-     nonvar(LN),
-     query_exception(parserFile, Desc, FileName),
-     nonvar(FileName),
-     (
-       query_exception(parserLinePos, Desc, Pos) ->
-       (var(Pos) -> Pos=0;true)
-       ;
-       Pos=0
-     )
-      }
-      ,
-    [  '~n~s:~d:~d: ~a:' -[FileName, LN,Pos,Level] ],
-     ({ query_exception(parserTextA,Desc, TextA) }
-     ->
-	 [ '~n%%%%%%%%%%%~n~s'-[ TextA]]
-     ;
-     []
-     ),
-     ['<<<<<<<<<<<<< Syntax Error found at line ~d>>>>>>>' -[LN]],
-     ({ query_exception(parserTextB, Desc, TextB) }
-     ->
-	 [ '~n~s~n~N%%%%%%%%%%%~n~n'-[ TextB]]
-     ;
-     []
-     ).
+     query_exception(parserFirstLine, Desc, FirstLN), 
+     query_exception(parserFirstLinePos, Desc, FirstLCol), 
+     nonvar(FirstLN)
+    },
+    !,
+    [  '~*|  ~s~d:~d: ~s: starts here.' - [ LC,File,FirstLN,FirstLCol,Level],nl ],
+    syntax_error_text(LC,Level,File,Desc).
+syntax_error_details(LC,Level,File,Desc) -->
+    syntax_error_text(LC,Level,File,Desc).
+
+syntax_error_text(LC,Level,File,Desc) -->
+     {
+     query_exception(parserTextA,Desc, TextA),
+     query_exception(parserTextB, Desc, TextB)
+     },
+     !,
+     [     '~s **** here **** ~s' - [ TextA, TextB], nl],
+     syntax_error_end(LC,Level,File,Desc).
+syntax_error_text(LC,Level,File,Desc) -->
+syntax_error_end(LC,Level,File,Desc).
+
+syntax_error_end(LC,Level,File,Desc) -->
+    {
+     query_exception(parserLastLine, Desc, LastLN), 
+     query_exception(parserLastLinePos, Desc, LastLCol)
+    },
+    !,
+   [  '~*|  ~s:~d:~d: ~s: ends here.' - [ LC,File,LastLN,LastLCol,Level], nl,nl].
+syntax_error_end(_LC,_Level,_File,_Desc) --> [].
+
+ 
 
 location( Desc, Level, More, LC ) -->
     {
@@ -421,7 +452,7 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredModule, Desc, Module)
  },
      !,
-	     [  '~N~s:1:0: ~a executing ~s:~s/~d:'-[FileName, 1,Level,Module,Name,Arity] ],
+	     [  '~N~s:1:0: ~a executing ~s:~s/~d:'-[FileName, Level,Module,Name,Arity] ],
      [nl],
      c_caller( Desc, Level, LC).
 
@@ -452,39 +483,7 @@ simplify_pred(F, F).
 
 main_message(error(Msg,In), _, _) -->
     {var(Msg)}, !,
-    [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message(error( style_check(singletons,[VName,Line,Column,F0],P), _Exc),_,_LC) -->
-    !,
-    {
-      clause_to_indicator(P, I)
-      },
-    [
-	'~s:~d:~d: warning, singleton variable ~s in ~q.' -
-	[  F0, Line, Column, VName, I],
-	nl,
-	nl
-    ].
-main_message(error(style_check(discontiguous,[F0|L0],I), _Exc), _Level, LC) -->
-    !,
-	[  '~*|discontiguous definition for ~p.' - [ LC,I],
-	nl,
-	nl,
-	   '~w:~d:0: this is the initial definition for ~p.' - [ F0,L0,I],
-	   nl,
-	   nl
-	].
-main_message(error(style_check(multiple,[F0|L0],I      ), _Info),_Level, _LC) -->
-          [ '~q was previously defined at:'-[I],
-	       nl,
-'~a:~d:0: has original definition for ~q'-[F0,L0,I],
-	       nl ].
-main_message( error(syntax_error(syntax_error(Msg,_,_,_,_)),_Info), _Level, _LC ) -->
-    {string(Msg);atom(Msg)},
-    !,
-    [  '[ Syntax Error:~n      ~s~n]'-[Msg]   ].
-main_message( error(syntax_error(syntax_error(Msg,_,_,_,_))), _Level, _LC ) -->
-    !,
-    [  '[ Syntax Error:~n      ~w~n]'-[Msg]   ].
+    [  'Uninstantiated message ~w.' - [error(Msg,In)], nl ].
 main_message(error(ErrorInfo,_), _Level, LC) -->
     [nl],
     main_error_message( ErrorInfo, LC ).
@@ -644,7 +643,7 @@ system_message(error(Msg,In)) -->
     ( { var(Msg) } ; { var(In)} ), !,
     ['bad error ~w' - [error(Msg,In)]].
 system_message(error(consistency_error(Who),Where)) -->
-    [ 'CONSISTENCY ERROR (arguments not compatible with format)- ~w ~w' - [Who,Where] ].
+   [ 'CONSISTENCY ERROR (arguments not compatible with format)- ~w ~w' - [Who,Where] ].
 system_message(error(context_error(Goal,Who),Where)) -->
     [ 'CONTEXT ERROR- ~w: ~w appeared in ~w' - [Goal,Who,Where] ].
 system_message(error(domain_error(DomainType,Opt), Where)) -->
@@ -935,7 +934,7 @@ syntax_error_token('{',_,  _LC) --> !,
 				    [ '{ '- []  ].
 syntax_error_token('[', _, _LC) --> !,
 				    [ '[' - [] ].
-ssynyntax_error_token(')',_,  _LC) --> !,
+syntax_error_token(')',_,  _LC) --> !,
 				    [ ' )'- []  ].
 syntax_error_token(']',_,  _LC) --> !,
 				    [ ']'- []  ].
@@ -1062,7 +1061,7 @@ write_goal_output(Format-G, First, Next) -->
       {  First = Next }
     ;
 				% we did
-	[nl],
+	nl,
 	[ '~s' - [String]],
 	{ Next = next }
     ).

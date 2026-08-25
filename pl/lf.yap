@@ -74,6 +74,10 @@ current_source_module(M,M),
     
 
     
+'$pick_files_for_loading'(M:Fs, M0, _M, Opts, FileLocation) :-
+!,
+'$pick_files_for_loading'(Fs, M0, M, Opts, FileLocation).
+
 '$pick_files_for_loading'(user, M0, M, Opts, FileLocation) :-
 !,
     '$load_stream'( user, user_input, M0, M, [ stream(user_input)|Opts], FileLocation ).
@@ -291,6 +295,10 @@ enter_compiler(Stream,Status) :-
     Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     read_clause(Stream, Clause, Options),
     (
+     Clause == []
+     ->
+    fail
+      ;
      Clause == end_of_file
      ->
 
@@ -300,7 +308,7 @@ enter_compiler(Stream,Status) :-
      ->
      fail
 	;
-     call_compiler(Clause, Status,Vars,Pos),
+    call_compiler(Clause, Status,Vars,Pos),
      fail
      ).
 
@@ -422,7 +430,8 @@ strip_module(Fs,_M,S),
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(File,Y,Dir,Stream),
     working_directory(Dir0, Dir),
-    stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
+prolog_load_context(stream,Old),
+    stream_property(loop_stream,[encoding(Encoding)] ),
     ignore(recordzifnot('$includes', (Old ->Y),_)),
     set_stream(Stream, [encoding(Encoding), alias(include_stream)] ),
     print_message(informational, loading(including, Y)),

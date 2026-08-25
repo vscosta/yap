@@ -28,6 +28,12 @@ add_dir/2
 
 :- set_prolog_flag(double_quotes, string).
 
+/**
+ Uses a program db:
+- definition
+- declaration
+- use
+*/
 :- dynamic state/2, lsp_on/0, use/9, def/6, dec/6.
 
 :- use_module(library(lists)).
@@ -46,12 +52,19 @@ add_dir/2
 
 
     %%
-    %% symbol(AllSymbowls)
+    %% 
     %%
+    %% Report all symbols for a URI
+    %%
+
 uri_symbols(URI, All) :-
     string_concat("file://", FileS, URI),
     string_to_atom(FileS, File),
 findall(t(Name,Line), defa(Name,Line,File),All).
+
+%%
+%% report all symbols defined in a file
+%%
 
 file_symbols(File, All) :-
    absolute_file_name(File, Path,
@@ -66,7 +79,10 @@ file_symbols(File, All) :-
 defa(Word,Line,File) :-
     def(Name,_,_,Line,File,_),
     atom_string(Name,Word).
-    
+
+%%
+
+%% all symbols for  a project
 workspace_symbols(All) :-
     findall(t(Name,Line,URI), symbol_in_def(Name,Line,URI), All).
 
@@ -78,7 +94,7 @@ Line1 is Line-1,
     string_concat("file://", FileS, URI).
 
     %%
-    %%
+    %% complete given  a prefix
     
 complete(Prefix, Insert,FCs) :-
     completions(Prefix,Insert,FCs),
@@ -89,6 +105,7 @@ complete(Prefix, Insert,FCs) :-
 %% @pred validate_uri(Self,URI)
 %%
 %% check for errors or warnings in the file pointed to by URI. Obj is the
+
 %% absolute_file_name(File,Path,[file_type(prolog)]),
 %%    validate_file(Self,Path).
 
@@ -119,7 +136,7 @@ analyse(Cl, L, F, M, g) :-
 analyse(G, L, F, M,  g) :-
 rule((G :- true), L, F, M).
 
-rule((A0:- B),Line,File,Module) :-
+rule((A0:- B),Line,File,Module,Na) :-
     strip_module(Module:A0,MH,A),
     functor(A,Na ,Ar),
 
@@ -140,10 +157,11 @@ store(Na,Ar,MH,Line,File) :-
 
 
 directive(module(M,Ls),L,F,M0) :-
-    assert(def('',0,M,L,F,module)),
-    assert(use('',0,M,'',0,M0,L,F,module)),
+L1 is L-1,
+    assert(def('',0,M,L1,F,module)),
+    assert(use('',0,M,'',0,M0,L1,F,module)),
     current_source_module(M0,M),
-    maplist(mod(L,F,M),Ls).
+    maplist(mod(L1,F,M),Ls).
 directive(op(A,B,C), _Line,_File,M) :- 
     op(A,B,M:C).
 directive(use_module(_A), _Line,_File,_M) :- 
@@ -166,6 +184,8 @@ directive((A,B), Line,File,M) :-
     !,
     directive(A, Line,File,M),
     directive(B, Line,File,M).
+% ignore other directives.
+directive(_, _Line,_File,_M).
 
 body(A,_L,_F,_M,_) :-
     var(A),
@@ -187,7 +207,8 @@ body((A->B),L,F,M,P0) :-
     body(B,L,F,M,P0).
 body(A,L,F,M,M0:Na0/Ar0) :-
     functor(A,NA,Ar),
-    assert(use(NA,Ar,M,Na0,Ar0,M0,L,F,predicate)).
+L1 is L-1,
+    assert(use(NA,Ar,M,Na0,Ar0,M0,L1,F,predicate)).
 
 
 mod(Line,File,M,N/A) :- assert(dec(N,A,M,Line,File,export(predicate))).
@@ -221,7 +242,7 @@ validate_source(Path, DefaultModule, Errors) :-
 validate_text(URI,S,Ts) :-
     writeln(user_error,"Here we go = "=URI ),
     string_concat("file://", FileAsS, URI),
-    atom_string(FileAsS, File),
+    atom_string(File, FileAsS),
     retractall(def(_,_,_,_,File,_)),
     retractall(use(_,_,_,_,_,_,_,File,_)),
     retractall(dec(_,_,_,_,File,_)),
@@ -258,11 +279,11 @@ q_msg(warning, error(style_check(multiple,[F0,L,Column],I ) ,Desc ), t("warning"
 q_msg(warning, error(style_check(discontiguous,[_,L,Column], I ), _Desc), t("warning",S, L,Column, L, EndCol)) :-
     !,
     format(string(S), 'discontiguous definition for ~w.~n',[I]),
-    I = _:Name/_,
+    I = Name/_,
     atom_length(Name, Len),
     EndCol is Column+Len,
     S = "discontiguous.~n".
-q_msg(_error, error(syntax_error(syntax_error(Msg,_,L,LPos,Size)), _Desc),  t("error",S, L1,LPos,L1,LP1)) :-
+xq_msg(_error, error(syntax_error(syntax_error(Msg,_,L,LPos,Size)), _Desc),  t("error",S, L1,LPos,L1,LP1)) :-
     !,
     L1 is L-1,
     format(string(S), 'syntax error: ~s.~n',[Msg]),
@@ -287,7 +308,8 @@ add_file(Self, D, File) :-
     
 symbol_at(Line, Pos, Word) :-
     open(string(Line),read,Stream,[alias(data)]),
-    scan_stream(Stream,Ts),
+     writeln(user_error, Line),
+   scan_stream(Stream,Ts),
     close(Stream),
     at(Ts, Pos, Symbol),
     !,
@@ -307,7 +329,8 @@ definition(Line,Pos,t(URI,L,1,Sz)) :-
     symbol_at(Line, Pos, Word),
     string_length(Word,Sz),
     atom_string(NA,Word),
-    def(NA,_Ar,_MH,L,File,predicate),
+    def(NA,_Ar,_MH,L1,File,predicate),
+    L1 is L-1,
     atom_string(File, FileS),
     string_concat("file://", FileS, URI).
 
@@ -325,7 +348,7 @@ definition(Line,Pos,t(URI,L,1,Sz)) :-
 
     
 user:highlight_uri( URI, Text, LTsf):-
-	string_concat(`file://`,S,URI),
+      string_concat("file://",S,URI),
 	atom_string(File,S),
 	open(string(Text),read,Stream,[alias(File)]),
 	set_stream(Stream,file_name(File)),
@@ -347,7 +370,6 @@ highlight_text(Text, LTsf):-
 user:portray_message(A,B):-
     lsp(on),
     !,
-    writeln(user_error,B),
     (
      q_msg(A,B,T),
      A \= "ignored"
@@ -357,6 +379,8 @@ user:portray_message(A,B):-
     true
     ).
 
+%%
+% to add
 
 
 

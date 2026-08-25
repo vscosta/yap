@@ -1,4 +1,3 @@
-
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
@@ -65,18 +64,15 @@ LoadForeign( StringList ofiles, StringList libs,
     valid_fname = Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true);
 
     if( !valid_fname ) {
-      strcpy( LOCAL_ErrorSay, "%% Trying to open non-existing file in LoadForeign" );
+      const_error_message( "%% Trying to open non-existing file in LoadForeign" );
       return LOAD_FAILLED;
     }
 
     ofiles->handle = Yap_AllocCodeSpace( sizeof(shl_t) );
     *(shl_t *)ofiles->handle = shl_load( LOCAL_FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)ofiles->handle == NULL ) {
-      strncpy( LOCAL_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
-      return LOAD_FAILLED;
-    }
-
-    if( init_missing ) {
+      const_error_message(strerror(errno));
+    } else {
       init_missing = shl_findsym( ofiles->handle, proc_name,
 				  TYPE_PROCEDURE, init_proc );
     }
@@ -85,7 +81,7 @@ LoadForeign( StringList ofiles, StringList libs,
   }
 
   if( init_missing ) {
-    strcpy( LOCAL_ErrorSay, "Could not locate initialization routine" );
+        const_error_message( "Could not locate initialization routine" );
     return LOAD_FAILLED;
   }
 
@@ -103,7 +99,8 @@ LoadForeign( StringList ofiles, StringList libs,
 
     *(shl_t *)libs->handle = shl_load( LOCAL_FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)libs->handle == NULL ) {
-      strncpy( LOCAL_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
+          LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE+1);
+	  snprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, strerror(errno) );
       return LOAD_FAILLED;
     }
 

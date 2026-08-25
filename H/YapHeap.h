@@ -22,8 +22,6 @@
 
 #include "Atoms.h"
 
-#include "alloc.h"
-
 #if THREADS
 #include  "YapRegs.h"
 #endif
@@ -44,6 +42,7 @@ typedef int (*SWI_PLGetStreamPositionFunction)(void *);
 #ifndef INT_KEYS_DEFAULT_SIZE
 #define INT_KEYS_DEFAULT_SIZE 256
 #endif
+#include "alloc.h"
 
 #if USE_DL_MALLOC
 
@@ -210,6 +209,34 @@ extern struct worker_local Yap_local;
 #define REMOTE(wid)        (&Yap_local)
 #endif
 */
+
+static inline void new_error_message(size_t msg_size) {
+  if (LOCAL_ErrorMessage) {
+    free(LOCAL_ErrorMessage);
+  }
+  LOCAL_Error_Size = msg_size;
+  LOCAL_ErrorMessage = (char*)malloc(msg_size);
+}
+
+/** interface to ErrorMessage, a field that contains a current error message.
+    The interface ensures space is recovered after use */
+static inline void const_error_message(const char *s) {
+  if (LOCAL_ErrorMessage) {
+    free(LOCAL_ErrorMessage);
+  }
+  size_t len = strlen(s);
+  LOCAL_ErrorMessage = (char *)malloc(len + 1);
+  LOCAL_Error_Size = len;
+  strcpy(LOCAL_ErrorMessage, s);
+}
+
+static inline void reset_error_message(void) {
+  if (LOCAL_ErrorMessage) {
+    free(LOCAL_ErrorMessage);
+    LOCAL_ErrorMessage = NULL;
+    LOCAL_Error_Size = 0;
+  }
+}
 
 #ifdef USE_SYSTEM_MALLOC
 extern struct various_codes *Yap_heap_regs;

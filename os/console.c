@@ -144,8 +144,7 @@ int ConsoleGetc(int sno) {
     LOCAL_PrologMode &= ~ConsoleGetcMode;
     LOCAL_newline = TRUE;
     if (LOCAL_PrologMode & AbortMode) {
-      Yap_Error(ABORT_EVENT, TermNil, "");
-      LOCAL_ErrorMessage = "Abort";
+      Error_Throw(ABORT_EVENT, TermNil, "Abort");
       return EOF;
     }
     goto restart;

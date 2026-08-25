@@ -202,13 +202,15 @@ static void setTokenPosition(TokEntry *t, struct stream_desc *st)
 
 
 #define CodeSpaceError(st, t, p, l) CodeSpaceError__(st, t, p, l PASS_REGS)
+
 static TokEntry *CodeSpaceError__(struct stream_desc *st, TokEntry *t,
                                   TokEntry *p,
                                   TokEntry *l
                                   USES_REGS) {
   LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
-  LOCAL_ErrorMessage = "Code Space Overflow";
+  const_error_message( "Code Space Overflow");
   if (t) {
+    setTokenPosition( t, st);
     t->Tok = eot_tok;
     t->TokInfo = TermOutOfHeapError;
   }
@@ -218,7 +220,7 @@ static TokEntry *CodeSpaceError__(struct stream_desc *st, TokEntry *t,
 
 #define TrailSpaceError(t, l) TrailSpaceError__(t, l PASS_REGS)
 static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
-  LOCAL_ErrorMessage = "Trail Overflow";
+    const_error_message("Trail Overflow");
   LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   if (t) {
     t->Tok = eot_tok;
@@ -226,20 +228,6 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
   }
   return l;
 }
-
-static Term number_encoding_error(int ch, enum_seq_type_t code, struct stream_desc *st)
-{
-  CACHE_REGS
-  if (st->status & FailOnScanError_Stream_f)
-     return TermNil;
-   LOCAL_ErrorMessage=malloc(2048);
-   snprintf(LOCAL_ErrorMessage, 2047,
-            "unexpected character %c while  reading quoted text", (char)code);
-   return Yap_encoding_error(ch, st, LOCAL_tokptr, LOCAL_toktide,
-                             LOCAL_ErrorMessage);
-}
-
-
 
 extern double atof(const char *);
 
@@ -249,14 +237,14 @@ static Term float_send(char *s, int sign) {
   if (trueGlobalPrologFlag(ISO_FLAG)) { /* iso */
     if (!isfinite(f)) {
       CACHE_REGS
-      LOCAL_ErrorMessage = "Float overflow while scanning";
+	const_error_message( "Float overflow while scanning");
       return (MkEvalFl(f));
     }
   }
 #elif HAVE_FINITE
   if (trueGlobalPrologFlag(ISO_FLAG)) { /* iso */
     if (!finite(f)) {
-      LOCAL_ErrorMessage = "Float overflow while scanning";
+      const_error_message( "Float overflow while scanning");
       return (MkEvalFl(f));
     }
   }
@@ -266,6 +254,40 @@ static Term float_send(char *s, int sign) {
     return MkFloatTerm(f);
   }
 }
+/*
+int Yap_encoding_error__(const char *file, const char *function,
+                                int lineno, int ch, struct stream_desc *st,
+                               TokEntry *ptr, TokEntry *tide, const char *msg,
+...)
+{
+      CACHE_REGS
+        Yap_syntax_error(TermNil, st-GLOBAL_Stream,NULL,NULL,"character encoding
+error: encountered %c(%d)",ch,ch,NULL); if (falseGlobalPrologFlag(ISO_FLAG)) {
+      if(st->status & (RepClose_Prolog_f|RepError_Prolog_f)) {
+        Term sc[2];
+        if (LOCAL_ActiveError->culprit) {
+          sc[0] = MkAtomTerm(Yap_LookupAtom(LOCAL_ActiveError->culprit));
+        }  else if (LOCAL_ActiveError->culprit_t) {
+          sc[0] =LOCAL_ActiveError->culprit_t ;
+        } else {
+          sc[0] = TermNil;
+        }
+        sc[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,sc);
+        sc[1] = MkSysError(LOCAL_ActiveError);
+        Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2,
+sc),TermWarning); if(st->status & (RepClose_Prolog_f)) {
+          Yap_CloseStream(st-GLOBAL_Stream);
+          return EOF;
+        } else {
+          return ch;
+        }
+      }
+      }
+      Yap_RaiseException();
+      return '\0';
+}
+ */
+
 
 /* we have an overflow at s */
 /**
@@ -351,7 +373,7 @@ do_switch:
       } else if (ch >= 'A' && ch <= 'F') {
         wc += ((ch - 'A') + 10) << ((3 - i) * 4);
       } else {
-        return number_encoding_error(wc, 1, st);
+        return Yap_encoding_error(wc, st, LOCAL_tokptr,LOCAL_toktide,"u-escaped hexa character  with %c is not valid",ch);
       }
     }
     return wc;
@@ -369,7 +391,7 @@ do_switch:
       } else if (ch >= 'A' && ch <= 'F') {
         wc += ((ch - 'A') + 10) << ((7 - i) * 4);
       } else {
-        return  number_encoding_error(wc, 1, st);
+        return  Yap_encoding_error(ch, st,LOCAL_tokptr,LOCAL_toktide,"U-escaped hexa character  with %c is not valid",ch);
       }
     }
     return wc;
@@ -377,7 +399,7 @@ do_switch:
   case 'v':
     return '\v';
   case 'z': /* Prolog end-of-file */
-    return number_encoding_error(ch, 1, st);
+    return Yap_encoding_error(ch, st,LOCAL_tokptr,LOCAL_toktide,"Prolog  end-of-file is \\%c",ch);
   case '\'':
     return '\'';
   case '"':
@@ -386,7 +408,7 @@ do_switch:
     return '`';
   case '^':
     if (trueGlobalPrologFlag(ISO_FLAG)) {
-      return  number_encoding_error(ch, 1, st);
+      return  Yap_encoding_error(ch,st, LOCAL_tokptr,LOCAL_toktide,"invalid \\ character %c escaped",ch);
     } else {
       ch = getchrq(st);
       if (ch == '?') { /* delete character */
@@ -419,23 +441,23 @@ do_switch:
           so_far = so_far * 8 + (ch - '0');
           ch = getchrq(st);
           if (ch != '\\') {
-           return number_encoding_error(ch, 1, st);
+	    return Yap_encoding_error(ch, st, LOCAL_tokptr,LOCAL_toktide,"character %c exceeds base 8", ch);
           }
           return so_far;
         } else if (ch == '\\') {
           return so_far;
         } else {
-          return  number_encoding_error(ch, 1, st);
+          return  Yap_encoding_error(ch, st, LOCAL_tokptr,LOCAL_toktide,"character %c exceeds base 8", ch);
         }
       } else if (ch == '\\') {
         return so_far;
       } else {
-        return  number_encoding_error(ch, 1, st);
+        return Yap_encoding_error(ch,  st, LOCAL_tokptr,LOCAL_toktide,"character %c exceeds base 8", ch);
       }
     }
   case '9':
   case '8':
-    return  number_encoding_error(ch, 1, st);
+    return  Yap_encoding_error(ch, st, LOCAL_tokptr,LOCAL_toktide,"character %c exceeds base 8", ch);
   case 'x':
     /* hexadecimal character (YAP allows empty hexadecimal  */
     {
@@ -458,14 +480,14 @@ do_switch:
   if (ch == '\\') {
         return so_far;
       } else {
-         return  number_encoding_error(ch, 1, st);
+    return  Yap_encoding_error(ch, st,LOCAL_tokptr,LOCAL_toktide,"hexa-character escaped sequence should terminate by \'\'\', it terminates with %c",ch);
       }
     }
   default:
     /* reject sequence. The ISO standard does not
      consider this sequence legal, whereas SICStus would
      eat up the escape sequence. */
-        return  number_encoding_error(ch, 1, st);
+    return  Yap_encoding_error(ch, st, LOCAL_tokptr,LOCAL_toktide, "illegal sequence %c in quoted sequence of characters",ch );
   }
 }
 
@@ -494,7 +516,7 @@ static Term read_int(struct stream_desc *st, int base, int left, char **bufpp, c
     if (! my_isxdigit(ch, base, lower_case,upper_case)) {
       *sp = '\0';
       CACHE_REGS
-	return Yap_encoding_error(ch, st,LOCAL_tokptr,LOCAL_toktide,  "invalid hexadecimal digit");
+	return Yap_encoding_error(ch, st,LOCAL_tokptr,LOCAL_toktide,  "invalid hexadecimal digit %c", ch);
       }
     do{
      if (--left == 0)
@@ -562,7 +584,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
   }
   if (ch == '\'') {
     if (base > 36) {
-      ch=Yap_encoding_error(base, st, LOCAL_tokptr,LOCAL_toktide, "Admissible bases are 11..36");
+      ch=Yap_encoding_error(base, st, LOCAL_tokptr,LOCAL_toktide, "Admissible bases are 11..36, got %d", base);
     } 
       if (--left == 0)
 	number_overflow();
@@ -578,7 +600,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
 	  bool got_char;
 	  ascii = read_escaped_char(&got_char, st);
 	  if (!got_char) {
-	    Yap_encoding_error(ch,st,LOCAL_tokptr,LOCAL_toktide,"parser error while scanning escaped character" );
+	    Yap_encoding_error(ch,st,LOCAL_tokptr,LOCAL_toktide,"parser error while scanning escaped character %c", ch );
 	  }
 	  if ( ch == EOF) return TermNil;
         } else {
@@ -633,7 +655,7 @@ static Term get_num(int *chp, StreamDesc *st, int sign,
 		   ) != NU) {
 	  if (trueGlobalPrologFlag(ISO_FLAG)) {
 	  *sp = '\0';
-	  Yap_encoding_error( ch, st, LOCAL_tokptr,LOCAL_toktide, "e/E float format not allowed in ISO mode");
+	  Yap_encoding_error( ch, st, LOCAL_tokptr,LOCAL_toktide, " .%cDD float format not allowed in ISO mode", ch);
 	  return TermNil;
 	}
 	  *chp = ch;
@@ -775,13 +797,13 @@ if (ch == EOFCHAR) {
     }
   }
     }
-  Yap_encoding_error(ch,inp,tokptr,tokptr,"scanner does not see a number");
+  Yap_encoding_error(ch,inp,tokptr,tokptr,"scanner got %c: does not see a number",ch);
   return TermNil;
 }
 
 #define CHECK_SPACE()                                                          \
   if (ASP - HR < 1024) {                                                       \
-    LOCAL_ErrorMessage = "Stack Overflow";                                     \
+    const_error_message( "Stack Overflow" );				\
     LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                                   \
     LOCAL_Error_Size = 0L;                                                     \
     if (p) {                                                                   \
@@ -905,7 +927,6 @@ TokEntry *add_eot(StreamDesc *st, TokEntry *p USES_REGS)
   tokptr->TokNext = NULL;
 
   setTokenPosition(tokptr, st);
-  tokptr->TokOffset = 0;
   tokptr->Tok = Ord(eot_tok);
   tokptr->TokInfo = TermEof;
   if (p) {
@@ -1097,7 +1118,7 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
 
       while (true) {
         if (ch == 10 && !(Yap_GetModuleEntry(CurrentModule)->flags & M_MULTILINE)) {
-	  ch = Yap_encoding_error( 10, st, LOCAL_tokptr,LOCAL_toktide,          "in ISO a new linea terminates a string" );
+	  ch = Yap_encoding_error( 10, st, LOCAL_tokptr,LOCAL_toktide,          "in ISO a new line (char %d) terminates a string", ch );
        if (charp > (unsigned char *)TokImage + (imgsz - 1)) {
           TokImage =
               Realloc(TokImage, (imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE)));
@@ -1164,10 +1185,17 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
     case SY: {
       if (ch == '.') {
 	int pch = Yap_peekWide(st-GLOBAL_Stream);
-	if(chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
-	  t->TokInfo = TermDot;
-	  t->Tok = Ord(eot_tok);
-	  return l;
+        if (chtype(pch) == BS || chtype(pch) == EF || pch == '%') {
+	  if (l) {
+	    t->TokInfo = TermDot;
+	    t->TokLine = GetCurInpLine(st);
+	    t->TokLinePos = GetCurInpLineStart(st);
+	    t->TokOffset = GetCurInpOffset(st);
+	    t->Tok = Ord(eot_tok);
+            return l;
+          } else {
+
+	  }
 	}
       }
       if (ch == '`')
@@ -1296,14 +1324,20 @@ TokEntry *Yap_tokenizer(void *st_, void *params_) {
         if (ch == '|') {
           qq_t *qq = (qq_t *)calloc(sizeof(qq_t), 1);
           if (!qq) {
-            LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
+            const_error_message( "not enough heap space to read in quasi quote" );
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
             return l;
           }
           if (cur_qq) {
-            LOCAL_ErrorMessage = "quasi quote in quasi quote";
+            const_error_message( "quasi quote in quasi quote");
             //                      Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
             return l;
@@ -1338,9 +1372,12 @@ t->Tok = Ord(kind = Name_tok);
       } else if (och == '|' && ch == '|') {
         qq_t *qq = cur_qq;
         if (!qq) {
-          LOCAL_ErrorMessage = "quasi quoted's || without {|";
+          const_error_message( "quasi quoted's || without {|");
           //          Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
           cur_qq = NULL;
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermError;
           return l;
@@ -1385,7 +1422,10 @@ t->Tok = Ord(kind = Name_tok);
         len = charp - (unsigned char *)TokImage;
         mp = malloc(len + 1);
         if (mp == NULL) {
-          LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
+          const_error_message( "not enough heap space to read in quasi quote" );
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermOutOfHeapError;
           return l;
@@ -1411,9 +1451,13 @@ t->Tok = Ord(kind = Name_tok);
       t->Tok = Ord(kind = Ponctuation_tok);
       break;
     case EF:
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
       t->TokNext = NULL;
+      setTokenPosition(t, st);
       if (!l) {
 
 	Yap_EOF_Stream(st);
@@ -1435,6 +1479,9 @@ t->Tok = Ord(kind = Name_tok);
 	       ch, ch, chtype(ch));
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = MkIntTerm(0);
+	  t->TokLine = GetCurInpLine(st);
+	  t->TokLinePos = GetCurInpLineStart(st);
+	  t->TokOffset = GetCurInpOffset(st);
     }
     }
     if (LOCAL_ErrorMessage) {
@@ -1449,7 +1496,7 @@ t->Tok = Ord(kind = Name_tok);
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
       setTokenPosition(e, st);
       e->TokNext = NULL;
-      LOCAL_ErrorMessage = NULL;
+      reset_error_message() ;
       p = e;
     }
   } while (kind != eot_tok);

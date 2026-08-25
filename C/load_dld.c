@@ -72,7 +72,8 @@ LoadForeign(StringList ofiles, StringList libs,
   if(firstTime) {
     error = dld_init(GLOBAL_Executable);
     if(error) {
-      strcpy(LOCAL_ErrorSay,dld_strerror(error));
+      new_error_message(512);
+    strcpy(LOCAL_ErrorMessage,dld_strerror(error));
       return LOAD_FAILLED;
     }
     firstTime=0;
@@ -80,7 +81,8 @@ LoadForeign(StringList ofiles, StringList libs,
 
   while (ofiles) {
     if((error=dld_link(AtomName(ofiles->name))) !=0) {
-      strcpy(LOCAL_ErrorSay,dld_strerror(error));
+      new_error_message(512);
+    strcpy(LOCAL_ErrorMessage,dld_strerror(error));
       return LOAD_FAILLED;
     }
     ofiles = ofiles->next;
@@ -90,14 +92,16 @@ LoadForeign(StringList ofiles, StringList libs,
   /* TODO: handle libs */
   *init_proc = (YapInitProc) dld_get_func(proc_name);
   if(! *init_proc) {
-    strcpy(LOCAL_ErrorSay,"Could not locate initialization routine");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage,"Could not locate initialization routine");
     return LOAD_FAILLED;
   }
   if(!dld_function_executable_p(proc_name)) {
     char **undefs = dld_list_undefined_sym();
     char **p = undefs;
     int k = dld_undefined_sym_count;
-    strcpy(LOCAL_ErrorSay,"Could not resolve all symbols");
+    new_error_message(512);
+    strcpy(LOCAL_ErrorMessage,"Could not resolve all symbols");
     while(k) {
       YP_printf("[undefined symbol %s]\n",*p++);
       --k;

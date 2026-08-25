@@ -270,7 +270,7 @@ extern size_t Yap_page_size;
 #else /* !USE_SYSTEM_MALLOC */
 #if defined(MMAP_ADDR) && (defined(USE_MMAP) || USE_SHMAT) &&                  \
     !defined(__simplescalar__) && !defined(RANDOMIZE_START_ADDRESS)
-#define HEAP_INIT_BASE (MMAP_ADDR)
+#define HEAP_INIT_BASE (MMAP_ADDR>
 #define AtomBase ((char *)MMAP_ADDR)
 #else /*! (MMAP_ADDR && (USE_MMAP || USE_SHMAT) && !__simplescalar__ &&        \
          !RANDOMIZE_START_ADDRESS) */

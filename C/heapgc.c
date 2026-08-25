@@ -3869,7 +3869,7 @@ do_gc( gc_entry_info_t volatile *info USES_REGS)
   if (HeapTop >= LOCAL_GlobalBase - MinHeapGap) {
     *H++ = (CELL)current_env;
     if (!Yap_locked_growheap(FALSE, MinHeapGap, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       return -1;
     }
     current_env = (CELL *)*--HR;
@@ -4125,7 +4125,7 @@ LeaveGCMode( USES_REGS1 )
   if (LOCAL_PrologMode & AbortMode) {
     LOCAL_PrologMode &= ~AbortMode;
     /* in case someone mangles the P register */
-    Yap_Error(ABORT_EVENT, TermNil, "abort from console");
+    Yap_ThrowError(ABORT_EVENT, TermNil, "abort from console");
     Yap_RestartYap( 1 );
   }
 }

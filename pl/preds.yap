@@ -408,20 +408,22 @@ predicate_property(Pred,Prop) :-
     '$pred_exists'(P,prolog)
     ->
 	'$predicate_property'(P,prolog,Prop)
-    ;
-      '$is_proxy_predicate'(P,M)
-      ->
+      ;
 (
-	'$import_chain'(M,P,M0,P0),
-      '$pred_exists'(P0,M0),
-      (Prop = imported_from(M0)
-	;
-	'$predicate_property'(P0,M0,Prop)
-      )
+      '$is_proxy_predicate'(P,M),
+ 	'$import_chain'(M,P,MImp,PImp),
+      '$pred_exists'(PImp,MImp)
 )
-    ;
+->
+    (Prop = imported_from(MImp)
+	;
+	'$predicate_property'(PImp,MImp,Prop)
+      )
+
+      ;
+    '$pred_exists'(P,M),
     '$predicate_property'(P,M,Prop)
-    ).
+).
 
 '$predicate_property'(P,M,meta_predicate(Q)) :-
     functor(P,Na,Ar),

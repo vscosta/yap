@@ -226,7 +226,7 @@ static char SccsId[] = "%W% %G%";
  ```
  ?- format("~n*Hello~16+*~n",[]).
  *Hello          *
- ```
+  ```
 
 
  Note that we reserve 16 characters for the column.
@@ -246,7 +246,7 @@ static char SccsId[] = "%W% %G%";
  ```
  ?- format("*~tHello~t~16+*~n",[]).
  *     Hello     *
- ```
+       ```
 
  The two `~t` escape sequence force filling both before and after
  `Hello`. Space is then evenly divided between the right and the
@@ -256,7 +256,7 @@ static char SccsId[] = "%W% %G%";
  Evaluate the next argument as a goal whose standard
  output is directed to the stream used by format/2.
 
-*/
+ */
 
 #include "Yap.h"
 #include "YapHeap.h"
@@ -282,7 +282,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 #ifdef _WIN32
 #if HAVE_IO_H
-/* Windows */
+  /* Windows */
 #include <io.h>
 #endif
 #if HAVE_SOCKET
@@ -310,7 +310,7 @@ format_clean_up(int sno, int sno0, format_info *finfo) {
 static int format_print_str(int sno, Int size, bool has_size, Term args,
                             int (*f_putc)(int, wchar_t), format_info *finfo) {
   CACHE_REGS
-    Term arghd;
+  Term arghd;
   if (IsStringTerm(args)) {
     const unsigned char *pt = UStringOfTerm(args);
     while ((!has_size || size > 0) && pt && *pt ) {
@@ -334,17 +334,17 @@ static int format_print_str(int sno, Int size, bool has_size, Term args,
     const unsigned char *pt = RepAtom(AtomOfTerm(args))->UStrOfAE;
     utf8proc_int32_t ch;
     while ( (!has_size || size > 0) &&
-	   pt && *pt &&
+	    pt && *pt &&
 	    (off=get_utf8(pt, -1, &ch)>0 && ch != '\0') )
       {
-      if (off > 0) {
-	f_putc(sno, ch);
-	pt += off;
-	size--;
-      } else if (off < 0) {
-	Yap_ThrowError(SYNTAX_ERROR_ENCODING,args,NULL);
+	if (off > 0) {
+	  f_putc(sno, ch);
+	  pt += off;
+	  size--;
+	} else if (off < 0) {
+	  Yap_ThrowError(SYNTAX_ERROR_ENCODING,args,NULL);
+	}
       }
-    }
     while (size>0) {
       size--;
       f_putc(sno, ' ');
@@ -432,11 +432,11 @@ static Int fetch_index_from_args(Term t) {
   if (IsAtomTerm(t)) {
     unsigned char *fptr = RepAtom(AtomOfTerm(t))->UStrOfAE;
     int ch;
-    CACHE_REGS
+CACHE_REGS
       fptr += get_utf8(fptr, -1, &ch);
     if (fptr[0] == '\0') {
-      return ch;
-    }
+    return ch;
+  }
   }
   if (!IsIntegerTerm(t))
     return -1;
@@ -499,27 +499,26 @@ static bool tabulated(const unsigned char *fptr)
 
 	  pt += off;
 	  || ch == 't') {
-	xoreturn true;
-      }
+	  xoreturn true;
+	}
+	}
     }
-  }
-  return false;
+    return false;
        
-}
+  }
 
 #endif
 
 #define TOO_FEW_ARGUMENTS(Needs, Has_Repeats)				\
   if (!targs||targ+Needs > tnum || Has_Repeats) {			\
-    Yap_CloseStream(sno);						\
-    Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, MkIntTerm(fptr-fstr), "command %c in format string %s has no arguments %s", ch, \
-		   fstr, fptr);						\
-    return false;							\
+  Yap_CloseStream(sno);						\
+  Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, MkIntTerm(fptr-fstr), "command %c in format string %s has no arguments %s", ch, \
+  fstr, fptr);						\
+  return false;							\
   }
 
 static Int doformat(volatile Term otail, volatile Term oargs,
                     int l, int sno0 USES_REGS) {
-  char *tmp1, *tmpbase;
   int ch;
   Term *targs;
   Int tnum, targ;
@@ -531,8 +530,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   Term fmod = CurrentModule;
   bool alloc_fstr = false;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
-  tmp1 = Malloc(TMP_STRING_SIZE + 1);
-  format_info *finfo = Malloc(sizeof(format_info));
+  format_info finfo_data;
+  format_info *finfo = &finfo_data;
   // it starts here
   finfo->sno0 = sno0;
   finfo->phys_start = 0;
@@ -647,7 +646,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       switch (ch) {
       case '~':
 	f_putc(sno, (int) '~');
-	 break;
+	break;
       case 'a': {
 	/* print an atom */
 	TOO_FEW_ARGUMENTS(1, has_repeats);
@@ -733,7 +732,8 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	  ptr++;
 	ptr[0] = ch;
 	ptr[1] = '\0';
-	{
+        {
+          char tmp1[repeats+11];
 	  unsigned char *uptr = (unsigned char *) tmp1;
 #if HAVE_SNPRINTF
 	  snprintf(tmp1, repeats + 10, fmt, fl);
@@ -744,316 +744,317 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	    f_putc(sno, ch);
 	}
 	break;
-	case 'd':
-	  case 'D': {
-	    int command = ch;
-	    /* print a decimal, using weird . stuff */
-	    TOO_FEW_ARGUMENTS(1,false);
-	    t =Deref( targs[targ++] );
-	    if (IsVarTerm(t)) {
-	      format_clean_up(sno, sno0, finfo);
-	      Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch, fstr);
-	    } else if (IsIntegerTerm(t)) {
-		Int il =  IntegerOfTerm(t);
-		snprintf(tmp1, 256, "%ld", (long int) il);
-		tmpbase = tmp1;
-	      } else if (IsBigIntTerm(t)) {
-		tmpbase = Yap_gmp_to_string(t, 10);
-	      } else {
-	      format_clean_up(sno, sno0, finfo);
-	      Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch, fstr);
-	      return false;
-	    }
-	    format_integer( command, f_putc, repeats, tmpbase, sno);
-		if (tmpbase != tmp1)
-		  free(tmpbase);
-		break;
-	      case 'r':
-	      case 'R': {
-		Int numb, radix, dig ;
-		UInt divfactor = 1 ;
-		wchar_t och;
-		int command = ch;
-		/* print a decimal, using weird . stuff */
-		TOO_FEW_ARGUMENTS(1,false);
-  		t = targs[targ++];
-		if (IsVarTerm(t)) {
-		  format_clean_up(sno, sno0, finfo);
-		  Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch,
-				 fstr);
-		}
-		if (!has_repeats)
-		  radix = 8;
-		else
-		  radix = repeats;
-		if (radix > 36 || radix < 2) {
-		  format_clean_up(sno, sno0, finfo);
-		  Yap_ThrowError(DOMAIN_ERROR_RADIX, targs[targ-1], "command %c in format %s", ch,
-				 fstr);
-		}
+      case 'd':
+      case 'D': {
+	int command = ch;
+	/* print a decimal, using weird . stuff */
+	TOO_FEW_ARGUMENTS(1,false);
+	t =Deref( targs[targ++] );
+	if (IsVarTerm(t)) {
+	  format_clean_up(sno, sno0, finfo);
+	  Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch, fstr);
+	} else if (IsIntegerTerm(t)) {
+	  char tmp1[1025];
+          Int il =  IntegerOfTerm(t);
+	  snprintf(tmp1, 256, "%ld", (long int) il);
+	  format_integer( command, f_putc, repeats, tmp1, sno);
+	} else if (IsBigIntTerm(t)) {
+          char *tmpbase = Yap_gmp_to_string(t, 10);
+          format_integer( command, f_putc, repeats, tmpbase, sno);
+	  free(tmpbase);
+	} else {
+	  format_clean_up(sno, sno0, finfo);
+	  Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch, fstr);
+	  return false;
+	}
+	break;
+      case 'r':
+      case 'R': {
+	Int numb, radix, dig ;
+	UInt divfactor = 1 ;
+	wchar_t och;
+	int command = ch;
+	/* print a decimal, using weird . stuff */
+	TOO_FEW_ARGUMENTS(1,false);
+  	t = targs[targ++];
+	if (IsVarTerm(t)) {
+	  format_clean_up(sno, sno0, finfo);
+	  Yap_ThrowError(INSTANTIATION_ERROR, t, "command %c in format %s", ch,
+			 fstr);
+	}
+	if (!has_repeats)
+	  radix = 8;
+	else
+	  radix = repeats;
+	if (radix > 36 || radix < 2) {
+	  format_clean_up(sno, sno0, finfo);
+	  Yap_ThrowError(DOMAIN_ERROR_RADIX, targs[targ-1], "command %c in format %s", ch,
+			 fstr);
+	}
 	if (IsBigIntTerm(t) && RepAppl(t)[1] == BIG_INT) {
  
-		  tmpbase = Yap_gmp_to_string(t, radix);
-      	} else		if (!IsIntegerTerm(t)) {
- 		  format_clean_up(sno, sno0, finfo);
-		  Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch,
-				 fstr);
-		} else {
-	  tmpbase = ptr = tmp1;
-		    	numb = IntegerOfTerm(t);
-                                if (numb < 0) {
-                                    numb = -numb;
-                                    *ptr++='-';
-                                 }
-                                if (numb == 0) {
-                                   *ptr++ = '0';
-                                } else {
-                                  divfactor = 1;
-                                  while (radix *divfactor <=
-                                         numb)
-                                    divfactor *= radix;
+	  char *  tmpbase = Yap_gmp_to_string(t, radix);
+	format_integer( command, f_putc, repeats, tmpbase, sno);
+	  free(tmpbase);
+      	} else	if (!IsIntegerTerm(t)) {
+ 	  format_clean_up(sno, sno0, finfo);
+	  Yap_ThrowError(TYPE_ERROR_INTEGER, targs[targ-1], "command %c in format %s", ch,
+			 fstr);
+	} else {
+	  char tmp1[1025];
+	  char *ptr = tmp1;
+	  numb = IntegerOfTerm(t);
+          if (numb < 0) {
+            numb = -numb;
+            *ptr++='-';
+          }
+          if (numb == 0) {
+            *ptr++ = '0';
+          } else {
+            divfactor = 1;
+            while (radix *divfactor <=
+                   numb)
+              divfactor *= radix;
 
-                                  while (true)  {
-				   dig = numb / divfactor;
-				    if (dig >= 10)
+            while (true)  {
+	      dig = numb / divfactor;
+	      if (dig >= 10)
 
-                                      och = dig-10+'a';
-				    else
-				      och = dig+'0';
-                                    *ptr++ = och;
-                                    if (divfactor == 1)
-				      break;
-                                    numb %= divfactor;
-                                    divfactor /= radix;
-				  }
-				}
-				*ptr = '\0';
-		}
-		format_integer( command, f_putc, repeats, tmpbase, sno);
-		if (tmpbase != tmp1)
-		  free(tmpbase);
+                och = dig-10+'a';
+	      else
+		och = dig+'0';
+              *ptr++ = och;
+              if (divfactor == 1)
 		break;
-	      }
-	      case 's':
-		TOO_FEW_ARGUMENTS(1,false);
-		t = targs[targ++];
-		if (IsVarTerm(t)) {
-		  format_clean_up(sno, sno0, finfo);
-		  Yap_ThrowError(INSTANTIATION_ERROR, targs[targ-1], "command %c in format %s", ch,
-				 fstr);
-		}
-		if (!format_print_str(sno, repeats, has_repeats, t, f_putc, finfo)) {
-		  return false;
-		}
-	      }
-	      break;
-	      case 'i':
-		if (targ +1> tnum || has_repeats) {
-		  format_clean_up(sno, finfo->sno0, finfo);
-		  Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ-1],
-				 "command ~c in format %s", ch,
-				 fstr);
-		}
-		targ++;
-		break;
-		case 'k':
-		  TOO_FEW_ARGUMENTS(1, has_repeats);
-		  t = targs[targ++];
-		  yhandle_t sl = Yap_StartSlots();
-		  Yap_plwrite(t, GLOBAL_Stream + sno, HR,0,
-			      YAP_WRITE_QUOTED | YAP_WRITE_IGNORE_OPS | YAP_WRITE_HEAP_TERMS ,
-			      NULL);
-		  Yap_CloseSlots(sl);
-		  break;
-		  case '@': {
-		    t = targs[targ++];
-		    yhandle_t sl0 = Yap_StartSlots(), s1 = Yap_PushHandle(ARG1),
-		      sl = Yap_InitSlots(tnum - targ, targs + targ);
-
-		    Int res;
-		    int os = LOCAL_c_output_stream;
-		    LOCAL_c_output_stream = sno;
-		    res = Yap_execute_goal(t, 0, fmod, true);
-		    LOCAL_c_output_stream = os;
-		    if (Yap_HasException(PASS_REGS1))
-		      goto ex_handler;
-		    if (!res) {
-		      if (!alloc_fstr)
-			fstr = NULL;
-		      format_clean_up(sno, sno0, finfo);
-		      return false;
-		    }
-		    ARG1 = Yap_GetFromHandle(s1);
-		    Yap_RecoverHandles(tnum - targ, sl);
-		    Yap_CloseSlots(sl0);
-		  }
-		    break;
-		    case 'p':
-		      TOO_FEW_ARGUMENTS(1,has_repeats);
-		      t = targs[targ++];
-		      {
-			Int sl = Yap_InitSlot(args);
-	
-			Yap_plwrite(t, GLOBAL_Stream + sno, HR,
-				    0,                                        Number_vars_f | YAP_WRITE_USE_PORTRAY | YAP_WRITE_HEAP_TERMS ,
-				    NULL
-				    );
-			args = Yap_GetFromSlot(sl);
-			Yap_CloseSlots(sl);
-		      }
-		      if (Yap_HasException(PASS_REGS1)) {
-
-		      ex_handler:
-			if (tnum <= 8)
-			  targs = NULL;
-			if (IsAtomTerm(tail)) {
-			  fstr = NULL;
-			}
-			if (!alloc_fstr)
-			  fstr = NULL;
-			if (tnum == 0) {
-			  targs = NULL;
-			}
-			format_clean_up(sno, sno0, finfo);
-			Yap_RaiseException();
-			return false;
-		      }
-		      break;
-		      case 'q':
-			TOO_FEW_ARGUMENTS(1,has_repeats);
-                        t = targs[targ++];
-			{
-			  yhandle_t sl0 = Yap_StartSlots();
-			  Yap_plwrite(t, GLOBAL_Stream + sno, HR,0,
-				      YAP_WRITE_HANDLE_CYCLES|Number_vars_f | YAP_WRITE_QUOTED | YAP_WRITE_HEAP_TERMS,
-				      NULL);
-			  Yap_CloseSlots(sl0);
-                        }
-                        break;
-                        case 'w':
-			  TOO_FEW_ARGUMENTS(1,has_repeats);
-			  t = targs[targ++];
-			  {
-			    yhandle_t slf = Yap_StartSlots();
-                            Yap_plwrite(t, GLOBAL_Stream + sno, HR,0,
-                                        YAP_WRITE_HANDLE_CYCLES | Number_vars_f | YAP_WRITE_HEAP_TERMS ,
-                                        NULL);
-                            Yap_CloseSlots(slf);
-			  }
-			  break;
-			  case 'W':
-			    TOO_FEW_ARGUMENTS(2,has_repeats);
-			    {
-			      yhandle_t slf = Yap_StartSlots();
-			      Yap_WriteTerm(sno, targs[targ], targs[targ + 1] PASS_REGS);
-			      targ += 2;
-			      Yap_CloseSlots(slf);
-			    }
-			    break;
-			      case 'n':
-				if (!has_repeats)
-				  repeats = 1;
-				while (repeats--) {
-				  f_putc(sno, (int) '\n');
-	                        }
-				sno = format_synch(sno, sno0, finfo);
-				break;
-				case 'N':
-
-				  if (!has_repeats)
-				    repeats = 1;
-				  if (GLOBAL_Stream[sno].linestart !=
-				      GLOBAL_Stream[sno].charcount ) {
-				    f_putc(sno, '\n');
-				    sno = format_synch(sno, sno0, finfo);
-				  }
-				  if (repeats > 1) {
-				    Int i;
-				    for (i = 1; i < repeats; i++)
-				      {
-					f_putc(sno, '\n');
-                       
-					sno = format_synch(sno, sno0, finfo);
-				      }
-				  }
-				  break;
-
-
-				  /* padding */
-				  case '|':
-				    sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
-				    finfo->phys_start = GLOBAL_Stream[sno].charcount
-				      -GLOBAL_Stream[sno].linestart;
-				    finfo->gapi=0;
-				    break;
-				    case '+':
-				      if (!has_repeats)
-					repeats = 8;
-				      sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
-				      finfo->phys_start = GLOBAL_Stream[sno].charcount
-					-GLOBAL_Stream[sno].linestart;
-				      finfo->gapi=0;
-				      break;
-				      case 't': {
-					Yap_flush(sno);
-					finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount;
-					if (has_repeats)
-					  finfo->gap[finfo->gapi].filler = repeats;
-					else
-					  finfo->gap[finfo->gapi].filler = ' ';
-					finfo->gapi++;
-				      }
-					break;
-
-					if (tnum <= 8)
-					  targs = NULL;
-					if (IsAtomTerm(tail)) {
-					  fstr = NULL;
-					}
-					{
-					  Term ta[2];
-					  ta[0] = otail;
-					  ta[1] = oargs;
-					  format_clean_up(sno, sno0, finfo);
-					  Yap_ThrowError(LOCAL_Error_TYPE,
-							 Yap_MkApplTerm(Yap_MkFunctor(AtomFormat, 2), 2, ta),
-							 "arguments to format");
-					}
+              numb %= divfactor;
+              divfactor /= radix;
 	    }
-	    if (!alloc_fstr)
-	      fstr = NULL;
-	    if (tnum == 0) {
-	      targs = NULL;
-	    }
-	    format_clean_up(sno, sno0, finfo);
-	    return false;
 	  }
-	    /* ok, now we should have a command */
-      } else {
-	if (ch == '\n') {
+	  *ptr = '\0';
+	  format_integer( command, f_putc, repeats, tmp1, sno);
+	}
+	break;
+      }
+      case 's':
+	TOO_FEW_ARGUMENTS(1,false);
+	t = targs[targ++];
+	if (IsVarTerm(t)) {
+	  format_clean_up(sno, sno0, finfo);
+	  Yap_ThrowError(INSTANTIATION_ERROR, targs[targ-1], "command %c in format %s", ch,
+			 fstr);
+	}
+	if (!format_print_str(sno, repeats, has_repeats, t, f_putc, finfo)) {
+	  return false;
+	}
+      }
+	break;
+      case 'i':
+	if (targ +1> tnum || has_repeats) {
+	  format_clean_up(sno, finfo->sno0, finfo);
+	  Yap_ThrowError(DOMAIN_ERROR_FORMAT_CONTROL_SEQUENCE, targs[targ-1],
+			 "command ~c in format %s", ch,
+			 fstr);
+	}
+	targ++;
+	break;
+      case 'k':
+	TOO_FEW_ARGUMENTS(1, has_repeats);
+	t = targs[targ++];
+	yhandle_t sl = Yap_StartSlots();
+	Yap_plwrite(t, GLOBAL_Stream + sno, HR,0,
+		    YAP_WRITE_QUOTED | YAP_WRITE_IGNORE_OPS | YAP_WRITE_HEAP_TERMS ,
+		    NULL);
+	Yap_CloseSlots(sl);
+	break;
+      case '@': {
+	t = targs[targ++];
+	yhandle_t sl0 = Yap_StartSlots(), s1 = Yap_PushHandle(ARG1),
+	sl = Yap_InitSlots(tnum - targ, targs + targ);
+
+	Int res;
+	int os = LOCAL_c_output_stream;
+	LOCAL_c_output_stream = sno;
+	res = Yap_execute_goal(t, 0, fmod, true);
+	LOCAL_c_output_stream = os;
+	if (Yap_HasException(PASS_REGS1))
+	  goto ex_handler;
+	if (!res) {
+	  if (!alloc_fstr)
+	    fstr = NULL;
+	  format_clean_up(sno, sno0, finfo);
+	  return false;
+	}
+	ARG1 = Yap_GetFromHandle(s1);
+	Yap_RecoverHandles(tnum - targ, sl);
+	Yap_CloseSlots(sl0);
+      }
+	break;
+      case 'p':
+	TOO_FEW_ARGUMENTS(1,has_repeats);
+	t = targs[targ++];
+	{
+	  Int sl = Yap_InitSlot(args);
+	
+	  Yap_plwrite(t, GLOBAL_Stream + sno, HR,
+		      0,                                        Number_vars_f | YAP_WRITE_USE_PORTRAY | YAP_WRITE_HEAP_TERMS ,
+		      NULL
+		      );
+	  args = Yap_GetFromSlot(sl);
+	  Yap_CloseSlots(sl);
+	}
+	if (Yap_HasException(PASS_REGS1)) {
+
+	ex_handler:
+	  if (tnum <= 8)
+	    targs = NULL;
+	  if (IsAtomTerm(tail)) {
+	    fstr = NULL;
+	  }
+	  if (!alloc_fstr)
+	    fstr = NULL;
+	  if (tnum == 0) {
+	    targs = NULL;
+	  }
+	  format_clean_up(sno, sno0, finfo);
+	  Yap_RaiseException();
+	  return false;
+	}
+	break;
+      case 'q':
+	TOO_FEW_ARGUMENTS(1,has_repeats);
+        t = targs[targ++];
+	{
+	  yhandle_t sl0 = Yap_StartSlots();
+	  Yap_plwrite(t, GLOBAL_Stream + sno, HR,0,
+		      YAP_WRITE_HANDLE_CYCLES|Number_vars_f | YAP_WRITE_QUOTED | YAP_WRITE_HEAP_TERMS,
+		      NULL);
+	  Yap_CloseSlots(sl0);
+        }
+        break;
+      case 'w':
+	TOO_FEW_ARGUMENTS(1,has_repeats);
+	t = targs[targ++];
+	{
+	  yhandle_t slf = Yap_StartSlots();
+          Yap_plwrite(t, GLOBAL_Stream + sno, HR,0,
+                      YAP_WRITE_HANDLE_CYCLES | Number_vars_f | YAP_WRITE_HEAP_TERMS ,
+                      NULL);
+          Yap_CloseSlots(slf);
+	}
+	break;
+      case 'W':
+	TOO_FEW_ARGUMENTS(2,has_repeats);
+	{
+	  yhandle_t slf = Yap_StartSlots();
+	  Yap_WriteTerm(sno, targs[targ], targs[targ + 1] PASS_REGS);
+	  targ += 2;
+	  Yap_CloseSlots(slf);
+	}
+	break;
+      case 'n':
+	if (!has_repeats)
+	  repeats = 1;
+	while (repeats--) {
+	  f_putc(sno, (int) '\n');
+	}
+	sno = format_synch(sno, sno0, finfo);
+	break;
+      case 'N':
+
+	if (!has_repeats)
+	  repeats = 1;
+	if (GLOBAL_Stream[sno].linestart !=
+	    GLOBAL_Stream[sno].charcount ) {
+	  f_putc(sno, '\n');
 	  sno = format_synch(sno, sno0, finfo);
 	}
-	f_putc(sno, ch)
-	  ;
+	if (repeats > 1) {
+	  Int i;
+	  for (i = 1; i < repeats; i++)
+	    {
+	      f_putc(sno, '\n');
+                       
+	      sno = format_synch(sno, sno0, finfo);
+	    }
+	}
+	break;
+
+
+      /* padding */
+      case '|':
+	sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
+	finfo->phys_start = GLOBAL_Stream[sno].charcount
+			    -GLOBAL_Stream[sno].linestart;
+	finfo->gapi=0;
+	break;
+      case '+':
+	if (!has_repeats)
+	  repeats = 8;
+	sno = fill_pads(sno, sno0, repeats, finfo PASS_REGS);
+	finfo->phys_start = GLOBAL_Stream[sno].charcount
+			    -GLOBAL_Stream[sno].linestart;
+	finfo->gapi=0;
+	break;
+      case 't': {
+	Yap_flush(sno);
+	finfo->gap[finfo->gapi].log = GLOBAL_Stream[sno].charcount;
+	if (has_repeats)
+	  finfo->gap[finfo->gapi].filler = repeats;
+	else
+	  finfo->gap[finfo->gapi].filler = ' ';
+	finfo->gapi++;
       }
-    }
+	break;
 
-    //    fill_pads( sno, 0, finfo);
-    if (IsAtomTerm(tail) || IsStringTerm(tail)) {
-      fstr = NULL;
-    } 
-    if (tnum <= 8)
-      targs = NULL;
-    fstr = NULL;
-    targs = NULL;
-    if (targ < tnum) {
-      Yap_ThrowError(DOMAIN_ERROR_FORMAT_TOO_MANY_ARGUMENTS,MkIntTerm(tnum-targ),NULL);
+	if (tnum <= 8)
+	  targs = NULL;
+	if (IsAtomTerm(tail)) {
+	  fstr = NULL;
+	}
+	{
+	  Term ta[2];
+	  ta[0] = otail;
+	  ta[1] = oargs;
+	  format_clean_up(sno, sno0, finfo);
+	  Yap_ThrowError(LOCAL_Error_TYPE,
+			 Yap_MkApplTerm(Yap_MkFunctor(AtomFormat, 2), 2, ta),
+			 "arguments to format");
+	}
+      }
+	if (!alloc_fstr)
+	  fstr = NULL;
+	if (tnum == 0) {
+	  targs = NULL;
+	}
+	format_clean_up(sno, sno0, finfo);
+	return false;
+      }
+      /* ok, now we should have a command */
+    } else {
+      if (ch == '\n') {
+	sno = format_synch(sno, sno0, finfo);
+      }
+      f_putc(sno, ch)
+	  ;
     }
-    format_clean_up(sno, sno0, finfo);
-
-    Yap_CloseStream(sno);
-    return true;
   }
+
+  //    fill_pads( sno, 0, finfo);
+  if (IsAtomTerm(tail) || IsStringTerm(tail)) {
+    fstr = NULL;
+  } 
+  if (tnum <= 8)
+    targs = NULL;
+  fstr = NULL;
+  targs = NULL;
+  if (targ < tnum) {
+    Yap_ThrowError(DOMAIN_ERROR_FORMAT_TOO_MANY_ARGUMENTS,MkIntTerm(tnum-targ),NULL);
+  }
+  format_clean_up(sno, sno0, finfo);
+
+  Yap_CloseStream(sno);
+  return true;
+}
 
 
 
@@ -1103,7 +1104,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
    + chars(- _Chars_, - _Tail_)
    Create a list of one-character-atoms as a difference-list.
 
-  */
+   */
   static Int with_output_to(USES_REGS1) {
     int old_out = LOCAL_c_output_stream;
     int output_stream;
@@ -1209,7 +1210,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 	  return out;
 	}
       }
-	Yap_CloseHandles(hl);
+      Yap_CloseHandles(hl);
       return out;
     }
   }
@@ -1243,4 +1244,4 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     Yap_InitCPred("with_output_to", 2, with_output_to, SyncPredFlag);
   }
 
-  /// @}
+/// @}

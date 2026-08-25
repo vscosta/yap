@@ -182,7 +182,7 @@ error_found(char *omsg, char *text, ...)
 static YapInitProc LoadForeign(StringList 
   ofiles, StringList libs, char *proc_name) {
   CACHE_REGS
-  LOCAL_ErrorMessage = NULL;
+    reset_error_message();
   char *omsg = NULL;
   StringList o0 = ofiles;
   int lvl = push_text_stack();

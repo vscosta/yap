@@ -134,6 +134,7 @@ initialize_prolog :-
 %:- start_low_level_trace.
 :- compile('error.yap').
 %:- stop_Low_level_trace.
+:-  compile(	 'sort.yap').
 
 
 :- ['utils.yap',
@@ -143,7 +144,7 @@ initialize_prolog :-
     % lists is often used.
    	 '../os/yio.yap',
 	 'debug.yap',
-	 'checker.yap',
+  'checker.yap',
 	 'depth_bound.yap',
 	 'ground.yap',
 	 'listing.yap',
@@ -158,7 +159,6 @@ initialize_prolog :-
 	 'load_foreign.yap',
 %	 'save.yap',
 	 'setof.yap',
-	 'sort.yap',
 	 'statistics.yap',
 	 'strict_iso.yap',
 	 'tabling.yap',
@@ -229,7 +229,7 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 
 :- dynamic system:goal_expansion/3.
 
-:- use_module('messages.yap').
+:- ensure_loaded('messages.yap').
 
 
 export_from_prolog([]).
@@ -249,20 +249,20 @@ mksys(op(A,B,C)) :-
 %    export_from_prolog(PrologExports),
 %    '$declare_system_module'(_, prolog, M, MExports, []).
 
-:- use_module('hacks.yap').
+:- ensure_loaded('hacks.yap').
 
 %:- start_low_level_trace.
-:- use_module('attributes.yap').
+:- ensure_loaded('attributes.yap').
 %:- stop_low_level_trace.
-:- use_module('threads.yap').
+:- ensure_loaded('threads.yap').
 
-:- use_module('corout.yap').
+:- ensure_loaded('corout.yap').
 
-:- use_module('dialect.yap').
-:- use_module('dbload.yap').
-%:- use_module('namedargs.yap').
-:- use_module('ypp.yap').
-:- use_module('../os/chartypes.yap').
+:- ensure_loaded('dialect.yap').
+:- ensure_loaded('dbload.yap').
+%:- ensure_loaded('namedargs.yap').
+:- ensure_loaded('ypp.yap').
+:- ensure_loaded('../os/chartypes.yap').
 :- ensure_loaded('../os/edio.yap').
 
 :- ensure_loaded('spy.yap').

@@ -1509,9 +1509,11 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, ex_handler_t handle_errors USES_
       ASP = B->cp_env;
       /* YENV should be set to the current environment */
       YENV = ENV = (CELL *)((B->cp_env)[E_E]);
-      B = B->cp_b;
-      SET_BB(B);
-      HB = PROTECT_FROZEN_H(B);
+      if (B->cp_b) {
+	B = B->cp_b;
+	SET_BB(B);
+	HB = PROTECT_FROZEN_H(B);
+      }
       // should we catch the exception or pass it through?
       // We'll pass it through
       if (handle_errors &&  Yap_HasException(PASS_REGS1))

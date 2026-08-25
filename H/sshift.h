@@ -736,13 +736,13 @@ HaltHookAdjust__ (struct halt_hook * addr USES_REGS)
   return  (struct halt_hook *) (CharP (addr) + LOCAL_HDiff);
 }
 
-INLINE_ONLY BlockHeader *BlockAdjust__ (BlockHeader * CACHE_TYPE);
+/* INLINE_ONLY BlockHeader *BlockAdjust__ (BlockHeader * CACHE_TYPE); */
 
-INLINE_ONLY BlockHeader *
-BlockAdjust__ (BlockHeader * addr USES_REGS)
-{
-  return (BlockHeader *) ((BlockHeader *) (CharP (addr) + LOCAL_HDiff));
-}
+/* INLINE_ONLY BlockHeader * */
+/* BlockAdjust__ (BlockHeader * addr USES_REGS) */
+/* { */
+/*   return (BlockHeader *) ((BlockHeader *) (CharP (addr) + LOCAL_HDiff)); */
+/* } */
 
 INLINE_ONLY yamop *PtoOpAdjust__ (yamop * CACHE_TYPE);
 

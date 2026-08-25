@@ -30,8 +30,8 @@ definitions to the @ref maplist library, these include:
 
 
 */
+:- reexport((maplist)).
 
-:- reexport(maplist).
 
 :- reexport(mapargs).
 

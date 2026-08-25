@@ -1385,7 +1385,7 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
       if ((vfsp = vfs_owner(fname)) != NULL) {
           if (vfsp->open(vfsp, fname, io_mode, sno)) {
               // read, write, append
-              user_name = st->user_name;
+              user_name = MkAtomTerm(StreamTextName(sno));
               st->vfs = vfsp;
               __android_log_print(
                       ANDROID_LOG_INFO, "YAPDroid", "got  %d ", sno);

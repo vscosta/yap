@@ -78,6 +78,9 @@ static char SccsId[] = "%W% %G%";
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#endif
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -382,6 +385,9 @@ static Int scan_stream(USES_REGS1) {
   scanner_params params;
   StreamDesc *st;
   memset(&params, 0, sizeof(scanner_params));
+  FEnv fe0;
+  memset(&fe0, 0, sizeof(fe0));
+  params.fe = &fe0;
   params.store_comments = true;
   /* needs to change LOCAL_output_stream for write */
   inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
@@ -402,8 +408,8 @@ static Int scan_stream(USES_REGS1) {
       }
       Term tt = tokToPair(t);
       if (t->Tok == eot_tok) {
-	if ((st->status & Past_Eof_Stream_f)==0) {
-	  LOCAL_ErrorMessage = "trying to scan after end of input";
+        if ((st->status & Past_Eof_Stream_f) == 0) {
+	  const_error_message( "trying to scan after end of input");
 	  post_process_eof(st);
 	  return YAP_SCANNING_ERROR;
 	}
@@ -424,9 +430,9 @@ static Int scan_stream(USES_REGS1) {
     *VarOfTerm(end) = TermNil;
 
   LOCAL_tokptr = NULL;
-  LOCAL_ErrorMessage = "trying to scan after end of input";
-  if ((st->status & Past_Eof_Stream_f)==0) {
-    post_process_eof(st);
+	  const_error_message( "trying to scan after end of input");
+    if ((st->status & Past_Eof_Stream_f)==0) {
+  post_process_eof(st);
     return YAP_SCANNING_ERROR;
   }
 
@@ -450,7 +456,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
 			  TokEntry *err, const char *msg,  ...) {
   CACHE_REGS
 #if HAVE_FTELLO
-  R  offset_t opos;
+  offset_t opos;
 #else
   long opos;
 #endif
@@ -482,7 +488,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
   }
   if (st->stream_getc ==  Yap_popChar)
     st->stream_wgetc(sno);
-  if (!err) {
+  if (err) {
     //    Yap_JumpToEnv();   if (sno < 0 || start == NULL) {
     e->parserPos = 0;
     e->prologConsulting = IsPairTerm(Yap_GetGlobal(AtomConsultingFile));
@@ -495,14 +501,12 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
     e->parserLastPos = st->charcount;
     e->parserFirstLinePos = 
       e->parserLinePos = e->parserPos-st->linestart;
-    e->parserLastLinePos = e->parserLastPos-st->linestart;
-    if (st->name) {
-      const char *s =  RepAtom(st->name)->StrOfAE;
-      e->parserFile = strcpy(malloc(strlen(s)+1),s);
-    }
-  } else if (st->user_name) {
-    const char *s =  RepAtom(AtomOfTerm(st->user_name))->StrOfAE;
-    e->parserFile = strcpy(malloc(strlen(s)+1),s);  
+    e->parserLastLinePos = e->parserLastPos - st->linestart;
+    Atom name = StreamTextName(sno);
+    const char *s =  name->StrOfAE;
+    char *copys = malloc(strlen(s)+1);
+    strcpy(copys,s);
+    e->parserFile = copys;
     if (err  && err->TokNext) {
       while (end->TokNext && end->Tok != eot_tok) {
 	end = end->TokNext;
@@ -563,7 +567,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
       opos=	ftell(GLOBAL_Stream[sno].file);
 #endif
       err_line = e->parserLine;
-      Int msgstartpos = Yap_Max(startpos, errpos - 200);
+      Int msgstartpos = Yap_Max(startpos, errpos );
       if (msgstartpos >= errpos) {
 	bufb = NULL;
       } else {
@@ -645,11 +649,16 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
     Term culprit[5];
     char *s;
     if (o[0] == '\0')
-      s = "?";
+      s = "";
     else
       s = o;
+
     culprit[0] = MkStringTerm(s);
-    culprit[1] = MkStringTerm(e->parserFile);
+    if (!e->parserFile) {
+      culprit[1] = MkStringTerm("");
+    } else {
+      culprit[1] = MkStringTerm(e->parserFile);
+    }
     culprit[2] = MkIntTerm(e->parserLine);
     culprit[3] = MkIntTerm(e->parserLinePos);
     culprit[4] = MkIntTerm(e->parserSize);
@@ -808,7 +817,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
 }
 
 int Yap_encoding_error__(const char *file, const char *function, int line ,int ch, struct stream_desc *st, TokEntry *start,
-			 TokEntry *err, const char *msg ) {
+			 TokEntry *err, const char *msg, ... ) {
   //  IF (LOCAL_encoding_errors == TermIgnore)
   //  return ch;
 
@@ -1004,6 +1013,10 @@ static bool complete_processing(FEnv *fe, int sno, TokEntry *tokstart) {
   else
     v3 = 0L;
   vs = fe->scanner.stored_scan;
+  if (GLOBAL_Stream[sno].status & Tty_Stream_f &&
+      (GLOBAL_Stream[sno].file )) {
+    tcflush( fileno(GLOBAL_Stream[sno].file), TCIFLUSH );
+  }
   Term tpos = Yap_SavedStreamPosition();
   Yap_clean_tokenizer();
 
@@ -1035,6 +1048,10 @@ static bool complete_clause_processing(FEnv *fe, int sno, TokEntry *tokstart) {
     v_vnames = get_varnames(fe, tokstart);
     vs = fe->scanner.stored_scan;
     v_pos = Yap_SavedStreamPosition();
+  if (GLOBAL_Stream[sno].status & Tty_Stream_f &&
+      (GLOBAL_Stream[sno].file )) {
+    tcflush( fileno(GLOBAL_Stream[sno].file), TCIFLUSH );
+  }
     state = MkPairTerm(
                 fe->t,
                 MkPairTerm(v_vnames, MkPairTerm(StreamName(sno),
@@ -1058,15 +1075,17 @@ static bool complete_clause_processing(FEnv *fe, int sno, TokEntry *tokstart) {
   Yap_clean_tokenizer();
 
   // trail must be ok by now.]
-    Yap_SetGlobalVal(AtomCurrentClause,state PASS_REGS);
   if (fe->t) {
     return (!fe->vprefix || !v_vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
-           (!fe->scanner.store_comments || !fe->scanner.tcomms
-            || !fe->scanner.ecomms
-	    || Yap_unify(fe->scanner.tcomms, fe->scanner.ecomms)) &&
-	   (!fe->np ||!v_vnames||  Yap_unify(v_vnames, fe->np)) &&
-	   (!fe->scan || !vs||  Yap_unify(vs, fe->scan)) &&
-	   (!fe->tp || !v_pos || Yap_unify(v_pos, fe->tp)) ;
+           (!fe->scanner.store_comments || !fe->scanner.tcomms ||
+            !fe->scanner.ecomms ||
+            Yap_unify(fe->scanner.tcomms, fe->scanner.ecomms)) &&
+           (!fe->np || !v_vnames || Yap_unify(v_vnames, fe->np)) &&
+           (!fe->scan || !vs || Yap_unify(vs, fe->scan)) &&
+           (!fe->tp || !v_pos || Yap_unify(v_pos, fe->tp)) &&
+	   // do this last to avoid stack shifting, and having to protect the fe vars.
+           Yap_SetGlobalVal(AtomCurrentClause,state PASS_REGS);
+    
   }
   return false;
 }
@@ -1101,7 +1120,7 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream, TokEntry *tokstart) {
     /*   return YAP_PARSING_ERROR; */
     /* } */
     if (GLOBAL_Stream[inp_stream].status & Past_Eof_Stream_f) {
-      LOCAL_ErrorMessage = "parsing stopped at a end-of-file";
+      const_error_message(  "parsing stopped at a end-of-file");
       return YAP_PARSING_FINISHED;
     }
     /* we need to force the next read to also give end of file.*/
@@ -1240,7 +1259,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   HR = fe->old_H;
   yap_error_number err = LOCAL_Error_TYPE;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   if (err == RESOURCE_ERROR_STACK) {
     while (!Yap_dogc(PASS_REGS1)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, MkStringTerm("read_term"), NULL);
@@ -1265,6 +1284,10 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     return YAP_START_PARSING;
   }
 
+  if ((GLOBAL_Stream[inp_stream].status & Tty_Stream_f) &&
+      (GLOBAL_Stream[inp_stream].file) ) {
+    tcflush( fileno(GLOBAL_Stream[inp_stream].file) ,TCIFLUSH );
+  }
   if (err != SYNTAX_ERROR && err != YAP_NO_ERROR) {
 
     Yap_ThrowError(err, MkStringTerm("read_term"), NULL);
@@ -1586,7 +1609,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
     re->cpos = GLOBAL_Stream[sno].charcount;
   }
   re->prio = LOCAL_default_priority;
-  LOCAL_ErrorMessage = NULL;
+  reset_error_message();
   return args;
 }
 
