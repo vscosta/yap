@@ -151,7 +151,7 @@ extern void Yap_EraseMegaClause(yamop *, struct pred_entry *);
 extern void Yap_ResetConsultStack(void);
 extern void Yap_AssertzClause(struct pred_entry *, yamop *);
 extern void Yap_HidePred(struct pred_entry *pe);
-extern int Yap_SetNoTrace(char *name, UInt arity, Term tmod);
+extern bool Yap_SetNoTrace(struct pred_entry *pe);
 extern bool Yap_unknown(Term tflagvalue);
 extern struct pred_entry *Yap_MkLogPred(struct pred_entry *pe);
 
@@ -195,7 +195,6 @@ extern void Yap_InitDBPreds(void);
 
 /* debug.c */
 extern void Yap_InitDebugFs(void);
-extern bool Yap_may_creep(bool);
 
 /* errors.c */
 #if DEBUG

@@ -102,6 +102,14 @@ Term Yap_MkArena(CELL *ptr, CELL *max) {
     return t;
 }
 
+
+void Yap_DropArena(Term Arena) {
+//  CACHE_REGS
+//  CELL *ptr = ArenaPt(Arena), *max=ArenaLimit(Arena);
+//  ptr[0] = ptr[1] = ptr[2] = ptr[3] = max[-1] = TermNil;
+
+}
+
 bool Yap_ArenaExpand(size_t sz, CELL *arenap, bool first_try) {
   CACHE_REGS
 

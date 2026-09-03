@@ -129,6 +129,7 @@ static bool InteractSIGINT(int ch USES_REGS) {
    LOCAL_Flags[TRACE_FLAG].at = TermTrue;
    Yap_SetGlobalVal(AtomCreep,TermCreep);
    /* start tracing */
+    fprintf(stderr,"set_creep\n");
     Yap_signal(YAP_CREEP_SIGNAL);
     break;
 #ifdef LOW_LEVEL_TRACER
@@ -235,7 +236,7 @@ inline static void do_signal(int wid, yap_signals sig USES_REGS) {
 
 inline   static bool get_signal(yap_signals sig USES_REGS) {
   uint64_t old;
-  // reset tbbbbbbbbbbbbbhe flag
+    // reset tbbbbbbbbbbbbbhe flag
   old = __atomic_fetch_and(&LOCAL_Signals, ~SIGNAL_TO_BIT(sig), __ATOMIC_SEQ_CST);
   // success, we are good
   if ( (old &SIGNAL_TO_BIT(sig) )!= 0) {
@@ -244,6 +245,8 @@ inline   static bool get_signal(yap_signals sig USES_REGS) {
       // first, clear the Creep Flag, now if someone sets it it is their problem
       CalculateStackGap(PASS_REGS1);
     }
+  if (sig == YAP_CREEP_SIGNAL)
+    //fprintf(stderr,"get_creep\n");
     return true;
   }
   return false;

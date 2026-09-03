@@ -2583,7 +2583,7 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name,
     UserCPredicate((char *)name, (CPredicate)function, arity, tmod, nflags);
   }
   if (flags & PL_FA_NOTRACE) {
-    Yap_SetNoTrace((char *)name, arity, tmod);
+    Yap_SetNoTrace(PL_predicate(name, arity,module) PASS_REGS);
   }
 }
 

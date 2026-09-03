@@ -274,9 +274,9 @@ static bool watch_retry(Term d0 )
   /*   Yap_JumpToEnv(); */
   /*   return false; */
   /* } */
-  if (Yap_may_creep(true)) {
-    return true;
-  }
+//  if (Yap_may_creep(true)) {
+//    return true;
+//  }
   return true ;
 }
 
@@ -373,11 +373,9 @@ static Int cleanup_on_exit(USES_REGS1)
   }
   //
 //  RESET_VARIABLE(port_pt);
-  if (Yap_may_creep(true)) {
-    return true;
-  }
-
-
+//  if (Yap_may_creep(true)) {
+//    return true;
+//  }
   return true;
 }
 

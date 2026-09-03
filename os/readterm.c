@@ -663,7 +663,7 @@ char * Yap_syntax_error__(const char *file, const char *function, int lineno,Ter
     culprit[3] = MkIntTerm(e->parserLinePos);
     culprit[4] = MkIntTerm(e->parserSize);
     Term culprit_t = Yap_MkApplTerm(FunctorSyntaxError, 5, culprit);
-    culprit_t = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &culprit_t);
+    culprit_t = Yap_SaveTerm(Yap_MkApplTerm(FunctorShortSyntaxError, 1, &culprit_t));
     e->culprit = NULL;
     Yap_MkErrorRecord(e, file, function, lineno, SYNTAX_ERROR, culprit_t,
                       TermEmpty, s);
@@ -939,9 +939,9 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
     int line,col;
     char *fil;
     Term myv = ArgOfTerm(1,HeadOfTerm(vn));
-    line = IntOfTerm(HeadOfTerm(TailOfTerm(myv)));
-    col = IntOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(myv))));
-    fil  = RepAtom(AtomOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(TailOfTerm(myv))))))->StrOfAE;
+    fil = RepAtom(AtomOfTerm(HeadOfTerm(TailOfTerm(myv))))->StrOfAE;
+    line = IntOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(myv))));
+    col  = IntOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(TailOfTerm(myv)))));
     yap_error_descriptor_t *e = LOCAL_ActiveError;
     Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
                       myv, TermNil, "singletons warning");
@@ -961,7 +961,8 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
       e->parserSize = strlen(RepAtom(AtomOfTerm(myv))->StrOfAE);
       e->parserFile = fil;
     }
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc),TermWarning);
+    Term info = Yap_SaveTerm(Yap_MkApplTerm(FunctorError, 2, sc));
+    Yap_PrintWarning(info,TermWarning);
     vn = TailOfTerm(vn);
   }
 }
@@ -1084,7 +1085,7 @@ static bool complete_clause_processing(FEnv *fe, int sno, TokEntry *tokstart) {
            (!fe->scan || !vs || Yap_unify(vs, fe->scan)) &&
            (!fe->tp || !v_pos || Yap_unify(v_pos, fe->tp)) &&
 	   // do this last to avoid stack shifting, and having to protect the fe vars.
-           Yap_SetGlobalVal(AtomCurrentClause,state PASS_REGS);
+           Yap_SetBacktrackableGlobalVal(AtomCurrentClause,state PASS_REGS);
     
   }
   return false;
@@ -1313,7 +1314,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
     
     sc[0] = LOCAL_ActiveError->culprit_t;
     sc[1] = MkSysError(LOCAL_ActiveError);
-    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc),TermError);
+    Yap_PrintWarning(Yap_SaveTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc)),TermError);
     if (action == TermFail)
       return  YAP_PARSING_FINISHED;   else
       return  YAP_START_PARSING;

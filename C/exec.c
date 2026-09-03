@@ -678,8 +678,9 @@ inline static bool do_execute(Term t, Term mod USES_REGS)
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
 
-  if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled &&
-      !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode)))
+  if (!LOCAL_InterruptsDisabled &&
+      !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode)) &&
+      Yap_get_signal(YAP_CREEP_SIGNAL))
     {
       return EnterCreepMode(t, mod PASS_REGS);
     }
@@ -772,18 +773,12 @@ static bool EnterCreepMode(Term t, Term mod USES_REGS)
 {
   PredEntry *PredCreep;
 
-  if (Yap_get_signal(YAP_CDOVF_SIGNAL))
+
+  if (LOCAL_InterruptsDisabled ||
+      (LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode)) ||
+      !Yap_get_signal(YAP_CREEP_SIGNAL))
     {
-      ARG1 = t;
-      if (!Yap_locked_growheap(FALSE, 0, NULL))
-	{
-	  Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil,
-			 "YAP failed to grow heap at meta-call");
-	}
-      if (!Yap_has_a_signal())
-	{
-	  return do_execute(ARG1, mod PASS_REGS);
-	}
+ 	  return do_execute(ARG1, mod PASS_REGS);
     }
   PredCreep = RepPredProp(PredPropByFunc(FunctorCreep, 1));
   PP = PredCreep;
@@ -1011,10 +1006,10 @@ static Int execute_clause(USES_REGS1)
     {
       code = Yap_ClauseFromTerm(clt)->ClCode;
     }
-  if (Yap_get_signal(YAP_CREEP_SIGNAL))
-    {
-      Yap_signal(YAP_CREEP_SIGNAL);
-    }
+  /* if (Yap_get_signal(YAP_CREEP_SIGNAL)) */
+  /*   { */
+  /*     Yap_signal(YAP_CREEP_SIGNAL); */
+  /*   } */
   return CallPredicate(RepPredProp(pe), cut_cp, code PASS_REGS);
 }
 

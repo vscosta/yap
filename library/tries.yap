@@ -52,8 +52,8 @@
           trie_traverse_first/2,
           trie_traverse_next/2,
           trie_to_list/2,
-          trie_to_depth_breadth_trie/4,
-          trie_to_depth_breadth_trie/6,
+          trie_to_depth_breadth_trie/4, 
+         trie_to_depth_breadth_trie/6,
           trie_get_depth_breadth_reduction_entry/1,
           trie_get_depth_breadth_reduction_opt_level_count/2,
           trie_replace_nested_trie/3

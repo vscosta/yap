@@ -123,6 +123,8 @@
 
 #define QUEUE_FUNCTOR_ARITY 4
 
+// memset((void *)ArenaPt(arena), 0, ArenaSzW(arena) * CellSize);
+
 #define QUEUE_ARENA 0
 #define QUEUE_HEAD 1
 #define QUEUE_TAIL 2
@@ -684,14 +686,14 @@ static Int nb_queue_sized(size_t arena_sz USES_REGS) {
     queue = AbsAppl(HR);
     HR += QUEUE_FUNCTOR_ARITY + 1;
     if (queue == 0L) {
-        return FALSE;
+      return FALSE;
     }
     ar[0] = (CELL) FunctorNBQueue;
     ar += 1;
     RESET_VARIABLE(ar + QUEUE_TAIL);
     ar[QUEUE_HEAD] = ar[QUEUE_TAIL];
-    ar[QUEUE_SIZE] = MkIntTerm(0);
-    ar[QUEUE_ARENA] = Yap_MkArena(HR, HR + arena_sz);
+     ar[QUEUE_SIZE] = MkIntTerm(0);
+     ar[QUEUE_ARENA] = Yap_MkArena(HR,HR+arena_sz *2);
     HR = ArenaLimit(ar[QUEUE_ARENA]);
     return Yap_unify(queue, ARG1);
 }
@@ -756,31 +758,6 @@ static Term GetQueueArena(CELL *qd, char *caller) {
     return t;
 }
 
-static void RecoverArena(Term arena USES_REGS) {
-    CELL *pt = ArenaPt(arena), *a_max = ArenaLimit(arena);
-
-    //  printf("%p/%p %p %lx %lx\n", pt,HR, a_max, pt[0], a_max[-1]);
-    if (a_max == HR) {
-        HR = pt;
-        choiceptr bb = B;
-        while (bb && bb->cp_h > HR) {
-            bb->cp_h = HR;
-
-            bb = bb->cp_b;
-        }
-
-    } else {
-        while (pt < a_max)
-            *pt++ = TermNil;
-    }
-}
-
-static void RecoverQueue(Term *qp USES_REGS) {
-    Term arena = qp[QUEUE_ARENA];
-    RecoverArena(arena PASS_REGS);
-    qp[QUEUE_ARENA] = MkIntTerm(0);
-}
-
 static Int nb_queue_close(USES_REGS1) {
   Term t = Deref(ARG1);
     Int out;
@@ -792,17 +769,14 @@ static Int nb_queue_close(USES_REGS1) {
         if (qp == NULL) {
             return Yap_unify(ARG3, ARG2);
         }
-        if (qp[QUEUE_ARENA] != MkIntTerm(0))
-            RecoverQueue(qp PASS_REGS);
         if (qp[QUEUE_SIZE] == MkIntTerm(0)) {
             return Yap_unify(ARG3, ARG2);
         }
-        out = Yap_unify(ARG3, qp[QUEUE_TAIL]) && Yap_unify(ARG2, qp[QUEUE_HEAD]);
-        RESET_VARIABLE(qp + QUEUE_TAIL);
-        qp[QUEUE_HEAD] = qp[QUEUE_TAIL];
-        RESET_VARIABLE(qp + QUEUE_TAIL);
-        qp[QUEUE_SIZE] = MkIntTerm(0);
-        return out;
+        out =
+          Yap_unify(ARG3, qp[QUEUE_TAIL]) && Yap_unify(ARG2, qp[QUEUE_HEAD]);
+	Yap_DropArena(qp[QUEUE_ARENA]);
+        qp[QUEUE_ARENA] = AbsAppl(qp - 1);
+       return out;
     }
     Yap_ThrowError(INSTANTIATION_ERROR, t, "queue/3");
     return FALSE;
@@ -824,7 +798,7 @@ static Int nb_queue_enqueue(USES_REGS1) {
     qd[QUEUE_ARENA] = arena;
     if (!qsize) {
       qd[QUEUE_HEAD] = to;
-    } 
+    }
     ((CELL*)qd[QUEUE_TAIL])[0] = to;
 
     qd[QUEUE_SIZE] = MkIntegerTerm(++qsize);
@@ -994,15 +968,20 @@ static Int nb_heap(USES_REGS1) {
 static Int nb_heap_close(USES_REGS1) {
     Term t = Deref(ARG1);
     if (!IsVarTerm(t)) {
-        CELL *qp;
+        /*
+         CELL *qp;
+*
+         qp = RepAppl(t) + 1;
+         Term arena = qp[HEAP_ARENA];
+         CELL *arenap = AbsAppl(arena);
 
-        qp = RepAppl(t) + 1;
-        if (qp[HEAP_ARENA] != MkIntTerm(0))
-            RecoverArena(qp[HEAP_ARENA] PASS_REGS);
-        qp[-1] = (CELL) Yap_MkFunctor(AtomHeapData, 1);
-        qp[0] = MkIntegerTerm(0);
+         ArenaPt(arena)[0] = TermNil;
+         ArenaLimit(arena)[-1] = TermNil;
+         arenap[0] = (CELL)FunctorNot;
+	 qp[-1] = (CELL)FunctorNot;
+        qp[0] = TermNil;*/
         return TRUE;
-    }
+     }
     Yap_ThrowError(INSTANTIATION_ERROR, t, "heap_close/1");
     return FALSE;
 }

@@ -83,6 +83,9 @@ SizeOfOpaqueTerm(Term *next, CELL cnext)
       size_t
 	sz = 4+ptr[ 1];
 
+
+      if (tag == EMPTY_ARENA)
+        return sz;
       if (tag == setup_call_catcher_cleanup_tag )
 	return 4;
       if (tag == MATRIX_INT || tag == MATRIX_FLOAT) {

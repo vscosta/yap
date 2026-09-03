@@ -92,6 +92,7 @@
 '$directive'(license(_)).
 '$directive'(meta_predicate(_)).
 '$directive'(module(_,_)).
+'$directive'(module(_,_,_)).
 '$directive'(module_transparent(_)).
 '$directive'(multifile(_)).
 '$directive'(noprofile(_)).
@@ -194,7 +195,7 @@ Similar to initialization/1, but allows  specifying when
 	'$include'(F).
 % don't declare modules into Prolog Module
 '$exec_directive'(module(N,P), _Status, HostM, _, Pos) :-
-    '$declare_module'(HostM,N,P,Pos).
+    '$declare_module'(HostM,N,P,Pos ).
 '$exec_directive'(system_module(N,Ps,Ss), _Status, HostM, Log, Pos) :-
     (
 current_prolog_flag(compiler_top_level, scanner:scanner_loop)

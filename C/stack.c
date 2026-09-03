@@ -2315,7 +2315,7 @@ bool Yap_JumpToEnv(void ) {
 /* This does very nasty stuff!!!!! */
 static Int yap_throw(USES_REGS1) {
   //  Yap_DebugPlWriteln(Yap_ChoicePoints(B));
- Term t = Deref(ARG1);
+  Term t = Yap_SaveTerm(Deref(ARG1));
  //Yap_JumpToEnv();
 if (t == TermDAbort) {
    Yap_Error(ABORT_EVENT, TermDAbort, NULL);

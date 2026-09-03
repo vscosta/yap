@@ -53,6 +53,9 @@ static inline size_t ArenaSzW(Term arena) {
     return big2arena_szW(RepAppl(arena));
 }
 
+extern void Yap_DropArena(Term arena PASS_REGS);
+
+  
 /// A cell_space is a short code region, where we want bindings to proceed
 /// locally. It is used in copy_term
 ///

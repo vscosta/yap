@@ -101,8 +101,7 @@ INLINE_ONLY blob_type BlobOfFunctor(Functor f) {
 typedef struct {
   /* what to do when someone tries to bind our term to someone else
 hv     in some  predefined context */
-  void (*bind_op)(Term *, Term CACHE_TYPE);
-  /* what to do if someone wants to copy our constraint */
+  void (*bind_op)(Term *, Term CACHE_TYPE);  /* what to do if someone wants to copy our constraint */
   int (*copy_term_op)(CELL *, void*, CELL *CACHE_TYPE);
   /* copy the constraint into a term and back */
   Term (*to_term_op)(CELL *);
