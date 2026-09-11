@@ -65,10 +65,10 @@
  '$all_directives'((G1,G2)) :- !,
          '$all_directives'(G1),
          '$all_directives'(G2).
- '$all_directives'(G) :- 
+ '$all_directives'(G) :-
     '$lf_args'(G,_,_),
 !.
- '$all_directives'(G) :- 
+ '$all_directives'(G) :-
     '$directive'(G),
 !.
 
@@ -129,13 +129,13 @@
     '$exec_directives'(G1, Mode, M, VL, Pos),
     '$exec_directives'(G2, Mode, M, VL, Pos).
 
-   
+
 '$exec_directives'(G, Mode, M, VL, Pos) :-
     '$exec_directive'(G, Mode, M, VL, Pos).
 
 
 '$exec_directive'(G, Mode, M, _VL, Pos) :-
-strip_module(M:G,M1,G1),
+    strip_module(M:G,M1,G1),
     '$lf_args'( G1,  Fs, Opts),
     !,
     setup_call_cleanup(
@@ -147,10 +147,11 @@ strip_module(M:G,M1,G1),
 	'$system_catch'('$multifile'(D, M), M,
 	      Error,
 	      error_handler(Error, top)).
-'$exec_directive'(discontiguous(D), _, M, _, _) :-
+'$exec_directive'(discontiguous(D), _, M, _VL, _Loc) :-
 	'$discontiguous'(D,M).
-'$exec_directive'(use_module(Mod,F,Is), _,M, _, _Loc) :-
+'$exec_directive'(use_module(Mod,F,Is), _, M, _, _Loc) :-
     use_module(Mod,M:F,Is).
+'$exec_directive'(use_system_module(_, _,_), _,  _M, _, _Loc).
 
 /** @pred initialization(+ _G_) is iso
 
@@ -181,10 +182,10 @@ Similar to initialization/1, but allows  specifying when
 */
 
 % The many ways of loading a file.
-'$exec_directive'(initialization(D), _, M, _, _) :-
-	'$initialization'(M:D).
-'$exec_directive'(initialization(D,OPT), _, M, _, _) :-
-	'$initialization'(M:D, OPT).
+'$exec_directive'(initialization(D), _, M, VL, Pos) :-
+	'$initialization'(M:D,after_load,VL,Pos).
+'$exec_directive'(initialization(D,OPT), _, M, VL, Pos) :-
+	'$initialization'(M:D, OPT, VL, Pos).
 '$exec_directive'(thread_initialization(D), _, M, _, _) :-
 	'$thread_initialization'(M:D).
 '$exec_directive'(expects_dialect(D), _, _, _, _) :-
@@ -325,7 +326,3 @@ user_defined_directive(Dir,Action) :-
 
 
 %% @}
-
-
-
-

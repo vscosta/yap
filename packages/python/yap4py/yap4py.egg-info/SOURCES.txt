@@ -1,3 +1,4 @@
+LICENSE
 MANIFEST.in
 README
 README.md
@@ -12,5 +13,4 @@ yap4py/yapi.py
 yap4py.egg-info/PKG-INFO
 yap4py.egg-info/SOURCES.txt
 yap4py.egg-info/dependency_links.txt
-yap4py.egg-info/entry_points.txt
 yap4py.egg-info/top_level.txt

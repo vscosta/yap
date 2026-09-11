@@ -550,6 +550,7 @@ Yap_RaiseException();
           JMPNext();
         }
 #endif
+        CPREG = CP;
 #ifdef SHADOW_S
         S = SREG;
 #endif /* SHADOW_S */
@@ -561,6 +562,7 @@ Yap_RaiseException();
         SREG = S;
 #endif /* SHADOW_S */
         PREG = pt0;
+        CP = CPREG;
 #if defined(YAPOR) || defined(THREADS)
         if (!PP) {
           UNLOCKPE(12, pe);

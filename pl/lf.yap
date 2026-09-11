@@ -515,7 +515,7 @@ Example:
 ```
 ?- [file1, -file2, -file3, file4].
 ```
-  will consult `file1` `file4` and reconsult `file2` and
+  will consult `file1` `file4` and   reconsult `file2` and
 `file3`. That is, it could be written as:
 
 ```

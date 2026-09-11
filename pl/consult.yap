@@ -209,20 +209,12 @@ last one, onto underscores.
 	fail.
 '$remove_multifile_clauses'(_).
 
-'$initialization'(G) :-
-    '$initialization'( G, after_load ).
-
-
-
-initialization(G,OPT) :-
-    '$initialization'(G, OPT),
-    fail.
-initialization(_G,_OPT).
-
-'$initialization'(G0,OPT) :-
+'$initialization'(G0,OPT, _VL, Pos) :-
     must_be_callable( G0),
     expand_goal(G0, G),
-    %   must_be_of_type(oneof([after_load, now, restore]),
+     stream_position_data(line_count,Pos, Line),
+    prolog_load_context(file,File),
+   %   must_be_of_type(oneof([after_load, now, restore]),
     %               OPT),
 
     (
@@ -230,19 +222,16 @@ initialization(_G,_OPT).
     ->
     ( catch(call(G),
 	    _Error,
-	    error_handler 
+	    error_handler
 	   ) ->
       true ;
-     prolog_load_context(stream,Stream),
-     prolog_load_context( position,'$position'(_,L,P,_,_)),
-     format(user_error,'directive :- ~w failed at ~s:~d,~d.~n',[G,Stream,L,P])
+      format(user_error,'directive :- ~w failed at ~s:~d,~n',[G,File,Line]  )
     )
     ;
     OPT == after_load
     ->
-    prolog_load_context(position,Pos),
-    prolog_load_context(stream,LC),
     strip_module(G,M,H),
+    writeln(LC-Pos),
     recordz('$initialization_queue',q(LC-Pos,M:H),_)
 	;
 	 OPT == restore
@@ -257,13 +246,15 @@ initialization(_G,_OPT).
 	erase(R),
 	fail.
 % system goals must be performed first
-'$exec_initialization_goals'(LC) :-
-    recorded('$initialization_queue',q(LC-Pos,G),R),
-    arg(2,Pos,Line),
-    arg(3,Pos,Col),
+'$exec_initialization_goals'(_) :-
+setup_call_cleanup(
+    (
+       recorded('$initialization_queue',q(File-Line,G),R),
+    writeln(Line=File),
+ 	 erase(R),
 	'$conditional_compilation_get_state'(State),
-	'$conditional_compilation_init',
-	 erase(R),
+	'$conditional_compilation_init'
+	),
 	(catch(
 	 (G),
 	 _E,
@@ -272,9 +263,11 @@ initialization(_G,_OPT).
 	->
 	    	 true %format(user_error,':- ~w ok.~n',[G]),
 	;
-  	 print_message(warning,error(warning(unexpected_failure,[LC,Line,Col],  G),[]))
+
+ 	 print_message(warning,error(warning('directive_failure'([File,Line]),  G),[]))
 	 ),
-	'$conditional_compilation_set_state'(State),
+	'$conditional_compilation_set_state'(State)
+	),
 	fail.
 '$exec_initialization_goals'(_).
 
@@ -296,7 +289,7 @@ initialization(_G,_OPT).
 @pred source_file(?FileName)
 
 SWI-compatible predicate. _FileName_ is the absolute and canonical path for a loaded source file
-*/ 
+*/
 source_file(FileName) :-
 	recorded('$source_file','$source_file'(FileName, _),_).
 
@@ -304,7 +297,7 @@ source_file(FileName) :-
 @pred source_file(:Pred,?File	)
 
 SWI-compatible predicate. True if the predicate specified by  _Pred_ was loaded from file  _File_, where  _File_ is an absolute path name (see absolute_file_name/2).
-*/ 
+*/
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
 	Mod \= prolog,
@@ -329,22 +322,22 @@ has  the property
 */
 source_file_property( F, includes(I)) :-
         recorded('$includes',(I->F), _).
-source_file_property( I, included_from(F)) :- 
+source_file_property( I, included_from(F)) :-
        recorded('$includes',(I->F), _).
 
 source_file_property( F, load_context(M,OldF:Line,Opts)) :-
 	recorded('$lf_loaded','$lf_loaded'( F, M, _Reconsult, _UserFile, OldF, Line, Opts), _).
 
 /** @pred prolog_load_context(? _Key_, _Value_)
- * 
+ *
  *
 
-  Obtain information on the current compilation process. 
+  Obtain information on the current compilation process.
 
 
   The predicate allows the
   following keys:
-    
+
   + `directory`  (prolog_load_context/2 option)
 
   Full name for the directory where YAP 		is currently consulting the
@@ -420,7 +413,13 @@ prolog_load_context(variable_names, Term ) :-
     '__B_getval__'('$current_clause', T, fail),
     nonvar(T),
           T = [_,Term|_].
-     
+prolog_load_context(open_load_files, Files) :-
+    '__NB_getval__'('$consulting_file', Files, fail).
+
+prolog_load_context(number_of_open_load_files, Depth ) :-
+    '__NB_getval__'('$consulting_file', Files, fail),
+    length(Files, Depth).
+
 
 % if the file exports a module, then we can
 % be imported from any module.
@@ -478,14 +477,14 @@ prolog_load_context(variable_names, Term ) :-
      unload_file(F),
      fail
 	;
-     
+
      var(Reconsult)
      ->
      Reconsult = reconsult
 	;
      Reconsult = Reconsult0
 	),
-	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0), 
+	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0),
     recorded('$source_file','$source_file'(F, Age),_),
 	% modules are logically loaded only once
 
@@ -532,7 +531,7 @@ unload_file_(_).
     M \= prolog,
     M \= idb,
     (
-    '$is_multifile'(P,M) 
+    '$is_multifile'(P,M)
     ->
 	clause(M:P,_,R),
 	clause_property(R,file(File)),
@@ -557,7 +556,7 @@ unload_file_(_).
     fail.
 '$unload_file'(File) :-
 	retractall('$source_file','$source_file'(File,_Age), R),
-    erase(R),  
+    erase(R),
 	fail.
 '$unload_file'(File) :-
 	recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
@@ -573,245 +572,6 @@ unload_file_(_).
 '$store_clause'('$source_location'(File, _Line,_,_),Clause, File) :-
 	assert_static(Clause).
 
-%% @}
-
-/**
-
-@defgroup Conditional_Compilation Conditional Compilation
-
-@ingroup  YAPConsulting
-
-@{
- Conditional compilation builds on the same principle as
-term_expansion/2, goal_expansion/2 and the expansion of
-grammar rules to compile sections of the source-code
-conditionally. One of the reasons for introducing conditional
-compilation is to simplify writing portable code.
-
-
-Note that these directives can only be appear as separate terms in the
-  input.  Typical usage scenarios include:
-
-
-    Load different libraries on different dialects
-
-    Define a predicate if it is missing as a system predicate
-
-    Realise totally different implementations for a particular
-part of the code due to different capabilities.
-
-    Realise different configuration options for your software.
-
-```
-:- if(test1).
-section_1.
-:- elif(test2).
-section_2.
-:- elif(test3).
-section_3.
-:- else.
-section_else.
-  :- endif.
-```
-
-*/
-
-'$if_directive'(if(Goal), M, _VL, _Pos, Option) :- 
-    '$if'(M:Goal, Option).
-'$if_directive'(elif(Goal), M, _VL, _Pos, Option) :-
-    '$elif'(M:Goal, Option).
-'$if_directive'(else, _M, _VL, _Pos, Option) :-
-    '$else'( Option).
-'$if_directive'(endif, _M, _VL, _Pos, Option) :-
-    '$endif'( Option).
-
-/** @pred    if( : _Goal_)
-
-  Compile subsequent code only if  _Goal_ succeeds.  For enhanced
-portability,  _Goal_ is processed by expand_goal/2 before execution.     If an error occurs, the error is printed and processing proceeds as if
- _Goal_ has failed.
-
-*/
-%
-% This is complicated because of embedded ifs.
-%
-'$if'(Goal) :-
-    must_be_callable(Goal),
-    '$conditional_compilation'(Inp),
-    (Inp == skip
-   ->
-       Mode=done
-  ;
-    Inp == done
-    ->
-    Mode=done
-    ;
-	call(Goal)
-    ->
-    Mode = run
-    ;
-    Mode = skip
-    ),
-    '$conditional_compilation_push'(Mode).
-
-/**
-@pred    else
-Start `else` branch.
-
-*/
-'$else' :-
-    '$conditional_compilation'(Inp),
-    ( Inp == run
-    ->
-    Mode = done
-    ;
-    Inp == skip
-    ->
-    Mode = run
-    ;
-    Mode = done
-    ),
-    '$conditional_compilation_set'(Mode).
-
-
-
-/** @pred   elif(+ _Goal_)
-
-
-Equivalent to `:- else. :-if(Goal) ... :- endif.`  In a sequence
-as below, the section below the first matching elif is processed, If
-no test succeeds the else branch is processed.
-*/
-'$elif'(Goal) :-
- 	 '$conditional_compilation'(Inp),
-   (
-   Inp == run
-    ->
-    Mode = done
-    
-    ;
-	 Inp == done
-    ->
-    Mode = done
-    ;
-	call(Goal)
-    ->
-    Mode = run
-    ;
-    Mode = skip
-      ),
-    '$conditional_compilation_set'(Mode).
-
-/** @pred    endif
-QEnd of cond  itional compilation.
-
-*/
-'$endif' :-
-    '$conditional_compilation_pop'.
-
-%% base layer runs 
-'$conditional_compilation_init':-
-    nb_setval('$conditional_compilation_level',[run]).
-
-'$conditional_compilation_get_state'(state(LB)) :-
-    catch(nb_getval('$conditional_compilation_level', LB), _Undef,
-('$conditional_compilation_init',
-'$conditional_compilation_get_state'(state(LB)) )
-).
-
-'$conditional_compilation_set_state'(state(LB)) :-
-    nb_setval('$conditional_compilation_level', LB).
-
-'$conditional_compilation_push'(Mode) :-
-    '__NB_getval__'('$conditional_compilation_level', Levels,fail),
-    nb_setval('$conditional_compilation_level', [Mode|Levels]).
-
-
-'$conditional_compilation'(Mode) :-
-    '__NB_getval__'('$conditional_compilation_level', [Mode|_Levels], fail).
-
-
-'$conditional_compilation_skip'(V)  :-
-    var(V),
-    !,
-    '__NB_getval__'('$conditional_compilation_level', [L|_Levels], fail),
-    (L == skip
-    ;
-    L == done),
-    !.
-'$conditional_compilation_skip'((:-if(G)))  :-
-      '$if'(G),
-      !.
-'$conditional_compilation_skip'((:-elif(G)))  :-
-      '$elif'(G),
-!.
-'$conditional_compilation_skip'((:-else))  :-
-      '$else',
-!.
-'$conditional_compilation_skip'((:-endif))  :-
-      '$endif',
-!.
-'$conditional_compilation_skip'(_)  :-
-    '__NB_getval__'('$conditional_compilation_level', [L|_Levels], fail),
-    (L == skip
-    ;
-    L == done),
-    !.
-
-'$conditional_compilation_set'(Mode) :-
-    '__NB_getval__'('$conditional_compilation_level', [_Mode_|Levels], fail),
-    nb_setval('$conditional_compilation_level', [Mode|Levels]).
-
-
-'$conditional_compilation_pop' :-
-    '__NB_getval__'('$conditional_compilation_level', [_|Levels], fail),
-    nb_setval('$conditional_compilation_level', Levels).
-    
-:- '$conditional_compilation_init'.
-
-'$if_call'(G) :-
-	catch('$eval_if'(G), _E, error_handler).
-
-'$eval_if'(Goal) :-
-	expand_term(Goal,TrueGoal),
-	once(TrueGoal).
-
-'$if_directive'((if(_))).
-'$if_directive'((else)).
-'$if_directive'((elif(_))).
-'$if_directive'((endif)).
-
-
-'$comp_mode'( OldCompMode, CompMode) :-
-	var(CompMode), !,
-	'$fetch_comp_status'( OldCompMode ).
-'$comp_mode'(OldCompMode, assert_all) :-
-!,
-	'$fetch_comp_status'(OldCompMode),
-	nb_setval('$assert_all',on).
-'$comp_mode'(OldCompMode, source) :-
-    !,
-	'$fetch_comp_status'(OldCompMode),
-	set_prolog_flag(source, true).
-'$comp_mode'(OldCompMode, compact) :-
-	'$fetch_comp_status'(OldCompMode),
-	set_prolog_flag(source, false).
-
-'$fetch_comp_status'(assert_all) :-
-	'__NB_getval__'('$assert_all',on, fail), !.
-'$fetch_comp_status'(source) :-
-	 current_prolog_flag(source, true), !.
-'$fetch_comp_status'(compact).
-
-/** consult_depth(-int:_LV_)
- *
- * Unify _LV_ with the number of files being consulted.
- */
-consult_depth(LV) :-
-    '__NB_getval__'('$consulting_file', Files, fail),
-    length(Files,LV).
-
-
 prolog_library(File) :-
     current_prolog_flag(verbose_load,Old),
     set_prolog_flag(verbose_load,false),
@@ -825,7 +585,6 @@ prolog_library(File) :-
 	absolute_file_name(File0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File).
 
 :- multifile user:dot_qualified_goal/1.
-
 
 
 :- dynamic '$source_file'/2, '$source_file_scope'/2.

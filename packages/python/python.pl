@@ -57,13 +57,13 @@
 	   ]).
 
 
-:- initialization( load_foreign_files([],['YAPPython'], init_python_dll), now ).
-
-
     :- use_module(library(lists)).
     :- use_module(library(apply_macros)).
     :- use_module(library(charsio)).
     :- dynamic python_mref_cache/2, python_obj_cache/2.
+
+:- initialization( load_foreign_files([],['YAPPython'], init_python_dll), now ).
+
 
     :-	   op(100,fy,'$'),
     op(950,fy,:=),

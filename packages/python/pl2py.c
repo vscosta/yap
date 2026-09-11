@@ -291,7 +291,8 @@ switch (YAP_TagOfTerm(t)) {
 	// ex: a[H,Y] -> []([H.Y],a)
 	tobj = YAP_ArgOfTerm(2, t);
 	rc = yap_to_python(tobj, eval, o, false);
-
+        if (!rc)
+          return Py_None; 
 	  
 	tindex = HeadOfTerm(ArgOfTerm(1, t));
 	if (PyDict_Check(rc)) {

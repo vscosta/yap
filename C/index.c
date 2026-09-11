@@ -3182,7 +3182,7 @@ static ClauseDef *install_clauseseq(ClauseDef *cls, PredEntry *ap,
       }
     }
   }
-  while (TRUE) {
+  while (true) {
     if (*beg) {
       cls->Code = cls->CurrentCode = *beg;
       sp = install_clause(cls, ap, stack);
@@ -3289,33 +3289,35 @@ static ClauseDef *install_log_upd_clauseseq(ClauseDef *cls, PredEntry *ap,
   istack_entry *sp = stack;
 
   if (stack[0].pos == 0) {
-    while (TRUE) {
+    while (true) {
       if (beg) {
         cls->Code = cls->CurrentCode = *beg;
         cls->Tag = 0;
         cls++;
       }
       beg++;
-      if (beg == end) {
+           if (beg == end) {
         return cls - 1;
+           }
+    }
+    }
+    while (true) {
+     ClauseDef * cls0= cls;
+      if (*beg) {
+	cls->Code = cls->CurrentCode = *beg;
+	sp = install_log_upd_clause(cls, ap, stack);
+	/* we reached a matching clause */
+	if (!sp->pos && (sp[-1].val == 0L ||    cls->Tag == sp[-1].val)) {
+	  cls++;
+	}
+      }
+      beg++;
+      if (beg == end) {
+	return cls0;
       }
     }
-  }
-  while (TRUE) {
-    if (*beg) {
-      cls->Code = cls->CurrentCode = *beg;
-      sp = install_log_upd_clause(cls, ap, stack);
-      /* we reached a matching clause */
-      if (!sp->pos && (sp[-1].val == 0L || cls->Tag == sp[-1].val)) {
-        cls++;
-      }
-    }
-    beg++;
-    if (beg == end) {
-      return cls - 1;
-    }
-  }
 }
+
 
 static void reinstall_log_upd_clauses(ClauseDef *cls, ClauseDef *end,
                                       PredEntry *ap, istack_entry *stack) {
@@ -3487,7 +3489,8 @@ static yamop **expand_index(struct intermediates *cint) {
   istack_entry *stack, *sp;
   ClauseDef *max;
   int NClauses;
-  /* last clause to experiment with */
+  extern long long vsc_count;
+  vsc_count++;  /* last clause to experiment with */
   yamop *ipc;
   /* labp should point at the beginning of the sequence */
   yamop **labp = NULL;
@@ -3943,7 +3946,7 @@ static yamop **expand_index(struct intermediates *cint) {
     /* ok, we know how many clauses */
     yamop *ipc = *labp;
     /* check all slots, not just the ones with values */
-    COUNT nclauses = ipc->y_u.sssllp.s1;
+    COUNT nclauses = ipc->y_u.sssllp.s2;
     yamop **clp = (yamop **)NEXTOP(ipc, sssllp);
 
     cint->expand_block = ipc;
@@ -4011,13 +4014,13 @@ static yamop **expand_index(struct intermediates *cint) {
 #endif
   }
   /* don't count last clause if you don't have to */
-  if (alt && max->Code == last)
-    max--;
+  // if (alt && max->Code == last)
+  //  max--;
   if (max < cint->cls && labp != NULL) {
     *labp = FAILCODE;
     return labp;
   }
-#if USE_SYSTEM_MALLOC
+ #if USE_SYSTEM_MALLOC
   cint->freep = (char *)HR;
 #else
   cint->freep = (char *)(max + 1);

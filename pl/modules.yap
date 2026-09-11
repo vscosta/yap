@@ -596,14 +596,45 @@ inherit from `prolog` and `user`. This extension allows predicates in
 any module to inherit from `user`  and other modules.
 
 */
-import_module(Mod, ImportModule) :-
-    var(Mod),
-    throw_error(instantiation_error,import_module(Mod, ImportModule)).
-import_module(Mod, ImportModule) :-
-    atom(Mod), !,
-    prolog:'$parent_module'(Mod,ImportModule).
+import_module(DonorM,HostM) :-
+    var(DonorM),
+    !,
+    throw_error(instantiation_error,import_module(DonorM,HostM)).
+import_module(DonorM,HostM) :-
+    atom(DonorM), !,
+     '$module'(_File, DonorM, Exports, _),
+   '$filter'(Exports, _, Tab),
+  '$add_to_imports'(Tab, DonorM, HostM).
 import_module(Mod, EM) :-
     throw_error(type_error(atom,Mod),import_module(Mod, EM)).
+
+import(DonorM,Ex) :-
+current_source_module(HostM, HostM),
+import_module(DonorM,HostM,Ex).
+
+import(DonorM) :-
+current_source_module(HostM, HostM),
+import_module(DonorM,HostM).
+
+import_module(DonorM,HostM,Exports) :-
+must_be_list(Exports),
+    var(DonorM),
+    !,
+    throw_error(instantiation_error,import_module(DonorM,HostM,Exports)).
+import_module(user, HostM, Imports) :-
+!,
+'$m_normalize'(Imports,user,Tab),
+  '$add_to_imports'(Tab, user, HostM).
+
+import_module(DonorM, HostM, Imports) :-
+atom(DonorM),
+     '$module'(_File, DonorM, Exports, _),
+   '$filter'(Exports, Imports, Tab),
+  '$add_to_imports'(Tab, DonorM, HostM).
+
+ import_module(Mod, EM, Exports) :-
+    throw_error(type_error(atom,Mod),import_module(Mod, EM, Exports)).
+
 
 
 /**

@@ -234,7 +234,6 @@ translate_message( leash([A|B])) -->
 	!,
 	[  'Leashing set to ~w.' - [[A|B]] ].
 translate_message( halt) -->
-    !,
     [ 'YAP execution halted.'-[] ].
 translate_message( '$abort') --> !,
 				       [ 'YAP execution aborted'-[] ].
@@ -242,11 +241,11 @@ translate_message( abort(user)) --> !,
 					  [ 'YAP execution aborted' - [] ].
 translate_message( loading(_,F)) --> { F == user }, !.
 translate_message( loading(What,FileName)) --> !,
-	{ consult_depth(LC) },
+	{ prolog_load_context(number_of_open_load_files, LC) },
 	[ '~N~*|% ~w ~s...' - [LC, What, FileName] ].
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
-        { consult_depth(LC) },
+        { prolog_load_context(number_of_open_load_files,LC) },
 	[ '~N~*|% ~s ~w in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
 translate_message(signal(SIG,_)) -->
     !,
@@ -270,7 +269,7 @@ translate_message(throw(BALL)) -->
     [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
 translate_message(error(syntax_error(syntax_error(Msg,File,Line,Pos,_)), Info)) -->
     { 
-     consult_depth(LC),
+prolog_load_context(number_of_open_load_files,LC),
       error_descriptor(Info, Desc),
      Level = error,
     (string(Msg);atom(Msg))
@@ -281,7 +280,7 @@ translate_message(error( style_check(singletons,[VName,F0,Line,Column],P), _Exc)
     !,
     {
       clause_to_indicator(P, I),
-    consult_depth(LC),
+prolog_load_context(number_of_open_load_files,LC),
      Level = warning
       },
     [
@@ -292,7 +291,7 @@ translate_message(error( style_check(singletons,[VName,F0,Line,Column],P), _Exc)
     ].
 translate_message(error(style_check(undefined_export,[F,L,C], M:N/A),_Exc)) -->
     {
-     consult_depth(LC),
+prolog_load_context(number_of_open_load_files,LC),
      Level = warning
     },
       %{start_low_level_trace},
@@ -303,7 +302,7 @@ nl].
 translate_message(error(style_check(undefined_in_module,[F,L,C], M:N/A),_Exc)) -->
     !,
     {
-    consult_depth(LC),
+prolog_load_context(number_of_open_load_files,LC),
      Level = warning
     },
     [  '~*|~s:~d:~d: ~s: predicate ~p is neither defined nor imported in module ~a'-
@@ -313,7 +312,7 @@ nl].
 translate_message(error(style_check(discontiguous,[F,L,C,F0,L0,C0],I), _Exc)) -->
     !,
    {
-     consult_depth(LC),
+prolog_load_context(number_of_open_load_files,LC),
      Level = warning
     },
  	[  '~*|~s:~d:~d: ~s: discontiguous definition for ~p.' - [ LC,F,L,C,Level,I],
@@ -324,7 +323,7 @@ nl,
 translate_message(error(style_check(multiple,[F,L,C,F0,L0,C0],I      ), _Info)) -->
     !,
    {
-     consult_depth(LC),
+prolog_load_context(number_of_open_load_files, LC),
      Level = warning
     },
        	[  '~*|~s:~d:~d: ~s: multiple definition of ~p.' - [ LC,F,L,C,Level,I],
@@ -335,13 +334,13 @@ nl,
 	].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
-    { consult_depth(LC),
+    { prolog_load_context(number_of_open_load_files, LC),
          error_descriptor(Info, Desc) },
    location(Desc, error, full, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
  {
-     consult_depth(LC),
+     prolog_load_context(number_of_open_load_files,LC),
         error_descriptor(Info, Desc),
 	Level = error ,
      Exc \= exception(_)
@@ -1209,7 +1208,7 @@ prefix_(warning,      '~N'-[]).
 prefix_(error,	      '~N'-[]).
 prefix_(banner,	      '~N'-[]).
 prefix_(informational, '~N~*| '-[LC]) :-
-    consult_depth(LC),
+prolog_load_context(number_of_open_load_files,LC),
     LC > 0,
     !.
 prefix_(informational,	      '~N'-[]).
@@ -1219,7 +1218,7 @@ prefix_(debug(_),      '~N'-[]).
   (   { Id == main }
   ->  [ 'warning, ' - [] ]
   ;   { atom(Id) }
-  ->  ['warning [Thread ~a ], ' - [Id] ]
+  ->  ['warning [Thread ~a ], ' - `Ç[Id] ]
   ;   ['warning [Thread ~d ], ' - [Id] ]
   ).
 */
