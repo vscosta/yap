@@ -602,3 +602,5 @@ flag_add_validation_syntactic_sugar(SyntacticSugar, Type):-
     throw(redefine_flag_type_exception(flag_add_validation_syntactic_sugar(SyntacticSugar, Type))).
 % End of validation predicates
 
+
+%:- spy flag_define.

@@ -682,6 +682,9 @@ add_subDIRECTORY( packages/clpqr )
 
 add_subDIRECTORY(packages/bdd)
 
+if( WITH_Python3)
+add_subDIRECTORY(packages/python)
+endif(WITH_Python3)
 
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libYAPOs>)
@@ -692,7 +695,7 @@ if (WIN32 OR ANDROID)
     List(APPEND YLIBS $<TARGET_OBJECTS:YAP++>)
     if (WIN32 AND WITH_Python3 AND Python3_LIBRARIES)
         List(APPEND YLIBS $<TARGET_OBJECTS:Py4YAP>)
-        list (APPEND WINDLLS ${PYTHON_LIBRARIES})
+        list (APPEND WINDLLS ${Python3_LIBRARIES})
     endif ()
     if (ANDROID)
         List(APPEND YLIBS $<TARGET_OBJECTS:YAPmyddas>)
@@ -725,7 +728,7 @@ target_link_libraries(libYap
   ${ANDROID_LIBRARIES}
   ${WINDLLS}
   )
-if (PYTHON_LIBRARIES)
+if (Python3_LIBRARIES)
     target_link_libraries(libYap
     ${PYTHON_LIBRARIES}
     )
@@ -906,8 +909,6 @@ endif(WITH_Java)
 
 
 add_subdirectory(library/mpi)
-
-add_subDIRECTORY(packages/python)
 
 #add_subDIRECTORY(packages/real)
 

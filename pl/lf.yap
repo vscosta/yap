@@ -265,10 +265,10 @@ atom(Name),
      InnerModule=OuterModule
      ),
      '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
-    current_source_module(_,M0) ,
-   '$conditional_compilation_set_state'(State),
     '$end_consult'(D0),
     '$exec_initialization_goals'(File),
+    current_source_module(_,M0) ,
+   '$conditional_compilation_set_state'(State),
     close(Stream).
 
     

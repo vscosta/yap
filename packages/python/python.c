@@ -63,11 +63,11 @@ static void add_modules(USES_REGS1) {
   } else {
 
   }
-  py_Ops = PyImport_ImportModule("operator");
+  py_Ops = PyImport_ImportModule("operator"); 
   if (py_Ops) {
-    Py_INCREF(py_Ops);
+    Py_INCREF(py_Ops); 
   } else {
-    Yap_ThrowError(DOMAIN_ERROR_MISSING_LIBRARY,MkStringTerm("operator"), " Missin Python operator library");
+    Yap_ThrowError(DOMAIN_ERROR_MISSING_LIBRARY,MkStringTerm("operator"), " Missin Python operator library"); 
   }
   
   //  op = pyDict_GetItemString(py_Main, "__builtins__");

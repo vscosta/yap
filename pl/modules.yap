@@ -489,7 +489,6 @@ T\=Module,
     once('$check_import'(MHost,MDonor,NHost,K)),
     \+ '$import'(_,MHost,_,GHost,_,_),
     asserta('$import'(MDonor,MHost,GDonor,GHost,NHost,K)),
-    %writeln((MHost:GHost :- MDonor:GDonor)),
     '$mk_proxy_predicate'(GHost,MHost,GDonor,MDonor),
    ('$is_metapredicate'(GDonor,MDonor) ->
      	 recorded('$m' , meta_predicate(MDonor,GDonor),_),
@@ -596,46 +595,15 @@ inherit from `prolog` and `user`. This extension allows predicates in
 any module to inherit from `user`  and other modules.
 
 */
-import_module(DonorM,HostM) :-
-    var(DonorM),
-    !,
-    throw_error(instantiation_error,import_module(DonorM,HostM)).
-import_module(DonorM,HostM) :-
-    atom(DonorM), !,
-     '$module'(_File, DonorM, Exports, _),
-   '$filter'(Exports, _, Tab),
-  '$add_to_imports'(Tab, DonorM, HostM).
-import_module(Mod, EM) :-
-    throw_error(type_error(atom,Mod),import_module(Mod, EM)).
-
-import(DonorM,Ex) :-
+import_module(DonorM, Imports) :-
+must_be_module(DonorM),
+may_bind_to_type(list,Imports),
 current_source_module(HostM, HostM),
-import_module(DonorM,HostM,Ex).
-
-import(DonorM) :-
-current_source_module(HostM, HostM),
-import_module(DonorM,HostM).
-
-import_module(DonorM,HostM,Exports) :-
-must_be_list(Exports),
-    var(DonorM),
-    !,
-    throw_error(instantiation_error,import_module(DonorM,HostM,Exports)).
-import_module(user, HostM, Imports) :-
-!,
-'$m_normalize'(Imports,user,Tab),
-  '$add_to_imports'(Tab, user, HostM).
-
-import_module(DonorM, HostM, Imports) :-
-atom(DonorM),
-     '$module'(_File, DonorM, Exports, _),
-   '$filter'(Exports, Imports, Tab),
+'$m_normalize'(Imports,DonorM, Tab),
   '$add_to_imports'(Tab, DonorM, HostM).
 
- import_module(Mod, EM, Exports) :-
-    throw_error(type_error(atom,Mod),import_module(Mod, EM, Exports)).
-
-
+import_module(DonorM) :-
+import_module(DonorM,_Ex).
 
 /**
   @pred add_import_module( + _Module_, + _ImportModule_ , +_Pos_) is det
@@ -710,7 +678,7 @@ Reports the following properties of _Module_:
 
   + `line_count`(?_Ls_): number of lines in source file (if there is one).
 
-888  + `file`(?_F_): source file for _Module_ (if there is one).
+  + `file`(?_F_): source file for _Module_ (if there is one).
 
   + `exports`(-Es): list of all predicate symbols and
    operator symbols exported or re-exported by this module.
@@ -845,8 +813,7 @@ module_state.
 '$check_module_exports'([_|Exports],File,Mod) :-
     '$check_module_exports'(Exports,File,Mod).
 
-
--'$check_module_undefineds'(File,Mod) :-
+'$check_module_undefineds'(File,Mod) :-
      module_predicate(Mod,N,A,undefined),
     functor(P,N,A),
     \+ '$is_proxy_predicate'(P, Mod),
@@ -854,7 +821,7 @@ module_state.
     \+  '$import'(_,Mod,_,P,_,_),
     '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),
-    print_message(warning, error(warning(undefined_in_module,[File,Line,0].Mod: NE/AE),[])),
+    print_message(warning, error(warning(undefined_in_module,[File,Line,0],Mod: NE/AE),[])),
     fail.
 '$check_module_undefineds'(_,_Mod).
 

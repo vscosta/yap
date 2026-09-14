@@ -242,7 +242,7 @@ translate_message( abort(user)) --> !,
 translate_message( loading(_,F)) --> { F == user }, !.
 translate_message( loading(What,FileName)) --> !,
 	{ prolog_load_context(number_of_open_load_files, LC) },
-	[ '~N~*|% ~w ~s...' - [LC, What, FileName] ].
+	[ '~N~*|% ~w ~w...' - [LC, What, FileName] ].
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
         { prolog_load_context(number_of_open_load_files,LC) },

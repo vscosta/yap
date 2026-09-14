@@ -325,4 +325,77 @@ user_defined_directive(Dir,Action) :-
     format(user_error,'~w warning: ~w failed.~n',[Pos,M:G]).
 
 
+initialization(G) :-
+    '$initialization'( G, after_load ).
+
+
+initialization(G,OPT) :-
+    '$initialization'(G, OPT),
+    fail.
+initialization(_G,_OPT).
+
+ '$initialization'(G, OPT) :-
+     prolog_load_context(term_position, Pos),
+     '$initialization'(G, OPT, [], Pos).
+
+'$initialization'(G0,OPT, _VL, Pos) :-
+    must_be_callable( G0),
+    expand_goal(G0, G),
+    ( stream_position_data(line_count,Pos, Line) -> true ; Line = 0 ),
+    ( prolog_load_context(stream,File) -> true ; File = user ),
+   %   must_be_of_type(oneof([after_load, now, restore]),
+    %               OPT),
+
+    (
+	OPT == now
+    ->
+    ( catch(call(G),
+	    _Error,
+	    error_handler
+	   ) ->
+      true ;
+      format(user_error,'directive :- ~w failed at ~s:~d,~n',[G,File,Line]  )
+    )
+    ;
+    OPT == after_load
+    ->
+    recordz('$initialization_queue',q(File-Line,G),_)
+	;
+	 OPT == restore
+	->
+    recordz('$call_at_restore', G, _ )
+    ).
+
+
+'$exec_initialization_goals'(File) :-
+    set_prolog_flag(optimise, true),
+	recorded('$blocking_code',File,R),
+	erase(R),
+	fail.
+% system goals must be performed first
+'$exec_initialization_goals'(File) :-
+setup_call_cleanup(
+    (
+       recorded('$initialization_queue',q(File-Line,G),R),
+ 	 erase(R),
+	'$conditional_compilation_get_state'(State),
+'$conditional_compilation_init'),
+(
+	catch(
+	 (G),
+	 _E,
+	 error_handler
+	 )
+	->
+	    	 true %format(user_error,':- ~w ok.~n',[G]),
+	;
+
+ 	 print_message(warning,error(warning('directive_failure'([File,Line]),  G),[]))
+	 ),
+	'$conditional_compilation_set_state'(State)
+	),
+	fail.
+'$exec_initialization_goals'(_).
+
+
 %% @}

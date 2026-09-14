@@ -209,68 +209,6 @@ last one, onto underscores.
 	fail.
 '$remove_multifile_clauses'(_).
 
-'$initialization'(G0,OPT, _VL, Pos) :-
-    must_be_callable( G0),
-    expand_goal(G0, G),
-     stream_position_data(line_count,Pos, Line),
-    prolog_load_context(file,File),
-   %   must_be_of_type(oneof([after_load, now, restore]),
-    %               OPT),
-
-    (
-	OPT == now
-    ->
-    ( catch(call(G),
-	    _Error,
-	    error_handler
-	   ) ->
-      true ;
-      format(user_error,'directive :- ~w failed at ~s:~d,~n',[G,File,Line]  )
-    )
-    ;
-    OPT == after_load
-    ->
-    strip_module(G,M,H),
-    writeln(LC-Pos),
-    recordz('$initialization_queue',q(LC-Pos,M:H),_)
-	;
-	 OPT == restore
-	->
-    recordz('$call_at_restore', G, _ )
-    ).
-
-
-'$exec_initialization_goals'(_LC) :-
-    set_prolog_flag(optimise, true),
-	recorded('$blocking_code',_LC,R),
-	erase(R),
-	fail.
-% system goals must be performed first
-'$exec_initialization_goals'(_) :-
-setup_call_cleanup(
-    (
-       recorded('$initialization_queue',q(File-Line,G),R),
-    writeln(Line=File),
- 	 erase(R),
-	'$conditional_compilation_get_state'(State),
-	'$conditional_compilation_init'
-	),
-	(catch(
-	 (G),
-	 _E,
-	 error_handler
-	 )
-	->
-	    	 true %format(user_error,':- ~w ok.~n',[G]),
-	;
-
- 	 print_message(warning,error(warning('directive_failure'([File,Line]),  G),[]))
-	 ),
-	'$conditional_compilation_set_state'(State)
-	),
-	fail.
-'$exec_initialization_goals'(_).
-
 %
 % reconsult at startup...
 %
