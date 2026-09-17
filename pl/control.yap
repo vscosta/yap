@@ -343,9 +343,36 @@ is responsible to capture uncaught exceptions.
 
 
 */
+/*catch(Goal,Exception,EGoal) :-
+setup_call_catcher_cleanup(true, Goal, Exception, clean(Exception,EGoal)).
+
+clean(exit,_).
+clean(fail,_) :- fail.
+clean(!,_).
+clean(external_exception(_,_),_).
+clean(exception(Exception),EGoal):-
+declean(Exception,EGoal).
+
+declean(abort,_) :-
+throw(abort).
+declean(Exception, error_handler ) :-
+!,%error_descriptor(exception(Exception),EGoal),
+%writeln(Info),
+'$exception_to_term'(Exception,error(K,Info)),
+writeln(k+K+Info),
+'$extend_info'(Info,[], NewInfo),
+error_handler(error,error(K,NewInfo)),
+
+'$reset_exception'(Exception),
+'$reset_exception'(_), !.
+declean(_, G) :-
+'$reset_exception'(_),
+G.
+*/
 
 catch(MG,E,G) :-
     '$catch'(MG,E,G,_,_Done).
+
 
 '$catch'(MG,_E,_G,Marker,Done) :-
     '$marker'(Marker),
@@ -360,32 +387,19 @@ catch(MG,E,G) :-
 	;
       true
       ).
-
-'$catch'(_MG,E,G,_,_) :-    
-    '$drop_exception'(E0,Info),
-    nonvar(E0),
-    (
-	E = E0
-    ->
-	(
-	    '$yap_strip_module'(G,_,error_handler )
-	->
-	(
-	    E = error(K,U)
-	->
-	%Info = NewInfo,
-	'$extend_info'(Info,U, NewInfo),
-	error_handler(error,error(K,NewInfo))
-	    ;
-	print_message(warning,error(existence_error(error_handler,E),catch)),
-	fail
-	)
-	    ;
-	call(G)
-	)
-	;
-    throw(E0)
+'$catch'(_MG,_E,_G,_,_) :-    
+    '$drop_exception'(_E0,Info,E),
+    '$yap_strip_module'(G,M1,G1 ),
+    ( 
+    E = error(K,U),
+    G1 == error_handler
+      ->
+    '$extend_info'(Info,U, NewInfo),
+    error_handler(error,error(K,NewInfo))
+      ;
+    call(M1:G1)
     ).
+
     	
 '$rm_user_wrapper'(error(
 		     user_defined_error(

@@ -81,7 +81,7 @@ throw_file_error(_Type,__Goal) :-
 throw_file_error(Type,Goal) :-
     throw(error(Type,Goal)).
 
-% error_handler(+E                          rror,+ Level)
+% error_handler(+Error,+ Level)
 %
 % process an error term.
 %

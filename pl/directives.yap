@@ -144,9 +144,7 @@
     current_source_module(_,M0)
     ).
 '$exec_directive'(multifile(D), _, M, _, _) :-
-	'$system_catch'('$multifile'(D, M), M,
-	      Error,
-	      error_handler(Error, top)).
+	'$multifile'(D, M).
 '$exec_directive'(discontiguous(D), _, M, _VL, _Loc) :-
 	'$discontiguous'(D,M).
 '$exec_directive'(use_module(Mod,F,Is), _, M, _, _Loc) :-
@@ -366,7 +364,6 @@ initialization(_G,_OPT).
     recordz('$call_at_restore', G, _ )
     ).
 
-
 '$exec_initialization_goals'(File) :-
     set_prolog_flag(optimise, true),
 	recorded('$blocking_code',File,R),
@@ -374,9 +371,9 @@ initialization(_G,_OPT).
 	fail.
 % system goals must be performed first
 '$exec_initialization_goals'(File) :-
+        recorded('$initialization_queue',q(File-Line,G),R),
 setup_call_cleanup(
-    (
-       recorded('$initialization_queue',q(File-Line,G),R),
+   (
  	 erase(R),
 	'$conditional_compilation_get_state'(State),
 '$conditional_compilation_init'),
@@ -389,7 +386,6 @@ setup_call_cleanup(
 	->
 	    	 true %format(user_error,':- ~w ok.~n',[G]),
 	;
-
  	 print_message(warning,error(warning('directive_failure'([File,Line]),  G),[]))
 	 ),
 	'$conditional_compilation_set_state'(State)

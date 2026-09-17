@@ -821,7 +821,7 @@ module_state.
     \+  '$import'(_,Mod,_,P,_,_),
     '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),
-    print_message(warning, error(warning(undefined_in_module,[File,Line,0],Mod: NE/AE),[])),
+    print_message(warning, error(style_check(undefined_in_module,[File,Line,0],Mod: NE/AE),[])),
     fail.
 '$check_module_undefineds'(_,_Mod).
 

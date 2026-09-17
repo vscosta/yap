@@ -230,6 +230,8 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_s(prologStack, "prologStack", q, i);
   query_key_t(culprit_t, "culprit_t", q, i);
   query_key_t(errorUserTerm, "errorUserTerm", q, i);
+  query_key_s(errorMsg, "errorMsg", q, i);
+  query_key_i(errorMsgLen, "errorMsgLen", q, i);
   Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, MkAtomTerm(Yap_LookupAtom(q)), "Bad error parameter  %s in error query", q);
   return false;
 }
@@ -687,7 +689,7 @@ Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
       o[1] = i->culprit_t;
 } else
       o[1] = ft0;
-    o[2] = TermNil;
+    o[2] = err2list(LOCAL_ActiveError);
     return AbsAppl(o);
   }
 
@@ -904,15 +906,15 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     reset_error_message();
   }
   if (type != SYNTAX_ERROR) {
+    int sno;
+    if ((sno=Yap_FindStreamForAlias(AtomLoopStream)) > 0) {
+      
     const char *s =  RepAtom(Yap_source_name())->StrOfAE;
      r->parserFile = strcpy(malloc(strlen(s)+1),s);
-     r->parserLine = LOCAL_StartLineCount;
-    r->parserSize = 0;
-    r->parserLinePos = LOCAL_StartLinePos;
+     r->parserLine = Yap_source_line_no();
+     r->parserSize = Yap_source_line_pos();
+    }
   }
-
-
- r->errorLine = r->parserLine;
 
   return r; 
 }
@@ -1300,7 +1302,17 @@ char *Yap_errorClassName(yap_error_class_number e) {
   return (char *)c_error_class_name[e];
 }
 
-static Int reset_exception(USES_REGS1) { return Yap_ResetException(NULL); }
+static Int reset_exception(USES_REGS1) {
+  Term t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    return Yap_ResetException(NULL);
+  }
+  if (IsAddressTerm(t)) {
+    yap_error_descriptor_t *rst = (yap_error_descriptor_t *)AddressOfTerm(t);
+    return Yap_ResetException(rst);
+  }
+  return false;
+}
 
 /**
 
@@ -1462,7 +1474,7 @@ static Int set_exception(USES_REGS1) {
 }
 
 static Int drop_exception(USES_REGS1) {
-  Term tn;
+  yap_error_descriptor_t * new = NULL;;
   bool rc = false;
   if (LOCAL_Error_TYPE) {
     // allow copying from within error
@@ -1488,13 +1500,28 @@ static Int drop_exception(USES_REGS1) {
       }
       }
     } else {
-      tn = ( Yap_MkErrorTerm(LOCAL_ActiveError));
-      rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
+      new = malloc(sizeof(yap_error_descriptor_t));
+      memcpy(new, LOCAL_ActiveError, sizeof(yap_error_descriptor_t));
+      Term tn = (Yap_MkErrorTerm(new));
+      rc =
+          Yap_unify(tn, ARG1) && Yap_unify((err2list(LOCAL_ActiveError)), ARG2);
+      if (IsVarTerm(Deref(tn)))
+        return false;
     }
-    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
   } else {
     rc = false;
   }
+  if (Deref(ARG1) == TermDAbort) {
+      if (new) free(new);
+
+   Yap_Error(ABORT_EVENT, TermDAbort, NULL);
+   return Yap_JumpToEnv();
+  }
+  if (!Yap_unify(ARG1, ARG3))  {
+    if (new) free(new);
+    return Yap_JumpToEnv() ;
+  }
+  memset(  LOCAL_ActiveError, 0,sizeof(yap_error_descriptor_t));
   return rc;
 }
 
@@ -2106,19 +2133,25 @@ static Int must_be_predicate_indicator1(USES_REGS1) {
   Yap_ThrowError(TYPE_ERROR_PREDICATE_INDICATOR, G,  "must be predicate indicator");
   return false;
 }
+static Int exception_to_term(USES_REGS1) {  if (!IsAddressTerm(Deref(ARG1)))
+    return false;
+  yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG1));
+  bool rc = Yap_unify(Yap_MkErrorTerm(y), ARG2);
+  y->errorNo = 0;
+  return rc;
+}
 
 void Yap_InitErrorPreds(void) {
 
-  Yap_InitCPred("$print_exception", 1, print_exception, 0);
   Yap_InitCPred("print_exception", 1, print_exception, 0);
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
-
+  Yap_InitCPred("$exception_to_term",2,exception_to_term,0);
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
   Yap_InitCPred("$user_exception",7, user_exception, 0);
   Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);
-  Yap_InitCPred("$drop_exception", 2, drop_exception, 0);
+  Yap_InitCPred("$drop_exception", 3, drop_exception, 0);
   Yap_InitCPred("$close_error", 1, close_error, HiddenPredFlag);
 
   /* Test predicates */

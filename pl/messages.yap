@@ -334,24 +334,22 @@ nl,
 	].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
-    { prolog_load_context(number_of_open_load_files, LC),
-         error_descriptor(Info, Desc) },
-   location(Desc, error, full, LC),
+    { prolog_load_context(number_of_open_load_files, LC) },
+   location(Info, error, full, LC),
     translate_message(Error).
+
 translate_message(error(Exc, Info)) -->
  {
-     prolog_load_context(number_of_open_load_files,LC),
-        error_descriptor(Info, Desc),
-	Level = error ,
-     Exc \= exception(_)
+   prolog_load_context(number_of_open_load_files,LC),
+	Level = error 
     },
     !,
-    location( Desc, Level,full , LC),
+    location( Info, Level , LC),
    main_message(error(Exc,Info) , Level, LC ),
-    c_goal( Desc, Level, LC ),
-     c_caller( Desc, Level, LC),
-    extra_info( Desc, Level, LC ),
-    stack_info( Desc, Level, LC ),
+    c_goal( Info, Level, LC ),
+     c_caller( Info, Level, LC),
+    extra_info( Info, Level, LC ),
+    stack_info( Info, Level, LC ),
     [nl],
     [nl].
 translate_message(error(Descriptor,exception(Error))) -->
@@ -403,35 +401,28 @@ syntax_error_end(_LC,_Level,_File,_Desc) --> [].
 
  
 
-location( Desc, Level, More, LC ) -->
-    {
+location( Desc, Level, LC ) -->
+ c_caller(Desc, Level, LC),
+ prolog_caller(Desc, Level, LC),
+ consult_caller(Desc, Level, LC).
+
+ consult_caller(Desc, Level, _LC) -->
+	{ %    query_exception(parserReadingCode, Desc, true),
 %     query_exception(prologConsulting, Desc, true),
-      %       query_exception(parserReadingCode, Desc, true),
 
      query_exception(parserLine, Desc, LN),
-      nonvar(LN),
+     nonvar(LN),
      query_exception(parserFile, Desc, FileName),
      nonvar(FileName),
-     (
-       query_exception(parserLinePos, Desc, Pos) ->
-       (var(Pos) -> Pos=0;true)
-       ;
-       Pos=0
-     ) 
-      },
-    [  '~N~s:~d:~d: ~a: ' -[FileName, LN,Pos,Level] ],
-    !,
-    ({More == full}
-    ->
-    prolog_caller( Desc, Level, LC)
-    ;
-    []
-    ).
-location( Desc, Level, _, LC ) -->
-    prolog_caller( Desc, Level, LC).
+	query_exception(parserLinePos, Desc, Pos)
+},
+!,
+   [  '~N~s:~d:~d: ~a: while consulting ~s ' -[FileName, LN,Pos,Level,FileName] ].
+consult_caller( _Desc, _Level, _LC ) --> [].
 
 
-prolog_caller( Desc, Level, LC ) -->
+
+prolog_caller( Desc, Level, _LC ) -->
     {
      query_exception(prologPredLine, Desc, LN),
      query_exception(prologPredFile, Desc, FileName),
@@ -440,25 +431,9 @@ prolog_caller( Desc, Level, LC ) -->
      query_exception(prologPredModule, Desc, Module)
     },
     !,
-    [  '~N~s:~d:0: ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
-     [nl],
-     c_caller( Desc, Level, LC).
-prolog_caller( Desc, Level, LC ) -->
-    {
-     query_exception(prologPredFile, Desc, FileName),
-     query_exception(prologPredName, Desc, Name),
-     query_exception(prologPredArity, Desc, Arity),
-     query_exception(prologPredModule, Desc, Module)
- },
-     !,
-	     [  '~N~s:1:0: ~a executing ~s:~s/~d:'-[FileName, Level,Module,Name,Arity] ],
-     [nl],
-     c_caller( Desc, Level, LC).
-
-prolog_caller( Desc, Level, LC ) -->
-    [  '~Nuser:~d:0: ~a in top-level goal.'-[0,Level]],
-    [nl],
-    c_caller( Desc, Level, LC).
+[  '~N~s:~d:0: ~a while executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
+!.
+prolog_caller( _Desc, _Level, _LC ) --> [].
 
 c_caller( Desc, Level, _LC ) -->
     {
@@ -498,8 +473,8 @@ main_error_message(evaluation_error(What, Who),LC) -->
     [ '~*|%%% ~w caused ~a during evaluation of arithmetic expressions.' - [ LC,Who,What]].
 main_error_message(existence_error(Type , Who),LC) -->
     [  '~*|%%% ~q ~q does not exist.' - [ LC,Type, Who] ].
-main_error_message(permission_error(Op, Type, Id),LC) -->
-    [ '~*|%%% value ~q is not allowed in ~a ~q.' - [ LC, Op, Type,Id] ].
+main_error_message(permission_error(Op, Type, Id),_LC) -->
+    [ 'no permission to ~s  ~a ~q.' - [ Op, Type,Id] ].
 main_error_message(instantiation_error,LC) -->
     [ '~*|%%% unbound variable.' - [LC] ].
 main_error_message(representation_error(Type),LC) -->
@@ -524,9 +499,9 @@ main_error_message(uninstantiation_error(T),LC) -->
     [ '~*|%%% found ~q, expected unbound variable.' - [LC,T]].
 main_error_message(no_predicate_match(M, Name),LC) -->
     [ '~*|%%% no predicate in module ~a matches ~a.' -[LC,M,Name]].
-main_error_message(warning(Type,_Culprit),LC) -->
+main_error_message(warning(Type,Culprit),LC) -->
     [nl],
-    main_error_message( Type,LC ).
+    main_error_message(error( Type,Culprit), LC).
 
 fix_pi(Var, Var) :-
     var(Var),
@@ -567,7 +542,7 @@ display_consulting(_F, _, _, _LC) -->
 
 c_goal( Desc,_, LC) -->
 	{
-	  query_exception(errorGoal, Desc, G) },
+	  query_exception(culprit_t, Desc, G) },
 	!,
 	['~*|call was: ~w' - [LC,G]].
 c_goal(_,_,_) --> [].
@@ -575,6 +550,8 @@ c_goal(_,_,_) --> [].
 
 extra_info( Desc, Level, LC ) -->
    {
+	query_exception(errorMsgLen, Desc, Len),
+Len > 0,
 	query_exception(errorMsg, Desc, Msg),
 	Msg \= '',
 	Msg \= "",
@@ -1329,7 +1306,7 @@ prolog:print_message_lines(S, Prefix_0, Lines) :-
 @pred print_message(+ _Kind_, +_Term_)
 
 The predicate print_message/2 is used to print messages, notably from
-exceptions, in a human-readable format.  _Kind_ is one of
+nexcneptions, in a human-readable format.  _Kind_ is one of
 `informational`, `banner`, `warning`, `error`, `help` or `silent`. In YAP, the message is always outut to the stream user_error.
 
 If the Prolog flag verbose is `silent`, messages with
@@ -1372,13 +1349,12 @@ error_descriptor( V, List) :-
     V=List
     ).
 
-query_exception(_K0,[],_V) :-
+query_exception(K0,L,V) :-
+is_list(L),
+!,
+    (atom(K0) -> K = K0 ;  atom_to_string(K, K0) ),
     !,
-    fail.
-query_exception(K0,[H|L],V) :-
-    (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
-    !,
-    '$in'(K0=V,[H|L]).
+    '$in'(K=V,L).
 query_exception(K,exception(M) ,V) :-
     !,
     '$query_exception'(K,M,V).
@@ -1447,6 +1423,7 @@ is_exception_descriptor(exception(Address)) :-
     integer(Address). 
 is_exception_descriptor(List) :-
     is_list(List).
+
 
 %%
 %% @pred print_warning( +Msg )

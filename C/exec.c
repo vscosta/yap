@@ -1484,8 +1484,8 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, ex_handler_t handle_errors USES_
       // should we catch the exception or pass it through?
       // We'll pass it through
       if (handle_errors && Yap_HasException(PASS_REGS1))
-	{
-	  Yap_RaiseException();
+	{	
+	  Yap_ThrowExistingError();
 	  rc = false;
 	}
       rc = true;
