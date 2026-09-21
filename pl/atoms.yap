@@ -117,10 +117,9 @@ the first list.
 atom_concat(Xs,At) :-
 	( var(At) ->
 	   '$atom_concat'(Xs, At )
-        ;
-	 '$atom_concat_constraints'(Xs, 0, At, Unbound),
-	 '$process_atom_holes'(Unbound)
-        ).
+          ;
+	 '$atom_concat_constraints'(Xs, At )
+	).
 
 '$atom_concat_constraints'([],  ``).
     '$atom_concat_constraints'([V],  V) :-
@@ -130,13 +129,70 @@ atom_concat(Xs,At) :-
     sub_atom(At,_,Extra,0, More),
     '$atom_concat_constraints'(Vs,  More).
 
-'$atom_concat_constraints'([],  '').
-    '$atom_concat_constraints'([V],  V) :-
-!.
-'$atom_concat_constraints'([V|Vs],  At) :-
-    sub_atom(At,0,_,Extra, V),
-    sub_atom(At,_,Extra,0, More),
-    '$atom_concat_constraints'(Vs,  More).
+
+/*****
+atom support predicates
+
+****/
+
+
+/**
+  @pred atom_concat(_A1_,_A2,_A3_)
+
+  The concatenation of _A1_ and _A2_ should be _A3_. The
+  predicate can have multiple solutions.
+
+  */
+atom_concat(A,B,At) :-
+    var(At),
+    !,
+    '$atom_concat'(A,B,At).
+atom_concat(A,B,At) :-
+    sub_atom(At,0,Len,M,A),
+    sub_atom(At,Len,M,0,B).
+
+/** @pred  atom_list_concat(? _As_,+ _Separator_,? _A_)
+
+Creates an atom just like atomic_list_concat/2, but inserts
+ _Separator_ between each pair of atoms. For example:
+
+```{.prolog}
+?- atom_list_concat([gnu,gnat], '-', A).
+
+A = 'gnu-gnat'
+```
+
+YAP emulates the SWI-Prolog version of this predicate that can also be
+used to split atoms by instantiating  _Separator_ and  _Atom_ as
+shown below.
+
+```{.prolog}
+?- atomic_list_concat(L, -, 'gnu-gnat').
+
+L = [gnu, gnat]
+```
+
+
+*/
+atom_list_concat(L, El, At) :-
+	var(El), !,
+	throw_error(instantiation_error,atomc_list_concat(L,El,At)).
+atom_list_concat(L, El, At) :-
+	ground(L), !,
+	'$add_els'(L,El,LEl),
+	atom_concat(LEl, At).
+atom_list_concat(L, El, At) :-
+	atom(At), !,
+	'$atom_list_concat_all'( At, El, L).
+
+'$atom_list_concat_all'( At, El, [A|L]) :-
+	sub_atom(At, Pos, _, Left, El),
+        sub_atom(At, 0, Pos, _, A),
+        sub_atom(At, _, Left, 0, At1),
+	'$atom_list_concat_all'( At1, El, L).
+'$atom_list_concat_all'( At, _El, [At]).
+'$atom_list_concat_all'( '' , _El, []).
+
 
 /** @pred  atomic_list_concat(+ _As_,? _A_)
 
@@ -197,94 +253,6 @@ atomic_list_concat(L, El, At) :-
 '$add_els'(L,_,L).
 
 /**
-  @pred atom_concat(_A1_,_A2,_A3_)
-
-  The concatenation of _A1_ and _A2_ should be _A3_. The
-  predicate can have multiple solutions.
-
-  */
-atom_concat(A,B,At) :-
-    (
-      nonvar(A), nonvar(B)
-   ->
-	      !,
-	      '$atom_concat'(A,B,At)
-		  ).
-atom_concat(A,B,At) :-
-    (    A==B
-      -> 
-      sub_atom(At,Len,Len,0,B),
-    sub_atom(At,0,Len,Len,A)
-      ;     
-nonvar(A)
-      ->
-    sub_atom(At,0,Len,Sz,A),
-      sub_atom(At,Len,Sz,0,B)
-      ;
-      sub_atom(At,Len,Sz,0,B),
-    sub_atom(At,0,Len,Sz,A)
-
-
-
-    ).
-
-
-/** @pred  atom_list_concat(+ _As_,? _A_)
-
-Alias for atom_concat/2.
-
-The predicate holds when the first argument is a list of atomic terms,
-and the second unifies with the atom obtained by concatenating all the
-atoms in the list. The first argument may only contain atoms.
-
-
-*/
-atom_list_concat(L,At) :-
-	atom_concat(L, At).
-
-/** @pred  atom_list_concat(? _As_,+ _Separator_,? _A_)
-
-Creates an atom just like atomic_list_concat/2, but inserts
- _Separator_ between each pair of atoms. For example:
-
-```{.prolog}
-?- atom_list_concat([gnu,gnat], '-', A).
-
-A = 'gnu-gnat'
-```
-
-YAP emulates the SWI-Prolog version of this predicate that can also be
-used to split atoms by instantiating  _Separator_ and  _Atom_ as
-shown below.
-
-```{.prolog}
-?- atomic_list_concat(L, -, 'gnu-gnat').
-
-L = [gnu, gnat]
-```
-
-
-*/
-atom_list_concat(L, El, At) :-
-	var(El), !,
-	throw_error(instantiation_error,atom_list_concat(L,El,At)).
-atom_list_concat(L, El, At) :-
-	ground(L), !,
-	'$add_els'(L,El,LEl),
-	atom_concat(LEl, At).
-atom_list_concat(L, El, At) :-
-	atom(At), !,
-	'$atom_list_concat_all'( At, El, L).
-
-'$atom_list_concat_all'( At, El, [A|L]) :-
-	sub_atom(At, Pos, 1, Left, El), !,
-        sub_atom(At, 0, Pos, _, A),
-        sub_atom(At, _, Left, 0, At1),
-	'$atom_list_concat_all'( At1, El, L).
-'$atom_list_concat_all'( At, _El, [At]).
-
-
-/**
 @pred string_concat(_T1_,_T2_,_T3_)
 
 Similar to atom_concat/3 but it expects strings  as arguments.
@@ -338,6 +306,13 @@ L = [gnu, gnat]
 
 
 */
+string_concat(Xs,At) :-
+	( var(At) ->
+	   '$string_concat'(Xs, At )
+          ;
+	 '$string_concat_constraints'(Xs, At )
+	).
+
 string_list_concat(L, El, At) :-
 	var(El), !,
 	throw_error(instantiation_error,stringc_list_concat(L,El,At)).
@@ -357,6 +332,15 @@ string_list_concat(L, El, At) :-
 '$string_list_concat_all'( At, _El, [At]).
 '$string_list_concat_all'( '' , _El, []).
 
+
+'$string_concat_constraints'([],  ``).
+    '$string_concat_constraints'([V],  V) :-
+	!.
+'$string_concat_constraints'([V|Vs],  At) :-
+    sub_string(At,0,_,Extra, V),
+    sub_string(At,_,Extra,0, More),
+    '$string_concat_constraints'(Vs,  More).
+
 /** @pred  current_atom( _A_)
 
 
@@ -369,22 +353,6 @@ current_atom(A) :-				% check
 	atom(A), !.
 current_atom(A) :-				% generate
 	'$current_atom'(A).
-
-string_concat(Xs,At) :-
-	( var(At) ->
-	   '$string_concat'(Xs, At )
-          ;
-	 '$string_concat_constraints'(Xs, At )
-	).
-
-'$string_concat_constraints'([],  ``).
-    '$string_concat_constraints'([V],  V) :-
-!.
-'$string_concat_constraints'([V|Vs],  At) :-
-    sub_string(At,0,_,Extra, V),
-    sub_string(At,_,Extra,0, More),
-    '$string_concat_constraints'(Vs,  More).
-
 
 /**
  * @pred string_char( ?_I_, +_S_+, ?-_C_)
