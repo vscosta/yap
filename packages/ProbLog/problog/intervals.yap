@@ -449,7 +449,7 @@ my_number_atom(Number,Atom) :-
 	NumberF is Number+0.0,
 	number_codes(NumberF,XC),
 	reverse(XC,A),
-/	remove_prefix_zeros(A,B),
+	remove_prefix_zeros(A,B),
 	remove_prefix_dot(B,C),
 	fix_special_cases(C,D),
 	reverse(D,DC),

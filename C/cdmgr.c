@@ -582,14 +582,14 @@ static void split_megaclause(PredEntry *ap) {
 
 /* Index a prolog pred, given its predicate entry */
 /* ap is already locked. */
-static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
+static yamop * IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   yamop *BaseAddr;
 
   /* Do not try to index a dynamic predicate  or one whithout args */
   if (is_dynamic(ap)) {
     Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil,
 		   "trying to index a dynamic predicate");
-    return;
+    return NULL;
   }
   if ((BaseAddr = Yap_PredIsIndexable(ap, NSlots, next_pc)) != NULL) {
     ap->cs.p_code.TrueCodeOfPred = BaseAddr;
@@ -600,6 +600,7 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     }
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
+    return ap->CodeOfPred ;
 #if defined(YAPOR) || defined(THREADS)
   } else if (ap->PredFlags & LogUpdatePredFlag &&
              !(ap->PredFlags & ThreadLocalPredFlag) &&
@@ -610,6 +611,7 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   } else {
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
     ap->OpcodeOfPred = ap->CodeOfPred->opc;
+    
   }
 }
 

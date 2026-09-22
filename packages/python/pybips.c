@@ -64,7 +64,7 @@ static PyObject *Lookup(PyObject *ctx, PyObject *pArgs,const char *s) {
   } else {
     if ((out = PyImport_ImportModule(s)))
 	return out;
-  if (py_Main && (out = read_symbol(py_Main ,s))!=NULL)
+    if (py_Main && (out = read_symbol(py_Main ,s))!=NULL)
       return out;
   if (py_User && (out = read_symbol(py_User ,s))!=NULL)
       return out;
@@ -876,7 +876,8 @@ static PyObject *bip_int(term_t t) {
 	      YAP_Term tt = t, tleft;
 	      int i;
 	      rc = PyTuple_New(arity);
-	      PyObject *pArg;
+	      Py_IncRef(rc);
+              PyObject *pArg;
 	      for (i=0;i<arity;i++) {
 		AOK((tleft = YAP_ArgOfTerm(i+1, tt)), NULL);
 		pArg = yap_to_python(tleft, true, NULL, true);
@@ -947,10 +948,13 @@ static PyObject *bip_int(term_t t) {
 	    if (!ys)  ys =PyUnicode_FromString(s);
 	    if ( ys && (PyCallable_Check(ys) || (ys=op(s,pArgs)))) {
 	      if (!pArgs)
-		pArgs = PyTuple_New(0);
+                pArgs = PyTuple_New(0);
+              Py_IncRef(ys);
+              Py_IncRef(pArgs);
+              
 	      CHECK_CALL(ys, pArgs, pyDict);
-//	      Py_DECREF(pArgs);
-//	      Py_DECREF(ys);
+	      Py_DECREF(pArgs);
+	      Py_DECREF(ys);
 	      //		    PyObject_Print(rc, stderr, 0);
 	      return rc;
 	    } else {
@@ -964,7 +968,7 @@ static PyObject *bip_int(term_t t) {
 	      }
 	      return rc;
 	    }
-	  
+ 
 	  }
 	  return NULL;
 

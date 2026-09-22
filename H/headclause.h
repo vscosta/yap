@@ -276,6 +276,12 @@
       return;
       cl = NEXTOP(cl,e);
       break;
+    case _write_n_voids:
+      cl = NEXTOP(cl,s);
+      break;
+    case _write_n_perms:
+      cl = NEXTOP(cl,s);
+      break;
     case _unlock_lu:
       cl = NEXTOP(cl,e);
       break;

@@ -231,19 +231,21 @@ switch (YAP_TagOfTerm(t)) {
           PyObject *out, *o;
           int i = 0;
 
-          out = PyList_New(len);
+          Py_IncRef(out = PyList_New(len));
           while (IsPairTerm(t)) {
               Term ai = HeadOfTerm(t);
-              o = yap_to_python(ai, eval, NULL, false);
+              Py_IncRef(o = yap_to_python(ai, eval, NULL, false));
               PyList_SetItem(out, i++, o);
               t = TailOfTerm(t);
           }
           return out;
       } else {
           while (IsPairTerm(t)) {
-              Term ai = HeadOfTerm(t);
-              o = yap_to_python(ai, eval, o, false);
-              t = TailOfTerm(t);
+            Term ai = HeadOfTerm(t);
+	    PyObject *o0 = o;
+            Py_IncRef((o = yap_to_python(ai, eval, o0, false)));
+            Py_DecRef(o0);
+	    t = TailOfTerm(t);
           }
           return yap_to_python(*tail, eval, o, cvt);
       }
@@ -406,24 +408,6 @@ switch (YAP_TagOfTerm(t)) {
   return Py_None;
 }
 
-
-PyObject *deref_term_to_python(term_t t) {
-  // Yap_DebugPlWrite(YAP_GetFromSlot(t));        fprintf(stderr, " here I
-  // am\n");
-  PyObject *rc;
-  YAP_Term yt = YAP_GetFromSlot(t);
-  term_t t0 = PL_new_term_ref();
-  if (YAP_IsVarTerm(yt)) {
-    char b[1024];
-    char *o = YAP_WriteBuffer(yt, b, 1023, 0);
-    PyObject *p = PyUnicode_FromString(o);
-    rc = p;
-  } else {
-    rc = term_to_python(t, true, NULL, false);
-  }
-  PL_reset_term_refs(t0);
-  return rc;
-}
 
 PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
   //

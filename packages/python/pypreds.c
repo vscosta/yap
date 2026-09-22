@@ -122,7 +122,7 @@ static foreign_t python_proc( term_t tobj) {
   PyObject *o;
   
 
-  o = term_to_python(tobj, true, NULL, true);
+  o = term_to_python(tobj, true, NULL, false);
   foreign_t rc = o != NULL;
   pyErrorAndReturn(rc);
 }
@@ -253,7 +253,7 @@ static foreign_t assign_python(term_t exp, term_t name) {
   //  term_t stackp = python_acquire_GIL();
 
   //python_release_GIL(stackp);
-  PyObject *e = term_to_python(exp, true, NULL, true);
+  PyObject *e = term_to_python(exp, true, NULL, false);
   if (e == NULL) {
     pyErrorAndReturn(false);
   }
