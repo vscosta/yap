@@ -62,10 +62,10 @@ static PyObject *Lookup(PyObject *ctx, PyObject *pArgs,const char *s) {
     out = read_symbol(ctx, s);
     return out;
   } else {
-    if ((out = PyImport_ImportModule(s)))
-	return out;
     if (py_Main && (out = read_symbol(py_Main ,s))!=NULL)
       return out;
+    if ((out = PyImport_ImportModule(s)))
+	return out;
   if (py_User && (out = read_symbol(py_User ,s))!=NULL)
       return out;
     if ((out = read_symbol(PyEval_GetBuiltins(),s))!= NULL)

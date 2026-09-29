@@ -335,7 +335,8 @@ nl,
 translate_message(error(user_defined_error(Error),Info))-->
     !,
     { prolog_load_context(number_of_open_load_files, LC),
-         error_descriptor(Info, Desc) },
+      error_descriptor(Info, Desc) },
+{ writeln(Desc) },
    location(Desc, error, full, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
@@ -404,6 +405,7 @@ syntax_error_end(_LC,_Level,_File,_Desc) --> [].
  
 
 location( Desc, Level, More, LC ) -->
+{writeln(Desc)},
     {
 %     query_exception(prologConsulting, Desc, true),
       %       query_exception(parserReadingCode, Desc, true),

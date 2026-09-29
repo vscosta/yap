@@ -1311,12 +1311,13 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   Term action = re->sy;
   if (action == TermFail || action == TermDec10) {
     Term sc[2];
-    
-    sc[0] = LOCAL_ActiveError->culprit_t;
-    sc[1] = MkSysError(LOCAL_ActiveError);
-    Yap_PrintWarning(Yap_SaveTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc)),TermError);
+
+    sc[0] = MkSysError(LOCAL_ActiveError);
+    sc[1] = TermNil;
+    Yap_PrintWarning(Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc),TermError);
     if (action == TermFail)
-      return  YAP_PARSING_FINISHED;   else
+      return YAP_PARSING_FINISHED;
+    else
       return  YAP_START_PARSING;
   } else {
     Yap_RaiseException();

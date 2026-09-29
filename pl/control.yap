@@ -361,98 +361,62 @@ catch(MG,E,G) :-
       true
       ).
 
-'$catch'(_MG,E,G,_,_) :-    
-    '$drop_exception'(E0,Info),
+'c$atch'(_MG,E,G,_,_) :-    
+    '$drop_exception'(E0,U),
     nonvar(E0),
     (
-	E = E0
-    ->
+      E = E0
+     ->
+      (
+	E0 = error(K,SystemAsList)
+       ->
 	(
-	    '$yap_strip_module'(G,_,error_handler )
-	->
-	(
-	    E = error(K,U)
-	->
-	%Info = NewInfo,
-	'$extend_info'(Info,U, NewInfo),
-	error_handler(error,error(K,NewInfo))
-	    ;
-	print_message(warning,error(existence_error(error_handler,E),catch)),
-	fail
+	  '$yap_strip_module'(G,_,error_handler )
+	 ->
+	  '$extend_info'(U, SystemAsList,  NewInfo),
+	  error_handler(error,error(K,NewInfo)),
+	  !,
+	  fail
 	)
-	    ;
-	call(G)
-	)
-	;
-    throw(E0)
+       ;
+        call(G)
+      );
+      throw(E0)
+
     ).
     	
-'$rm_user_wrapper'(error(
-		     user_defined_error(
-		       user_defined_error,EW),
-		       _),
-		     E0) :-
-    !,
-    '$rm_user_wrapper'(EW,E0).
-'$rm_user_wrapper'(error(user_defined_error,EW),E0) :-
-    !,
-    '$rm_user_wrapper'(EW,E0).
-'$rm_user_wrapper'(E,E).
-
-'$extend_info'(Info0, Hints0, Info) :-
-    '$mk_info'(Info0, Info),
-    '$mk_hints'(Hints0, Hints),
-    '$add_hints'(Hints, Info).
-
-
-'$mk_info'(Info0, Info) :-
-    var(Info0),
-    !,
-    '$new_exception'(Info).
-'$mk_info'(Info0, Info) :-
-    is_list(Info0),
-    !,
-    '$new_exception'(Info),
-    '$add_hints'(Info0,Info).
-'$mk_info'(Info, Info).
-
-'$mk_hints'(Hints0, []) :-
-    var(Hints0),
+'$extend_info'(Hints, Info, Info) :-
+    var(Hints),
     !.
-'$mk_hints'(Hints, Hints) :-
+'$extend_info'(Hints, Info0, Info) :-
     is_list(Hints),
-    !.
-'$mk_hints'(Hints0, Hints) :-
-    atom(Hints0),
     !,
-    (
-	atom_to_term(Hints0,Hints),
-	Hints  = [_=_|_]
-	;
-    atom_to_string(Hints0,Msg),
-    Hints = [errorMsg=Msg]
-    ),
-    !.
-'$mk_hints'(Hints0, Hints) :-
-    string(Hints0),
-    (
-	string_to_term(Hints0,Hints),
-	Hints  = [_=_|_]
-	;
-    Hints = [errorMsg=Hints0]
-    ),
-    !.
-'$mk_hints'(K=V, [K=V]) :-
-    !.
-'$mk_hints'(Hint0, [errorMsg=Msg]) :-
-    term_to_string(Hint0,Msg) .
+    '$add_all_to_list'(Hints,Info0,Info).
 
-'$add_hints'([],_).
-'$add_hints'([K=V|KVs], exception(Data)) :-
-    '$set_exception'(K,Data, V),
-    '$add_hints'(KVs,exception(Data)).
+'$extend_info'(Hints, Info0, Info) :-
+    atom(Hints),
+    catch(atom_to_term(Hints,ErrorGoal), _, fail),
+    !,
+    '$add_to_list'(errorGoal=ErrorGoal, Info0, Info).
+'$extend_info'(Hint,Info0, Info) :-
+    '$add_to_list'(errorGoal=Hint,Info0, Info).
+
+
+'$add_to_list'(IKey=_,Info,Info) :-
+    !,
+    '$memberchk'(IKey=_,Info, Info).
+'$add_to_list'(Key=Val,Info,[Key=Val|Info]).
+
+'$add_all_to_list'([], Info, Info).
+'$add_all_to_list'([El|Els],Info0, Info) :-
+    '$add_to_list'(El,Info0, InfoI),
+    '$add_all_to_list'(Els,InfoI, Info).
+
+
+
 
 /** @pred  call_with_args(+ _Name_,...,? _Ai_,...)
+
 
 
 Meta-call where  _Name_ is the name of the procedure to be called and
@@ -679,7 +643,7 @@ given by the integer  _I_.
 
 */
 halt(_V) :-
-	recorded('$halt', G, _),
+    recorded('$halt', G, _),
     catch(once(G), _Error, error_handler),
     fail.
 halt(X) :-
@@ -891,4 +855,5 @@ b_getval(GlobalVariable, Val) :-
 
 
 %% @}
+
 
