@@ -209,7 +209,7 @@ Switches on the debugger and enters tracing mode.
 
 
 */
-    trace :-
+trace :-
     (
       '__NB_getval__'('$spy_gn',_, fail)
  ->
@@ -470,6 +470,7 @@ true
 '$restart_debugging':-
     nb_getval(creep,creep), 
     !,
+writeln(creep),
     '$creep'.
 '$restart_debugging'.
 

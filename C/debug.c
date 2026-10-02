@@ -189,10 +189,9 @@ creep may happen:
 */
 bool Yap_creep(bool creep_on_forward USES_REGS)
 {
-  if (!allow_creep(PASS_REGS1)) {
-    return false;
+  if (allow_creep(PASS_REGS1) ) {
+    Yap_signal( YAP_CREEP_SIGNAL);
   }
-  Yap_signal( YAP_CREEP_SIGNAL);
   // LOCAL_IsDebugging =false;
   return true;
 }
