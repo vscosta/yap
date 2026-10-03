@@ -332,7 +332,7 @@ extern bool Yap_callable(YAP_Term t);
 
 #include "ScannerTypes.h"
 
- extern char *Yap_syntax_error__(const char *file, const char *function,
+ extern  YAP_Term Yap_syntax_error__(const char *file, const char *function,
                                  int lineno, YAP_Term t, int sno,
                                  TokEntry *start, TokEntry *err, const char *s, ...);
 #endif

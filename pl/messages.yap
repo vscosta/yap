@@ -267,8 +267,9 @@ translate_message(myddas_version(Version)) -->
 translate_message(throw(BALL)) -->
     !,
     [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
-translate_message(error(syntax_error(syntax_error(Msg,File,Line,Pos,_)), Info)) -->
-    { 
+translate_message(error(syntax_error(Msg), Info)) -->
+    {
+	'$error_position'(Info,File,Line,Pos),
 prolog_load_context(number_of_open_load_files,LC),
       error_descriptor(Info, Desc),
      Level = error,
@@ -289,7 +290,7 @@ prolog_load_context(number_of_open_load_files,LC),
 	nl,
 	nl
     ].
-translate_message(error(style_check(undefined_export,[F,L,C], M:N/A),_Exc)) -->
+translate_message(error(style_check(undefined_export),[F,L,C, M:N/A,_x])) -->
     {
 prolog_load_context(number_of_open_load_files,LC),
      Level = warning
@@ -299,7 +300,7 @@ prolog_load_context(number_of_open_load_files,LC),
     [  '~N~*|~s:~d:~d: ~s: module ~s exports predicate ~p, but ~p is neither defined nor visible in ~s.' - [ LC,F,L,C,Level,M,N/A,N/A,M],
 nl,
 nl].
-translate_message(error(style_check(undefined_in_module,[F,L,C], M:N/A),_Exc)) -->
+translate_message(error(style_check(undefined_in_module),[F,L,C, M:N/A,_Exc])) -->
     !,
     {
 prolog_load_context(number_of_open_load_files,LC),

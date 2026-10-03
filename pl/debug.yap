@@ -616,8 +616,10 @@ recorded('$m', meta_predicate(prolog,PredDef),_)
     '$debugger_prepare_meta_arguments'(As, Ms, NAs),
     As \== NAs,
     !,
-    NG=..[N|NAs]
+    NG=..[N|NAs].
 '$meta_hook'(MG,MG).
+
+
 
 '$one_number'([N|_Ms]) :-
     integer(N),

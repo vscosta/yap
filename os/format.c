@@ -469,10 +469,11 @@ format_integer(int command, int (*f_putc)(int, wchar_t), int repeats, char *tmpb
     }
     repeats = 0;
   }
+  int siz0=siz;
   while (siz > 0) {
     if ((command == 'D'||command == 'd') &&siz == repeats) {
       f_putc(sno, (int) '.');
-    } else if (command == 'D' && (siz-repeats) % 3 == 0) {
+    } else if (command == 'D' && (siz-repeats) % 3 == 0  && siz0>siz) {
       f_putc(sno, (int) ',');
     }
     int ch = *ptr++;

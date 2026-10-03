@@ -1399,6 +1399,23 @@ static Int read_exception(USES_REGS1) {
   return Yap_unify(ARG2, rc);
 }
 
+static Int error_position(USES_REGS1) {
+  yap_error_descriptor_t *e;
+  Term te = Deref(ARG1);
+  if (IsApplTerm(te)) {
+    e = (yap_error_descriptor_t *) AddressOfTerm(ArgOfTerm(1, te));
+  } else {
+  if (LOCAL_ActiveError) {
+    e = LOCAL_ActiveError;
+  } else {
+    LOCAL_ActiveError = e = calloc(1,  sizeof(yap_error_descriptor_t));
+  }
+  }
+  return Yap_unify(ARG2, MkStringTerm(e->parserFile)) &&
+    Yap_unify(ARG3, MkIntTerm(e->parserLine)) &&
+      Yap_unify(ARG4, MkIntTerm(e->parserLinePos));
+}
+
 static Int print_exception(USES_REGS1) {
   Term t1 = Deref(ARG1);
   if (IsAddressTerm(t1)) {
@@ -2109,6 +2126,7 @@ static Int must_be_predicate_indicator1(USES_REGS1) {
 
 void Yap_InitErrorPreds(void) {
 
+  Yap_InitCPred("$error_position", 4, error_position, 0);
   Yap_InitCPred("$print_exception", 1, print_exception, 0);
   Yap_InitCPred("print_exception", 1, print_exception, 0);
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
