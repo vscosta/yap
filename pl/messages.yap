@@ -268,97 +268,90 @@ translate_message(throw(BALL)) -->
     !,
     [ 'WARNING: throw of  ~W had no catch' - [BALL,[]] ].
 translate_message(error(syntax_error(Msg), Info)) -->
-    {
-	'$error_position'(Info,File,Line,Pos),
-prolog_load_context(number_of_open_load_files,LC),
-      error_descriptor(Info, Desc),
-     Level = error,
-    (string(Msg);atom(Msg))
-},
-    [ '~*|~s:~d:~d: ~s: syntax error ~s' - [ LC,File,Line,Pos,Level, Msg], nl ],
-    syntax_error_details(LC,Level,File,Desc).
-translate_message(error( style_check(singletons,[VName,F0,Line,Column],P), _Exc)) -->
     !,
     {
-      clause_to_indicator(P, I),
+	'$error_position'(Info,File,Line,Pos),
+    prolog_load_context(number_of_open_load_files,LC),
+    Level = error,
+    (string(Msg);atom(Msg))
+    },
+    [ '~*|~s:~d:~d: ~s: syntax error ~s' - [ LC,File,Line,Pos,Level, Msg], nl ],
+    syntax_error_details(LC,Level,File,Info).
+translate_message(error( style_check(singletons), Info)) -->
+    !,
+{
+'$error_position'(Info,File,Line,Column),
 prolog_load_context(number_of_open_load_files,LC),
-     Level = warning
-      },
+     Level = error,
+ query_exception(culprit_t, Info, VName),
+query_exception(errorUserTerm, Info, P),
+      clause_to_indicator(P, I)
+},
     [
 	'~*|~s:~d:~d: ~s singleton variable ~s in ~q.' -
-	[  LC,F0, Line, Column, Level, VName, I],
+	[  LC,File, Line, Column, Level, VName, I],
 	nl,
 	nl
     ].
-translate_message(error(style_check(undefined_export),[F,L,C, M:N/A,_x])) -->
+translate_message(error( style_check( multifile), Info)) -->
+    !,
+    {
+	query_exception(culprit_t, Info, [F,L,C,F0,L0,C0,I]),
+    prolog_load_context(number_of_open_load_files,LC),
+     Level = warning
+    },
+        [  '~*|~s:~d:~d: ~s: multiple definition of ~p.' - [ LC,F,L,C,Level,I],
+nl,
+           '~*|~s:~d:~d:   this is the initial definition for ~p.' - [LC, F0,L0,C0,I],
+           nl
+
+        ].
+translate_message(error( style_check( discontiguous), Info)) -->
+    !,
+    {
+	query_exception(culprit_t, Info, [F,L,C,F0,L0,C0,I]),
+    prolog_load_context(number_of_open_load_files,LC),
+     Level = warning
+    },
+        [  '~*|~s:~d:~d: ~s: discontiguous definition for ~p.' - [ LC,F,L,C,Level,I],
+nl,
+           '~*|~s:~d:~d:  this is the initial definition for ~p.' - [LC, F0,L0,C0,I],
+           nl
+        ].
+translate_message(error(style_check(undefined_export),[File,L,C,M:N/A,_])) -->
+    !,
     {
 prolog_load_context(number_of_open_load_files,LC),
      Level = warning
     },
       %{start_low_level_trace},
     !,
-    [  '~N~*|~s:~d:~d: ~s: module ~s exports predicate ~p, but ~p is neither defined nor visible in ~s.' - [ LC,F,L,C,Level,M,N/A,N/A,M],
-nl,
-nl].
-translate_message(error(style_check(undefined_in_module),[F,L,C, M:N/A,_Exc])) -->
-    !,
-    {
-prolog_load_context(number_of_open_load_files,LC),
-     Level = warning
-    },
-    [  '~*|~s:~d:~d: ~s: predicate ~p is neither defined nor imported in module ~a'-
- [LC,F,L,C,Level,N/A,M],
-nl,
-nl].
-translate_message(error(style_check(discontiguous,[F,L,C,F0,L0,C0],I), _Exc)) -->
-    !,
-   {
-prolog_load_context(number_of_open_load_files,LC),
-     Level = warning
-    },
- 	[  '~*|~s:~d:~d: ~s: discontiguous definition for ~p.' - [ LC,F,L,C,Level,I],
-nl,
-	   '~*|~s:~d:~d:  this is the initial definition for ~p.' - [LC, F0,L0,C0,I],
-	   nl
-	].
-translate_message(error(style_check(multiple,[F,L,C,F0,L0,C0],I      ), _Info)) -->
-    !,
-   {
-prolog_load_context(number_of_open_load_files, LC),
-     Level = warning
-    },
-       	[  '~*|~s:~d:~d: ~s: multiple definition of ~p.' - [ LC,F,L,C,Level,I],
-nl,
-	   '~*|~s:~d:~d:   this is the initial definition for ~p.' - [LC, F0,L0,C0,I],
-	   nl
-
+    [  '~N~*|~s:~d:~d: ~s: module ~s exports predicate ~p, but ~p is neither defined nor visible in ~s.' - [ LC,File,L,C,Level,M,N/A,N/A,M],
+	nl
 	].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
-    { prolog_load_context(number_of_open_load_files, LC),
-      error_descriptor(Info, Desc) },
-{ writeln(Desc) },
-   location(Desc, error, full, LC),
+    { prolog_load_context(number_of_open_load_files, LC) },
+   location(Info, error, full, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
  {
      prolog_load_context(number_of_open_load_files,LC),
-        error_descriptor(Info, Desc),
 	Level = error ,
      Exc \= exception(_)
     },
     !,
-    location( Desc, Level,full , LC),
+    location( Info, Level,full , LC),
    main_message(error(Exc,Info) , Level, LC ),
-    c_goal( Desc, Level, LC ),
-     c_caller( Desc, Level, LC),
-    extra_info( Desc, Level, LC ),
-    stack_info( Desc, Level, LC ),
+    c_goal( Info, Level, LC ),
+     c_caller( Info, Level, LC),
+    extra_info( Info, Level, LC ),
+    stack_info( Info, Level, LC ),
     [nl],
     [nl].
-translate_message(error(Descriptor,exception(Error))) -->
+translate_message(error(Inforiptor,exception(Error))) -->
 	!,
-    [ 'ERROR NOT RECOGNISED - ~w unsupported both by YAP system code and by  user hooks:' -  [Descriptor] , nl],
+    [ 'ERROR NOT RECOGNISED - ~w unsupported both by YAP system code and by  user hooks:' -  [Inforiptor] , nl],
     [ '~@' - ['print_exception'(Error)] ,nl].
 translate_message( Term ) -->
     message(Term), ! .
@@ -371,52 +364,52 @@ seq([A|Args]) -->
     [['~w '] - A],
     seq(Args).
 
-syntax_error_details(LC,Level,File,Desc) -->
+syntax_error_details(LC,Level,File,Info) -->
     {
-     query_exception(parserFirstLine, Desc, FirstLN), 
-     query_exception(parserFirstLinePos, Desc, FirstLCol), 
+     query_exception(parserFirstLine, Info, FirstLN), 
+     query_exception(parserFirstLinePos, Info, FirstLCol), 
      nonvar(FirstLN)
     },
     !,
     [  '~*|  ~s~d:~d: ~s: starts here.' - [ LC,File,FirstLN,FirstLCol,Level],nl ],
-    syntax_error_text(LC,Level,File,Desc).
-syntax_error_details(LC,Level,File,Desc) -->
-    syntax_error_text(LC,Level,File,Desc).
+    syntax_error_text(LC,Level,File,Info).
+syntax_error_details(LC,Level,File,Info) -->
+    syntax_error_text(LC,Level,File,Info).
 
-syntax_error_text(LC,Level,File,Desc) -->
+syntax_error_text(LC,Level,File,Info) -->
      {
-     query_exception(parserTextA,Desc, TextA),
-     query_exception(parserTextB, Desc, TextB)
+     query_exception(parserTextA,Info, TextA),
+     query_exception(parserTextB, Info, TextB)
      },
      !,
      [     '~s **** here **** ~s' - [ TextA, TextB], nl],
-     syntax_error_end(LC,Level,File,Desc).
-syntax_error_text(LC,Level,File,Desc) -->
-syntax_error_end(LC,Level,File,Desc).
+     syntax_error_end(LC,Level,File,Info).
+syntax_error_text(LC,Level,File,Info) -->
+syntax_error_end(LC,Level,File,Info).
 
-syntax_error_end(LC,Level,File,Desc) -->
+syntax_error_end(LC,Level,File,Info) -->
     {
-     query_exception(parserLastLine, Desc, LastLN), 
-     query_exception(parserLastLinePos, Desc, LastLCol)
+     query_exception(parserLastLine, Info, LastLN), 
+     query_exception(parserLastLinePos, Info, LastLCol)
     },
     !,
    [  '~*|  ~s:~d:~d: ~s: ends here.' - [ LC,File,LastLN,LastLCol,Level], nl,nl].
-syntax_error_end(_LC,_Level,_File,_Desc) --> [].
+syntax_error_end(_LC,_Level,_File,_Info) --> [].
 
  
 
-location( Desc, Level, More, LC ) -->
-{writeln(Desc)},
+location( Info, Level, More, LC ) -->
+{writeln(Info)},
     {
-%     query_exception(prologConsulting, Desc, true),
-      %       query_exception(parserReadingCode, Desc, true),
+%     query_exception(prologConsulting, Info, true),
+      %       query_exception(parserReadingCode, Info, true),
 
-     query_exception(parserLine, Desc, LN),
+     query_exception(parserLine, Info, LN),
       nonvar(LN),
-     query_exception(parserFile, Desc, FileName),
+     query_exception(parserFile, Info, FileName),
      nonvar(FileName),
      (
-       query_exception(parserLinePos, Desc, Pos) ->
+       query_exception(parserLinePos, Info, Pos) ->
        (var(Pos) -> Pos=0;true)
        ;
        Pos=0
@@ -426,56 +419,56 @@ location( Desc, Level, More, LC ) -->
     !,
     ({More == full}
     ->
-    prolog_caller( Desc, Level, LC)
+    prolog_caller( Info, Level, LC)
     ;
     []
     ).
-location( Desc, Level, _, LC ) -->
-    prolog_caller( Desc, Level, LC).
+location( Info, Level, _, LC ) -->
+    prolog_caller( Info, Level, LC).
 
 
-prolog_caller( Desc, Level, LC ) -->
+prolog_caller( Info, Level, LC ) -->
     {
-     query_exception(prologPredLine, Desc, LN),
-     query_exception(prologPredFile, Desc, FileName),
-     query_exception(prologPredName, Desc, Name),
-     query_exception(prologPredArity, Desc, Arity),
-     query_exception(prologPredModule, Desc, Module)
+     query_exception(prologPredLine, Info, LN),
+     query_exception(prologPredFile, Info, FileName),
+     query_exception(prologPredName, Info, Name),
+     query_exception(prologPredArity, Info, Arity),
+     query_exception(prologPredModule, Info, Module)
     },
     !,
     [  '~N~s:~d:0: ~a executing ~s:~s/~d:'-[FileName, LN,Level,Module,Name,Arity] ],
      [nl],
-     c_caller( Desc, Level, LC).
-prolog_caller( Desc, Level, LC ) -->
+     c_caller( Info, Level, LC).
+prolog_caller( Info, Level, LC ) -->
     {
-     query_exception(prologPredFile, Desc, FileName),
-     query_exception(prologPredName, Desc, Name),
-     query_exception(prologPredArity, Desc, Arity),
-     query_exception(prologPredModule, Desc, Module)
+     query_exception(prologPredFile, Info, FileName),
+     query_exception(prologPredName, Info, Name),
+     query_exception(prologPredArity, Info, Arity),
+     query_exception(prologPredModule, Info, Module)
  },
      !,
 	     [  '~N~s:1:0: ~a executing ~s:~s/~d:'-[FileName, Level,Module,Name,Arity] ],
      [nl],
-     c_caller( Desc, Level, LC).
+     c_caller( Info, Level, LC).
 
-prolog_caller( Desc, Level, LC ) -->
+prolog_caller( Info, Level, LC ) -->
     [  '~Nuser:~d:0: ~a in top-level goal.'-[0,Level]],
     [nl],
-    c_caller( Desc, Level, LC).
+    c_caller( Info, Level, LC).
 
-c_caller( Desc, Level, _LC ) -->
+c_caller( Info, Level, _LC ) -->
     {
-     query_exception(errorFile, Desc, FileName),
-     query_exception(errorLine, Desc, LN),
-     query_exception(errorFunction, Desc, F)
+     query_exception(errorFile, Info, FileName),
+     query_exception(errorLine, Info, LN),
+     query_exception(errorFunction, Info, F)
     },
     !,
     [  '~N~s:~d:0: ~a in ~s():'-[FileName, LN,Level,F] ].
-c_caller( _Desc, _Level, _LC ) --> [].
+c_caller( _Info, _Level, _LC ) --> [].
 
-event(redo, _Desc) --> {fail}, [].
-event(fail, _Desc) --> {fail}, [].
-event(abort, Desc) --> { throw(event(abort, Desc)) }, [].
+event(redo, _Info) --> {fail}, [].
+event(fail, _Info) --> {fail}, [].
+event(abort, Info) --> { throw(event(abort, Info)) }, [].
 
 simplify_pred(user:F, F) :- !.
 simplify_pred(prolog:F, F) :- !.
@@ -557,9 +550,8 @@ fix_pi(PI, PI) .
 
 display_consulting( _F, Level, Info, LC) -->
     {  LC > 0,
-       error_descriptor(Info, Desc),
-       query_exception(prologParserFilre, Desc, F0),
-       query_exception(prologParserLine, Desc, L),
+       query_exception(prologParserFilre, Info, F0),
+       query_exception(prologParserLine, Info, L),
        integer(L)
 %       ,       F \= F0
     }, !,
@@ -568,17 +560,17 @@ display_consulting( _F, Level, Info, LC) -->
 display_consulting(_F, _, _, _LC) -->
     [].
 
-c_goal( Desc,_, LC) -->
+c_goal( Info,_, LC) -->
 	{
-	  query_exception(errorGoal, Desc, G) },
+	  query_exception(errorGoal, Info, G) },
 	!,
 	['~*|call was: ~w' - [LC,G]].
 c_goal(_,_,_) --> [].
 
 
-extra_info( Desc, Level, LC ) -->
+extra_info( Info, Level, LC ) -->
    {
-	query_exception(errorMsg, Desc, Msg),
+	query_exception(errorMsg, Info, Msg),
 	Msg \= '',
 	Msg \= "",
 	Msg \= []
@@ -589,13 +581,13 @@ extra_info( Desc, Level, LC ) -->
     [nl],
     ['~*|% info: ~s' - [LC,Msg]],
     [nl],
-    extra_info_(Desc, Level,LC).
-extra_info(Desc, Level, LC  ) -->
-    extra_info_( Desc, Level, LC ).
+    extra_info_(Info, Level,LC).
+extra_info(Info, Level, LC  ) -->
+    extra_info_( Info, Level, LC ).
 
-extra_info_( Desc, _Level, LC ) -->
+extra_info_( Info, _Level, LC ) -->
    {
-	query_exception(errorUserTerm, Desc, Goal),
+	query_exception(errorUserTerm, Info, Goal),
 	Msg \= '',
 	Msg \= "",
 	Msg \= []
@@ -620,12 +612,12 @@ code_stream(Stream, S, L) :-
 close_codes(Stream, L, L) :-
     close(Stream).
 
-stack_info( _Desc,_, _LC) -->
+stack_info( _Info,_, _LC) -->
     { current_prolog_flag(backtrace, false ) },
     !.
-stack_info( Desc,_, LC) -->
+stack_info( Info,_, LC) -->
     {
-     query_exception(prologStack, Desc, Stack),
+     query_exception(prologStack, Info, Stack),
 	Stack \= []
 
     },
@@ -661,8 +653,9 @@ system_message(error(existence_error(mutex,Key), Where)) -->
     [ 'EXISTENCE ERROR- ~w: ~w is an erased mutex' - [Where,Key] ].
 system_message(existence_error(prolog_flag,F)) -->
     [ 'Prolog Flag ~w: new Prolog flags must be created using create_prolog_flag/3.' - [F] ].
-system_message(error(existence_error(prolog_flag,P), Where)) --> !,
-								 [ 'EXISTENCE ERROR- ~w: prolog flag ~w is undefined' - [Where,P] ].
+system_message(error(existence_error(prolog_flag,P), Where)) -->
+    !,
+    [ 'EXISTENCE ERROR- ~w: prolog flag ~w is undefined' - [Where,P] ].
 system_message(error(existence_error(procedure,P), context(Call,Parent))) --> !,      [ 'EXISTENCE ERROR- procedure ~w is undefined, called fromcontext  ~w~n                 Goal was ~w' - [P,Parent,Call] ].
 system_message(error(existence_error(stream,Stream), Where)) -->
     [ 'EXISTENCE ERROR- ~w: ~w not an open stream' - [Where,Stream] ].
@@ -1422,6 +1415,8 @@ prolog:print_message_(Level, _Msg) :-
 %     % first step at hook processing
 %     '$conditional_compilation_skip'(true),
 %     !.
+
+
 prolog:print_message_(force(_Severity), Msg) :- !,
     print(user_error,Msg).
 % This predicate has more hooks than a pirate ship!
@@ -1446,10 +1441,25 @@ prolog:print_message(Severity, Msg) :-
 	fail.
 prolog:print_message(_Severity, _Msg).
 
-is_exception_descriptor(exception(Address)) :-
-    integer(Address). 
-is_exception_descriptor(List) :-
+
+prolog:is_exception_descriptor(exception(Address)) :-
+    !,
+    integer(Address).
+prolog:is_exception_descriptor(Address) :-
+    !,
+    integer(Address).
+prolog:is_exception_descriptor(List) :-
     is_list(List).
+
+/**
+@pred system_error_position(Info,File,Line,Pos)
+
+This auxiliary predictae extracts the position for an error while consulting a file _File_.
+
+*/
+prolog:error_position(Info,File,Line,Pos) :-
+     '$error_position'(Info,File,Line,Pos).
+
 
 %%
 %% @pred print_warning( +Msg )

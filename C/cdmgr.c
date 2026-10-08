@@ -600,7 +600,6 @@ static yamop * IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     }
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
-    return ap->CodeOfPred ;
 #if defined(YAPOR) || defined(THREADS)
   } else if (ap->PredFlags & LogUpdatePredFlag &&
              !(ap->PredFlags & ThreadLocalPredFlag) &&
@@ -611,8 +610,8 @@ static yamop * IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   } else {
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
     ap->OpcodeOfPred = ap->CodeOfPred->opc;
-    
-  }
+  }    
+    return ap->CodeOfPred ;
 }
 
 void Yap_IPred(PredEntry *p, UInt NSlots, yamop *next_pc) {
@@ -2069,18 +2068,13 @@ warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *m
   yap_error_descriptor_t *e =LOCAL_ActiveError;
   Yap_MkErrorRecord( e,  __FILE__, __FUNCTION__, __LINE__, warning_id,
 		    Yap_PredicateIndicator(t, CurrentModule), TermNil, msg);
-  Term ts[3], sc[2];
-  ts[0] = terr;
-  ts[1] = culprit;
-  ts[2] =  Yap_PredicateIndicator(t, CurrentModule);
   e->prologConsulting =  IsPairTerm( Yap_GetGlobal(AtomConsultingFile) );
   e->parserReadingCode = true;
   e->parserLine = Yap_source_line_no();
-  e->parserLinePos = 0;
+  e->parserLinePos = Yap_source_line_pos();
   e->parserFile = Yap_source_name()->StrOfAE;
-  sc[0] = Yap_MkApplTerm(FunctorStyleCheck,3,ts);
-  sc[1] = MkSysError(e);
-  Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, sc),TermWarning);
+  e->culprit_t = culprit;
+  Yap_PrintWarning(Yap_MkErrorTerm(e),TermWarning);
   memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
 }
 
@@ -2141,6 +2135,8 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
     }
   } else {
     if (discontiguous) {
+      d_culprit =
+        MkPairTerm(Yap_PredicateIndicator(t, CurrentModule), d_culprit);
       d_culprit = MkPairTerm(MkIntTerm(0), d_culprit);
       d_culprit = MkPairTerm(MkIntTerm(p->src.OwnerLine), d_culprit);
       d_culprit = MkPairTerm(MkAtomTerm(Yap_source_name()),d_culprit);
@@ -2221,10 +2217,10 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
   }
   UNLOCKPE(30, p);
   if (multiple) {
-    warn(WARNING_MULTIPLE, t, TermMultiple, m_culprit, "definition in multiple files warning");
+    warn(STYLE_CHECK_MULTIPLE, t, TermMultiple, m_culprit, "definition in multiple files warning");
   } else
     if (discontiguous) {
-      warn(WARNING_DISCONTIGUOUS, t, TermDiscontiguous, d_culprit, "discontiguous definition in same file warning");
+      warn(STYLE_CHECK_DISCONTIGUOUS, t, TermDiscontiguous, d_culprit, "discontiguous definition in same file warning");
     }
   return true;
 }

@@ -676,9 +676,10 @@ Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
     i->errorAsText = Yap_errorName(type);
     i->errorAsText2 = Yap_errorName2(type);
     i->errorClass = Yap_errorClass(type);
-    i->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);    switch (i->errorNo) {
+    i->classAsText = Yap_errorClassName(LOCAL_ActiveError->errorClass);
+    switch (i->errorNo) {
 #include "YapErrors.h"
-  }
+    }
     
     Term *o = (HR);
     HR += 3;

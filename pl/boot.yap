@@ -282,7 +282,6 @@ mksys(op(A,B,C)) :-
 %:- ( recorded('$lf_loaded',_,R), erase(R), fail ; true ).
 %:- ( recorded('$module',_,R), erase(R), fail ; true ).
 
-%:- start_low_level_trace.
 :- style_check([+discontiguous,+multiple,+single_var]).
 
 %
@@ -367,4 +366,3 @@ can now succeed without error.
        '$protect'.
 
 %% @}
- 

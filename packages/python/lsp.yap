@@ -263,16 +263,16 @@ q_msg(informational, _, _) :-
 q_msg(help, _, _) :-
     !,
     fail.
-q_msg(warning, error(style_check(singletons,[VName,Line,Column,_F0],_),_Desc),t("warning",S, Line1,Column1, Line1,EndCol)) :-
+q_msg(warning, error(style_check(singletons,[VName,_F0,Line,Column],_),_Desc),t("warning",S, Line1,Column1, Line1,EndCol)) :-
     !,
     Line1 is Line-1,
     Column1 is Column-1,
     format(string(S), 'singleton variable ~s.~n ', [VName]),
     atom_length(VName, Len),
     EndCol is Column+Len.
-q_msg(warning, error(style_check(multiple,[F0,L,Column],I ) ,Desc ), t("warning",S, L,Column,L,EndCol)) :-
+q_msg(warning, error(style_check(multiple,[F,L,Column,F0,L0,C0,I]) ), t("warning",S, L,Column,L,EndCol)) :-
     !,
-    format(string(S), '~w previously defined at file ~s.~n',[Desc,F0]),
+    format(string(S), '~w previously defined at file ~s.~n',[I,F0]),
     I = _:Name/_,
     atom_length(Name, Len),
     EndCol is Column+Len.

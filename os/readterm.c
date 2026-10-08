@@ -933,14 +933,8 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
     line = IntOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(myv))));
     col  = IntOfTerm(HeadOfTerm(TailOfTerm(TailOfTerm(TailOfTerm(myv)))));
     yap_error_descriptor_t *e = LOCAL_ActiveError;
-    Yap_MkErrorRecord(e, __FILE__, __FUNCTION__, __LINE__, WARNING_SINGLETONS,
-                      myv, TermNil, "singletons warning");
-    Term ts[3], sc[2];
-    ts[0] = MkAtomTerm(Yap_LookupAtom("singletons"));
-    ts[1] = myv;
-    ts[2] = fe->t;
-    sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck,3),3,ts);
-    sc[1] = MkSysError(e);
+    Term sc[2];
+    sc[0] = MkAtomTerm(Yap_LookupAtom("singletons"));
     if (sno < 0) {
      
       e->parserPos = 0;
@@ -950,8 +944,9 @@ static void warn_singletons(FEnv *fe, int sno, TokEntry *tokstart) {
       e->parserPos = col;
       e->parserSize = strlen(RepAtom(AtomOfTerm(myv))->StrOfAE);
       e->parserFile = fil;
+      e->culprit_t = myv;
+      e->errorUserTerm = Yap_SaveTerm(fe->t);
     }
-    Term info = Yap_SaveTerm(Yap_MkApplTerm(FunctorError, 2, sc));
     Yap_PrintWarning(info,TermWarning);
     vn = TailOfTerm(vn);
   }

@@ -38,7 +38,7 @@ ECLASS(TYPE_ERROR, "type_error", 2)
 //> should be unbound
 ECLASS(UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error", 1)
 //> not quite an error, but almost
-ECLASS(WARNING, "warning", 1)
+ECLASS(STYLE_CHECK, "style_check", 1)
 //> user defined escape hatch
 ECLASS(EVENT, "event", 1)
 ECLASS(USER_DEFINED_ERROR_CLASS, "NULL", 1)
@@ -221,12 +221,12 @@ E1(UNINSTANTIATION_ERROR, UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error")
 E(USER_DEFINED_ERROR, USER_DEFINED_ERROR_CLASS, "user_defined_error" )
 
 // not errors
-E(WARNING_DISCONTIGUOUS, WARNING, "discontiguous")
-E(WARNING_MULTIPLE, WARNING, "multiple")
-E(WARNING_SINGLETONS, WARNING, "singletons")
-E(WARNING_USER_DEFINED, WARNING, "user_defined")
-E(WARNING_EXPORT_UNDEFINED, WARNING, "export_undefined")
-E(SYNTAX_WARNING, WARNING, "syntax error")
+E(STYLE_CHECK_DISCONTIGUOUS, STYLE_CHECK, "discontiguous")
+E(STYLE_CHECK_MULTIPLE, STYLE_CHECK, "multiple")
+E(STYLE_CHECK_SINGLETONS, STYLE_CHECK, "singletons")
+E(STYLE_CHECK_USER_DEFINED, STYLE_CHECK, "user_defined")
+E(STYLE_CHECK_EXPORT_UNDEFINED, STYLE_CHECK, "export_undefined")
+E(SYNTAX_STYLE_CHECK, STYLE_CHECK, "syntax error")
 
 E(ERROR_EVENT, EVENT, "error")
 E(ABORT_EVENT, EVENT, "abort")
