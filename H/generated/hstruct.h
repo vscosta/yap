@@ -168,7 +168,6 @@
   struct pred_entry  *PredTraceMetaCall_;
   struct pred_entry  *PredCommentHook_;
   struct pred_entry  *PredProcedure_;
-  struct pred_entry  *PredUndefined_;
   struct pred_entry  *PredWithin_;
   struct pred_entry  *PredLastWithin_;
   struct pred_entry  *PredComma_;

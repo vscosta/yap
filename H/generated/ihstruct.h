@@ -164,7 +164,6 @@
   PredTraceMetaCall = RepPredProp(PredPropByFunc(FunctorTraceMetaCall,PROLOG_MODULE));
   PredCommentHook = RepPredProp(PredPropByFunc(FunctorCommentHook,PROLOG_MODULE));
   PredProcedure = Yap_MkLogPred(RepPredProp(PredPropByFunc(FunctorProcedure,PROLOG_MODULE)));
-  PredUndefinedQuery = RepPredProp(PredPropByFunc(FunctorUndefinedQuery,PROLOG_MODULE));
   PredWithin = RepPredProp(PredPropByFunc(FunctorExecuteWithin,PROLOG_MODULE));
   PredLastWithin = RepPredProp(PredPropByFunc(FunctorLastExecuteWithin,PROLOG_MODULE));
   PredComma = RepPredProp(PredPropByFunc(FunctorComma,PROLOG_MODULE));

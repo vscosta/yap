@@ -168,7 +168,6 @@ EXTERNAL    struct pred_entry  *PredThrow;
 EXTERNAL    struct pred_entry  *PredTraceMetaCall;
 EXTERNAL    struct pred_entry  *PredCommentHook;
 EXTERNAL    struct pred_entry  *PredProcedure;
-EXTERNAL    struct pred_entry  *PredUndefinedQuery;
 EXTERNAL    struct pred_entry  *PredWithin;
 EXTERNAL    struct pred_entry  *PredLastWithin;
 EXTERNAL    struct pred_entry  *PredComma;

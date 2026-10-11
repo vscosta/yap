@@ -361,20 +361,20 @@ catch(MG,E,G) :-
       true
       ).
 
-'c$atch'(_MG,E,G,_,_) :-    
-    '$drop_exception'(E0,U),
+'$catch'(_MG,E,G,_,_) :-    
+    '$drop_exception'(E0,_U),
     nonvar(E0),
     (
       E = E0
      ->
       (
-	E0 = error(K,SystemAsList)
+	E0 = error(K,U)
        ->
 	(
 	  '$yap_strip_module'(G,_,error_handler )
 	 ->
-	  '$extend_info'(U, SystemAsList,  NewInfo),
-	  error_handler(error,error(K,NewInfo)),
+	  %'$extend_info'(U, SystemAsList,  NewInfo),
+	  error_handler(error,error(K,U)),
 	  !,
 	  fail
 	)
@@ -402,9 +402,9 @@ catch(MG,E,G) :-
     '$add_to_list'(errorGoal=Hint,Info0, Info).
 
 
-'$add_to_list'(IKey=_,Info,Info) :-
+'$add_to_list'(IKey=Val,Info) :-
     !,
-    '$memberchk'(IKey=_,Info, Info).
+    '$memberchk'(IKey=Val,Info).
 '$add_to_list'(Key=Val,Info,[Key=Val|Info]).
 
 '$add_all_to_list'([], Info, Info).

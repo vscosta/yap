@@ -276,6 +276,7 @@ atom(Name),
 	;
      Encoding =[]
      ),
+    writeln(open:AbsPath),
     open(AbsPath, read, Stream,Encoding).
 
 
@@ -296,19 +297,22 @@ atom(Name),
      ).
  
 '$close_stream'(Stream, File,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,M0,OuterModule,State, _FileLocation ):-
-%    ( '$memberchk'(import(Preds), Opts) -> true ; Opts = all),
-    ('$module'(File,InnerModule,_,_) ->
+    (
+    '$module'(File,InnerModule,_,_)
+     ->
      '$import_module'(InnerModule, OuterModule, File, Opts),
-     '$check_module'(File,InnerModule);
+      '$check_module'(File,InnerModule)
+     ;
      InnerModule=OuterModule
      ),
      '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
     '$end_consult'(D0),
+'$conditional_compilation_set_state'(State),
     '$exec_initialization_goals'(File),
-    current_source_module(_,M0) ,
-   '$conditional_compilation_set_state'(State),
-    close(Stream).
 
+    current_source_module(_,M0),
+writeln(close:File),
+    close(Stream).
     
 '$skip_unix_header'(Stream) :-
 	peek_char(Stream, '#'), !, % 35 is ASCII for '#
@@ -465,16 +469,18 @@ strip_module(Fs,_M,S),
     '$include'(F),
     '$include'(Fs).
 '$include'(File) :-
+writeln(inc_open:File),
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(File,Y,Dir,Stream),
     working_directory(Dir0, Dir),
-prolog_load_context(stream,Old),
+    prolog_load_context(stream,Old),
     stream_property(loop_stream,[encoding(Encoding)] ),
     ignore(recordzifnot('$includes', (Old ->Y),_)),
     set_stream(Stream, [encoding(Encoding), alias(include_stream)] ),
     print_message(informational, loading(including, Y)),
     %b_getval('$consulting_file',[l(_,Reconsult)|_Files]), 
     '$loop'(Stream,reconsult),
+    writeln(inclose:File),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     current_source_module(Mod,Mod),

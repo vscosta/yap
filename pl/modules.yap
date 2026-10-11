@@ -791,7 +791,7 @@ module_state.
 '$check_module'(File,Mod) :-
     '$module'(File,Mod,ExpL,_Loc),
     !,
-    '$simplify_functorsv'(ExpL, CallL),
+    '$simplify_functors'(ExpL, CallL),
     '$check_module_exports'(CallL,File,Mod),
 '$check_module_undefineds'(File,Mod).
 '$check_module'(_File,_Mod).

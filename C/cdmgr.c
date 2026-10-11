@@ -2074,6 +2074,7 @@ warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *m
   e->parserLinePos = Yap_source_line_pos();
   e->parserFile = Yap_source_name()->StrOfAE;
   e->culprit_t = culprit;
+  
   Yap_PrintWarning(Yap_MkErrorTerm(e),TermWarning);
   memset(LOCAL_ActiveError,0,sizeof(*LOCAL_ActiveError));
 }

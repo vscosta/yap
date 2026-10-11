@@ -888,3 +888,7 @@ expands_to(Call0, NG,NewClauses) :-
 	NG =.. [NewName|CallerArgs].
 
 expands_to(G,G,[]).
+a b.
+:- start_low_level_trace.
+
+

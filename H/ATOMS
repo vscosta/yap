@@ -475,6 +475,9 @@ A	Ttys			N	"ttys"
 A	Txt			N	"txt"
 A	TypeError		N	"type_error"
 A	Undefined		N	"undefined"
+A	UndefinedProcedure	N	"undefined_procedure"
+A	Undefp			N	"$undefp"
+A	Undefp0			N	"$undefp0"
 A	Underflow		N	"underflow"
 A	Underscore		N	"_"
 A	UnificationStack	N	"unification_stack"
@@ -704,7 +707,7 @@ F	Stream			Stream		1
 F	StreamEOS		EndOfStream	1
 F	StreamPos		StreamPos	4
 F	String1			String		1
-F	StyleCheck		StyleCheck	3
+F	StyleCheck		StyleCheck	1
 F	Sub			Sub		2
 F	Sum			Sum		2
 F	SyntaxError		SyntaxError	5
@@ -718,7 +721,8 @@ F	TimeoutError		TimeoutError	2
 F	TraceMetaCall		TraceMetaCall	3
 F	TypeError		TypeError	2
 F	UMinus			Minus		1
-	Undefined		Undefined	2
+F	Undefined		Undefined	2
+F	UnknownPredicateHandler UnknownPredicateHandler 3
 F	UPlus			Plus		1
 F	UserDefinedError	UserDefinedError 1
 F	Var			Var		1

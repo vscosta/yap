@@ -1,6 +1,6 @@
 
 :- use_module(library(lineutils),
-              [file_filter_with_init/5,
+              [file_filter_with_initialization/5,
                split/3,
                glue/3]).
 
@@ -16,25 +16,18 @@
 
 :- style_check(all).
 
-file_filter_with_initialization(A,B,C,D,E) :-
-    file_filter_with_init(A,B,C,D,E).
-
 main :-
 	warning(Warning),
-	file_filter_with_initialization('H/HEAPFIELDS','H/generated/hstruct.h',gen_struct,Warning,['hstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('H/HEAPFIELDS','H/generated/dhstruct.h',gen_dstruct,Warning,['dhstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('H/HEAPFIELDS','H/generated/h0struct.h',gen_0struct,Warning,['d0hstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('H/HEAPFIELDS','H/generated/rhstruct.h',gen_hstruct,Warning,['rhstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('H/HEAPFIELDS','H/generated/ihstruct.h',gen_init,Warning,['ihstruct.h','HEAPFIELDS']),
-	file_filter_with_initialization('H/GLOBALS','H/generated/h0globals.h',gen_0struct,Warning,['hglobals.h','GLOBALS']),
-	file_filter_with_initialization('H/GLOBALS','H/generated/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
-	file_filter_with_initialization('H/GLOBALS','H/generated/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
-	file_filter_with_initialization('H/GLOBALS','H/generated/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']).
-%%	file_filter_with_initialization('H/GLOBALS','H/generated/i0globals.h',gen_0init,Warning,['iglobals.h','GLOBALS']),
-%	file_filter_with_initialization('H/LOCALS','H/generated/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
-%	file_filter_with_initialization('H/LOCALS','H/generated/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
-%	file_filter_with_initialization('H/LOCALS','H/generated/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
-%	file_filter_with_initialization('H/LOCALS','H/generated/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
+	file_filter_with_initialization(gen_struct,'H/HEAPFIELDS','H/generated/hstruct.h',Warning,['hstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization(gen_dstruct,'H/HEAPFIELDS','H/generated/dhstruct.h',Warning,['dhstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization(gen_0struct,'H/HEAPFIELDS','H/generated/h0struct.h',Warning,['d0hstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization(gen_hstruct,'H/HEAPFIELDS','H/generated/rhstruct.h',Warning,['rhstruct.h','HEAPFIELDS']),
+	file_filter_with_initialization(gen_init,'H/HEAPFIELDS','H/generated/ihstruct.h',Warning,['ihstruct.h','HEAPFIELDS']).
+%%	file_filter_with_initialization(gen_0init,'H/GLOBALS','H/generated/i0globals.h',Warning,['iglobals.h','GLOBALS']),
+%	file_filter_with_initialization(gen_struct,'H/LOCALS','H/generated/hlocals.h',Warning,['hlocals.h','LOCALS']),
+%	file_filter_with_initialization(gen_dstruct,'H/LOCALS','H/generated/dlocals.h',Warning,['dlocals.h','LOCALS']),
+%	file_filter_with_initialization(gen_hstruct,'H/LOCALS','H/generated/rlocals.h',Warning,['rlocals.h','LOCALS']),
+%	file_filter_with_initialization(gen_init,'H/LOCALS','H/generated/ilocals.h',Warning,['ilocals.h','LOCALS']).
 
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildlocalglobal\"~n     please do not update, update H/~a instead */~n~n').
 

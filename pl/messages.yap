@@ -279,14 +279,14 @@ translate_message(error(syntax_error(Msg), Info)) -->
     syntax_error_details(LC,Level,File,Info).
 translate_message(error( style_check(singletons), Info)) -->
     !,
-{
-'$error_position'(Info,File,Line,Column),
-prolog_load_context(number_of_open_load_files,LC),
-     Level = error,
- query_exception(culprit_t, Info, VName),
-query_exception(errorUserTerm, Info, P),
+    {
+      '$error_position'(Info,File,Line,Column),
+      prolog_load_context(number_of_open_load_files,LC),
+      Level = warning,
+      query_exception(culprit_t, Info, VName),
+      query_exception(errorUserTerm, Info, P),
       clause_to_indicator(P, I)
-},
+    },
     [
 	'~*|~s:~d:~d: ~s singleton variable ~s in ~q.' -
 	[  LC,File, Line, Column, Level, VName, I],
@@ -396,24 +396,24 @@ syntax_error_end(LC,Level,File,Info) -->
    [  '~*|  ~s:~d:~d: ~s: ends here.' - [ LC,File,LastLN,LastLCol,Level], nl,nl].
 syntax_error_end(_LC,_Level,_File,_Info) --> [].
 
- 
-
-location( Info, Level, More, LC ) -->
-{writeln(Info)},
-    {
-%     query_exception(prologConsulting, Info, true),
-      %       query_exception(parserReadingCode, Info, true),
-
-     query_exception(parserLine, Info, LN),
-      nonvar(LN),
-     query_exception(parserFile, Info, FileName),
-     nonvar(FileName),
+'$error_position'(Info,FileName,Line,Pos) :-
+     query_exception(parserLine, Info, Line),
+nonvar(Line),
+query_exception(parserFile, Info, FileName),
+nonvar(FileName),
      (
-       query_exception(parserLinePos, Info, Pos) ->
+       query_exception(parserLinePos, Info, Pos)
+      ->
        (var(Pos) -> Pos=0;true)
+
        ;
        Pos=0
-     ) 
+     ).
+
+
+location( Info, Level, More, LC ) -->
+    {
+      '$error_position'(Info,FileName,LN,Pos)
       },
     [  '~N~s:~d:~d: ~a: ' -[FileName, LN,Pos,Level] ],
     !,
@@ -1083,7 +1083,7 @@ name_vars_in_goals_([V, V1|NGVL], NamedVs, I0, IF) :-
     I is I0+1,
     gen_name_string( I0, [],SName),
     atom_codes(Name, [95, 68 |SName]),
-    \+ '$in'(Name=V, NamedVs),
+    \+ '$memberchk'(Name=V, NamedVs),
     !,
     V = '$VAR'(Name),
     takev(NGVL, V, IGVL),
@@ -1093,7 +1093,7 @@ name_vars_in_goals_([V, V1|NGVL], NamedVs, I0, IF) :-
     I is I0+1,
     gen_name_string( I0,[],SName),
     atom_codes(Name, [95|SName]),
-    \+ '$in'(Name=V, NamedVs),
+    \+ '$memberchk'(Name=V, NamedVs),
     !,
     V = '$VAR'(Name),
     takev(NGVL, V, IGVL),
@@ -1104,7 +1104,7 @@ name_vars_in_goals_([NV|NGVL],NamedVs, I0, IF) :-
     !,
     gen_name_string( I0,[],SName),
     atom_codes(Name, [95|SName]),
-    \+ '$in'(Name=V, NamedVs),
+    \+ '$memberchk'(Name=V, NamedVs),
     !, 
   name_vars_in_goals_(NGVL,[Name = V|NamedVs], I0, IF).
 name_vars_in_goals_([V|NGVL],NamedVs, I0, IF) :-
@@ -1368,19 +1368,28 @@ error_descriptor( V, List) :-
     V=List
     ).
 
+
 query_exception(_K0,[],_V) :-
+
     !,
     fail.
-query_exception(K0,[H|L],V) :-
-    (atom(K0) -> K=K0 ;  atom_to_string(K, K0) ),
+query_exception(KS,M,V) :-
+    string(KS),
     !,
-    '$in'(K0=V,[H|L]).
+    atom_string(K,KS),
+    query_exception(K,M,V).
+query_exception(K,[H|L],V) :-
+    !,
+    '$memberchk'(K=V,[H|L]).
 query_exception(K,exception(M) ,V) :-
+    !,
+    query_exception(K,M,V).
+query_exception(K, M, V) :-
+    integer(M),
     !,
     '$query_exception'(K,M,V).
 query_exception(K,M ,V) :-
     throw(error(type_error(exception,M),query_exception(K,M ,V))).
-
 
 prolog:print_message_(Severity, Msg) :-
     (

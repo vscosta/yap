@@ -164,7 +164,6 @@
   PredTraceMetaCall = PtoPredAdjust(PredTraceMetaCall);
   PredCommentHook = PtoPredAdjust(PredCommentHook);
   PredProcedure = PtoPredAdjust(PredProcedure);
-  PredUndefinedQuery = PtoPredAdjust(PredUndefinedQuery);
   PredWithin = PtoPredAdjust(PredWithin);
   PredLastWithin = PtoPredAdjust(PredLastWithin);
   PredComma = PtoPredAdjust(PredComma);

@@ -362,7 +362,6 @@ can now succeed without error.
 
 :- ensure_loaded('../pl/pathconf.yap').
 
-:-     set_value('$user_module',user),
-       '$protect'.
+:-     set_value('$user_module',user), '$protect'.
 
 %% @}

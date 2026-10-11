@@ -81,8 +81,7 @@ init_prolog :-
     set_prolog_flag(debug, false),
     % simple trick to find out if this is we are booting from Prolog.
     % boot from a saved state
-    '$init_from_saved_state_and_args', %start_low_level_trace,
-
+    '$init_from_saved_state_and_args',
     '$db_clean_queues'(0),
 				% this must be executed from C-code.
 				%	'$startup_saved_state',
@@ -100,18 +99,19 @@ init_prolog :-
     recorded('$startup_goal',G,_),
     catch(once(user:G),_Error,error_handler),
     fail.
-		'$startup_goals' :-
-			get_value('$init_goal',GA),
-			GA \= [],
-			set_value('$init_goal',[]),
-			'$run_atom_goal'(GA),
-			fail.
-			'$startup_goals' :-
-				get_value('$top_level_goal',GA),
-				GA \= [],
-				set_value('$top_level_goal',[]),
-				'$run_atom_goal'(GA),
-				fail.
+
+'$startup_goals' :-
+    get_value('$init_goal', GA),
+    GA \= [],
+    set_value('$init_goal', []),
+    '$run_atom_goal'(GA),
+    fail.
+'$startup_goals' :-
+    get_value('$top_level_goal',GA),
+    GA \= [],
+    set_value('$top_level_goal',[]),
+    '$run_atom_goal'(GA),
+    fail.
 '$startup_goals' :-
     recorded('$restore_flag', goal(Module:GA), R),
     erase(R),
@@ -131,6 +131,7 @@ init_prolog :-
 	;
 	  Host = localhost
 	),
+
 	get_value('$myddas_pass',PassT),
 	( PassT \= [] ->
 	  Pass = PassT,
@@ -178,15 +179,17 @@ init_prolog :-
 	  ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
 	  fail.
 % use if we come from a save_program and we have a goal to execute
+
 '$init_from_saved_state_and_args' :-
-	get_value('$consult_on_boot',X), X \= [],
-	set_value('$consult_on_boot',[]),
-	'$do_startup_reconsult'(X),
-	fail.
+    get_value('$consult_on_boot',X),
+    X \= [],
+    set_value('$consult_on_boot',[]),
+    '$do_startup_reconsult'(X),
+    fail.
 '$init_from_saved_state_and_args' :-
-	recorded('$restore_flag', init_file(M:B), R),
+	recorded('$restore_flag', init_file(MB), R),
 	erase(R),
-	'$do_startup_reconsult'(M:B),
+	'$do_startup_reconsult'(MB),
 	fail.
 '$init_from_saved_state_and_args' :-
 	recorded('$restore_flag', unknown(M:B), R),
@@ -209,3 +212,33 @@ init_prolog :-
 	set_value('$extend_file_search_path',[]),
 	'$extend_file_search_path'(P).
 '$init_path_extensions'.
+
+%
+% reconsult at startup...
+%
+'$do_startup_reconsult'(_X) :-
+    '$init_win_graphics',
+    fail.
+'$do_startup_reconsult'(X) :-
+    catch(load_files(X, [silent(true)]), _Error, error_handler),
+  % still need to run -g or -z
+    get_value('$top_level_goal',[]),
+    !,
+    ( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
+'$do_startup_reconsult'(_).
+
+% system goals must be performed first)
+
+'$exec_initialization_goals'( File) :-
+    set_prolog_flag(optimise, true),
+    recorded('$blocking_code',File,R),
+    erase(R),
+    fail.
+'$exec_initialization_goals'(File) :-
+    recorded('$initialization_queue',q(File-_Line ,G),R),     
+    erase(R),
+    catch(G,_,error_handler),
+    fail.
+'$exec_initialization_goals'(_).
+
+

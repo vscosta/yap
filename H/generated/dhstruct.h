@@ -164,7 +164,6 @@
 #define PredTraceMetaCall Yap_heap_regs->PredTraceMetaCall_
 #define PredCommentHook Yap_heap_regs->PredCommentHook_
 #define PredProcedure Yap_heap_regs->PredProcedure_
-#define PredUndefinedQuery Yap_heap_regs->PredUndefinedQuery_
 #define PredWithin Yap_heap_regs->PredWithin_
 #define PredLastWithin Yap_heap_regs->PredLastWithin_
 #define PredComma Yap_heap_regs->PredComma_

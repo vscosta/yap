@@ -209,20 +209,6 @@ last one, onto underscores.
 	fail.
 '$remove_multifile_clauses'(_).
 
-%
-% reconsult at startup...
-%
-'$do_startup_reconsult'(_X) :-
-    '$init_win_graphics',
-    fail.
-'$do_startup_reconsult'(X) :-
-    catch(load_files(user:X, [silent(true)]), _Error, error_handler),
-  % still need to run -g or -z
-    get_value('$top_level_goal',[]),
-    !,
-    ( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
-'$do_startup_reconsult'(_) .
-
 /**
 @pred source_file(?FileName)
 

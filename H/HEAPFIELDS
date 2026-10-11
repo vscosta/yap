@@ -180,7 +180,6 @@ struct pred_entry *PredThrow		MkPred FunctorThrow PROLOG_MODULE
 struct pred_entry *PredTraceMetaCall	MkPred FunctorTraceMetaCall PROLOG_MODULE
 struct pred_entry *PredCommentHook		MkPred FunctorCommentHook PROLOG_MODULE
 struct pred_entry *PredProcedure		MkLogPred FunctorProcedure   PROLOG_MODULE
-struct pred_entry *PredUndefinedQuery		MkPred FunctorUndefinedQuery   PROLOG_MODULE
 struct pred_entry *PredWithin		MkPred FunctorExecuteWithin   PROLOG_MODULE
 struct pred_entry *PredLastWithin		MkPred FunctorLastExecuteWithin   PROLOG_MODULE
 struct pred_entry *PredComma		MkPred FunctorComma      PROLOG_MODULE

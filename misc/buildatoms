@@ -1,7 +1,5 @@
-
-:- use_module(library(lineutils),
+:- use_module(library(lineutils)),
 	[file_filter_with_init/5,
-	 file_filter_with_initialization/5,
 	 split_unquoted/3]).
 
 :- use_module(library(lists),
@@ -13,9 +11,9 @@
 
 main :-
      warning(Warning),
-	file_filter_with_init('H/ATOMS','H/generated/tatoms.h',gen_fields, Warning, ['tatoms.h']),
-	file_filter_with_init('H/ATOMS','H/generated/iatoms.h',gen_decl, Warning, ['iatoms.h']),
-	file_filter_with_init('H/ATOMS','H/generated/ratoms.h',gen_rcov, Warning, ['ratoms.h']).
+	file_filter_with_init(gen_fields,'H/ATOMS','H/generated/tatoms.h', Warning, ['tatoms.h']),
+	file_filter_with_init(gen_decl,'H/ATOMS','H/generated/iatoms.h', Warning, ['iatoms.h']),
+	file_filter_with_init(gen_rcov,'H/ATOMS','H/generated/ratoms.h', Warning, ['ratoms.h']).
 
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildatoms\"~n     {Please do not update, update H/ATOMS instead */~n~n').
 

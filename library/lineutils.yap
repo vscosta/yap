@@ -24,7 +24,8 @@
 	   fields/2,
 	   field_chars/2,
 	   fields/3,
-	   glue/3,
+
+	    glue/3,
 	   copy_line/2,
 	   filter/3,
 	   file_filter/3,
@@ -52,22 +53,22 @@ available by loading the
 ```
 :- use_module(library(lineutils)).
 ```
-
+WARNING: recent versions of YAP moved the command to before its stream arguments.
 
 */
 
 :- meta_predicate
-	filter(+,+,2),
-	file_filter(+,+,2),
-	filter_atom(+,+,2),
-	file_filter_atom(+,+,2),
-	filter_chars(+,+,2),
-	file_filter_chars(+,+,2),
-	filter_string(+,+,2),
-	file_filter_string(+,+,2),
-	file_filter_with_initialization(+,+,3,+,:),
-	file_filter_with_start_end(+,+,2,2,2),
-	process(+,1).
+	filter(2,+,+),
+	file_filter(2,+,+),
+	filter_atom(2,+,+),
+	file_filter_atom(2,+,+),
+	filter_chars(2,+,+),
+	file_filter_chars(2,+,+),
+	filter_string(2,+,+),
+	file_filter_string(2,+,+),
+	file_filter_with_initialization(2,+,+,+,+),
+	file_filter_with_start_end(2,+,+,2,2),
+	process(1,+,1).
 
 :- use_module((lists),
 	      [member/2,
@@ -417,7 +418,7 @@ copy_line(StreamInp, StreamOut) :-
 	format(StreamOut, '~s~n', [Line]).
 
 
-/** @pred filter(+ _StreamInp_, + _StreamOut_, + _Goal_)
+/** @pred filter( + _Goal_, + _StreamInp_, + _StreamOut_)
 
 For every line  _LineIn_ in stream  _StreamInp_, execute
 `call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
@@ -435,7 +436,7 @@ select :-
 ```
 
 */
-filter(StreamInp, StreamOut, Command) :-
+filter(Command, StreamInp, StreamOut) :-
 	repeat,
 	read_line_to_codes(StreamInp, Line),
 	(
@@ -449,70 +450,6 @@ filter(StreamInp, StreamOut, Command) :-
 	 fail
 	).
 
-
-/** @pred filter(+ _StreamInp_, + _StreamOut_, + _Goal_)
-
-For every line  _LineIn_ in stream  _StreamInp_, execute
-`call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
-stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
-nothing will be output but execution continues with the next
-line. As an example, consider a procedure to select the second and
-fifth field of a CSV table :
-```
-select(Sep, In, Out) :-
-	fields(In, Sep, [_,F2,_,_,F5|_]),
-        fields(Out,Sep, [F2,F5]).
-
-select :-
-       filter(",",
-```
-
-*/
-filter(StreamInp, StreamOut, Command) :-
-	repeat,
-	read_line_to_codes(StreamInp, Line),
-	(
-	 Line == end_of_file
-	->
-	 !
-	;
-	 call(Command, Line, NewLine),
-	 ground(NewLine),
-	 format(StreamOut, '~s~n', [NewLine]),
-	 fail
-	).
-
-/** @pred filter(+ _StreamInp_, + _StreamOut_, + _Goal_)
-
-For every line  _LineIn_ in stream  _StreamInp_, execute
-`call(Goal,LineIn,LineOut)`, and output  _LineOut_ to
-stream  _StreamOut_. If `call(Goal,LineIn,LineOut)` fails,
-nothing will be output but execution continues with the next
-line. As an example, consider a procedure to select the second and
-fifth field of a CSV table :
-```
-select(Sep, In, Out) :-
-	fields(In, Sep, [_,F2,_,_,F5|_]),
-        fields(Out,Sep, [F2,F5]).
-
-select :-
-       filter(",",
-```
-
-*/
-filter(StreamInp, StreamOut, Command) :-
-	repeat,
-	read_line_to_codes(StreamInp, Line),
-	(
-	 Line == end_of_file
-	->
-	 !
-	;
-	 call(Command, Line, NewLine),
-	 ground(NewLine),
-	 format(StreamOut, '~s~n', [NewLine]),
-	 fail
-	).
 
 /** @pred filter_chars(+ _StreamInp_, + _StreamOut_, + _Goal_)
 
@@ -533,7 +470,7 @@ select :-
 ```
 
 */
-filter_chars(StreamInp, StreamOut, Command) :-
+filter_chars(Command, StreamInp, StreamOut) :-
 	repeat,
 	read_line_to_chars(StreamInp, Line),
 	(
@@ -565,7 +502,7 @@ select :-
 ```
 
 */
-filter_string(StreamInp, StreamOut, Command) :-
+filter_string(Command, StreamInp, StreamOut) :-
 	repeat,
 	read_line_to_string(StreamInp, Line),
 	(
@@ -597,7 +534,7 @@ select :-
 ```
 
 */
-filter_atom(StreamInp, StreamOut, Command) :-
+filter_atom(Command, StreamInp, StreamOut) :-
 	repeat,
 	read_line_to_atom(StreamInp, Line),
 	(
@@ -617,7 +554,7 @@ filter_atom(StreamInp, StreamOut, Command) :-
 For every line  _LineIn_ in stream  _StreamInp_, call
 `call(Goal,LineIn)`.
 */
-process(StreamInp, Command) :-
+process(Command, StreamInp) :-
 	repeat,
 	read_line_to_codes(StreamInp, Line),
 	(
@@ -647,10 +584,10 @@ process(StreamInp, Command) :-
   The input stream is accessible through the alias `filter_input`, and
   the output stream is accessible through `filter_output`.
 */
-file_filter(Inp, Out, Command) :-
+file_filter(Command, Inp, Out) :-
 	open(Inp, read, StreamInp, [alias(filter_input)]),
 	open(Out, write, StreamOut),
-	filter(StreamInp, StreamOut, Command),
+	filter(Command, StreamInp, StreamOut),
 	close(StreamInp),
 	close(StreamOut).
 
@@ -671,10 +608,10 @@ file_filter(Inp, Out, Command) :-
   The input stream is accessible through the alias `filter_chars_input`, and
   the output stream is accessible through `filter_chars_output`.
 */
-file_filter_chars(Inp, Out, Command) :-
+file_filter_chars(Command, Inp, Out) :-
 	open(Inp, read, StreamInp, [alias(filter_chars_input)]),
 	open(Out, write, StreamOut),
-	filter_chars(StreamInp, StreamOut, Command),
+	filter_chars(Command, StreamInp, StreamOut),
 	close(StreamInp),
 	close(StreamOut).
 
@@ -695,10 +632,10 @@ file_filter_chars(Inp, Out, Command) :-
   The input stream is accessible through the alias `filter_string_input`, and
   the output stream is accessible through `filter_string_output`.
 */
-file_filter_string(Inp, Out, Command) :-
+file_filter_string(Command, Inp, Out) :-
 	open(Inp, read, StreamInp, [alias(filter_string_input)]),
 	open(Out, write, StreamOut),
-	filter_string(StreamInp, StreamOut, Command),
+	filter_string(Command, StreamInp, StreamOut),
 	close(StreamInp),
 	close(StreamOut).
 
@@ -719,10 +656,10 @@ file_filter_string(Inp, Out, Command) :-
   The input stream is accessible through the alias `filter_string_input`, and
   the output stream is accessible through `filter_string_output`.
 */
-file_filter_string(Inp, Out, Command) :-
+file_filter_string(Command, Inp, Out) :-
 	open(Inp, read, StreamInp, [alias(filter_string_input)]),
 	open(Out, write, StreamOut),
-	filter_string(StreamInp, StreamOut, Command),
+	filter_string(Command, StreamInp, StreamOut),
 	close(StreamInp),
 	close(StreamOut).
 
@@ -743,40 +680,40 @@ file_filter_string(Inp, Out, Command) :-
   The input stream is accessible through the alias `filter_atom_input`, and
   the output stream is accessible through `filter_atom_output`.
 */
-file_filter_atom(Inp, Out, Command) :-
+file_filter_atom(Command, Inp, Out) :-
 	open(Inp, read, StreamInp, [alias(filter_atom_input)]),
 	open(Out, write, StreamOut),
-	filter_atom(StreamInp, StreamOut, Command),
+	filter_atom(Command, StreamInp, StreamOut),
 	close(StreamInp),
 	close(StreamOut).
 
-/** @pred file_filter_with_initialization(+ _FileIn_, + _FileOut_, + _Goal_, + _FormatCommand_,   + _Arguments_)
+/** @pred file_filter_with_initialization(2: _Goal, + _FileIn_, + _FileOut__, + _FormatCommand_,   + _Arguments_)
 
 Same as file_filter/3, but before starting the filter execute
 format/3 on the output stream, using  _FormatCommand_ and
  _Arguments_.
 */
-file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-
+file_filter_with_initialization(Command, Inp, Out, FormatString, Parameters) :-
 	open(Inp, read, StreamInp, [alias(filter_input)]),
 	open(Out, write, StreamOut, [alias(filter_output)]),
 	format(StreamOut, FormatString, Parameters),
-	filter(StreamInp, StreamOut, Command),
+	filter(Command, StreamInp, StreamOut),
 	close(StreamInp),
 	close(StreamOut).
 
 
-/** @pred file_filter_with_start_end(+ FileIn, + FileOut, + Goal, + StartGoal,   + EndGoal)
+/** @pred file_filter_with_start_end(2:Goal, + FileIn, + FileOut, + 0:StartGoal,   + 0:EndGoal)
 
 Same as file_filter/3, but before starting the filter execute
 _StartGoal_,  and call _ENdGoal_ as an epilog.
 
 The input stream are always accessible through `filter_output` and `filter_input`.
 */
-file_filter_with_start_end(Inp, Out, Command, StartGoal, EndGoal) :-
+file_filter_with_start_end( Command, Inp, Out,StartGoal, EndGoal) :-
 	open(Inp, read, StreamInp, [alias(filter_input)]),
 	open(Out, write, StreamOut, [alias(filter_output)]),
 	call( StartGoal, StreamInp, StreamOut ),
-	filter(StreamInp, StreamOut, Command),
+	filter(Command, StreamInp, StreamOut),
 	call( EndGoal, StreamInp, StreamOut ),
 	close(StreamInp),
 	close(StreamOut).
@@ -788,18 +725,18 @@ _StartGoal_,  and call _ENdGoal_ as an epilog.
 
 The input stream are always accessible through `filter_output` and `filter_input`.
 */
-file_filter_with_start_end(Inp, Out, Command, StartGoal, EndGoal) :-
+file_filter_with_start_end(Command, Inp, Out, StartGoal, EndGoal) :-
 	open(Inp, read, StreamInp, [alias(filter_input)]),
 	open(Out, write, StreamOut, [alias(filter_output)]),
 	call( StartGoal, StreamInp, StreamOut ),
-	filter(StreamInp, StreamOut, Command),
+	filter(Command, StreamInp, StreamOut),
 	call( EndGoal, StreamInp, StreamOut ),
 	close(StreamInp),
 	close(StreamOut).
 
 
 /**
-  * @pred file_select(+ _FileIn_, + _Goal_)  is meta
+  * @pred file_select( + _Goal_, + _FileIn_)  is meta
   *
   * @param _FileIn_  File or Stream to process
   * @param _Goal_ to be metacalled, receives FileIn as
@@ -813,7 +750,7 @@ file_filter_with_start_end(Inp, Out, Command, StartGoal, EndGoal) :-
   * The input stream is accessible through the alias `filter_input`, and
   * the output stream is accessible through `filter_output`.
 */
-file_select(Inp, Command) :-
+file_select(Command, Inp) :-
 	( retract(alias(F)) -> true ; F = '' ),
 	atom_concat(filter_input, F, Alias),
         open(Inp, read, StreamInp, [Alias]),

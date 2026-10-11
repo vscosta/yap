@@ -700,7 +700,7 @@
   FunctorStreamEOS = Yap_MkFunctor(AtomEndOfStream,1);
   FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,4);
   FunctorString1 = Yap_MkFunctor(AtomString,1);
-  FunctorStyleCheck = Yap_MkFunctor(AtomStyleCheck,3);
+  FunctorStyleCheck = Yap_MkFunctor(AtomStyleCheck,1);
   FunctorSub = Yap_MkFunctor(AtomSub,2);
   FunctorSum = Yap_MkFunctor(AtomSum,2);
   FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,5);
