@@ -90,6 +90,8 @@ expands_to/3
 
 :- dynamic ids/1.
 
+:- current_prolog_flag(source,_,true).
+
 /*
 
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
@@ -98,6 +100,8 @@ expands_to/3
 
 
 :- use_module( library(lists),[append/3]).
+
+:- use_module( library(hacks),[stack_dump/0]).
 
 /**
   * @defgroup YAPMapList Repeat Operations om a List or on Term Arguments
@@ -792,8 +796,8 @@ expand_rule1(sumlist).
       meta(g(Args) LinkArgs) -> newname(LinkArgs Args)
 */
 
-goal_expansion(Call0, M0:NG) :-
-    current_source_module(source,_),
+user:goal_expansion(Call0, M0:NG) :-
+    current_source_module(Source,Source),
     current_prolog_flag( goal_expansion_allowed, true ),
     strip_module(Call0,M0,Call),
     Call =.. [Meta,M0Goal|LinkArgs],
@@ -888,7 +892,9 @@ expands_to(Call0, NG,NewClauses) :-
 	NG =.. [NewName|CallerArgs].
 
 expands_to(G,G,[]).
-a b.
-:- start_low_level_trace.
+
+
+
+
 
 

@@ -629,7 +629,7 @@ lookup atom in atom table */
   /* fe is supposed to be locked */
   Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
     PredEntry *p = (PredEntry *)Yap_AllocAtomSpace(sizeof(*p));
-
+    memset(p,0,sizeof(*p));
     if (p == NULL) {
       return NULL;
     }
@@ -773,9 +773,9 @@ lookup atom in atom table */
 
   Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
     Prop p0;
-    PredEntry *p = (PredEntry *)Yap_AllocAtomSpace(sizeof(*p));
+    PredEntry *p = (PredEntry *)calloc(1,sizeof(*p));
     CACHE_REGS
-      /* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(cur_mod))->StrOfAE,
+    /* Printf("entering %s:%s/0\n", RepAtom(AtomOfTerm(cur_mod))->StrOfAE,
        * ae->StrOfAE); */
 
       if (p == NULL) {
@@ -938,7 +938,7 @@ lookup atom in atom table */
       WRITE_LOCK(p->VRWLock);
       WRITE_UNLOCK(ae->ARWLock);
     } else {
-      p = (ValEntry *)Yap_AllocAtomSpace(sizeof(ValEntry));
+      p = (ValEntry *)calloc(1,sizeof(ValEntry));
       if (p == NULL) {
 	WRITE_UNLOCK(ae->ARWLock);
 	return;
@@ -969,7 +969,7 @@ lookup atom in atom table */
 	if (IsApplTerm(t0)) {
 	  Yap_FreeCodeSpace((char *)(RepAppl(t0)));
 	}
-	pt = (CELL *)Yap_AllocAtomSpace(sizeof(CELL) *
+	pt = (CELL *)calloc(1,sizeof(CELL) *
 					(1 + 2 * sizeof(Float) / sizeof(CELL)));
 	if (pt == NULL) {
 	  WRITE_UNLOCK(ae->ARWLock);
@@ -993,7 +993,7 @@ lookup atom in atom table */
 	if (IsApplTerm(t0)) {
 	  Yap_FreeCodeSpace((char *)(RepAppl(t0)));
 	}
-	pt = (CELL *)Yap_AllocAtomSpace(2 * sizeof(CELL));
+	pt = (CELL *)calloc(1, 2 * sizeof(CELL));
 	if (pt == NULL) {
 	  WRITE_UNLOCK(ae->ARWLock);
 	  return;
@@ -1007,7 +1007,7 @@ lookup atom in atom table */
       CELL *ap = RepAppl(v);
       Int sz = sizeof(MP_INT) + sizeof(CELL) +
 	(((MP_INT *)(ap + 1))->_mp_alloc * sizeof(mp_limb_t));
-      CELL *pt = (CELL *)Yap_AllocAtomSpace(sz);
+      CELL *pt = (CELL *)calloc(1,sz);
 
       if (pt == NULL) {
 	WRITE_UNLOCK(ae->ARWLock);
@@ -1022,7 +1022,7 @@ lookup atom in atom table */
     } else if (IsStringTerm(v)) {
       CELL *ap = RepAppl(v);
       Int sz = sizeof(CELL) * (3 + ap[1]);
-      CELL *pt = (CELL *)Yap_AllocAtomSpace(sz);
+      CELL *pt = (CELL *)calloc(1,sz);
 
       if (pt == NULL) {
 	WRITE_UNLOCK(ae->ARWLock);
@@ -1051,7 +1051,7 @@ lookup atom in atom table */
     WRITE_LOCK(ae->ARWLock);
     p0 = GetAPropHavingLock(ae, TranslationProperty);
     if (p0 == NIL) {
-      p = (TranslationEntry *)Yap_AllocAtomSpace(sizeof(TranslationEntry));
+      p = (TranslationEntry *)calloc(1,sizeof(TranslationEntry));
       if (p == NULL) {
 	WRITE_UNLOCK(ae->ARWLock);
 	return false;
@@ -1075,7 +1075,7 @@ lookup atom in atom table */
     WRITE_LOCK(ae->ARWLock);
     p0 = GetAPropHavingLock(ae, TranslationProperty);
     if (p0 == NIL) {
-      p = (TranslationEntry *)Yap_AllocAtomSpace(sizeof(TranslationEntry));
+      p = (TranslationEntry *)calloc(1,sizeof(TranslationEntry));
       if (p == NULL) {
 	WRITE_UNLOCK(ae->ARWLock);
 	return false;
@@ -1099,7 +1099,7 @@ bool Yap_NewArgnames(Atom a, arity_t minarity, Term argnames) {
     WRITE_LOCK(ae->ARWLock);
     p0 = GetAPropHavingLock(ae, ArgnamesProperty);
     if (p0 == NIL) {
-      p = (ArgnamesEntry *)Yap_AllocAtomSpace(sizeof(ArgnamesEntry));
+      p = (ArgnamesEntry *)calloc(1,sizeof(ArgnamesEntry));
     } else {
       p = RepArgnamesProp(p0);
     }
@@ -1113,7 +1113,7 @@ bool Yap_NewArgnames(Atom a, arity_t minarity, Term argnames) {
 	int i;
 	
 	minarity =	p->Length = ArityOfFunctor(FunctorOfTerm(argnames));
-	p->argnames = malloc((minarity)*sizeof(Term));
+	p->argnames = calloc(1,(minarity)*sizeof(Term));
         for (i=0; i< minarity; i++) {
 	  Term t = source[i];
 	  if (IsVarTerm(t)) {
@@ -1132,7 +1132,7 @@ bool Yap_NewArgnames(Atom a, arity_t minarity, Term argnames) {
 	int i;
 	Term l0, *l = &l0,
 	minarity = p->Length = Yap_SkipList(&argnames, &l);
-	p->argnames = malloc((minarity)*sizeof(Term));
+	p->argnames = calloc((minarity),sizeof(Term));
 	for (i=0; i< minarity; i++) {
 	  Term t = HeadOfTerm(argnames);
 	  if (IsVarTerm(t)) {
@@ -1164,7 +1164,7 @@ bool Yap_NewArgnames(Atom a, arity_t minarity, Term argnames) {
     WRITE_LOCK(ae->ARWLock);
     p0 = GetAPropHavingLock(ae, MutexProperty);
     if (p0 == NIL) {
-      p = (MutexEntry *)Yap_AllocAtomSpace(sizeof(MutexEntry));
+      p = (MutexEntry *)calloc(1,sizeof(MutexEntry));
       if (p == NULL) {
 	WRITE_UNLOCK(ae->ARWLock);
 	return false;
@@ -1251,7 +1251,7 @@ bool Yap_NewArgnames(Atom a, arity_t minarity, Term argnames) {
 #endif
 
   static HoldEntry *InitAtomHold(void) {
-    HoldEntry *x = (HoldEntry *)Yap_AllocAtomSpace(sizeof(struct hold_entry));
+    HoldEntry *x = (HoldEntry *)calloc(1,sizeof(struct hold_entry));
     if (x == NULL) {
       return NULL;
     }
@@ -1317,7 +1317,7 @@ bool Yap_NewArgnames(Atom a, arity_t minarity, Term argnames) {
     if (pe->ModuleOfPred == IDB_MODULE) {
       mods = "idb";
       if (pe->PredFlags & NumberDBPredFlag) {
-    char *   buf = malloc(MAX_PATH+1);
+	char *   buf = calloc(1, MAX_PATH+1);
 	snprintf(buf, MAX_PATH, "idb:" UInt_FORMAT,
 		 (Int)(pe->FunctorOfPred));
 	return buf;
@@ -1340,7 +1340,7 @@ bool Yap_NewArgnames(Atom a, arity_t minarity, Term argnames) {
 	at = NameOfFunctor(pe->FunctorOfPred);
       }
     }
-    char *   buf = malloc(MAX_PATH+1);
+    char *   buf = calloc(1,MAX_PATH+1);
     snprintf(buf, MAX_PATH, "%s:%s/" UInt_FORMAT, mods,
 	     RepAtom(at)->StrOfAE, arity);
     return buf;

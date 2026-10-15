@@ -815,16 +815,9 @@ static Int continue_module_predicate(USES_REGS1)
 {
     // operating within the same module.
   PredEntry *npp, *pp;
-    Term task = Deref(ARG4), mod=Deref(ARG1);
+    Term task = Deref(ARG4);
     
     pp = AddressOfTerm(EXTRA_CBACK_ARG(4, 1));
-    if (!pp) {
-      if (mod && !IsAtomTerm(mod)) {
-        Yap_ThrowError(TYPE_ERROR_ATOM, mod, "module name");
-      }
-      ModEntry *m = Yap_GetModuleEntry(mod);
-      pp = m->PredForME;
-    }
     while (pp && !valid_prop((Prop)pp, task)) {
       pp = pp->NextPredOfModule;
     }
@@ -833,9 +826,6 @@ static Int continue_module_predicate(USES_REGS1)
         cut_fail();
     }
     npp = pp->NextPredOfModule;
-while (npp && !valid_prop((Prop)(npp), task)) {
-      npp = npp->NextPredOfModule;
-    }
  Term name;
  arity_t Arity;
     // just try next one
@@ -879,9 +869,23 @@ while (npp && !valid_prop((Prop)(npp), task)) {
 */
 static Int module_predicate(USES_REGS1)
 {
-  EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(NULL);
-  B->cp_h = HR;
-  return continue_module_predicate(PASS_REGS1);
+   PredEntry  *pp = NULL;
+    Term task = Deref(ARG4), mod=Deref(ARG1);
+
+   if (mod && !IsAtomTerm(mod)) {
+        Yap_ThrowError(TYPE_ERROR_ATOM, mod, "module name");
+      }
+   ModEntry *m = Yap_GetModuleEntry(mod);
+   if (m) {
+      pp = m->PredForME;
+   }
+      if (!pp) {
+	/* try Prolog Module */
+	cut_fail();
+      }
+   EXTRA_CBACK_ARG(4, 1) = MkAddressTerm(pp);
+   B->cp_h = HR;
+   return continue_module_predicate(PASS_REGS1);
 }
 
 static Int functors_for_atom(USES_REGS1) {

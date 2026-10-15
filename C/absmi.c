@@ -705,14 +705,14 @@ static void undef_goal(PredEntry *pe USES_REGS) {
       UNLOCKPE(19, PP);
     PP = NULL;
 #endif
-    if (!UndefHook ||UndefHook->cs.p_code.NOfClauses == 0 ) {
-      int line = Yap_source_line_no();
-      char *file = RepAtom(Yap_source_stream_name())->StrOfAE;
-      int arity = pe->ArityOfPE;
-      char *name = arity == 0? RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE : RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE;
-      char *mod = CurrentModule == 0? "prolog" : RepAtom(AtomOfTerm(CurrentModule))->StrOfAE;
-      fprintf(stderr, "%s:%d:0 error: call to undefined predicate %s:%s/%d\n",file,line,mod,name,arity);
-    }
+//    if (!UndefHook ||UndefHook->cs.p_code.NOfClauses == 0 ) {
+//      int line = Yap_source_line_no();
+//      char *file = RepAtom(Yap_source_stream_name())->StrOfAE;
+//      int arity = pe->ArityOfPE;
+//      char *name = arity == 0? RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE : RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE;
+//      char *mod = CurrentModule == 0? "prolog" : RepAtom(AtomOfTerm(CurrentModule))->StrOfAE;
+//      fprintf(stderr, "%s:%d:0 error: call to undefined predicate %s:%s/%d\n",file,line,mod,name,arity);
+//    }
     P = FAILCODE;
     return;
   }

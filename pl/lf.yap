@@ -250,7 +250,7 @@ atom(Name),
     current_source_module(_,OuterModule),
     working_directory(D0,D0),
     ( %'$memberchk'(compilation_mode(Reconsult), Opts)   ->
-     '$memberchk'(consult(Reconsult), Opts)   ->
+   '$memberchk'(consult(Reconsult), Opts)   ->
      true
 	;
      Reconsult = Reconsult0
@@ -276,7 +276,6 @@ atom(Name),
 	;
      Encoding =[]
      ),
-    writeln(open:AbsPath),
     open(AbsPath, read, Stream,Encoding).
 
 
@@ -305,17 +304,16 @@ atom(Name),
      ;
      InnerModule=OuterModule
      ),
-     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
+    '$conditional_compilation_set_state'(State),
+    '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
+   '$exec_initialization_goals'(File),
+     current_source_module(_,M0),
     '$end_consult'(D0),
-'$conditional_compilation_set_state'(State),
-    '$exec_initialization_goals'(File),
-
-    current_source_module(_,M0),
-writeln(close:File),
-    close(Stream).
+    close(Stream),
+    working_directory(_Dir, D0).
     
 '$skip_unix_header'(Stream) :-
-	peek_char(Stream, '#'), !, % 35 is ASCII for '#
+   peek_char(Stream, '#'), !, % 35 is ASCII for '#[
     skip(Stream, 10),
     '$skip_unix_header'(Stream).
 '$skip_unix_header'(_).
@@ -337,13 +335,8 @@ enter_compiler(Stream,Status) :-
     Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     read_clause(Stream, Clause, Options),
     (
-     Clause == []
+      Clause == end_of_file
      ->
-    fail
-      ;
-     Clause == end_of_file
-     ->
-
      !
 	;
      '$conditional_compilation_skip'(Clause)
@@ -459,7 +452,7 @@ call_compiler(G, Where,_VL, Pos) :-
 */	
 
 include(Fs) :-
-strip_module(Fs,_M,S),
+    strip_module(Fs,_M,S),
      '$include'(S).
 
 '$include'(V) :- var(V), !,
@@ -469,7 +462,6 @@ strip_module(Fs,_M,S),
     '$include'(F),
     '$include'(Fs).
 '$include'(File) :-
-writeln(inc_open:File),
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(File,Y,Dir,Stream),
     working_directory(Dir0, Dir),
@@ -480,7 +472,6 @@ writeln(inc_open:File),
     print_message(informational, loading(including, Y)),
     %b_getval('$consulting_file',[l(_,Reconsult)|_Files]), 
     '$loop'(Stream,reconsult),
-    writeln(inclose:File),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     current_source_module(Mod,Mod),

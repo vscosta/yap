@@ -94,7 +94,7 @@ static char SccsId[] = "%W% %G%";
 #define NextDBRef(V) ((V)->Next)
 
 #define DBLength(V) (sizeof(DBStruct) + (Int)(V) + CellSize)
-#define AllocDBSpace(V) ((DBRef)Yap_AllocCodeSpace(V))
+#define AllocDBSpace(V) ((DBRef)calloc(1,V))
 #define FreeDBSpace(V) Yap_FreeCodeSpace(V)
 
 #if SIZEOF_INT_P == 4
@@ -260,7 +260,7 @@ static void remove_from_table() {}
 
 
 static void init_int_keys(void) {
-  INT_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop) * INT_KEYS_SIZE);
+  INT_KEYS = (Prop *)calloc(1,sizeof(Prop) * INT_KEYS_SIZE);
   if (INT_KEYS != NULL) {
     UInt i = 0;
     Prop *p = INT_KEYS;
@@ -298,7 +298,7 @@ static DBProp FetchIntDBPropFromKey(Int key, int flag, int new,
   if (new) {
     DBProp p;
     /* create a new DBProp				 */
-    p = (DBProp)Yap_AllocAtomSpace(sizeof(*p));
+    p = (DBProp)calloc(1,sizeof(*p));
     p->KindOfPE = DBProperty | flag;
     p->F0 = p->L0 = NULL;
     p->ArityOfDB = 0;
@@ -419,7 +419,7 @@ static DBProp FetchDBPropFromKey(Term twork, int flag, int new,
           UNLOCK(pp->PELock);
         }
       }
-      p = (DBProp)Yap_AllocAtomSpace(sizeof(*p));
+      p = (DBProp)calloc(1,sizeof(*p));
       p->KindOfPE = DBProperty | flag;
       p->F0 = p->L0 = NULL;
       UPDATE_MODE = OLD_UPDATE_MODE;
@@ -442,7 +442,7 @@ static DBProp FetchDBPropFromKey(Term twork, int flag, int new,
 
 
 static void init_int_lu_keys(void) {
-  INT_LU_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop) * INT_KEYS_SIZE);
+  INT_LU_KEYS = (Prop *)calloc(1,sizeof(Prop) * INT_KEYS_SIZE);
   if (INT_LU_KEYS != NULL) {
     UInt i = 0;
     Prop *p = INT_LU_KEYS;
@@ -466,7 +466,7 @@ static int resize_int_keys(UInt new_size) {
     YAPLeaveCriticalSection();
     return TRUE;
   }
-  new = (Prop *)Yap_AllocCodeSpace(sizeof(Prop) * new_size);
+  new = (Prop *)calloc(1,sizeof(Prop) * new_size);
   if (new == NULL) {
     YAPLeaveCriticalSection();
     LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
@@ -1506,7 +1506,7 @@ static DBRef CreateDBWithDBRef(Term Tm, DBProp p, struct db_globs *dbg) {
 
   if (p == NULL) {
     UInt sz = sizeof(DBTerm) + 2 * sizeof(CELL);
-    ppt = (DBTerm *)AllocDBSpace(sz);
+    ppt = (DBTerm *)calloc(1,sz);
     if (ppt == NULL) {
       return generate_dberror_msg(RESOURCE_ERROR_HEAP, TermNil,
                                   "could not allocate heap");
@@ -1516,7 +1516,7 @@ static DBRef CreateDBWithDBRef(Term Tm, DBProp p, struct db_globs *dbg) {
     pp = (DBRef)ppt;
   } else {
     UInt sz = DBLength(2 * sizeof(DBRef));
-    pp = AllocDBSpace(sz);
+    pp = calloc(1,sz);
     if (pp == NULL) {
       return generate_dberror_msg(RESOURCE_ERROR_HEAP, 0,
                                   "could not allocate space");
@@ -1552,7 +1552,7 @@ static DBTerm *CreateDBTermForAtom(Term Tm, UInt extra_size,
   ADDR ptr;
   UInt sz = extra_size + sizeof(DBTerm);
 
-  ptr = (ADDR)AllocDBSpace(sz);
+  ptr = calloc(1,sz);
   if (ptr == NULL) {
     return (DBTerm *)generate_dberror_msg(RESOURCE_ERROR_HEAP, 0,
                                           "could not allocate space");
@@ -1575,7 +1575,7 @@ static DBTerm *CreateDBTermForVar(UInt extra_size, struct db_globs *dbg) {
   ADDR ptr;
   UInt sz = extra_size + sizeof(DBTerm);
 
-  ptr = (ADDR)AllocDBSpace(sz);
+  ptr = (ADDR)calloc(sz,1);
   if (ptr == NULL) {
     return (DBTerm *)generate_dberror_msg(RESOURCE_ERROR_HEAP, 0,
                                           "could not allocate space");
@@ -1602,7 +1602,7 @@ static DBRef CreateDBRefForAtom(Term Tm, DBProp p, int InFlag,
   flag = DBAtomic;
   if (InFlag & MkIfNot && (dbg->found_one = check_if_cons(p->First, Tm)))
     return dbg->found_one;
-  pp = AllocDBSpace(sz);
+  pp = calloc(1,sz);
   if (pp == NIL) {
     return generate_dberror_msg(RESOURCE_ERROR_HEAP, 0,
                                 "could not allocate space");
@@ -1630,7 +1630,7 @@ static DBRef CreateDBRefForVar(Term Tm, DBProp p, int InFlag,
 
   if (InFlag & MkIfNot && (dbg->found_one = check_if_var(p->First)))
     return dbg->found_one;
-  pp = AllocDBSpace(sz);
+  pp = calloc(1,sz);
   if (pp == NULL) {
     return generate_dberror_msg(RESOURCE_ERROR_HEAP, 0,
                                 "could not allocate space");
@@ -1885,7 +1885,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
 #endif
     if (p == NULL) {
       UInt sz = (CELL)CodeAbs + extra_size + sizeof(DBTerm);
-      ADDR ptr = Yap_AllocCodeSpace(sz);
+      ADDR ptr = calloc(1,sz);
       ppt = (DBTerm *)(ptr + extra_size);
       if (ptr == NULL) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
@@ -1898,7 +1898,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
       pp = (DBRef)ppt;
     } else {
       UInt sz = DBLength(CodeAbs);
-      pp = AllocDBSpace(sz);
+      pp = calloc(1,sz);
       if (pp == NULL) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
         LOCAL_Error_TYPE = oerr;
@@ -5021,7 +5021,7 @@ void Yap_destroy_tqueue(db_queue *dbq USES_REGS) {
 
 bool Yap_enqueue_tqueue(db_queue *father_key, Term t USES_REGS) {
   QueueEntry *x;
-  while ((x = (QueueEntry *)AllocDBSpace(sizeof(QueueEntry))) == NULL) {
+  while ((x = (QueueEntry *)calloc(1,sizeof(QueueEntry))) == NULL) {
     if (!Yap_growheap(FALSE, sizeof(QueueEntry), NULL)) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "in findall");
       return false;
@@ -5156,7 +5156,7 @@ static Int p_init_queue(USES_REGS1) {
   db_queue *dbq;
   Term t;
 
-  while ((dbq = (db_queue *)AllocDBSpace(sizeof(db_queue))) == NULL) {
+  while ((dbq = (db_queue *)calloc(1, sizeof(db_queue))) == NULL) {
     if (!Yap_growheap(FALSE, sizeof(db_queue), NULL)) {
       Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "in findall");
       return FALSE;

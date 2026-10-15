@@ -203,7 +203,6 @@ extern const char *Yap_PrintPredName( struct pred_entry *ap);
 extern Term Yap_MkErrorTerm(struct s_yap_error_descriptor *t);
 extern noreturn void Yap_RestartYap(int);
 extern noreturn void Yap_exit(int);
-extern bool Yap_Warning(const char *s, ...);
 extern bool Yap_PrintWarning(Term t, Term level);
 extern bool Yap_HandleError__(const char *file, const char *function, int lineno,
                        const char *s, ...);

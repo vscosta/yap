@@ -538,7 +538,6 @@ var(V)
 %% execute non stop will skip the first spy...
 '$step'(   system_procedure,MG,Ctx,GoalNumber) :-
     !,
-writeln(MG),
     '$meta_hook'(MG,NMG),
     nb_setval(creep,creep),
     gated_call(
@@ -547,9 +546,9 @@ writeln(MG),
 	),
 	(
 NMG
-	),
-	Port,
-	'$interact'(Port, outside, NMG,Ctx, GoalNumber)
+    ),
+    Port,
+    '$interact'(Port, outside, NMG,Ctx, GoalNumber)
     ).
 '$step'(   exo_procedure,MG,Ctx,GoalNumber) :-
     '$step'(   source_procedure,Ctx,MG,GoalNumber).
@@ -576,7 +575,6 @@ clause(NM:NG,Body),
 predicate_property(NM:NG, number_of_clauses(NCl)),
 	between(1,NCl, I),
 	fetch_nth_clause(I,NM:NG,_,Ref),
-	'$stop_debugger',
 	'$creep_clause'( NG, NM, Ref, CP )
     ),
     Port,	

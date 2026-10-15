@@ -612,7 +612,7 @@ Add all exports in _ImportModule_ as available to _Module_.
 
 All exported predicates from _ExportModule_ are made available to the
  source  module _ImportModule_. If _Position_ is bound to `start` the
- module _ImportModule_ is tried first, if _Position_ is bound to `end`,
+ module _Import_Module_ is tried first, if _Position_ is bound to `end`,
  the module is consulted last.
 
 */
@@ -782,7 +782,6 @@ module_state :-
     fail.
 module_state.
 
-
 :- dynamic( '$module'/4 ).
 :- dynamic( '$import'/6 ).
 
@@ -804,11 +803,12 @@ module_state.
     '$simplify_functors'(ExpL, CallL).
 
 '$check_module_exports'([],_,_Mod).
+
 '$check_module_exports'([N/A|Exports],File,Mod) :-
      functor(G,N,A),
 '$undefined'(G,Mod),
     !,
-    print_message(warning, error(style_check(undefined_export),[File,1,0,Mod:N/A,[]])),
+    print_message(warning, error(style_check(undefined_export),[culprit_t = [File,1,0,Mod:N/A]])),
     '$check_module_exports'(Exports,File,Mod).
 '$check_module_exports'([_|Exports],File,Mod) :-
     '$check_module_exports'(Exports,File,Mod).
@@ -821,7 +821,7 @@ module_state.
     \+  '$import'(_,Mod,_,P,_,_),
     '$owner_file_line'(P,Mod,Line),
     functor(P,NE,AE),
-    print_message(warning, error(style_check(undefined_in_module),[File,Line,0,Mod: NE/AE,[]])),
+    print_message(warning, error(style_check(undefined_in_module),[culprit_t=[File,Line,0,Mod: NE/AE]])),
     fail.
 '$check_module_undefineds'(_,_Mod).
 

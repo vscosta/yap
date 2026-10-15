@@ -56,7 +56,7 @@ extern struct yami *Yap_Error__(bool thrw, const char *file,
                                 const char *function, int lineno,
                                 yap_error_number err, YAP_Term wheret,const char *fmt, ...);
 
-extern void Yap_do_warning__( const char *file,
+extern bool Yap_do_warning__( const char *file,
                                 const char *function, int lineno, 
                                yap_error_number err, YAP_Term wheret, const char *fmt, ...);
 
@@ -289,7 +289,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
   extern void Yap_CatchError(void);
   extern void Yap_ThrowExistingError(void);
   extern YAP_Term Yap_MkPrologError(YAP_Term t, yap_error_descriptor_t *wi);
-  extern YAP_Term MkSysError(yap_error_descriptor_t * r);
+  extern YAP_Term MkSysError(YAP_Term culprit, yap_error_descriptor_t * r);
   extern YAP_Term Yap_MkFullError(yap_error_descriptor_t * r, yap_error_number e);
   extern bool Yap_MkErrorRecord(
       yap_error_descriptor_t * r, const char *file, const char *function,
@@ -319,7 +319,6 @@ extern yap_error_descriptor_t *Yap_pushErrorContext(bool pass,
  extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass, yap_error_descriptor_t *);
 
 extern YAP_Term Yap_MkErrorYAP_Term(struct s_yap_error_descriptor *t);
-extern bool Yap_Warning(const char *s, ...);
 extern bool Yap_PrintWarning(YAP_Term t, YAP_Term level);
 extern bool Yap_HandleError__(const char *file, const char *function, int lineno,
                        const char *s, ...);

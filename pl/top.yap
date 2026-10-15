@@ -113,7 +113,8 @@ expand_term( Term, UExpanded,  Expanded) :-
    T = TermI
    ),
    '$expand_term_grammar'(T,TI),
-   expand_clause(TI, UExpanded, Expanded).
+    expand_clause(TI, UExpanded, Expanded),
+    !.
 %writeln(e:(Term,' ----------------------->  ',Expanded)).
 
 '$continue_with_command'(consult,V,Pos,G,Source) :-
@@ -187,8 +188,8 @@ AVs = [],
     !.
 '$query'(G0,_Vs,Port) :-
     current_prolog_flag(trace,true),
-    !,
     expand_goal(G0,G),
+    !,
     nb_setval(creep,creep),
     current_choice_point(CP0),
     '$spy'(G,top),
@@ -202,7 +203,7 @@ AVs = [],
 '$query'(G0,_,Port) :-
     catch(
 	gated_call(
-	    expand_goal(G0,G),
+	    once(expand_goal(G0,G)),
 	    G,
 	    Port,
 true	   	    
@@ -458,9 +459,9 @@ log_event( String, Args ) :-
     (
 	NO = (:- G1)
     ->
-    '$process_directive'(G1, top , NM, VL, Pos)
+    once('$process_directive'(G1, top , NM, VL, Pos))
     ;
-    '$goal'(NO,VL,Pos)
+    once('$goal'(NO,VL,Pos))
     ),
     fail.
 

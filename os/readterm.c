@@ -555,8 +555,7 @@ Term Yap_syntax_error__(const char *file, const char *function, int lineno,Term 
      
       }
     }
-    
-    if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
+    if ((GLOBAL_Stream[sno].status & Seekable_Stream_f) &&
         sno >= 0) {
       char *bufb, *bufa;
 #if HAVE_FTELLO
@@ -646,19 +645,15 @@ Term Yap_syntax_error__(const char *file, const char *function, int lineno,Term 
   const char *s = msg ? msg: "";
   Term why = MkStringTerm( s);
   e->culprit = NULL;
-  Term culprit_t =Yap_MkApplTerm(FunctorShortSyntaxError, 1,&why);
+  Term culprit =Yap_MkApplTerm(FunctorShortSyntaxError, 1,&why);
 
   Yap_MkErrorRecord(e, file, function, lineno, SYNTAX_ERROR,
-                    culprit_t, TermEmpty, s);
-  Term te =MkSysError(e) ;
+                    culprit, TermEmpty, s);
   // te  = MkPairTerm(MkSysError(e), TermNil);
   // te = MkPairTerm(MkIntTerm(e->parserLinePos), te);
-  // te = MkPairTerm(MkIntTerm(e->parserLine), te);
+  // te = MkPairTerm(MkIntTerm(e->parserLine), te);x
   //te = MkPairTerm(MkStringTerm(e->parserFile), te);
-  Term sc[2];
-  sc[0] = culprit_t;
-  sc[1] = te;
-  te = Yap_MkApplTerm(Yap_MkFunctor(AtomError, 2), 2, sc); /* 0:  strat, error, end line */
+  Term te = MkSysError( culprit, e );
   /*2 msg */
   /* 1: file */
   clean_vars(LOCAL_VarTable);
@@ -824,7 +819,7 @@ int Yap_encoding_error__(const char *file, const char *function, int line ,int c
     Yap_syntax_error__(file, function, line,  MkIntTerm(ch), st-GLOBAL_Stream, start, err, msg, ch);
     return EOF;
   } else {
-    Yap_Warning("unexpected newline while  reading quoted ");
+    Yap_do_warning__(file, function, line,  SYNTAX_ERROR, MkIntTerm(ch), "unexpected newline while  reading quoted ");
   }
 
   return ch;

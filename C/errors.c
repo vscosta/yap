@@ -65,6 +65,7 @@
 #include "Atoms.h"
 #include "YapDefs.h"
 #include "YapError.h"
+#include "YapHeap.h"
 #include "YapInterface.h"
 #include "YapStreams.h"
 #include "YapTags.h"
@@ -381,78 +382,28 @@ static Term err2list(yap_error_descriptor_t *i) {
   return o;
 }
 
-void Yap_do_warning__(const char *file, const char *function, int line,
+bool Yap_do_warning__(const char *file, const char *function, int line,
                       yap_error_number type, Term t, const char *fmt, ...) {
   CACHE_REGS
     char tmpbuf[PATH_MAX];
-  va_list ap;
-  PredEntry *p;
-  Term ts[2];
-  return;
-  yap_error_descriptor_t *e = calloc(1, sizeof(yap_error_descriptor_t));
-  Yap_MkErrorRecord(e, file, function, line, type,ArgOfTerm(1,t),ArgOfTerm(2,t), "discontiguous warning");
-  p = RepPredProp(PredPropByFunc(FunctorPrintMessage,
-                                 PROLOG_MODULE)); // PROCEDURE_print_message2
-  if (p->ArityOfPE) {
-
-    // sc[0] = t;
-    //    sc[1] = MkSysError(e);
-    va_start(ap, fmt);
-    fmt = va_arg(ap, char *);
-    if (fmt != NULL) {
-#if HAVE_VSNPRINTF
-      vsnprintf(tmpbuf, PATH_MAX - 1, fmt, ap);
-#else
-      (void)vsprintf(tmpbuf, fmt, ap);
-#endif
-      va_end(ap);
-      ts[1] = MkAtomTerm(AtomWarning);
-      ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
-      Yap_execute_pred(p, ts, true PASS_REGS);
-      Yap_ResetException(NULL);
-      LOCAL_PrologMode &= ~InErrorMode;
+  yap_error_descriptor_t *e;
+  if (LOCAL_ActiveError) {
+    if (LOCAL_PrologMode & InErrorMode) {
+      fprintf(stderr, "%% Warning: %s WITHIN ERROR %s: %s will be ignored\n",
+              Yap_errorName(type), LOCAL_ActiveError->errorAsText, Yap_errorName(type));
+      return false;
     }
-  }
-}
-
-bool Yap_Warning(const char *s, ...) {
-  CACHE_REGS
-    va_list ap;
-  PredEntry *pred;
-  bool rc;
-  Term ts[2];
-  char tmpbuf[PATH_MAX];
-  yap_error_number err;
-
-  if (LOCAL_PrologMode & InErrorMode && (err = LOCAL_ActiveError->errorNo)) {
-    fprintf(stderr, "%% Warning %s WITHIN ERROR %s %s\n", s,
-            LOCAL_ActiveError->classAsText, LOCAL_ActiveError->errorAsText);
-    return false;
+    e = LOCAL_ActiveError;
+  } else {
+    e = LOCAL_ActiveError = calloc(1, sizeof(*LOCAL_ActiveError));
   }
   LOCAL_PrologMode |= InErrorMode;
-  pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
-                                    PROLOG_MODULE)); // PROCEDURE_print_message2
-  va_start(ap, s);
-#if HAVE_VSNPRINTF
-  vsnprintf(tmpbuf, PATH_MAX - 1, s, ap);
-#else
-  (void)vsprintf(tmpbuf, s, ap);
-#endif
-
-  va_end(ap);
-  if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    LOCAL_PrologMode &= ~InErrorMode;
-    return false;
-  }
-
-  ts[1] = MkAtomTerm(AtomWarning);
-  ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
-  rc = Yap_execute_pred(pred, ts, true PASS_REGS); 
-  Yap_ResetException(NULL);
+  Yap_MkErrorRecord(e, file, function, line, type, ArgOfTerm(1, t),
+                    ArgOfTerm(2, t), tmpbuf);
+  bool  rc =  Yap_PrintWarning( Yap_MkErrorTerm(e), TermWarning);
   LOCAL_PrologMode &= ~InErrorMode;
   return rc;
 }
-
 
 bool Yap_PrintWarning(Term twarning, Term level) {
   CACHE_REGS
@@ -475,7 +426,10 @@ bool Yap_PrintWarning(Term twarning, Term level) {
   ARG1 = level;
   ARG2= twarning;
   LOCAL_PrologMode &= ~InErrorMode;
+  Term OldModule = CurrentModule;
   rc = Yap_execute_pred(pred, NULL, true PASS_REGS);
+  Yap_ResetException(NULL);
+  CurrentModule = OldModule;
   LOCAL_within_print_message = false;
 
   return rc;
@@ -663,6 +617,7 @@ static char tmpbuf[YAP_BUF_SIZE];
     ft0 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(i->classAsText), 3), 3, nt); \
   } break;
 
+/// use this routine to generate a term from an error descriptor.
 Term Yap_MkErrorTerm(yap_error_descriptor_t *i) {
   CACHE_REGS
     if (i == NULL) {
@@ -792,13 +747,15 @@ void Yap_ThrowExistingError(void) {
   Yap_RestartYap(5);
 }
 
-/// Wrap the error descriptor as exception/2
+/// Wrap the error type and the error descriptor as error/2
 
-Term MkSysError(yap_error_descriptor_t *i) {
-  CACHE_REGS
-    Term et = MkAddressTerm(i);
+  Term MkSysError(Term culprit, yap_error_descriptor_t *i) {
+    CACHE_REGS
+      Term et[2];
+    et[0] = culprit;
+    et[1] = err2list(i);
   //return err2list(i);
-  return Yap_MkApplTerm(FunctorException, 1, &et);
+  return Yap_MkApplTerm(FunctorError, 2, et);
 }
 
 #if 0
@@ -1516,12 +1473,6 @@ static Int drop_exception(USES_REGS1) {
   return rc;
 }
 
-static Int new_exception(USES_REGS1) {
-  Term t = MkSysError(calloc(1, sizeof(yap_error_descriptor_t)));
-  return Yap_unify(ARG1, t);
-}
-
-
 static Int user_exception(USES_REGS1) {
   if (!Yap_MkErrorRecord(LOCAL_ActiveError,NULL,NULL,-1,USER_DEFINED_ERROR,
 			 Deref(ARG1), Deref(ARG2), NULL)) {
@@ -2132,7 +2083,6 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("print_exception", 1, print_exception, 0);
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
 
-  Yap_InitCPred("$new_exception", 1, new_exception, 0);
   Yap_InitCPred("$user_exception",7, user_exception, 0);
   Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);

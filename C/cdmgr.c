@@ -2067,7 +2067,7 @@ warn(yap_error_number warning_id, Term t, Term terr, Term culprit, const char *m
   CACHE_REGS
   yap_error_descriptor_t *e =LOCAL_ActiveError;
   Yap_MkErrorRecord( e,  __FILE__, __FUNCTION__, __LINE__, warning_id,
-		    Yap_PredicateIndicator(t, CurrentModule), TermNil, msg);
+		     Yap_PredicateIndicator(t, CurrentModule), TermNil, msg);
   e->prologConsulting =  IsPairTerm( Yap_GetGlobal(AtomConsultingFile) );
   e->parserReadingCode = true;
   e->parserLine = Yap_source_line_no();
@@ -2148,6 +2148,8 @@ bool Yap_Compile(Term t, Term t1, Term tsrc, Term mod, Term pos, Term tref USES_
     multiple =Yap_multiple(p, t1 PASS_REGS);
     if (multiple) {
       m_culprit = TermNil;
+      m_culprit =
+        MkPairTerm(Yap_PredicateIndicator(t, CurrentModule), m_culprit);
       m_culprit = MkPairTerm(MkIntTerm(0), m_culprit);
       m_culprit = MkPairTerm(MkIntTerm(p->src.OwnerLine),m_culprit);
       m_culprit = MkPairTerm(MkAtomTerm(p->src.OwnerFile), m_culprit);

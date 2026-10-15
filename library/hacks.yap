@@ -74,14 +74,47 @@ stack_dump :-
  * Report the last _N_ entries in the stack (see stack_dump/0)
  */
 
-stack_dump(Max) :-
+stack_dump(_Max) :-
+	format(user_error,'Address| Type| Owner | B(Choiceptr) | ENV (environment', []),
 	current_choice_points(CPs),
-	current_continuations([Env|Envs]),
-	continuation(Env,_,ContP,_),
-	length(CPs, LCPs),
-	length(Envs, LEnvs),
-	format(user_error,'~n~n~tStack Dump~t~40+~n~nAddress~tChoiceP~16+ Cur/Next Clause        Goal~n',[LCPs,LEnvs]),
-	display_stack_info(CPs, Envs, Max, ContP).
+	current_continuations(Envs),
+	dump(Envs,CPs).
+
+print_cp(CP, [["pred"| PI], ["cp_b"| B], _, _, ["cp_env"| ENV]|_]) :-
+format("~16d   ~16d ~16d ~16d~n", [CP, PI, B, ENV]).
+
+print_env(ENV, [["pred"| PI], _,  ["env_b"| B], _, _, ["env_env"| ENV]|_]) :-
+format("~16d   ~16d ~16d ~16d~n", [ENV, PI, B, ENV]).
+
+dump([],[]).
+dump([CP|CPs],[]) :-
+    cp(CP,Cs),
+    print_cp(CP, Cs),
+    dump(CPs, []).
+dump([Env|Envs],[]) :-
+    env(Env, Es),
+    print_env(Env, Es),
+    dump([],Envs).
+dump([CP|CPs],[Env|Envs]) :-
+    (
+	Env < CP
+	->
+	env(Env,Es),
+	print_env(Env, Es),
+	dump([CP|CPs],Envs)
+	;
+	Env == CP
+	->
+	cp(CP,Cs),
+	print_cp(CP, Cs),
+	env(Env,Es),
+	print_env(Env, Es),
+	dump(CPs,Envs)
+	;
+	cp(CP,Cs),
+	print_cp(CP, Cs),
+	dump(CPs,[Env|Envs])
+).
 
 display_stack_info(CPs,Envs,Lim,PC) :-
 	display_stack_info(CPs,Envs,Lim,PC,Lines,[]),

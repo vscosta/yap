@@ -293,7 +293,7 @@ translate_message(error( style_check(singletons), Info)) -->
 	nl,
 	nl
     ].
-translate_message(error( style_check( multifile), Info)) -->
+translate_message(error( style_check( multiple), Info)) -->
     !,
     {
 	query_exception(culprit_t, Info, [F,L,C,F0,L0,C0,I]),
@@ -309,24 +309,46 @@ nl,
 translate_message(error( style_check( discontiguous), Info)) -->
     !,
     {
-	query_exception(culprit_t, Info, [F,L,C,F0,L0,C0,I]),
+	query_exception(culprit_t, Info ,[F,L,C,_,_,_,I]),
     prolog_load_context(number_of_open_load_files,LC),
      Level = warning
     },
         [  '~*|~s:~d:~d: ~s: discontiguous definition for ~p.' - [ LC,F,L,C,Level,I],
-nl,
-           '~*|~s:~d:~d:  this is the initial definition for ~p.' - [LC, F0,L0,C0,I],
+%nl,
+%           '~*|~s:~d:~d:  this is the initial definition for ~p.' - [LC, F0,L0,C0,I],
            nl
         ].
-translate_message(error(style_check(undefined_export),[File,L,C,M:N/A,_])) -->
+translate_message(error( style_check( discontiguous), Info)) -->
     !,
     {
-prolog_load_context(number_of_open_load_files,LC),
+	query_exception(culprit_t, Info ,[F,L,C,_,_,_,I]),
+    prolog_load_context(number_of_open_load_files,LC),
      Level = warning
     },
-      %{start_low_level_trace},
+        [  '~*|~s:~d:~d: ~s: discontiguous definition for ~p.' - [ LC,F,L,C,Level,I],
+%nl,
+%           '~*|~s:~d:~d:  this is the initial definition for ~p.' - [LC, F0,L0,C0,I],
+           nl
+        ].
+translate_message(error(style_check(undefined_in_module),Info)) -->
     !,
-    [  '~N~*|~s:~d:~d: ~s: module ~s exports predicate ~p, but ~p is neither defined nor visible in ~s.' - [ LC,File,L,C,Level,M,N/A,N/A,M],
+    {
+ 	query_exception(culprit_t, Info,  [File,L,C,M:N/A]),
+    prolog_load_context(number_of_open_load_files,LC),
+     Level = warning
+    },
+    [  '~N~*|~s:~d:~d: ~s:  ~p is neither defined nor visible in ~s.' - [ LC,File,L,C,Level,N/A,M],
+	nl
+	].
+translate_message(error(style_check(undefined_export),Info)) -->
+    !,
+    {
+	query_exception(culprit_t, Info,  [File,L,C,M:N/A])
+,
+    prolog_load_context(number_of_open_load_files,LC),
+     Level = warning
+    },
+    [  '~N~*|~s:~d:~d: ~s:  export ~p is neither defined nor visible in module ~s.' - [ LC,File,L,C,Level,N/A,M],
 	nl
 	].
 translate_message(error(user_defined_error(Error),Info))-->
@@ -400,16 +422,9 @@ syntax_error_end(_LC,_Level,_File,_Info) --> [].
      query_exception(parserLine, Info, Line),
 nonvar(Line),
 query_exception(parserFile, Info, FileName),
-nonvar(FileName),
-     (
-       query_exception(parserLinePos, Info, Pos)
-      ->
-       (var(Pos) -> Pos=0;true)
-
-       ;
-       Pos=0
-     ).
-
+nonvar(FileName),     
+    query_exception(parserLinePos, Info, Pos),
+    (var(Pos) -> Pos=0;true).
 
 location( Info, Level, More, LC ) -->
     {

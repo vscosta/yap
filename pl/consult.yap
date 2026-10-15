@@ -330,9 +330,9 @@ prolog_load_context(term, Term ) :-
     nonvar(T),
     T = [Term|_].
 prolog_load_context(term_position, Position ) :-
-   '__B_getval__'('$current_clause', T, fail),
+    '__B_getval__'('$current_clause', T, fail),
     nonvar(T),
-    T = [_,_,Position|_].
+    T = [_,_,_,Position|_].
 prolog_load_context(variable_names, Term ) :-
     '__B_getval__'('$current_clause', T, fail),
     nonvar(T),

@@ -1080,7 +1080,7 @@ bool Yap_set_flag(Term tflag, Term t2) {
 	Term t2 = Deref(ARG2);
       newFlag(tflag, t2);
     } else if (fl == TermWarning) {
-      Yap_Warning("Flag %s does not exist", RepAtom(AtomOfTerm(fl))->StrOfAE);
+      Yap_do_warning(DOMAIN_ERROR_FLAG_VALUE, tflag, "Flag %s does not exist", RepAtom(AtomOfTerm(fl))->StrOfAE);
     } else {
               CurrentModule=modt;
 	      Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, mkplus(tflag),
@@ -1160,8 +1160,9 @@ Term getYapFlag(Term tflag) {
     CurrentModule = tmod;
     return false;
     } else if (fl == TermWarning) {
-      Yap_Warning("Flag ~s does not exist",
-                  RepAtom(AtomOfTerm(tflag))->StrOfAE);
+      Yap_do_warning(DOMAIN_ERROR_FLAG_VALUE,
+                     tflag,
+                  "Flag ~s does not exist", RepAtom(AtomOfTerm(tflag))->StrOfAE);
     } else {
         CurrentModule = tmod;
 	Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, mkplus(tflag),

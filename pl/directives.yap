@@ -296,11 +296,11 @@ user_defined_directive(Dir,Action) :-
  % YAP accepts everything everywhere
  %
  '$process_directive'(G, top, M, VL, Pos) :-
-	 current_prolog_flag(language_mode, yap), !,      /* strict_iso on */
-	 '$process_directive'(G, consult, M, VL, Pos).
- '$process_directive'(G, top, M, _, _) :-
-     !,
-	 throw_error(context_error((:-M:G),clause),query).
+	 current_prolog_flag(language_mode, yap),      /* strict_iso on */
+'$process_directive'(G, consult, M, VL, Pos),
+!.
+'$process_directive'(_, _, _, _, _).
+
   %
  % default case
  %
@@ -322,7 +322,10 @@ user_defined_directive(Dir,Action) :-
       '$execute'(M:G),
       !.
 '$process_directive'(G, _Mode, M, _VL, Pos) :-
-    format(user_error,'~w warning: ~w failed.~n',[Pos,M:G]).
+    prolog_load_context(file,File),
+    prolog_load_context(term_position,Pos),
+    arg(2, Pos, Line),
+    format(user_error,'~s:~d:0 warning: ~w failed.~n',[File,Line,M:G]).
 
 
 initialization(G) :-
@@ -341,9 +344,10 @@ initialization(_G,_OPT).
 '$initialization'(G0,OPT, _VL, Pos) :-
     must_be_callable( G0),
     expand_goal(G0, G),
+    !,
     ( stream_position_data(line_count,Pos, Line) -> true ; Line = 0 ),
     ( prolog_load_context(file, File) -> true ; File = user ),
-writeln(lc:File),
+    !,
    %   must_be_of_type(oneof([after_load, now, restore]),
     %               OPT),
 

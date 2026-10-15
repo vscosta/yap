@@ -916,12 +916,12 @@ user:progress(FX,X,G,X_Norm,G_Norm,Step, N, Evals,Ls) :-
     ->
 	P1 is 0
     ;
-    X1 <== X[1], sig2pr(X1,Slope,P1)
+    X1 == X[1], sig2pr(X1,Slope,P1)
     ),
-    format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[SI,TI,P0,P1,FX,X_Norm,G_Norm,Step,Ls]),
+    format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f Step=~4f  Ls=~4f~n' ,[SI,TI,P0,P1,FX,X_Norm,G_Norm,Step,Ls]),
   %  mse_testset(X,Slope),
     format_learning(2,'~n',[]),
-    lbfgs_progress_done(0).
+    lbfgs_progress_done(0)
 
 
 
@@ -929,7 +929,7 @@ save_state(X,Slope,_Grad) :-
     retractall(values_correct),
     tunable_fact(FactID,_GroundTruth),
   Log <== X[FactID],
-    sig2pr(Log, Slope, Pr),
+    sig2pr(Log, Slope, Pr),  format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f Step=~4f  Ls=~4f~n' ,[SI,TI,P0,P1,FX,X_Norm,G_Norm,Step,Ls]),
     set_fact_probability(FactID,Pr),
     fail.
 save_state(_X, _, _).

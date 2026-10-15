@@ -238,7 +238,6 @@
 :- style_check(all).
 :- set_prolog_flag(unknown,error).
    
-
 :- initialization((
  problog_define_flag(subset_check,    problog_flag_validate_boolean, 'perform subset check in nested tries', true, nested_tries),
   problog_define_flag(loop_refine_ancs, problog_flag_validate_boolean, 'refine ancestors if no loop exists', true, nested_tries),

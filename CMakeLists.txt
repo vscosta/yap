@@ -28,7 +28,7 @@ include(FeatureSummary)
 
 set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_SOURCE_DIR}/packages/gecode/cmake")
 
-set(ANACONDA $ENV{CONDA_BUILD} CACHE BOOL "Anaconda Environment")
+# set(ANACONDA $ENV{CONDA_BUILD}  BOOL "Anaconda Environment")
 #message(STATUS "ANACONDA found:   ${ANACONDA}")
 
 ########################################################
@@ -164,10 +164,14 @@ if (APPLE)
 
     option(WITH_BREW "brew" ON)
     if (WITH_BREW)
-        EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+        EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE
+        DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX
+        ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
         foreach(i /opt /usr/local $ENV{HOME} $ENV{HOME}/.local)
             if (NOT BREW_PREFIX)
-                EXECUTE_PROCESS(COMMAND ${i}/bin/brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+                EXECUTE_PROCESS(COMMAND ${i}/bin/brew --prefix RESULT_VARIABLE
+                DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
             endif()
         endforeach()
         if ( BREW_PREFIX)
@@ -249,8 +253,10 @@ OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
   OPTION(WITH_DOXYGEN " Enable the use of Doxygen for docs" On)
 OPTION(WITH_XML2YAP " Enable the  XML2YAP library" On)
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
-OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_CLPBN})
-OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_PACKAGES})
+OPTION(WITH_CLPBN "Enable the CLPBN
+                and PFL probabilistic languages" ${WITH_CLPBN})
+OPTION(WITH_HORUS "Enable the HORUS inference
+                libraray for CLPBN and PFL" ${WITH_PACKAGES})
 option(WITH_Gecode "interface gecode constraint solver" ${WITH_PACKAGES})
 option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
 option(WITH_SAT    "interface  with sat solvers" ${WITH_PACKAGES})
@@ -277,7 +283,8 @@ endif ()
 
 if (ANDROID)
     OPTION(WITH_SQLite3 " Enable MYDDAS SQLITE3 driver" ON)
-    OPTION(WITH_CWEB " Enable foreign code to convert HTML and RDF (if available)" OFF)
+    OPTION(WITH_CWEB " Enable foreign code to convert
+        HTML and RDF (if available)" OFF)
     function(add_to_dir list output)
     endfunction(add_to_dir list output)
 
@@ -421,7 +428,8 @@ endif()
 
 if(WITH_Threads)
     include(Threads)
-    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS THREADS=1 USE_PTHREAD_LOCKING=1)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
+    THREADS=1 USE_PTHREAD_LOCKING=1)
     SET(MAX_THREADS 1024)
     SET(MAX_WORKERS 1)
 else()
@@ -614,16 +622,20 @@ if (HAVE_GCC)
     else ()
       set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Release>:-O3;-fstrict-aliasing;-fsched-interblock;-fsanitize=memory;-fsanitize-memory-track-origins=2;-funique-s
 ource-file-names >)
-        set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-O3;-glldb;-lmcheck>)
+        set_property(DIRECTORY APPEND PROPERTY
+        COMPILE_OPTIONS $<$<CONFIG:Debug>:-O3;-glldb;-lmcheck>)
     endif ()
-    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -fexceptions)
+    set_property(DIRECTORY APPEND PROPERTY
+    COMPILE_OPTIONS -fexceptions)
 endif ()
 
-# set_property( DIRECTORY APPEND_STRING PROPERTY -fsanitize=memory;-fsanitize-memory-track-origins=2)
+# set_property( DIRECTORY APPEND_STRING
+#  PROPERTY -fsanitize=memory;-fsanitize-memory-track-origins=2)
 if (HAVE_GCC)
     # replace instructions codes by the address of their code
     if (WITH_THREADED_CODE)
-        set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS THREADED_CODE=1)
+        set_property(DIRECTORY APPEND PROPERTY
+        COMPILE_DEFINITIONS THREADED_CODE=1)
     endif (WITH_THREADED_CODE)
 endif (HAVE_GCC)
 
@@ -636,11 +648,13 @@ set_property(DIRECTORY  PROPERTY CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
 #TODO:
 if (WITH_CALL_TRACER)
     list(APPEND YAP_SYSTEM_OPTIONS "call_tracer " ${YAP_SYSTEM_OPTIONS})
-    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:LOW_LEVEL_TRACER=1>)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS
+    $<$<CONFIG:Debug>:LOW_LEVEL_TRACER=1>)
 endif (WITH_CALL_TRACER)
 
 
-set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
+set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY
+COMPILE_DEFINITIONS YAP_KERNEL=1)
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
@@ -665,7 +679,8 @@ if(ANDROID)
 
     set(CXX_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/packages/swig/android)
     add_subdirectory(packages/swig/android)
-    add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 -DEMBEDDED_SQLITE3=1)
+    add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1
+        -DMYDDAS_SQLITE3=1 -DEMBEDDED_SQLITE3=1)
 
 else()
     add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 )

@@ -22,18 +22,16 @@
  * @file   stack.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MacBook-Pro.local>
  * @date   Tue Sep  8 23:33:02 2015
- *
- * @brief  Get to know what is in your stack.
+ *          
+ * @brief                                        Get to know what is in your stack.
  *
  *
  */
 
 
-
-
 #include "Yap.h"
 
-#include "YapError.h"
+                                             #include "YapError.h"
 #include "YapTags.h"
 #include "YapText.h"
 #include "Yapproto.h"
@@ -52,6 +50,11 @@
 #endif
 
 #include <heapgc.h>
+
+static Term add_info(char *name, Term Val, Term next) {
+  return MkPairTerm(MkPairTerm(MkStringTerm(name),Val), next);
+}
+
 static int UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
   arity_t arity = pe->ArityOfPE;
   Term tmod, tname;
@@ -235,7 +238,7 @@ static PredEntry *get_pred(Term t, Term tmod, char *pname) {
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), pname);
+      Yap_Error(TYPE_ERROR_CALLABLE, (t), pname);
       return NULL;
     }
     if (fun == FunctorModule) {
@@ -256,21 +259,18 @@ static PredEntry *get_pred(Term t, Term tmod, char *pname) {
     return NULL;
 }
 
-Term Yap_TermToIndicator(Term t, Term mod) {
+static Term Yap_EntryToIndicator(PredEntry *pe) {
   CACHE_REGS
     // generate predicate indicator in this case
     Term ti[2];
-  t = Yap_YapStripModule(t, &mod);
-  if (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t))) {
-    ti[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
-    ti[1] = MkIntegerTerm(ArityOfFunctor(FunctorOfTerm(t)));
-  } else if (IsPairTerm(t)) {
-    ti[0] = MkAtomTerm(AtomDot);
-    ti[1] = MkIntTerm(2);
+  if (pe->ArityOfPE == 0) {
+    ti[0] = MkAtomTerm((Atom)(pe->FunctorOfPred));
   } else {
-    return t;
+    ti[0] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
   }
-  t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+  ti[1] = MkIntegerTerm(pe->ArityOfPE);
+  Term t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+  Term mod = pe->ModuleOfPred;
   if (mod != PROLOG_MODULE && mod != USER_MODULE && mod != TermProlog) {
     ti[0] = mod;
     ti[1] = t;
@@ -377,50 +377,59 @@ PredEntry *Yap_PredForChoicePt(choiceptr cp)
     case _retry4:
       p_code = NEXTOP(p_code, l);
       break;
-    default:
       return p_code->y_u.Otapl.p;
+    default:
+    return NULL;
     }
   }
   return NULL;
 }
 
 Term
-Yap_choicepoint_info(choiceptr cp, bool full )
+Yap_cp_info(choiceptr cp, bool full )
 {
   CACHE_REGS
     PredEntry *pe = Yap_PredForChoicePt(cp);
-  Term  args[6];
-  
-  arity_t  arity = pe->ArityOfPE, a;
-  if (full) {
-    if (arity > 0) {
-      for (a=0; a< arity; a++) {
-	HR[a] = MkGlobal(cp->cp_args[arity]);
-      }
-      HR[0] = (CELL)(pe->FunctorOfPred);
-      HR[arity+1] = (CELL)(FunctorModule);
-      HR[arity + 2] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
-      HR[arity + 3] = AbsAppl(HR);
-      HR+=arity+4;
-    } else {
-      HR[0] = (CELL)(FunctorModule);
-      HR[1] = (pe->ModuleOfPred == PROLOG_MODULE ? TermProlog : pe->ModuleOfPred);
-      HR[2] = MkAtomTerm((Atom) pe->FunctorOfPred);
-      HR+=3;
-    }
-    args[0] = MkIntegerTerm(LCL0-(CELL*)cp);
-    args[1] = MkIntegerTerm(LCL0-(CELL*)(cp->cp_b));
-    args[2] = MkIntegerTerm(LCL0-cp->cp_env);
-    args[3] = MkIntegerTerm((cp->cp_h-H0));
-    args[4] = MkIntegerTerm(cp->cp_tr-(tr_fr_ptr)LOCAL_TrailBase);
-    args[5] =  AbsAppl(HR-3);
-    return Yap_MkApplTerm(FunctorCurrentChoicePoint, 6, args);
-  } else {
-    return Yap_PredicateToIndicator(pe);
-  }
+  Term  t;
+  t = add_info("cp_tr",MkIntegerTerm(TR-(tr_fr_ptr)LOCAL_TrailBase), TermNil);
+  t = add_info("cp_h", MkIntegerTerm(cp->cp_h - H0), t);
+   t = add_info("cp_env",MkIntegerTerm(LCL0-cp->cp_env), t);
+   t = add_info("cp_ap",MkAddressTerm(cp->cp_ap), t);
+   t = add_info("cp_cp",MkAddressTerm(cp->cp_cp), t);
+   t = add_info("cp_b",MkAddressTerm(cp->cp_b), t);
+   t = add_info("pred", Yap_EntryToIndicator(pe), t);
+   return t;
  
 }
-  
+
+static Int cp(USES_REGS1) {
+ choiceptr b = AddressOfTerm(Deref(ARG1));
+  return Yap_unify(ARG2,  Yap_cp_info(b, false));
+}
+
+
+
+
+Term Yap_env_info(CELL *env, bool full) {
+  CACHE_REGS
+  choiceptr  b = ((choiceptr)env[E_B]);
+  PredEntry *pe = Yap_PredForChoicePt(b);
+  Term  t;
+  t = add_info("env_env", MkIntegerTerm(LCL0 - (CELL *)env[E_E]),
+              TermNil);
+  t = add_info("env_cp",MkAddressTerm((CELL*)ENV[E_CP]), t);
+   t = add_info("env_b",MkAddressTerm(b), t);
+   t = add_info("pred", Yap_EntryToIndicator(pe), t);
+   return t;
+ 
+}
+
+static Int env(USES_REGS1) {
+  CELL *env = AddressOfTerm(Deref(ARG1));
+  return Yap_unify(ARG2,  Yap_env_info(env, false));
+}
+
+#if 0
 Term Yap_Cps(choiceptr cp) {
   CACHE_REGS
     if (cp == NULL)
@@ -445,6 +454,7 @@ Term Yap_ChoicePoints(choiceptr cp) {
   }
   return t;
 }
+#endif
 
 #if !defined(YAPOR) && !defined(THREADS)
 
@@ -1552,29 +1562,29 @@ static int legal_env(CELL *ep USES_REGS) {
   UNLOCK(pe->PELock);
   return (TRUE);
 }
+#endif
 
+static Term MkIndicator(PredEntry *pe) {
+Term tns[2];
+if (pe->ArityOfPE) {
+tns[0] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
+tns[1] = MkIntegerTerm(pe->ArityOfPE);
+} else {
+  tns[0] = MkAtomTerm((Atom)(pe->FunctorOfPred));
+tns[1] = MkIntegerTerm(pe->ArityOfPE);
+}
+  Term inner = Yap_MkApplTerm(FunctorSlash, 2, tns);
+  tns[0] = pe->ModuleOfPred == PROLOG_MODULE ? TermProlog: pe->ModuleOfPred;
+  tns[1] = inner;
+  return Yap_MkApplTerm(FunctorComma, 2, tns);
+}
+
+#if 0
 
 static Int program_continuation(USES_REGS1) {
   PredEntry *pe = EnvPreg((yamop *) ((ENV_Parent(ENV))[E_CP]));
-  if (pe->ModuleOfPred) {
-    if (!Yap_unify(ARG1, pe->ModuleOfPred))
-      return FALSE;
-  } else {
-    if (!Yap_unify(ARG1, TermProlog))
-      return FALSE;
-  }
-  if (pe->ArityOfPE) {
-    if (!Yap_unify(ARG2, MkAtomTerm(NameOfFunctor(pe->FunctorOfPred))))
-      return FALSE;
-    if (!Yap_unify(ARG3, MkIntegerTerm(ArityOfFunctor(pe->FunctorOfPred))))
-      return FALSE;
-  } else {
-    if (!Yap_unify(ARG2, MkAtomTerm((Atom) pe->FunctorOfPred)))
-      return FALSE;
-    if (!Yap_unify(ARG3, MkIntTerm(0)))
-      return FALSE;
-  }
-  return TRUE;
+  Term p = MkIndicator(pe);
+  return Yap_unify(p,ARG1);
 }
 
 static bool handled_exception(USES_REGS1) {
@@ -1598,6 +1608,7 @@ static bool handled_exception(USES_REGS1) {
   /* handled by Top c-code? */
   return !found_handler;
 }
+
 #endif
 
 typedef struct buf_struct_t {
@@ -1692,15 +1703,15 @@ bool DumpActiveGoals(FILE *f, bool ignore_top USES_REGS) {
       cp = cp->cp_b;
       /// 2. the choice-point  environment is the parent
       /// of the new environment
-    } else if (CELL*)(env[E_YENV]) == cp->cp_env) {
+    } else if ((CELL*)(env[E_E]) == cp->cp_env) {
       next = (yamop *)cp->cp_env[E_CP];
-      if (!outputep(f, ignore_top,next, fr_e, depth++))
+      if (!outputep(f, ignore_top,next, fr_e, depth))
 	break;
       env=	fr_e = cp->cp_env;
       next = (yamop *)env[E_CP];
       cp = cp->cp_b;
     } else {
-      if (!outputep(f, ignore_top,next, env, depth++))
+      if (!outputep(f, ignore_top,next, env, depth))
 	break;
       next = (yamop *)env[E_CP];
       env = (CELL *)env[E_E];
@@ -2387,4 +2398,6 @@ void Yap_InitStInfo(void) {
   Yap_InitCPred("clause_location", 2, clause_location, HiddenPredFlag);
   //    Yap_InitCPred("ancestor_location", 1, ancestor_location, HiddenPredFlag);
   Yap_InitCPred("parent_predicate", 1, parent_pred, HiddenPredFlag);
+  Yap_InitCPredInModule("cp", 2, cp, 0, HACKS_MODULE);
+  Yap_InitCPredInModule("env", 2, env, 0, HACKS_MODULE);
 }

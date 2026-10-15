@@ -655,7 +655,7 @@ void Yap_DebugSetIFile(char *fname) {
   curfile = fopen(fname, "r");
   if (curfile == NULL) {
     curfile = stdin;
-    Yap_Warning("%% YAP  open %s for input\n", fname);
+    fprintf(stderr, "%% YAP has opened file %s for input\n", fname);
   }
 }
 

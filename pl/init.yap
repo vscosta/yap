@@ -34,7 +34,14 @@
 '$init_win_graphics' :-
     '$undefined'(window_title(_,_), system), !.
 '$init_win_graphics' :-
-    load_files([library(win_menu)], [silent(true),if(not_loaded)]),
+	catch(
+	    stream_position(loop_stream,Pos),
+	    _,
+	    stream_position(user_input,Pos)
+	),
+	'$process_directive'(
+	    load_files([library(win_menu)], [silent(true),if(not_loaded)]),
+	    top, user, [], Pos),
     fail.
 '$init_win_graphics'.
 
@@ -93,7 +100,7 @@ init_prolog :-
 
 % then we can execute the programs.
 '$startup_goals' :-
-    module(user),
+    current_source_module(_,user),
     fail.
 '$startup_goals' :-
     recorded('$startup_goal',G,_),
@@ -163,6 +170,7 @@ init_prolog :-
 
 % use if we come from a save_program and we have SWI's shlib
 '$init_from_saved_state_and_args' :-
+    current_source_module(_,user),
 	current_prolog_flag(hwnd, _HWND),
 	load_files(library(win_menu), [silent(true)]),
 	fail.
@@ -190,6 +198,7 @@ init_prolog :-
 	recorded('$restore_flag', init_file(MB), R),
 	erase(R),
 	'$do_startup_reconsult'(MB),
+
 	fail.
 '$init_from_saved_state_and_args' :-
 	recorded('$restore_flag', unknown(M:B), R),
@@ -220,7 +229,13 @@ init_prolog :-
     '$init_win_graphics',
     fail.
 '$do_startup_reconsult'(X) :-
-    catch(load_files(X, [silent(true)]), _Error, error_handler),
+	catch(
+	    stream_position(loop_stream,Pos),
+	    _,
+	    stream_position(user_input,Pos)
+	),
+	current_source_module(_,user),
+	load_files(X, [silent(true)]),
   % still need to run -g or -z
     get_value('$top_level_goal',[]),
     !,
@@ -231,12 +246,14 @@ init_prolog :-
 
 '$exec_initialization_goals'( File) :-
     set_prolog_flag(optimise, true),
+    current_source_module(_,user),
     recorded('$blocking_code',File,R),
     erase(R),
     fail.
 '$exec_initialization_goals'(File) :-
     recorded('$initialization_queue',q(File-_Line ,G),R),     
     erase(R),
+    current_source_module(_,user),
     catch(G,_,error_handler),
     fail.
 '$exec_initialization_goals'(_).

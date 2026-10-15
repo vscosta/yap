@@ -362,27 +362,23 @@ catch(MG,E,G) :-
       ).
 
 '$catch'(_MG,E,G,_,_) :-    
-    '$drop_exception'(E0,_U),
+    '$drop_exception'(E0,U),
+writeln(E/E0),
     nonvar(E0),
     (
+	E0 = error(Key,__),
+	E = error(Key,UN),
+	G ==error_handler
+	->
+	'$extend_info'(UN,U,V),
+	error_handler(error,error(Key,V))
+	;
+	
       E = E0
      ->
-      (
-	E0 = error(K,U)
-       ->
-	(
-	  '$yap_strip_module'(G,_,error_handler )
-	 ->
-	  %'$extend_info'(U, SystemAsList,  NewInfo),
-	  error_handler(error,error(K,U)),
-	  !,
-	  fail
-	)
+	call(G)
        ;
-        call(G)
-      );
-      throw(E0)
-
+      throw(E)
     ).
     	
 '$extend_info'(Hints, Info, Info) :-
@@ -655,12 +651,16 @@ prolog_current_frame(Env) :-
 	Env is '$env'.
 
 '$run_atom_goal'(GA) :-
-	'$current_module'(Module),
-    atom_to_term(GA, G, _),
-    catch(Module:G, _Error,error_handler),
-    !.
+	atom_to_term(GA, G, Vl),
+	catch(
+	    stream_position(loop_stream,Pos),
+	    _,
+	    stream_position(user_inputPos)
+	),
+	'$goal'(G, Vl, Pos),
+	!.
 
-'$add_dot_to_atom_goal'([],[0'.]) :- !. %'
+'$add_dot_to_atom_goal'([],[0'.]) :- !. 
 '$add_dot_to_atom_goal'([0'.],[0'.]) :- !.
 '$add_dot_to_atom_goal'([C|Gs0],[C|Gs]) :-
     '$add_dot_to_atom_goal'(Gs0,Gs).
