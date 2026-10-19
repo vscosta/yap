@@ -134,8 +134,8 @@ initialize_prolog :-
 :- c_compile('consult.yap').
 %:- start_low_level_trace.
 :- compile('error.yap').
-%:- stop_Low_level_trace.
-:-  compile(	 'sort.yap').
+%:- stop_low_level_trace.
+:-  compile( 'sort.yap').
 
 
 :- ['utils.yap',
@@ -281,8 +281,6 @@ mksys(op(A,B,C)) :-
 %
 %:- ( recorded('$lf_loaded',_,R), erase(R), fail ; true ).
 %:- ( recorded('$module',_,R), erase(R), fail ; true ).
-
-:- style_check([+discontiguous,+multiple,+single_var]).
 
 %
 % moved this to init_gc in gc.c to separate the alpha

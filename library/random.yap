@@ -118,10 +118,8 @@ integers in the range `[1... _MAX_)`.
 */
 %:- use_module(library(pairs)).
 :- use_module(library(lists)).
-
-
+:
 :- load_foreign_files([], ['YAPSimpleRandom'], init_random).
-
 
 %   random(R) binds R to a new random number in [0.0,1.0)
 

@@ -93,10 +93,6 @@ expand_term(Term,Expanded) :-
     expand_term(Term,Expanded,_).
 
 
-expand_term( [], [], []) :-
-    !.
-expand_term( [H|T], [H|T], [H|T]) :-
-    !.
 expand_term( Term, UExpanded,  Expanded) :-
    (
         '$do_term_expansion'(Term,TermI)
@@ -110,7 +106,7 @@ expand_term( Term, UExpanded,  Expanded) :-
    ->
    member(T,TermI)
    ;
-   T = TermI
+     T = TermI
    ),
    '$expand_term_grammar'(T,TI),
     expand_clause(TI, UExpanded, Expanded),

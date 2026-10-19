@@ -90,7 +90,6 @@ expands_to/3
 
 :- dynamic ids/1.
 
-:- current_prolog_flag(source,_,true).
 
 /*
 

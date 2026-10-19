@@ -2254,8 +2254,8 @@ static bool JumpToEnv(USES_REGS1) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
   P = FAILCODE;
-
-  /* just keep thrown object away, we don't need to care about
+  LOCAL_ActiveError->currentModule = CurrentModule;
+        /* just keep thrown object away, we don't need to care about
      it
   */
   /* careful, previous step may have caused a stack shift,

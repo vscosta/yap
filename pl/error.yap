@@ -352,3 +352,4 @@ must_be_instantiated(X, Comment) :-
   ( var(X) -> instantiation_error(X, Comment) ; true).
 
 %% @}
+%:- start_low_level_trace.

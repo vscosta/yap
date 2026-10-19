@@ -57,10 +57,12 @@
         '$use_module'/3]).
 
 load_files(MFs, Opts) :-
-    '_exec_load_files'(MFs,Opts, goal, [], 0).
+    strip_module(MFs, M, Fs),
+    '_exec_load_files'(Fs,M,  Opts, goal, [], 0).
 
 load_files(MFs) :-
-    '_exec_load_files'(MFs,[], goal, [], 0).
+    strip_module(MFs, M, Fs),
+    '_exec_load_files'(Fs, M, [], goal, [], 0).
 
 
 :- use_system_module( '$_absf', ['$full_filename'/2]).

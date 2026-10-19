@@ -591,7 +591,7 @@ qload_file( F0 ) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
     print_message(informational, loaded(EndMsg, File, Mod, T, H)),
-   '$exec_initialization_goals'(File).
+    '$exec_initialization_goals'.
 
 '$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList) :-
    reorded('$source_file','$source_file'(FilePl,_Age), _R),

@@ -192,6 +192,7 @@ init_prolog :-
     get_value('$consult_on_boot',X),
     X \= [],
     set_value('$consult_on_boot',[]),
+    module(user),
     '$do_startup_reconsult'(X),
     fail.
 '$init_from_saved_state_and_args' :-
@@ -246,14 +247,12 @@ init_prolog :-
 
 '$exec_initialization_goals'( File) :-
     set_prolog_flag(optimise, true),
-    current_source_module(_,user),
     recorded('$blocking_code',File,R),
     erase(R),
     fail.
 '$exec_initialization_goals'(File) :-
     recorded('$initialization_queue',q(File-_Line ,G),R),     
     erase(R),
-    current_source_module(_,user),
     catch(G,_,error_handler),
     fail.
 '$exec_initialization_goals'(_).

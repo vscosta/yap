@@ -633,7 +633,7 @@ intersection([X|T], L, Intersect) :-
 	memberchk(X, L), !,
 	Intersect = [X|R],
 	intersection(T, L, R).
-intersection([_|T], L, R) :-
+uuu7uuintersection([_|T], L, R) :-
 	intersection(T, L, R).
 
 %%	subtract(+Set, +Delete, -Result) is det.

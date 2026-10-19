@@ -164,6 +164,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   set_key_b(prologConsulting, "prologConsulting", q, i, t);
   set_key_t(culprit_t, "culprit_t", q, i, t);
   set_key_t(errorUserTerm, "errorUserTerm", q, i, t);
+  set_key_t(currentModule, "currentModule", q, i, t);
   set_key_s(prologStack, "prologStack", q, i, t);
   set_key_s(errorMsg, "errorMsg", q, i, t);
   set_key_i(errorMsgLen, "errorMsgLen", q, i, t);
@@ -231,6 +232,7 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_s(prologStack, "prologStack", q, i);
   query_key_t(culprit_t, "culprit_t", q, i);
   query_key_t(errorUserTerm, "errorUserTerm", q, i);
+  query_key_t(currentModule, "currentModule", q, i);
   Yap_ThrowError(DOMAIN_ERROR_FLAG_VALUE, MkAtomTerm(Yap_LookupAtom(q)), "Bad error parameter  %s in error query", q);
   return false;
 }
@@ -296,6 +298,7 @@ static void printErr(yap_error_descriptor_t *i, FILE *out) {
   print_key_t(out, "culprit_t", i->culprit_t);
   print_key_s(out, "prologStack", i->prologStack);
   print_key_t(out, "errorUserterm", i->errorUserTerm);
+  print_key_t(out, "currentModule", i->currentModule);
   print_key_s(out, "errorMsg", (i->errorMsgLen == 0 ? "no message" : i->errorMsg));
   print_key_i(out, "errorMsgLen", i->errorMsgLen);
 }
@@ -377,6 +380,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_t("culprit_t", i->culprit_t, o);
   o = add_key_s("prologStack", i->prologStack, o);
   o = add_key_t("errorUserTerm", i->errorUserTerm, o);
+  o = add_key_t("currentModule", i->currentModule, o);
   o = add_key_s("errorMsg", i->errorMsg, o);
   o = add_key_i("errorMsgLen", i->errorMsgLen, o);
   return o;
@@ -443,6 +447,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   if (LOCAL_PrologMode & InErrorMode) {
     LOCAL_ActiveError->errorNo = ABORT_EVENT;
     Yap_JumpToEnv();
+  LOCAL_ActiveError->currentModule = CurrentModule;
   }
   if (LOCAL_ErrorMessage) {
     serr = LOCAL_ErrorMessage;
@@ -833,6 +838,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
                        Term culprit_t, Term extra, const char *s) {
   CACHE_REGS
+    r->currentModule = CurrentModule;
     if (type!= EVALUATION_ERROR_UNDEFINED ) { //&& LOCAL_Undef_CP == NULL) {
       if (!Yap_pc_add_location(r, P, B, ENV))
 	Yap_env_add_location(r, CP, B, ENV, 0);
@@ -1446,6 +1452,7 @@ static Int drop_exception(USES_REGS1) {
     if (LOCAL_ActiveError->errorUserTerm)
       LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm(LOCAL_ActiveError->errorUserTerm);
     LOCAL_Error_TYPE = errnb;
+    CurrentModule = LOCAL_ActiveError->currentModule;
     if (errnb == USER_DEFINED_EVENT) {
       rc = Yap_unify(LOCAL_ActiveError->errorUserTerm, ARG1) &&
 	Yap_unify( TermNil, ARG2);

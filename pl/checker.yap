@@ -158,6 +158,11 @@ separated by clauses from other procedures.
 
 */
 
+
+
+:- style_check([+discontiguous,+multiple,+single_var]).
+
+
 :- op(1150, fx, [multifile,discontiguous]).
 /**
 @}

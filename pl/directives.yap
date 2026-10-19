@@ -138,11 +138,7 @@
     strip_module(M:G,M1,G1),
     '$lf_args'( G1,  Fs, Opts),
     !,
-    setup_call_cleanup(
-    current_source_module(M0,M1),
-    '_exec_load_files'(M:Fs, Opts, Mode, [], Pos),
-    current_source_module(_,M0)
-    ).
+    '_exec_load_files'(Fs,M1, Opts, Mode, [], Pos).
 '$exec_directive'(multifile(D), _, M, _, _) :-
 	'$system_catch'('$multifile'(D, M), M,
 	      Error,

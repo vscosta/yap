@@ -66,7 +66,7 @@ load_foreign_files(_Objs,_Libs,Entry) :-
     '$check_embedded'(Entry),
     !.
 load_foreign_files(Objs,Libs,Entry) :-
-    current_source_module(M,M),
+    current_source_module(M,M),writeln(M:M),
     %G = load_foreign_files(Objs,Libs,Entry),
     '$absfs'( Objs, [file_type(executable),
 			     access(read),
@@ -75,7 +75,7 @@ load_foreign_files(Objs,Libs,Entry) :-
     '$abslibs'( Libs, [file_type(executable),
 			     access(read),
 			     expand(true),
-			     file_errors(fail)], NewLibs, []),
+      file_errors(fail)], NewLibs, []),
    '$load_foreign_files'(NewObjs,[],Entry),
     !,
     prolog_load_context(file, F),

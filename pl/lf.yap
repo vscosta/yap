@@ -51,74 +51,62 @@
 %%
 %% predicate call interface to file-loading machinery
 '$load_files'(Fs, Opts, Call) :-
-current_source_module(M,M),
-    '_exec_load_files'(Fs, M, Opts, goal(Call), [], 0).
+    strip_module(Fs,M, Fs1),
+    must_be_ground(M:Fs1),
+    setup_call_cleanup(source_module(M0,M),
+    '$pick_files_for_loading'(Fs1, M0, M, Opts, Call),
+    current_source_module(_,M0)
+).
 
-%% @pred $load_files(Paths, Module, Options, consult/reconsult/top/goal, Vars, CallerLocation)
-%%
-
-'_exec_load_files'(Fs,_Opts, _Status, _VList, _Loc) :-
-    must_be_ground(Fs),
-    current_prolog_flag(compiler_skip,true),
-%    start_low_level_trace,
-    % writeln(in:Fs),
-    !.
-'_exec_load_files'(Fs,Opts, Status, _VList, Loc) :-
-    current_source_module(M0,M0),
-     '$pick_files_for_loading'(Fs, M0, M0, Opts, location(Status,Loc)),
-%    stop_low_level_trace,
-%    '$halt'(0),
-    fail.
-'_exec_load_files'(_Fs,_Opts, _Status, _VList, _Loc).
+'$pick_files_for_loading'(List, M0, M, Opts, FileLocation) :-
+    is_list(List),
+    !,
+    forall(lists:member(UserNamePath,List), 
+     '$pick_file_for_loading'(UserNamePath, M0, M,Opts, FileLocation)
+).
+'$pick_files_for_loading'(UserNamePath, M0, M, Opts, FileLocation) :-
+     '$pick_file_for_loading'(UserNamePath, M0, M,Opts, FileLocation).
 
     
-
-    
-'$pick_files_for_loading'(M:Fs, M0, _M, Opts, FileLocation) :-
+'$pick_file_for_loading'(M:Fs, M0, _M, Opts, FileLocation) :-
     !,
-    '$pick_files_for_loading'(Fs, M0, M, Opts, FileLocation).
+    '$pick_file_for_loading'(Fs, M0, M, Opts, FileLocation).
 
-'$pick_files_for_loading'(user, M0, M, Opts, FileLocation) :-
+'$pick_file_for_loading'(user, M0, M, Opts, FileLocation) :-
     !,
-    '$load_stream'( user, user_input, M0, M, [ stream(user_input)|Opts], FileLocation ).
-'$pick_files_for_loading'(user_input, M0, M, Opts, FileLocation) :-
+    '$load_stream'( user, user_input, M0, M
+
+, [ stream(user_input)|Opts], FileLocation ).
+'$pick_file_for_loading'(user_input, M0, M, Opts, FileLocation) :-
     !,
     '$load_stream'( user_input, user_input, M0, M, [ stream(user_input)|Opts], FileLocation ).
-'$pick_files_for_loading'(S, M0, M, Opts, FileLocation) :-
+'$pick_file_for_loading'(S, M0, M, Opts, FileLocation) :-
      string(S),
     !,
     atom_string(UserNamePath,S),
-    '$pick_files_for_loading'(UserNamePath, M0, M, Opts, FileLocation).
-'$pick_files_for_loading'(-UserNamePath, M0, M, Opts, FileLocation) :-
+    '$pick_file_for_loading'(UserNamePath, M0, M, Opts, FileLocation).
+'$pick_file_for_loading'(-UserNamePath, M0, M, Opts, FileLocation) :-
 !,
-    '$pick_files_for_loading'(UserNamePath, M0, M, Opts, FileLocation).
-'$pick_files_for_loading'(StreamName, M0, M, Opts, FileLocation) :-
-    '$memberchk'(stream(Stream), Opts),
-strip_module(M:StreamName,M1,Name),
-atom(Name),
-!,
-    '$load_stream'(  Name, Stream, M0, M1, Opts, FileLocation ).
-'$pick_files_for_loading'(UserNamePath, M0, M, Opts, FileLocation) :-
+    '$pick_file_for_loading'(UserNamePath, M0, M, Opts, FileLocation).
+'$pick_file_for_loading'(StreamName, M0, M, Opts, FileLocation) :-
+    lists:member(stream(Stream), Opts),
+    strip_module(M:StreamName,M,Name),
+    atom(Name),
+    !,
+   '$load_stream'(  Name, Stream, M0, M, Opts, FileLocation ).
+'$pick_file_for_loading'(UserNamePath, _M0, M, Opts, FileLocation) :-
     % first argument s
- '$memberchk'(consult(db),Opts),
+    lists:member(consult(db),Opts),
     !,
-    dbload(UserNamePath, M, FileLocation),
-    current_source_module(_,M0).    
-'$pick_files_for_loading'(UserNamePath,M0, M, Opts,  FileLocation ) :-
+    dbload(UserNamePath, M, FileLocation).    
+'$pick_file_for_loading'(UserNamePath,_M0, M, Opts,  FileLocation ) :-
     % first argument 
-    '$memberchk'( consult(exo),Opts),
- !,
-    exoload(UserNamePath, M,  FileLocation ),
-    current_source_module(_,M0).
-%% Prolog stream
-'$pick_files_for_loading'(List, M0, M, Opts, FileLocation) :-
-     is_list(List),
+    lists:member( consult(exo),Opts),
     !,
-    lists:member(UserNamePath,List),
-    '$pick_files_for_loading'(UserNamePath, M0, M,Opts, FileLocation).
-    '$pick_files_for_loading'(UserNamePath, M0, M, Opts,FileLocation) :-
-    strip_module(M:UserNamePath,M1,NamePath),
-'$load_file'(NamePath, M0, M1, Opts,FileLocation).
+    exoload(UserNamePath, M,  FileLocation ).
+%% Prolog stream
+'$pick_file_for_loading'(UserNamePath, M0, M, Opts, FileLocation) :-
+    '$load_file'(UserNamePath, M0, M, Opts, FileLocation).
 
 '$load_file'(UserNamePath, M0, M, Opts,FileLocation) :-
     % writeln(UserNamePath:'$file_to_abs_path'),
@@ -147,7 +135,7 @@ atom(Name),
 '$file_to_abs_path'(user_input,user_input, _Opts, _FileLocation) :-
     !.
 '$file_to_abs_path'(UserName, AbsPath, Opts, FileLocation) :-   
-   ( '$memberchk'(expand(Expand),Opts) -> true ; Expand = true ),
+   ( lists:member(expand(Expand),Opts) -> true ; Expand = true ),
     (   absolute_file_name(UserName, AbsPath, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(Expand)]) 
      ->
      Type = prolog
@@ -167,7 +155,7 @@ atom(Name),
 % first case: we have the file already loaded, or at
 % list declared, so we can reuse it.
 '$accept_path'(AbsPath, OuterModule, Opts) :-
-    ( '$memberchk'(if(If), Opts) -> true ; If = true),
+    ( lists:member(if(If), Opts) -> true ; If = true),
     '$accept'(If,AbsPath,InnerModule,OuterModule),
     !,
     '$import_module'(InnerModule,OuterModule, AbsPath, Opts),
@@ -178,7 +166,7 @@ atom(Name),
 '$accept_path'(AbsPath, _, _Opts) :-
     '__NB_getval__'('$consulting_file', Files, fail),
     % % writeln(l(AbsPath, Files)),
-    '$memberchk'( l(AbsPath,_), Files),
+    lists:member( l(AbsPath,_), Files),
     !,
     throw(error(compile_loop(AbsPath),compiling(Files)),load_files(AbsPath)).
 %
@@ -195,22 +183,21 @@ atom(Name),
     !.
 
 '$do_loop'(Stream, Opts,_) :-
- ('$memberchk'( consult(Cs), Opts) -> true ; Cs = reconsult),
+ (lists:member( consult(Cs), Opts) -> true ; Cs = reconsult),
     '$loop'(Stream, Cs).
 
 '$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,State, Location) :-
     '$conditional_compilation_get_state'(State),
   (
-	'$memberchk'(source_module(OuterModule),Opts)
+	lists:member(module(OuterModule),Opts)
    ->
    true
    ;
    M = OuterModule
    ),
-
-    current_source_module(OuterModule,OuterModule),
-    ( %'$memberchk'(compilation_mode(Reconsult), Opts)   ->
-     '$memberchk'(consult(Reconsult), Opts)   ->
+    current_source_module(_,OuterModule),
+    ( %lists:member(compilation_mode(Reconsult), Opts)   ->
+     lists:member(consult(Reconsult), Opts)   ->
      true
 	;
      Reconsult = Reconsult0
@@ -241,7 +228,7 @@ atom(Name),
 '$prepare_load_stream'(StreamName,M,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,State) :-
     '$conditional_compilation_get_state'(State),
 (
-	'$memberchk'(source_module(OuterModule),Opts)
+	lists:member(source_module(OuterModule),Opts)
    ->
    true
    ;
@@ -249,8 +236,8 @@ atom(Name),
    ),
     current_source_module(_,OuterModule),
     working_directory(D0,D0),
-    ( %'$memberchk'(compilation_mode(Reconsult), Opts)   ->
-   '$memberchk'(consult(Reconsult), Opts)   ->
+    ( %lists:member(compilation_mode(Reconsult), Opts)   ->
+   lists:member(consult(Reconsult), Opts)   ->
      true
 	;
      Reconsult = Reconsult0
@@ -270,7 +257,7 @@ atom(Name),
 
 '$open_stream'(AbsPath, Opts, Stream) :-
     (
-     '$memberchk'(encoding(Enc),Opts)
+     lists:member(encoding(Enc),Opts)
      ->		    
      Encoding = [encoding(Enc)]
 	;
@@ -283,7 +270,7 @@ atom(Name),
     working_directory(Dir,Dir),
     '$start_consult'(reconsult,File,Dir,Stream,_LC),
     (
-     '$memberchk'(skip_unix_header(Skip), Opts)
+     lists:member(skip_unix_header(Skip), Opts)
      ->
      true ;
      Skip = true
@@ -306,11 +293,10 @@ atom(Name),
      ),
     '$conditional_compilation_set_state'(State),
     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
-   '$exec_initialization_goals'(File),
      current_source_module(_,M0),
     '$end_consult'(D0),
-    close(Stream),
-    working_directory(_Dir, D0).
+   '$exec_initialization_goals'(File),
+    close(Stream).
     
 '$skip_unix_header'(Stream) :-
    peek_char(Stream, '#'), !, % 35 is ASCII for '#[
@@ -403,7 +389,7 @@ call_compiler(G, Where,_VL, Pos) :-
 '$report'(in, OldLoadVerbose,Verbose,T0,H0,_,UserFile, Opts) :-
     current_prolog_flag(verbose_load, OldLoadVerbose),
     (
-     '$memberchk'(silent(Silent), Opts)
+     lists:member(silent(Silent), Opts)
      ->
      ( Silent == true -> Verbose = false;
       Silent == false -> Verbose = true;
