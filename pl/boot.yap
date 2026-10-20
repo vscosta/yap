@@ -132,9 +132,7 @@ initialize_prolog :-
 :- c_compile('lf.yap').
 :- c_compile('if.yap').
 :- c_compile('consult.yap').
-%:- start_low_level_trace.
 :- compile('error.yap').
-%:- stop_low_level_trace.
 :-  compile( 'sort.yap').
 
 
@@ -167,7 +165,7 @@ initialize_prolog :-
 	 'yapor.yap',
      'qly.yap',
      'udi.yap'].
-%:- Stop_low_level_trace.
+:- stop_low_level_trace.
 
 
 %:- meta_predicate(log_event(+,:)).
@@ -250,7 +248,7 @@ mksys(op(A,B,C)) :-
 %    export_from_prolog(PrologExports),
 %    '$declare_system_module'(_, prolog, M, MExports, []).
 
-:- ensure_loaded('hacks.yap').
+:- compile('hacks.yap').
 
 %:- start_low_level_trace.
 :- ensure_loaded('attributes.yap').

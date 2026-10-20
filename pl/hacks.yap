@@ -41,8 +41,10 @@
  * makes available a list with the variable names of the last interaction.
  *
  */
+:- start_low_level_trace.
 yap_hacks:context_variables(Vs) :-
     b_getval(name_variables, Vs).
+:- stop_low_level_trace.
 
 /** @pred yap_query_exception(Key, Term, Val).
  *

@@ -578,7 +578,7 @@ qload_file( F0 ) :-
     print_message(informational, loading(StartMsg, File)),
     file_directory_name(File, DirName),
     working_directory(OldD, DirName),
-    nb_setval('$consulting_file',[]),
+    nb_setval('$consulting_file',[l(user_input,reconsult)]),
     '$q_header'( S, Type ),
     ( Type == module ->
 	  '$qload_module'(S , Mod, File, SourceModule)
@@ -591,10 +591,10 @@ qload_file( F0 ) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
     print_message(informational, loaded(EndMsg, File, Mod, T, H)),
-    '$exec_initialization_goals'.
+    '$exec_file_initialization_goals'.
 
 '$qload_file'(_S, _SourceModule, _F, FilePl, _F0, _ImportList) :-
-   reorded('$source_file','$source_file'(FilePl,_Age), _R),
+   recorded('$source_file','$source_file'(FilePl,_Age), _R),
    !.
 '$qload_file'(_S, _SourceModule, F, _FilePl, _F0, _ImportList) :-
     user:'$file_property'( '$lf_loaded'( F, Age, _ ) ),

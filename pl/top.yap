@@ -161,9 +161,9 @@ expand_term( Term, UExpanded,  Expanded) :-
 '$init_as_dynamic'( asserta ).
 '$init_as_dynamic'( assertz ).
 '$init_as_dynamic'( consult ) :-
-    '__NB_getval__'('$assert_all',on,fail).
+    '__NB_getval__'('$assert_all',true,fail).
 '$init_as_dynamic'( reconsult ) :-
-    '__NB_getval__'('$assert_all',on,fail).
+    '__NB_getval__'('$assert_all',true,fail).
 
 '$prompt_alternatives_on'(determinism).
 
@@ -494,7 +494,7 @@ live__ :-
     at_end_of_stream(user_input),
      !.	
 live__ :-    
-    b_setval('$consulting_file',[]),
+    nb_setval('$consulting_file',[l(user_input,reconsult)]),
     current_source_module(Module,Module),
     set_prolog_flag(verbose,normal),
     ( Module==user ->

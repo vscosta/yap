@@ -1697,7 +1697,7 @@ static Int start_mega(USES_REGS1)
     if (fe->scan) {
       fe->scanner->fe = fe;
     }
-  Yap_tokenizer(GLOBALf_Stream + sno, fe);
+  Yap_tokenizer(GLOBAL_Stream + sno, fe);
   if (fe->scan) {
     fe->scanner.stored_scan = scan_to_list(LOCAL_tokptr);
     

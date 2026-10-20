@@ -314,10 +314,13 @@ static YAP_Term add_key_b(const char *key, bool v, YAP_Term o0) {
 
 static YAP_Term add_key_i(const char *key, YAP_Int v, YAP_Term o0) {
   CACHE_REGS
+  if (v) {
     YAP_Term tkv[2];
   tkv[1] = MkIntegerTerm(v), tkv[0] = MkAtomTerm(Yap_LookupAtom(key));
   Term node = Yap_MkApplTerm(FunctorEq, 2, tkv);
   return MkPairTerm(node, o0);
+  }
+  return o0;
 }
 
 static YAP_Term add_key_s(const char *key, const char *v, YAP_Term o0) {
@@ -1465,8 +1468,8 @@ static Int drop_exception(USES_REGS1) {
 	if (IsApplTerm(t1) && (f=FunctorOfTerm(t1)) &&
 	    !IsExtensionFunctor(f) &&
 	    ArityOfFunctor(f)==2&&
-	    IsVarTerm(ArgOfTerm(2,t1))) {
-	  Yap_unify(ArgOfTerm(2,t1), ARG2);
+ 	    IsVarTerm(ArgOfTerm(2,t1))) {
+                  	  Yap_unify(ArgOfTerm(2,t1), ARG2);
 	}
       }
     } else {
@@ -1474,7 +1477,7 @@ static Int drop_exception(USES_REGS1) {
       rc = Yap_unify(tn, ARG1) && Yap_unify( ( err2list(LOCAL_ActiveError)), ARG2);
     }
     memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
-  } else {
+   } else {
     rc = false;
   }
   return rc;
@@ -1490,29 +1493,29 @@ static Int user_exception(USES_REGS1) {
   LOCAL_ActiveError->prologPredModule=RepAtom(AtomOfTerm(Deref(ARG5 )))->StrOfAE;
   LOCAL_ActiveError->prologPredName=RepAtom(AtomOfTerm(Deref(ARG6 )))->StrOfAE;
   LOCAL_ActiveError->prologPredArity=IntegerOfTerm(Deref(ARG7 ));
-  Term *o = (HR);
+                   Term *o = (HR);
   HR += 3;
   o[0] = (CELL)FunctorError;
-  o[1] = Deref(ARG1);
+   o[1] = Deref(ARG1);
   o[2] = Deref(ARG2);
-  LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm( AbsAppl(o) );
-  P = FAILCODE;
+   LOCAL_ActiveError->errorUserTerm = Yap_SaveTerm( AbsAppl(o) );
+   P = FAILCODE;
   Yap_ThrowExistingError();
-  return true;
+            return true;
 }
 
-bool Yap_get_exception(void) {
-  Term tn = Yap_GetGlobal(AtomZip);
+ bool Yap_get_exception(void) {
+   Term tn = Yap_GetGlobal(AtomZip);
   if (!IsVarTerm(tn) && tn != TermNil)
-    return true;
-  return false;
+                                 return true;
+   return false;
 }
-
+ 
 /** given a string(s, lookup for a corresponding error class
     r   numbe */
 /** given a string(s) and class context, lookup for a corresponding error
-    number */
-yap_error_number Yap_errorNumber(yap_error_class_number c, const char *s, const char *s2) {
+     number */
+ yap_error_number Yap_errorNumber(yap_error_class_number c, const char *s, const char *s2) {
   Int i = 1;
   if (s==NULL || !s)
     

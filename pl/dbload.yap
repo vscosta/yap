@@ -97,7 +97,7 @@ check_dbload_stream(R, M0) :-
 dbload_count(T0, M0) :-
 	get_module(T0,M0,T,M),
 	functor(T,Na,Arity),
-%	dbload_check_term(T),
+	dbload_check_term(T),
 	(
 	    dbloading(Na,Arity,M,_,NaAr,_) ->
 	    nb_getval(NaAr,I0),

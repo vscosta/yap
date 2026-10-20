@@ -22,13 +22,13 @@
 	nb_setval('$chr_toplevel_show_store',false).
 
 '$init_consult' :-
+    nb_setval('$consulting_file',[]),
     '$conditional_compilation_init',
     set_prolog_flag(optimise, true ),
-	nb_setval('$assert_all',off),
- 	nb_setval('$initialization_goals',off),
-	\+ '$undefined'('$init_preds',prolog),
-	'$init_preds',
-	fail.
+    nb_setval('$assert_all',true),
+    \+ '$undefined'('$init_preds',prolog),
+    '$init_preds',
+    fail.
 '$init_consult'.
 
 '$init_win_graphics' :-
@@ -171,28 +171,27 @@ init_prolog :-
 % use if we come from a save_program and we have SWI's shlib
 '$init_from_saved_state_and_args' :-
     current_source_module(_,user),
-	current_prolog_flag(hwnd, _HWND),
-	load_files(library(win_menu), [silent(true)]),
-	fail.
+    current_prolog_flag(hwnd, _HWND),
+    load_files(library(win_menu), [silent(true)]),
+    fail.
 '$init_from_saved_state_and_args' :-
-	recorded('$reload_foreign_libraries',_G,R),
-	erase(R),
-	shlib:reload_foreign_libraries,
-	fail.
+    recorded('$reload_foreign_libraries',_G,R),
+    erase(R),
+    shlib:reload_foreign_libraries,
+    fail.
 % this should be done before -l kicks in.
 '$init_from_saved_state_and_args' :-
-	current_prolog_flag(fast_boot, false),
-	  ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
-	  ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
-	  ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
-	  fail.
+    current_prolog_flag(fast_boot, false),
+    ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
+    ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
+    ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
+    fail.
 % use if we come from a save_program and we have a goal to execute
-
 '$init_from_saved_state_and_args' :-
     get_value('$consult_on_boot',X),
     X \= [],
     set_value('$consult_on_boot',[]),
-    module(user),
+    current_source_module(_,user),
     '$do_startup_reconsult'(X),
     fail.
 '$init_from_saved_state_and_args' :-
@@ -245,16 +244,16 @@ init_prolog :-
 
 % system goals must be performed first)
 
-'$exec_initialization_goals'( File) :-
+'$exec_file_initialization_goals'( File) :-
     set_prolog_flag(optimise, true),
     recorded('$blocking_code',File,R),
     erase(R),
     fail.
-'$exec_initialization_goals'(File) :-
+'$exec_file_initialization_goals'(File) :-
     recorded('$initialization_queue',q(File-_Line ,G),R),     
     erase(R),
     catch(G,_,error_handler),
     fail.
-'$exec_initialization_goals'(_).
+'$exec_file_initialization_goals'(_).
 
 

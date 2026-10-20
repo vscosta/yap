@@ -280,7 +280,7 @@ translate_message(error(syntax_error(Msg), Info)) -->
 translate_message(error( style_check(singletons), Info)) -->
     !,
     {
-l      '$error_position'(Info,File,Line,Column),
+      '$error_position'(Info,File,Line,Column),
       prolog_load_context(number_of_open_load_files,LC),
       Level = warning,
       query_exception(culprit_t, Info, VName),

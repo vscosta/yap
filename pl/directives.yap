@@ -134,11 +134,11 @@
     '$exec_directive'(G, Mode, M, VL, Pos).
 
 
-'$exec_directive'(G, Mode, M, _VL, Pos) :-
+'$exec_directive'(G, _Mode, M, _VL, _Pos) :-
     strip_module(M:G,M1,G1),
     '$lf_args'( G1,  Fs, Opts),
     !,
-    '_exec_load_files'(Fs,M1, Opts, Mode, [], Pos).
+    '$load_files'(M1:Fs, Opts, []).
 '$exec_directive'(multifile(D), _, M, _, _) :-
 	'$system_catch'('$multifile'(D, M), M,
 	      Error,

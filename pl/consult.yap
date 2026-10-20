@@ -58,11 +58,11 @@
 
 load_files(MFs, Opts) :-
     strip_module(MFs, M, Fs),
-    '_exec_load_files'(Fs,M,  Opts, goal, [], 0).
+    '$load_files'(Fs,M,  Opts  ).
 
 load_files(MFs) :-
     strip_module(MFs, M, Fs),
-    '_exec_load_files'(Fs, M, [], goal, [], 0).
+    '$load_files'(Fs, M, []).
 
 
 :- use_system_module( '$_absf', ['$full_filename'/2]).
@@ -159,16 +159,18 @@ YAP implements load_db/1 as a two-step non-optimised process. First,
 
    db_files/1 itself is just a call to load_files/2.
 */
-db_files(Fs) :-
-    load_files(Fs, [consult(db), if(not_loaded)]).
+db_files(MFs) :-
+    strip_module(MFs, M, Fs),
+    '$load_files'(Fs, M, [consult(db), if(not_loaded)]).
 
 
-'$csult'(Fs) :-
-     is_list(Fs),
+'$csult'(MFs) :-
+    strip_module(MFs, M, Fs),
+    is_list(Fs),
     !,
-    load_files(Fs,[consult(consult)]).
+    '$load_files'(Fs,M,[consult(consult)]).
 '$csult'(Fs) :-
-	 python:python_proc( Fs ) .
+    python:python_proc( Fs ) .
 
 
 %% @}
@@ -332,9 +334,13 @@ prolog_load_context(term, Term ) :-
     nonvar(T),
     T = [Term|_].
 prolog_load_context(term_position, Position ) :-
-    '__B_getval__'('$current_clause', T, fail),
-    nonvar(T),
-    T = [_,_,_,Position|_].
+    ('__B_getval__'('$current_clause', T, fail),
+     nonvar(T),
+	T = [_,_,_,Position|_]
+	;
+	var(T),
+	Position = '$position'(1,0,0,0,0)
+    ).
 prolog_load_context(variable_names, Term ) :-
     '__B_getval__'('$current_clause', T, fail),
     nonvar(T),
@@ -350,7 +356,7 @@ prolog_load_context(number_of_open_load_files, Depth ) :-
 % if the file exports a module, then we can
 % be imported from any module.
 '$file_loaded'(F0, TargetModule, M) :-
-     file_directory_name(F0,''),
+%     file_directory_name(F0,''),
     !,
     '$file_was_loaded'(F0,TargetModule, M).
 '$file_loaded'(F0, TargetModule, M) :-
@@ -381,35 +387,10 @@ prolog_load_context(number_of_open_load_files, Depth ) :-
     ( Age == CurrentAge ; Age = -1).
 
 	% inform the file has been loaded and is now available.
-'$tell_loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, Opts) :-
+'$tell_loaded'(F, UserFile, M, OldF, Line, Dir, Opts) :-
     prolog_load_context(directory, Dir),
-	(
-	 % if we are reconsulting, always start from scratch
-	 Reconsult0 \== consult,
-	 Reconsult0 \== not_loaded,
-	 Reconsult0 \== changed,
-%	 retractall('$source_file'(F, _)),
-	 fail
-	;
-	 var(Reconsult0)
-	->
-	 Reconsult = consult
-	;
-	 Reconsult = Reconsult0
-	),
-    (
-     Reconsult \== consult
-      ->
+    nb_getval('$consulting_file',[l(_,Reconsult)|_Files]),
      unload_file(F),
-     fail
-	;
-
-     var(Reconsult)
-     ->
-     Reconsult = reconsult
-	;
-     Reconsult = Reconsult0
-	),
 	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0),
     recorded('$source_file','$source_file'(F, Age),_),
 	% modules are logically loaded only once
