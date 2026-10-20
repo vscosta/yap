@@ -113,8 +113,8 @@
 
 '$lf_args'([H|T],[H|T],[]) :-is_list([H|T]).
 '$lf_args'(compile(Fs), Fs, []).
-'$lf_args'(consult(Fs), Fs, [reconsult(consult)]).
-'$lf_args'(reconsult(Fs), Fs, [reconsult(reconsult)]).
+'$lf_args'(consult(Fs), Fs, [consult(consult)]).
+'$lf_args'(reconsult(Fs), Fs, [consult(reconsult)]).
 '$lf_args'(ensure_loaded(Fs), Fs, [if(not_loaded),silent(true)]).
 '$lf_args'(load_files(Fs), Fs, []).
 '$lf_args'(load_files(Fs, Spec), Fs, Spec).
@@ -138,7 +138,7 @@
     strip_module(M:G,M1,G1),
     '$lf_args'( G1,  Fs, Opts),
     !,
-    '$load_files'(M1:Fs, Opts, []).
+    '$load_files'(Fs,M1, Opts).
 '$exec_directive'(multifile(D), _, M, _, _) :-
 	'$system_catch'('$multifile'(D, M), M,
 	      Error,
@@ -291,12 +291,6 @@ user_defined_directive(Dir,Action) :-
  % SICStus accepts everything in files
  % YAP accepts everything everywhere
  %
- '$process_directive'(G, top, M, VL, Pos) :-
-	 current_prolog_flag(language_mode, yap),      /* strict_iso on */
-'$process_directive'(G, consult, M, VL, Pos),
-!.
-'$process_directive'(_, _, _, _, _).
-
   %
  % default case
  %
@@ -307,10 +301,12 @@ user_defined_directive(Dir,Action) :-
  %
  % ISO does not allow goals (use initialization).
  %
+% ISO Prolog mode, go in and do it,
 '$process_directive'(D, _, M, _VL, _Pos) :-
-	current_prolog_flag(language_mode, iso),
-    !, % ISO Prolog mode, go in and do it,
-	throw_error(context_error((:- M:D),query),directive).
+	current_prolog_flag(dialect, iso),
+	!,
+	throw(error(domain_error(dialect_iso,(:-M:D),[]))).
+
  %
  % but YAP and SICStus do.
  %

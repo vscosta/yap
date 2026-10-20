@@ -392,7 +392,6 @@ static Term err2list(yap_error_descriptor_t *i) {
 bool Yap_do_warning__(const char *file, const char *function, int line,
                       yap_error_number type, Term t, const char *fmt, ...) {
   CACHE_REGS
-    char tmpbuf[PATH_MAX];
   yap_error_descriptor_t *e;
   if (LOCAL_ActiveError) {
     if (LOCAL_PrologMode & InErrorMode) {
@@ -405,8 +404,13 @@ bool Yap_do_warning__(const char *file, const char *function, int line,
     e = LOCAL_ActiveError = calloc(1, sizeof(*LOCAL_ActiveError));
   }
   LOCAL_PrologMode |= InErrorMode;
-  Yap_MkErrorRecord(e, file, function, line, type, ArgOfTerm(1, t),
-                    ArgOfTerm(2, t), tmpbuf);
+  char *s = malloc(513);
+  va_list ap;
+  va_start(ap, fmt);
+  size_t sz= vsnprintf(s, 512, fmt, ap);
+  va_end(ap);
+  e->errorMsg = realloc(s, sz + 1);
+  e->errorMsgLen = sz;
   bool  rc =  Yap_PrintWarning( Yap_MkErrorTerm(e), TermWarning);
   LOCAL_PrologMode &= ~InErrorMode;
   return rc;

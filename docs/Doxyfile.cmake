@@ -178,6 +178,16 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
     ${CMAKE_BINARY_DIR}/packages/myddas   
  )
 
+file(GLOB_RECURSE PLs RELATIVE ${CMAKE_SOURCE_DIR} *.yap *pl) 
+
+foreach (dox ${PLs} )
+    set(outfile cc/${dox}.cpp)
+    list(APPEND TRANSLATIONS ${outfile})
+  add_custom_command(OUTPUT ${outfile}
+    COMMAND yap -l ${CMAKE_SOURCE_DIR}/docs/filter.yap -z main -- ${outfile}
+            DEPENDS  ${dox}
+  )
+endforeach()
   
     add_custom_target(doc_build
     COMMAND ${CMAKE_COMMAND} -E rm -fr  ${CMAKE_BINARY_DIR}/mkdocs/site
@@ -191,7 +201,7 @@ set (DOXYGEN_FILE_PATTERNS *.pl *.yap *.ypp *.c *.cc *.cxx *.cpp *.c++
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/docs/images/favicon_32x32.ico ${CMAKE_BINARY_DIR}/mkdocs/docs/img/favicon.ico
 #      COMMAND yap-bin startup.yss -L ${CMAKE_SOURCE_DIR}/docs/dox2md.yap  -- ${CMAKE_BINARY_DIR}/xml ${CMAKE_BINARY_DIR}/mkdocs/docs ${CMAKE_BINARY_DIR}
        
-     DEPENDS STARTUP filter-bin mkdocs/mkdocs.yml ${MD_TARGETS}  ${CMAKE_SOURCE_DIR}/docs/dox2md.yap dox 
+     DEPENDS STARTUP filter-bin mkdocs/mkdocs.yml ${MD_TARGETS}  ${CMAKE_SOURCE_DIR}/docs/dox2md.yap dox ${TRANSLATIONS}
   )
 		
 

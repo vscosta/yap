@@ -87,15 +87,23 @@ style_check(-single_var) :-
 	set_prolog_flag( single_var_warnings, false ).
 style_check(single_var) :-
 	set_prolog_flag( single_var_warnings, true ).
+style_check(+single_var) :-
+	set_prolog_flag( single_var_warnings, true ).
 style_check(singleton) :-
+	set_prolog_flag( single_var_warnings, true ).
+style_check(+singleton) :-
 	set_prolog_flag( single_var_warnings, true ).
 style_check(-singleton) :-
 	set_prolog_flag( single_var_warnings, false ).
 style_check(discontiguous) :-
 	set_prolog_flag( discontiguous_warnings, true ).
-style_check(-discontiguous) :-
-	set_prolog_flag( discontiguous_warnings, false ).
+style_check(discontiguous) :-
+	set_prolog_flag( discontiguous_warnings, true ).
+style_check(+discontiguous) :-
+	set_prolog_flag( discontiguous_warnings, true ).
 style_check(multiple) :-
+	set_prolog_flag( redefine_warnings, true ).
+style_check(+multiple) :-
 	set_prolog_flag( redefine_warnings, true ).
 style_check(-multiple) :-
 	set_prolog_flag( redefine_warnings, false ).
@@ -157,7 +165,6 @@ procedures, that is, clauses for discontigous procedures may be
 separated by clauses from other procedures.
 
 */
-
 
 
 :- style_check([+discontiguous,+multiple,+single_var]).

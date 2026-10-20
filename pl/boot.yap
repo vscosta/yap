@@ -132,8 +132,9 @@ initialize_prolog :-
 :- c_compile('lf.yap').
 :- c_compile('if.yap').
 :- c_compile('consult.yap').
+
 :- compile('error.yap').
-:-  compile( 'sort.yap').
+:- compile( 'sort.yap').
 
 
 :- ['utils.yap',
@@ -165,8 +166,6 @@ initialize_prolog :-
 	 'yapor.yap',
      'qly.yap',
      'udi.yap'].
-:- stop_low_level_trace.
-
 
 %:- meta_predicate(log_event(+,:)).
 
@@ -196,7 +195,7 @@ initialize_prolog :-
 
 
 /** @pred  user"goal_expansion(+ _G_,+ _M_,- _NG_)
-vvvvvvvvv                              
+
 also available: Module:goal_expansion(+ _G_,+ _M_,- _NG_)
 
 
@@ -250,9 +249,7 @@ mksys(op(A,B,C)) :-
 
 :- compile('hacks.yap').
 
-%:- start_low_level_trace.
 :- ensure_loaded('attributes.yap').
-%:- stop_low_level_trace.
 :- ensure_loaded('threads.yap').
 
 :- ensure_loaded('corout.yap').

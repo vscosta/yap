@@ -54,10 +54,16 @@
     strip_module(Fs,M, Fs1),
     must_be_ground(M:Fs1),
     setup_call_cleanup(
-	current_source_module(M0,M),
-	'$pick_files_for_loading'(Fs1, M0, M, Opts),
+	(
+current_source_module(M0,M),
+working_directory(D0,D0)
+),
+    '$pick_files_for_loading'(Fs1, M0, M, Opts),
+(
+working_directory(_,D0),
 	current_source_module(_,M0)
-    ).
+)
+).
 
 '$pick_files_for_loading'(List, M0, M, Opts) :-
     is_list(List),
@@ -78,7 +84,7 @@
     '$load_stream'( user, user_input, M0, M, [ stream(user_input)|Opts] ).
 '$pick_file_for_loading'(user_input, M0, M, Opts) :-
     !,
-    '$load_stream'( user_input, user_input, M0, M, [ stream(user_input)|Opts] ).
+    '$load_stream'( user_input, user_input, M0, M,  [ stream(user_input)|Opts] ).
 '$pick_file_for_loading'(S, M0, M, Opts) :-
      string(S),
     !,
@@ -107,6 +113,11 @@
 '$pick_file_for_loading'(UserNamePath, M0, M, Opts) :-
     '$load_file'(UserNamePath, M0, M, Opts).
 
+'$get_consult_mode'(Reconsult) :-
+    '__NB_getval__'('$consulting_file', [l(_,Reconsult)|_], fail),
+    !.
+'$get_consult_mode'(reconsult).
+
 '$load_file'(UserNamePath, M0, M, Opts) :-
      writeln(UserNamePath:'$file_to_abs_path'),
     '$file_to_abs_path'(UserNamePath,AbsPath, Opts),
@@ -117,7 +128,8 @@
      writeln('pen_path'),
     '$open_stream'(AbsPath, Opts, Stream),
      writeln('prepare_loop'),
-    '$prepare_loop'(Stream,Reconsult,AbsPath, Opts),
+    '$unix_script'(Opts,Stream),
+    '$prepare_loop'(Stream,Reconsult,AbsPath),
      writeln(do_loop),
 writeln(loop:Stream+Reconsult),
     '$loop'(Stream, Reconsult),
@@ -125,8 +137,9 @@ writeln(loop:Stream+Reconsult),
     '$close_stream'(Stream,AbsPath, Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,M0, OuterModule,State).
 
 '$load_stream'(StreamName,Stream,M0, M, Opts) :-
+    working_directory(CWD, CWD),
     '$prepare_load_stream'(StreamName,M,OuterModule,Opts, Reconsult, OldLoadVerbose,Verbose,T0,H0,D0,Source,State),
-    '$prepare_loop'(Stream, Reconsult, StreamName, Opts),
+    '$prepare_loop'(Stream, Reconsult, StreamName),
     '$loop'(Stream, Reconsult),
     '$close_stream'(Stream, StreamName,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,M0,OuterModule,State).
 
@@ -201,7 +214,7 @@ writeln(m=OuterModule),
      ;
      true
      ),
-'$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,UserNamePath,Opts).
+    '$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,UserNamePath,Opts).
 
 '$set_lf_module'(M, OuterModule, Opts) :-
 % '$conditional_compilation_get_state'(State),
@@ -235,7 +248,7 @@ Files0 = [l(Parentf,Reconsult0)|_]
     Reconsult0 = reconsult,
     Parentf =  user_input
  ),
-writeln(Files:Opts),    (
+    (
 lists:member(reconsult(Reconsult), Opts)   ->
 	true
       ;
@@ -246,9 +259,9 @@ lists:member(reconsult(Reconsult), Opts)   ->
 '$prepare_load_stream'(StreamName,M,OuterModule, Opts, Reconsult, OldLoadVerbose,Verbose,T0,H0,D0,_Source,State) :-
      '$conditional_compilation_get_state'(State),
     '$set_lf_module'(M, OuterModule, Opts),
-%writeln(m=OuterModule),
+writeln(m=OuterModule),
     '$set_consult_stack'(StreamName, Reconsult, _Parentf, Opts),
-%writeln(cs=OuterModule),
+writeln(cs=OuterModule),
     working_directory(D0,D0),  
     '$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,StreamName,Opts).
 
@@ -262,26 +275,24 @@ lists:member(reconsult(Reconsult), Opts)   ->
      ),
     open(AbsPath, read, Stream,Encoding).
 
+'$unix_script'(Opts, _Stream) :-
+    lists:member(check_script(false), Opts),
+    !.
+'$unix_script'(_, Stream) :-
+    '$skip_unix_header'(Stream).
 
-'$prepare_loop'(Stream, Reconsult, File, Opts) :-
+'$skip_unix_header'(Stream) :-
+   peek_char(Stream, '#'), !, % 35 is ASCII for '#[
+   skip(Stream, 10),
+   '$skip_unix_header'(Stream).
+'$skip_unix_header'(_Stream).
+
+'$prepare_loop'(Stream, Reconsult, File) :-
      working_directory(Dir,Dir),
-    '$start_consult'(Reconsult,File,Dir,Stream,_LC),
-    (
-lists:member(skip_unix_header(Skip), Opts)
-     ->
-     true ;
-     Skip = true
-     ),
-    (
-     Skip == true ->
-     '$skip_unix_header'(Stream)
-	;
-     true
-     ).
+    '$start_consult'(Reconsult,File,Dir,Stream,_LC).
  
 '$close_stream'(Stream, File,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,M0,OuterModule,State ):-
- writeln(f=Stream),
-   (
+  (
     '$module'(File,InnerModule,_,_)
      ->
      '$import_module'(InnerModule, OuterModule, File, Opts),
@@ -289,21 +300,15 @@ lists:member(skip_unix_header(Skip), Opts)
      ;
      InnerModule=OuterModule
      ),
-    '$conditional_compilation_set_state'(State),
+   '$conditional_compilation_set_state'(State),
     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
     current_source_module(_,M0),
     '$end_consult'(D0),
-writeln(d=D0),
-    nb_getval('$consulting_file', [_|Files]), 
-     nb_setval('$consulting_file', Files), 
-    '$exec_file_initialization_goals'(File),
- close(Stream).
+   nb_getval('$consulting_file', [_|Files]),
+   nb_setval('$consulting_file', Files),
+   '$exec_file_initialization_goals'(File),
+   close(Stream).
     
-'$skip_unix_header'(Stream) :-
-   peek_char(Stream, '#'), !, % 35 is ASCII for '#[
-    skip(Stream, 10),
-    '$skip_unix_header'(Stream).
-'$skip_unix_header'(_).
 
 
 '$loop'(Stream, Reconsult) :-
@@ -457,10 +462,11 @@ include(Fs) :-
     ignore(recordzifnot('$includes', (Old ->Y),_)),
     set_stream(Stream, [encoding(Encoding), alias(include_stream)] ),
     print_message(informational, loading(including, Y)),
-    '$loop'(Stream),
+    '$get_consult_mode'(Reconsult),
+    '$loop'(Stream, Reconsult),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-    current_source_module(Mod,Mod),
+    current_source_module(_Mod,Mod),
     print_message(informational, loaded(included, Y, Mod, T, H)),
     working_directory(_Dir, Dir0).
 
@@ -547,13 +553,13 @@ Example:
 
 */
 reconsult(Fs) :-
-	load_files(Fs, [reconsult(consult)]).
+	load_files(Fs, [consult(consult)]).
 
 compile(Fs) :-
 	reconsult(Fs).
 
 compile_clauses(Commands) :-
-	 '$active_predicate'(P),
+    '$active_predicate'(P),
     (
      member(C,Commands),
      compile_clause(C),
