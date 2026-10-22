@@ -1,4 +1,4 @@
-/*************************************************************************
+  /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -47,279 +47,254 @@
 '$check_use_module'(use_module(M,_,_), use_module(M)) :- !.
 '$check_use_module'(_, load_files) :- !.
 
-%% @pred $load_files(Module, Path, Options)
+%% @pred $load_files(Module, Path, Options, InitialGoal)
 %%
 %% predicate call interface to file-loading machinery
-'$load_files'(Fs,M, Opts) :-
-    strip_module(Fs,M, Fs1),
-    must_be_ground(M:Fs1),
-    setup_call_cleanup(
-	(
-current_source_module(M0,M),
-working_directory(D0,D0)
-),
-    '$pick_files_for_loading'(Fs1, M0, M, Opts),
-(
-working_directory(_,D0),
-	current_source_module(_,M0)
-)
-).
+'$load_files'(Fs, Opts) :-
+    '_exec_load_files'(Fs, Opts).
 
-'$pick_files_for_loading'(List, M0, M, Opts) :-
-    is_list(List),
-    !,
-    forall(lists:member(UserNamePath,List), 
-     '$pick_file_for_loading'(UserNamePath, M0, M,Opts)
-).
-'$pick_files_for_loading'(UserNamePath, M0, M, Opts) :-
-     '$pick_file_for_loading'(UserNamePath, M0, M,Opts).
+%% @pred $load_files(Paths, Module, Options, consult/reconsult/top/goal, Vars, CallerLocation)
+%%
+
+'_exec_load_files'(Fs,  Opts) :-
+    must_be_ground(Fs),
+%    current_prolog_flag(compiler_skip,true),
+%    start_low_level_trace,
+     % writeln(in:Fs),
+    setup_call_cleanup(
+	current_source_module(M0,M0),
+	'$pick_files_for_loading'(Fs, Opts),
+	current_source_module(_,M0)
+    ),
+%    stop_low_level_trace,
+%    '$halt'(0),
+    fail.
+'_exec_load_files'(_Fs,_Opts).
 
     
-'$pick_file_for_loading'(M:Fs, M0, _M, Opts) :-
-    !,
-    '$pick_file_for_loading'(Fs, M0, M, Opts).
 
-'$pick_file_for_loading'(user, M0, M, Opts) :-
-    !,
-    '$load_stream'( user, user_input, M0, M, [ stream(user_input)|Opts] ).
-'$pick_file_for_loading'(user_input, M0, M, Opts) :-
-    !,
-    '$load_stream'( user_input, user_input, M0, M,  [ stream(user_input)|Opts] ).
-'$pick_file_for_loading'(S, M0, M, Opts) :-
+    
+'$pick_files_for_loading'(user, Opts) :-
+!,
+    '$load_stream'( user, user_input, [ stream(user_input)|Opts] ).
+'$pick_files_for_loading'(user_input, Opts) :-
+!,
+    '$load_stream'( user_input, user_input, [ stream(user_input)|Opts] ).
+'$pick_files_for_loading'(S, Opts) :-
      string(S),
     !,
     atom_string(UserNamePath,S),
-    '$pick_file_for_loading'(UserNamePath, M0, M, Opts).
-'$pick_file_for_loading'(-UserNamePath, M0, M, Opts) :-
+    '$pick_files_for_loading'(UserNamePath, Opts).
+'$pick_files_for_loading'(M:Fs,Opts) :-
+    !,
+    setup_call_cleanup(
+    current_source_module(M0,M),
+    '$pick_files_for_loading'(Fs, Opts),
+    current_source_module(_,M0)
+    ).
+'$pick_files_for_loading'(-UserNamePath, Opts) :-
 !,
-    '$pick_file_for_loading'(UserNamePath, M0, M, Opts).
-'$pick_file_for_loading'(StreamName, M0, M, Opts) :-
-    lists:member(stream(Stream), Opts),
-    strip_module(M:StreamName,M,Name),
+    '$pick_files_for_loading'(UserNamePath, [consult(reconsult)|Opts]).
+'$pick_files_for_loading'(Name, Opts) :-
+    '$memberchk'(stream(Stream), Opts),
     atom(Name),
     !,
-   '$load_stream'(  Name, Stream, M0, M, Opts ).
-'$pick_file_for_loading'(UserNamePath, _M0, M, Opts) :-
+   '$load_stream'( Name, Stream, Opts ).
+'$pick_files_for_loading'(UserNamePath, Opts) :-
     % first argument s
-    lists:member(consult(db),Opts),
+ '$memberchk'(consult(db),Opts),
     !,
-    dbload(UserNamePath, M).    
-'$pick_file_for_loading'(UserNamePath,_M0, _M, Opts ) :-
+    dbload(UserNamePath).
+ '$pick_files_for_loading'(UserNamePath, Opts ) :-
     % first argument 
-    lists:member( consult(exo),Opts),
-    !,
+    '$memberchk'( consult(exo),Opts),
+ !,
     exoload(UserNamePath ).
 %% Prolog stream
-'$pick_file_for_loading'(UserNamePath, M0, M, Opts) :-
-    '$load_file'(UserNamePath, M0, M, Opts).
+'$pick_files_for_loading'(List, Opts) :-
+     is_list(List),
+    !,
+    lists:member(UserNamePath,List),
+    '$pick_files_for_loading'(UserNamePath,Opts).
+    '$pick_files_for_loading'(UserNamePath, Opts) :-
+   '$file_to_abs_path'(UserNamePath,AbsPath, Opts),
+    '$load_file'(UserNamePath, AbsPath, Opts).
 
-'$get_consult_mode'(Reconsult) :-
-    '__NB_getval__'('$consulting_file', [l(_,Reconsult)|_], fail),
+'$load_file'(_UserNamePath, AbsPath, _Opts) :-
+    '__NB_getval__'('$consulting_file', AbsPaths, fail),
+    % writeln(aATTTTin:AbsPath:AbsPaths),
+    '$memberchk'( l(AbsPath,_), AbsPaths),
     !.
-'$get_consult_mode'(reconsult).
-
-'$load_file'(UserNamePath, M0, M, Opts) :-
-     writeln(UserNamePath:'$file_to_abs_path'),
-    '$file_to_abs_path'(UserNamePath,AbsPath, Opts),
-     writeln('$acces_path'),
-    '$accept_path'(AbsPath,M, Opts),
-     writeln('prepare_path'),
-    '$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts, Reconsult, OldLoadVerbose,Verbose,T0,H0,D0,Source,State),
-     writeln('pen_path'),
+'$load_file'(_UserNamePath, AbsPath, Opts) :-
+current_source_module( OuterModule, OuterModule),
+    ('$memberchk'(if(If),Opts) -> true ; If = true ),
+  '$use_loaded_file'(If, AbsPath, OuterModule, InnerModule),
+    !,
+    '$import_module'(InnerModule,OuterModule,AbsPath, Opts).
+    
+'$load_file'(UserNamePath, AbsPath, Opts) :-
+    % writeln('$acces_path'=AbsPath),
+%(atom_concat(_,'lists.yap', AbsPath)
+  setup_call_cleanup(
+      (
+working_directory(MyD0,MyD0),
+      current_source_module(OuterModule, OuterModule)
+      ),
+    (
+% writeln(plf),
+      '$prepare_load_file'(UserNamePath,AbsPath,OuterModule,Opts,
+    OldLoadVerbose,Verbose,T0,H0,D0,Reconsult,Source),
+     % writeln('pen_path'),
     '$open_stream'(AbsPath, Opts, Stream),
-     writeln('prepare_loop'),
-    '$unix_script'(Opts,Stream),
-    '$prepare_loop'(Stream,Reconsult,AbsPath),
-     writeln(do_loop),
-writeln(loop:Stream+Reconsult),
-    '$loop'(Stream, Reconsult),
-     writeln(xlose),
-    '$close_stream'(Stream,AbsPath, Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,M0, OuterModule,State).
+    % % writeln('prepare_loop'),
+    !,
+    '$prepare_loop'(Stream,AbsPath),
+     % writeln(do_loop),
+    '$do_loop'(Stream, Reconsult),
+    % writeln(xlose),
+    '$close_stream'(Stream,AbsPath, Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source, OuterModule)
+    ),
+    (
+current_source_module(_, OuterModule),
+working_directory(_,MyD0)
+    )
+    )
+.
 
-'$load_stream'(StreamName,Stream,M0, M, Opts) :-
-    working_directory(CWD, CWD),
-    '$prepare_load_stream'(StreamName,M,OuterModule,Opts, Reconsult, OldLoadVerbose,Verbose,T0,H0,D0,Source,State),
-    '$prepare_loop'(Stream, Reconsult, StreamName),
-    '$loop'(Stream, Reconsult),
-    '$close_stream'(Stream, StreamName,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,M0,OuterModule,State).
 
-'$file_to_abs_path'(user,user_input, _Opts) :-
-    !.
-'$file_to_abs_path'(user_input,user_input, _Opts) :-
-    !.
-'$file_to_abs_path'(UserName, AbsPath, Opts) :-   
-   ( lists:member(expand(Expand),Opts) -> true ; Expand = true ),
-    (   absolute_file_name(UserName, AbsPath, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(Expand)]) 
-     ->
+'$load_stream'(StreamName,Stream, Opts) :-
+    set_stream(Stream,file_name(StreamName)),
+    current_source_module(OuterModule, OuterModule),
+    '$prepare_load_file'(StreamName,StreamName,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Reconsult,Source),
+    '$prepare_loop'(Stream,StreamName),
+    '$do_loop'(Stream, Reconsult),
+    '$close_stream'(Stream, StreamName,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,OuterModule).
+
+'$file_to_abs_path'(UserName,AbsPath, Opts) :-   
+   ( '$memberchk'(expand(Expand),Opts) -> true ; Expand = true ),
+    (   absolute_file_name(UserName, AbsPath, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(Expand)]) ->
      Type = prolog
 	;
      absolute_file_name(UserName, AbsPath, [access(read),file_type(qly),file_errors(fail),solutions(first),expand(Expand)])
      ->
      Type = qly
 	;
-     throw(error(existence_error(source_sink,UserName)))
+     throw(error(existence_error(source_sink,UserName),[]))
      ).
 
+'$do_loop'(Stream, Reconsult) :-
+    '$loop'(Stream, Reconsult).
 
-'$accept_path'(user, _, _Opts) :-
-    !.
-'$accept_path'(user_input, _, _Opts) :-
-    !.
-% first case: we have the file already loaded, or at
-% list declared, so we can reuse it.
-'$accept_path'(AbsPath, OuterModule, Opts) :-
-    ( lists:member(if(If), Opts) -> true ; If = true),
-    '$accept'(If,AbsPath,InnerModule,OuterModule),
-    !,
-    '$import_module'(InnerModule,OuterModule, AbsPath, Opts),
-    fail.
-%
-%
-% case 2: we have a loop
-'$accept_path'(AbsPath, _, _Opts) :-
-    '__NB_getval__'('$consulting_file', [F|Fs], fail),
-    % % writeln(l(AbsPath, Files)),
-    lists:member( l(AbsPath,_), [F|Fs]),
-    !,
-    throw(error(compile_loop(AbsPath),compiling([F|Fs])),load_files(AbsPath)).
-%
-% case 3: we can load the file.
-%
+'$prepare_load_file'(UserNamePath,AbsPath,M,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Reconsult,_Source) :-
+   % writeln(l(AbsPath)),
+  %   '$conditional_compilation_push(run)',
+% writeln(cc),
+   '$set_source_module'(Opts, OuterModule, M),
+% writeln(sm),
+   '$set_compilation_mode_and_parent'(AbsPath, Opts, Parentf, Reconsult), 
+% writeln(mode),
+   '$set_working_directory'(AbsPath, D0, Opts), 
+% writeln(f),
+   '$loaded_file_info'(AbsPath, UserNamePath, OuterModule,Parentf, Reconsult, Opts),
 
-'$accept_path'(_AbsPath, _, _Opts).
-    
-'$accept'(not_loaded,UserNamePath,InnerModule,OuterModule) :-
-     '$file_loaded'(UserNamePath, OuterModule, InnerModule),
-    !.
-'$accept'(unchanged,UserNamePath,InnerModule, OuterModule) :-
-   '$file_unchanged'(UserNamePath, OuterModule, InnerModule),
-    !.
+   % writeln(start/AbsPath),
 
-'$prepare_load_file'(UserNamePath,AbsPath,M,OuterModule,Opts, Reconsult,OldLoadVerbose,Verbose,T0,H0,D0,_Source,State) :-
-writeln(UserNamePath),
-    '$conditional_compilation_get_state'(State),
-writeln(st=State),
-    '$set_lf_dir'(AbsPath, D0, _DF),
-writeln(st=D0),
-    '$set_lf_module'(M, OuterModule, Opts),
-writeln(m=OuterModule),
-    '$set_consult_stack'(AbsPath, Reconsult, Parentf, Opts),
-    writeln(cs=OuterModule),
-    prolog_load_context(term_position, Pos),
-    '$lf_storefile'(AbsPath, UserNamePath, OuterModule,Parentf, Opts, Pos),
-    (
-     true %Reconsult == reconsult
-     ->
-     unload_file(AbsPath)
-     ;
-     true
-     ),
-    '$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,UserNamePath,Opts).
+    '$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,UserNamePath,Opts).  
 
-'$set_lf_module'(M, OuterModule, Opts) :-
-% '$conditional_compilation_get_state'(State),
-    (
-	lists:member(module(OuterModule),Opts)
+'$set_source_module'(Opts, OuterModule, M) :-
+   (
+	'$memberchk'(source_module(OuterModule),Opts)
    ->
-     current_source_module(_,OuterModule)
+   current_source_module(_,OuterModule)
    ;
    M = OuterModule
-    ).
+   ).
 
-
-'$set_lf_dir'(AbsPath, D0, DF) :-
-    (
-	file_directory_name(AbsPath,DF)
-->
-
-	working_directory(D0,DF)
-      ;
-	working_directory(D0,D0), D0= DF
-).
-
-'$set_consult_stack'(AbsPath, Reconsult, Parentf, Opts) :-
+'$set_compilation_mode_and_parent'(AbsPath, Opts, Parentf, Reconsult) :-
+   '__NB_getval__'('$consulting_file', AbsPaths, fail),
 (
-'__NB_getval__'('$consulting_file', Files0, fail),
-Files0 = [l(Parentf,Reconsult0)|_]
-      ->
-    Files = Files0
-      ;
-    Files=[],
-    Reconsult0 = reconsult,
-    Parentf =  user_input
- ),
-    (
-lists:member(reconsult(Reconsult), Opts)   ->
-	true
-      ;
-    Reconsult = Reconsult0
+     AbsPaths = [l(Parentf,Reconsult0)|_]
+     ->
+     NAbsPaths = AbsPaths
+    ;
+ Parentf = user_input,
+ Reconsult0 = reconsult,
+     NAbsPaths = [l(user_input,reconsult)]
      ),
-    nb_setval('$consulting_file',[l(AbsPath,Reconsult)|Files]).
+    ( %'$memberchk'(compilation_mode(Reconsult), Opts)   ->
+     '$memberchk'(consult(Reconsult), Opts)   ->
+     true
+	;
+     Reconsult = Reconsult0
+     ),
+    b_setval('$consulting_file',[l(AbsPath,Reconsult)|NAbsPaths]).
 
-'$prepare_load_stream'(StreamName,M,OuterModule, Opts, Reconsult, OldLoadVerbose,Verbose,T0,H0,D0,_Source,State) :-
-     '$conditional_compilation_get_state'(State),
-    '$set_lf_module'(M, OuterModule, Opts),
-writeln(m=OuterModule),
-    '$set_consult_stack'(StreamName, Reconsult, _Parentf, Opts),
-writeln(cs=OuterModule),
-    working_directory(D0,D0),  
-    '$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,StreamName,Opts).
+'$set_working_directory'(AbsPath, D, Opts) :-
+   (  '$memberchk'(stream(_), Opts)
+       ->
+       working_directory(D,D)
+     ;
+   file_directory_name(AbsPath,D)
+),
+   working_directory(_,D).
 
 '$open_stream'(AbsPath, Opts, Stream) :-
     (
-     lists:member(encoding(Enc),Opts)
+     '$memberchk'(encoding(Enc),Opts)
      ->		    
      Encoding = [encoding(Enc)]
 	;
      Encoding =[]
      ),
-    open(AbsPath, read, Stream,Encoding).
-
-'$unix_script'(Opts, _Stream) :-
-    lists:member(check_script(false), Opts),
-    !.
-'$unix_script'(_, Stream) :-
-    '$skip_unix_header'(Stream).
-
-'$skip_unix_header'(Stream) :-
-   peek_char(Stream, '#'), !, % 35 is ASCII for '#[
-   skip(Stream, 10),
-   '$skip_unix_header'(Stream).
-'$skip_unix_header'(_Stream).
-
-'$prepare_loop'(Stream, Reconsult, File) :-
-     working_directory(Dir,Dir),
-    '$start_consult'(Reconsult,File,Dir,Stream,_LC).
- 
-'$close_stream'(Stream, File,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,M0,OuterModule,State ):-
-  (
-    '$module'(File,InnerModule,_,_)
+    open(AbsPath, read, Stream,Encoding),
+    (
+     '$memberchk'(skip_unix_header(Skip), Opts)
      ->
-     '$import_module'(InnerModule, OuterModule, File, Opts),
-      '$check_module'(File,InnerModule)
-     ;
+     true ;
+     Skip = true
+     ),
+    (
+     Skip == true ->
+     '$skip_unix_header'(Stream)
+	;
+     true
+     ).
+
+'$prepare_loop'(Stream, AbsPath) :-
+    working_directory(Dir,Dir),
+    '$start_consult'(reconsult,AbsPath,Dir,Stream,_LC).
+
+'$close_stream'(Stream, AbsPath,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,OuterModule) :-
+%    '$conditional_compilation_pop',
+%    ( '$memberchk'(import(Preds), Opts) -> true ; Opts = all),
+    ('$module'(AbsPath,InnerModule,_,_) ->
+     '$import_module'(InnerModule, OuterModule, AbsPath, Opts),
+     '$check_module'(AbsPath,InnerModule);
      InnerModule=OuterModule
      ),
-   '$conditional_compilation_set_state'(State),
-    '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,Opts),
-    current_source_module(_,M0),
+     '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,AbsPath,Opts),
+    current_source_module(_,OuterModule) ,
+    '$exec_file_initialization_goals'(AbsPath),
     '$end_consult'(D0),
-   nb_getval('$consulting_file', [_|Files]),
-   nb_setval('$consulting_file', Files),
-   '$exec_file_initialization_goals'(File),
-   close(Stream).
+  close(Stream).
+
     
+'$skip_unix_header'(Stream) :-
+    peek_char(Stream, '#'), !, % 35 is ASCII for '#
+    skip(Stream, 10),
+    '$skip_unix_header'(Stream).
+'$skip_unix_header'(_).
 
 
-'$loop'(Stream, Reconsult) :-
+'$loop'(Stream,Status) :-
     repeat,
     catch(
-     '$loop_'(Stream,Reconsult),
+     '$loop_'(Stream,Status),
      _Error,
      error_handler),
     !.
 
-'$loop_'(Stream, Status) :-
+'$loop_'(Stream,Status) :-
 	 enter_compiler(Stream,Status) .
 
 enter_compiler(Stream,Status) :-
@@ -327,15 +302,15 @@ enter_compiler(Stream,Status) :-
     Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     read_clause(Stream, Clause, Options),
     (
-      Clause == end_of_file
+     Clause == end_of_file
      ->
      !
 	;
-     '$conditional_compilation_skip'(Clause)
+     '$conditional_compilation_skip'
      ->
      fail
 	;
-    call_compiler(Clause, Status,Vars,Pos),
+     call_compiler(Clause, Status,Vars,Pos),
      fail
      ).
 
@@ -386,16 +361,10 @@ call_compiler(G, Where,_VL, Pos) :-
      '$compile'((Mod:H:-B), Where, Source, SM, Pos, [])
      ).
 
-
-'$lf_storefile'(File, UserFile, OuterModule,ParentF, Opts, Pos) :-
-    '$tell_loaded'(File, UserFile, OuterModule, ParentF, Pos,_Dir, Opts),
-    !.
-'$lf_storefile'(_, _UserFile, _OuterModule, _, _Opts, _Pos).
-
-'$report'(in, OldLoadVerbose,Verbose,T0,H0,_,UserFile, Opts) :-
+'$report'(in, OldLoadVerbose,Verbose,T0,H0,_,UserAbsPath, Opts) :-
     current_prolog_flag(verbose_load, OldLoadVerbose),
     (
-     lists:member(silent(Silent), Opts)
+     '$memberchk'(silent(Silent), Opts)
      ->
      ( Silent == true -> Verbose = false;
       Silent == false -> Verbose = true;
@@ -407,24 +376,23 @@ call_compiler(G, Where,_VL, Pos) :-
      OldLoadVerbose = Verbose
      ),
     % required to boot
-    (
-     Verbose == true
-     ->
      H0	 is heapused, '$cputime'(T0,_),
      StartMessage = loading,
-     print_message(informational, loading(StartMessage, UserFile))
-	;
-     true
+(Verbose == true
+  ->
+  print_message(informational, loading(StartMessage, UserAbsPath))
+    ;
+  true
      ).
 
-'$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,File,_) :-
+'$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,AbsPath,_) :-
        % required to boot
     (
      Verbose == true
      ->
      H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
      EndMsg = consulted,
-     print_message(informational, loaded(EndMsg, File,  InnerModule, T, H))
+     print_message(informational, loaded(EndMsg, AbsPath,  InnerModule, T, H))
 	;
      true
      ),			 
@@ -441,10 +409,9 @@ call_compiler(G, Where,_VL, Pos) :-
   as an replacement to consult/1 by allowing the programmer to include a
   data-base
   split into several files.
-*/	
-
+*/
 include(Fs) :-
-    strip_module(Fs,_M,S),
+strip_module(Fs,_M,S),
      '$include'(S).
 
 '$include'(V) :- var(V), !,
@@ -453,38 +420,26 @@ include(Fs) :-
 '$include'([F|Fs]) :- !,
     '$include'(F),
     '$include'(Fs).
-'$include'(File) :-
+'$include'(AbsPath) :-
     H0 is heapused, '$cputime'(T0,_),
-    '$stream_and_dir'(File,Y,Dir,Stream),
-    working_directory(Dir0, Dir),
-    prolog_load_context(stream,Old),
-    stream_property(loop_stream,[encoding(Encoding)] ),
+    '$stream_and_dir'(AbsPath,Y,Dir,Stream),
+     working_directory(Dir0, Dir),
+   stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
     ignore(recordzifnot('$includes', (Old ->Y),_)),
     set_stream(Stream, [encoding(Encoding), alias(include_stream)] ),
     print_message(informational, loading(including, Y)),
-    '$get_consult_mode'(Reconsult),
-    '$loop'(Stream, Reconsult),
+    b_getval('$consulting_file',[l(_,Reconsult)|_AbsPaths]), 
+    '$loop'(Stream,Reconsult),
     close(Stream),
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-    current_source_module(_Mod,Mod),
+    current_source_module(Mod,Mod),
     print_message(informational, loaded(included, Y, Mod, T, H)),
     working_directory(_Dir, Dir0).
 
-'$stream_and_dir'(F,F,Dir,_Stream) :-
-    file_directory_name(F,'.'),
-    !,
-    working_directory(_Dir, Dir).
-'$stream_and_dir'(user_input,user_input,Dir,user_input) :-
-	!,
-    working_directory(_Dir, Dir).
-'$stream_and_dir'(File,Y,Dir,Stream) :-
-    absolute_file_name(File, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
-    ( open(Y, read, Stream) 	->
-     true ;
-     throw(error(permission_error(input,stream,Y),include(File)))
-     ),
-    file_directory_name(Y, Dir).
-
+'$stream_and_dir'(AbsPath,Y,Dir,Stream) :-
+    absolute_file_name(AbsPath, Y, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
+open(Y,read,Stream),
+file_directory_name(Y, Dir).
 
 
 /**
@@ -542,7 +497,7 @@ Example:
 ```
 ?- [file1, -file2, -file3, file4].
 ```
-  will consult `file1` `file4` and   reconsult `file2` and
+  will consult `file1` `file4` and reconsult `file2` and
 `file3`. That is, it could be written as:
 
 ```
@@ -559,7 +514,7 @@ compile(Fs) :-
 	reconsult(Fs).
 
 compile_clauses(Commands) :-
-    '$active_predicate'(P),
+	 '$active_predicate'(P),
     (
      member(C,Commands),
      compile_clause(C),

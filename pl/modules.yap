@@ -751,8 +751,8 @@ unload_module(Mod) :-
 % remove imported modules
 unload_module(Mod) :-
      '$module'( _, Mod, _, Exports),
-    '$memberchk'( op(X, _Y, Op), Exports ),
-    op(X, 0, Mod:Op),
+    '$memberchk'( current_op(_Priority, Y, Op), Exports ),
+    op(0, Y, Mod:Op),
      fail.
 unload_module(Mod) :-
     module_predicate(Mod,N,A,_),
@@ -768,9 +768,10 @@ unload_module(Mod) :-
 module_state :-
     '$module'(HostF,HostM, Everything, Location),
     \+ system_module(HostM),
+    recorded('$lf_loaded','$lf_loaded'( HostF, _, HostM,_ , _, ParentF, _, _), _),
     atom(HostM),
     arg(2,Location,Line),
-    format('%%%%%%~n          ~a,~n%% at ~w,~n%% loaded at ~a:~d,~n%% Exporlist ~w.~nImports~n:', [HostM,HostF, Line, Everything]),
+    format('%%%%%%~n          ~w,~n%% at ~w,~n%% loaded at ~a:~d,~n%% Exporlist ~w.~nImports~n:', [HostM,HostF,ParentF, Line, Everything]),
     (
 	'$import'(M,HostM,_G,_GO,N,K),                                   
 	format('%   ~w:~a/~d:.~n',[M,N,K])

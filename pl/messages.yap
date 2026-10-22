@@ -241,11 +241,11 @@ translate_message( abort(user)) --> !,
 					  [ 'YAP execution aborted' - [] ].
 translate_message( loading(_,F)) --> { F == user }, !.
 translate_message( loading(What,FileName)) --> !,
-	{ prolog_load_context(number_of_open_load_files, LC) },
+	{ consult_depth( LC) },
 	[ '~N~*|% ~w ~w...' - [LC, What, FileName] ].
 translate_message( loaded(_,user,_,_,_)) --> !.
 translate_message( loaded(What,AbsFileName,Mod,Time,Space)) --> !,
-        { prolog_load_context(number_of_open_load_files,LC) },
+        {consult_depth(LC) },
 	[ '~N~*|% ~s ~w in module ~a, ~d msec ~d bytes' -   [LC, AbsFileName,What,Mod,Time,Space] ].
 translate_message(signal(SIG,_)) -->
     !,
@@ -271,7 +271,7 @@ translate_message(error(syntax_error(Msg), Info)) -->
     !,
     {
 	'$error_position'(Info,File,Line,Pos),
-    prolog_load_context(number_of_open_load_files,LC),
+   consult_depth(LC),
     Level = error,
     (string(Msg);atom(Msg))
     },
@@ -281,7 +281,7 @@ translate_message(error( style_check(singletons), Info)) -->
     !,
     {
       '$error_position'(Info,File,Line,Column),
-      prolog_load_context(number_of_open_load_files,LC),
+     consult_depth(LC),
       Level = warning,
       query_exception(culprit_t, Info, VName),
       query_exception(errorUserTerm, Info, P),
@@ -297,7 +297,7 @@ translate_message(error( style_check( multiple), Info)) -->
     !,
     {
 	query_exception(culprit_t, Info, [F,L,C,F0,L0,C0,I]),
-    prolog_load_context(number_of_open_load_files,LC),
+   consult_depth(LC),
      Level = warning
     },
         [  '~*|~s:~d:~d: ~s: multiple definition of ~p.' - [ LC,F,L,C,Level,I],
@@ -310,7 +310,7 @@ translate_message(error( style_check( discontiguous), Info)) -->
     !,
     {
 	query_exception(culprit_t, Info ,[F,L,C,_,_,_,I]),
-    prolog_load_context(number_of_open_load_files,LC),
+   consult_depth(LC),
      Level = warning
     },
         [  '~*|~s:~d:~d: ~s: discontiguous definition for ~p.' - [ LC,F,L,C,Level,I],
@@ -322,7 +322,7 @@ translate_message(error( style_check( discontiguous), Info)) -->
     !,
     {
 	query_exception(culprit_t, Info ,[F,L,C,_,_,_,I]),
-    prolog_load_context(number_of_open_load_files,LC),
+   consult_depth(LC),
      Level = warning
     },
         [  '~*|~s:~d:~d: ~s: discontiguous definition for ~p.' - [ LC,F,L,C,Level,I],
@@ -334,7 +334,7 @@ translate_message(error(style_check(undefined_in_module),Info)) -->
     !,
     {
  	query_exception(culprit_t, Info,  [File,L,C,M:N/A]),
-    prolog_load_context(number_of_open_load_files,LC),
+   consult_depth(LC),
      Level = warning
     },
     [  '~N~*|~s:~d:~d: ~s:  ~p is neither defined nor visible in ~s.' - [ LC,File,L,C,Level,N/A,M],
@@ -345,7 +345,7 @@ translate_message(error(style_check(undefined_export),Info)) -->
     {
 	query_exception(culprit_t, Info,  [File,L,C,M:N/A])
 ,
-    prolog_load_context(number_of_open_load_files,LC),
+   consult_depth(LC),
      Level = warning
     },
     [  '~N~*|~s:~d:~d: ~s:  export ~p is neither defined nor visible in module ~s.' - [ LC,File,L,C,Level,N/A,M],
@@ -353,12 +353,12 @@ translate_message(error(style_check(undefined_export),Info)) -->
 	].
 translate_message(error(user_defined_error(Error),Info))-->
     !,
-    { prolog_load_context(number_of_open_load_files, LC) },
+    { consult_depth(LC) },
    location(Info, error, full, LC),
     translate_message(Error).
 translate_message(error(Exc, Info)) -->
  {
-     prolog_load_context(number_of_open_load_files,LC),
+    consult_depth(LC),
 	Level = error ,
      Exc \= exception(_)
     },
@@ -1219,7 +1219,7 @@ prefix_(warning,      '~N'-[]).
 prefix_(error,	      '~N'-[]).
 prefix_(banner,	      '~N'-[]).
 prefix_(informational, '~N~*| '-[LC]) :-
-prolog_load_context(number_of_open_load_files,LC),
+    consult_depth(LC),
     LC > 0,
     !.
 prefix_(informational,	      '~N'-[]).
@@ -1439,8 +1439,6 @@ prolog:print_message_(Level, _Msg) :-
 %     % first step at hook processing
 %     '$conditional_compilation_skip'(true),
 %     !.
-
-
 prolog:print_message_(force(_Severity), Msg) :- !,
     print(user_error,Msg).
 % This predicate has more hooks than a pirate ship!
@@ -1458,13 +1456,6 @@ prolog:print_message_(_Severity, _Term) :-
 
 build_message( Term, Lines0, Linesf) :- 
     translate_message( Term,Lines0, Linesf).
-
-prolog:print_message(Severity, Msg) :-
-%    writeln(prolog:print_message_(Severity, Msg)),
-	prolog:print_message_(Severity, Msg),
-	fail.
-prolog:print_message(_Severity, _Msg).
-
 
 prolog:is_exception_descriptor(exception(Address)) :-
     !,
@@ -1491,5 +1482,9 @@ prolog:error_position(Info,File,Line,Pos) :-
 prolog:print_warning( Msg) :-
     prolog:print_message_(warning, Msg),
     !.
+prolog:print_message(Severity, Msg) :-
+%    writeln(prolog:print_message_(Severity, Msg)),
+    prolog:print_message_(Severity, Msg).
+
 
 /** @} */

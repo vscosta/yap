@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-  *	 YAP Prolog  							 *
+*	 YAP Prolog  							 *
 *									 *
   *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -57,12 +57,10 @@
         '$use_module'/3]).
 
 load_files(MFs, Opts) :-
-    strip_module(MFs, M, Fs),
-    '$load_files'(Fs,M,  Opts  ).
+    '_exec_load_files'(MFs,Opts).
 
 load_files(MFs) :-
-    strip_module(MFs, M, Fs),
-    '$load_files'(Fs, M, []).
+    '_exec_load_files'(MFs,[]).
 
 
 :- use_system_module( '$_absf', ['$full_filename'/2]).
@@ -159,18 +157,16 @@ YAP implements load_db/1 as a two-step non-optimised process. First,
 
    db_files/1 itself is just a call to load_files/2.
 */
-db_files(MFs) :-
-    strip_module(MFs, M, Fs),
-    '$load_files'(Fs, M, [consult(db), if(not_loaded)]).
+db_files(Fs) :-
+    load_files(Fs, [consult(db), if(not_loaded)]).
 
 
-'$csult'(MFs) :-
-    strip_module(MFs, M, Fs),
-    is_list(Fs),
-    !,
-    '$load_files'(Fs,M,[consult(consult)]).
 '$csult'(Fs) :-
-    python:python_proc( Fs ) .
+     is_list(Fs),
+    !,
+    load_files(Fs,[consult(consult)]).
+'$csult'(Fs) :-
+	 python:python_proc( Fs ) .
 
 
 %% @}
@@ -203,29 +199,21 @@ directory-separator, limit the filename length map dots, except for the
 last one, onto underscores.
 
 */
-
-
-% retract old multifile clauses for current file.
-'$remove_multifile_clauses'(FileName) :-
-    recorded('$multifile_defs','$defined'(FileName,Name,Arity,Module),R1),
-    '$erasell_multifile'(FileName,Module,Name,Arity),
-	erase(R1),
-	fail.
-'$remove_multifile_clauses'(_).
-
+ 
+%
 /**
 @pred source_file(?FileName)
 
 SWI-compatible predicate. _FileName_ is the absolute and canonical path for a loaded source file
-*/
+*/ 
 source_file(FileName) :-
-	recorded('$source_file','$source_file'(FileName, _),_).
+    recorded('$lf_loaded','$lf_loaded'( FileName, _, _M, _Reconsult, _UserFile, _OldF, _Line, _Opts),_).
 
 /**
 @pred source_file(:Pred,?File	)
 
 SWI-compatible predicate. True if the predicate specified by  _Pred_ was loaded from file  _File_, where  _File_ is an absolute path name (see absolute_file_name/2).
-*/
+*/ 
 source_file(Mod:Pred, FileName) :-
 	current_module(Mod),
 	Mod \= prolog,
@@ -250,22 +238,22 @@ has  the property
 */
 source_file_property( F, includes(I)) :-
         recorded('$includes',(I->F), _).
-source_file_property( I, included_from(F)) :-
+source_file_property( I, included_from(F)) :- 
        recorded('$includes',(I->F), _).
 
 source_file_property( F, load_context(M,OldF:Line,Opts)) :-
-	recorded('$lf_loaded','$lf_loaded'( F, M, _Reconsult, _UserFile, OldF, Line, Opts), _).
+	recorded('$lf_loaded','$lf_loaded'( F, _,M , _Reconsult, _UserFile, OldF, Line, Opts), _).
 
 /** @pred prolog_load_context(? _Key_, _Value_)
- *
+ * 
  *
 
-  Obtain information on the current compilation process.
+  Obtain information on the current compilation process. 
 
 
   The predicate allows the
   following keys:
-
+    
   + `directory`  (prolog_load_context/2 option)
 
   Full name for the directory where YAP 		is currently consulting the
@@ -322,10 +310,6 @@ prolog_load_context(module, X) :-
     current_source_module(Y,Y),
     Y = X.
 prolog_load_context(source, Path ) :-
-    stream_property(loop_stream, alias(input_strean) )
-      ->
-Path = user_input
-;
     stream_property(loop_stream, file_name(Path) ).
 prolog_load_context(stream, Stream) :-
     stream_property(Stream, alias(loop_stream) ).
@@ -334,74 +318,73 @@ prolog_load_context(term, Term ) :-
     nonvar(T),
     T = [Term|_].
 prolog_load_context(term_position, Position ) :-
-    ('__B_getval__'('$current_clause', T, fail),
-     nonvar(T),
-	T = [_,_,_,Position|_]
+    (
+	'__B_getval__'('$current_clause', T, fail),
+    nonvar(T)
+	->
+T = [_,_,_,Position]
 	;
-	var(T),
-	Position = '$position'(1,0,0,0,0)
+	stream_property(user_input, Position)
     ).
 prolog_load_context(variable_names, Term ) :-
     '__B_getval__'('$current_clause', T, fail),
     nonvar(T),
           T = [_,Term|_].
-prolog_load_context(open_load_files, Files) :-
-    '__NB_getval__'('$consulting_file', Files, fail).
-
-prolog_load_context(number_of_open_load_files, Depth ) :-
-    '__NB_getval__'('$consulting_file', Files, fail),
-    length(Files, Depth).
-
+     
 
 % if the file exports a module, then we can
 % be imported from any module.
-'$file_loaded'(F0, TargetModule, M) :-
-%     file_directory_name(F0,''),
-    !,
-    '$file_was_loaded'(F0,TargetModule, M).
-'$file_loaded'(F0, TargetModule, M) :-
+'$file_loaded'(F0, TargetModule) :-
 ( atom_concat(Prefix, '.qly', F0 )
  -> true
     ;
 	Prefix=F0
     ),
     absolute_file_name(Prefix,F,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)]),
-    '$file_was_loaded'(F,TargetModule, M).
+    '$file_was_loaded'(F,TargetModule,_).
 
-'$file_was_loaded'(F, _TargetModule,   NM) :-
-    % make sure: it either defines a new module or it was loaded in the same context
-    ('$module'(F,NM,_P,_) ->
-	 true
-    ;
+'$use_loaded_file'(not_loaded, AbsPath, OuterModule, InnerModule) :-
+    '$file_was_loaded'(AbsPath, OuterModule, InnerModule ),
+    !.
+
+'$use_loaded_file'(changed, AbsPath, OuterModule, InnerModule) :-
+    '$file_did_not_change'(AbsPath, OuterModule, InnerModule ).
+
+'$file_was_loaded'(F, _TargetModule, InnerModule) :-
+   % make sure: it either defines a new module or it was loaded in the same context
+    '$module'(F,InnerModule,_P,_),
+    !.
+'$file_was_loaded'(F,	M, M ) :-
     % loaded from the same module, but does not define a module.
-      prolog_load_context( stream, OldF),
-      recorded('$lf_loaded','$lf_loaded'( F, _M, _Reconsult, _UserFile, OldF, _Line, _Opts), _)
-    ).
+      recorded('$lf_loaded','$lf_loaded'( F, _, M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _),
+      !.
 
 % if the file exports a module, then we can
 % be imported from any module.
-'$file_unchanged'(F0, TargetModule, NM) :-
-    '$file_loaded'(F0, TargetModule, NM),
-    user:'$source_file'(F0, Age),
+ '$file_did_not_change'(F0, Mod, Imod) :-
+    '$file_was_loaded'(F0, Mod, Imod),
+    % last access
+  '$file_age'(F0, Age),
+  % last c1hange
     time_file64(F0,CurrentAge),
-    ( Age == CurrentAge ; Age = -1).
+    Age >= CurrentAge.
 
 	% inform the file has been loaded and is now available.
-'$tell_loaded'(F, UserFile, M, OldF, Line, Dir, Opts) :-
-    prolog_load_context(directory, Dir),
-    nb_getval('$consulting_file',[l(_,Reconsult)|_Files]),
-     unload_file(F),
-	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0),
-    recorded('$source_file','$source_file'(F, Age),_),
+
+'$loaded_file_info'(F, _UserFile, _M, _ParentF, _Reconsult, _Opts) :-
+    recorded('$lf_loaded','$lf_loaded'( F, _A, _, _lt, _UserFile, _OldF, _Line, _Opts), R),
+	erase(R),
+fail.
+'$loaded_file_info'(F, UserFile, M, ParentF, Reconsult, Opts) :-
+      unload_file(F),
+    prolog_load_context(term_position, TermPos),
+
+	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0), 
 	% modules are logically loaded only once
+	recorda('$lf_loaded','$lf_loaded'( F, Age, M, Reconsult, UserFile, ParentF, TermPos, Opts), _).
 
-	(
-	    '$module'(F,_DonorM, _AllExports, _Line) ->
-	    true
-	;
-
-	recorda('$lf_loaded','$lf_loaded'( F, M, Reconsult, UserFile, OldF, Line, Opts), _)
-	).
+'$file_age'(F,Age) :-
+    recorded('$lf_loaded','$lf_loaded'( F, Age, _M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _).
 
 /** @pred make
 
@@ -412,7 +395,7 @@ just goes through every loaded file and verifies whether reloading is needed.
 */
 
 make :-
-	recorded('$lf_loaded','$lf_loaded'(F1,_M,reconsult,_,_,_,_),_),
+	recorded('$lf_loaded','$lf_loaded'(F1,_,_M,reconsult,_,_,_,_),_),
 	load_files(F1, [if(changed)]),
 	fail.
 make.
@@ -423,22 +406,24 @@ unload_file(File) :-
     unload_file_(File).
 unload_file(F) :-
     absolute_file_name(F,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File),
-    unload_file_(File).
+     unload_file_(File).
 
 
 unload_file_(File) :-
-     recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
-     '$unload_file'(File),
-     erase(R),
-     fail.
-unload_file_(_).
+     '$unload_file'(File).
 
+'$unload_file'(File) :-
+    '$module'(File,DonorM, _AllExports, _),
+   DonorM \= prolog,
+    DonorM \= user,
+    unload_module(DonorM),
+ fail.
 '$unload_file'(File) :-
     current_predicate(N,M:P),
     M \= prolog,
     M \= idb,
     (
-    '$is_multifile'(P,M)
+    '$is_multifile'(P,M) 
     ->
 	clause(M:P,_,R),
 	clause_property(R,file(File)),
@@ -456,17 +441,7 @@ unload_file_(_).
 	),
 	fail.
 '$unload_file'(File) :-
-    '$module'(File,DonorM, _AllExports, _),
-    DonorM \= prolog,
-    DonorM \= user,
-    unload_module(DonorM),
-    fail.
-'$unload_file'(File) :-
-	retractall('$source_file','$source_file'(File,_Age), R),
-    erase(R),
-	fail.
-'$unload_file'(File) :-
-	recorded('$lf_loaded','$lf_loaded'(File,_M,_,_,_,_,_),R),
+	recorded('$lf_loaded','$lf_loaded'(File,_,_M,_,_,_,_,_),R),
 	erase(R),
 	fail.
 '$unload_file'(_F).
@@ -478,6 +453,38 @@ unload_file_(_).
 
 '$store_clause'('$source_location'(File, _Line,_,_),Clause, File) :-
 	assert_static(Clause).
+
+%% @}
+
+'$comp_mode'( OldCompMode, CompMode) :-
+	var(CompMode), !,
+	'$fetch_comp_status'( OldCompMode ).
+'$comp_mode'(OldCompMode, assert_all) :-
+!,
+	'$fetch_comp_status'(OldCompMode),
+	nb_setval('$assert_all',on).
+'$comp_mode'(OldCompMode, source) :-
+    !,
+	'$fetch_comp_status'(OldCompMode),
+	set_prolog_flag(source, true).
+'$comp_mode'(OldCompMode, compact) :-
+	'$fetch_comp_status'(OldCompMode),
+	set_prolog_flag(source, false).
+
+'$fetch_comp_status'(assert_all) :-
+	'__NB_getval__'('$assert_all',on, fail), !.
+'$fetch_comp_status'(source) :-
+	 current_prolog_flag(source, true), !.
+'$fetch_comp_status'(compact).
+
+/** consult_depth(-int:_LV_)
+ *
+ * Unify _LV_ with the number of files being consulted.
+ */
+consult_depth(LV) :-
+    '__NB_getval__'('$consulting_file', Files, fail),
+    length(Files,LV).
+
 
 prolog_library(File) :-
     current_prolog_flag(verbose_load,Old),
@@ -492,6 +499,7 @@ prolog_library(File) :-
 	absolute_file_name(File0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File).
 
 :- multifile user:dot_qualified_goal/1.
+
 
 
 :- dynamic '$source_file'/2, '$source_file_scope'/2.

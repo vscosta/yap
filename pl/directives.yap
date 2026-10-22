@@ -65,10 +65,10 @@
  '$all_directives'((G1,G2)) :- !,
          '$all_directives'(G1),
          '$all_directives'(G2).
- '$all_directives'(G) :-
+ '$all_directives'(G) :- 
     '$lf_args'(G,_,_),
 !.
- '$all_directives'(G) :-
+ '$all_directives'(G) :- 
     '$directive'(G),
 !.
 
@@ -92,7 +92,6 @@
 '$directive'(license(_)).
 '$directive'(meta_predicate(_)).
 '$directive'(module(_,_)).
-'$directive'(module(_,_,_)).
 '$directive'(module_transparent(_)).
 '$directive'(multifile(_)).
 '$directive'(noprofile(_)).
@@ -110,203 +109,220 @@
 '$directive'(set_prolog_flag(_,_)).
 
 
-
-'$lf_args'([H|T],[H|T],[]) :-is_list([H|T]).
 '$lf_args'(compile(Fs), Fs, []).
 '$lf_args'(consult(Fs), Fs, [consult(consult)]).
 '$lf_args'(reconsult(Fs), Fs, [consult(reconsult)]).
-'$lf_args'(ensure_loaded(Fs), Fs, [if(not_loaded),silent(true)]).
+'$lf_args'(ensure_loaded(Fs), Fs, [if(changed),silent(true)]).
 '$lf_args'(load_files(Fs), Fs, []).
 '$lf_args'(load_files(Fs, Spec), Fs, Spec).
-'$lf_args'(reexport(Fs), Fs, [if(not_loaded), silent(true), reexport(true),must_be_module(true)]).
-'$lf_args'(reexport(Fs, Spec),Fs, [reexport(true),if(not_loaded),must_be_module(true),import(Spec)]).
-'$lf_args'(use_module(Fs), Fs, [if(not_loaded), silent(true), must_be_module(true)]).
-'$lf_args'(use_module(Fs,Spec), Fs, [if(not_loaded), silent(true),must_be_module(true),import(Spec)]).
+'$lf_args'(reexport(Fs), Fs, [if(changed), silent(true), reexport(true),must_be_module(true)]).
+'$lf_args'(reexport(Fs, Spec),Fs, [reexport(true),if(changed),must_be_module(true),import(Spec)]).
+'$lf_args'(use_module(Fs), Fs, [if(changed), silent(true), must_be_module(true)]).
+ '$lf_args'(use_module(Fs,Spec), Fs, [if(changed), silent(true),must_be_module(true),import(Spec)]).
 
 
 '$exec_directives'((G1,G2), Mode, M, VL, Pos) :-
     !,
     '$exec_directives'(G1, Mode, M, VL, Pos),
     '$exec_directives'(G2, Mode, M, VL, Pos).
-
-
 '$exec_directives'(G, Mode, M, VL, Pos) :-
     '$exec_directive'(G, Mode, M, VL, Pos).
 
 
 '$exec_directive'(G, _Mode, M, _VL, _Pos) :-
-    strip_module(M:G,M1,G1),
+strip_module(M:G,M1,G1),
     '$lf_args'( G1,  Fs, Opts),
     !,
-    '$load_files'(Fs,M1, Opts).
-'$exec_directive'(multifile(D), _, M, _, _) :-
-	'$system_catch'('$multifile'(D, M), M,
-	      Error,
-	      error_handler(Error, top)).
-'$exec_directive'(discontiguous(D), _, M, _VL, _Loc) :-
-	'$discontiguous'(D,M).
-'$exec_directive'(use_module(Mod,F,Is), _, M, _, _Loc) :-
-    use_module(Mod,M:F,Is).
-'$exec_directive'(use_system_module(_, _,_), _,  _M, _, _Loc).
+%    setup_call_catcher(
+%    current_source_module(M0,M0),
+    '_exec_load_files'(M1:Fs, Opts).
+%     current_source_module(_,M0)
+%     ).
+ '$exec_directive'(multifile(D), _, M, _, _) :-
+	 '$system_catch'('$multifile'(D, M), M,
+	       Error,
+	       error_handler(Error, top)).
+ '$exec_directive'(discontiguous(D), _, M, _, _) :-
+	 '$discontiguous'(D,M).
+ '$exec_directive'(use_module(Mod,F,Is), _,M, _, _Loc) :-
+     use_module(Mod,M:F,Is).
 
-/** @pred initialization(+ _G_) is iso
+ /** @pred initialization(+ _G_) is iso
 
-Theu compiler will execute goals  _G_ after consulting the current
-file. Only the first answer is
-considered.
+ Theu compiler will execute goals  _G_ after consulting the current
+ file. Only the first answer is
+ considered.
 
-Notice that the goal will execute in the calling context, not within the file context,
-In other words, the source module and execution directory will be the ones of the parent
-environment. Use initialization/2 for more flexible behavior.
+ Notice that the goal will execute in the calling context, not within the file context,
+ In other words, the source module and execution directory will be the ones of the parent
+ environment. Use initialization/2 for more flexible behavior.
 
-*/
-/** @pred initialization(+ _Goal_,+ _When_)
+ */
+ /** @pred initialization(+ _Goal_,+ _When_)
 
-Similar to initialization/1, but allows  specifying when
- _Goal_ is executed while loading the program-text:
-
-
-    + now
-      Execute  _Goal_ immediately.
-
-    + after_load
-      Execute  _Goal_ after loading program-text. This is the same as initialization/1.
-
-   + restore
-      Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
-
-*/
-
-% The many ways of loading a file.
-'$exec_directive'(initialization(D), _, M, VL, Pos) :-
-	'$initialization'(M:D,after_load,VL,Pos).
-'$exec_directive'(initialization(D,OPT), _, M, VL, Pos) :-
-	'$initialization'(M:D, OPT, VL, Pos).
-'$exec_directive'(thread_initialization(D), _, M, _, _) :-
-	'$thread_initialization'(M:D).
-'$exec_directive'(expects_dialect(D), _, _, _, _) :-
-    expects_dialect(D).
-'$exec_directive'(encoding(Enc), _, _, _, _) :-
-        '$set_encoding'(Enc).
-'$exec_directive'(include(F), _Status, _M,_, _Pos) :-
-	'$include'(F).
-% don't declare modules into Prolog Module
-'$exec_directive'(module(N,P), _Status, HostM, _, Pos) :-
-    '$declare_module'(HostM,N,P,Pos ).
-'$exec_directive'(system_module(N,Ps,Ss), _Status, HostM, Log, Pos) :-
-    (
-current_prolog_flag(compiler_top_level, scanner:scanner_loop)
-    ->
-      current_source_module(_,prolog)
-    ;
-      '$declare_system_module'(HostM,N,Ps,Ss,Log,Pos)
-).
-'$exec_directive'(meta_predicate(P), _, M, _, _) :-
-    '$meta_predicate'(P,M).
-'$exec_directive'(module_transparent(P), _, M, _, _) :-
-	'$module_transparent'(P, M).
-'$exec_directive'(noprofile(P), _, M, _, _) :-
-	'$noprofile'(P, M).
-'$exec_directive'(require(Ps), _, M, _, _) :-
-	'$require'(Ps, M).
-'$exec_directive'(dynamic(P), _, M, _, _) :-
-    strip_module(M:P,M1,P1),
-    '$dynamic'(P1, M1).
-'$exec_directive'(thread_local(P), _, M, _, _) :-
-	'$thread_local'(P, M).
-'$exec_directive'(op(P,OPSEC,OP), _, _, _, _) :-
-	current_source_module(M,M),
-	op(P,OPSEC,M:OP).
-'$exec_directive'(set_prolog_flag(F,V), _, _, _, _) :-
-	set_prolog_flag(F,V).
-'$exec_directive'(char_conversion(IN,OUT), _, _, _, _) :-
-	char_conversion(IN,OUT).
-'$exec_directive'(public(P), _, M, _, _) :-
-	'$public'(P, M).
-'$exec_directive'(block(BlockSpec), _, _, _, _) :-
-	'$block'(BlockSpec).
-'$exec_directive'(wait(BlockSpec), _, _, _, _) :-
-	'$wait'(BlockSpec).
-'$exec_directive'(table(PredSpec), _, M, _, _) :-
-	'$table'(PredSpec, M).
-'$exec_directive'(uncutable(PredSpec), _, M, _, _) :-
-	'$uncutable'(PredSpec, M).
-'$exec_directive'(if(Goal), _Context, M, _, _) :-
-	'$if'(M:Goal).
-'$exec_directive'(else, _Context, _, _, _) :-
-	'$else'.
-'$exec_directive'(elif(Goal), _Context, M, _, _) :-
-	'$elif'(M:Goal).
-'$exec_directive'(endif, _Context, _, _, _) :-
-	'$endif'.
-'$exec_directive'(license(_), Context, _, _, _) :-
-	Context \= top.
-'$exec_directive'(predicate_options(PI, Arg, Options), Context, Module, VL, Pos) :-
-	Context \= top,
-	predopts:expand_predicate_options(PI, Arg, Options, Clauses),
-	'$assert_list'(Clauses, Context, Module, VL, Pos).
-'$exec_directive'(G, _Mode, M, _VL, _Pos) :-
-(
-    '$directive'(G)
-->
-fail
-    ;
- call(M:G)
-).
+ Similar to initialization/1, but allows  specifying when
+  _Goal_ is executed while loading the program-text:
 
 
+     + now
+       Execute  _Goal_ immediately.
 
-'$assert_list'([], _Context, _Module, _VL, _Pos).
-'$assert_list'([Clause|Clauses], Context, Module, VL, Pos) :-
-	'$command'(Clause, VL, Pos, Context),
-	'$assert_list'(Clauses, Context, Module, VL, Pos).
+     + after_load
+       Execute  _Goal_ after loading program-text. This is the same as initialization/1.
+
+    + restore
+       Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
+
+ */
+
+ % The many ways of loading a file.
+ '$exec_directive'(initialization(D), _, M, _, _) :-
+	 initialization(M:D, after_load).
+ '$exec_directive'(initialization(D,OPT), _, M, _, _) :-
+	 initialization(M:D, OPT).
+ '$exec_directive'(thread_initialization(D), _, M, _, _) :-
+	 '$thread_initialization'(M:D).
+ '$exec_directive'(expects_dialect(D), _, _, _, _) :-
+     expects_dialect(D).
+ '$exec_directive'(encoding(Enc), _, _, _, _) :-
+	 '$set_encoding'(Enc).
+ '$exec_directive'(include(F), _Status, _M,_, _Pos) :-
+	 '$include'(F).
+ % don't declare modules into Prolog Module
+ '$exec_directive'(module(N,P), _Status, HostM, _, Pos) :-
+     '$declare_module'(HostM,N,P,Pos).
+ '$exec_directive'(system_module(N,Ps,Ss), _Status, HostM, Log, Pos) :-
+     (
+ current_prolog_flag(compiler_top_level, scanner:scanner_loop)
+     ->
+       current_source_module(_,prolog)
+     ;
+       '$declare_system_module'(HostM,N,Ps,Ss,Log,Pos)
+ ).
+ '$exec_directive'(meta_predicate(P), _, M, _, _) :-
+     '$meta_predicate'(P,M).
+ '$exec_directive'(module_transparent(P), _, M, _, _) :-
+	 '$module_transparent'(P, M).
+ '$exec_directive'(noprofile(P), _, M, _, _) :-
+	 '$noprofile'(P, M).
+ '$exec_directive'(require(Ps), _, M, _, _) :-
+	 '$require'(Ps, M).
+ '$exec_directive'(dynamic(P), _, M, _, _) :-
+     strip_module(M:P,M1,P1),
+     '$dynamic'(P1, M1).
+ '$exec_directive'(thread_local(P), _, M, _, _) :-
+	 '$thread_local'(P, M).
+ '$exec_directive'(op(P,OPSEC,OP), _, _, _, _) :-
+	 current_source_module(M,M),
+	 op(P,OPSEC,M:OP).
+ '$exec_directive'(set_prolog_flag(F,V), _, _, _, _) :-
+	 set_prolog_flag(F,V).
+ '$exec_directive'(char_conversion(IN,OUT), _, _, _, _) :-
+	 char_conversion(IN,OUT).
+ '$exec_directive'(public(P), _, M, _, _) :-
+	 '$public'(P, M).
+ '$exec_directive'(block(BlockSpec), _, _, _, _) :-
+	 '$block'(BlockSpec).
+ '$exec_directive'(wait(BlockSpec), _, _, _, _) :-
+	 '$wait'(BlockSpec).
+ '$exec_directive'(table(PredSpec), _, M, _, _) :-
+	 '$table'(PredSpec, M).
+ '$exec_directive'(uncutable(PredSpec), _, M, _, _) :-
+	 '$uncutable'(PredSpec, M).
+ '$exec_directive'(if(Goal), _Context, M, _, _) :-
+	 '$if'(M:Goal).
+ '$exec_directive'(else, _Context, _, _, _) :-
+	 '$else'.
+ '$exec_directive'(elif(Goal), _Context, M, _, _) :-
+	 '$elif'(M:Goal).
+ '$exec_directive'(endif, _Context, _, _, _) :-
+	 '$endif'.
+ '$exec_directive'(license(_), Context, _, _, _) :-
+	 Context \= top.
+ '$exec_directive'(predicate_options(PI, Arg, Options), Context, Module, VL, Pos) :-
+	 Context \= top,
+	 predopts:expand_predicate_options(PI, Arg, Options, Clauses),
+	 '$assert_list'(Clauses, Context, Module, VL, Pos).
+ '$exec_directive'(G, _Mode, M, _VL, _Pos) :-
+ (
+     '$directive'(G)
+ ->
+ fail
+     ;
+  call(M:G)
+ ).
 
 
-%% @pred user_defined_directive(Dir,Action)
-%
-% allow users to define their own directives.
-%
-user_defined_directive(Dir,_) :-
-        '$directive'(Dir), !.
-user_defined_directive(Dir,Action) :-
-        functor(Dir,Na,Ar),
-        functor(NDir,Na,Ar),
-        current_source_module(M, prolog),
-	assert_static(prolog:'$directive'(NDir)),
-	assert_static(prolog:('$exec_directive'(Dir, _, _, _, _) :- Action)),
-        current_source_module(_, M).
 
-'$thread_initialization'(M:D) :-
-	eraseall('$thread_initialization'),
-	%writeln(M:D),
-	recorda('$thread_initialization',M:D,_),
-	fail.
-'$thread_initialization'(M:D) :-
-	'$initialization'(M:D).
+ '$assert_list'([], _Context, _Module, _VL, _Pos).
+ '$assert_list'([Clause|Clauses], Context, Module, VL, Pos) :-
+	 '$command'(Clause, VL, Pos, Context),
+	 '$assert_list'(Clauses, Context, Module, VL, Pos).
 
-%
- % This command is very different depending on the language mode we are in.
+
+ %% @pred user_defined_directive(Dir,Action)
  %
- % ISO only wants directives in files
- % SICStus accepts everything in files
- % YAP accepts everything everywhere
+ % allow users to define their own directives.
  %
+ user_defined_directive(Dir,_) :-
+	 '$directive'(Dir), !.
+ user_defined_directive(Dir,Action) :-
+	 functor(Dir,Na,Ar),
+	 functor(NDir,Na,Ar),
+	 current_source_module(M, prolog),
+	 assert_static(prolog:'$directive'(NDir)),
+	 assert_static(prolog:('$exec_directive'(Dir, _, _, _, _) :- Action)),
+	 current_source_module(_, M).
+
+ '$thread_initialization'(M:D) :-
+	 eraseall('$thread_initialization'),
+	 %writeln(M:D),
+	 recorda('$thread_initialization',M:D,_),
+	 fail.
+ '$thread_initialization'(M:D) :-
+	 '$initialization'(M:D).
+
+
+'$execute_list'([H|T]) :-
+ (is_list([H|T])
+ ->
+     '_exec_load_files'([H|T], [])
+   ;
+  catch( python:python_proc([H|T]), _, fail )
+).
+
+
   %
- % default case
- %
- '$process_directive'(Gs, Mode, M, VL, Pos) :-
-	 '$all_directives'(Gs), !,
+  % This command is very different depending on the language mode we are in.
+  %
+  % ISO only wants directives in files
+  % SICStus accepts everything in files
+  % YAP accepts everything everywhere
+  %
+
+'$process_directive'([H|T], top, _M, _VL, _Pos) :-
+    '$execute_list'([H|T]).
+ '$process_directive'(G, top, M, VL, Pos) :-
+	  current_prolog_flag(language_mode, yap),
+ !,      /* strict_iso on */
+	  '$process_directive'(G, consult, M, VL, Pos).
+  '$process_directive'(G, top, M, _, _) :-
+      !,
+	  throw_error(context_error((:-M:G),clause),query).
+   %
+  % default case
+  %
+  '$process_directive'(Gs, Mode, M, VL, Pos) :-
+	  '$all_directives'(Gs), !,
 	 '$exec_directives'(Gs, Mode, M, VL, Pos).
 
  %
  % ISO does not allow goals (use initialization).
  %
-% ISO Prolog mode, go in and do it,
 '$process_directive'(D, _, M, _VL, _Pos) :-
-	current_prolog_flag(dialect, iso),
-	!,
-	throw(error(domain_error(dialect_iso,(:-M:D),[]))).
-
+	current_prolog_flag(language_mode, iso),
+    !, % ISO Prolog mode, go in and do it,
+	throw_error(context_error((:- M:D),query),directive).
  %
  % but YAP and SICStus do.
  %
@@ -314,54 +330,11 @@ user_defined_directive(Dir,Action) :-
       '$execute'(M:G),
       !.
 '$process_directive'(G, _Mode, M, _VL, Pos) :-
-    prolog_load_context(file,File),
-    prolog_load_context(term_position,Pos),
-    arg(2, Pos, Line),
-    format(user_error,'~s:~d:0 warning: ~w failed.~n',[File,Line,M:G]).
-
-
-initialization(G) :-
-    '$initialization'( G, after_load ).
-
-
-initialization(G,OPT) :-
-    '$initialization'(G, OPT),
-    fail.
-initialization(_G,_OPT).
-
- '$initialization'(G, OPT) :-
-     prolog_load_context(term_position, Pos),
-     '$initialization'(G, OPT, [], Pos).
-
-'$initialization'(G0,OPT, _VL, Pos) :-
-    must_be_callable( G0),
-    expand_goal(G0, G),
-    !,
-    ( stream_position_data(line_count,Pos, Line) -> true ; Line = 0 ),
-    ( prolog_load_context(file, File) -> true ; File = user ),
-    !,
-   %   must_be_of_type(oneof([after_load, now, restore]),
-    %               OPT),
-
-    (
-	OPT == now
-    ->
-    ( catch(call(G),
-	    _Error,
-	    error_handler
-	   ) ->
-      true ;
-      format(user_error,'directive :- ~w failed at ~s:~d,~n',[G,File,Line]  )
-    )
-    ;
-    OPT == after_load
-    ->
-      recordz('$initialization_queue',q(File-Line,G),_)
-     ;
-      OPT == restore
-     ->
-      recordz('$call_at_restore', G, _ )
-    ).
+    format(user_error,'~w warning: ~w failed.~n',[Pos,M:G]).
 
 
 %% @}
+
+
+
+

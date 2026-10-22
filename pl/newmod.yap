@@ -233,8 +233,11 @@ This predicate actually exports _Module to the _ContextModule_.
     '$module'(File, DonorM, Exports, _),
     ignore('$memberchk'(imports(Imports),Opts)),
     '$filter'(Imports, Exports, Tab),
-  '$add_to_imports'(Tab, DonorM, HostM),
-    (  (   '$memberchk'(reexport(true),Opts) ; HostM == user )
+    '$add_to_imports'(Tab, DonorM, HostM),
+ %   writeln(Tab:DonorM),
+ %   '$module'( HostF, HostM, AllExports, Location),
+%    writeln('$module'( HostF, HostM, AllExports, Location)),
+    ((   '$memberchk'(reexport(true),Opts) ; HostM == user )
       ->
     '$reexport'(HostM, Tab, DonorM )
     ;

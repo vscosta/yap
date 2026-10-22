@@ -161,7 +161,7 @@ nospy Spec :-
     '$init_debugger',
 	 prolog:debug_action_hook(nospy(Spec)), !.
 nospy L :-
-    current_source_module(M),
+    current_source_module(M.M),
     '$u_spy'(L, nospy, M), fail.
 nospy _.
 

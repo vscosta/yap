@@ -169,12 +169,16 @@ init_prolog :-
  '$myddas_import_all'.
 
 % use if we come from a save_program and we have SWI's shlib
+/*
 '$init_from_saved_state_and_args' :-
     current_source_module(_,user),
     current_prolog_flag(hwnd, _HWND),
     load_files(library(win_menu), [silent(true)]),
+    '$init_win_graphics',
     fail.
+*/
 '$init_from_saved_state_and_args' :-
+    current_source_module(_,user),
     recorded('$reload_foreign_libraries',_G,R),
     erase(R),
     shlib:reload_foreign_libraries,
@@ -186,25 +190,26 @@ init_prolog :-
     ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
     ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
     fail.
-% use if we come from a save_program and we have a goal to execute
 '$init_from_saved_state_and_args' :-
     get_value('$consult_on_boot',X),
     X \= [],
     set_value('$consult_on_boot',[]),
-    current_source_module(_,user),
-    '$do_startup_reconsult'(X),
+    load_files(X, [silent(true)]),
     fail.
+% use if we come from a save_program and we have a goal to execute
 '$init_from_saved_state_and_args' :-
-	recorded('$restore_flag', init_file(MB), R),
+	recorded('$restore_flag', init_file(X), R),
 	erase(R),
-	'$do_startup_reconsult'(MB),
-
-	fail.
+	current_source_module(_,user),
+	load_files(X, [silent(true)]),
+    fail.
 '$init_from_saved_state_and_args' :-
 	recorded('$restore_flag', unknown(M:B), R),
 	erase(R),
 	set_prolog_flag(M:unknown,B),
 	fail.
+'$init_from_saved_state_and_args' :-
+    ( current_prolog_flag(halt_after_consult, false) -> fail ; halt(0)).
 '$init_from_saved_state_and_args' :-
 	'$startup_goals',
 	fail.
@@ -225,35 +230,65 @@ init_prolog :-
 %
 % reconsult at startup...
 %
-'$do_startup_reconsult'(_X) :-
-    '$init_win_graphics',
-    fail.
-'$do_startup_reconsult'(X) :-
-	catch(
-	    stream_position(loop_stream,Pos),
-	    _,
-	    stream_position(user_input,Pos)
-	),
-	current_source_module(_,user),
-	load_files(X, [silent(true)]),
-  % still need to run -g or -z
-    get_value('$top_level_goal',[]),
-    !,
-    ( current_prolog_flag(halt_after_consult, false) -> true ; halt(0)).
-'$do_startup_reconsult'(_).
 
 % system goals must be performed first)
 
 '$exec_file_initialization_goals'( File) :-
-    set_prolog_flag(optimise, true),
     recorded('$blocking_code',File,R),
     erase(R),
     fail.
 '$exec_file_initialization_goals'(File) :-
-    recorded('$initialization_queue',q(File-_Line ,G),R),     
+    recorded('$file_initialization_queue',q(File-_Line ,G),R),
     erase(R),
-    catch(G,_,error_handler),
+    catch(once(G),_,error_handler).
+
+
+
+% retract old multifile clauses for current file.
+'$remove_multifile_clauses'(FileName) :-
+    recorded('$multifile_defs','$defined'(FileName,Name,Arity,Module),R1),
+    '$erasell_multifile'(FileName,Module,Name,Arity),
+	erase(R1),
+	fail.
+'$remove_multifile_clauses'(_).
+
+initialization(G,OPT) :-
+    '$initialization'(G, OPT),
     fail.
-'$exec_file_initialization_goals'(_).
+initialization(_G,_OPT).
 
+initialization(G) :-
+    '$initialization'( G, after_load ).
 
+'$initialization'(G0,OPT) :-
+    must_be_callable( G0),
+    expand_goal(G0, G),
+    %   must_be_of_type(oneof([after_load, now, restore]),
+    %               OPT),
+
+    (
+	OPT == now
+    ->
+	setup_call_catcher_cleanup(
+true,
+G,
+	    Flag),
+	(Flag == fail ->
+	    format(user_error,':- ~w failed.~n',[G])
+	    ;
+	    Flag = exception(E)
+	    ->
+	    format(user_error,':- ~w received an exception ~w.~n',[G,E])
+	),
+	!
+    ;
+    OPT == after_load
+    ->
+    prolog_load_context(file,F),
+    strip_module(G,M,H),
+    recordz('$file_initialization_queue',q(F-0,M:H),_)
+	;
+	 OPT == restore
+	->
+    recordz('$call_at_restore', G, _ )  
+    ).

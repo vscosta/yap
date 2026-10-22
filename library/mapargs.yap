@@ -50,7 +50,6 @@
 	foldargs(5, +, ?, ?, +, -),
 	foldargs(6, +, ?, ?, ?, +, -).
 
-
 mapargs(Pred, TermIn) :-
     functor(TermIn, _F, N),
     mapargs_args(Pred, TermIn, 0, N).

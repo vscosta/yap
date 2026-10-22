@@ -27,9 +27,6 @@
   *@{
 */
 
-
-
-
 :- dynamic number_of_expansions/1.
 
 number_of_expansions(0).
