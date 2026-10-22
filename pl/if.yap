@@ -113,7 +113,15 @@ no test succeeds the else branch is processed.
 '$elif'(run,_Goal) :-
     '$conditional_compilation_set_state'(done).
 '$elif'(skip,Goal) :-
-    '$if_goal'(Goal).
+    '$elif_goal'(Goal).
+
+'$if_goal'(Goal) :-
+    call(Goal),
+    !,
+    '$conditional_compilation_set_state'(run).
+'$elif_goal'(_Goal) :-
+    '$conditional_compilation_set_state'(skip).
+
 /**
 @pred    else
 Start `else' branch.
