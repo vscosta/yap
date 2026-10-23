@@ -228,15 +228,12 @@ strip_module(M:G,M1,G1),
  '$exec_directive'(table(PredSpec), _, M, _, _) :-
 	 '$table'(PredSpec, M).
  '$exec_directive'(uncutable(PredSpec), _, M, _, _) :-
-	 '$uncutable'(PredSpec, M).
- '$exec_directive'(if(Goal), _Context, M, _, _) :-
-	 '$if'(M:Goal).
- '$exec_directive'(else, _Context, _, _, _) :-
-	 '$else'.
- '$exec_directive'(elif(Goal), _Context, M, _, _) :-
-	 '$elif'(M:Goal).
- '$exec_directive'(endif, _Context, _, _, _) :-
-	 '$endif'.
+     '$uncutable'(PredSpec, M).
+% processed at if.yap
+ '$exec_directive'(if(_Goal), _Context, _M, _, _).
+ '$exec_directive'(else, _Context, _, _, _).
+ '$exec_directive'(elif(_Goal), _Context, _M, _, _).
+ '$exec_directive'(endif, _Context, _, _, _).
  '$exec_directive'(license(_), Context, _, _, _) :-
 	 Context \= top.
  '$exec_directive'(predicate_options(PI, Arg, Options), Context, Module, VL, Pos) :-

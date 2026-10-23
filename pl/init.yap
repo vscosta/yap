@@ -272,14 +272,15 @@ initialization(G) :-
 	setup_call_catcher_cleanup(
 true,
 G,
-	    Flag),
+	    Flag,
 	(Flag == fail ->
 	    format(user_error,':- ~w failed.~n',[G])
 	    ;
 	    Flag = exception(E)
 	    ->
 	    format(user_error,':- ~w received an exception ~w.~n',[G,E])
-	),
+	)
+    ),
 	!
     ;
     OPT == after_load

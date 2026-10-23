@@ -66,19 +66,6 @@ section_else.
 
 */
 
-'$if_directive'(if(Goal), M, _VL, _Pos, _) :- 
-    '$conditional_compilation_get_state'(State),
-    '$if'(State,M:Goal).
-'$if_directive'(elif(Goal), M, _VL, _Pos, _) :-
-     '$conditional_compilation_get_state'(State),
-   '$elif'(State,M:Goal).
-'$if_directive'(else, _M, _VL, _Pos, _) :-
-      '$conditional_compilation_get_state'(State),
-   '$else'( State).
-'$if_directive'(endif, _M, _VL, _Pos, _) :-
-      '$conditional_compilation_get_state'(State),
-   '$endif'( State).
-
 /** @pred    if( : _Goal_)
 
   Compile subsequent code only if  _Goal_ succeeds.  For enhanced
@@ -90,17 +77,19 @@ If an error occurs, the error is printed and processing proceeds as if
 %
 % This is complicated because of embedded ifs.
 %
-'$if'(skip,_Goal).
-'$if'(done,_Goal).
-'$if'(run,Goal) :-
-    '$if_goal'(Goal).
 
-'$if_goal'(Goal) :-
-    call(Goal),
+
+
+
+'$ifctrl'(if(Goal), run) :-
+    Goal,
     !,
     '$conditional_compilation_push'(run).
-'$if_goal'(_Goal) :-
+'$ifctrl'(if(_Goal), run) :-
+
     '$conditional_compilation_push'(skip).
+'$ifctrl'(if(_Goal), done).
+'$ifctrl'(if(_Goal), skip).
 
 /** @pred   elif(+ _Goal_)
 
@@ -109,53 +98,50 @@ Equivalent to `:- else. :-if(Goal) ... :- endif.`  In a sequence
 as below, the section below the first matching elif is processed, If
 no test succeeds the else branch is processed.
 */
-'$elif'(done,_Goal).
-'$elif'(run,_Goal) :-
-    '$conditional_compilation_set_state'(done).
-'$elif'(skip,Goal) :-
-    '$elif_goal'(Goal).
-
-'$if_goal'(Goal) :-
-    call(Goal),
+'$ifctrl'(elif(_Goal), run) :-
+    '$conditional_compilation_set_state'(done ).
+'$ifctrl'(elif(_Goal), done).
+'$ifctrl'(elif(Goal), skip) :-
+    Goal,
     !,
-    '$conditional_compilation_set_state'(run).
-'$elif_goal'(_Goal) :-
-    '$conditional_compilation_set_state'(skip).
+    '$conditional_compilation_push'(run).
+'$ifctrl'(elif(_Goal), skip) :-
+      '$conditional_compilation_push'(skip).
 
 /**
 @pred    else
 Start `else' branch.
 
 */
-'$else'(done).
-'$else'(run) :-
-    '$conditional_compilation_set_state'(skip).
-'$else'(skip) :-
-    '$conditional_compilation_set_state'(run).
+'$ifctrl'(else, run) :-
+    '$conditional_compilation_set_state'( done ).
+'$ifctrl'(else, done).
+'$ifctrl'(else, skip) :-
+
+    '$conditional_compilation_set_state'(run ).
 
 /** @pred    endif
-QEnd of cond  itional compilation.
+ End of conditional compilation.
 
 */
-'$endif' :-
+ '$ifctrl'(endif, _) :-
     '$conditional_compilation_pop'.
+
+
 
 %% base layer runs 
 '$conditional_compilation_init':-
     nb_setval('$conditional_compilation_level',[run]).
 
 '$conditional_compilation_get_state'(LB) :-
-    '__NB_getval__'('$conditional_compilation_level', LB, fail), !.
-'$conditional_compilation_get_state'([run]) :-
-    '$conditional_compilation_init',
-    nb_setval('$conditional_compilation_level', [run]).
+    '__NB_getval__'('$conditional_compilation_level', [LB|_], fail), !.
 
 '$conditional_compilation_set_state'(New) :-
     '__NB_getval__'('$conditional_compilation_level', [_|LB], fail),
     nb_setval('$conditional_compilation_level', [New|LB]).
 
 '$conditional_compilation_push'(Mode) :-
-    '__NB_getval__'('$conditional_compilation_level', Levels),
+    '__NB_getval__'('$conditional_compilation_level', Levels, fail),
     nb_setval('$conditional_compilation_level', [Mode|Levels]).
 
 '$conditional_compilation_pop' :-
@@ -163,24 +149,10 @@ QEnd of cond  itional compilation.
     nb_setval('$conditional_compilation_level', Levels).
     
 
-'$conditional_compilation_skip'  :-
-    '__NB_getval__'('$conditional_compilation_level', [L|_Levels],fail),
-    (L == skip
-    ;
-    L == done),
-    !.
 
 :- '$conditional_compilation_init'.
-
-'$if_call'(G) :-
-	catch('$eval_if'(G), _E, error_handler).
-
-'$eval_if'(Goal) :-
-	expand_term(Goal,TrueGoal),
-	once(TrueGoal).
 
 '$if_directive'((if(_))).
 '$if_directive'((else)).
 '$if_directive'((elif(_))).
 '$if_directive'((endif)).
-

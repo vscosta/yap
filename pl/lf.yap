@@ -1,4 +1,4 @@
-  /*************************************************************************
+ /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -187,7 +187,6 @@ working_directory(_,MyD0)
 
 '$prepare_load_file'(UserNamePath,AbsPath,M,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Reconsult,_Source) :-
    % writeln(l(AbsPath)),
-  %   '$conditional_compilation_push(run)',
 % writeln(cc),
    '$set_source_module'(Opts, OuterModule, M),
 % writeln(sm),
@@ -299,20 +298,28 @@ working_directory(_,MyD0)
 
 enter_compiler(Stream,Status) :-
     prompt1(': '), prompt(_,'     '),
+
     Options = [syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     read_clause(Stream, Clause, Options),
     (
      Clause == end_of_file
      ->
-     !
-	;
-     '$conditional_compilation_skip'
+      !
+     ;
+      '$conditional_compilation_get_state'(State),
+      (
+	Clause = (:- Goal),
+      '$ifctrl'( Goal,  State)
      ->
-     fail
-	;
-     call_compiler(Clause, Status,Vars,Pos),
-     fail
-     ).
+      fail
+     ;
+      State = run,
+      call_compiler(Clause, Status,Vars,Pos),
+    fail
+    )
+
+
+).
 
 
 %%
@@ -424,7 +431,7 @@ strip_module(Fs,_M,S),
     H0 is heapused, '$cputime'(T0,_),
     '$stream_and_dir'(AbsPath,Y,Dir,Stream),
      working_directory(Dir0, Dir),
-   stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
+    stream_property(loop_stream,[encoding(Encoding),file_name(Old)] ),
     ignore(recordzifnot('$includes', (Old ->Y),_)),
     set_stream(Stream, [encoding(Encoding), alias(include_stream)] ),
     print_message(informational, loading(including, Y)),
@@ -508,7 +515,7 @@ Example:
 
 */
 reconsult(Fs) :-
-	load_files(Fs, [consult(consult)]).
+	load_files(Fs, [consult(reconsult)]).
 
 compile(Fs) :-
 	reconsult(Fs).

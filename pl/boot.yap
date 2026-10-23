@@ -128,9 +128,9 @@ initialize_prolog :-
 :- c_compile('atoms.yap').
 
 :- c_compile('absf.yap').
+:- c_compile('if.yap').
 
 :- c_compile('lf.yap').
-:- c_compile('if.yap').
 :- c_compile('consult.yap').
 
 :- compile('error.yap').
@@ -289,7 +289,6 @@ mksys(op(A,B,C)) :-
 %:- stop_low_level_trace.
 
 :- source.
-
 
 /** @pred term_expansion( _T_,- _X_)
 
