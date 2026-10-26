@@ -135,7 +135,7 @@ volatile(P) :-
 '$reinit_thread0'.
 
 
-'$top_thread_goal'(G, Detached) :- %writeln(G), %start_low_level_tracer
+'$top_thread_goal'(G, Detached) :- %writeln(G), %grepstart_low_level_tracer
        '$thread_self'(Id0),
     '$mk_tstatus_key'(Id0, Key),
        %writeln(Id),

@@ -3,7 +3,7 @@
      please do not update */
 
 
-  while (TRUE) {
+  while (cl) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
     case _write_dbterm:
@@ -27,7 +27,7 @@
       cl = NEXTOP(cl,c);
       break;
     case _get_2atoms:
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))  ) {
 	if (IsApplTerm(cl->y_u.cc.c1)) {
           CELL *pt = RepAppl(cl->y_u.cc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -36,7 +36,7 @@
 	  clause->Tag = cl->y_u.cc.c1;
 	return;
       }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))  ) {
 	if (IsApplTerm(cl->y_u.cc.c2)) {
           CELL *pt = RepAppl(cl->y_u.cc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -48,7 +48,7 @@
       cl = NEXTOP(cl,cc);
       break;
     case _get_3atoms:
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))  ) {
 	if (IsApplTerm(cl->y_u.ccc.c1)) {
           CELL *pt = RepAppl(cl->y_u.ccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -57,7 +57,7 @@
 	  clause->Tag = cl->y_u.ccc.c1;
 	return;
       }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))  ) {
 	if (IsApplTerm(cl->y_u.ccc.c2)) {
           CELL *pt = RepAppl(cl->y_u.ccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -66,7 +66,7 @@
 	  clause->Tag = cl->y_u.ccc.c2;
 	return;
       }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(3))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(3))  ) {
 	if (IsApplTerm(cl->y_u.ccc.c3)) {
           CELL *pt = RepAppl(cl->y_u.ccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -74,11 +74,11 @@
 	} else
 	  clause->Tag = cl->y_u.ccc.c3;
 	return;
-      }
-      cl = NEXTOP(cl,ccc);
-      break;
+      } 
+     cl = NEXTOP(cl,ccc);
+     break;
     case _get_4atoms:
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))  ) {
 	if (IsApplTerm(cl->y_u.cccc.c1)) {
           CELL *pt = RepAppl(cl->y_u.cccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -87,7 +87,7 @@
 	  clause->Tag = cl->y_u.cccc.c1;
 	return;
       }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))  ) {
 	if (IsApplTerm(cl->y_u.cccc.c2)) {
           CELL *pt = RepAppl(cl->y_u.cccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -96,7 +96,7 @@
 	  clause->Tag = cl->y_u.cccc.c2;
 	return;
       }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(3))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(3))  ) {
 	if (IsApplTerm(cl->y_u.cccc.c3)) {
           CELL *pt = RepAppl(cl->y_u.cccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -104,8 +104,8 @@
 	} else
 	  clause->Tag = cl->y_u.cccc.c3;
 	return;
-      }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(4))) {
+      } 
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(4))  ) {
 	if (IsApplTerm(cl->y_u.cccc.c4)) {
           CELL *pt = RepAppl(cl->y_u.cccc.c4);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -113,11 +113,11 @@
 	} else
 	  clause->Tag = cl->y_u.cccc.c4;
 	return;
-      }
-      cl = NEXTOP(cl,cccc);
-      break;
+      } 
+     cl = NEXTOP(cl,cccc);
+     break;
     case _get_5atoms:
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))  ) {
 	if (IsApplTerm(cl->y_u.ccccc.c1)) {
           CELL *pt = RepAppl(cl->y_u.ccccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -126,7 +126,7 @@
 	  clause->Tag = cl->y_u.ccccc.c1;
 	return;
       }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))  ) {
 	if (IsApplTerm(cl->y_u.ccccc.c2)) {
           CELL *pt = RepAppl(cl->y_u.ccccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -135,7 +135,7 @@
 	  clause->Tag = cl->y_u.ccccc.c2;
 	return;
       }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(3))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(3))  ) {
 	if (IsApplTerm(cl->y_u.ccccc.c3)) {
           CELL *pt = RepAppl(cl->y_u.ccccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -143,8 +143,8 @@
 	} else
 	  clause->Tag = cl->y_u.ccccc.c3;
 	return;
-      }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(4))) {
+      } 
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(4))  ) {
 	if (IsApplTerm(cl->y_u.ccccc.c4)) {
           CELL *pt = RepAppl(cl->y_u.ccccc.c4);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -152,8 +152,8 @@
 	} else
 	  clause->Tag = cl->y_u.ccccc.c4;
 	return;
-      }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(5))) {
+      } 
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(5))  ) {
 	if (IsApplTerm(cl->y_u.ccccc.c5)) {
           CELL *pt = RepAppl(cl->y_u.ccccc.c5);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -161,11 +161,11 @@
 	} else
 	  clause->Tag = cl->y_u.ccccc.c5;
 	return;
-      }
-      cl = NEXTOP(cl,ccccc);
-      break;
+      } 
+     cl = NEXTOP(cl,ccccc);
+     break;
     case _get_6atoms:
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(1))  ) {
 	if (IsApplTerm(cl->y_u.cccccc.c1)) {
           CELL *pt = RepAppl(cl->y_u.cccccc.c1);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -174,7 +174,7 @@
 	  clause->Tag = cl->y_u.cccccc.c1;
 	return;
       }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(2))  ) {
 	if (IsApplTerm(cl->y_u.cccccc.c2)) {
           CELL *pt = RepAppl(cl->y_u.cccccc.c2);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -183,7 +183,7 @@
 	  clause->Tag = cl->y_u.cccccc.c2;
 	return;
       }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(3))) {
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(3))  ) {
 	if (IsApplTerm(cl->y_u.cccccc.c3)) {
           CELL *pt = RepAppl(cl->y_u.cccccc.c3);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -191,8 +191,8 @@
 	} else
 	  clause->Tag = cl->y_u.cccccc.c3;
 	return;
-      }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(4))) {
+      } 
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(4))  ) {
 	if (IsApplTerm(cl->y_u.cccccc.c4)) {
           CELL *pt = RepAppl(cl->y_u.cccccc.c4);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -200,8 +200,8 @@
 	} else
 	  clause->Tag = cl->y_u.cccccc.c4;
 	return;
-      }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(5))) {
+      } 
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(5))  ) {
 	if (IsApplTerm(cl->y_u.cccccc.c5)) {
           CELL *pt = RepAppl(cl->y_u.cccccc.c5);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -209,8 +209,8 @@
 	} else
 	  clause->Tag = cl->y_u.cccccc.c5;
 	return;
-      }
-      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(6))) {
+      } 
+     if (is_regcopy(myregs, nofregs, Yap_regnotoreg(6))  ) {
 	if (IsApplTerm(cl->y_u.cccccc.c6)) {
           CELL *pt = RepAppl(cl->y_u.cccccc.c6);
 	  clause->Tag = AbsAppl((CELL *)pt[0]);
@@ -218,9 +218,9 @@
 	} else
 	  clause->Tag = cl->y_u.cccccc.c6;
 	return;
-      }
-      cl = NEXTOP(cl,cccccc);
-      break;
+      } 
+     cl = NEXTOP(cl,ccccc);
+     break;
     case _write_float:
       cl = NEXTOP(cl,d);
       break;

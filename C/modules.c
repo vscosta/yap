@@ -57,7 +57,7 @@ const char *Yap_CurrentModuleName(void) {
 static ModEntry *initMod(UInt inherit, AtomEntry *ae) {
   ModEntry *n;
 
-  n = (ModEntry *)Yap_AllocAtomSpace(sizeof(*n));
+  n = (ModEntry *)calloc(1,sizeof(*n));
   INIT_RWLOCK(n->ModRWLock);
   n->KindOfPE = ModProperty;
   n->PredForME = NULL;
@@ -378,7 +378,8 @@ static Int current_module1(USES_REGS1) { /* $current_module(Old)
 }
 
 static Int cont_current_module(USES_REGS1) {
-  ModEntry *imod = AddressOfTerm(EXTRA_CBACK_ARG(1, 1)), *next;
+ ModEntry *imod = AddressOfTerm(B->cp_args[1]);
+  ModEntry *next;
   Term t = MkAtomTerm(imod->AtomOfME);
   next = imod->NextME;
 
@@ -386,23 +387,29 @@ static Int cont_current_module(USES_REGS1) {
   Yap_unify(ARG1, t);
   if (!next)
     cut_succeed();
-  EXTRA_CBACK_ARG(1, 1) = MkAddressTerm(next);
-  return TRUE;
+  B->cp_args[1] =MkAddressTerm(next);
+  B->cp_h = HR;
+  return true;
 }
 
 static Int init_current_module(
     USES_REGS1) { /* current_module(?ModuleName)		 */
   Term t = Deref(ARG1);
+    
   if (!IsVarTerm(t)) {
     if (!IsAtomTerm(t)) {
-      Yap_Error(TYPE_ERROR_ATOM, t, "module name must be an atom");
-      return FALSE;
+      Yap_ThrowError(TYPE_ERROR_ATOM, t, "module name must be an atom");
     }
-    if (Yap_GetModuleEntry(t) != NULL)
+    if (Yap_GetModuleEntry(t) != NULL) {
       cut_succeed();
+    }
     cut_fail();
   }
-  EXTRA_CBACK_ARG(1, 1) = MkIntegerTerm((Int)CurrentModules);
+  if (!CurrentModules) {
+    cut_fail();
+  }
+  B->cp_args[1] = MkAddressTerm(CurrentModules);
+  B->cp_h = HR;
   return cont_current_module(PASS_REGS1);
 }
 
@@ -756,9 +763,11 @@ void Yap_InitModulesC(void) {
   Yap_InitCPred("$is_system_module", 1, is_system_module, SafePredFlag);
   Yap_InitCPred("$copy_operators", 2, copy_operators, 0);
   Yap_InitCPred("new_system_module", 1, new_system_module, SafePredFlag);
-  Yap_InitCPredBack("$all_current_modules", 1, 1, init_current_module,
+  Yap_InitCPredBack("$all_current_modules",
+                    1, 1, init_current_module,
                     cont_current_module, SafePredFlag | SyncPredFlag);
-  Yap_InitCPredBack("$ground_module", 3, 1, init_ground_module,
+  Yap_InitCPredBack("$ground_module", 
+                    3, 1, init_ground_module,
                     cont_ground_module, SafePredFlag | SyncPredFlag);
 }
 

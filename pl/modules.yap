@@ -740,6 +740,7 @@ unload_module(prolog) :-
     !.
 unload_module(idb) :-
     !.
+
 unload_module(Mod) :-
     recorded('$multifile_defs','$defined'(_FileName,_Name,_Arity,Mod), R),
     erase(R),

@@ -30,7 +30,34 @@ current execution.
 Prolog includes a set of predicates that allow to query and change the
 clausedatabase.
 
+*//*************************************************************************
+*									 *
+  *	 YAP Prolog  							 *
+*									 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		if.yap						 *
+* Last rev:	8/2/88							 *
+* mods:									 *
+* comments:	Control Consulting Files in YAP					 *
+*									 *
+*************************************************************************/
+/**
+ * @file   if.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+ * @date   Wed Nov 18 14:01:10 2015
+ *
+ * @brief  loading program chunks into YAP
+ *
+ *
 */
+%% @}
+
+
 
 :- system_module_( '$_preds', [abolish/1,
         abolish/2,
@@ -396,11 +423,10 @@ or built-in.
 */
 predicate_property(Pred,Prop) :-
     '$yap_strip_module'(Pred, M0, P),
-'$module_for_system_predicate'(M0,M),
-    (var(P) %
-    ->
-    module_predicate(M,N,Ar,_),
-      functor(P,N,Ar)
+%    '$module_for_system_predicate'(M0,M),
+    (var(P)
+	->
+	current_predicate( _N, M0:P)
     ;
     true
     ),
@@ -410,8 +436,8 @@ predicate_property(Pred,Prop) :-
 	'$predicate_property'(P,prolog,Prop)
       ;
 (
-      '$is_proxy_predicate'(P,M),
- 	'$import_chain'(M,P,MImp,PImp),
+      '$is_proxy_predicate'(P,M0),
+ 	'$import_chain'(M0,P,MImp,PImp),
       '$pred_exists'(PImp,MImp)
 )
 ->
@@ -421,8 +447,8 @@ predicate_property(Pred,Prop) :-
       )
 
       ;
-    '$pred_exists'(P,M),
-    '$predicate_property'(P,M,Prop)
+    '$pred_exists'(P,M0),
+    '$predicate_property'(P,M0,Prop)
 ).
 
 '$predicate_property'(P,M,meta_predicate(Q)) :-

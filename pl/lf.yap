@@ -1,30 +1,30 @@
  /*************************************************************************
- *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		lf.yap *
- * Last rev:	8/2/88							 *
- * mods: *
- * comments:	Execute Prolog code					 *
- *									 *
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		lf.yap *
+* Last rev:	8/2/88							 *
+* mods: *
+* comments:	Execute Prolog code					 *
+*									 *
 
- *************************************************************************/
+*************************************************************************/
 
  /**
-  * @file lf.yap
-  * @brief Implementation of load-files
-  */
+* @file lf.yap
+* @brief Implementation of load-files
+*/
 
 /**
-  * @addtogroup YAPReadFiles
-  * @{
-  */
+* @addtogroup YAPReadFiles
+* @{
+*/
 
 % SWI options
 % autoloa(true,false)
@@ -166,9 +166,11 @@ working_directory(_,MyD0)
     set_stream(Stream,file_name(StreamName)),
     current_source_module(OuterModule, OuterModule),
     '$prepare_load_file'(StreamName,StreamName,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Reconsult,Source),
-    '$prepare_loop'(Stream,StreamName),
-    '$do_loop'(Stream, Reconsult),
-    '$close_stream'(Stream, StreamName,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,OuterModule).
+  '$prepare_loop'(Stream,StreamName),
+  b_getval('$consulting_file',NAbsPaths),
+  b_setval('$consulting_file',[l(StreamName,Reconsult)|NAbsPaths]),
+  '$do_loop'(Stream, Reconsult),
+  '$close_stream'(Stream, StreamName,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,OuterModule).
 
 '$file_to_abs_path'(UserName,AbsPath, Opts) :-   
    ( '$memberchk'(expand(Expand),Opts) -> true ; Expand = true ),
@@ -185,28 +187,28 @@ working_directory(_,MyD0)
 '$do_loop'(Stream, Reconsult) :-
     '$loop'(Stream, Reconsult).
 
-'$prepare_load_file'(UserNamePath,AbsPath,M,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Reconsult,_Source) :-
+'$prepare_load_file'(UserNamePath,AbsPath,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Reconsult,_Source) :-
    % writeln(l(AbsPath)),
 % writeln(cc),
-   '$set_source_module'(Opts, OuterModule, M),
+   '$set_source_module'(Opts,OuterModule, M),
 % writeln(sm),
    '$set_compilation_mode_and_parent'(AbsPath, Opts, Parentf, Reconsult), 
 % writeln(mode),
    '$set_working_directory'(AbsPath, D0, Opts), 
 % writeln(f),
-   '$loaded_file_info'(AbsPath, UserNamePath, OuterModule,Parentf, Reconsult, Opts),
+   '$loaded_file_info'(AbsPath, UserNamePath, M,Parentf, Reconsult, Opts),
 
    % writeln(start/AbsPath),
 
-    '$report'(in, OldLoadVerbose,Verbose,T0,H0,OuterModule,UserNamePath,Opts).  
+    '$report'(in, OldLoadVerbose,Verbose,T0,H0,M,UserNamePath,Opts).  
 
-'$set_source_module'(Opts, OuterModule, M) :-
-   (
-	'$memberchk'(source_module(OuterModule),Opts)
+'$set_source_module'(Opts,M0, M) :-
+   ( 
+	'$memberchk'(source_module(M),Opts)
    ->
-   current_source_module(_,OuterModule)
-   ;
-   M = OuterModule
+       current_source_module(_,M )
+     ;
+   current_source_module( M0      ,M0 )
    ).
 
 '$set_compilation_mode_and_parent'(AbsPath, Opts, Parentf, Reconsult) :-
@@ -231,6 +233,7 @@ working_directory(_,MyD0)
 '$set_working_directory'(AbsPath, D, Opts) :-
    (  '$memberchk'(stream(_), Opts)
        ->
+
        working_directory(D,D)
      ;
    file_directory_name(AbsPath,D)
@@ -248,7 +251,7 @@ working_directory(_,MyD0)
     open(AbsPath, read, Stream,Encoding),
     (
      '$memberchk'(skip_unix_header(Skip), Opts)
-     ->
+    ->
      true ;
      Skip = true
      ),
@@ -266,16 +269,18 @@ working_directory(_,MyD0)
 '$close_stream'(Stream, AbsPath,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,OuterModule) :-
 %    '$conditional_compilation_pop',
 %    ( '$memberchk'(import(Preds), Opts) -> true ; Opts = all),
-    ('$module'(AbsPath,InnerModule,_,_) ->
+    (
+'$module'(AbsPath,InnerModule,_,_)
+	->
      '$import_module'(InnerModule, OuterModule, AbsPath, Opts),
      '$check_module'(AbsPath,InnerModule);
-     InnerModule=OuterModule
+     current_source_module(InnerModule,InnerModule)
      ),
      '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,AbsPath,Opts),
     current_source_module(_,OuterModule) ,
-    '$exec_file_initialization_goals'(AbsPath),
     '$end_consult'(D0),
-  close(Stream).
+    close(Stream),
+    ignore('$exec_file_initialization_goals'(AbsPath)).
 
     
 '$skip_unix_header'(Stream) :-
@@ -306,15 +311,16 @@ enter_compiler(Stream,Status) :-
      ->
       !
      ;
-      '$conditional_compilation_get_state'(State),
-      (
-	Clause = (:- Goal),
-      '$ifctrl'( Goal,  State)
-     ->
-      fail
-     ;
-      State = run,
-      call_compiler(Clause, Status,Vars,Pos),
+        '$conditional_compilation_get_state'(State),          
+	(
+	    Clause = (:- Goal),	    
+	    '$ifctrl'( Goal,  State)
+	    ->
+	    fail 
+	    ;
+	    State == run
+	      ->
+	    call_compiler(Clause, Status,Vars,Pos),
     fail
     )
 

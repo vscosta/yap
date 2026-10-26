@@ -318,13 +318,15 @@ prolog_load_context(term, Term ) :-
     nonvar(T),
     T = [Term|_].
 prolog_load_context(term_position, Position ) :-
+% ensure stream_position is determministic
     (
 	'__B_getval__'('$current_clause', T, fail),
     nonvar(T)
 	->
-T = [_,_,_,Position]
+    T = [_,_,_,Position]
 	;
-	stream_property(user_input, Position)
+'$show_stream_position'(user_input, Position)
+
     ).
 prolog_load_context(variable_names, Term ) :-
     '__B_getval__'('$current_clause', T, fail),
@@ -356,32 +358,29 @@ prolog_load_context(variable_names, Term ) :-
     !.
 '$file_was_loaded'(F,	M, M ) :-
     % loaded from the same module, but does not define a module.
-      recorded('$lf_loaded','$lf_loaded'( F, _, M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _),
+    recorded('$lf_loaded','$lf_loaded'( F, _, M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _),
       !.
 
 % if the file exports a module, then we can
 % be imported from any module.
  '$file_did_not_change'(F0, Mod, Imod) :-
-    '$file_was_loaded'(F0, Mod, Imod),
+     '$file_was_loaded'(F0, Mod, Imod),
     % last access
-  '$file_age'(F0, Age),
+     '$file_age'(F0, Age),
   % last c1hange
-    time_file64(F0,CurrentAge),
-    Age >= CurrentAge.
+     time_file64(F0,CurrentAge),
+     Age >= CurrentAge.
 
 	% inform the file has been loaded and is now available.
-
-'$loaded_file_info'(F, _UserFile, _M, _ParentF, _Reconsult, _Opts) :-
-    recorded('$lf_loaded','$lf_loaded'( F, _A, _, _lt, _UserFile, _OldF, _Line, _Opts), R),
-	erase(R),
-fail.
+'$loaded_file_info'(F, _, M, _, _, _) :-
+    recorded('$lf_loaded','$lf_loaded'( F, _Age, M, _Reconsult, _UserFile, _ParentF, _TermPos, _Opts), _),
+    unload_file_(F),
+    fail.
 '$loaded_file_info'(F, UserFile, M, ParentF, Reconsult, Opts) :-
-      unload_file(F),
     prolog_load_context(term_position, TermPos),
-
-	(catch(time_file64(F, Age),_,fail) -> true ; Age = 0), 
+    (catch(time_file64(F, Age),_,fail) -> true ; Age = 0), 
 	% modules are logically loaded only once
-	recorda('$lf_loaded','$lf_loaded'( F, Age, M, Reconsult, UserFile, ParentF, TermPos, Opts), _).
+    recorda('$lf_loaded','$lf_loaded'( F, Age, M, Reconsult, UserFile, ParentF, TermPos, Opts), _).
 
 '$file_age'(F,Age) :-
     recorded('$lf_loaded','$lf_loaded'( F, Age, _M, _Reconsult, _UserFile, _OldF, _Line, _Opts), _).
@@ -448,7 +447,6 @@ unload_file_(File) :-
 
 '$fetch_stream_alias'(OldStream,Alias) :-
 	stream_property(OldStream, alias(Alias)), !.
-
 '$require'(_Ps, _M).
 
 '$store_clause'('$source_location'(File, _Line,_,_),Clause, File) :-

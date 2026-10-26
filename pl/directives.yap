@@ -120,33 +120,6 @@
 '$lf_args'(use_module(Fs), Fs, [if(changed), silent(true), must_be_module(true)]).
  '$lf_args'(use_module(Fs,Spec), Fs, [if(changed), silent(true),must_be_module(true),import(Spec)]).
 
-
-'$exec_directives'((G1,G2), Mode, M, VL, Pos) :-
-    !,
-    '$exec_directives'(G1, Mode, M, VL, Pos),
-    '$exec_directives'(G2, Mode, M, VL, Pos).
-'$exec_directives'(G, Mode, M, VL, Pos) :-
-    '$exec_directive'(G, Mode, M, VL, Pos).
-
-
-'$exec_directive'(G, _Mode, M, _VL, _Pos) :-
-strip_module(M:G,M1,G1),
-    '$lf_args'( G1,  Fs, Opts),
-    !,
-%    setup_call_catcher(
-%    current_source_module(M0,M0),
-    '_exec_load_files'(M1:Fs, Opts).
-%     current_source_module(_,M0)
-%     ).
- '$exec_directive'(multifile(D), _, M, _, _) :-
-	 '$system_catch'('$multifile'(D, M), M,
-	       Error,
-	       error_handler(Error, top)).
- '$exec_directive'(discontiguous(D), _, M, _, _) :-
-	 '$discontiguous'(D,M).
- '$exec_directive'(use_module(Mod,F,Is), _,M, _, _Loc) :-
-     use_module(Mod,M:F,Is).
-
  /** @pred initialization(+ _G_) is iso
 
  Theu compiler will execute goals  _G_ after consulting the current
@@ -160,7 +133,7 @@ strip_module(M:G,M1,G1),
  */
  /** @pred initialization(+ _Goal_,+ _When_)
 
- Similar to initialization/1, but allows  specifying when
+  Similar to initialization/1, but allows  specifying when
   _Goal_ is executed while loading the program-text:
 
 
@@ -175,6 +148,20 @@ strip_module(M:G,M1,G1),
 
  */
 
+'$exec_directive'(G, _Mode, M, _VL, _Pos) :-
+     strip_module(M:G,M1,G1),
+    '$lf_args'( G1,  Fs, Opts),
+    !,
+    '_exec_load_files'(M1:Fs, Opts).
+
+ '$exec_directive'(multifile(D), _, M, _, _) :-
+	 '$system_catch'('$multifile'(D, M), M,
+	       Error,
+	       error_handler(Error, top)).
+ '$exec_directive'(discontiguous(D), _, M, _, _) :-
+	 '$discontiguous'(D,M).
+ '$exec_directive'(use_module(Mod,F,Is), _,M, _, _Loc) :-
+     use_module(Mod,M:F,Is).
  % The many ways of loading a file.
  '$exec_directive'(initialization(D), _, M, _, _) :-
 	 initialization(M:D, after_load).
@@ -240,14 +227,6 @@ strip_module(M:G,M1,G1),
 	 Context \= top,
 	 predopts:expand_predicate_options(PI, Arg, Options, Clauses),
 	 '$assert_list'(Clauses, Context, Module, VL, Pos).
- '$exec_directive'(G, _Mode, M, _VL, _Pos) :-
- (
-     '$directive'(G)
- ->
- fail
-     ;
-  call(M:G)
- ).
 
 
 
@@ -281,11 +260,11 @@ strip_module(M:G,M1,G1),
 
 
 '$execute_list'([H|T]) :-
- (is_list([H|T])
- ->
-     '_exec_load_files'([H|T], [])
-   ;
-  catch( python:python_proc([H|T]), _, fail )
+    (is_list([H|T])
+	->
+	'_exec_load_files'([H|T], [])
+      ;
+    catch( python:python_proc([H|T]), _, fail )
 ).
 
 
@@ -297,22 +276,9 @@ strip_module(M:G,M1,G1),
   % YAP accepts everything everywhere
   %
 
-'$process_directive'([H|T], top, _M, _VL, _Pos) :-
-    '$execute_list'([H|T]).
- '$process_directive'(G, top, M, VL, Pos) :-
-	  current_prolog_flag(language_mode, yap),
- !,      /* strict_iso on */
-	  '$process_directive'(G, consult, M, VL, Pos).
-  '$process_directive'(G, top, M, _, _) :-
-      !,
-	  throw_error(context_error((:-M:G),clause),query).
-   %
-  % default case
-  %
-  '$process_directive'(Gs, Mode, M, VL, Pos) :-
-	  '$all_directives'(Gs), !,
-	 '$exec_directives'(Gs, Mode, M, VL, Pos).
-
+'$process_directive'(Gs, Mode, M, VL, Pos) :-
+    '$exec_directive'(Gs, Mode, M, VL, Pos),
+    !.
  %
  % ISO does not allow goals (use initialization).
  %
@@ -327,7 +293,7 @@ strip_module(M:G,M1,G1),
       '$execute'(M:G),
       !.
 '$process_directive'(G, _Mode, M, _VL, Pos) :-
-    format(user_error,'~w warning: ~w failed.~n',[Pos,M:G]).
+    format(user_error,'~w warning: :- ~w failed.~n',[Pos,M:G]).
 
 
 %% @}

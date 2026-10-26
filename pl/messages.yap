@@ -280,9 +280,11 @@ translate_message(error(syntax_error(Msg), Info)) -->
 translate_message(error( style_check(singletons), Info)) -->
     !,
     {
-      '$error_position'(Info,File,Line,Column),
-     consult_depth(LC),
+      consult_depth(LC),
       Level = warning,
+      query_exception(parserFile, Info, File),
+      query_exception(parserLine, Info, Line),
+      query_exception(parserPos, Info, Column),
       query_exception(culprit_t, Info, VName),
       query_exception(errorUserTerm, Info, P),
       clause_to_indicator(P, I)
@@ -423,7 +425,7 @@ syntax_error_end(_LC,_Level,_File,_Info) --> [].
 nonvar(Line),
 query_exception(parserFile, Info, FileName),
 nonvar(FileName),     
-    query_exception(parserLinePos, Info, Pos),
+    query_exception(parserPos, Info, Pos),
     (var(Pos) -> Pos=0;true).
 
 location( Info, Level, More, LC ) -->

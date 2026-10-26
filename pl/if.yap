@@ -77,21 +77,21 @@ If an error occurs, the error is printed and processing proceeds as if
 %
 % This is complicated because of embedded ifs.
 %
-
-
-
+'$if'(if(_)).
+'$if'(elif(_)).
+'$if'(else).
+'$if'(endif).
 
 '$ifctrl'(if(Goal), run) :-
     Goal,
     !,
     '$conditional_compilation_push'(run).
 '$ifctrl'(if(_Goal), run) :-
-
     '$conditional_compilation_push'(skip).
 '$ifctrl'(if(_Goal), done).
 '$ifctrl'(if(_Goal), skip).
 
-/** @pred   elif(+ _Goal_)
+/** @Pred   elif(+ _Goal_)
 
 
 Equivalent to `:- else. :-if(Goal) ... :- endif.`  In a sequence
@@ -104,9 +104,9 @@ no test succeeds the else branch is processed.
 '$ifctrl'(elif(Goal), skip) :-
     Goal,
     !,
-    '$conditional_compilation_push'(run).
+    '$conditional_compilation_set_state'(run).
 '$ifctrl'(elif(_Goal), skip) :-
-      '$conditional_compilation_push'(skip).
+      '$conditional_compilation_set_state'(skip).
 
 /**
 @pred    else
@@ -117,7 +117,6 @@ Start `else' branch.
     '$conditional_compilation_set_state'( done ).
 '$ifctrl'(else, done).
 '$ifctrl'(else, skip) :-
-
     '$conditional_compilation_set_state'(run ).
 
 /** @pred    endif
@@ -134,7 +133,7 @@ Start `else' branch.
     nb_setval('$conditional_compilation_level',[run]).
 
 '$conditional_compilation_get_state'(LB) :-
-    '__NB_getval__'('$conditional_compilation_level', [LB|_], fail), !.
+    '__NB_getval__'('$conditional_compilation_level',[LB|_S], fail), !.
 
 '$conditional_compilation_set_state'(New) :-
     '__NB_getval__'('$conditional_compilation_level', [_|LB], fail),
@@ -145,9 +144,8 @@ Start `else' branch.
     nb_setval('$conditional_compilation_level', [Mode|Levels]).
 
 '$conditional_compilation_pop' :-
-    '__NB_getval__'('$conditional_compilation_level', [_|Levels], fail),
+    '__NB_getval__'('$conditional_compilation_level', [_Mode|Levels], fail),
     nb_setval('$conditional_compilation_level', Levels).
-    
 
 
 :- '$conditional_compilation_init'.

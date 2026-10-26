@@ -352,6 +352,7 @@ can now succeed without error.
 :- module(user).
 
 
+
 :- ensure_loaded('../pl/pathconf.yap').
 
 :-     set_value('$user_module',user), '$protect'.

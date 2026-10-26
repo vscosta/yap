@@ -27,7 +27,7 @@ Support Spying, Creeping, and other tracing
    functionality.
  */
 
-   
+
 #ifdef SCCS
 static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
@@ -84,7 +84,7 @@ static Int p_set_no_trace(USES_REGS1) { /* '$set_no_trace'(+Fun,+M)	 */
 }
 
 static Int set_spy_point(PredEntry *pe)
-{    
+{
   if (EndOfPAEntr(pe)) {
     return false;
   }
@@ -185,21 +185,22 @@ creep may happen:
   - after stopping at a spy point
   - on the continuation
   - on backtracking.
-    
+
 */
 bool Yap_creep(bool creep_on_forward USES_REGS)
 {
-  if (allow_creep(PASS_REGS1) ) {
-    Yap_signal( YAP_CREEP_SIGNAL);
+  if (!allow_creep(PASS_REGS1) ) {
+    return false;
   }
-  // LOCAL_IsDebugging =false;
+  Yap_signal( YAP_CREEP_SIGNAL);
   return true;
 }
 
 static Int p_creep(USES_REGS1) {
 
+  bool rc = Yap_creep(true);
   LOCAL_DebEvent = false;
-  return Yap_creep(true);
+return rc;
 }
 
 static Int stop_creeping(USES_REGS1) {
@@ -213,7 +214,7 @@ static Int stop_creeping(USES_REGS1) {
 
 static Int start_debugger(USES_REGS1) {
   if (LOCAL_DebEvent) {
-    fprintf(stderr,"Debugger already on\n");	     
+    fprintf(stderr,"Debugger already on\n");
   }
   if (trueLocalPrologFlag(DEBUG_FLAG)) {
     LOCAL_DebEvent = true;
@@ -225,7 +226,7 @@ static Int start_debugger(USES_REGS1) {
 static Int stop_debugger(USES_REGS1) {
   #if DEBUG
   if (!LOCAL_DebEvent) {
-    fprintf(stderr,"Debugger already off\n");	     
+    fprintf(stderr,"Debugger already off\n");
   }
   #endif
   setBooleanLocalPrologFlag(DEBUG_FLAG,false);

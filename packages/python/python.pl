@@ -19,32 +19,33 @@
 /** @addtogroup Py4YAP  Prolog interface to python.
     @ingroup Python
 
-    @{
-	*/
+    
+@{
+*/
 
 :- module(python,   
-	  [
-	   end_python/0,
-	   python_run_file/1,
-	   python_run_command/1,
-	   python_run_script/2,
-	   python_assign/2,
-	   python_assign_indexed/3,
-	   python_represents/2,
-	   python_import/1,
-	   array_to_python_list/4,
-	   array_to_python_tuple/4,
-	   array_to_python_view/5,
-	   python/2,
-	   python_threaded/0,
-	   prolog_list_to_python_list/3,
-	   python_clear_errors/0,
-	   python_string_to/1,
-	   op(100,fy,$),
-	      op(950,fy,:=),
-	      op(950,yfx,:=),
-	      %	   op(950,fx,<-),
-	      %	   op(950,yfx,<-),
+[
+end_python/0,
+python_run_file/1,
+python_run_command/1,
+python_run_script/2,
+python_assign/2,
+python_assign_indexed/3,
+python_represents/2,
+python_import/1,
+array_to_python_list/4,
+array_to_python_tuple/4,
+array_to_python_view/5,
+python/2,
+python_threaded/0,
+prolog_list_to_python_list/3,
+python_clear_errors/0,
+python_string_to/1,
+op(100,fy,$),
+op(950,fy,:=),
+op(950,yfx,:=),
+%	   op(950,fx,<-),
+%	   op(950,yfx,<-),
 	      op(50, yf, []),
 	      op(50, yf, '()'),
 	      op(100, xfy, '.'),
@@ -53,7 +54,7 @@
 	      (:=)/1,
 	      %        (<-)/1,
 	      %        (<-)/2,
-	      '()'/1, '{}'/1
+	      '()'/1,  '{}'/1
 	   ]).
 
 
@@ -76,10 +77,10 @@
     op(100, fy, '.').
 
     :-  multifile (<-)/1, (<-)/2,
-    '()'/1, '{}'/1,
+    '()'/1,
+    % '{}'/1,
     (:=)/1,
     (:=)/2.
-
 
     /**
  * @pred import(File)
