@@ -4014,12 +4014,14 @@ static yamop **expand_index(struct intermediates *cint) {
 #endif
   }
   /* don't count last clause if you don't have to */
-  // if (alt && max->Code == last)
-  //  max--;
+ //  if (alt && max->Code == last)
+ //   max--;
   if (max < cint->cls && labp != NULL) {
-    *labp = FAILCODE;
+   *labp = FAILCODE;
     return labp;
-  }
+}
+if (!max->Code)
+  max--;
  #if USE_SYSTEM_MALLOC
   cint->freep = (char *)HR;
 #else
