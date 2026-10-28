@@ -148,11 +148,11 @@ working_directory(MyD0,MyD0),
     '$open_stream'(AbsPath, Opts, Stream),
     % % writeln('prepare_loop'),
     !,
-    '$prepare_loop'(Stream,AbsPath),
+    '$prepare_loop'(Stream,AbsPath,LC),
      % writeln(do_loop),
     '$do_loop'(Stream, Reconsult),
     % writeln(xlose),
-    '$close_stream'(Stream,AbsPath, Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source, OuterModule)
+    '$close_stream'(Stream,AbsPath, Opts,LC, OldLoadVerbose,Verbose,T0,H0,D0,Source, OuterModule)
     ),
     (
 current_source_module(_, OuterModule),
@@ -166,11 +166,11 @@ working_directory(_,MyD0)
     set_stream(Stream,file_name(StreamName)),
     current_source_module(OuterModule, OuterModule),
     '$prepare_load_file'(StreamName,StreamName,OuterModule,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Reconsult,Source),
-  '$prepare_loop'(Stream,StreamName),
+  '$prepare_loop'(Stream,StreamName,LC),
   b_getval('$consulting_file',NAbsPaths),
   b_setval('$consulting_file',[l(StreamName,Reconsult)|NAbsPaths]),
   '$do_loop'(Stream, Reconsult),
-  '$close_stream'(Stream, StreamName,Opts, OldLoadVerbose,Verbose,T0,H0,D0,Source,OuterModule).
+  '$close_stream'(Stream, StreamName,Opts, LC,OldLoadVerbose,Verbose,T0,H0,D0,Source,OuterModule).
 
 '$file_to_abs_path'(UserName,AbsPath, Opts) :-   
    ( '$memberchk'(expand(Expand),Opts) -> true ; Expand = true ),
@@ -233,7 +233,6 @@ working_directory(_,MyD0)
 '$set_working_directory'(AbsPath, D, Opts) :-
    (  '$memberchk'(stream(_), Opts)
        ->
-
        working_directory(D,D)
      ;
    file_directory_name(AbsPath,D)
@@ -262,26 +261,25 @@ working_directory(_,MyD0)
      true
      ).
 
-'$prepare_loop'(Stream, AbsPath) :-
+'$prepare_loop'(Stream, AbsPath,LC) :-
     working_directory(Dir,Dir),
-    '$start_consult'(reconsult,AbsPath,Dir,Stream,_LC).
+    '$start_consult'(reconsult,AbsPath,Dir,Stream,LC).
 
-'$close_stream'(Stream, AbsPath,Opts, OldLoadVerbose,Verbose,T0,H0,D0,_Source,OuterModule) :-
-%    '$conditional_compilation_pop',
-%    ( '$memberchk'(import(Preds), Opts) -> true ; Opts = all),
+'$close_stream'(Stream, AbsPath,Opts, LC, OldLoadVerbose,Verbose,T0,H0,D0,_Source,OuterModule) :-
     (
-'$module'(AbsPath,InnerModule,_,_)
+      '$module'(AbsPath,InnerModule,_,_)
 	->
      '$import_module'(InnerModule, OuterModule, AbsPath, Opts),
-     '$check_module'(AbsPath,InnerModule);
-    current_source_module(InnerModule,InnerModule
-    )
-     ),
+      '$check_module'(AbsPath,InnerModule)
+     ;
+     current_source_module(InnerModule,InnerModule)
+    ),
      '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,AbsPath,Opts),
     current_source_module(_,OuterModule) ,
     '$end_consult'(D0),
-    close(Stream),
-    ignore('$exec_file_initialization_goals'(AbsPath)).
+
+    ignore('$exec_file_initialization_goals'(LC)),
+    close(Stream).
 
     
 '$skip_unix_header'(Stream) :-

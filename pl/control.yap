@@ -651,13 +651,20 @@ prolog_current_frame(Env) :-
 	Env is '$env'.
 
 '$run_atom_goal'(GA) :-
+	catch('$exec_at'(GA), _, error_handler).
+
+'$exec_at'(GA) :-
 	atom_to_term(GA, G, Vl),
-	catch(
-	    stream_position(loop_stream,Pos),
-	    _,
-	    stream_position(user_inputPos)
-	),
-	'$goal'(G, Vl, Pos),
+(
+	'__B_getval__'('$current_clause', T, fail),
+    nonvar(T)
+	->
+    T = [_,_,_,Position]
+	;
+'$show_stream_position'(user_input, Position)
+
+    ),
+	'$goal'(G, Vl, Position),
 	!.
 
 '$add_dot_to_atom_goal'([],[0'.]) :- !. 

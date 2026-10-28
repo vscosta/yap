@@ -98,33 +98,92 @@ init_prolog :-
     '$run_at_thread_start'.
 
 
-% then we can execute the programs.
-'$startup_goals' :-
+
+ %
+ % MYDDAS: Import all the tables from one database
+ %
+
+ '$myddas_import_all':-
+	 call(db_my_show_tables(myddas,table(Table))),
+	 call(db_import(myddas,Table,Table)),
+	 fail.
+ '$myddas_import_all'.
+
+% use if we come from a save_program and we have SWI's shlib
+/*
+'$init_from_saved_state_and_args' :-
     current_source_module(_,user),
+    current_prolog_flag(hwnd, _HWND),
+    load_files(library(win_menu), [silent(true)]),
+    '$init_win_graphics',
     fail.
-'$startup_goals' :-
-    recorded('$startup_goal',G,_),
+*/
+'$init_from_saved_state_and_args' :-
+fail.
+    '$init_from_saved_state_and_args' :-
+    current_source_module(_,user),
+    recorded('$reload_foreign_libraries',_G,R),
+    erase(R),
+    shlib:reload_foreign_libraries,
+    fail.
+% this should be done before -l kicks in.
+'$init_from_saved_state_and_args' :-
+    current_prolog_flag(fast_boot, false),
+    ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
+    ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
+    ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
+    fail.
+'$init_from_saved_state_and_args' :-
+    get_value('$consult_on_boot',X),
+    X \= [],
+    set_value('$consult_on_boot',[]),
+    load_files(X, [silent(true)]),
+    fail.
+'$init_from_saved_state_and_args' :-
+    current_prolog_flag(halt_after_consult, true),
+    halt(0).
+% use if we come from a save_program and we have a goal to execute
+'$init_from_saved_state_and_args' :-
+	recorded('$restore_flag', init_file(X), R),
+	erase(R),
+	current_source_module(_,user),
+	load_files(X, [silent(true)]),
+    fail.
+'$init_from_saved_state_and_args' :-
+    recorded('$restore_flag', unknown(M:B), R),
+	erase(R),
+	set_prolog_flag(M:unknown,B),
+	fail.
+'$init_from_saved_state_and_args' :-
+    recorded('$restore_flag', goal(Module:GA), R),
+    erase(R),
+    catch(once(Module:GA),_Error,error_handler),
+    fail.
+'$init_from_saved_state_and_args' :-
+	recorded('$restore_goal',G,R),
+	erase(R),
+	prompt(_,'| '),
+	catch(once(user:G),Error,user:'$Error'(Error)),
+	fail.
+'$init_from_saved_state_and_args' :-
+    recorded('$startup_goal',G,Ref),
+    erase(Ref),
+    current_source_module(_,user),
     catch(once(user:G),_Error,error_handler),
     fail.
-
-'$startup_goals' :-
+'$init_from_saved_state_and_args' :-
     get_value('$init_goal', GA),
     GA \= [],
     set_value('$init_goal', []),
     '$run_atom_goal'(GA),
     fail.
-'$startup_goals' :-
+'$init_from_saved_state_and_args' :-
     get_value('$top_level_goal',GA),
     GA \= [],
     set_value('$top_level_goal',[]),
     '$run_atom_goal'(GA),
     fail.
-'$startup_goals' :-
-    recorded('$restore_flag', goal(Module:GA), R),
-    erase(R),
-    catch(once(Module:GA),_Error,error_handler),
-    fail.
-'$startup_goals' :-
+'$init_from_saved_state_and_args' :-
 	get_value('$myddas_goal',GA), GA \= [],
 	set_value('$myddas_goal',[]),
 	get_value('$myddas_user',User), User \= [],
@@ -150,76 +209,7 @@ init_prolog :-
 	call(db_open(mysql,myddas,Host/Db,User,Pass)),
 	'$myddas_import_all',
 	fail.
-'$startup_goals' :-
-    '__NB_getval__'('$top_level_goal',G,fail),
-    G \= [],
-    nb_setval('$top_level_goal',[]),
-    catch(once(G),_Error,error_handler),
-    fail.
-'$startup_goals'.
-
- %
- % MYDDAS: Import all the tables from one database
- %
-
- '$myddas_import_all':-
-	 call(db_my_show_tables(myddas,table(Table))),
-	 call(db_import(myddas,Table,Table)),
-	 fail.
- '$myddas_import_all'.
-
-% use if we come from a save_program and we have SWI's shlib
-/*
-'$init_from_saved_state_and_args' :-
-    current_source_module(_,user),
-    current_prolog_flag(hwnd, _HWND),
-    load_files(library(win_menu), [silent(true)]),
-    '$init_win_graphics',
-    fail.
-*/
-'$init_from_saved_state_and_args' :-
-    current_source_module(_,user),
-    recorded('$reload_foreign_libraries',_G,R),
-    erase(R),
-    shlib:reload_foreign_libraries,
-    fail.
-% this should be done before -l kicks in.
-'$init_from_saved_state_and_args' :-
-    current_prolog_flag(fast_boot, false),
-    ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
-    ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
-    ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
-    fail.
-'$init_from_saved_state_and_args' :-
-    get_value('$consult_on_boot',X),
-    X \= [],
-    set_value('$consult_on_boot',[]),
-    load_files(X, [silent(true)]),
-    fail.
-% use if we come from a save_program and we have a goal to execute
-'$init_from_saved_state_and_args' :-
-	recorded('$restore_flag', init_file(X), R),
-	erase(R),
-	current_source_module(_,user),
-	load_files(X, [silent(true)]),
-    fail.
-'$init_from_saved_state_and_args' :-
-	recorded('$restore_flag', unknown(M:B), R),
-	erase(R),
-	set_prolog_flag(M:unknown,B),
-	fail.
-'$init_from_saved_state_and_args' :-
-    ( current_prolog_flag(halt_after_consult, false) -> fail ; halt(0)).
-'$init_from_saved_state_and_args' :-
-	'$startup_goals',
-	fail.
-'$init_from_saved_state_and_args' :-
-	recorded('$restore_goal',G,R),
-	erase(R),
-	prompt(_,'| '),
-	catch(once(user:G),Error,user:'$Error'(Error)),
-	fail.
-
+'$init_from_saved_state_and_args'.
 '$init_path_extensions' :-
 	get_value('$extend_file_search_path',P), !,
 	P \= [],
@@ -230,18 +220,6 @@ init_prolog :-
 %
 % reconsult at startup...
 %
-
-% system goals must be performed first)
-
-'$exec_file_initialization_goals'( File) :-
-    recorded('$blocking_code',File,R),
-    erase(R),
-    fail.
-'$exec_file_initialization_goals'(File) :-
-    recorded('$file_initialization_queue',q(File-_Line ,G),R),
-    erase(R),
-    catch(once(G),_,error_handler).
-
 
 
 % retract old multifile clauses for current file.
@@ -283,13 +261,27 @@ G,
     ),
 	!
     ;
-    OPT == after_load
-    ->
-    prolog_load_context(file,F),
-    strip_module(G,M,H),
-    recordz('$file_initialization_queue',q(F-0,M:H),_)
+        OPT == after_load,
+ % suspends the goal for delayed execution
+      consult_depth(LC),
+    recordz('$file_initialization_queue',q(LC,_,G),_)
 	;
 	 OPT == restore
 	->
     recordz('$call_at_restore', G, _ )  
     ).
+
+%
+% file consulted. go!
+% system goals must be performed first)
+
+'$exec_file_initialization_goals'( File) :-
+    recorded('$blocking_code',File,R),
+    erase(R),
+    fail.
+'$exec_file_initialization_goals'(LC) :-
+    recorded('$file_initialization_queue',q(LC, _ ,G),R),
+    erase(R),
+    catch(once(G),_,error_handler).
+
+

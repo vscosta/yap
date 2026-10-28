@@ -299,7 +299,7 @@ translate_message(error( style_check( multiple), Info)) -->
     !,
     {
 	query_exception(culprit_t, Info, [F,L,C,F0,L0,C0,I]),
-   consult_depth(LC),
+      consult_depth(LC),
      Level = warning
     },
         [  '~*|~s:~d:~d: ~s: multiple definition of ~p.' - [ LC,F,L,C,Level,I],
