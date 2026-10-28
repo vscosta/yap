@@ -274,7 +274,8 @@ working_directory(_,MyD0)
 	->
      '$import_module'(InnerModule, OuterModule, AbsPath, Opts),
      '$check_module'(AbsPath,InnerModule);
-     current_source_module(InnerModule,InnerModule)
+    current_source_module(InnerModule,InnerModule
+    )
      ),
      '$report'(out, OldLoadVerbose,Verbose,T0,H0,InnerModule,AbsPath,Opts),
     current_source_module(_,OuterModule) ,

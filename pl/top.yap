@@ -101,6 +101,7 @@ expand_term( Term, UExpanded,  Expanded) :-
     ;
       Term=TermI
    ),
+   TermI \= [],
    (
        TermI = [_|_]
    ->
